@@ -8,8 +8,8 @@ const session = require("express-session");
 dotenv.config();
 
 const app = express();
-
 const port = process.env.PORT;
+const arr_router = [];
 
 // const arr_router = [
 //   "frontend",
@@ -97,7 +97,7 @@ arr_router.forEach((e) => {
 });
 
 // models
-const db = require("./db/models");
+const db = require("../server/models");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
