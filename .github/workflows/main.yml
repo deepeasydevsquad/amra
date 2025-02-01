@@ -1,4 +1,4 @@
-name: Deploy Frontend(Vue.js) &  Backend Express.js App Amra
+name: Deploy Frontend(Vue.js) & Backend Express.js App Amra
 
 on:
   push:
@@ -24,6 +24,12 @@ jobs:
       run: |
         ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
         cd /home/${{ secrets.USERNAME }}/amra_saas
+
+        # Install NVM and use Node.js version 20.12.2
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+        nvm use 20.12.2  # Sesuaikan dengan versi Node.js yang Anda gunakan
 
         # Pull kode terbaru
         git pull origin staging
