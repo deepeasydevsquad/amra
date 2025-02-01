@@ -23,7 +23,7 @@ jobs:
     - name: Deploy to Server
       run: |
         ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
-        cd /home/${{ secrets.USERNAME }}/myapp
+        cd /home/${{ secrets.USERNAME }}/amra_saas
 
         # Pull kode terbaru
         git pull origin main
