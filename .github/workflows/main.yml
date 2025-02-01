@@ -39,7 +39,7 @@ jobs:
         npm install
         npm run build
         echo "Copying dist files..."
-        cp -r dist/* /opt/lampp/htdocs/amra/ || echo "Copy failed"
+        sudo cp -r dist/* /opt/lampp/htdocs/ || echo "Copy failed"
 
         # Install dependencies backend
         cd ../server
