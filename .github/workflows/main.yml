@@ -1,0 +1,44 @@
+name: Deploy Frontend(Vue.js) &  Backend Express.js App Amra
+
+on:
+  push:
+    branches:
+      - master  # Jalankan saat push ke branch `main`
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install SSH Key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
+    - name: Deploy to Server
+      run: |
+        ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+        cd /home/${{ secrets.USERNAME }}/myapp
+
+        # Pull kode terbaru
+        git pull origin main
+
+        # Install dependencies frontend
+        cd client
+        npm install
+        npm run build
+        # cp -r dist/* /var/www/html/  # Copy hasil build ke web server
+
+        # Install dependencies backend
+        cd ../server
+        npm install
+
+        # Restart backend (gunakan PM2 atau service systemd)
+        pm2 restart server || pm2 start app.js --name server
+
+        EOF
