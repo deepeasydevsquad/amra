@@ -38,7 +38,7 @@ jobs:
         cd client
         npm install
         npm run build
-        # cp -r dist/* /var/www/html/  # Copy hasil build ke web server
+        cp -r dist/* /opt/lampp/htdocs/amra/  # Copy hasil build ke web server
 
         # Install dependencies backend
         cd ../server
