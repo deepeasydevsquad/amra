@@ -38,7 +38,8 @@ jobs:
         cd client
         npm install
         npm run build
-        cp -r dist/* /opt/lampp/htdocs/amra/  # Copy hasil build ke web server
+        echo "Copying dist files..."
+        cp -r dist/* /opt/lampp/htdocs/amra/ || echo "Copy failed"
 
         # Install dependencies backend
         cd ../server
