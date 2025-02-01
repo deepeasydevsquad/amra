@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="max-w-md mx-auto p-4 bg-white shadow-md rounded-lg">
     <p class="text-sky-700 font-bold mb-2">Pilih Paket Anda</p>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
       <RadioButton name="paket" value="a" label="Paket 1 Bulan" price="Rp 200.000" />
@@ -19,3 +19,7 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+/* Tidak ada CSS tambahan */
+</style>

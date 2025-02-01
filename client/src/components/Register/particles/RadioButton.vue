@@ -1,6 +1,6 @@
 <template>
   <label
-    class="flex flex-col items-center justify-between p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-sky-700 hover:text-white"
+    class="group flex flex-col items-center justify-between w-full px-5 py-1 text-sky-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer peer-checked:text-white peer-checked:bg-sky-700 hover:text-white hover:bg-sky-700 text-sky-700"
   >
     <input type="radio" :name="name" :value="value" class="hidden peer" required />
     <span>{{ label }}</span>
