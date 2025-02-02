@@ -6,6 +6,9 @@ module.exports = (sequelize, DataTypes) => {
       Company.hasMany(models.Division, {
         foreignKey: "company_id",
       });
+      Company.hasMany(models.Subscribtion_payment_history, {
+        foreignKey: "company_id",
+      });
      }
   }
   Company.init(
@@ -13,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       code: DataTypes.STRING,
       kurs: DataTypes.ENUM(["rp", "usd", 'sar']), 
       logo: DataTypes.STRING,
+      icon: DataTypes.STRING,
       company_name: DataTypes.STRING,
       email: DataTypes.STRING,
       type: DataTypes.ENUM(["limited", "unlimited"]), 
@@ -28,6 +32,8 @@ module.exports = (sequelize, DataTypes) => {
       whatsapp_device_number: DataTypes.STRING,
       whatsapp_device_key: DataTypes.STRING,
       refresh_token: DataTypes.TEXT,
+      saldo: DataTypes.INTEGER,
+      markup_ppob: DataTypes.INTEGER,
       username: DataTypes.STRING,
       password: DataTypes.STRING,
     },

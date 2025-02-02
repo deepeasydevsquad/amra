@@ -1,0 +1,51 @@
+name: Deploy Frontend(Vue.js) & Backend Express.js App Amra
+
+on:
+  push:
+    branches:
+      - master  # Jalankan saat push ke branch `main`
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install SSH Key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
+    - name: Deploy to Server
+      run: |
+        ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+        cd /home/${{ secrets.USERNAME }}/amra_saas
+
+        # Install NVM and use Node.js version 20.12.2
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+        nvm use 20.12.2  # Sesuaikan dengan versi Node.js yang Anda gunakan
+
+        # Pull kode terbaru
+        git pull origin staging
+
+        # Install dependencies frontend
+        cd client
+        npm install
+        npm run build
+        echo "Copying dist files..."
+        sudo cp -r dist/* /opt/lampp/htdocs/ || echo "Copy failed"
+
+        # Install dependencies backend
+        cd ../server
+        npm install
+
+        # Restart backend (gunakan PM2 atau service systemd)
+        pm2 restart server || pm2 start app.js --name server
+
+        EOF

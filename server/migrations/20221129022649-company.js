@@ -20,6 +20,9 @@ module.exports = {
       logo: {
         type: Sequelize.STRING
       },
+      icon: {
+        type: Sequelize.STRING
+      },
       company_name: {
         type: Sequelize.STRING
       },
@@ -73,6 +76,12 @@ module.exports = {
       },
       refresh_token: {
         type: Sequelize.TEXT
+      },
+      saldo: {
+        type: Sequelize.INTEGER
+      },
+      markup_ppob: {
+        type: Sequelize.INTEGER
       },
       username: {
         type: Sequelize.STRING

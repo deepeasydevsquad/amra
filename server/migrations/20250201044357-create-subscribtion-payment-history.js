@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Divisions', {
+    await queryInterface.createTable('Subscribtion_payment_histories', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -16,20 +16,28 @@ module.exports = {
           key: "id",
         },
       },
-      city: {
-        type: Sequelize.STRING
+      order_id: {
+        type: Sequelize.INTEGER
       },
-      pos_code: {
-        type: Sequelize.STRING
+      status: {
+        type: Sequelize.ENUM,
+        values: ['process', 'accept', 'reject'],
+        defaultValue : "process"
       },
-      address: {
-        type: Sequelize.TEXT
+      duration: {
+        type: Sequelize.INTEGER
       },
-      note: {
-        type: Sequelize.TEXT
+      pay_per_month: {
+        type: Sequelize.INTEGER
       },
-      tanda_tangan: {
-        type: Sequelize.STRING
+      start_date_subscribtion: {
+        type: Sequelize.DATE
+      },
+      end_date_subscribtion: {
+        type: Sequelize.DATE
+      },
+      transaction_date: {
+        type: Sequelize.DATE
       },
       createdAt: {
         allowNull: false,
@@ -42,6 +50,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Divisions');
+    await queryInterface.dropTable('Subscribtion_payment_histories');
   }
 };
