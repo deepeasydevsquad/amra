@@ -4,16 +4,19 @@
     <div class="space-y-3">
       <InputField placeholder="Nama Perusahaan" />
       <InputField placeholder="Nomor WhatsApp" />
-      <div class="flex items-center space-x-2 flex-wrap">
-        <input
-          class="flex-1 border border-gray-300 rounded-l-md px-3 py-2"
-          placeholder="Kode OTP"
-        />
+      <div class="flex">
         <button
-          class="border border-gray-300 rounded-md px-4 py-2 bg-sky-700 text-white hover:bg-sky-800 transition duration-300 ease-in-out w-full sm:w-auto mt-2 sm:mt-0"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-l-lg focus:outline-none focus:shadow-outline whitespace-nowrap flex-none"
+          type="submit"
         >
           Dapatkan OTP
         </button>
+        <input
+          class="w-full p-2 border border-gray-300 rounded-r-lg rounded-l-none"
+          id="otp"
+          type="text"
+          placeholder="Masukkan OTP"
+        />
       </div>
 
       <InputField placeholder="Nomor Telpon Perusahaan" />

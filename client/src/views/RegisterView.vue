@@ -1,9 +1,7 @@
 <template>
   <div class="min-h-screen w-full flex flex-col md:flex-row">
-    <!-- Bagian Kiri (Gambar) dengan Gradient Overlay -->
-    <div class="relative w-full md:w-1/2 h-45 md:h-65">
-      <!-- Perkecil tinggi gambar -->
-      <img src="/bg.png" alt="Haji Image" class="w-full h-full object-cover" />
+    <div class="relative w-full md:w-1/2">
+      <img src="/bg.png" alt="Haji Image" class="w-full h-auto object-cover" />
       <div class="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent"></div>
     </div>
 
