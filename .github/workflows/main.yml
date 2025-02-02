@@ -38,7 +38,8 @@ jobs:
         cd client
         npm install
         npm run build
-        # cp -r dist/* /var/www/html/  # Copy hasil build ke web server
+        echo "Copying dist files..."
+        sudo cp -r dist/* /opt/lampp/htdocs/ || echo "Copy failed"
 
         # Install dependencies backend
         cd ../server
