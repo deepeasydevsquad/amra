@@ -1,5 +1,5 @@
 <template>
-  <main class="bg-slate-100 text-xs">
+  <main class="text-xs">
     <NavbarCard />
     <HeroCard1 />
     <AboutCard />
