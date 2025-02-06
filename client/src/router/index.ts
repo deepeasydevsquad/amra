@@ -24,6 +24,11 @@ const router = createRouter({
       component: () => import('../views/RegisterView.vue'),
     },
     {
+      path: '/tab-tes',
+      name: 'tab-tes',
+      component: () => import('../views/MemberAreaView.vue'),
+    },
+    {
       path: '/User',
       name: 'user',
       component: UserView,
