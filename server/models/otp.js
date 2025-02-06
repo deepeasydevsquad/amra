@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Submenu extends Model {
+  class Otp extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,19 +11,18 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Submenu.belongsTo(models.Menu, {
-        foreignKey: "menu_id",
-      });
     }
   }
-  Submenu.init({
-    menu_id: DataTypes.INTEGER,
-    name: DataTypes.STRING,
-    path: DataTypes.STRING,
-    tab: DataTypes.STRING
+  Otp.init({
+    otp_code: DataTypes.STRING,
+    expired_time: DataTypes.DATE,
+    mobile_number: DataTypes.STRING,
+    otp_type: DataTypes.ENUM(['registration','login']),
+    otp_status: DataTypes.ENUM(['active','inactive']),
+    user_type: DataTypes.ENUM(['amra','company'])
   }, {
     sequelize,
-    modelName: 'Submenu',
+    modelName: 'Otp',
   });
-  return Submenu;
+  return Otp;
 };

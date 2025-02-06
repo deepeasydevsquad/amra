@@ -30,7 +30,7 @@ export default {
           ...colors.red,
           DEFAULT: '#FB5454',
         },
-        body: '#64748B',
+        body: '#FAFBFC',
         bodydark: '#AEB7C0',
         bodydark1: '#DEE4EE',
         bodydark2: '#8A99AF',

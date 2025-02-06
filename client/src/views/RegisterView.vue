@@ -7,10 +7,10 @@
 
     <!-- Bagian Kanan (Form) dengan Overlap -->
     <div class="w-full md:w-1/2 p-6 flex flex-col justify-center bg-white md:-ml-4 md:pl-16">
-      <h2 class="text-3xl font-bold text-center mb-4" style="color: #175690">
-        Silahkan Buat Akun Baru!
-      </h2>
       <div class="space-y-4 w-full px-4 max-w-lg">
+        <h2 class="text-3xl font-bold text-center mb-5" style="color: #175690">
+          Silahkan Buat Akun Baru!
+        </h2>
         <CompanyDataForm />
         <PackageSelection />
         <UserDataForm />
@@ -24,20 +24,11 @@
   </div>
 </template>
 
-<script>
-import CompanyDataForm from '../components/register/widgets/CompanyDataForm.vue'
-import PackageSelection from '../components/register/widgets/PackageSelection.vue'
-import UserDataForm from '../components/register/widgets/UserDataForm.vue'
-import Button from '../components/register/particles/Button.vue'
-
-export default {
-  components: {
-    CompanyDataForm,
-    PackageSelection,
-    UserDataForm,
-    Button,
-  },
-}
+<script setup lang="ts">
+import CompanyDataForm from '@/components/register/widgets/CompanyDataForm.vue'
+import PackageSelection from '@/components/register/widgets/PackageSelection.vue'
+import UserDataForm from '@/components/register/widgets/UserDataForm.vue'
+import Button from '@/components/register/particles/Button.vue'
 </script>
 
 <style scoped>

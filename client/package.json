@@ -12,6 +12,11 @@
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
   },
+  "eslintConfig": {
+    "rules": {
+      "@typescript-eslint/no-empty-object-type": "off"
+    }
+  },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
@@ -32,6 +37,7 @@
     "@types/node": "^22.13.1",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitejs/plugin-vue-jsx": "^4.1.1",
+    "@vue/compiler-sfc": "^3.5.13",
     "@vue/eslint-config-prettier": "^10.1.0",
     "@vue/eslint-config-typescript": "^14.3.0",
     "@vue/tsconfig": "^0.7.0",
