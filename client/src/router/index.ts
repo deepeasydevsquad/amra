@@ -27,6 +27,11 @@ const router = createRouter({
       name: 'register',
       component: () => import('../views/RegisterView.vue'),
     },
+    {
+      path: '/tab-tes',
+      name: 'tab-tes',
+      component: () => import('../views/MemberAreaView.vue'),
+    }
   ],
 })
 
