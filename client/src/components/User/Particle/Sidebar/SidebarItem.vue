@@ -1,27 +1,34 @@
 <script setup lang="ts">
 import { useSidebarStore } from '@/stores/sidebar'
 import { useRoute } from 'vue-router'
+// import { onMounted } from 'vue'
 import SidebarDropdown from './SidebarDropdown.vue'
 
 const sidebarStore = useSidebarStore()
 
 const props = defineProps(['item', 'index'])
+// const props = defineProps<{
+//   item: {
+//     name: string
+//     icon: string
+//     path: string
+//     // label?: string
+//     // children?: Array<any> // Menyesuaikan dengan struktur children jika ada
+//   }
+//   index: number
+// }>()
 const currentPage = useRoute().name
 
-interface SidebarItem {
-  label: string
-}
+// interface SidebarItem {
+//   id: string
+//   icon: string
+//   name: string
+//   path: string
+// }
 
 const handleItemClick = () => {
-  console.log('xxxxxxxxxxxxxxxqqqqqqqqqqqqqqqqqq')
-  console.log('xxxxxxxxxxxxxxxqqqqqqqqqqqqqqqqqq')
-  console.log('xxxxxxxxxxxxxxxqqqqqqqqqqqqqqqqqq')
-  const pageName = sidebarStore.page === props.item.label ? '' : props.item.label
+  const pageName = sidebarStore.page === props.item.name ? '' : props.item.name
   sidebarStore.page = pageName
-
-  if (props.item.children) {
-    return props.item.children.some((child: SidebarItem) => sidebarStore.selected === child.label)
-  }
 }
 </script>
 
@@ -32,17 +39,17 @@ const handleItemClick = () => {
       class="group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"
       @click.prevent="handleItemClick"
       :class="{
-        'bg-graydark dark:bg-meta-4': sidebarStore.page === item.label,
+        'bg-graydark dark:bg-meta-4': sidebarStore.page === item.name,
       }"
     >
       <font-awesome-icon :icon="item.icon" />
 
-      {{ item.label }}
+      {{ item.name }}
 
       <svg
-        v-if="item.children"
+        v-if="item.path === '#'"
         class="absolute right-4 top-1/2 -translate-y-1/2 fill-current"
-        :class="{ 'rotate-180': sidebarStore.page === item.label }"
+        :class="{ 'rotate-180': sidebarStore.page === item.name }"
         width="20"
         height="20"
         viewBox="0 0 20 20"
@@ -59,7 +66,7 @@ const handleItemClick = () => {
     </router-link>
 
     <!-- Dropdown Menu Start -->
-    <div class="translate transform overflow-hidden" v-show="sidebarStore.page === item.label">
+    <div class="translate transform overflow-hidden" v-show="sidebarStore.page === item.name">
       <SidebarDropdown
         v-if="item.children"
         :items="item.children"

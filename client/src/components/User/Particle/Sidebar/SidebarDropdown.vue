@@ -4,7 +4,7 @@ import { ref } from 'vue'
 
 const sidebarStore = useSidebarStore()
 
-const props = defineProps(['items', 'page'])
+const props = defineProps(['items'])
 const items = ref(props.items)
 
 const handleItemClick = (index: number) => {
@@ -14,22 +14,4 @@ const handleItemClick = (index: number) => {
 }
 </script>
 
-<template>
-  <ul class="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
-    <template v-for="(childItem, index) in items" :key="index">
-      <li>
-        <router-link
-          :to="''"
-          @click="handleItemClick(index)"
-          class="group relative flex items-center gap-2.5 rounded-md px-4 my-2 font-medium text-white duration-300 ease-in-out hover:text-white"
-          :class="{
-            '!text-white': childItem.label === sidebarStore.selected,
-          }"
-        >
-          <font-awesome-icon :icon="['far', 'circle']" />
-          {{ childItem.label }}
-        </router-link>
-      </li>
-    </template>
-  </ul>
-</template>
+<template></template>

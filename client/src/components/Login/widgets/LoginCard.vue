@@ -6,10 +6,12 @@ import ForgotPasswordButton from '@/components/Login/particles/ForgotPasswordBut
 import GuideButton from '@/components/Login/particles/GuideButton.vue'
 import RegisterButton from '@/components/Login/particles/RegisterButton.vue'
 
+const company_code = ref('')
 const username = ref('')
 const password = ref('')
+const isLoading = ref(true)
 
-const handleLogin = async (type) => {
+const handleLogin = async (type: string) => {
   try {
     // Kirim data login ke server Express.js menggunakan axios
     const response = await axios.post(import.meta.env.VITE_APP_API_BASE_URL + '/auth/login', {
@@ -17,9 +19,14 @@ const handleLogin = async (type) => {
       username: username.value,
       password: password.value,
     })
-
+    // filter
     if (response.status === 200) {
       console.log('Login successful', response.data)
+
+      localStorage.setItem('access_token', response.data.access_token)
+      localStorage.setItem('refresh_token', response.data.refresh_token)
+
+      window.location.href = '/user'
       // Tindakan setelah login berhasil, seperti redirect
     } else {
       console.log('Login failed', response.data)
@@ -29,9 +36,18 @@ const handleLogin = async (type) => {
     console.error('An error occurred during login:', error)
   }
 }
+
+setTimeout(() => {
+  if (isLoading.value) {
+    isLoading.value = false
+  }
+}, 1000)
 </script>
 
 <template>
+  <div class="loading-container" :style="{ display: isLoading ? 'block' : 'none' }">
+    <div class="loading-spinner"></div>
+  </div>
   <div class="bg-gray-100 flex items-center justify-center h-screen">
     <div class="bg-white shadow-lg rounded-lg w-full flex">
       <!-- Bagian Kiri -->

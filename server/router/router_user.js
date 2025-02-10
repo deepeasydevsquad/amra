@@ -20,6 +20,8 @@ router.post('/auth/login',
   controllers.login_process
 );
 
+router.get('/user', authenticateToken, controllers.user);
+
 //   (req, res) => {
 
 // }
@@ -46,93 +48,93 @@ router.post('/auth/login',
 //   res.sendStatus(204);
 // });
 
-// router.get("/Menu", authenticateToken, (req, res) => {
-//     res.status(200).json([{
-//       name: 'MENU',
-//       menuItems: [
-//         {
-//           icon: ['fas', 'house'],
-//           label: 'Beranda',
-//           route: '/beranda',
-//         },
-//         {
-//           icon: ['fas', 'fa-exchange'],
-//           label: 'Transaksi',
-//           route: '#',
-//           children: [
-//             { label: 'Transaksi Tiket', route: '/pages/settings' },
-//             { label: 'Transaksi Paket', route: '/pages/settings' },
-//             { label: 'Transaksi Umum', route: '/pages/settings' },
-//             { label: 'Transaksi Rekapitulasi', route: '/pages/settings' },
-//           ],
-//         },
-//         {
-//           icon: ['fas', 'fa-box-open'],
-//           label: 'Paket & Paket LA',
-//           route: '#',
-//           children: [
-//             { label: 'Daftar Paket', route: '/pages/settings' },
-//             { label: 'Daftar Paket LA', route: '/pages/settings' },
-//           ],
-//         },
-//         {
-//           icon: ['fas', 'fa-users'],
-//           label: 'Keagenan & Jamaah',
-//           route: '#',
-//           children: [
-//             { label: 'Daftar Member', route: '/pages/settings' },
-//             { label: 'Deposit & Tabungan', route: '/pages/settings' },
-//             { label: 'Daftar Jamaah', route: '/pages/settings' },
-//           ],
-//         },
-//         {
-//           icon: ['fas', 'house-crack'],
-//           label: 'Publish',
-//           route: '#',
-//           children: [
-//             { label: 'Pengaturan', route: '/pages/settings' },
-//             { label: 'Cabang', route: '/pages/settings' },
-//             { label: 'Pengguna', route: '/pages/settings' },
-//             { label: 'Grup Pengguna', route: '/pages/settings' },
-//           ],
-//         },
-//         {
-//           icon: ['fas', 'house-crack'],
-//           label: 'Master Data',
-//           route: '#',
-//           children: [
-//             { label: 'Pengaturan', route: '/pages/settings' },
-//             { label: 'Cabang', route: '/pages/settings' },
-//             { label: 'Pengguna', route: '/pages/settings' },
-//             { label: 'Grup Pengguna', route: '/pages/settings' },
-//           ],
-//         },
-//         {
-//           icon: ['fas', 'house-crack'],
-//           label: 'Laporan',
-//           route: '#',
-//           children: [
-//             { label: 'Pengaturan', route: '/pages/settings' },
-//             { label: 'Cabang', route: '/pages/settings' },
-//             { label: 'Pengguna', route: '/pages/settings' },
-//             { label: 'Grup Pengguna', route: '/pages/settings' },
-//           ],
-//         },
-//         {
-//           icon: ['fas', 'house-crack'],
-//           label: 'Pengaturan Umum',
-//           route: '#',
-//           children: [
-//             { label: 'Pengaturan', route: '/pages/settings' },
-//             { label: 'Cabang', route: '/pages/settings' },
-//             { label: 'Pengguna', route: '/pages/settings' },
-//             { label: 'Grup Pengguna', route: '/pages/settings' },
-//           ],
-//         },
-//       ],
-//     }]);
-//     }
-//   );
+router.get("/Menu", authenticateToken, (req, res) => {
+    res.status(200).json([{
+      name: 'MENU',
+      menuItems: [
+        {
+          icon: ['fas', 'house'],
+          label: 'Beranda',
+          route: '/beranda',
+        },
+        {
+          icon: ['fas', 'fa-exchange'],
+          label: 'Transaksi',
+          route: '#',
+          children: [
+            { label: 'Transaksi Tiket', route: '/pages/settings' },
+            { label: 'Transaksi Paket', route: '/pages/settings' },
+            { label: 'Transaksi Umum', route: '/pages/settings' },
+            { label: 'Transaksi Rekapitulasi', route: '/pages/settings' },
+          ],
+        },
+        {
+          icon: ['fas', 'fa-box-open'],
+          label: 'Paket & Paket LA',
+          route: '#',
+          children: [
+            { label: 'Daftar Paket', route: '/pages/settings' },
+            { label: 'Daftar Paket LA', route: '/pages/settings' },
+          ],
+        },
+        {
+          icon: ['fas', 'fa-users'],
+          label: 'Keagenan & Jamaah',
+          route: '#',
+          children: [
+            { label: 'Daftar Member', route: '/pages/settings' },
+            { label: 'Deposit & Tabungan', route: '/pages/settings' },
+            { label: 'Daftar Jamaah', route: '/pages/settings' },
+          ],
+        },
+        {
+          icon: ['fas', 'house-crack'],
+          label: 'Publish',
+          route: '#',
+          children: [
+            { label: 'Pengaturan', route: '/pages/settings' },
+            { label: 'Cabang', route: '/pages/settings' },
+            { label: 'Pengguna', route: '/pages/settings' },
+            { label: 'Grup Pengguna', route: '/pages/settings' },
+          ],
+        },
+        {
+          icon: ['fas', 'house-crack'],
+          label: 'Master Data',
+          route: '#',
+          children: [
+            { label: 'Pengaturan', route: '/pages/settings' },
+            { label: 'Cabang', route: '/pages/settings' },
+            { label: 'Pengguna', route: '/pages/settings' },
+            { label: 'Grup Pengguna', route: '/pages/settings' },
+          ],
+        },
+        {
+          icon: ['fas', 'house-crack'],
+          label: 'Laporan',
+          route: '#',
+          children: [
+            { label: 'Pengaturan', route: '/pages/settings' },
+            { label: 'Cabang', route: '/pages/settings' },
+            { label: 'Pengguna', route: '/pages/settings' },
+            { label: 'Grup Pengguna', route: '/pages/settings' },
+          ],
+        },
+        {
+          icon: ['fas', 'house-crack'],
+          label: 'Pengaturan Umum',
+          route: '#',
+          children: [
+            { label: 'Pengaturan', route: '/pages/settings' },
+            { label: 'Cabang', route: '/pages/settings' },
+            { label: 'Pengguna', route: '/pages/settings' },
+            { label: 'Grup Pengguna', route: '/pages/settings' },
+          ],
+        },
+      ],
+    }]);
+    }
+  );
 
 
 module.exports = router;

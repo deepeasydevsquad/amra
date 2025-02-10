@@ -24,23 +24,26 @@ api.interceptors.request.use(
     }
     return config
   },
-  (error) => {
-    return Promise.reject(error)
-  },
+  (error) => Promise.reject(error),
 )
 
 // **Interceptor untuk menangani refresh token jika token kadaluarsa**
 let isRefreshing = false
-// let failedRequestsQueue = []
-let failedRequestsQueue: Array<(token: string) => void> = []
+let failedRequestsQueue = []
 
 api.interceptors.response.use(
   (response) => response, // Jika response sukses, langsung kembalikan
   async (error) => {
     const originalRequest = error.config
 
-    // Jika error 401 (Unauthorized) & bukan permintaan refresh token
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    console.log('Status:', error.response?.status)
+
+    if (error.response?.status === 404) {
+      window.location.href = '/user/login' // Redirect ke halaman login jika refresh gagal
+    } else if (
+      (error.response?.status === 401 || error.response?.status === 403) &&
+      !originalRequest._retry
+    ) {
       if (isRefreshing) {
         return new Promise((resolve) => {
           failedRequestsQueue.push((token) => {
@@ -55,6 +58,10 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = getRefreshToken()
+        if (!refreshToken) {
+          throw new Error('No refresh token available')
+        }
+
         const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
           refresh_token: refreshToken,
         })
@@ -72,7 +79,7 @@ api.interceptors.response.use(
         console.error('Refresh token gagal, harap login ulang')
         localStorage.removeItem('access_token')
         localStorage.removeItem('refresh_token')
-        window.location.href = '/login' // Redirect ke halaman login jika refresh gagal
+        window.location.href = '/user/login' // Redirect ke halaman login jika refresh gagal
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false

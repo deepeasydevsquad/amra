@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     icon: DataTypes.STRING,
     path: DataTypes.STRING,
-    desc: DataTypes.STRING
+    desc: DataTypes.TEXT
   }, {
     sequelize,
     modelName: 'Tab',
