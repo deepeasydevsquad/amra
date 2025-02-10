@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Submenu extends Model {
+  class Amra_setting extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,19 +11,14 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Submenu.belongsTo(models.Menu, {
-        foreignKey: "menu_id",
-      });
     }
   }
-  Submenu.init({
-    menu_id: DataTypes.INTEGER,
+  Amra_setting.init({
     name: DataTypes.STRING,
-    path: DataTypes.STRING,
-    tab: DataTypes.STRING
+    value: DataTypes.TEXT
   }, {
     sequelize,
-    modelName: 'Submenu',
+    modelName: 'Amra_setting',
   });
-  return Submenu;
+  return Amra_setting;
 };

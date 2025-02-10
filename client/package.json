@@ -12,6 +12,11 @@
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
   },
+  "eslintConfig": {
+    "rules": {
+      "@typescript-eslint/no-empty-object-type": "off"
+    }
+  },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
@@ -21,6 +26,7 @@
     "apexcharts": "^4.4.0",
     "axios": "^1.7.9",
     "flatpickr": "^4.6.13",
+    "flowbite": "^3.1.2",
     "jsvectormap": "^1.6.0",
     "pinia": "^2.3.1",
     "vue": "^3.5.13",
@@ -32,6 +38,7 @@
     "@types/node": "^22.13.1",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitejs/plugin-vue-jsx": "^4.1.1",
+    "@vue/compiler-sfc": "^3.5.13",
     "@vue/eslint-config-prettier": "^10.1.0",
     "@vue/eslint-config-typescript": "^14.3.0",
     "@vue/tsconfig": "^0.7.0",

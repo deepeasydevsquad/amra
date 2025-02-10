@@ -1,9 +1,16 @@
 import colors from 'tailwindcss/colors'
 import defaultTheme from 'tailwindcss/defaultTheme'
+import flowbite from 'flowbite/plugin'
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}', './node_modules/flowbite/**/*.js'],
+  // content: [
+  //   './index.html',
+  //   './src/**/*.{vue,js,ts,jsx,tsx}',
+  //   './node_modules/@material-tailwind/vue/components/**/*.{vue,js,ts,jsx,tsx}',
+  //   './node_modules/@material-tailwind/vue/theme/components/**/*.{vue,js,ts,jsx,tsx}',
+  // ],
   darkMode: 'class',
   theme: {
     fontFamily: {
@@ -30,7 +37,8 @@ export default {
           ...colors.red,
           DEFAULT: '#FB5454',
         },
-        body: '#64748B',
+        body: '#FAFBFC',
+        // body: '#3C50E0',
         bodydark: '#AEB7C0',
         bodydark1: '#DEE4EE',
         bodydark2: '#8A99AF',
@@ -43,6 +51,7 @@ export default {
           2: '#F7F9FC',
           3: '#FAFAFA',
         },
+        transparanseamra: '#3a49862e',
         graydark: '#333A48',
         whiten: '#F1F5F9',
         whiter: '#F5F7FD',
@@ -321,5 +330,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [flowbite],
 }
