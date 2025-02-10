@@ -8,12 +8,20 @@ import {
 } from '../../../../stores/sidebar'
 import 'flowbite'
 
+import BerandaUtama from '../../Modules/BerandaUtama/BerandaUtama.vue'
+import TransPaket from '../../Modules/TransPaket/TransPaket.vue'
+
+const tabComponents = {
+  beranda_utama: BerandaUtama,
+  trans_paket: TransPaket,
+}
+
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click
 const tab = useGlobalTab()
 const activeTab = useGlobalActiveTab()
 const tabTerpilih = useTabTerpilih()
 
-const props = defineProps<{ default: string; tabAwal: any }>()
+//const props = defineProps<{ default: string; tabAwal: any }>()
 const mulaiPilihTab = ref(false)
 
 const selectTab = (tabPath: string, key: number) => {
@@ -21,29 +29,7 @@ const selectTab = (tabPath: string, key: number) => {
   tabTerpilih.setNumber(key)
   activeTab.setString(tabPath) // Menandai tab yang dipilih
   mulaiPilihTab.value = true
-  console.log('tabTerpilih')
-  console.log(tabTerpilih.sharedNumber)
-  console.log('tabTerpilih')
-
-  console.log('selectedTab.sharedArray')
-  console.log(selectedTab.sharedArray)
-  console.log(props.tabAwal)
-  console.log('selectedTab.sharedArray')
 }
-
-// console.log('tabTerpilih2')
-// console.log(tabTerpilih)
-// console.log('tabTerpilih2')
-
-onMounted(() => {
-  // Kode ini akan dijalankan setelah komponen selesai dimuat
-  // selectTab(props.default)
-
-  console.log('xxxx')
-  console.log(props.default)
-  console.log(activeTab.sharedString)
-  console.log('xxxx')
-})
 </script>
 
 <template>
@@ -104,7 +90,8 @@ onMounted(() => {
       role="tabpanel"
       :aria-labelledby="`${tab.sharedObject[item.id].path}-tab`"
     >
-      <p class="text-black">
+      <component :is="tabComponents[tab.sharedObject[item.id].path]" class="tab"></component>
+      <!-- <p class="text-black">
         {{ 'activeTab.sharedString =' + activeTab.sharedString }}<br />
         {{ 'tab.sharedObject[item.id].path =' + tab.sharedObject[item.id].path }}<br />
         {{ 'tabTerpilih =' + tabTerpilih.sharedNumber }}<br />
@@ -113,7 +100,7 @@ onMounted(() => {
 
       <p class="text-sm text-graydark dark:text-gray-400">
         This is some placeholder content for the tab {{ tab.sharedObject[item.id].path }}.
-      </p>
+      </p> -->
     </div>
   </div>
 </template>

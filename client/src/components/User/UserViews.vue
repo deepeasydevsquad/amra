@@ -6,7 +6,7 @@ import api from '../../service/api' // Impor file API
 import { ref, onMounted } from 'vue'
 
 // useGlobalTab
-import { useGlobalTab, useGlobalActiveTab, useSelectedTab } from '../../stores/sidebar'
+import { useGlobalTab, useSelectedTab, globalSelectMenu } from '../../stores/sidebar'
 
 // State error dan loading
 const isError = ref(false)
@@ -14,7 +14,7 @@ const isLoading = ref(true)
 
 const globalTab = useGlobalTab() // menampung seluruh tab secara global
 const selectedTab = useSelectedTab()
-// const activeTab = useGlobalActiveTab()
+const selectMenu = globalSelectMenu()
 
 // Interface yang sesuai dengan data dari server
 interface MenuItem {
@@ -59,9 +59,6 @@ const fetchUsers = async () => {
     if (response.status === 404) {
       isError.value = true
     } else {
-      console.log('ddddd--------------')
-      console.log(response.data.menu_info)
-      console.log('ddddd--------------')
       // Menyimpan data ke dalam state
       menu_info.value = response.data.menu_info
       user_info.value = response.data.user_info
@@ -72,37 +69,19 @@ const fetchUsers = async () => {
       }
 
       const menu = response.data.menu_info.menu
-      const submenu = response.data.menu_info.submenu
-      const tab = response.data.menu_info.tab
-
       const menuPertama = Object.values(menu)[0]
-      // let tabAwal = ''
+
+      selectMenu.setString(menuPertama.name)
+
       selectedTab.clearArray()
       if (menuPertama.path == '#') {
       } else {
-        console.log('----------------Tab')
-        console.log(tab)
-        console.log(menuPertama.tab)
-        console.log(menuPertama.tab[0])
-        console.log('----------------Tab')
         if (menuPertama.tab !== null) {
-          // tabAwal.value = menuPertama.tab
           for (const x in menuPertama.tab) {
             selectedTab.addItem(menuPertama.tab[x])
           }
         }
       }
-      console.log('++++++++++++++menu')
-      console.log(menu)
-      console.log(menuPertama)
-      console.log(tabAwal)
-      // console.log(tab[tabAwal.value.id].path)
-      console.log('++++++++++++++menu')
-
-      // activeDefaultTab.value = tab[tabAwal.value.id].path
-      // const subMenuClick = (menuname: string, name: string, path: string, tab: any) => {
-      // const menuClick = (name: string, path: string, tab: any) => {
-
       isError.value = false // Reset error state jika berhasil
     }
     isLoading.value = false
@@ -135,7 +114,7 @@ onMounted(fetchUsers)
         <HeaderArea />
         <main>
           <div class="mx-auto max-w-screen p-4 md:p-6 2xl:p-10">
-            <ContentViews :default="activeDefaultTab" :tabAwal="tabAwal"></ContentViews>
+            <ContentViews></ContentViews>
             <div
               class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5"
             ></div>

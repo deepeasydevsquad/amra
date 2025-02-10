@@ -5,8 +5,9 @@ import {
   useGlobalTab,
   useGlobalActiveTab,
   useTabTerpilih,
+  globalSelectMenu,
 } from '../../../../stores/sidebar'
-import { ref, defineProps, onMounted, watch, onUnmounted } from 'vue'
+import { ref, defineProps, watch } from 'vue'
 
 const target = ref(null)
 const sidebarStore = useSidebarStore() // untuk sidebar
@@ -14,7 +15,8 @@ const selectedTab = useSelectedTab()
 const activeTab = useGlobalActiveTab()
 const globaltab = useGlobalTab()
 const tabTerpilih = useTabTerpilih()
-const sideBarPage = ref('')
+const sideBarPage = globalSelectMenu()
+// const sideBarPage = ref('')
 
 interface MenuInfo {
   menu: Record<string, any>
@@ -28,24 +30,18 @@ const subMenuClick = (menuname: string, name: string, path: string, tab: any) =>
   for (const x in tab) {
     selectedTab.addItem(tab[x])
     if (activeTab.sharedString == '') {
-      console.log('000000000000000000000000')
-      console.log(globaltab.sharedObject)
-      console.log(globaltab.sharedObject[tab[x].id].path)
-      console.log('000000000000000000000000')
       activeTab.setString(globaltab.sharedObject[tab[x].id].path)
     }
   }
 }
 
 const menuClick = (name: string, path: string, tab: any) => {
-  // console.log('cccccccccccc')
-  // console.log(tab)
-  // console.log('cccccccccccc')
-
-  if (sideBarPage.value === name) {
-    sideBarPage.value = ''
+  if (sideBarPage.sharedString === name) {
+    console.log('+++++++1')
+    sideBarPage.clearString()
   } else {
-    sideBarPage.value = name
+    console.log('+++++++2')
+    sideBarPage.setString(name)
   }
   if (path !== '#') {
     tabTerpilih.setNumber(0)
@@ -54,10 +50,6 @@ const menuClick = (name: string, path: string, tab: any) => {
     for (const x in tab) {
       selectedTab.addItem(tab[x])
       if (activeTab.sharedString == '') {
-        console.log('000000000000000000000000')
-        console.log(globaltab.sharedObject)
-        console.log(globaltab.sharedObject[tab[x].id].path)
-        console.log('000000000000000000000000')
         activeTab.setString(globaltab.sharedObject[tab[x].id].path)
       }
     }
@@ -80,22 +72,6 @@ watch(
   },
   { immediate: true },
 )
-
-onUnmounted(() => {
-  const menu = props.menu_info?.menu
-  const submenu = props.menu_info?.submenu
-  const tab = props.menu_info?.tab
-
-  console.log('pppppppppppppp')
-  console.log(menu)
-  console.log(submenu)
-  console.log(tab)
-  console.log(dataRef.value)
-  console.log('pppppppppppppp')
-  // Kode ini akan dijalankan setelah komponen selesai dimuat
-  // selectTab(props.default)
-  // menuClick('Beranda Utama', 'beranda_utama')
-})
 </script>
 
 <template>
@@ -138,13 +114,16 @@ onUnmounted(() => {
                 :to="''"
                 class="group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"
                 @click="menuClick(item.name, item.path, item.tab)"
+                :class="{
+                  'bg-graydark dark:bg-meta-4': sideBarPage.sharedString === item.name,
+                }"
               >
                 <font-awesome-icon :icon="item.icon" :style="{ width: '30px' }" />
                 {{ item.name }}
                 <svg
                   v-if="item.path === '#'"
                   class="absolute right-4 top-1/2 -translate-y-1/2 fill-current"
-                  :class="{ 'rotate-180': sideBarPage === item.name }"
+                  :class="{ 'rotate-180': sideBarPage.sharedString === item.name }"
                   width="20"
                   height="20"
                   viewBox="0 0 20 20"
@@ -162,7 +141,7 @@ onUnmounted(() => {
               <div
                 v-if="item.path === '#'"
                 class="translate transform overflow-hidden"
-                v-show="sideBarPage === item.name"
+                v-show="sideBarPage.sharedString === item.name"
               >
                 <ul class="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
                   <li v-for="(item1, keys) in menu_info?.submenu[item.id]" :key="keys">
@@ -182,7 +161,7 @@ onUnmounted(() => {
               </div>
               <div
                 class="translate transform overflow-hidden"
-                v-show="sideBarPage === item.name"
+                v-show="sideBarPage.sharedString === item.name"
               ></div>
             </li>
           </ul>

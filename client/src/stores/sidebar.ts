@@ -2,7 +2,6 @@ import { useStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-// untuk sidebar
 export const useSidebarStore = defineStore('sidebar', () => {
   const isSidebarOpen = ref(false)
   const selected = useStorage('selected', ref('eCommerce'))
@@ -15,11 +14,8 @@ export const useSidebarStore = defineStore('sidebar', () => {
   return { isSidebarOpen, toggleSidebar, selected, page }
 })
 
-// untuk menampung daftar tab yang menu / submenunya di click
 export const useSelectedTab = defineStore('selectedTab', {
-  state: () => ({
-    sharedArray: [], // Array kosong sebagai state awal
-  }),
+  state: () => ({ sharedArray: [] }),
   actions: {
     addItem(item) {
       this.sharedArray.push(item)
@@ -36,97 +32,67 @@ export const useSelectedTab = defineStore('selectedTab', {
   },
 })
 
-// untuk menampung daftar tab yang menu / submenunya di click
-
-// export const useGlobalStore = defineStore('globalStore', {
-//   state: () => ({
-//     sharedArray: [], // Array kosong sebagai state awal
-//   }),
-//   actions: {
-//     addItem(item) {
-//       this.sharedArray.push(item)
-//     },
-//     removeItem(index) {
-//       this.sharedArray.splice(index, 1)
-//     },
-//     clearArray() {
-//       this.sharedArray = []
-//     },
-//   },
-//   getters: {
-//     getArray: (state) => state.sharedArray,
-//   },
-// })
-
 // menampung seluruh tab secara global
 export const useGlobalTab = defineStore('globalTab', {
-  state: () => ({
-    sharedObject: {} as Record<string, any>, // Object kosong sebagai state awal
-  }),
+  state: () => ({ sharedObject: {} as Record<string, any> }),
   actions: {
     addItem(key: string, value: any) {
-      this.sharedObject[key] = value // Menambahkan atau memperbarui item dalam objek
+      this.sharedObject[key] = value
     },
     removeItem(key: string) {
-      delete this.sharedObject[key] // Menghapus item dari objek berdasarkan key
+      delete this.sharedObject[key]
     },
     clearObject() {
-      this.sharedObject = {} // Mengosongkan objek
+      this.sharedObject = {}
     },
   },
   getters: {
-    getObject: (state) => state.sharedObject, // Mengambil nilai objek
+    getObject: (state) => state.sharedObject,
   },
 })
 
 // menampul string tab yang aktif
 export const useGlobalActiveTab = defineStore('globalActiveTab', {
-  state: () => ({
-    sharedString: '', // Array kosong sebagai state awal
-  }),
+  state: () => ({ sharedString: '' }),
   actions: {
     setString(item: string) {
-      this.sharedString = item // Mengatur nilai sharedString dengan string
+      this.sharedString = item
     },
     clearString() {
-      this.sharedString = '' // Mengosongkan nilai sharedString
+      this.sharedString = ''
     },
   },
   getters: {
-    getString: (state) => state.sharedString, // Mengambil nilai sharedString
+    getString: (state) => state.sharedString,
   },
 })
 
-// export const useTabTerpilih = defineStore('TabTerpilih', {
-//   state: () => ({
-//     sharedString: '' as number, // Array kosong sebagai state awal
-//   }),
-//   actions: {
-//     setString(item: string) {
-//       this.sharedString = item // Mengatur nilai sharedString dengan string
-//     },
-//     clearString() {
-//       this.sharedString = '' // Mengosongkan nilai sharedString
-//     },
-//   },
-//   getters: {
-//     getString: (state) => state.sharedString, // Mengambil nilai sharedString
-//   },
-// })
-
 export const useTabTerpilih = defineStore('TabTerpilih', {
-  state: () => ({
-    sharedNumber: 0 as number, // Menggunakan number sebagai default
-  }),
+  state: () => ({ sharedNumber: 0 as number }),
   actions: {
     setNumber(item: number) {
-      this.sharedNumber = item // Menetapkan nilai number
+      this.sharedNumber = item
     },
     clearNumber() {
-      this.sharedNumber = 0 // Reset ke nilai default
+      this.sharedNumber = 0
     },
   },
   getters: {
-    getNumber: (state) => state.sharedNumber, // Getter untuk mengambil nilai
+    getNumber: (state) => state.sharedNumber,
+  },
+})
+
+export const globalSelectMenu = defineStore('selectMenu', {
+  state: () => ({ sharedString: '' }),
+  actions: {
+    setString(item: string) {
+      this.sharedString = item
+    },
+    clearString() {
+      this.sharedString = ''
+    },
+  },
+  getters: {
+    getString: (state) => state.sharedString,
   },
 })
