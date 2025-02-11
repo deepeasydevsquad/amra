@@ -9,6 +9,30 @@ module.exports = (sequelize, DataTypes) => {
       Company.hasMany(models.Subscribtion_payment_history, {
         foreignKey: "company_id",
       });
+      Company.hasMany(models.Mst_bank, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Mst_fasilitas, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Mst_hotel, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Mst_kota, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Mst_mobil, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Saldo_akun, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Supplier, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Akun_secondary, {
+        foreignKey: "company_id",
+      });
      }
   }
   Company.init(
