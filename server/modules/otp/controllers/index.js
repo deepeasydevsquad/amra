@@ -1,5 +1,5 @@
 const axios = require("axios");
-const { Otp, sequelize } = require("../models/model_cud"); // Pastikan path benar
+const { Otp, sequelize, AmraSettings } = require("../models/model_cud"); // Pastikan path benar
 require("dotenv").config();
 
 exports.sendOtp = async (req, res) => {
@@ -14,18 +14,39 @@ exports.sendOtp = async (req, res) => {
   const message = `Kode OTP Anda adalah ${otpCode}`;
 
   try {
+    console.log("🛠 Mengambil konfigurasi API dari database...");
+
+    // Ambil data API Key & Device Key dari tabel key-value
+    const settings = await AmraSettings.findAll({
+      where: { name: ["wapisender_api_key", "wapisender_device_key"] },
+    });
+
+    // Konversi ke object supaya lebih mudah dipakai
+    const settingsMap = {};
+    settings.forEach((setting) => {
+      settingsMap[setting.name] = setting.value;
+    });
+
+    const wapisender_api_key = settingsMap["wapisender_api_key"];
+    const wapisender_device_key = settingsMap["wapisender_device_key"];
+
+    if (!wapisender_api_key || !wapisender_device_key) {
+      return res
+        .status(500)
+        .json({ error: "API Key atau Device Key tidak ditemukan" });
+    }
+
     console.log("🛠 Cek koneksi database...");
     await sequelize.authenticate();
     console.log("✅ Database terhubung!");
 
     console.log("📨 Mengirim OTP ke:", whatsappNumber);
 
-    // Kirim OTP via Wapisender
     const wapisenderResponse = await axios.post(
       "https://wapisender.id/api/v5/message/text",
       {
-        api_key: process.env.WAPISENDER_API_KEY,
-        device_key: process.env.WAPISENDER_DEVICE_KEY,
+        api_key: wapisender_api_key,
+        device_key: wapisender_device_key,
         destination: whatsappNumber,
         message: message,
       }
@@ -41,7 +62,6 @@ exports.sendOtp = async (req, res) => {
       });
     }
 
-    // Simpan OTP ke database
     const otpData = {
       otp_code: otpCode,
       expired_time: expiredTime,

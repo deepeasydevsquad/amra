@@ -2,7 +2,7 @@
 const { Model, DataTypes, Sequelize } = require("sequelize");
 const config = require("../../../config/config.json")[
   process.env.NODE_ENV || "development"
-]; // Gunakan sesuai env
+];
 
 // **Inisialisasi Sequelize**
 const sequelize = new Sequelize(
@@ -12,18 +12,20 @@ const sequelize = new Sequelize(
   {
     host: config.host,
     dialect: config.dialect,
-    logging: console.log, // Biar query keliatan di console
+    logging: false, // Set ke true kalau mau lihat query di console
   }
 );
 
-class Otp extends Model {
-  static associate(models) {
-    // Jika ada relasi, tambahkan di sini
-  }
-}
+// **Model Otp**
+class Otp extends Model {}
 
 Otp.init(
   {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     otp_code: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -60,5 +62,42 @@ Otp.init(
   }
 );
 
-// **Export sequelize & model Otp**
-module.exports = { Otp, sequelize };
+// **Model AmraSettings**
+class AmraSettings extends Model {}
+
+AmraSettings.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    value: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: Sequelize.NOW,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: Sequelize.NOW,
+    },
+  },
+  {
+    sequelize,
+    modelName: "AmraSettings",
+    tableName: "amra_settings",
+    timestamps: true, // Sesuai dengan database kamu
+  }
+);
+
+// **Export semua model dan koneksi**
+module.exports = { Otp, AmraSettings, sequelize };
