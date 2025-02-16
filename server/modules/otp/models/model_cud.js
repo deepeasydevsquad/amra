@@ -58,7 +58,6 @@ Otp.init(
     sequelize,
     modelName: "Otp",
     tableName: "otps",
-    timestamps: true, // Auto createdAt & updatedAt
   }
 );
 
@@ -80,22 +79,12 @@ AmraSettings.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: Sequelize.NOW,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: Sequelize.NOW,
-    },
   },
   {
     sequelize,
     modelName: "AmraSettings",
     tableName: "amra_settings",
-    timestamps: true, // Sesuai dengan database kamu
+    timestamps: false, // Sesuai dengan database kamu
   }
 );
 
