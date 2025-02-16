@@ -4,15 +4,19 @@ const process = require("process");
 const express = require("express");
 const path = require('path');
 const session = require("express-session");
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT;
-const arr_router = [];
 
-// const arr_router = [
-//   "frontend",
+app.use(cors());
+app.use(cookieParser());
+
+const arr_router = [
+  "user"];
 //   {
 //     folder: "frontend",
 //     list: [
