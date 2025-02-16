@@ -6,21 +6,21 @@
         v-model="selectedPackage"
         name="paket"
         :value="subscriptionPrice"
-        :label="`Paket Premium (12 Bulan) - Rp ${subscriptionPrice}`"
+        :label="`Paket Premium (12 Bulan) - Rp ${formattedPrice}`"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, defineEmits } from 'vue'
+import { ref, onMounted, computed, defineEmits } from 'vue'
 import axios from 'axios'
 import RadioButton from '../particles/RadioButton.vue'
 
 const emit = defineEmits(['update:modelValue'])
 
-const subscriptionPrice = ref('Loading...')
-const selectedPackage = ref('1') // Default ke "1"
+const subscriptionPrice = ref<number | null>(null)
+const selectedPackage = ref<number | null>(null) // Default kosong
 
 // ✅ Fungsi mengambil harga dari backend
 const fetchSubscriptionPrice = async () => {
@@ -33,9 +33,17 @@ const fetchSubscriptionPrice = async () => {
     emit('update:modelValue', response.data.harga_langganan) // ✅ Kirim ke parent
   } catch (error) {
     console.error('❌ Gagal mengambil harga langganan:', error)
-    subscriptionPrice.value = 'N/A'
+    subscriptionPrice.value = null
   }
 }
+
+// ✅ Format harga ke IDR (Rp 1.000.000)
+const formattedPrice = computed(() => {
+  if (subscriptionPrice.value === null) return 'N/A'
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' })
+    .format(subscriptionPrice.value)
+    .replace(',00', '') // Hapus ,00 agar lebih clean
+})
 
 onMounted(() => {
   fetchSubscriptionPrice()

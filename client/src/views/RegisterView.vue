@@ -8,21 +8,28 @@
     <!-- Bagian Kanan (Form) -->
     <div class="w-full md:w-1/2 p-6 flex flex-col justify-center bg-white md:-ml-4 md:pl-16">
       <div class="space-y-4 w-full px-4 max-w-lg">
-        <h2 class="text-3xl font-bold text-center mb-5" style="color: #175690">
-          Silahkan Buat Akun Baru!
-        </h2>
+        <h2 class="text-3xl font-bold text-center mb-5 text-primary">Silahkan Buat Akun Baru!</h2>
         <CompanyDataForm v-model="companyData" @update:otp="userData.token = $event" />
-
         <PackageSelection v-model="packageSelected" />
-
         <UserDataForm v-model="userData" />
         <Button class="w-full" label="Buat Akun" @click="registerCompany" />
-        <p class="text-sm text-center" style="color: #175690">
+        <p class="text-sm text-center text-primary">
           Dengan masuk, Anda menyetujui
           <span class="font-semibold">Syarat dan Ketentuan & Kebijakan Privasi kami</span>
         </p>
       </div>
     </div>
+
+    <!-- Notifikasi -->
+    <transition name="fade">
+      <div
+        v-if="notification.show"
+        class="fixed top-5 right-5 p-4 rounded-lg text-white shadow-lg"
+        :class="notification.type"
+      >
+        {{ notification.message }}
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -35,61 +42,62 @@ import PackageSelection from '@/components/register/widgets/PackageSelection.vue
 import UserDataForm from '@/components/register/widgets/UserDataForm.vue'
 import Button from '@/components/register/particles/Button.vue'
 
-declare let window: any // Agar TypeScript mengenali window.snap
+declare let window: any
 
-// State untuk menyimpan data inputan user
-const companyData = ref<{ company_name: string; whatsapp_company_number: string }>({
-  company_name: '',
-  whatsapp_company_number: '',
-})
+const notification = ref({ show: false, message: '', type: '' })
 
-const packageSelected = ref<string>('1')
-const userData = ref<{ username: string; password: string; token: string; email: string }>({
-  username: '',
-  password: '',
-  token: '',
-  email: '',
-})
-
-// ✅ Fungsi untuk memuat Midtrans Snap
-const loadMidtrans = () => {
-  if (document.getElementById('midtrans-script')) return // Hindari duplikasi script
-  const script = document.createElement('script')
-  script.id = 'midtrans-script'
-  script.src = 'https://app.sandbox.midtrans.com/snap/snap.js'
-  script.setAttribute('data-client-key', import.meta.env.VITE_MIDTRANS_CLIENT_KEY)
-  script.onload = () => console.log('✅ Midtrans Snap Loaded!')
-  script.onerror = () => console.error('❌ Gagal memuat Midtrans Snap!')
-  document.body.appendChild(script)
+const showNotification = (message: string, type: 'success' | 'error' | 'warning') => {
+  notification.value = { show: true, message, type }
+  setTimeout(() => (notification.value.show = false), 3000)
 }
 
+const companyData = ref({ company_name: '', whatsapp_company_number: '' })
+const packageSelected = ref('1')
+const userData = ref({ username: '', password: '', token: '', email: '', confirmPassword: '' })
+
+const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+.[^\s@]+$/.test(email)
+
+// Load Midtrans Snap script saat komponen dimount
 onMounted(() => {
-  loadMidtrans()
+  if (!window.snap) {
+    let script = document.createElement('script')
+    script.src = 'https://app.sandbox.midtrans.com/snap/snap.js'
+    script.setAttribute('data-client-key', 'YOUR_CLIENT_KEY_HERE') // Ganti dengan client key Midtrans
+    document.head.appendChild(script)
+  }
 })
 
-// ✅ Fungsi untuk mengirim data ke endpoint registrasi
 const registerCompany = async () => {
-  console.log('✅ Tombol diklik! Memanggil registerCompany...')
-
-  console.log('📌 Data sebelum validasi:')
-  console.log('➡️ companyData:', companyData.value)
-  console.log('➡️ userData:', userData.value)
-  console.log('➡️ packageSelected:', packageSelected.value)
-
   if (
     !companyData.value.company_name ||
     !companyData.value.whatsapp_company_number ||
     !userData.value.username ||
     !userData.value.password ||
     !userData.value.token ||
-    !packageSelected.value
+    !packageSelected.value ||
+    !userData.value.confirmPassword
   ) {
-    alert('⚠️ Semua field harus diisi sebelum mendaftar!')
+    showNotification('⚠️ Semua field harus diisi!', 'warning')
+    return
+  }
+
+  if (userData.value.username.length < 8) {
+    showNotification('⚠️ Username minimal 8 karakter!', 'error')
+    return
+  }
+
+  if (!isValidEmail(userData.value.email)) {
+    showNotification('⚠️ Format email tidak valid!', 'error')
+    return
+  }
+
+  if (userData.value.password !== userData.value.confirmPassword) {
+    showNotification('⚠️ Password dan konfirmasi tidak cocok!', 'error')
     return
   }
 
   try {
-    const requestData = {
+    const response = await axios.post('http://localhost:3001/register', {
       company_name: companyData.value.company_name,
       whatsapp_company_number: companyData.value.whatsapp_company_number,
       username: userData.value.username,
@@ -97,48 +105,51 @@ const registerCompany = async () => {
       password: userData.value.password,
       token: userData.value.token,
       package: packageSelected.value,
-    }
+    })
 
-    console.log('📤 Data yang dikirim ke backend:', requestData)
-
-    const response = await axios.post('http://localhost:3001/register', requestData)
+    console.log('🔥 Response dari backend:', response.data) // Debugging token Midtrans
 
     if (response.data.midtrans_token) {
-      alert('✅ Registrasi berhasil! Silakan lanjutkan pembayaran.')
+      showNotification('✅ Registrasi berhasil! Silakan lanjutkan pembayaran.', 'success')
 
-      // ✅ Buka Midtrans Snap untuk pembayaran
-      window.snap.pay(response.data.midtrans_token, {
-        onSuccess: function (result: any) {
-          console.log('🎉 Pembayaran sukses:', result)
-          alert('🎉 Pembayaran berhasil! Selamat, akun Anda telah terdaftar.')
-
-          // ✅ Reset form setelah pembayaran sukses
-          companyData.value = { company_name: '', whatsapp_company_number: '' }
-          userData.value = { username: '', password: '', token: '', email: '' }
-          packageSelected.value = '1' // Reset ke nilai default
-        },
-        onPending: function (result: any) {
-          console.log('⌛ Menunggu pembayaran:', result)
-          alert('⌛ Pembayaran sedang diproses...')
-        },
-        onError: function (result: any) {
-          console.log('❌ Pembayaran gagal:', result)
-          alert('❌ Pembayaran gagal! Silakan coba lagi.')
-        },
-        onClose: function () {
-          alert('⚠️ Anda menutup pembayaran tanpa menyelesaikannya.')
-        },
-      })
+      setTimeout(() => {
+        console.log('🚀 Memanggil Midtrans Snap dengan token:', response.data.midtrans_token)
+        window.snap.pay(response.data.midtrans_token, {
+          onSuccess: () => showNotification('🎉 Pembayaran berhasil! Akun terdaftar.', 'success'),
+          onPending: () => showNotification('⌛ Pembayaran dalam proses...', 'warning'),
+          onError: () => showNotification('❌ Pembayaran gagal!', 'error'),
+          onClose: () => showNotification('⚠️ Anda menutup pembayaran.', 'warning'),
+        })
+      }, 500) // Delay sedikit untuk memastikan Snap siap
     } else {
-      alert('✅ Registrasi berhasil, tetapi tidak ada token Midtrans.')
+      showNotification('❌ Gagal mendapatkan token pembayaran!', 'error')
     }
-  } catch (error: any) {
-    console.error('❌ Error:', error.response?.data || error.message)
-    alert(error.response?.data?.error || 'Registrasi gagal!')
+  } catch (error) {
+    console.error('❌ Error saat registrasi:', error)
+    showNotification(error.response?.data?.error || 'Registrasi gagal!', 'error')
   }
 }
 </script>
 
 <style scoped>
-/* Tidak ada CSS tambahan */
+.success {
+  background-color: #4caf50;
+}
+.error {
+  background-color: #f44336;
+}
+.warning {
+  background-color: #ff9800;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+.text-primary {
+  color: #175690;
+}
 </style>

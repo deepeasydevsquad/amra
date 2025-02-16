@@ -168,9 +168,6 @@ exports.registerCompany = async (req, res) => {
       status: "pending",
     });
 
-    // ✅ Update OTP jadi tidak bisa digunakan lagi
-    await otpRecord.update({ otp_status: "inactive" });
-
     return res.status(201).json({
       message: "Registrasi berhasil!",
       order_id,

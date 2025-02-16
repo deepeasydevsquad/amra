@@ -17,12 +17,12 @@
       <div class="flex">
         <button
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-l-lg focus:outline-none focus:shadow-outline whitespace-nowrap flex-none"
-          :class="{ 'bg-gray-400 cursor-not-allowed': countdown > 0 }"
-          :disabled="countdown > 0"
+          :class="{ 'bg-gray-400 cursor-not-allowed': countdown > 0 || isLoading }"
+          :disabled="countdown > 0 || isLoading"
           type="button"
           @click="getOTP"
         >
-          {{ countdown > 0 ? `Tunggu ${countdown}s` : 'Dapatkan OTP' }}
+          {{ isLoading ? 'Mengirim...' : countdown > 0 ? `Tunggu ${countdown}s` : 'Dapatkan OTP' }}
         </button>
         <input
           v-model="otp"
@@ -33,6 +33,9 @@
           @input="updateOTP"
         />
       </div>
+
+      <!-- Menampilkan error jika ada -->
+      <p v-if="errorMessage" class="text-red-600 font-semibold text-sm">{{ errorMessage }}</p>
     </div>
   </div>
 </template>
@@ -54,6 +57,8 @@ const companyData = ref(props.modelValue)
 // OTP dan hitung mundur
 const otp = ref('')
 const countdown = ref(0)
+const isLoading = ref(false) // ✅ Tambahkan state loading
+const errorMessage = ref('') // ✅ Tambahkan state error
 let countdownTimer: NodeJS.Timeout | null = null
 
 // Update data perusahaan di RegisterView.vue
@@ -69,19 +74,23 @@ const updateOTP = () => {
 // Fungsi untuk mengirim permintaan OTP
 const getOTP = async () => {
   if (!companyData.value.whatsapp_company_number) {
-    alert('⚠️ Masukkan nomor WhatsApp!')
+    errorMessage.value = '⚠️ Masukkan nomor WhatsApp!'
     return
   }
+
+  isLoading.value = true // ⏳ Set loading ke true
+  errorMessage.value = '' // ❌ Reset error sebelumnya
 
   try {
     await axios.post('http://localhost:3001/send-otp', {
       whatsappNumber: companyData.value.whatsapp_company_number,
     })
 
+    // ✅ Jika sukses
     alert('✅ OTP telah dikirim!')
     countdown.value = 60
-    if (countdownTimer) clearInterval(countdownTimer)
 
+    if (countdownTimer) clearInterval(countdownTimer)
     countdownTimer = setInterval(() => {
       countdown.value--
       if (countdown.value <= 0 && countdownTimer) {
@@ -90,8 +99,19 @@ const getOTP = async () => {
       }
     }, 1000)
   } catch (error) {
-    console.error('❌ Gagal mengirim OTP:', error)
-    alert('❌ Gagal mengirim OTP!')
+    if (error.response) {
+      const { error: errorMsg, code } = error.response.data
+
+      if (code === 'OTP_LIMIT_REACHED') {
+        errorMessage.value = '❌ Anda telah mencapai batas OTP hari ini. Coba lagi besok.'
+      } else {
+        errorMessage.value = errorMsg || '❌ Gagal mengirim OTP.'
+      }
+    } else {
+      errorMessage.value = '❌ Gagal terhubung ke server.'
+    }
+  } finally {
+    isLoading.value = false // ✅ Reset loading setelah request selesai
   }
 }
 </script>
