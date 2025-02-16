@@ -1,32 +1,45 @@
 <template>
   <label
-    class="group flex flex-col items-center justify-between w-full px-5 py-1 text-sky-700 bg-white border-2 border-gray-200 rounded-lg cursor-pointer peer-checked:text-white peer-checked:bg-sky-700 hover:text-white hover:bg-sky-700 text-sky-700"
+    class="block p-4 rounded-lg border cursor-pointer transition-all duration-200"
+    :class="{
+      'bg-sky-100 text-sky-700 border-sky-500': isSelected,
+      'bg-white text-gray-900 border-gray-300': !isSelected,
+    }"
+    @click="selectPackage"
   >
-    <input type="radio" :name="name" :value="value" class="hidden peer" required />
-    <span>{{ label }}</span>
-    <span class="text-lg font-bold">{{ price }}</span>
+    <input type="radio" :name="name" :value="value" class="hidden" :checked="isSelected" />
+    <div class="flex justify-between">
+      <span class="font-semibold">{{ label }}</span>
+      <span class="font-bold">{{ price }}</span>
+    </div>
   </label>
 </template>
 
-<script>
-export default {
-  props: {
-    name: {
-      type: String,
-      required: true,
-    },
-    value: {
-      type: String,
-      required: true,
-    },
-    label: {
-      type: String,
-      required: true,
-    },
-    price: {
-      type: String,
-      required: true,
-    },
-  },
+<script setup lang="ts">
+import { computed } from 'vue'
+
+const props = defineProps({
+  modelValue: String,
+  name: String,
+  value: String,
+  label: String,
+  price: String,
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const isSelected = computed(() => props.modelValue === props.value)
+
+const selectPackage = () => {
+  emit('update:modelValue', props.value)
 }
 </script>
+
+<style scoped>
+label {
+  transition: all 0.2s ease-in-out;
+}
+label:hover {
+  background-color: #f0f9ff; /* Warna biru muda saat hover */
+}
+</style>

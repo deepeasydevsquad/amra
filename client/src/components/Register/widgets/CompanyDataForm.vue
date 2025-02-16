@@ -2,18 +2,17 @@
   <div class="max-w-md mx-auto p-4 bg-white rounded-lg">
     <p class="text-sky-700 font-bold mb-2">Masukkan Data Perusahaan</p>
 
-    <!-- Notifikasi -->
-    <div
-      v-if="notification.message"
-      :class="notification.type"
-      class="p-2 rounded-md text-white mb-2"
-    >
-      {{ notification.message }}
-    </div>
-
     <div class="space-y-3">
-      <InputField v-model="companyName" placeholder="Nama Perusahaan" />
-      <InputField v-model="whatsappNumber" placeholder="Nomor WhatsApp" />
+      <InputField
+        v-model="companyData.company_name"
+        placeholder="Nama Perusahaan"
+        @input="updateModel"
+      />
+      <InputField
+        v-model="companyData.whatsapp_company_number"
+        placeholder="Nomor WhatsApp"
+        @input="updateModel"
+      />
 
       <div class="flex">
         <button
@@ -31,55 +30,55 @@
           id="otp"
           type="text"
           placeholder="Masukkan OTP"
+          @input="updateOTP"
         />
       </div>
-
-      <InputField v-model="companyPhone" placeholder="Nomor Telpon Perusahaan" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, defineProps, defineEmits } from 'vue'
 import axios from 'axios'
 import InputField from '../particles/InputField.vue'
 
-// State untuk menyimpan nilai input
-const companyName = ref('')
-const whatsappNumber = ref('')
-const otp = ref('')
-const companyPhone = ref('')
+// Props & Emit untuk update parent (RegisterView.vue)
+const props = defineProps<{
+  modelValue: { company_name: string; whatsapp_company_number: string }
+}>()
+const emit = defineEmits(['update:modelValue', 'update:otp']) // ✅ Tambahkan emit untuk OTP
 
-// State untuk hitung mundur OTP
+// Data perusahaan
+const companyData = ref(props.modelValue)
+
+// OTP dan hitung mundur
+const otp = ref('')
 const countdown = ref(0)
 let countdownTimer: NodeJS.Timeout | null = null
 
-// State untuk notifikasi
-const notification = ref({ message: '', type: '' })
-
-// Fungsi untuk menampilkan notifikasi sementara
-const showNotification = (message: string, type: string) => {
-  notification.value = { message, type }
-  setTimeout(() => {
-    notification.value = { message: '', type: '' }
-  }, 3000)
+// Update data perusahaan di RegisterView.vue
+const updateModel = () => {
+  emit('update:modelValue', companyData.value)
 }
 
-// Fungsi untuk menangani aksi "Dapatkan OTP"
+// Update OTP di RegisterView.vue
+const updateOTP = () => {
+  emit('update:otp', otp.value)
+}
+
+// Fungsi untuk mengirim permintaan OTP
 const getOTP = async () => {
-  if (!whatsappNumber.value) {
-    showNotification('Silakan masukkan nomor WhatsApp Anda.', 'bg-red-500')
+  if (!companyData.value.whatsapp_company_number) {
+    alert('⚠️ Masukkan nomor WhatsApp!')
     return
   }
 
   try {
-    const response = await axios.post('http://localhost:3001/send-otp', {
-      whatsappNumber: whatsappNumber.value,
+    await axios.post('http://localhost:3001/send-otp', {
+      whatsappNumber: companyData.value.whatsapp_company_number,
     })
 
-    showNotification('OTP berhasil dikirim!', 'bg-green-500')
-
-    // Mulai hitung mundur 60 detik
+    alert('✅ OTP telah dikirim!')
     countdown.value = 60
     if (countdownTimer) clearInterval(countdownTimer)
 
@@ -91,12 +90,8 @@ const getOTP = async () => {
       }
     }, 1000)
   } catch (error) {
-    console.error('Gagal mengirim OTP:', error)
-    showNotification('Gagal mengirim OTP. Coba lagi nanti.', 'bg-red-500')
+    console.error('❌ Gagal mengirim OTP:', error)
+    alert('❌ Gagal mengirim OTP!')
   }
 }
 </script>
-
-<style scoped>
-/* Tidak ada CSS tambahan */
-</style>
