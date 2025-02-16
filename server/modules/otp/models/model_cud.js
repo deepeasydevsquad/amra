@@ -13,6 +13,7 @@ const sequelize = new Sequelize(
     host: config.host,
     dialect: config.dialect,
     logging: false, // Set ke true kalau mau lihat query di console
+    timezone: "Asia/Jakarta",
   }
 );
 
