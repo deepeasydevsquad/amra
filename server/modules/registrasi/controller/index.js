@@ -84,6 +84,7 @@ exports.registerCompany = async (req, res) => {
       // create company
       await model_cud.create_company(
         { 
+          email : body.email,
           company_code : company_code, 
           company_name : body.company_name, 
           whatsapp_company_number : body.whatsapp_company_number, 
