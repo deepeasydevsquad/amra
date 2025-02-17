@@ -1,158 +1,318 @@
-"use strict";
-const { Model, DataTypes, Sequelize } = require("sequelize");
-const config = require("../../../config/config.json")[
-  process.env.NODE_ENV || "development"
-];
+const bcrypt = require("bcryptjs");
+const moment = require("moment");
+const { sequelize, Company, Subscribtion_payment_history } = require("../../../models");
 
-const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password,
-  {
-    host: config.host,
-    dialect: config.dialect,
-    logging: false,
+class Model_cud {
+  constructor(req) {
+    this.req = req;
+    this.t;
+    this.state;
   }
-);
 
-// ✅ Model `Company`
-class Company extends Model {}
-Company.init(
-  {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    code: { type: DataTypes.STRING, unique: true, allowNull: false },
-    kurs: { type: DataTypes.STRING, defaultValue: "rp" },
-    logo: { type: DataTypes.STRING, defaultValue: "" },
-    icon: { type: DataTypes.STRING, defaultValue: "" },
-    company_name: { type: DataTypes.STRING, allowNull: false },
-    email: { type: DataTypes.STRING, allowNull: false, unique: true },
-    type: { type: DataTypes.STRING, defaultValue: "limited" },
-    verify_status: { type: DataTypes.STRING, defaultValue: "unverified" },
-    verify_time: { type: DataTypes.DATE, allowNull: true },
-    whatsapp_company_number: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    otp: { type: DataTypes.STRING, allowNull: false },
-    otp_expired_time: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
-    },
-
-    invoice_logo: { type: DataTypes.STRING, allowNull: true },
-    invoice_title: { type: DataTypes.STRING, allowNull: true },
-    start_subscribtion: { type: DataTypes.DATE, allowNull: false },
-    end_subscribtion: { type: DataTypes.DATE, allowNull: false },
-    whatsapp_device_number: { type: DataTypes.STRING, allowNull: true },
-    whatsapp_device_key: { type: DataTypes.STRING, allowNull: true },
-    refresh_token: { type: DataTypes.STRING, allowNull: false, unique: true },
-    saldo: { type: DataTypes.INTEGER, defaultValue: 0 },
-    markup_ppob: { type: DataTypes.INTEGER, defaultValue: 0 },
-    username: { type: DataTypes.STRING, allowNull: false, unique: true },
-    password: { type: DataTypes.STRING, allowNull: false },
-    start_date_subscribtion: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
-    },
-    end_date_subscribtion: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
-    },
-    transaction_date: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
-    },
-  },
-  {
-    sequelize,
-    modelName: "Company",
-    tableName: "companies",
-    timestamps: false,
-    underscored: false,
+  async initialize() {
+    // initialize transaction
+    this.t = await sequelize.transaction();
+    this.state = true;
   }
-);
 
-// ✅ Model `SubscriptionPaymentHistory`
-class SubscriptionPaymentHistory extends Model {}
-SubscriptionPaymentHistory.init(
-  {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    company_id: { type: DataTypes.INTEGER, allowNull: false },
-    order_id: { type: DataTypes.STRING, allowNull: false, unique: true },
-    amount: { type: DataTypes.INTEGER, allowNull: false },
-    status: { type: DataTypes.STRING, defaultValue: "pending" },
-  },
-  {
-    sequelize,
-    modelName: "SubscriptionPaymentHistory",
-    tableName: "subscribtion_payment_histories",
-    timestamps: false,
-    underscored: false,
+  async create_company(i) {
+
+    console.log("____________________");
+    console.log(i);
+    console.log("____________________");
+    // initialize general property
+    await this.initialize();
+    // define date
+    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+    // insert process
+    try {
+      // insert new company
+      const iC = await Company.create({
+          code: i.company_code,
+          kurs: "rp",
+          logo: "",
+          icon: "",
+          company_name : i.company_name,
+          email: i.email,
+          type: "limited",
+          verify_status: "unverified",
+          verify_time: null,
+          whatsapp_company_number : i.whatsapp_company_number,
+          otp: i.otp_code,
+          otp_expired_time: i.expired_time,
+          invoice_logo: null,
+          invoice_title: null,
+          start_subscribtion: myDate,
+          end_subscribtion: i.end_subscription,
+          whatsapp_device_number: null,
+          whatsapp_device_key: null,
+          refresh_token: i.refresh_token,
+          saldo: 0,
+          markup_ppob: 0,
+          username: i.username,
+          password: i.hash_password,
+          createdAt: myDate,
+          updatedAt: myDate,
+      },
+      {
+        transaction: this.t,
+      });
+      // insert subscribtion_payment_history
+      await Subscribtion_payment_history.create({
+        company_id: iC.id,
+        order_id : i.order_id,
+        amount: i.price,
+        status: "process",    
+        createdAt: myDate,
+        updatedAt: myDate,
+      },
+      {
+        transaction: this.t,
+      });
+
+    } catch (error) {
+
+      console.log("errrrrrrrrrrrr");
+      console.log(error);
+      console.log("errrrrrrrrrrrr");
+      this.state = false;
+    }
   }
-);
 
-// ✅ Model `AmraSettings`
-class AmraSettings extends Model {}
-AmraSettings.init(
-  {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    name: { type: DataTypes.STRING, allowNull: false, unique: true },
-    value: { type: DataTypes.STRING, allowNull: false },
-  },
-  {
-    sequelize,
-    modelName: "AmraSettings",
-    tableName: "amra_settings",
-    timestamps: false,
-    underscored: false,
+
+  
+        
+  // const body = this.req.body;
+  // // insert to database
+  // const i = await Bank_pemasukan.create(
+  //   {
+  //     bank_id : body.bank, 
+  //     tipe : body.tipe,
+  //     nomor_akun_bank : body.nomor_akun_bank, 
+  //     nama_akun_bank : body.nama_akun_bank,
+  //     createdAt: myDate,
+  //     updatedAt: myDate,
+  //   },
+  //   {
+  //     transaction: this.t,
+  //   }
+  // );
+  // // write log message
+  // this.message = `Menambahkan bank pemasukan baru dengan bank pemasukan id : ${i.id}`;
+  //   // ✅ Simpan data ke database
+  //   const newCompany = await Company.create({
+  //     code: companyCode,
+  //     kurs: "rp",
+  //     logo: "",
+  //     icon: "",
+  //     company_name,
+  //     email,
+  //     type: "limited",
+  //     verify_status: "unverified",
+  //     verify_time: null,
+  //     whatsapp_company_number,
+  //     otp: otpRecord.otp_code,
+  //     otp_expired_time: otpRecord.expired_time,
+  //     invoice_logo: null,
+  //     invoice_title: null,
+  //     start_subscribtion: moment().format("YYYY-MM-DD HH:mm:ss"),
+  //     end_subscribtion: endSubscription,
+  //     whatsapp_device_number: null,
+  //     whatsapp_device_key: null,
+  //     refresh_token: refreshToken,
+  //     saldo: 0,
+  //     markup_ppob: 0,
+  //     username,
+  //     password: hashedPassword,
+  //     start_date_subscribtion: moment().format("YYYY-MM-DD HH:mm:ss"),
+  //     end_date_subscribtion: endSubscription,
+  //     transaction_date: moment().format("YYYY-MM-DD HH:mm:ss"),
+  //   });
+
+  //   await SubscriptionPaymentHistory.create({
+  //     company_id: newCompany.id,
+  //     order_id,
+  //     amount: packagePrice,
+  //     status: "pending",
+  //   });
+
+//   async add() {
+//     // initialize general property
+//     await this.initialize();
+//     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+//     // insert process
+//     try {
+//       const body = this.req.body;
+//       const kode_member = await generate_member_code();
+//       var password = "12345";
+//       if (body.password !== "") {
+//         password = body.password;
+//       }
+//       const saltRounds = 10;
+//       await bcrypt
+//       .genSalt(saltRounds)
+//       .then((salt) => {
+//         return bcrypt.hash(password, salt);
+//       })
+//       .then(async (hash) => {
+//         var data = {
+//           tipe  : body.tipe,
+//           kode  : kode_member, 
+//           fullname : body.fullname, 
+//           whatsapp_number : body.nomor_whatsapp, 
+//           username : body.username,
+//           password : hash,
+//           status : 'verified', 
+//           createdAt: myDate,
+//           updatedAt: myDate,
+//         };
+//         if(body.kecamatan == '11'){
+//           data = {...data,...{alamat : body.alamat, desa_id : null } };
+//         }else{
+//           data = {...data,...{alamat : '', desa_id : body.desa } };
+//         }
+
+//         if( body.tipe === 'perorangan') {
+//           data = {...data,...{nomor_ktp : body.nomor_ktp, nomor_kk : body.kartu_keluarga, birth_date : body.birth_date } };
+//         }
+                 
+//         // insert process
+//         const i = await Member.create(
+//           data,
+//           {
+//             transaction: this.t,
+//           }
+//         );
+//         // write log message
+//         this.message = `Menambahkan member baru dengan nama : ${body.fullname}, dengan Member ID : ${i.id}`;
+//       });
+//     } catch (error) {
+//       console.log("error");
+//       console.log(error);
+//       console.log("error");
+//       this.state = false;
+//     }
+//   }
+
+//   async delete() {
+//     // initialize general property
+//     await this.initialize();
+//     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+//        // insert process
+//     try {
+//       const body = this.req.body;
+//       // delete member
+//       await Member.destroy(
+//         {
+//           where: {
+//             id: body.id,
+//           },
+//         },
+//         {
+//           transaction: this.t,
+//         }
+//       );
+//       // write log message
+//       this.message = `Menghapus member dengan ID : ${body.id}`;
+//     } catch (error) {
+//       this.state = false;
+//     }
+//   }
+  
+//   async update() {
+//     // initialize general property
+//     await this.initialize();
+//     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+//     const body = this.req.body;
+//     // insert process
+//     try {
+//       if(body.password !== undefined && body.password !== '' ) {
+//         const saltRounds = 10;
+//         await bcrypt
+//         .genSalt(saltRounds)
+//         .then((salt) => {
+//           return bcrypt.hash(password, salt);
+//         })
+//         .then(async (hash) => {
+//           var data = { 
+//             tipe  : body.tipe,
+//             fullname : body.fullname, 
+//             whatsapp_number : body.nomor_whatsapp,
+//             username : body.username,
+//             password : hash,
+//             updatedAt: myDate,
+//           };
+
+//           if(body.kecamatan == '11'){
+//             data = {...data,...{alamat : body.alamat, desa_id : null } };
+//           }else{
+//             data = {...data,...{alamat : '', desa_id : body.desa } };
+//           }
+
+//           if( body.tipe === 'perorangan') {
+//             data = {...data,...{nomor_ktp : body.nomor_ktp, nomor_kk : body.kartu_keluarga, birth_date : body.birth_date } };
+//           }
+
+//           await Member.update(
+//             data,
+//             {
+//               where: { id: body.id },
+//             },
+//             {
+//               transaction: this.t,
+//             }
+//           );
+//         });
+//       }else{
+//         var data = { 
+//           tipe  : body.tipe,
+//           fullname : body.fullname, 
+//           whatsapp_number : body.nomor_whatsapp,
+//           username : body.username,
+//           updatedAt: myDate,
+//         };
+
+//         if(body.kecamatan == '11') {
+//           data = {...data,...{alamat : body.alamat, desa_id : null } };
+//         }else{
+//           data = {...data,...{alamat : '', desa_id : body.desa } };
+//         }
+
+//         if( body.tipe === 'perorangan') {
+//           data = {...data,...{nomor_ktp : body.nomor_ktp, nomor_kk : body.kartu_keluarga, birth_date : body.birth_date } };
+//         }
+
+//         await Member.update(
+//           data,
+//           {
+//             where: { id: body.id },
+//           },
+//           {
+//             transaction: this.t,
+//           }
+//         );
+//       }
+//       // write log message
+//       this.message = `Menambahkan member baru dengan nama : ${body.fullname}, dengan Member ID : ${body.id}`;
+//     } catch (error) {
+//       this.state = false;
+//     }
+//   }
+
+  async response() {
+    if (this.state) {
+      // await write_log(this.req, this.t, {
+      //   msg: this.message,
+      // });
+      // commit
+      await this.t.commit();
+      return true;
+    } else {
+      // rollback
+      await this.t.rollback();
+      return false;
+    }
   }
-);
+}
 
-// ✅ Model `Otp`
-class Otp extends Model {}
-Otp.init(
-  {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    otp_code: { type: DataTypes.STRING, allowNull: false },
-    expired_time: { type: DataTypes.DATE, allowNull: false },
-    mobile_number: { type: DataTypes.STRING, allowNull: false },
-    otp_type: {
-      type: DataTypes.ENUM("registration", "login"),
-      allowNull: false,
-    },
-    otp_status: {
-      type: DataTypes.ENUM("active", "inactive"),
-      allowNull: false,
-    },
-    user_type: { type: DataTypes.ENUM("amra", "company"), allowNull: false },
-  },
-  {
-    sequelize,
-    modelName: "Otp",
-    tableName: "otps",
-    timestamps: true,
-    createdAt: "createdAt",
-    updatedAt: "updatedAt",
-    underscored: false,
-  }
-);
-
-// ✅ Sync Database
-sequelize
-  .sync({ alter: true })
-  .then(() => console.log("✅ Database Synced"))
-  .catch((err) => console.error("❌ Database Sync Failed:", err));
-
-// ✅ Export Models dan Sequelize Instance
-module.exports = {
-  Company,
-  SubscriptionPaymentHistory,
-  AmraSettings,
-  Otp,
-  sequelize,
-};
+module.exports = Model_cud;
