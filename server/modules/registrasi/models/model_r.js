@@ -38,13 +38,29 @@ class Model_r {
     return companyCode;
   }
 
-  async generated_company_refresh_token() {
-    // ✅ Generate token unik 49 karakter
-    let refreshToken;
-    do {
-      refreshToken = uuidv4().replace(/-/g, "").substring(0, 49);
-    } while (await Company.findOne({ where: { refresh_token: refreshToken } }));
 
+//   helper.randomString = async (length, chars) => {
+//     var result = "";
+//     for (var i = length; i > 0; --i)
+//       result += chars[Math.floor(Math.random() * chars.length)];
+//     return result;
+//   };
+  
+  async randomString ( length, chars ) {
+        var result = "";
+        for (var i = length; i > 0; --i)
+        result += chars[Math.floor(Math.random() * chars.length)];
+        return result;
+  }
+
+  async generated_company_refresh_token() {
+    var refreshToken = '';
+    let condition = true;
+    while (condition) {
+        refreshToken = await this.randomString(49, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+      var check = await Company.findOne({ where: { refresh_token: refreshToken } });
+      if (!check) condition = false;
+    }
     return refreshToken;
   }
 
@@ -68,11 +84,6 @@ class Model_r {
       },
     });
     return otpRecord;
-    // if (!otpRecord || new Date(otpRecord.expired_time) < new Date()) {
-    //   return res
-    //     .status(400)
-    //     .json({ error: "OTP tidak valid atau sudah kadaluarsa" });
-    // }
   }
 
 
