@@ -25,10 +25,10 @@
 </template>
 
 <script setup lang="ts">
-import CompanyDataForm from '@/components/register/widgets/CompanyDataForm.vue'
-import PackageSelection from '@/components/register/widgets/PackageSelection.vue'
-import UserDataForm from '@/components/register/widgets/UserDataForm.vue'
-import Button from '@/components/register/particles/Button.vue'
+import CompanyDataForm from '@/components/Register/widgets/CompanyDataForm.vue'
+import PackageSelection from '@/components/Register/widgets/PackageSelection.vue'
+import UserDataForm from '@/components/Register/widgets/UserDataForm.vue'
+import Button from '@/components/Register/particles/Button.vue'
 </script>
 
 <style scoped>
