@@ -13,13 +13,11 @@ const apiClient = axios.create({
 
 interface Kota {
   id: number;
-  company_id: number;
   kode: string;
   name: string;
 }
 
 interface Errors {
-  company_id: string;
   kode: string;
   name: string;
 }
@@ -37,13 +35,11 @@ const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
 
 const selectedKota = ref<Partial<Kota>>({
-  company_id: 0,
   kode: '',
   name: '',
 });
 
 const errors = ref<Errors>({
-  company_id: '',
   kode: '',
   name: '',
 });
@@ -52,31 +48,25 @@ const fetchData = async () => {
   try {
     const response = await apiClient.get('/');
     daftarKota.value = response.data.data;
-  } catch (error: any) {
+  } catch (error  : any) {
     console.error('Error fetching data:', error);
-    const message = error.response?.data?.message || 'Terjadi kesalahan saat mengambil data.';
-    displayNotification(message, 'error');
+    displayNotification('Terjadi kesalahan saat mengambil data.', 'error');
   }
 };
 
 onMounted(fetchData);
 
 const searchKota = computed(() => {
-  return daftarKota.value.filter((kota) =>
-    [kota.company_id?.toString() || '', kota.kode, kota.name]
-      .some((value) => value.toLowerCase().includes(search.value.toLowerCase()))
+  const result = daftarKota.value.filter((kota) =>
+    [kota.kode, kota.name].some((value) => value.toLowerCase().includes(search.value.toLowerCase()))
   );
+  return result.length ? result : null;
 });
 
-
 const validateForm = (): boolean => {
-  errors.value = { company_id: '', kode: '', name: '' };
+  errors.value = { kode: '', name: '' };
   let isValid = true;
 
-  if (!selectedKota.value.company_id) {
-    errors.value.company_id = 'Company ID tidak boleh kosong';
-    isValid = false;
-  }
   if (!selectedKota.value.kode?.trim()) {
     errors.value.kode = 'Kode tidak boleh kosong';
     isValid = false;
@@ -89,7 +79,7 @@ const validateForm = (): boolean => {
 };
 
 const openModal = (kota?: Kota) => {
-  selectedKota.value = kota ? { ...kota } : { company_id: 0, kode: '', name: '' };
+  selectedKota.value = kota ? { ...kota } : { kode: '', name: '' };
   isModalOpen.value = true;
 };
 
@@ -104,8 +94,6 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
     showNotification.value = false;
   }, 3000);
 };
-
-displayNotification.timeoutId = null as number | null;
 
 const showConfirmation = (title: string, message: string, action: () => void) => {
   confirmTitle.value = title;
@@ -125,20 +113,20 @@ const saveData = async () => {
         showConfirmDialog.value = false;
         displayNotification('Data berhasil diperbarui!');
       } else {
-        await apiClient.post('/', selectedKota.value);
+        await apiClient.post('/', { ...selectedKota.value });
         displayNotification('Data berhasil ditambahkan!');
       }
       isModalOpen.value = false;
       fetchData();
     } catch (error) {
       console.error('Error saving data:', error);
+      showConfirmDialog.value = false;
       displayNotification('Terjadi kesalahan saat menyimpan data.', 'error');
     }
   };
 
   isEdit ? showConfirmation('Konfirmasi Perubahan', 'Apakah Anda yakin ingin mengubah data ini?', action) : action();
 };
-
 
 const deleteData = async (id: number) => {
   showConfirmation(
@@ -190,40 +178,31 @@ const deleteData = async (id: number) => {
         <thead class="bg-gray-50">
           <tr>
             <th class="w-2/12 px-6 py-4 font-medium text-gray-900">ID</th>
-            <th class="w-2/12 px-6 py-4 font-medium text-gray-900">Company ID</th>
             <th class="w-2/12 px-6 py-4 font-medium text-gray-900">Kode</th>
             <th class="w-4/12 px-6 py-4 font-medium text-gray-900">Nama</th>
             <th class="w-3/12 px-6 py-4 font-medium text-gray-900">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-          <tr v-for="kota in searchKota" :key="kota.id" class="hover:bg-gray-50">
-            <td class="px-6 py-4">{{ kota.id }}</td>
-            <td class="px-6 py-4">{{ kota.company_id }}</td>
-            <td class="px-6 py-4">{{ kota.kode }}</td>
-            <td class="px-6 py-4">{{ kota.name }}</td>
-            <td class="px-6 py-4">
-              <div class="flex gap-2">
-                <button
-                  @click="openModal(kota)"
-                  class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  </svg>
-                  Edit
-                </button>
-                <button
-                  @click="deleteData(kota.id)"
-                  class="inline-flex items-center gap-1 rounded-lg bg-red-600 px-3 py-2 text-white hover:bg-red-700 transition-colors duration-200"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                  Hapus
-                </button>
-              </div>
-            </td>
+          <template v-if="searchKota && searchKota.length > 0">
+            <tr v-for="kota in searchKota" :key="kota.id" class="hover:bg-gray-50">
+              <td class="px-6 py-4">{{ kota.id }}</td>
+              <td class="px-6 py-4">{{ kota.kode }}</td>
+              <td class="px-6 py-4">{{ kota.name }}</td>
+              <td class="px-6 py-4">
+                <div class="flex gap-2">
+                  <button @click="openModal(kota)" class="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700">
+                    Edit
+                  </button>
+                  <button @click="deleteData(kota.id)" class="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700">
+                    Hapus
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </template>
+          <tr v-else>
+            <td colspan="4" class="px-6 py-4 text-center text-xl text-gray-600">Daftar kota tidak ditemukan.</td>
           </tr>
         </tbody>
       </table>
@@ -248,15 +227,6 @@ const deleteData = async (id: number) => {
                 {{ selectedKota.id ? "Edit Data" : "Tambah Data" }}
               </h3>
               <div class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Company ID</label>
-                  <input
-                    v-model="selectedKota.company_id"
-                    type="number"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
-                  />
-                  <p v-if="errors.company_id" class="mt-1 text-sm text-red-600">{{ errors.company_id }}</p>
-                </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">Kode</label>
                   <input
@@ -285,7 +255,7 @@ const deleteData = async (id: number) => {
                 {{ selectedKota.id ? "Simpan Perubahan" : "Tambah" }}
               </button>
               <button
-                @click="isModalOpen = false ; selectedKota = { company_id: 0, kode: '', name: '' }"
+                @click="isModalOpen = false"
                 class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
               >
                 Batal

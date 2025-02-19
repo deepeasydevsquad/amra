@@ -18,10 +18,10 @@ class Model_cud {
       kode = validator.trim(kode);
       name = validator.escape(validator.trim(name));
 
-      // Cek apakah kota dengan kode tersebut sudah ada
-      const existingKota = await Mst_kota.findOne({ where: { kode } });
+      // Cek apakah kota dengan kode tersebut sudah ada di company ID
+      const existingKota = await Mst_kota.findOne({ where: { kode, company_id } });
       if (existingKota) {
-        throw new Error("Kode kota sudah digunakan.");
+        throw new Error("Kode kota sudah digunakan di company ID ini.");
       }
 
       // Simpan data
@@ -34,51 +34,52 @@ class Model_cud {
   // Update Kota
   async update_daftar_kota({ id, company_id, kode, name }) {
     try {
-      // Validasi input
       if (!id || !company_id || !kode || !name) {
-        throw new Error("Semua field harus diisi.");
+        return { error: true, message: "Semua field harus diisi." };
       }
-
-      // Sanitasi input
-      kode = validator.trim(kode);
-      name = validator.escape(validator.trim(name));
-
-      // Cek apakah kota ada di database
-      const kota = await Mst_kota.findByPk(id);
+  
+      // Cari data berdasarkan ID dan company_id
+      const kota = await Mst_kota.findOne({ where: { id, company_id } });
       if (!kota) {
-        throw new Error("Kota tidak ditemukan.");
+        return { error: true, message: "Kota tidak ditemukan atau bukan milik perusahaan ini." };
       }
-
+  
+      // Cek apakah kode kota sudah dipakai oleh kota lain
+      const existingKota = await Mst_kota.findOne({ where: { kode, company_id } });
+      if (existingKota && existingKota.id !== Number(id)) {
+        return { error: true, message: "Kode kota sudah digunakan di company ID ini." };
+      }
+  
       // Update data
-      await kota.update({ company_id, kode, name });
-
-      return { message: "Kota berhasil diperbarui.", data: kota };  
+      await kota.update({ kode, name });
+  
+      return { error: false, message: "Kota berhasil diperbarui.", data: kota };
     } catch (error) {
-      throw new Error(`Gagal memperbarui kota: ${error.message}`);
-    }
-  }
-
-  // Hapus Kota
-  async delete_daftar_kota({ id }) {
-    try {
-      if (!id) {
-        throw new Error("ID kota harus disertakan.");
-      }
-
-      // Cek apakah kota ada
-      const kota = await Mst_kota.findByPk(id);
-      if (!kota) {
-        throw new Error("Kota tidak ditemukan.");
-      }
-
-      // Hapus data
-      await kota.destroy();
-      return { message: "Kota berhasil dihapus." };
-    } catch (error) {
-      throw new Error(`Gagal menghapus kota: ${error.message}`);
+      return { error: true, message: `Gagal memperbarui kota: ${error.message}` };
     }
   }
   
+
+  // Hapus Kota
+  async delete_daftar_kota({ id, company_id }) {
+    try {
+      if (!id || !company_id) {
+        return { error: true, message: "ID kota dan company ID harus disertakan." };
+      }
+  
+      // Cek apakah kota ada dan milik company yang sesuai
+      const kota = await Mst_kota.findOne({ where: { id, company_id } });
+      if (!kota) {
+        return { error: true, message: "Kota tidak ditemukan atau bukan milik perusahaan ini." };
+      }
+  
+      // Hapus data
+      await kota.destroy();
+      return { error: false, message: "Kota berhasil dihapus." };
+    } catch (error) {
+      return { error: true, message: `Gagal menghapus kota: ${error.message}` };
+    }
+  }  
 }
 
 module.exports = Model_cud;

@@ -21,6 +21,11 @@ controllers.create_daftar_kota = async (req, res) => {
 
   try {
     const { company_id, kode, name } = req.body;
+    
+    if (!company_id) {
+      return res.status(400).json({ error: true, message: "Company ID tidak ditemukan." });
+    }
+
     const model_cud = new Model_cud(req);
     const data = await model_cud.create_daftar_kota({ company_id, kode, name });
 
@@ -36,7 +41,12 @@ controllers.update_daftar_kota = async (req, res) => {
 
   try {
     const { company_id, kode, name } = req.body;
-    const id = req.params.id; // Ambil ID dari params
+    const { id } = req.params; // Ambil ID dari params
+
+    if (!company_id) {
+      return res.status(400).json({ error: true, message: "Company ID tidak ditemukan." });
+    }
+
     const model_cud = new Model_cud(req);
     const result = await model_cud.update_daftar_kota({ id, company_id, kode, name });
 
@@ -55,10 +65,14 @@ controllers.update_daftar_kota = async (req, res) => {
 controllers.delete_daftar_kota = async (req, res) => {
   try {
     const { id } = req.params;
-    const user_company_id = req.user.company_id; // Misal ambil dari token user
+    const { company_id } = req.body; // Ambil dari req.body sesuai router
+
+    if (!company_id) {
+      return res.status(400).json({ error: true, message: "Company ID tidak ditemukan." });
+    }
 
     const model_cud = new Model_cud(req);
-    await model_cud.delete_daftar_kota({ id, user_company_id });
+    await model_cud.delete_daftar_kota({ id, company_id });
 
     res.status(200).json({ error: false, message: "Kota berhasil dihapus." });
   } catch (error) {
@@ -66,6 +80,4 @@ controllers.delete_daftar_kota = async (req, res) => {
   }
 };
 
-
 module.exports = controllers;
-
