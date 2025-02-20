@@ -63,7 +63,15 @@ class Model_r {
         await Menu.findAll().then(async (value) => {
           await Promise.all(
             await value.map(async (e) => {
-              menu[e.id] = { id : e.id, name : e.name, path : e.path, icon : e.icon, tab : JSON.parse(e.tab)};
+
+              console.log("====================");
+              console.log(e.id);
+              console.log(e.tab);
+              console.log(e.path);
+              // console.log(JSON.parse(e.tab));
+              console.log("====================");
+
+              menu[e.id] = { id : e.id, name : e.name, path : e.path, icon : e.icon, tab : e.path === '#' ? '' : JSON.parse(e.tab)};
             })
           );
         });
@@ -73,9 +81,9 @@ class Model_r {
           await Promise.all(
             await value.map(async (e) => {
                 if(submenu[e.menu_id] === undefined ) {
-                    submenu = {...submenu,...{[e.menu_id] : [{ id: e.id, name : e.name, path: e.path, tab : JSON.parse(e.tab) }]}}
+                    submenu = {...submenu,...{[e.menu_id] : [{ id: e.id, name : e.name, path: e.path, tab : e.tab === '' ? '' : JSON.parse(e.tab) }]}}
                 }else{
-                    submenu[e.menu_id].push({ id: e.id, name : e.name, path: e.path, tab : JSON.parse(e.tab) });
+                    submenu[e.menu_id].push({ id: e.id, name : e.name, path: e.path, tab : e.tab === '' ? '' : JSON.parse(e.tab) });
                 }
             })
           );
