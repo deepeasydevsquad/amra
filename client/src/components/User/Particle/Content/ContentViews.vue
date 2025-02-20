@@ -10,10 +10,12 @@ import 'flowbite'
 
 import BerandaUtama from '../../Modules/BerandaUtama/BerandaUtama.vue'
 import TransPaket from '../../Modules/TransPaket/TransPaket.vue'
+import Akun from '../../Modules/Akun/Akun.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
   trans_paket: TransPaket,
+  akun: Akun,
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click

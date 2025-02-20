@@ -60,7 +60,10 @@ controllers.login_process = async (req, res) => {
         error_msg: 'Username atau Password anda tidak ditemukan dipangkalan data.',
       });
     }
-  } catch (error) {  
+  } catch (error) { 
+    console.log('Tes-----') ;
+    console.log(error) ;
+    console.log('Tes-----') ;
     handleServerError(res, error);
   }
 }

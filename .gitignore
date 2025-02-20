@@ -150,4 +150,5 @@ dist
 .DS_Store
 package-lock.json
 package.json
+server/config/config.json
 
