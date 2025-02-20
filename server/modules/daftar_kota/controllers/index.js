@@ -6,55 +6,61 @@ const controllers = {};
 
 // **Mendapatkan daftar kota**
 controllers.get_daftar_kota = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
   try {
     const model_r = new Model_r(req);
-    const data = await model_r.daftar_kota(); // Ambil daftar kota dari model
-    res.status(200).json({ error: false, data });
+    const feedBack = await model_r.daftar_kota(); // Ambil daftar kota dari model
+    res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
   } catch (error) {
     handleServerError(res, error.message);
   }
 };
 
 // **Menambahkan kota baru**
-controllers.create_daftar_kota = async (req, res) => {
+controllers.add = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
-    const { company_id, kode, name } = req.body;
-    
-    if (!company_id) {
-      return res.status(400).json({ error: true, message: "Company ID tidak ditemukan." });
-    }
-
     const model_cud = new Model_cud(req);
-    const data = await model_cud.create_daftar_kota({ company_id, kode, name });
-
-    res.status(201).json({ error: false, message: "Kota berhasil ditambahkan", data });
+    await model_cud.add();
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Kota Baru berhasil ditambahkan.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Kota Baru Gagal Ditambahkan.',
+      });
+    }
   } catch (error) {
     handleServerError(res, error.message);
   }
 };
 
 // **Update kota**
-controllers.update_daftar_kota = async (req, res) => {
+controllers.update = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
-    const { company_id, kode, name } = req.body;
-    const { id } = req.params; // Ambil ID dari params
-
-    if (!company_id) {
-      return res.status(400).json({ error: true, message: "Company ID tidak ditemukan." });
-    }
-
     const model_cud = new Model_cud(req);
-    const result = await model_cud.update_daftar_kota({ id, company_id, kode, name });
-
-    if (result.error) {
-      return res.status(400).json(result); // Tangani error dari CUD
+    await model_cud.update();
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Kota berhasil Diupdate.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Kota Gagal Diupdate.',
+      });
     }
 
-    res.status(200).json(result);
   } catch (error) {
     console.error("Error di Controller:", error);
     handleServerError(res, error.message);
@@ -62,19 +68,25 @@ controllers.update_daftar_kota = async (req, res) => {
 };
 
 // **Hapus kota**
-controllers.delete_daftar_kota = async (req, res) => {
+controllers.delete = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
   try {
-    const { id } = req.params;
-    const { company_id } = req.body; // Ambil dari req.body sesuai router
-
-    if (!company_id) {
-      return res.status(400).json({ error: true, message: "Company ID tidak ditemukan." });
-    }
-
     const model_cud = new Model_cud(req);
-    await model_cud.delete_daftar_kota({ id, company_id });
+    await model_cud.delete();
 
-    res.status(200).json({ error: false, message: "Kota berhasil dihapus." });
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Kota berhasil dihapus.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Kota Gagal Dihapus.',
+      });
+    }
   } catch (error) {
     handleServerError(res, error.message);
   }

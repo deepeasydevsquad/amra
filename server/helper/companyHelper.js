@@ -1,19 +1,28 @@
 const { Company } = require("../models"); // Sesuaikan dengan model Company
+const jwt = require("jsonwebtoken");
 
 const companyHelper = {};
 
 
-companyHelper.getCompanyIdByCode = async (companyCode) => {
+companyHelper.getCompanyIdByCode = async (req) => {
     try {
-        
-    //   console.log("============================================");
-    //   console.log("Fetching company ID for companyCode:", companyCode);
-    //   console.log("============================================");
+
+      const authHeader = req.headers['authorization'];
+      const token = authHeader && authHeader.split(' ')[1];
+      const decoded = jwt.decode(token);
+      const company_code = decoded.company_code;
 
       const company = await Company.findOne({
-        where: { code: companyCode },
+        where: { code: company_code },
         attributes: ["id"], // Hanya ambil field 'id' dari Company
       });
+
+
+
+      console.log('==============Company ID');
+      console.log(company.id);
+      console.log('==============Company ID');
+
 
       return company ? company.id : null;
     } catch (error) {

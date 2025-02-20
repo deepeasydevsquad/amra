@@ -1,15 +1,61 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+// Import Icon
+import DeleteIcon from "./Icon/DeleteIcon.vue"
+import EditIcon from "./Icon/EditIcon.vue"
+
+// import element
+import DangerButton from "./Particle/DangerButton.vue"
+import EditButton from "./Particle/EditButton.vue"
+import Notification from "./Particle/Notification.vue"
+import Confirmation from "./Particle/Confirmation.vue"
+
+// import api from "@/services/api"; // Import service API
+import { daftarKota, addKota, editKota, deleteKota } from "../../../../service/daftar_kota"; // Import function POST
+import { ref, onMounted, computed, watchEffect } from 'vue';
 import axios from 'axios';
+// import Confirmation from "./Particle/Confirmation.vue"
 
-const apiUrl = 'http://localhost:3001/daftar_kota';
-const accessToken = localStorage.getItem('access_token');
-const headers = accessToken ? { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+const itemsPerPage = 100; // Jumlah kota per halaman
+const currentPage = ref(1);
+const search = ref("");
+//const perpage = ref(100);
+const pageNumber = ref(0);
+const totalPages = ref(0);
 
-const apiClient = axios.create({
-  baseURL: apiUrl,
-  headers,
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    fetchData()
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    fetchData()
+  }
+};
+
+
+const pageNow = (page : number) => {
+  currentPage.value = page
+  fetchData()
+}
+
+// Generate array angka halaman
+const pages = computed(() => {
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1);
 });
+
+// // Hitung total halaman
+//const totalPages = computed(() => Math.ceil(searchKota.value.length / itemsPerPage));
+// const apiUrl = 'http://localhost:3001/daftar_kota';
+// const accessToken = localStorage.getItem('access_token');
+// const headers = accessToken ? { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+// const apiClient = axios.create({
+//   baseURL: apiUrl,
+//   headers,
+// });
 
 interface Kota {
   id: number;
@@ -23,8 +69,7 @@ interface Errors {
 }
 
 const timeoutId = ref<number | null>(null);
-const daftarKota = ref<Kota[]>([]);
-const search = ref<string>('');
+const dataKota = ref<Kota[]>([]);
 const isModalOpen = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
@@ -33,6 +78,7 @@ const notificationType = ref<'success' | 'error'>('success');
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
+const totalColumns = ref(3); // Default 3 kolom
 
 const selectedKota = ref<Partial<Kota>>({
   kode: '',
@@ -44,23 +90,20 @@ const errors = ref<Errors>({
   name: '',
 });
 
-const fetchData = async () => {
-  try {
-    const response = await apiClient.get('/');
-    daftarKota.value = response.data.data;
-  } catch (error  : any) {
-    console.error('Error fetching data:', error);
-    displayNotification('Terjadi kesalahan saat mengambil data.', 'error');
-  }
+const fetchData = async() => {
+  const response = await daftarKota({search: search.value, perpage: itemsPerPage, pageNumber: currentPage.value});
+  totalPages.value = Math.ceil(response.total / itemsPerPage)
+  dataKota.value = response.data;
+}
+
+const openModal = (kota?: Kota) => {
+  selectedKota.value = kota ? { ...kota } : { kode: '', name: '' };
+  isModalOpen.value = true;
 };
 
-onMounted(fetchData);
-
-const searchKota = computed(() => {
-  const result = daftarKota.value.filter((kota) =>
-    [kota.kode, kota.name].some((value) => value.toLowerCase().includes(search.value.toLowerCase()))
-  );
-  return result.length ? result : null;
+onMounted(async () => {
+  await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
+  totalColumns.value = document.querySelectorAll("thead th").length;
 });
 
 const validateForm = (): boolean => {
@@ -76,11 +119,6 @@ const validateForm = (): boolean => {
     isValid = false;
   }
   return isValid;
-};
-
-const openModal = (kota?: Kota) => {
-  selectedKota.value = kota ? { ...kota } : { kode: '', name: '' };
-  isModalOpen.value = true;
 };
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
@@ -109,19 +147,23 @@ const saveData = async () => {
   const action = async () => {
     try {
       if (isEdit) {
-        await apiClient.put(`/${selectedKota.value.id}`, selectedKota.value);
+        const response = await editKota(selectedKota.value.id, selectedKota.value );
         showConfirmDialog.value = false;
-        displayNotification('Data berhasil diperbarui!');
+        displayNotification(response.error_msg);
       } else {
-        await apiClient.post('/', { ...selectedKota.value });
-        displayNotification('Data berhasil ditambahkan!');
+        const response = await addKota(selectedKota.value);
+        showConfirmDialog.value = false;
+        displayNotification(response.error_msg);
       }
       isModalOpen.value = false;
       fetchData();
     } catch (error) {
-      console.error('Error saving data:', error);
+      if (axios.isAxiosError(error)) {
+        displayNotification(error.response?.data?.error_msg || 'Terjadi kesalahan saat menyimpan data.', 'error');
+      } else {
+        displayNotification('Terjadi kesalahan yang tidak terduga.', 'error');
+      }
       showConfirmDialog.value = false;
-      displayNotification('Terjadi kesalahan saat menyimpan data.', 'error');
     }
   };
 
@@ -134,9 +176,9 @@ const deleteData = async (id: number) => {
     'Apakah Anda yakin ingin menghapus data ini?',
     async () => {
       try {
-        await apiClient.delete(`/${id}`);
+        const response = await deleteKota(id);
         showConfirmDialog.value = false;
-        displayNotification('Data berhasil dihapus!');
+        displayNotification(response.error_msg);
         fetchData();
       } catch (error) {
         console.error('Error deleting data:', error);
@@ -145,6 +187,7 @@ const deleteData = async (id: number) => {
     }
   );
 };
+
 </script>
 
 <template>
@@ -153,12 +196,11 @@ const deleteData = async (id: number) => {
     <div class="flex justify-between mb-4">
       <button
         @click="openModal()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
-      >
+        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
-        Tambah Data
+        Tambah Kota Baru
       </button>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
@@ -167,6 +209,7 @@ const deleteData = async (id: number) => {
           id="search"
           class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
           v-model="search"
+          @change="fetchData()"
           placeholder="Cari data..."
         />
       </div>
@@ -177,58 +220,129 @@ const deleteData = async (id: number) => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-2/12 px-6 py-4 font-medium text-gray-900">ID</th>
-            <th class="w-2/12 px-6 py-4 font-medium text-gray-900">Kode</th>
-            <th class="w-4/12 px-6 py-4 font-medium text-gray-900">Nama</th>
-            <th class="w-3/12 px-6 py-4 font-medium text-gray-900">Aksi</th>
+            <th class="w-[75%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Kota</th>
+            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Kode Kota</th>
+            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-          <template v-if="searchKota && searchKota.length > 0">
-            <tr v-for="kota in searchKota" :key="kota.id" class="hover:bg-gray-50">
-              <td class="px-6 py-4">{{ kota.id }}</td>
-              <td class="px-6 py-4">{{ kota.kode }}</td>
-              <td class="px-6 py-4">{{ kota.name }}</td>
-              <td class="px-6 py-4">
-                <div class="flex gap-2">
-                  <button
-                    @click="openModal(kota)"
-                    class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-2 text-white hover:bg-blue-700 transition-colors duration-200"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                      />
-                    </svg>
-                    Edit
-                  </button>
-                  <button
-                    @click="deleteData(kota.id)"
-                    class="inline-flex items-center gap-1 rounded-lg bg-red-600 px-3 py-2 text-white hover:bg-red-700 transition-colors duration-200"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
-                    Hapus
-                  </button>
+          <template v-if="dataKota && dataKota.length > 0">
+            <tr v-for="kota in dataKota" :key="kota.id" class="hover:bg-gray-50">
+              <td class="px-6 py-4 text-center">{{ kota.name }}</td>
+              <td class="px-6 py-4 text-center">{{ kota.kode }}</td>
+              <td class="px-6 py-4 text-center">
+                <div class="flex justify-center gap-2">
+                  <EditButton @click="openModal(kota)">
+                    <EditIcon></EditIcon>
+                  </EditButton>
+                  <DangerButton @click="deleteData(kota.id)">
+                    <DeleteIcon></DeleteIcon>
+                  </DangerButton>
                 </div>
               </td>
             </tr>
           </template>
           <tr v-else>
-            <td colspan="4" class="px-6 py-4 text-center text-xl text-gray-600">Daftar kota tidak ditemukan.</td>
+            <td colspan="4" class="px-6 py-4 text-center text-base text-gray-600">Daftar kota tidak ditemukan.</td>
           </tr>
         </tbody>
+        <tfoot class="bg-gray-100 font-bold">
+          <tr>
+            <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
+              <nav class="flex mt-0">
+                <ul class="inline-flex items-center -space-x-px">
+                  <!-- Tombol Previous -->
+                  <li>
+                    <button
+                      @click="prevPage"
+                      :disabled="currentPage === 1"
+                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg
+                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Previous
+                    </button>
+                  </li>
+                  <!-- Nomor Halaman -->
+                  <li v-for="page in pages" :key="page">
+                    <button
+                      @click="pageNow(page)"
+                      class="px-3 py-2 leading-tight border"
+                      :class="currentPage === page
+                        ? 'text-white bg-[#3a477d] border-[#3a477d]'
+                        : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'"
+                    >
+                      {{ page }}
+                    </button>
+                  </li>
+
+                  <!-- Tombol Next -->
+                  <li>
+                    <button
+                      @click="nextPage"
+                      :disabled="currentPage === totalPages"
+                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg
+                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </td>
+          </tr>
+        </tfoot>
       </table>
     </div>
+
+
+
+
+    <!-- <nav aria-label="Page navigation example">
+      <ul class="inline-flex -space-x-px text-base h-10">
+        <li>
+          <a href="#" class="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Previous</a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
+        </li>
+        <li>
+          <a href="#" aria-current="page" class="flex items-center justify-center px-4 h-10 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">4</a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">5</a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</a>
+        </li>
+      </ul>
+    </nav> -->
+
+    <!-- <div class="flex justify-center items-center gap-2 mt-4">
+      <button
+        @click="prevPage"
+        :disabled="currentPage === 1"
+        class="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+      >
+        <font-awesome-icon :icon="['fas', 'backward']" />
+      </button>
+
+      <span class="px-3 py-1 text-gray-700">Page {{ currentPage }} of {{ totalPages }}</span>
+
+      <button
+        @click="nextPage"
+        :disabled="nextIsDisabled"
+        class="px-3 py-1  rounded "
+        :class="`${ nextIsDisabled ? ' bg-gray-300 disabled:opacity-50' : 'bg-black'}`"
+      >
+      <font-awesome-icon :icon="['fas', 'forward']" />
+      </button>
+    </div> -->
 
     <!-- Modal Form -->
     <Transition
@@ -246,7 +360,7 @@ const deleteData = async (id: number) => {
           <div class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <h3 class="text-2xl flex justify-center font-bold leading-6 text-gray-900 mb-4">
-                {{ selectedKota.id ? "Edit Data" : "Tambah Data" }}
+                {{ selectedKota.id ? "Edit Data Kota" : "Tambah Kota Baru" }}
               </h3>
               <div class="space-y-4">
                 <div>
@@ -254,7 +368,7 @@ const deleteData = async (id: number) => {
                   <input
                     v-model="selectedKota.kode"
                     type="text"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
+                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal" placeholder="Kode Kota"
                   />
                   <p v-if="errors.kode" class="mt-1 text-sm text-red-600">{{ errors.kode }}</p>
                 </div>
@@ -263,7 +377,7 @@ const deleteData = async (id: number) => {
                   <input
                     v-model="selectedKota.name"
                     type="text"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
+                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal" placeholder="Nama Kota"
                   />
                   <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
                 </div>
@@ -289,95 +403,21 @@ const deleteData = async (id: number) => {
     </Transition>
 
     <!-- Confirmation Dialog -->
-    <Transition
-      enter-active-class="transition duration-200 ease-out"
-      enter-from-class="transform scale-95 opacity-0"
-      enter-to-class="transform scale-100 opacity-100"
-      leave-active-class="transition duration-200 ease-in"
-      leave-from-class="transform scale-100 opacity-100"
-      leave-to-class="transform scale-95 opacity-0"
-    >
-      <div v-if="showConfirmDialog" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-          <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
-          <div class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <div class="sm:flex sm:items-start">
-                <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10">
-                  <svg class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                  </svg>
-                </div>
-                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                  <h3 class="text-2xl font-medium leading-6 text-gray-900" id="modal-title">{{ confirmTitle }}</h3>
-                  <div class="mt-2">
-                    <p class="text-lg text-gray-500">{{ confirmMessage }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-              <button
-                @click="confirmAction && confirmAction()"
-                class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                Ya
-              </button>
-              <button
-                @click="showConfirmDialog = false"
-                class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                Tidak
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Transition>
+    <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
+      <button @click="confirmAction && confirmAction()"
+        class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+      >
+        Ya
+      </button>
+      <button
+        @click="showConfirmDialog = false"
+        class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+      >
+        Tidak
+      </button>
+    </Confirmation>
 
     <!-- Notification Popup -->
-    <Transition
-      enter-active-class="transition duration-200 ease-out"
-      enter-from-class="transform scale-95 opacity-0"
-      enter-to-class="transform scale-100 opacity-100"
-      leave-active-class="transition duration-200 ease-in"
-      leave-from-class="transform scale-100 opacity-100"
-      leave-to-class="transform scale-95 opacity-0"
-    >
-      <div v-if="showNotification" class="fixed inset-0 flex items-center justify-center z-50 backdrop-filter backdrop-blur-sm">
-        <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 relative">
-          <div class="flex items-center space-x-4">
-            <div class="flex-shrink-0">
-              <div v-if="notificationType === 'success'" class="bg-green-100 rounded-full p-2">
-                <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <div v-else class="bg-red-100 rounded-full p-2">
-                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </div>
-            </div>
-            <div class="flex-1">
-              <h3 class="text-2xl font-medium" :class="notificationType === 'success' ? 'text-green-900' : 'text-red-900'">
-                {{ notificationType === 'success' ? 'Berhasil' : 'Gagal' }}
-              </h3>
-              <p class="mt-1 text-lg text-gray-500">{{ notificationMessage }}</p>
-            </div>
-          </div>
-          <button
-            @click="showNotification = false"
-            class="absolute top-2 right-2 text-gray-400 hover:text-gray-500"
-          >
-            <span class="sr-only">Close</span>
-            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </Transition>
+    <Notification  :showNotification="showNotification"  :notificationType="notificationType" :notificationMessage="notificationMessage" ></Notification>
   </div>
 </template>

@@ -2,41 +2,65 @@ const express = require("express");
 const { body, param } = require("express-validator");
 const controllers = require("../modules/daftar_kota/controllers/index");
 const { authenticateToken } = require("../middleware/authenticateToken");
-const getCompanyId = require("../middleware/getCompanyId");
+// const getCompanyId = require("../middleware/getCompanyId");
+const validation = require("../validation/daftar_kota");
 
 const router = express.Router();
 
-router.get("/daftar_kota", authenticateToken, controllers.get_daftar_kota);
+// router.get("/daftar_kota", authenticateToken, controllers.get_daftar_kota);
 
 router.post(
-  "/daftar_kota",
+  "/daftar_kota/list",
   authenticateToken,
-  getCompanyId,
   [
-    body("kode").trim().notEmpty().withMessage("Kode tidak boleh kosong."),
-    body("name").trim().notEmpty().withMessage("Nama tidak boleh kosong."),
+    body("pageNumber").trim(),
+    body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
+    body("search").trim(),
   ],
-  controllers.create_daftar_kota
+  controllers.get_daftar_kota
 );
 
-router.put(
-  "/daftar_kota/:id",
+router.post(
+  "/daftar_kota/",
   authenticateToken,
-  getCompanyId,
   [
-    param("id").isInt().withMessage("ID harus berupa angka."),
-    body("kode").trim().notEmpty().withMessage("Kode tidak boleh kosong."),
-    body("name").trim().notEmpty().withMessage("Nama tidak boleh kosong."),
+    body("kode").trim().notEmpty().withMessage("Kode Kota tidak boleh kosong.").custom(validation.check_add_kode_kota),
+    body("name").trim().notEmpty().withMessage("Nama Kota tidak boleh kosong."),
   ],
-  controllers.update_daftar_kota
+  controllers.add
 );
 
-router.delete(
-  "/daftar_kota/:id",
+router.post(
+  "/daftar_kota/update",
   authenticateToken,
-  getCompanyId,
-  [param("id").isInt().withMessage("ID harus berupa angka.")],
-  controllers.delete_daftar_kota
+  [
+    body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").custom(validation.check_id_kota),
+    body("kode").trim().notEmpty().withMessage("Kode Kota tidak boleh kosong.").custom(validation.check_edit_kode_kota),
+    body("name").trim().notEmpty().withMessage("Nama Kota tidak boleh kosong."),
+  ],
+  controllers.update
+);
+
+// update
+
+// //
+// router.put(
+//   "/daftar_kota/:id",
+//   authenticateToken,
+//   getCompanyId,
+//   [
+//     param("id").isInt().withMessage("ID harus berupa angka."),
+//     body("kode").trim().notEmpty().withMessage("Kode tidak boleh kosong."),
+//     body("name").trim().notEmpty().withMessage("Nama tidak boleh kosong."),
+//   ],
+//   controllers.update_daftar_kota
+// );
+
+router.post(
+  "/daftar_kota/delete",
+  authenticateToken,
+  [body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").isInt().withMessage("ID Kota harus berupa angka.").custom(validation.check_id_kota)],
+  controllers.delete
 );
 
 module.exports = router;

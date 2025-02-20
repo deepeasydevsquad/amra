@@ -1,85 +1,128 @@
-const { Mst_kota } = require("../../../models");
-const validator = require("validator");
+const { sequelize, Mst_kota } = require("../../../models");
+const Model_r = require("../models/model_r");
+const { writeLog } = require("../../../helper/writeLogHelper");
+const { getCompanyIdByCode } = require("../../../helper/companyHelper");
+const moment = require("moment");
 
 class Model_cud {
   constructor(req) {
     this.req = req;
+    this.company_id;
+  }
+
+  async initialize() {
+    this.company_id = await getCompanyIdByCode(this.req);
+    // initialize transaction
+    this.t = await sequelize.transaction();
+    this.state = true;
   }
 
   // Tambah Kota
-  async create_daftar_kota({ company_id, kode, name }) {
+  async add() {
+    // initialize dependensi properties
+    await this.initialize();
+    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+    const body = this.req.body;
+
     try {
-      // Validasi input
-      if (!company_id || !kode || !name) {
-        throw new Error("Semua field harus diisi.");
-      }
-
-      // Sanitasi input
-      kode = validator.trim(kode);
-      name = validator.escape(validator.trim(name));
-
-      // Cek apakah kota dengan kode tersebut sudah ada di company ID
-      const existingKota = await Mst_kota.findOne({ where: { kode, company_id } });
-      if (existingKota) {
-        throw new Error("Kode kota sudah digunakan di company ID ini.");
-      }
-
-      // Simpan data
-      return await Mst_kota.create({ company_id, kode, name });
+      // insert process
+      const insert = await Mst_kota.create(
+        {
+          company_id : this.company_id, 
+          kode: body.kode,
+          name: body.name,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+      // write log message
+      this.message = `Menambahkan Kota Baru dengan Kode Kota : ${body.kode} dan Nama Kota : ${body.name} dan ID Kota  : ${insert.id}`;
     } catch (error) {
-      throw new Error(`Gagal menambahkan kota: ${error.message}`);
+      this.state = false;
     }
   }
 
-  // Update Kota
-  async update_daftar_kota({ id, company_id, kode, name }) {
+  // Edit kota
+  async update() {
+    // initialize general property
+    await this.initialize();
+    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+    const body = this.req.body;
+    // update process
     try {
-      if (!id || !company_id || !kode || !name) {
-        return { error: true, message: "Semua field harus diisi." };
-      }
-  
-      // Cari data berdasarkan ID dan company_id
-      const kota = await Mst_kota.findOne({ where: { id, company_id } });
-      if (!kota) {
-        return { error: true, message: "Kota tidak ditemukan atau bukan milik perusahaan ini." };
-      }
-  
-      // Cek apakah kode kota sudah dipakai oleh kota lain
-      const existingKota = await Mst_kota.findOne({ where: { kode, company_id } });
-      if (existingKota && existingKota.id !== Number(id)) {
-        return { error: true, message: "Kode kota sudah digunakan di company ID ini." };
-      }
-  
-      // Update data
-      await kota.update({ kode, name });
-  
-      return { error: false, message: "Kota berhasil diperbarui.", data: kota };
+      // call object
+      const model_r = new Model_r(this.req);
+      // get info kota
+      const infoKota = await model_r.infoKota(body.id, this.company_id);
+      // update data kota
+      await Mst_kota.update(
+        {
+          kode: body.kode,
+          name: body.name,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          where: { id: body.id, company_id : this.company_id,  },
+        },
+        {
+          transaction: this.t,
+        }
+      );
+      // write log message
+      this.message = `Memperbaharui Data Kota dengan Kode Kota ${infoKota.kode}, Nama Kota ${infoKota.name} dan ID Kota : ${body.id} menjadi Kode Kota ${body.kode} dan Nama Kota ${body.name}`;
     } catch (error) {
-      return { error: true, message: `Gagal memperbarui kota: ${error.message}` };
+      this.state = false;
     }
   }
-  
 
   // Hapus Kota
-  async delete_daftar_kota({ id, company_id }) {
+  async delete() {
+    // initialize dependensi properties
+    await this.initialize();
+    const body = this.req.body;
     try {
-      if (!id || !company_id) {
-        return { error: true, message: "ID kota dan company ID harus disertakan." };
-      }
-  
-      // Cek apakah kota ada dan milik company yang sesuai
-      const kota = await Mst_kota.findOne({ where: { id, company_id } });
-      if (!kota) {
-        return { error: true, message: "Kota tidak ditemukan atau bukan milik perusahaan ini." };
-      }
-  
-      // Hapus data
-      await kota.destroy();
-      return { error: false, message: "Kota berhasil dihapus." };
+      // call object
+      const model_r = new Model_r(this.req);
+      // get info kota
+      const infoKota = await model_r.infoKota(body.id, this.company_id);
+      // delete process
+      await Mst_kota.destroy(
+        {
+          where: {
+            id: body.id,
+            company_id : this.company_id
+          },
+        },
+        {
+          transaction: this.t,
+        }
+      );
+      // write log message
+      this.message = `Menghapus Kota dengan Kode Kota : ${infoKota.kode} dan Nama Kota : ${infoKota.name} dan ID Kota  : ${infoKota.id}`;
     } catch (error) {
-      return { error: true, message: `Gagal menghapus kota: ${error.message}` };
+      this.state = false;
     }
-  }  
+  }
+
+  // response
+  async response() {
+    if (this.state) {
+      await writeLog(this.req, this.t, {
+        msg: this.message,
+      });
+      // commit
+      await this.t.commit();
+      return true;
+    } else {
+      // rollback
+      await this.t.rollback();
+      return false;
+    }
+  }
 }
 
 module.exports = Model_cud;
