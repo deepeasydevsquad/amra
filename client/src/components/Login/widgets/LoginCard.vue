@@ -97,10 +97,6 @@ setTimeout(() => {
         </div>
 
         <p class="text-center mb-4 mt-6 text-[#175690] font-semibold">Atau</p>
-        <!-- <div class="flex mt-6 gap-3 w-full">
-          <ForgotPasswordButton />
-          <GuideButton />
-        </div> -->
 
         <RegisterButton />
         <a href="#" class="text-xs text-center mt-5 mb-16 text-[#175690]">

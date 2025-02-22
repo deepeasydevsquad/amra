@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 // Import Icon
 import DeleteIcon from "./Icon/DeleteIcon.vue"
 import EditIcon from "./Icon/EditIcon.vue"
@@ -188,7 +188,7 @@ const deleteData = async (id: number) => {
   );
 };
 
-</script>
+</script> -->
 
 <template>
   <div class="container mx-auto p-4">
@@ -218,14 +218,21 @@ const deleteData = async (id: number) => {
     <!-- Table data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-50 border-b border-gray-400">
           <tr>
-            <th class="w-[75%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Kota</th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Kode Kota</th>
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+            <th class=" px-6 py-4 w-[10%] font-medium font-bold text-gray-900 text-center border border-gray-200" rowspan="2">Tanggal Transaksi</th>
+            <th class=" px-6 py-4 w-[15%] font-medium font-bold text-gray-900 text-center border border-gray-200" rowspan="2">Ref</th>
+            <th class="px-6 py-4 w-[15%] font-medium font-bold text-gray-900 text-center border border-gray-200" rowspan="2">Keterangan</th>
+            <th class="px-6 py-4 w-[40%] font-medium font-bold text-gray-900 text-center border border-gray-200" colspan="4">Akun</th>
+            <th class="px-6 py-4 w-[15%] font-medium font-bold text-gray-900 text-center border border-gray-200" rowspan="2">Saldo</th>
+            <th class="w-[5%] px-6 py-4 font-medium font-bold text-gray-900 text-center border border-gray-200" rowspan="2">Aksi</th>
+          </tr>
+          <tr>
+            <th class="px-6 py-4 font-medium font-bold text-gray-900 text-center border border-gray-200" colspan="2">Debet</th>
+            <th class="px-6 py-4 font-medium font-bold text-gray-900 text-center border border-gray-200" colspan="2">Kredit</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100 border-t border-gray-100">
+        <!-- <tbody class="divide-y divide-gray-100 border-t border-gray-100">
           <template v-if="dataKota && dataKota.length > 0">
             <tr v-for="kota in dataKota" :key="kota.id" class="hover:bg-gray-50">
               <td class="px-6 py-4 text-center">{{ kota.name }}</td>
@@ -245,7 +252,7 @@ const deleteData = async (id: number) => {
           <tr v-else>
             <td colspan="4" class="px-6 py-4 text-center text-base text-gray-600">Daftar kota tidak ditemukan.</td>
           </tr>
-        </tbody>
+        </tbody> -->
         <tfoot class="bg-gray-100 font-bold">
           <tr>
             <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
@@ -294,7 +301,7 @@ const deleteData = async (id: number) => {
       </table>
     </div>
     <!-- Modal Form -->
-    <Transition
+    <!-- <Transition
       enter-active-class="transition duration-200 ease-out"
       enter-from-class="transform scale-95 opacity-0"
       enter-to-class="transform scale-100 opacity-100"
@@ -349,10 +356,10 @@ const deleteData = async (id: number) => {
           </div>
         </div>
       </div>
-    </Transition>
+    </Transition> -->
 
     <!-- Confirmation Dialog -->
-    <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
+    <!-- <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
       <button @click="confirmAction && confirmAction()"
         class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
       >
@@ -364,9 +371,9 @@ const deleteData = async (id: number) => {
       >
         Tidak
       </button>
-    </Confirmation>
+    </Confirmation> -->
 
     <!-- Notification Popup -->
-    <Notification  :showNotification="showNotification"  :notificationType="notificationType" :notificationMessage="notificationMessage" ></Notification>
+    <!-- <Notification  :showNotification="showNotification"  :notificationType="notificationType" :notificationMessage="notificationMessage" ></Notification> -->
   </div>
 </template>
