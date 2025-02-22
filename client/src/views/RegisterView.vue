@@ -5,7 +5,6 @@
       <div class="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent"></div>
     </div>
 
-    <!-- Bagian Kanan (Form) -->
     <div class="w-full md:w-1/2 p-6 flex flex-col justify-center bg-white md:-ml-4 md:pl-16">
       <div class="space-y-4 w-full px-4 max-w-lg">
         <h2 class="text-3xl font-bold text-center mb-5 text-primary">Silahkan Buat Akun Baru!</h2>
@@ -18,56 +17,42 @@
           <span class="font-semibold">Syarat dan Ketentuan & Kebijakan Privasi kami</span>
         </p>
       </div>
-    </div>
 
-    <!-- Notifikasi -->
-    <transition name="fade">
+      <!-- Notifikasi -->
       <div
         v-if="notification.show"
-        class="fixed top-5 right-5 p-4 rounded-lg text-white shadow-lg"
-        :class="notification.type"
+        :class="['fixed top-4 right-4 p-4 rounded-lg text-white shadow-lg', notification.type]"
       >
         {{ notification.message }}
       </div>
-    </transition>
+    </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
-
 import CompanyDataForm from '@/components/Register/widgets/CompanyDataForm.vue'
 import PackageSelection from '@/components/Register/widgets/PackageSelection.vue'
 import UserDataForm from '@/components/Register/widgets/UserDataForm.vue'
 import Button from '@/components/Register/particles/Button.vue'
 
-declare let window: any
-
+const router = useRouter()
 const notification = ref({ show: false, message: '', type: '' })
-
-const showNotification = (message: string, type: 'success' | 'error' | 'warning') => {
-  notification.value = { show: true, message, type }
-  setTimeout(() => (notification.value.show = false), 3000)
-}
-
 const companyData = ref({ company_name: '', whatsapp_company_number: '' })
 const packageSelected = ref('1')
 const userData = ref({ username: '', password: '', token: '', email: '', confirmPassword: '' })
 
-const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+.[^\s@]+$/.test(email)
+const showNotification = (message, type) => {
+  notification.value = { show: true, message, type }
+  setTimeout(() => (notification.value.show = false), 3000)
+}
 
-// Load Midtrans Snap script saat komponen dimount
-onMounted(() => {
-  if (!window.snap) {
-    let script = document.createElement('script')
-    script.src = 'https://app.sandbox.midtrans.com/snap/snap.js'
-    script.setAttribute('data-client-key', 'YOUR_CLIENT_KEY_HERE') // Ganti dengan client key Midtrans
-    document.head.appendChild(script)
-  }
-})
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
 const registerCompany = async () => {
+  // Validasi input
   if (
     !companyData.value.company_name ||
     !companyData.value.whatsapp_company_number ||
@@ -97,7 +82,7 @@ const registerCompany = async () => {
   }
 
   try {
-    const response = await axios.post('http://localhost:3001/register', {
+    const response = await axios.post('http://localhost:3001/register/', {
       company_name: companyData.value.company_name,
       whatsapp_company_number: companyData.value.whatsapp_company_number,
       username: userData.value.username,
@@ -107,29 +92,25 @@ const registerCompany = async () => {
       package: packageSelected.value,
     })
 
-    console.log('🔥 Response dari backend:', response.data) // Debugging token Midtrans
+    console.log('🔥 Response dari backend:', response.data)
 
-    if (response.data.midtrans_token) {
-      showNotification('✅ Registrasi berhasil! Silakan lanjutkan pembayaran.', 'success')
+    if (response.data.message === 'Registrasi berhasil!') {
+      showNotification('✅ Registrasi berhasil! Silakan lanjutkan ke pembayaran.', 'success')
 
+      // Redirect ke halaman kwitansi dengan order_id setelah 3 detik
       setTimeout(() => {
-        console.log('🚀 Memanggil Midtrans Snap dengan token:', response.data.midtrans_token)
-        window.snap.pay(response.data.midtrans_token, {
-          onSuccess: () => showNotification('🎉 Pembayaran berhasil! Akun terdaftar.', 'success'),
-          onPending: () => showNotification('⌛ Pembayaran dalam proses...', 'warning'),
-          onError: () => showNotification('❌ Pembayaran gagal!', 'error'),
-          onClose: () => showNotification('⚠️ Anda menutup pembayaran.', 'warning'),
-        })
-      }, 500) // Delay sedikit untuk memastikan Snap siap
+        const orderId = response.data.order_id // Ambil order_id dari response backend
+        console.log('Redirecting to kwitansi page with order ID:', orderId) // Debugging
+        router.push(`/kwitansi?order_id=${orderId}`) // Gunakan path relatif
+      }, 3000)
     } else {
-      showNotification('❌ Gagal mendapatkan token pembayaran!', 'error')
+      showNotification(response.data.message || '❌ Registrasi gagal!', 'error')
     }
   } catch (error) {
     console.error('❌ Error saat registrasi:', error)
     showNotification(error.response?.data?.error || 'Registrasi gagal!', 'error')
   }
 }
-
 </script>
 
 <style scoped>
@@ -141,14 +122,6 @@ const registerCompany = async () => {
 }
 .warning {
   background-color: #ff9800;
-}
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
 }
 .text-primary {
   color: #175690;

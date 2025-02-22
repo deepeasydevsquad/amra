@@ -15,7 +15,7 @@ const port = process.env.PORT;
 app.use(cors());
 app.use(cookieParser());
 
-const arr_router = ["user", "otp", "registrasi"];
+const arr_router = ["user", "otp", "registrasi", "kwitansi"];
 //   {
 //     folder: "frontend",
 //     list: [
