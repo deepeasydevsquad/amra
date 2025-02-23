@@ -71,6 +71,10 @@ class Model_cud {
       });
 
     } catch (error) {
+
+      console.log('--------------____________-_---------');
+      console.log(error);
+      console.log('--------------____________-_---------');
       this.state = false;
     }
   }
