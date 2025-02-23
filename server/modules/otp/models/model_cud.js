@@ -1,93 +1,71 @@
-"use strict";
-const { Model, DataTypes, Sequelize } = require("sequelize");
-const config = require("../../../config/config.json")[
-  process.env.NODE_ENV || "development"
-];
+const moment = require("moment");
+const { sequelize, Otp } = require("../../../models");
 
-// **Inisialisasi Sequelize**
-const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password,
-  {
-    host: config.host,
-    dialect: config.dialect,
-    logging: false, // Set ke true kalau mau lihat query di console
-    timezone: "Asia/Jakarta",
+class Model_cud {
+  constructor(req) {
+    this.req = req;
+    this.t;
+    this.state;
   }
-);
 
-// **Model Otp**
-class Otp extends Model {}
-
-Otp.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    otp_code: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    expired_time: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    mobile_number: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    otp_type: {
-      type: DataTypes.ENUM("registration", "login"),
-      allowNull: false,
-      defaultValue: "registration",
-    },
-    otp_status: {
-      type: DataTypes.ENUM("active", "inactive"),
-      allowNull: false,
-      defaultValue: "active",
-    },
-    user_type: {
-      type: DataTypes.ENUM("amra", "company"),
-      allowNull: false,
-      defaultValue: "amra",
-    },
-  },
-  {
-    sequelize,
-    modelName: "Otp",
-    tableName: "otps",
+  async initialize() {
+    // initialize transaction
+    this.t = await sequelize.transaction();
+    this.state = true;
   }
-);
 
-// **Model AmraSettings**
-class AmraSettings extends Model {}
+  async savedOtp(i) {
+    // initialize general property
+    await this.initialize();
+    // insert process
+    try {
+      
+      // inactive where mobile number
+      await Otp.update(
+        { otp_status: "inactive" },
+        {
+          where: {
+            mobile_number: i.mobile_number,
+            otp_status: "active",
+            // expired_time: { [Op.gt]: new Date() }, // Masih berlaku
+          },
+        },
+        {
+          transaction: this.t,
+        }
+      );
 
-AmraSettings.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    value: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  },
-  {
-    sequelize,
-    modelName: "AmraSettings",
-    tableName: "amra_settings",
-    timestamps: false, // Sesuai dengan database kamu
+      const myNextDate = moment(new Date()).add(1, 'days').format("YYYY-MM-DD HH:mm:ss");
+
+      // insert to database new oTP
+      await Otp.create({
+        otp_code: i.otp_code,
+        expired_time: myNextDate,
+        mobile_number: i.mobile_number,
+        otp_type: "registration",
+        otp_status: "active",
+        user_type: "amra",
+      },
+      {
+        transaction: this.t,
+      });
+
+    } catch (error) {
+      this.state = false;
+    }
   }
-);
 
-// **Export semua model dan koneksi**
-module.exports = { Otp, AmraSettings, sequelize };
+  async response() {
+    if (this.state) {
+      // commit
+      await this.t.commit();
+      return true;
+    } else {
+      // rollback
+      await this.t.rollback();
+      return false;
+    }
+  }
+}
+
+module.exports = Model_cud;

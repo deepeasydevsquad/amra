@@ -38,6 +38,11 @@ exports.registerCompany = async (req, res) => {
 
   try {
     const body = req.body;
+
+    console.log("---------------");
+    console.log(body);
+    console.log("---------------");
+
     const model_r = new Model_r(req);
     const company_code = await model_r.generated_company_code();
     const refresh_token = await model_r.generated_company_refresh_token();
@@ -93,6 +98,10 @@ exports.registerCompany = async (req, res) => {
       console.log(midtransVaNumbers);
       console.log(midtransRedirectUrl);
       console.log("FeedBack-----Midtrans----");
+
+      console.log('+++++++++++++++++++++');
+      console.log(otp);
+      console.log('+++++++++++++++++++++');
 
       const model_cud = new Model_cud(req);
       await model_cud.create_company({

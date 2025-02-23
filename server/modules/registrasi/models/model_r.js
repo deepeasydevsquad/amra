@@ -85,15 +85,36 @@ class Model_r {
   }
 
   async get_otp(i) {
-    const otpRecord = await Otp.findOne({
-      where: {
-        mobile_number: i.whatsapp_company_number,
-        otp_code: i.token,
-        otp_status: "active",
-        otp_type: "registration",
-      },
-    });
-    return otpRecord;
+
+    try {
+
+      const dat = {
+        where: {
+          mobile_number: i.whatsapp_company_number,
+          otp_code: i.token,
+          otp_status: "active",
+          otp_type: "registration",
+        },
+      }
+
+      console.log('---Where');
+      console.log(dat);
+      console.log('---Where');
+
+      const otpRecord = await Otp.findOne(dat);
+  
+      console.log('---get_otp---');
+      console.log(otpRecord);
+      console.log('---get_otp---');
+      return otpRecord;
+    } catch (error) {
+
+      console.log('---error get_otp---');
+      console.log(error);
+      console.log('---error get_otp---');
+      return {}
+    }
+   
   }
 
   //   async get_user_information() {
