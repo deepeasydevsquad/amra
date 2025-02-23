@@ -36,6 +36,13 @@ module.exports = {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+        {
+          name: "get_url_midtrans",
+          value:
+            "MIDTRANS_GET_STATUS_URL = https://api.sandbox.midtrans.com/v2/",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ],
       {}
     );

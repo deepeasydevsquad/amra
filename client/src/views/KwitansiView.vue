@@ -36,13 +36,13 @@
           <!-- Jumlah Pembayaran -->
           <div class="flex justify-between">
             <p class="text-gray-600">Jumlah Pembayaran:</p>
-            <p class="text-gray-800 font-bold">{{ formatCurrency(transaction.harga) }}</p>
+            <p class="text-gray-800 font-bold">{{ formatCurrency(transaction.price) }}</p>
           </div>
 
           <!-- Nama Rekening -->
           <div class="flex justify-between">
             <p class="text-gray-600">Nama Rekening:</p>
-            <p class="text-gray-800 font-bold">{{ transaction.nama_rekening }}</p>
+            <p class="text-gray-800 font-bold">{{ transaction.rekening }}</p>
           </div>
 
           <!-- Bank -->
@@ -60,7 +60,7 @@
           <!-- Tanggal Transaksi -->
           <div class="flex justify-between">
             <p class="text-gray-600">Tanggal Transaksi:</p>
-            <p class="text-gray-800 font-bold">{{ formatDate(transaction.created_at) }}</p>
+            <p class="text-gray-800 font-bold">{{ formatDate(transaction.createdAt) }}</p>
           </div>
         </div>
       </div>
@@ -80,7 +80,7 @@ interface Transaction {
   status: string
   harga: number
   nama_rekening: string
-  created_at: string
+  createdAt: string
 }
 
 export default defineComponent({

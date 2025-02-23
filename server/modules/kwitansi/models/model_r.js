@@ -1,126 +1,109 @@
-"use strict";
-const { Model, DataTypes, Sequelize } = require("sequelize");
-const config = require("../../../config/config.json")[
-  process.env.NODE_ENV || "development"
-];
+const axios = require("axios");
 
-// **Inisialisasi Sequelize**
-const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password,
-  {
-    host: config.host,
-    dialect: config.dialect,
-    logging: false, // Set ke true kalau mau lihat query di console
-    timezone: "Asia/Jakarta",
-  }
-);
-
-class AmraSetting extends Model {}
-AmraSetting.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true, // Pastikan setiap key unik (tidak duplikat)
-    },
-    value: {
-      type: DataTypes.STRING, // Bisa menyimpan angka atau teks
-      allowNull: false,
-    },
-  },
-  {
-    sequelize,
-    modelName: "AmraSetting",
-    tableName: "amra_settings",
-    timestamps: false, // Biasanya pengaturan tidak butuh timestamps
-  }
-);
-// **Model Company**
-class Company extends Model {}
-Company.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    company_name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    bank_account: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    bank_name: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-  },
-  { sequelize, modelName: "Company", tableName: "companies", timestamps: true }
-);
-
-// **Model Subscribtion_Payment_History**
-class Subscribtion_Payment_History extends Model {}
-Subscribtion_Payment_History.init(
-  {
-    order_id: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      primaryKey: true,
-    },
-    amount: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    company_id: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: "companies",
-        key: "id",
-      },
-    },
-  },
-  {
-    sequelize,
-    modelName: "Subscribtion_Payment_History",
-    tableName: "subscribtion_payment_histories",
-    timestamps: true,
-  }
-);
-
-// **Relasi**
-Company.hasMany(Subscribtion_Payment_History, { foreignKey: "company_id" });
-Subscribtion_Payment_History.belongsTo(Company, { foreignKey: "company_id" });
-
-// **Middleware untuk cek koneksi database**
-const checkDBConnection = async (req, res, next) => {
-  try {
-    await sequelize.authenticate();
-    console.log("✅ Database connected successfully.");
-    next();
-  } catch (error) {
-    console.error("❌ Database connection error:", error);
-    return res.status(500).json({ message: "Database connection failed" });
-  }
-};
-
-// **Ekspor Model dan Middleware**
-module.exports = {
-  AmraSetting,
-  sequelize,
+const {
   Company,
-  Subscribtion_Payment_History,
-  checkDBConnection, // Bisa dipakai di route level
-};
+  Subscribtion_payment_history,
+  Amra_setting,
+  Otp,
+  sequelize,
+} = require("../../../models");
+const { v4: uuidv4 } = require("uuid");
+const jwt = require("jsonwebtoken");
+
+sequelize
+  .authenticate()
+  .then(() => console.log("Database connected"))
+  .catch((err) => console.error("Database connection error:", err));
+
+class Model_r {
+  constructor(req) {
+    this.req = req;
+  }
+
+  async getUrl() {
+    const url = await Amra_setting.findOne({
+      where: { name: "MIDTRANS_GET_STATUS_URL" }, // ✅ Fix typo
+    });
+    return url ? url.value : null; // ✅ Ambil value dari DB
+  }
+
+  async getPrice() {
+    const HargaLangganan = await Amra_setting.findOne({
+      where: { name: "harga_langganan" },
+    });
+    return HargaLangganan ? parseInt(HargaLangganan.value, 10) : 0;
+  }
+
+  async getRekening() {
+    const NamaRekening = await Amra_setting.findOne({
+      where: { name: "nama_rekening" },
+    });
+    return NamaRekening ? NamaRekening.value : "Tidak tersedia";
+  }
+
+  async getOrderid() {
+    const payment = await Subscribtion_payment_history.findOne({
+      order: [["createdAt", "DESC"]],
+      attributes: ["order_id", "status", "createdAt"],
+    });
+
+    if (!payment) {
+      throw new Error("❌ Tidak ada data pembayaran ditemukan");
+    }
+
+    return payment;
+  }
+
+  async getMidtrans() {
+    const payment = await Subscribtion_payment_history.findOne({
+      order: [["createdAt", "DESC"]],
+      attributes: ["order_id"],
+    });
+
+    if (!payment) {
+      throw new Error("❌ Tidak ada pembayaran ditemukan");
+    }
+
+    const order_id = payment.order_id;
+    console.log("📝 Order ID:", order_id);
+
+    // ✅ Ambil URL dari getUrl()
+    const midtransUrl = await this.getUrl();
+    if (!midtransUrl) {
+      throw new Error("❌ URL Midtrans tidak ditemukan");
+    }
+
+    const midtransResponse = await axios.get(
+      `${midtransUrl}/${order_id}/status`, // ✅ Fix penggunaan URL
+      {
+        headers: {
+          Authorization: `Basic ${Buffer.from(
+            process.env.MIDTRANS_SERVER_KEY + ":"
+          ).toString("base64")}`,
+        },
+      }
+    );
+
+    console.log("🔍 Midtrans Full Response:", midtransResponse.data);
+
+    const va_numbers = midtransResponse.data.va_numbers || [];
+    const bank =
+      va_numbers.length > 0
+        ? va_numbers[0].bank.toUpperCase()
+        : "Tidak tersedia";
+    const va_number =
+      va_numbers.length > 0 ? va_numbers[0].va_number : "Tidak tersedia";
+
+    return {
+      order_id: midtransResponse.data.order_id,
+      price: parseInt(midtransResponse.data.gross_amount, 10),
+      rekening:
+        bank !== "Tidak tersedia" ? `${bank} - ${va_number}` : "Tidak tersedia",
+      bank: bank,
+      va_number: va_number,
+      status: midtransResponse.data.transaction_status,
+    };
+  }
+}
+
+module.exports = Model_r;
