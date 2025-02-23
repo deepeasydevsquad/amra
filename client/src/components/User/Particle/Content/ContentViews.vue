@@ -11,11 +11,13 @@ import 'flowbite'
 import BerandaUtama from '../../Modules/BerandaUtama/BerandaUtama.vue'
 import TransPaket from '../../Modules/TransPaket/TransPaket.vue'
 import DaftarKota from '../../Modules/DaftarKota/DaftarKota.vue'
+import DaftarFasilitas from '../../Modules/DaftarFasilitas/DaftarFasilitas.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
   trans_paket: TransPaket,
   daftar_kota: DaftarKota,
+  daftar_fasilitas: DaftarFasilitas,
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click
