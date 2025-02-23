@@ -10,11 +10,11 @@ import Notification from "./Particle/Notification.vue"
 import Confirmation from "./Particle/Confirmation.vue"
 
 // import api from "@/services/api"; // Import service API
-import { daftarFasilitas, addFasilitas, editFasilitas, deleteFasilitas } from "../../../../service/daftar_fasilitas"; // Import function POST
+import { daftarJenisMobil, addJenisMobil, editJenisMobil, deleteJenisMobil } from "../../../../service/jenis_mobil"; // Import function POST
 import { ref, onMounted, computed, watchEffect } from 'vue';
 import axios from 'axios';
 
-const itemsPerPage = 100; // Jumlah fasilitas per halaman
+const itemsPerPage = 100; // Jumlah mobil per halaman
 const currentPage = ref(1);
 const search = ref("");
 //const perpage = ref(100);
@@ -46,8 +46,8 @@ const pages = computed(() => {
 });
 
 // // Hitung total halaman
-//const totalPages = computed(() => Math.ceil(searchFasilitas.value.length / itemsPerPage));
-// const apiUrl = 'http://localhost:3001/daftar_fasilitas';
+//const totalPages = computed(() => Math.ceil(searchJenisMobil.value.length / itemsPerPage));
+// const apiUrl = 'http://localhost:3001/daftar_mobil';
 // const accessToken = localStorage.getItem('access_token');
 // const headers = accessToken ? { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
 // const apiClient = axios.create({
@@ -55,7 +55,7 @@ const pages = computed(() => {
 //   headers,
 // });
 
-interface Fasilitas {
+interface JenisMobil {
   id: number;
   name: string;
 }
@@ -65,7 +65,7 @@ interface Errors {
 }
 
 const timeoutId = ref<number | null>(null);
-const dataFasilitas = ref<Fasilitas[]>([]);
+const dataJenisMobil = ref<JenisMobil[]>([]);
 const isModalOpen = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
@@ -76,7 +76,7 @@ const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
 const totalColumns = ref(3); // Default 3 kolom
 
-const selectedFasilitas = ref<Partial<Fasilitas>>({
+const selectedJenisMobil = ref<Partial<JenisMobil>>({
   name: '',
 });
 
@@ -85,13 +85,13 @@ const errors = ref<Errors>({
 });
 
 const fetchData = async() => {
-  const response = await daftarFasilitas({search: search.value, perpage: itemsPerPage, pageNumber: currentPage.value});
+  const response = await daftarJenisMobil({search: search.value, perpage: itemsPerPage, pageNumber: currentPage.value});
   totalPages.value = Math.ceil(response.total / itemsPerPage)
-  dataFasilitas.value = response.data;
+  dataJenisMobil.value = response.data;
 }
 
-const openModal = (fasilitas?: Fasilitas) => {
-  selectedFasilitas.value = fasilitas ? { ...fasilitas } : { name: '' };
+const openModal = (mobil?: JenisMobil) => {
+  selectedJenisMobil.value = mobil ? { ...mobil } : { name: '' };
   isModalOpen.value = true;
 };
 
@@ -104,7 +104,7 @@ const validateForm = (): boolean => {
   errors.value = { name: '' };
   let isValid = true;
 
-  if (!selectedFasilitas.value.name?.trim()) {
+  if (!selectedJenisMobil.value.name?.trim()) {
     errors.value.name = 'Nama tidak boleh kosong';
     isValid = false;
   }
@@ -133,15 +133,15 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 const saveData = async () => {
   if (!validateForm()) return;
 
-  const isEdit = !!selectedFasilitas.value.id;
+  const isEdit = !!selectedJenisMobil.value.id;
   const action = async () => {
     try {
       if (isEdit) {
-        const response = await editFasilitas(selectedFasilitas.value.id, selectedFasilitas.value );
+        const response = await editJenisMobil(selectedJenisMobil.value.id, selectedJenisMobil.value );
         showConfirmDialog.value = false;
         displayNotification(response.error_msg);
       } else {
-        const response = await addFasilitas(selectedFasilitas.value);
+        const response = await addJenisMobil(selectedJenisMobil.value);
         showConfirmDialog.value = false;
         displayNotification(response.error_msg);
       }
@@ -166,7 +166,7 @@ const deleteData = async (id: number) => {
     'Apakah Anda yakin ingin menghapus data ini?',
     async () => {
       try {
-        const response = await deleteFasilitas(id);
+        const response = await deleteJenisMobil(id);
         showConfirmDialog.value = false;
         displayNotification(response.error_msg);
         fetchData();
@@ -190,7 +190,7 @@ const deleteData = async (id: number) => {
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
-        Tambah Fasilitas Baru
+        Tambah Jenis Mobil Baru
       </button>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
@@ -210,20 +210,20 @@ const deleteData = async (id: number) => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[90%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Fasilitas</th>
+            <th class="w-[90%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Jenis Mobil</th>
             <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-          <template v-if="dataFasilitas && dataFasilitas.length > 0">
-            <tr v-for="fasilitas in dataFasilitas" :key="fasilitas.id" class="hover:bg-gray-50">
-              <td class="px-6 py-4 text-center">{{ fasilitas.name }}</td>
+          <template v-if="dataJenisMobil && dataJenisMobil.length > 0">
+            <tr v-for="mobil in dataJenisMobil" :key="mobil.id" class="hover:bg-gray-50">
+              <td class="px-6 py-4 text-center">{{ mobil.name }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
-                  <EditButton @click="openModal(fasilitas)">
+                  <EditButton @click="openModal(mobil)">
                     <EditIcon></EditIcon>
                   </EditButton>
-                  <DangerButton @click="deleteData(fasilitas.id)">
+                  <DangerButton @click="deleteData(mobil.id)">
                     <DeleteIcon></DeleteIcon>
                   </DangerButton>
                 </div>
@@ -231,7 +231,7 @@ const deleteData = async (id: number) => {
             </tr>
           </template>
           <tr v-else>
-            <td colspan="2" class="px-6 py-4 text-center text-base text-gray-600">Daftar fasilitas tidak ditemukan.</td>
+            <td colspan="2" class="px-6 py-4 text-center text-base text-gray-600">Daftar mobil tidak ditemukan.</td>
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
@@ -348,15 +348,15 @@ const deleteData = async (id: number) => {
           <div class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <h3 class="text-2xl flex justify-center font-bold leading-6 text-gray-900 mb-4">
-                {{ selectedFasilitas.id ? "Edit Data Fasilitas" : "Tambah Fasilitas Baru" }}
+                {{ selectedJenisMobil.id ? "Edit Data Jenis Mobil" : "Tambah Jenis Mobil Baru" }}
               </h3>
               <div class="space-y-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
                   <input
-                    v-model="selectedFasilitas.name"
+                    v-model="selectedJenisMobil.name"
                     type="text"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal" placeholder="Nama Fasilitas"
+                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal" placeholder="Nama Jenis Mobil"
                   />
                   <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
                 </div>
@@ -367,7 +367,7 @@ const deleteData = async (id: number) => {
                 @click="saveData"
                 class="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
               >
-                {{ selectedFasilitas.id ? "Simpan Perubahan" : "Tambah" }}
+                {{ selectedJenisMobil.id ? "Simpan Perubahan" : "Tambah" }}
               </button>
               <button
                 @click="isModalOpen = false"

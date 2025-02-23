@@ -16,7 +16,7 @@ app.use(cors());
 app.use(cookieParser());
 
 const arr_router = [
-  "user", "daftar_kota", "daftar_fasilitas"];
+  "user", "daftar_kota", "daftar_fasilitas", "daftar_mobil",];
 //   {
 //     folder: "frontend",
 //     list: [
