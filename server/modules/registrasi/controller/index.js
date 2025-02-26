@@ -62,6 +62,15 @@ exports.registerCompany = async (req, res) => {
 
     let midtransResponse;
     try {
+
+
+      console.log("--------IIIIII---------");
+      console.log(process.env.NODE_ENV);
+      console.log(process.env.MIDTRANS_SANDBOX_URL);
+      console.log(process.env.MIDTRANS_PRODUCTION_URL);
+
+      console.log("--------IIIIII---------");
+
       midtransResponse = await axios.post(
         process.env.NODE_ENV === "development"
           ? process.env.MIDTRANS_SANDBOX_URL
@@ -80,7 +89,6 @@ exports.registerCompany = async (req, res) => {
             finish: `http://localhost:5173/kwitansi?order_id=${order_id}`,
           },
         },
-
         {
           headers: {
             Authorization: `Basic ${Buffer.from(
@@ -95,13 +103,14 @@ exports.registerCompany = async (req, res) => {
       const midtransRedirectUrl = midtransResponse.data?.redirect_url || null;
 
       console.log("FeedBack-----Midtrans----");
+      console.log(midtransResponse.data);
       console.log(midtransVaNumbers);
       console.log(midtransRedirectUrl);
       console.log("FeedBack-----Midtrans----");
 
-      console.log('+++++++++++++++++++++');
-      console.log(otp);
-      console.log('+++++++++++++++++++++');
+      // console.log('+++++++++++++++++++++');
+      // console.log(otp);
+      // console.log('+++++++++++++++++++++');
 
       const model_cud = new Model_cud(req);
       await model_cud.create_company({

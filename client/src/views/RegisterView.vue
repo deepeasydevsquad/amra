@@ -94,6 +94,7 @@ const registerCompany = async () => {
 
     console.log('🔥 Response dari backend:', response.data)
 
+
     if (response.data.message === 'Registrasi berhasil!') {
       showNotification('✅ Registrasi berhasil! Silakan lanjutkan ke pembayaran.', 'success')
 
@@ -107,8 +108,12 @@ const registerCompany = async () => {
       showNotification(response.data.message || '❌ Registrasi gagal!', 'error')
     }
   } catch (error) {
-    console.error('❌ Error saat registrasi:', error)
-    showNotification(error.response?.data?.error || 'Registrasi gagal!', 'error')
+    showNotification(error.response.data.error_msg || '❌ Registrasi gagal!', 'error')
+    // console.error('❌ Error saat registrasi:')
+    // console.error(error.response.data.error_msg)
+    // console.error('❌ Error saat registrasi:', error)
+    // console.error('❌ Error saat registrasi:', error)
+    // showNotification(error.response?.data?.error || 'Registrasi gagal!', 'error')
   }
 }
 </script>
