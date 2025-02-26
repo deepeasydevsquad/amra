@@ -1,68 +1,90 @@
 <template>
-  <div
-    class="flex justify-center items-center min-h-screen bg-gradient-to-r from-gray-100 to-gray-200"
-  >
-    <div class="bg-white shadow-xl rounded-lg p-6 w-full max-w-md text-gray-800">
-      <h1 class="text-2xl font-bold text-gray-700 text-center mb-4">Kwitansi Pembayaran</h1>
+  <div class="flex justify-center items-center min-h-screen bg-gray-100">
+    <div
+      class="bg-white shadow-md rounded-lg p-6 w-full max-w-md text-gray-800 border border-gray-300"
+    >
+      <!-- Header -->
+      <div class="text-center border-b border-gray-300 pb-4">
+        <h1 class="text-xl font-bold">Kwitansi Pembayaran</h1>
+        <p class="text-sm text-gray-500">Terima kasih telah melakukan registrasi</p>
+      </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="text-center">
+      <div v-if="loading" class="text-center py-6">
         <div
-          class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500 mx-auto mb-4"
+          class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-gray-700 mx-auto"
         ></div>
-        <p class="text-yellow-600 font-semibold">Memuat...</p>
+        <p class="text-gray-700 font-semibold mt-2">Memuat...</p>
       </div>
 
       <!-- Error State -->
-      <div v-else-if="error" class="text-center text-red-500 font-semibold">{{ error }}</div>
+      <div v-else-if="error" class="text-center text-red-500 font-semibold py-6">
+        {{ error }}
+      </div>
 
       <!-- Success State -->
-      <div v-else>
-        <div class="border border-gray-200 rounded-lg p-4 space-y-4 bg-gray-50">
-          <!-- Order ID (Tengah) -->
-          <div class="text-center">
-            <p class="text-gray-600">Order ID</p>
-            <p class="text-gray-800 font-bold">{{ transaction.order_id }}</p>
-          </div>
-
-          <!-- Status -->
-          <div class="flex justify-between">
-            <p class="text-gray-600">Status:</p>
-            <p :class="statusClass(transaction.status)" class="font-bold">
-              {{ transaction.status.toUpperCase() }}
-            </p>
-          </div>
-
-          <!-- Jumlah Pembayaran -->
-          <div class="flex justify-between">
-            <p class="text-gray-600">Jumlah Pembayaran:</p>
-            <p class="text-gray-800 font-bold">{{ formatCurrency(transaction.price) }}</p>
-          </div>
-
-          <!-- Nama Rekening -->
-          <div class="flex justify-between">
-            <p class="text-gray-600">Nama Rekening:</p>
-            <p class="text-gray-800 font-bold">{{ transaction.rekening }}</p>
-          </div>
-
-          <!-- Bank -->
-          <div v-if="transaction.bank" class="flex justify-between">
-            <p class="text-gray-600">Bank:</p>
-            <p class="text-gray-800 font-bold">{{ transaction.bank.toUpperCase() }}</p>
-          </div>
-
-          <!-- Nomor Rekening -->
-          <div v-if="transaction.va_number" class="flex justify-between">
-            <p class="text-gray-600">Nomor Rekening:</p>
-            <p class="text-gray-800 font-bold">{{ transaction.va_number }}</p>
-          </div>
-
-          <!-- Tanggal Transaksi -->
-          <div class="flex justify-between">
-            <p class="text-gray-600">Tanggal Transaksi:</p>
-            <p class="text-gray-800 font-bold">{{ formatDate(transaction.createdAt) }}</p>
-          </div>
+      <div v-else class="py-4 space-y-3">
+        <!-- Order ID -->
+        <div class="text-center border-b pb-2">
+          <p class="text-gray-600">Order ID</p>
+          <p class="text-black font-mono font-bold">{{ transaction.order_id }}</p>
         </div>
+
+        <!-- Status -->
+        <div class="flex justify-between items-center border-b pb-2">
+          <p class="text-gray-600">Status:</p>
+          <span class="font-bold flex items-center text-black">
+            <span v-if="transaction.status === 'success'" class="text-green-500">✔️</span>
+            <span v-if="transaction.status === 'pending'" class="text-yellow-500">⏳</span>
+            <span v-if="transaction.status === 'failed'" class="text-red-500">❌</span>
+            <span class="ml-2">{{ transaction.status.toUpperCase() }}</span>
+          </span>
+        </div>
+
+        <!-- Jumlah Pembayaran -->
+        <div class="flex justify-between border-b pb-2">
+          <p class="text-gray-600">Jumlah Pembayaran:</p>
+          <p class="text-black font-bold font-mono">{{ formatCurrency(transaction.price) }}</p>
+        </div>
+
+        <!-- Nama Rekening -->
+        <div class="flex justify-between border-b pb-2">
+          <p class="text-gray-600">Nama Rekening:</p>
+          <p class="text-black font-bold">{{ transaction.rekening.toUpperCase() }}</p>
+        </div>
+
+        <!-- Bank -->
+        <div v-if="transaction.bank" class="flex justify-between border-b pb-2">
+          <p class="text-gray-600">Bank:</p>
+          <p class="text-black font-bold">{{ transaction.bank.toUpperCase() }}</p>
+        </div>
+
+        <!-- Nomor Rekening -->
+        <div v-if="transaction.va_number" class="flex justify-between border-b pb-2">
+          <p class="text-gray-600">Nomor Rekening:</p>
+          <p class="text-black font-mono font-bold">{{ transaction.va_number }}</p>
+        </div>
+
+        <!-- Keterangan -->
+        <div class="flex justify-between border-b pb-2">
+          <p class="text-gray-600">Keterangan:</p>
+          <p class="text-black font-bold text-right leading-tight">
+            Pembayaran Pendaftaran <br />
+            Registrasi Aplikasi AMRA
+          </p>
+        </div>
+
+        <!-- Tanggal Transaksi -->
+        <div class="flex justify-between">
+          <p class="text-gray-600">Tanggal Transaksi:</p>
+          <p class="text-black font-bold">{{ formatDate(transaction.createdAt) }}</p>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center text-sm text-gray-500 mt-4 border-t pt-2">
+        <p>AMRA SAAS Payment System</p>
+        <p>© {{ new Date().getFullYear() }} AMRA. All Rights Reserved.</p>
       </div>
     </div>
   </div>
