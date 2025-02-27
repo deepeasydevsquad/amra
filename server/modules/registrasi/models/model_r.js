@@ -1,14 +1,4 @@
-const {
-  Company,
-  Member,
-  Division,
-  Menu,
-  Submenu,
-  Amra_setting,
-  Otp,
-} = require("../../../models");
-const { v4: uuidv4 } = require("uuid");
-const jwt = require("jsonwebtoken");
+const { Company, Amra_setting, Otp } = require("../../../models");
 
 class Model_r {
   constructor(req) {
@@ -16,7 +6,6 @@ class Model_r {
   }
 
   async getAmraSetting() {
-    // sql["attributes"] = ["id","nomor_akun_bank","nama_akun_bank","tipe","updatedAt"];
     try {
       var data = {};
       await Amra_setting.findOne({
@@ -29,9 +18,6 @@ class Model_r {
       });
       return { data };
     } catch (error) {
-      console.log("zzzz");
-      console.log(error);
-      console.log("zzzz");
       return {};
     }
   }
@@ -44,13 +30,6 @@ class Model_r {
 
     return companyCode;
   }
-
-  //   helper.randomString = async (length, chars) => {
-  //     var result = "";
-  //     for (var i = length; i > 0; --i)
-  //       result += chars[Math.floor(Math.random() * chars.length)];
-  //     return result;
-  //   };
 
   async randomString(length, chars) {
     var result = "";
@@ -85,9 +64,7 @@ class Model_r {
   }
 
   async get_otp(i) {
-
     try {
-
       const dat = {
         where: {
           mobile_number: i.whatsapp_company_number,
@@ -96,25 +73,21 @@ class Model_r {
           otp_type: "registration",
         },
       }
-
-      console.log('---Where');
-      console.log(dat);
-      console.log('---Where');
-
       const otpRecord = await Otp.findOne(dat);
-  
-      console.log('---get_otp---');
-      console.log(otpRecord);
-      console.log('---get_otp---');
       return otpRecord;
     } catch (error) {
-
-      console.log('---error get_otp---');
-      console.log(error);
-      console.log('---error get_otp---');
       return {}
     }
    
+  }
+
+  async get_url_sand_box() {
+    const settings = await Amra_setting.findOne({
+      attributes: ["value"],
+      where: { name: "MIDTRANS_GET_STATUS_URL" },
+    });
+
+    return settings ? settings.value : '';
   }
 
   //   async get_user_information() {

@@ -1,7 +1,6 @@
 "use strict";
 const { v4: uuidv4 } = require("uuid");
 const moment = require("moment");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
 
@@ -26,10 +25,7 @@ exports.getSubscriptionPrice = async (req, res) => {
 
     return res.status(200).json(e.data);
   } catch (error) {
-    console.error("❌ Error mengambil harga langganan:", error);
-    return res
-      .status(500)
-      .json({ error: true, error_msg: "Gagal mengambil harga langganan" });
+    return res.status(500).json({ error: true, error_msg: "Gagal mengambil harga langganan" });
   }
 };
 
@@ -38,19 +34,18 @@ exports.registerCompany = async (req, res) => {
 
   try {
     const body = req.body;
-
-    console.log("---------------");
-    console.log(body);
-    console.log("---------------");
-
     const model_r = new Model_r(req);
     const company_code = await model_r.generated_company_code();
     const refresh_token = await model_r.generated_company_refresh_token();
     const price = await model_r.get_price();
-    const hashedPassword = jwt.sign(
-      { password: body.password },
+    const midtrans_urls = process.env.NODE_ENV === "development" ? await model_r.get_url_sand_box() : process.env.MIDTRANS_PRODUCTION_URL;
+
+
+    const hashedPassword = jwt.sign({ password: body.password },
       process.env.SECRET_KEY
     );
+
+    
     const endSubscription = moment()
       .add(1, "years")
       .format("YYYY-MM-DD HH:mm:ss");
@@ -63,30 +58,17 @@ exports.registerCompany = async (req, res) => {
     let midtransResponse;
     try {
 
-
-      console.log("--------IIIIII---------");
-      console.log(process.env.NODE_ENV);
-      console.log(process.env.MIDTRANS_SANDBOX_URL);
-      console.log(process.env.MIDTRANS_PRODUCTION_URL);
-
-      console.log("--------IIIIII---------");
-
       midtransResponse = await axios.post(
-        process.env.NODE_ENV === "development"
-          ? process.env.MIDTRANS_SANDBOX_URL
-          : process.env.MIDTRANS_PRODUCTION_URL,
+        midtrans_urls,
         {
+          payment_type: "bank_transfer",
           transaction_details: { order_id, gross_amount: price },
           customer_details: {
             email: body.email,
             phone: body.whatsapp_company_number,
           },
-          payment_type: "bank_transfer",
           bank_transfer: {
             bank: "bri",
-          },
-          callbacks: {
-            finish: `http://localhost:5173/kwitansi?order_id=${order_id}`,
           },
         },
         {
@@ -101,17 +83,6 @@ exports.registerCompany = async (req, res) => {
 
       const midtransVaNumbers = midtransResponse.data?.va_numbers || [];
       const midtransRedirectUrl = midtransResponse.data?.redirect_url || null;
-
-      console.log("FeedBack-----Midtrans----");
-      console.log(midtransResponse.data);
-      console.log(midtransVaNumbers);
-      console.log(midtransRedirectUrl);
-      console.log("FeedBack-----Midtrans----");
-
-      // console.log('+++++++++++++++++++++');
-      // console.log(otp);
-      // console.log('+++++++++++++++++++++');
-
       const model_cud = new Model_cud(req);
       await model_cud.create_company({
         email: body.email,
@@ -142,16 +113,12 @@ exports.registerCompany = async (req, res) => {
         });
       }
     } catch (err) {
-      console.error("❌ Error Midtrans:", err.response?.data || err.message);
-      return res.status(500).json({
+       return res.status(500).json({
         error: true,
         error_msg: "Gagal mendapatkan order ID dari Midtrans",
       });
     }
   } catch (error) {
-    console.log("------Error1");
-    console.log(error);
-    console.log("------Error1");
     handleServerError(res);
   }
 };
