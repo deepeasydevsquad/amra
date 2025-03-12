@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Otp extends Model {
+  class Mst_airline extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,18 +11,17 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Mst_airline.belongsTo(models.Company, {
+        foreignKey: "company_id",
+      });
     }
   }
-  Otp.init({
-    otp_code: DataTypes.STRING,
-    expired_time: DataTypes.DATE,
-    mobile_number: DataTypes.STRING,
-    otp_type: DataTypes.ENUM(['registration','login']),
-    otp_status: DataTypes.ENUM(['active','inactive']),
-    user_type: DataTypes.ENUM(['satu_app','company'])
+  Mst_airline.init({
+    company_id: DataTypes.INTEGER,
+    name: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'Otp',
+    modelName: 'Mst_airline',
   });
-  return Otp;
+  return Mst_airline;
 };

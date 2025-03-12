@@ -17,6 +17,9 @@ module.exports = (sequelize, DataTypes) => {
       Akun_secondary.belongsTo(models.Akun_primary, {
         foreignKey: "akun_primary_id",
       });
+      Akun_secondary.hasMany(models.Saldo_akun, {
+        foreignKey: "akun_secondary_id",
+      });
     }
   }
   Akun_secondary.init({
