@@ -14,6 +14,7 @@ import DaftarKota from '../../Modules/DaftarKota/DaftarKota.vue'
 import DaftarFasilitas from '../../Modules/DaftarFasilitas/DaftarFasilitas.vue'
 import DaftarHotel from '../../Modules/DaftarHotel/DaftarHotel.vue'
 import JenisMobil from '../../Modules/JenisMobil/JenisMobil.vue'
+import Airlines from '../../Modules/Airlines/Airlines.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -22,6 +23,7 @@ const tabComponents = {
   daftar_fasilitas: DaftarFasilitas,
   daftar_hotel: DaftarHotel,
   daftar_mobil : JenisMobil,
+  airlines: Airlines
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click
