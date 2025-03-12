@@ -8,6 +8,18 @@ module.exports = {
       { name: 'wapisender_device_key', value: 'KTDDDC',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'nomor_wa', value: '6281285607689',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'harga_langganan', value: '3000000',  createdAt: new Date(), updatedAt: new Date() },
+      {
+        name: "MIDTRANS_GET_STATUS_URL",
+        value: "https://api.sandbox.midtrans.com/v2/",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: "nama_rekening",
+        value: "SATUAPP",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     ], {});
   },
 
