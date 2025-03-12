@@ -12,6 +12,7 @@ import BerandaUtama from '../../Modules/BerandaUtama/BerandaUtama.vue'
 import TransPaket from '../../Modules/TransPaket/TransPaket.vue'
 import DaftarKota from '../../Modules/DaftarKota/DaftarKota.vue'
 import DaftarFasilitas from '../../Modules/DaftarFasilitas/DaftarFasilitas.vue'
+import DaftarHotel from '../../Modules/DaftarHotel/DaftarHotel.vue'
 import JenisMobil from '../../Modules/JenisMobil/JenisMobil.vue'
 
 const tabComponents = {
@@ -19,6 +20,7 @@ const tabComponents = {
   trans_paket: TransPaket,
   daftar_kota: DaftarKota,
   daftar_fasilitas: DaftarFasilitas,
+  daftar_hotel: DaftarHotel,
   daftar_mobil : JenisMobil,
 }
 
