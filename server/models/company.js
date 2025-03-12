@@ -33,6 +33,9 @@ module.exports = (sequelize, DataTypes) => {
       Company.hasMany(models.Akun_secondary, {
         foreignKey: "company_id",
       });
+      Company.hasMany(models.System_log, {
+        foreignKey: "company_id",
+      });
      }
   }
   Company.init(
