@@ -42,6 +42,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       code: DataTypes.STRING,
       kurs: DataTypes.ENUM(["rp", "usd", 'sar']), 
+      division_id: DataTypes.STRING,
       logo: DataTypes.STRING,
       icon: DataTypes.STRING,
       company_name: DataTypes.STRING,

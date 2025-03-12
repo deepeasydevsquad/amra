@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Division.init({
     company_id: DataTypes.INTEGER,
+    name: DataTypes.STRING,
     city: DataTypes.STRING,
     pos_code: DataTypes.STRING,
     address: DataTypes.TEXT,

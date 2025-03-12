@@ -17,6 +17,9 @@ module.exports = {
         values: ["rp", "usd", "sar"],
         defaultValue : "rp"
       },
+      division_id: {
+        type: Sequelize.STRING
+      },
       logo: {
         type: Sequelize.STRING
       },
