@@ -25,7 +25,9 @@ exports.getSubscriptionPrice = async (req, res) => {
 
     return res.status(200).json(e.data);
   } catch (error) {
-    return res.status(500).json({ error: true, error_msg: "Gagal mengambil harga langganan" });
+    return res
+      .status(500)
+      .json({ error: true, error_msg: "Gagal mengambil harga langganan" });
   }
 };
 
@@ -38,14 +40,14 @@ exports.registerCompany = async (req, res) => {
     const company_code = await model_r.generated_company_code();
     const refresh_token = await model_r.generated_company_refresh_token();
     const price = await model_r.get_price();
-    const midtrans_urls = process.env.NODE_ENV === "development" ? await model_r.get_url_sand_box() : process.env.MIDTRANS_PRODUCTION_URL;
+    // const midtrans_urls = process.env.NODE_ENV === "development" ? await model_r.get_url_sand_box() : process.env.MIDTRANS_PRODUCTION_URL;
+    const midtrans_urls = process.env.MIDTRANS_GET_STATUS_URL;
 
-
-    const hashedPassword = jwt.sign({ password: body.password },
+    const hashedPassword = jwt.sign(
+      { password: body.password },
       process.env.SECRET_KEY
     );
 
-    
     const endSubscription = moment()
       .add(1, "years")
       .format("YYYY-MM-DD HH:mm:ss");
@@ -57,7 +59,6 @@ exports.registerCompany = async (req, res) => {
 
     let midtransResponse;
     try {
-
       midtransResponse = await axios.post(
         midtrans_urls,
         {
@@ -113,7 +114,7 @@ exports.registerCompany = async (req, res) => {
         });
       }
     } catch (err) {
-       return res.status(500).json({
+      return res.status(500).json({
         error: true,
         error_msg: "Gagal mendapatkan order ID dari Midtrans",
       });

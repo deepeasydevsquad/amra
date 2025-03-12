@@ -91,9 +91,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, onUnmounted, watch } from 'vue'
 import axios from 'axios'
 import { useRoute } from 'vue-router'
+import { getKwitansi } from '../service/notifikasi'
 
 interface Transaction {
   order_id: string
@@ -111,6 +112,7 @@ export default defineComponent({
     const loading = ref<boolean>(true)
     const error = ref<string | null>(null)
     const route = useRoute()
+    let pollingInterval: NodeJS.Timeout | null = null
 
     // Format Harga
     const formatCurrency = (amount: string | number | undefined) => {
@@ -139,17 +141,18 @@ export default defineComponent({
     const statusClass = (status: string | undefined) => {
       if (!status) return 'text-gray-500'
       const lowerStatus = status.toLowerCase()
-      if (lowerStatus === 'success') return 'text-green-500 font-bold'
-      if (lowerStatus === 'pending') return 'text-yellow-500 font-bold'
-      if (lowerStatus === 'failed') return 'text-red-500 font-bold'
-      return 'text-gray-700 font-bold'
+      return lowerStatus === 'success'
+        ? 'text-green-500 font-bold'
+        : lowerStatus === 'pending'
+          ? 'text-yellow-500 font-bold'
+          : lowerStatus === 'failed'
+            ? 'text-red-500 font-bold'
+            : 'text-gray-700 font-bold'
     }
 
     // Ambil Data dari API
-    onMounted(async () => {
+    const fetchTransaction = async () => {
       const orderId = route.query.order_id as string
-      console.log('Order ID dari query:', orderId)
-
       if (!orderId) {
         error.value = 'Order ID tidak ditemukan'
         loading.value = false
@@ -157,24 +160,45 @@ export default defineComponent({
       }
 
       try {
-        const response = await axios.get(`http://localhost:3001/kwitansi/${orderId}`)
-        console.log('Response dari server:', response.data)
-
+        const response = await getKwitansi()
         if (response.data && Object.keys(response.data).length > 0) {
           transaction.value = {
             ...response.data,
             harga: Number(response.data.harga), // Konversi harga ke number
           }
-          console.log('Data yang di-set ke transaction:', transaction.value)
         } else {
           error.value = 'Data transaksi tidak ditemukan'
         }
       } catch (err) {
-        console.error('Error fetching transaction:', err)
         error.value = 'Gagal mengambil data transaksi'
       } finally {
         loading.value = false
       }
+    }
+
+    // Watch perubahan status transaksi
+    watch(
+      () => transaction.value.status,
+      (newStatus, oldStatus) => {
+        if (newStatus && newStatus !== oldStatus) {
+          if (newStatus === 'success' || newStatus === 'accept') {
+            alert('✅ Transaksi sukses!')
+          } else if (newStatus === 'pending') {
+            alert('⏳ Transaksi masih diproses...')
+          } else if (newStatus === 'failed') {
+            alert('❌ Transaksi gagal!')
+          }
+        }
+      },
+    )
+
+    onMounted(() => {
+      fetchTransaction()
+      pollingInterval = setInterval(fetchTransaction, 5000) // Polling setiap 5 detik
+    })
+
+    onUnmounted(() => {
+      if (pollingInterval) clearInterval(pollingInterval)
     })
 
     return {

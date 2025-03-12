@@ -34,3 +34,58 @@ exports.getKwitansi = async (req, res) => {
       .json({ error: true, error_msg: "Terjadi kesalahan server" });
   }
 };
+
+/**
+ * Memperbarui status pembayaran berdasarkan order ID dan status Midtrans
+ */
+exports.updatePaymentStatus = async (order_id, midtransStatus) => {
+  try {
+    if (!order_id) {
+      console.error("❌ Order ID tidak valid!");
+      return { success: false, message: "Order ID tidak valid" };
+    }
+
+    const model_cud = new Model_cud();
+
+    console.log("🔄 Memproses update status pembayaran...");
+    console.log("🔍 Order ID:", order_id);
+    console.log("📝 Status dari Midtrans:", midtransStatus);
+
+    if (midtransStatus === "settlement") {
+      // Jika status Settlement, update status pembayaran ke "accept"
+      const result = await model_cud.updateStatusPayment({
+        order_id,
+        status: "accept",
+      });
+
+      if (result) {
+        console.log("✅ Status pembayaran berhasil diperbarui!");
+        return { success: true, status: "accept" };
+      } else {
+        console.error("❌ Gagal memperbarui status pembayaran!");
+        return {
+          success: false,
+          message: "Gagal memperbarui status pembayaran",
+        };
+      }
+    } else {
+      // Jika status bukan Settlement, buat notifikasi
+      const message = `⚠️ Pembayaran belum selesai untuk Order ID: ${order_id}. Segera lakukan pembayaran!`;
+      console.warn(message);
+
+      // Simpan notifikasi ke database jika diperlukan
+      /*
+      await Notification.create({
+        order_id: order_id,
+        message: message,
+        status: "pending",
+      });
+      */
+
+      return { success: false, status: midtransStatus, message: message };
+    }
+  } catch (error) {
+    console.error("❌ Error saat memperbarui status pembayaran:", error);
+    return { success: false, message: "Terjadi kesalahan server" };
+  }
+};
