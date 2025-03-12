@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Subscribtion_payment_history.init({
     company_id: DataTypes.INTEGER,
-    order_id: DataTypes.INTEGER,
+    order_id: DataTypes.STRING,
     status: DataTypes.ENUM(['process', 'accept', 'reject']),
     duration: DataTypes.INTEGER,
     pay_per_month: DataTypes.INTEGER,

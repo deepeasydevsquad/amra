@@ -2,37 +2,25 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Divisions', {
+    await queryInterface.createTable('Grups', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      company_id: {
+      division_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Companies",
+          model: "Divisions",
           key: "id",
         },
       },
       name: {
         type: Sequelize.STRING
       },
-      city: {
-        type: Sequelize.STRING
-      },
-      pos_code: {
-        type: Sequelize.STRING
-      },
-      address: {
+      group_access: {
         type: Sequelize.TEXT
-      },
-      note: {
-        type: Sequelize.TEXT
-      },
-      tanda_tangan: {
-        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
@@ -45,6 +33,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Divisions');
+    await queryInterface.dropTable('Grups');
   }
 };
