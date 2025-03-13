@@ -55,7 +55,7 @@ module.exports = {
       { menu_id : menus[6].id, name: 'Laba Rugi', path: 'laba_rugi', tab:`[{"id":"${tabs[36].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[6].id, name: 'Neraca', path: 'neraca', tab:`[{"id":"${tabs[37].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[6].id, name: 'Modal', path: 'modal', tab:`[{"id":"${tabs[38].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
-      { menu_id : menus[7].id, name: 'Pengaturan', path: 'pengaturan', tab:`[{"id":"${tabs[11].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
+      { menu_id : menus[7].id, name: 'Pengaturan', path: 'pengaturan', tab:`[{"id":"${tabs[30].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[7].id, name: 'Cabang', path: 'cabang', tab:`[{"id":"${tabs[53].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[7].id, name: 'Grup Pengguna', path: 'grup_pengguna', tab:`[{"id":"${tabs[31].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[7].id, name: 'Pengguna', path: 'pengguna', tab:`[{"id":"${tabs[32].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
