@@ -14,6 +14,7 @@ import DaftarKota from '../../Modules/DaftarKota/DaftarKota.vue'
 import DaftarFasilitas from '../../Modules/DaftarFasilitas/DaftarFasilitas.vue'
 import DaftarHotel from '../../Modules/DaftarHotel/DaftarHotel.vue'
 import JenisMobil from '../../Modules/JenisMobil/JenisMobil.vue'
+import Cabang from '../../Modules/Cabang/Cabang.vue'
 import Airlines from '../../Modules/Airlines/Airlines.vue'
 import Pengaturan from '../../Modules/Pengaturan/Pengaturan.vue'
 
@@ -23,6 +24,7 @@ const tabComponents = {
   daftar_kota: DaftarKota,
   daftar_fasilitas: DaftarFasilitas,
   daftar_mobil: JenisMobil,
+  daftar_cabang: Cabang,
   pengaturan: Pengaturan,
   daftar_hotel: DaftarHotel,
   daftar_mobil : JenisMobil,
