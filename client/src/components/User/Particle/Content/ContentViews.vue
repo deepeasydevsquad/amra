@@ -12,14 +12,23 @@ import BerandaUtama from '../../Modules/BerandaUtama/BerandaUtama.vue'
 import TransPaket from '../../Modules/TransPaket/TransPaket.vue'
 import DaftarKota from '../../Modules/DaftarKota/DaftarKota.vue'
 import DaftarFasilitas from '../../Modules/DaftarFasilitas/DaftarFasilitas.vue'
+import DaftarHotel from '../../Modules/DaftarHotel/DaftarHotel.vue'
 import JenisMobil from '../../Modules/JenisMobil/JenisMobil.vue'
+import Cabang from '../../Modules/Cabang/Cabang.vue'
+import Airlines from '../../Modules/Airlines/Airlines.vue'
+import Pengaturan from '../../Modules/Pengaturan/Pengaturan.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
   trans_paket: TransPaket,
   daftar_kota: DaftarKota,
   daftar_fasilitas: DaftarFasilitas,
+  daftar_mobil: JenisMobil,
+  daftar_cabang: Cabang,
+  pengaturan: Pengaturan,
+  daftar_hotel: DaftarHotel,
   daftar_mobil : JenisMobil,
+  airlines: Airlines
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click
@@ -96,7 +105,9 @@ const selectTab = (tabPath: string, key: number) => {
       role="tabpanel"
       :aria-labelledby="`${tab.sharedObject[item.id].path}-tab`"
     >
-      <p class="px-5 mb-5 text-sm text-gray-900 dark:text-white">{{tab.sharedObject[item.id].desc}}</p>
+      <p class="px-5 mb-5 text-sm text-gray-900 dark:text-white">
+        {{ tab.sharedObject[item.id].desc }}
+      </p>
       <component :is="tabComponents[tab.sharedObject[item.id].path]" class="tab"></component>
       <!-- <p class="text-black">
         {{ 'activeTab.sharedString =' + activeTab.sharedString }}<br />

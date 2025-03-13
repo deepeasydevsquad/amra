@@ -60,7 +60,6 @@ class Model_cud {
       await Mst_fasilitas.update(
         {
           name: body.name,
-          createdAt: myDate,
           updatedAt: myDate,
         },
         {
