@@ -1,5 +1,5 @@
-const { sequelize, Mst_kota } = require("../../../models");
-const Model_r = require("../models/model_r");
+const Model_r = require("./model_r");
+const { sequelize, Mst_airline } = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
 const moment = require("moment");
@@ -17,7 +17,7 @@ class Model_cud {
     this.state = true;
   }
 
-  // Tambah Kota
+  // Tambah Airline
   async add() {
     // initialize dependensi properties
     await this.initialize();
@@ -26,10 +26,9 @@ class Model_cud {
 
     try {
       // insert process
-      const insert = await Mst_kota.create(
+      const insert = await Mst_airline.create(
         {
           company_id : this.company_id, 
-          kode: body.kode,
           name: body.name,
           createdAt: myDate,
           updatedAt: myDate,
@@ -39,13 +38,13 @@ class Model_cud {
         }
       );
       // write log message
-      this.message = `Menambahkan Kota Baru dengan Kode Kota : ${body.kode} dan Nama Kota : ${body.name} dan ID Kota  : ${insert.id}`;
+      this.message = `Menambahkan Airline Baru dengan Nama Airline : ${body.name} dan ID Airline  : ${insert.id}`;
     } catch (error) {
       this.state = false;
     }
   }
 
-  // Edit kota
+  // Edit airline
   async update() {
     // initialize general property
     await this.initialize();
@@ -55,12 +54,11 @@ class Model_cud {
     try {
       // call object
       const model_r = new Model_r(this.req);
-      // get info kota
-      const infoKota = await model_r.infoKota(body.id, this.company_id);
-      // update data kota
-      await Mst_kota.update(
+      // get info airline
+      const infoAirline = await model_r.infoAirline(body.id, this.company_id);
+      // update data airline
+      await Mst_airline.update(
         {
-          kode: body.kode,
           name: body.name,
           updatedAt: myDate,
         },
@@ -72,13 +70,13 @@ class Model_cud {
         }
       );
       // write log message
-      this.message = `Memperbaharui Data Kota dengan Kode Kota ${infoKota.kode}, Nama Kota ${infoKota.name} dan ID Kota : ${body.id} menjadi Kode Kota ${body.kode} dan Nama Kota ${body.name}`;
+      this.message = `Memperbaharui Data Airline dengan Nama Airline ${infoAirline.name} dan ID Airline : ${body.id} menjadi Nama Airline ${body.name}`;
     } catch (error) {
       this.state = false;
     }
   }
 
-  // Hapus Kota
+  // Hapus Airline
   async delete() {
     // initialize dependensi properties
     await this.initialize();
@@ -86,10 +84,10 @@ class Model_cud {
     try {
       // call object
       const model_r = new Model_r(this.req);
-      // get info kota
-      const infoKota = await model_r.infoKota(body.id, this.company_id);
+      // get info airline
+      const infoAirline = await model_r.infoAirline(body.id, this.company_id);
       // delete process
-      await Mst_kota.destroy(
+      await Mst_airline.destroy(
         {
           where: {
             id: body.id,
@@ -101,7 +99,7 @@ class Model_cud {
         }
       );
       // write log message
-      this.message = `Menghapus Kota dengan Kode Kota : ${infoKota.kode} dan Nama Kota : ${infoKota.name} dan ID Kota  : ${infoKota.id}`;
+      this.message = `Menghapus Airline dengan Nama Airline : ${infoAirline.name} dan ID Airline  : ${infoAirline.id}`;
     } catch (error) {
       this.state = false;
     }
