@@ -45,7 +45,7 @@
               <th class="px-4 py-3 font-bold text-gray-900 text-center w-[10%] -gray-200">Aksi</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100 -t -gray-100">
+          <tbody class="divide-y divide-gray-100 -t -gray-100" v-if="paginatedCabang.length > 0">
             <tr
               v-for="(cabang, index) in paginatedCabang"
               :key="cabang.id"
@@ -67,6 +67,11 @@
               </td>
             </tr>
           </tbody>
+          <tbody v-else>
+            <tr>
+              <td colspan="5" class="px-4 py-3 text-center -gray-200">Data tidak ditemukan</td>
+            </tr>
+          </tbody>
           <tfoot class="bg-gray-100 font-bold border">
             <tr>
               <td class="px-4 py-4 text-center" :colspan="5">
@@ -83,7 +88,7 @@
                       </button>
                     </li>
                     <!-- Nomor Halaman -->
-                    <li v-for="page in pages" :key="page">
+                    <li v-for="page in pages" :key="page" v-if="paginatedCabang.length > 0">
                       <button
                         @click="pageNow(page)"
                         class="px-3 py-2 leading-tight border min-w-[40px]"
