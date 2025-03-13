@@ -1,0 +1,27 @@
+'use strict';
+const {
+  Model
+} = require('sequelize');
+module.exports = (sequelize, DataTypes) => {
+  class Mst_airline extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+      Mst_airline.belongsTo(models.Company, {
+        foreignKey: "company_id",
+      });
+    }
+  }
+  Mst_airline.init({
+    company_id: DataTypes.INTEGER,
+    name: DataTypes.STRING
+  }, {
+    sequelize,
+    modelName: 'Mst_airline',
+  });
+  return Mst_airline;
+};

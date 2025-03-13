@@ -14,9 +14,6 @@ module.exports = (sequelize, DataTypes) => {
       Akun_primary.hasMany(models.Akun_secondary, {
         foreignKey: "akun_primary_id",
       });
-      Akun_primary.hasMany(models.Saldo_akun, {
-        foreignKey: "akun_primary_id",
-      });
     }
   }
   Akun_primary.init({

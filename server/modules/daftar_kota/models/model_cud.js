@@ -62,7 +62,6 @@ class Model_cud {
         {
           kode: body.kode,
           name: body.name,
-          createdAt: myDate,
           updatedAt: myDate,
         },
         {

@@ -12,6 +12,9 @@ module.exports = {
       code: {
         type: Sequelize.STRING
       },
+      division_id: {
+        type: Sequelize.STRING
+      },
       kurs: {
         type: Sequelize.ENUM,
         values: ["rp", "usd", "sar"],
