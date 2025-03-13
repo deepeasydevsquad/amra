@@ -232,7 +232,7 @@ const deleteData = async (id: number) => {
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
-        Tambah Hotel Baru
+        Tambah Hotel
       </button>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
