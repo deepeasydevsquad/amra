@@ -14,8 +14,7 @@ const port = process.env.PORT;
 
 app.use(cors());
 app.use(cookieParser());
-const arr_router = ["user", "daftar_kota", "daftar_fasilitas", "daftar_mobil", "daftar_hotel", "airlines", "pengaturan", "cabang", "daftar_asuransi",];
-
+const arr_router = ["user", "daftar_kota", "daftar_fasilitas", "daftar_mobil", "daftar_hotel", "airlines", "pengaturan", "cabang", "daftar_bandara", "daftar_asuransi"];
 //   {
 //     folder: "frontend",
 //     list: [
