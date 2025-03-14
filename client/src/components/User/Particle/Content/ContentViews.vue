@@ -17,6 +17,7 @@ import JenisMobil from '../../Modules/JenisMobil/JenisMobil.vue'
 import Cabang from '../../Modules/Cabang/Cabang.vue'
 import Airlines from '../../Modules/Airlines/Airlines.vue'
 import Pengaturan from '../../Modules/Pengaturan/Pengaturan.vue'
+import DaftarAsuransi from '../../Modules/DaftarAsuransi/DaftarAsuransi.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -27,7 +28,8 @@ const tabComponents = {
   daftar_cabang: Cabang,
   pengaturan: Pengaturan,
   daftar_hotel: DaftarHotel,
-  daftar_mobil : JenisMobil,
+  daftar_mobil: JenisMobil,
+  daftar_asuransi: DaftarAsuransi,
   airlines: Airlines
 }
 
