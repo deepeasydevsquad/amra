@@ -25,7 +25,8 @@ const arr_router = [
   "cabang",
   "sistem_log",
   "daftar_bandara", 
-  "daftar_asuransi"
+  "daftar_asuransi",
+  "daftar_provider_visa"
 ];
 //   {
 //     folder: "frontend",
