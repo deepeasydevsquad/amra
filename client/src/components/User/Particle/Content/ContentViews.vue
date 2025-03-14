@@ -18,6 +18,8 @@ import Cabang from '../../Modules/Cabang/Cabang.vue'
 import Airlines from '../../Modules/Airlines/Airlines.vue'
 import Pengaturan from '../../Modules/Pengaturan/Pengaturan.vue'
 import SistemLog from '../../Modules/SistemLog/SistemLog.vue'
+import DaftarBandara from '../../Modules/DaftarBandara/DaftarBandara.vue'
+import DaftarAsuransi from '../../Modules/DaftarAsuransi/DaftarAsuransi.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -28,8 +30,9 @@ const tabComponents = {
   daftar_cabang: Cabang,
   pengaturan: Pengaturan,
   daftar_hotel: DaftarHotel,
-  daftar_mobil: JenisMobil,
   airlines: Airlines,
+  daftar_bandara: DaftarBandara,
+  daftar_asuransi: DaftarAsuransi,
   system_log: SistemLog,
 }
 

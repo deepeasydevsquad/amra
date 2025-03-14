@@ -24,8 +24,9 @@ const arr_router = [
   "pengaturan",
   "cabang",
   "sistem_log",
+  "daftar_bandara", 
+  "daftar_asuransi"
 ];
-
 //   {
 //     folder: "frontend",
 //     list: [
