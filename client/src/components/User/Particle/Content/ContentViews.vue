@@ -17,6 +17,7 @@ import JenisMobil from '../../Modules/JenisMobil/JenisMobil.vue'
 import Cabang from '../../Modules/Cabang/Cabang.vue'
 import Airlines from '../../Modules/Airlines/Airlines.vue'
 import Pengaturan from '../../Modules/Pengaturan/Pengaturan.vue'
+import SistemLog from '../../Modules/SistemLog/SistemLog.vue'
 import DaftarBandara from '../../Modules/DaftarBandara/DaftarBandara.vue'
 import DaftarAsuransi from '../../Modules/DaftarAsuransi/DaftarAsuransi.vue'
 
@@ -32,6 +33,7 @@ const tabComponents = {
   airlines: Airlines,
   daftar_bandara: DaftarBandara,
   daftar_asuransi: DaftarAsuransi,
+  system_log: SistemLog,
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click
