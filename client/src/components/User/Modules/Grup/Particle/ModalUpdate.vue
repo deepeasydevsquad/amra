@@ -89,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, reactive, ref, onMounted, watchEffect, nextTick } from 'vue'
+import { defineProps, defineEmits, reactive, ref, onMounted, watch, nextTick } from 'vue'
 import { daftarMenu } from '../../../../../service/grup'
 import { daftarCabang } from '../../../../../service/cabang'
 
@@ -133,23 +133,24 @@ const fetchMenu = async () => {
 }
 
 // Isi form dengan data grup yang akan diupdate
-watchEffect(async () => {
-  if (props.grupToUpdate) {
-    groupData.name = props.grupToUpdate.name
-    groupData.branchName = props.grupToUpdate.division
+watch(
+  () => props.grupToUpdate,
+  async (newVal) => {
+    if (newVal) {
+      groupData.name = newVal.name
+      groupData.branchName = newVal.division
 
-    selectedMenus.value = props.grupToUpdate.group_access?.map((menu) => menu.id) || []
-    selectedSubmenus.value =
-      props.grupToUpdate.group_access?.flatMap((menu) =>
-        menu.Submenus?.map((submenu) => submenu.id),
-      ) || []
+      selectedMenus.value = newVal.group_access?.map((menu) => menu.id) || []
+      selectedSubmenus.value =
+        newVal.group_access?.flatMap((menu) => menu.Submenus?.map((submenu) => submenu.id)) || []
 
-    console.log('Selected Menus:', selectedMenus.value)
-    console.log('Selected Submenus:', selectedSubmenus.value)
-
-    await nextTick() // Pastikan tampilan terupdate
-  }
-})
+      await nextTick() // Paksa Vue buat update tampilan
+      console.log('Updated selectedMenus:', selectedMenus.value)
+      console.log('Updated selectedSubmenus:', selectedSubmenus.value)
+    }
+  },
+  { deep: true, immediate: true },
+)
 
 // Cek apakah menu/submenu terpilih
 const isMenuSelected = (menuId: number) => selectedMenus.value.includes(menuId)

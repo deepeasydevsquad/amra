@@ -30,7 +30,6 @@
         <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead class="bg-gray-50">
             <tr>
-              <th class="w-[5%] px-4 py-3 font-bold text-gray-900 text-center">NO</th>
               <th class="w-[20%] px-4 py-3 font-bold text-gray-900 text-center">Nama Grup</th>
               <th class="w-[20%] px-4 py-3 font-bold text-gray-900 text-center">Cabang</th>
               <th class="w-[30%] px-4 py-3 font-bold text-gray-900 text-center">Akses Grup</th>
@@ -41,9 +40,6 @@
           <tbody class="divide-y divide-gray-100 border-t border-gray-100">
             <template v-if="paginatedData.length > 0">
               <tr v-for="(grup, index) in paginatedData" :key="grup.id" class="hover:bg-gray-50">
-                <td class="px-4 py-3 align-top text-center">
-                  {{ (currentPage - 1) * itemsPerPage + index + 1 }}
-                </td>
                 <td class="px-4 py-3 align-top text-center">{{ grup.name }}</td>
                 <td class="px-4 py-3 align-top text-center">{{ grup.division }}</td>
                 <td class="px-4 py-3">
@@ -244,15 +240,21 @@ const fetchGrup = async () => {
 
 const handleSaveGroup = async (grup) => {
   try {
+    console.log('Mengirim data ke API:', grup) // Cek data sebelum dikirim
+
     if (grup.id) {
-      await editGrup(grup)
+      const response = await editGrup(grup)
+      console.log('Response dari API update:', response)
       showNotificationMessage('success', 'Data grup berhasil diupdate!')
     } else {
-      await addGrup(grup)
+      const response = await addGrup(grup)
+      console.log('Response dari API tambah:', response)
       showNotificationMessage('success', 'Data grup berhasil ditambahkan!')
     }
-    await fetchGrup()
+
+    await fetchGrup() // Refresh UI setelah update
   } catch (error) {
+    console.error('Error menyimpan grup:', error)
     showNotificationMessage('error', 'Gagal menyimpan data grup.')
   }
 }

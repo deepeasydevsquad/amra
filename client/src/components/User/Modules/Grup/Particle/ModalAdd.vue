@@ -114,6 +114,7 @@ const fetchCabang = async () => {
   try {
     const response = await daftarCabang()
     cabangs.value = response.data
+    console.log('ini adalah data cabang', cabangs.value)
   } catch (error) {
     console.error('Error fetching cabang:', error)
   }

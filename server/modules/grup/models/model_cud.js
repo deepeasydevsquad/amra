@@ -83,7 +83,7 @@ class Model_cud {
   async update() {
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
-    const { id, division_name, name, group_acces } = this.req.body;
+    const { id, division_name, name, group_access } = this.req.body;
 
     try {
       if (!id) {
@@ -107,11 +107,11 @@ class Model_cud {
       }
 
       // Update process
-      await Grup.update(
+      const [affectedRows] = await Grup.update(
         {
           division_id: division.id,
           name,
-          group_access: JSON.stringify(group_acces),
+          group_access: JSON.stringify(group_access),
           updatedAt: myDate,
         },
         {
@@ -120,13 +120,18 @@ class Model_cud {
         }
       );
 
+      console.log("Rows affected:", affectedRows);
+      if (affectedRows === 0) {
+        throw new Error(
+          `Update gagal: Tidak ada perubahan data untuk Grup ID ${id}.`
+        );
+      }
+
       // Set log message
-      this.message = `Memperbaharui Data Grup dari Nama: ${grup.name}, Divisi: ${division_name}, ID: ${id} menjadi Nama: ${name}, Divisi: ${division_name}`;
+      this.message = `Memperbarui Data Grup dari Nama: ${grup.name}, Divisi: ${division_name}, ID: ${id} menjadi Nama: ${name}, Divisi: ${division_name}`;
 
       // Write log
-      await writeLog(this.req, this.t, {
-        msg: this.message,
-      });
+      await writeLog(this.req, this.t, { msg: this.message });
 
       // Commit transaction
       await this.t.commit();
