@@ -25,6 +25,7 @@ const arr_router = [
   "cabang",
   "sistem_log",
   "daftar_bandara", 
+  "daftar_bank",
   "daftar_asuransi"
 ];
 //   {
