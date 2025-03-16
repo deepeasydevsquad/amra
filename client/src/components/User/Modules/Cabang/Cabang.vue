@@ -174,6 +174,7 @@ const filteredCabang = computed(() => {
 })
 
 const formData = ref({
+  name: '',
   city: '',
   pos_code: '',
   address: '',
@@ -190,6 +191,7 @@ const openModal = (mode = 'add', cabang = null) => {
   } else {
     console.log('Masuk ke mode add')
     formData.value = {
+      name: '',
       city: '',
       pos_code: '',
       address: '',
@@ -204,6 +206,7 @@ const openModal = (mode = 'add', cabang = null) => {
 const saveData = async (formValue) => {
   try {
     const formData = new FormData()
+    formData.append('name', formValue.name)
     formData.append('city', formValue.city)
     formData.append('pos_code', formValue.pos_code)
     formData.append('address', formValue.address)
