@@ -21,6 +21,7 @@ import SistemLog from '../../Modules/SistemLog/SistemLog.vue'
 import DaftarBandara from '../../Modules/DaftarBandara/DaftarBandara.vue'
 import DaftarAsuransi from '../../Modules/DaftarAsuransi/DaftarAsuransi.vue'
 import DaftarProviderVisa from '../../Modules/DaftarProviderVisa/DaftarProviderVisa.vue'
+import DaftarBank from '../../Modules/DaftarBank/DaftarBank.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -35,6 +36,7 @@ const tabComponents = {
   daftar_bandara: DaftarBandara,
   daftar_asuransi: DaftarAsuransi,
   daftar_provider_visa: DaftarProviderVisa,
+  daftar_bank: DaftarBank,
   system_log: SistemLog,
 }
 
