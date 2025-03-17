@@ -33,6 +33,15 @@
           </div>
 
           <div class="mb-4">
+            <label class="block text-gray-700 font-medium mb-1">Nama Cabang</label>
+            <input
+              v-model="form.name"
+              placeholder="Nama Cabang"
+              type="text"
+              class="border p-2 rounded w-full focus:ring focus:ring-sky-600 text-gray-700"
+            />
+          </div>
+          <div class="mb-4">
             <label class="block text-gray-700 font-medium mb-1">Kode Pos</label>
             <input
               v-model="form.pos_code"
@@ -111,6 +120,7 @@ const emit = defineEmits(['close', 'save'])
 const kotaList = ref<Kota[]>([])
 
 const form = ref({
+  name: '',
   city: '',
   pos_code: '',
   address: '',
@@ -128,6 +138,7 @@ const fetchKota = async () => {
   try {
     const response = await daftarKota()
     kotaList.value = response.data
+    console.log('Kota:', kotaList.value)
   } catch (error) {
     console.error('Error fetching kota:', error)
   }

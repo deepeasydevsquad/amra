@@ -28,6 +28,15 @@
       </div>
 
       <div class="mb-4">
+        <label class="block text-gray-700 font-medium mb-1">Nama Cabang</label>
+        <input
+          v-model="form.name"
+          placeholder="Nama Cabang"
+          type="text"
+          class="border p-2 rounded w-full focus:ring focus:ring-blue-300 text-gray-700"
+        />
+      </div>
+      <div class="mb-4">
         <label class="block text-gray-700 font-medium mb-1">Kode Pos</label>
         <input
           v-model="form.pos_code"
@@ -107,6 +116,7 @@ const props = defineProps({
 const kotaList = ref<Kota[]>([])
 const form = ref({
   id: null,
+  name: '',
   city: '',
   pos_code: '',
   address: '',
@@ -121,6 +131,7 @@ watch(
     if (newCabang) {
       form.value = {
         id: newCabang.id,
+        name: newCabang.name,
         city: newCabang.city,
         pos_code: newCabang.pos_code,
         address: newCabang.address,

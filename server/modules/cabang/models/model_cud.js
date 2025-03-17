@@ -31,7 +31,8 @@ class Model_cud {
   // ✅ Tambah Division
   async createDivision() {
     await this.initialize();
-    const { city, pos_code, address, note } = this.req.body;
+    const { city, name, pos_code, address, note } = this.req.body;
+
     const file = this.req.file;
 
     try {
@@ -52,6 +53,7 @@ class Model_cud {
         {
           company_id: this.company_id,
           city: cityData.name, // Simpan nama kota
+          name,
           pos_code,
           address,
           note,
@@ -84,7 +86,8 @@ class Model_cud {
   // ✅ Update Division
   async updateDivision(id) {
     await this.initialize();
-    const { city, pos_code, address, note } = this.req.body;
+    const { city, name, pos_code, address, note } = this.req.body;
+
     const file = this.req.file;
 
     try {
@@ -121,6 +124,7 @@ class Model_cud {
         {
           city_id: city,
           city: cityData.name,
+          name,
           pos_code,
           address,
           note,

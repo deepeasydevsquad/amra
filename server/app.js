@@ -28,6 +28,7 @@ const arr_router = [
   "daftar_asuransi",
   "daftar_provider_visa",
   "daftar_bank",
+  "grup",
 ];
 
 // routers
