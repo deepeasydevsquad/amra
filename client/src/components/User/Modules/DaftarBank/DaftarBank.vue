@@ -243,7 +243,7 @@ const deleteData = async (id: number) => {
             </tr>
           </template>
           <tr v-else>
-            <td colspan="2" class="px-6 py-4 text-center text-base text-gray-600">Daftar Bank tidak ditemukan.</td>
+            <td colspan="3" class="px-6 py-4 text-center text-base text-gray-600">Daftar Bank tidak ditemukan.</td>
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
@@ -331,7 +331,7 @@ const deleteData = async (id: number) => {
                   <input
                     v-model="selectedBank.name"
                     type="text"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal" 
+                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
                     placeholder="Nama Bank"
                   />
                   <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
