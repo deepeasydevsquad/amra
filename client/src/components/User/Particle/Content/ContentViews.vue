@@ -17,6 +17,11 @@ import JenisMobil from '../../Modules/JenisMobil/JenisMobil.vue'
 import Cabang from '../../Modules/Cabang/Cabang.vue'
 import Airlines from '../../Modules/Airlines/Airlines.vue'
 import Pengaturan from '../../Modules/Pengaturan/Pengaturan.vue'
+import SistemLog from '../../Modules/SistemLog/SistemLog.vue'
+import DaftarBandara from '../../Modules/DaftarBandara/DaftarBandara.vue'
+import DaftarAsuransi from '../../Modules/DaftarAsuransi/DaftarAsuransi.vue'
+import DaftarProviderVisa from '../../Modules/DaftarProviderVisa/DaftarProviderVisa.vue'
+import DaftarBank from '../../Modules/DaftarBank/DaftarBank.vue'
 import Grup from '../../Modules/Grup/Grup.vue'
 
 const tabComponents = {
@@ -28,8 +33,12 @@ const tabComponents = {
   daftar_cabang: Cabang,
   pengaturan: Pengaturan,
   daftar_hotel: DaftarHotel,
-  daftar_mobil: JenisMobil,
   airlines: Airlines,
+  daftar_bandara: DaftarBandara,
+  daftar_asuransi: DaftarAsuransi,
+  daftar_provider_visa: DaftarProviderVisa,
+  daftar_bank: DaftarBank,
+  system_log: SistemLog,
   daftar_grup: Grup,
 }
 

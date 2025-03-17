@@ -30,6 +30,7 @@
     "jsvectormap": "^1.6.0",
     "pinia": "^2.3.1",
     "vue": "^3.5.13",
+    "vue-meta": "^2.4.0",
     "vue-router": "^4.5.0",
     "vue3-apexcharts": "^1.4.4"
   },
