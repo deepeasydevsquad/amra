@@ -20,6 +20,7 @@ import Pengaturan from '../../Modules/Pengaturan/Pengaturan.vue'
 import SistemLog from '../../Modules/SistemLog/SistemLog.vue'
 import DaftarBandara from '../../Modules/DaftarBandara/DaftarBandara.vue'
 import DaftarAsuransi from '../../Modules/DaftarAsuransi/DaftarAsuransi.vue'
+import DaftarProviderVisa from '../../Modules/DaftarProviderVisa/DaftarProviderVisa.vue'
 import DaftarBank from '../../Modules/DaftarBank/DaftarBank.vue'
 
 const tabComponents = {
@@ -34,6 +35,7 @@ const tabComponents = {
   airlines: Airlines,
   daftar_bandara: DaftarBandara,
   daftar_asuransi: DaftarAsuransi,
+  daftar_provider_visa: DaftarProviderVisa,
   daftar_bank: DaftarBank,
   system_log: SistemLog,
 }
