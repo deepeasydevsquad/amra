@@ -8,3 +8,12 @@ export const getKwitansi = async (orderId: any) => {
     console.log('gagal mendapatkan gwitansi:', error)
   }
 }
+
+export const getNotifikasi = async () => {
+  try {
+    const response = await api.get('/check-midtrans-status')
+    return response.data
+  } catch (error) {
+    console.log('gagal mendapatkan notifikasi:', error)
+  }
+}

@@ -41,7 +41,7 @@ exports.registerCompany = async (req, res) => {
     const refresh_token = await model_r.generated_company_refresh_token();
     const price = await model_r.get_price();
     // const midtrans_urls = process.env.NODE_ENV === "development" ? await model_r.get_url_sand_box() : process.env.MIDTRANS_PRODUCTION_URL;
-    const midtrans_urls = process.env.MIDTRANS_GET_STATUS_URL;
+    const midtrans_urls = process.env.MIDTRANS_SANDBOX_URL;
 
     const hashedPassword = jwt.sign(
       { password: body.password },
@@ -81,6 +81,9 @@ exports.registerCompany = async (req, res) => {
           },
         }
       );
+      console.log("============================================");
+      console.log("Midtrans Response:", midtransResponse.data);
+      console.log("============================================");
 
       const midtransVaNumbers = midtransResponse.data?.va_numbers || [];
       const midtransRedirectUrl = midtransResponse.data?.redirect_url || null;

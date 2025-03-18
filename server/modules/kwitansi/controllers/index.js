@@ -4,9 +4,13 @@ const moment = require("moment");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const Model_cud = require("../models/model_cud");
 const Model_r = require("../models/model_r");
 const { handleServerError } = require("../../../helper/handleError");
 
+/**
+ * Mengambil data kwitansi pembayaran
+ */
 exports.getKwitansi = async (req, res) => {
   try {
     const model_r = new Model_r(req);
@@ -14,8 +18,7 @@ exports.getKwitansi = async (req, res) => {
     const rekening = await model_r.getRekening();
     const order_id = await model_r.getOrderid();
     const midtrans = await model_r.getMidtrans();
-
-    console.log("🔍 Full Midtrans Response:", rekening); // DEBUG OUTPUT
+    console.log("Mengembalikan response dengan rekening:", rekening);
 
     return res.status(200).json({
       order_id: order_id.order_id,
@@ -32,6 +35,43 @@ exports.getKwitansi = async (req, res) => {
     return res
       .status(500)
       .json({ error: true, error_msg: "Terjadi kesalahan server" });
+  }
+};
+
+/**
+ * Memeriksa status pembayaran dari Midtrans setiap 5 detik
+ */
+exports.checkMidtransStatus = async () => {
+  try {
+    const model_r = new Model_r();
+    const payment = await model_r.getOrderid(); // Ambil order_id terbaru
+
+    if (!payment || !payment.order_id) {
+      console.error("❌ Tidak ada data pembayaran yang ditemukan");
+      return;
+    }
+
+    const midtransData = await model_r.getMidtrans(); // Ambil status dari Midtrans
+
+    if (!midtransData || !midtransData.status) {
+      console.error("❌ Data Midtrans tidak valid");
+      return;
+    }
+
+    console.log("🔍 Status Midtrans:", midtransData.status);
+
+    if (midtransData.status === "settlement") {
+      console.log("✅ Pembayaran berhasil! Order ID:", midtransData.order_id);
+      // Jalankan fungsi update status pembayaran
+      await exports.updatePaymentStatus(
+        midtransData.order_id,
+        midtransData.status
+      );
+    } else {
+      console.log("⚠️ Menunggu pembayaran... Order ID:", midtransData.order_id);
+    }
+  } catch (error) {
+    console.error("❌ Error saat memeriksa status Midtrans:", error.message);
   }
 };
 
