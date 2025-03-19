@@ -23,6 +23,7 @@ import DaftarAsuransi from '../../Modules/DaftarAsuransi/DaftarAsuransi.vue'
 import DaftarProviderVisa from '../../Modules/DaftarProviderVisa/DaftarProviderVisa.vue'
 import DaftarBank from '../../Modules/DaftarBank/DaftarBank.vue'
 import Grup from '../../Modules/Grup/Grup.vue'
+import Supplier from '../../Modules/Supplier/Supplier.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -40,6 +41,7 @@ const tabComponents = {
   daftar_bank: DaftarBank,
   system_log: SistemLog,
   daftar_grup: Grup,
+  supplier: Supplier
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click

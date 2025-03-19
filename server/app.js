@@ -29,6 +29,7 @@ const arr_router = [
   "daftar_provider_visa",
   "daftar_bank",
   "grup",
+  "supplier"
 ];
 
 // routers
