@@ -39,7 +39,7 @@ api.interceptors.response.use(
     console.log('Status:', error.response?.status)
 
     if (error.response?.status === 404) {
-      window.location.href = '/user/login' // Redirect ke halaman login jika refresh gagal
+      window.location.href = '/login' // Redirect ke halaman login jika refresh gagal
     } else if (
       (error.response?.status === 401 || error.response?.status === 403) &&
       !originalRequest._retry
@@ -79,7 +79,7 @@ api.interceptors.response.use(
         console.error('Refresh token gagal, harap login ulang')
         localStorage.removeItem('access_token')
         localStorage.removeItem('refresh_token')
-        window.location.href = '/user/login' // Redirect ke halaman login jika refresh gagal
+        window.location.href = '/login' // Redirect ke halaman login jika refresh gagal
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false
