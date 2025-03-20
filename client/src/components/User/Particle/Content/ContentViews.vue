@@ -22,6 +22,7 @@ import DaftarBandara from '../../Modules/DaftarBandara/DaftarBandara.vue'
 import DaftarAsuransi from '../../Modules/DaftarAsuransi/DaftarAsuransi.vue'
 import DaftarProviderVisa from '../../Modules/DaftarProviderVisa/DaftarProviderVisa.vue'
 import DaftarBank from '../../Modules/DaftarBank/DaftarBank.vue'
+import DaftarTipePaket from '../../Modules/DaftarTipePaket/DaftarTipePaket.vue'
 import Grup from '../../Modules/Grup/Grup.vue'
 import Supplier from '../../Modules/Supplier/Supplier.vue'
 import Akun from '../../Modules/Akun/Akun.vue'
@@ -42,6 +43,7 @@ const tabComponents = {
   daftar_bank: DaftarBank,
   system_log: SistemLog,
   daftar_grup: Grup,
+  daftar_tipe_paket: DaftarTipePaket,
   supplier: Supplier,
   akun: Akun,
 }
