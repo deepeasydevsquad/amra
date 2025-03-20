@@ -14,8 +14,11 @@ const port = process.env.PORT;
 
 app.use(cors());
 app.use(cookieParser());
+
 const arr_router = [
   "user",
+  "otp",
+  "registrasi", "kwitansi",
   "daftar_kota",
   "daftar_fasilitas",
   "daftar_mobil",

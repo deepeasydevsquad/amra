@@ -17,7 +17,7 @@ module.exports = {
         },
       },
       order_id: {
-        type: Sequelize.STRING
+        type: Sequelize.TEXT
       },
       status: {
         type: Sequelize.ENUM,

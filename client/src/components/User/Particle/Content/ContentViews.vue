@@ -126,16 +126,6 @@ const selectTab = (tabPath: string, key: number) => {
         {{ tab.sharedObject[item.id].desc }}
       </p>
       <component :is="tabComponents[tab.sharedObject[item.id].path]" class="tab"></component>
-      <!-- <p class="text-black">
-        {{ 'activeTab.sharedString =' + activeTab.sharedString }}<br />
-        {{ 'tab.sharedObject[item.id].path =' + tab.sharedObject[item.id].path }}<br />
-        {{ 'tabTerpilih =' + tabTerpilih.sharedNumber }}<br />
-        {{ 'key =' + key }}<br />
-      </p>
-
-      <p class="text-sm text-graydark dark:text-gray-400">
-        This is some placeholder content for the tab {{ tab.sharedObject[item.id].path }}.
-      </p> -->
     </div>
   </div>
 </template>
