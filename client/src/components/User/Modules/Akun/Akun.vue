@@ -1,87 +1,12 @@
 <script setup lang="ts">
 
-// Import Icon
-// import DeleteIcon from "./Icon/DeleteIcon.vue"
-// import EditIcon from "./Icon/EditIcon.vue"
-
-// // import element
-// import DangerButton from "./Particle/DangerButton.vue"
-// import EditButton from "./Particle/EditButton.vue"
 import PrimaryButton from "./Particle/PrimaryButton.vue"
 import DangerButton from "./Particle/DangerButton.vue"
 import SuccessButton from "./Particle/SuccessButton.vue"
 import ModalPrimary from "./Particle/ModalPrimary.vue"
-
-//
-
-// import Notification from "./Particle/Notification.vue"
-// import Confirmation from "./Particle/Confirmation.vue"
-
-// // import api from "@/services/api"; // Import service API
 import { getFilterAkun, daftarAkun, checkAkun } from "../../../../service/akun"; // Import function POST
 import { ref, onMounted, computed, watchEffect } from 'vue';
-
 import { useCurrencyInput } from 'vue-currency-input';
-// Konfigurasi format currency
-// const options = {
-//   currency: 'IDR', // IDR untuk Rupiah, USD untuk Dollar, dll.
-//   locale: 'id-ID', // Format lokal Indonesia
-//   autoDecimalDigits: true, // Desimal otomatis
-//   precision: 0, // Angka di belakang koma (0 jika tidak ada)
-// };
-
-// Gunakan composable useCurrencyInput
-// const { inputRef, formattedValue } = useCurrencyInput(options);
-// import axios from 'axios';
-// // import Confirmation from "./Particle/Confirmation.vue"
-
-// const itemsPerPage = 100; // Jumlah kota per halaman
-// const currentPage = ref(1);
-// const search = ref("");
-// //const perpage = ref(100);
-// const pageNumber = ref(0);
-// const totalPages = ref(0);
-
-// const nextPage = () => {
-//   if (currentPage.value < totalPages.value) {
-//     currentPage.value++;
-//     fetchData()
-//   }
-// };
-
-// const prevPage = () => {
-//   if (currentPage.value > 1) {
-//     currentPage.value--;
-//     fetchData()
-//   }
-// };
-
-
-// const pageNow = (page : number) => {
-//   currentPage.value = page
-//   fetchData()
-// }
-
-// // Generate array angka halaman
-// const pages = computed(() => {
-//   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
-// });
-
-// // // Hitung total halaman
-// //const totalPages = computed(() => Math.ceil(searchKota.value.length / itemsPerPage));
-// // const apiUrl = 'http://localhost:3001/daftar_kota';
-// // const accessToken = localStorage.getItem('access_token');
-// // const headers = accessToken ? { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
-// // const apiClient = axios.create({
-// //   baseURL: apiUrl,
-// //   headers,
-// // });
-
-// interface Kota {
-//   id: number;
-//   kode: string;
-//   name: string;
-// }
 
 interface secondaryAkun {
   id: number;
@@ -108,11 +33,7 @@ interface addAkunInterface {
   saldo : string;
 }
 
-
-
-// const timeoutId = ref<number | null>(null);
 const dataAkun = ref<primaryAkun[]>([]);
-// const dataAddAkun = ref<addAkunInterface[]>([]);
 const dataAddAkun = ref<Partial<addAkunInterface>>({
   primary_id : 0,
   prefix : '',
@@ -121,34 +42,11 @@ const dataAddAkun = ref<Partial<addAkunInterface>>({
   saldo : ''
 });
 
-// const selectedKota = ref<Partial<Kota>>({
-//   kode: '',
-//   name: '',
-// });
-
-
-// const isModalOpen = ref<boolean>(false);
-// const showNotification = ref<boolean>(false);
-//
-// const notificationMessage = ref<string>('');
-// const notificationType = ref<'success' | 'error'>('success');
-// const confirmMessage = ref<string>('');
-// const confirmTitle = ref<string>('');
-// const confirmAction = ref<(() => void) | null>(null);
 const totalColumns = ref(3); // Default 3 kolom
 const optionFilterAkun = ref([{ id: 0, name: 'Pilih Semua Akun' }]);
 const optionFilterCabang = ref([{ id: 0, name: 'Pilih Semua Cabang' }]);
 const selectedOptionAkun = ref(0);
 const selectedOptionCabang = ref(0);
-
-
-
-
-
-// const selectedKota = ref<Partial<Kota>>({
-//   kode: '',
-//   name: '',
-// });
 
 interface ErrorsAdd {
   nomor_add_akun: string;
@@ -163,51 +61,21 @@ const errors_add = ref<ErrorsAdd>({
 });
 
 
-
-// <p v-if="errors.nomor_add_akun" class="mt-1 text-sm text-red-600">{{ errors.nomor_add_akun }}</p>
-//             </div>
-//           </div>
-//           <div>
-//             <label class="block text-sm font-medium text-gray-700 mb-1">Nama Akun</label>
-//             <input type="text" v-model="dataAddAkun.nama" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal" placeholder="Nama Akun" />
-//             <p v-if="errors.nama_add_akun" class="mt-1 text-sm text-red-600">{{ errors.nama_add_akun }}</p>
-//           </div>
-//           <div>
-//             <label class="block text-sm font-medium text-gray-700 mb-1">Saldo</label>
-//             <input
-//             class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal" placeholder="Saldo"
-//               type="text"
-//               id="rupiah"
-//               v-model="formattedPrice"
-//               @input="formatToRupiah"
-//             />
-//             <p v-if="errors.saldo_add_akun" class="mt-1 text-sm text-red-600">{{ errors.saldo_add_akun }}</p>
-
-
-
-
 const fetchFilterData = async() => {
   const response = await getFilterAkun();
   optionFilterAkun.value = response.data.akun;
   optionFilterCabang.value = response.data.cabang;
-  // const response = await daftarKota({search: search.value, perpage: itemsPerPage, pageNumber: currentPage.value});
-  // totalPages.value = Math.ceil(response.total / itemsPerPage)
   await getData();
 }
 
 const getData = async() => {
   const response = await daftarAkun({akun: selectedOptionAkun.value, cabang: selectedOptionCabang.value});
   dataAkun.value = response.data;
-  console.log("_________________111");
-  console.log(dataAkun.value);
-  console.log("_________________111");
 }
 
 
 // ADD AKUN FUNCTION //
-
 const showAddModal = ref<boolean>(false);
-
 const addAkunBtn = async (id : number, nomor : string) => {
   errors_add.value = { nomor_add_akun: '', nama_add_akun: '', saldo_add_akun : '' };
   dataAddAkun.value.prefix = nomor.toString().charAt(0);
