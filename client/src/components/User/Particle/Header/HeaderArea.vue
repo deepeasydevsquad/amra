@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useHead } from '@vueuse/head'
+
+// import { useHead } from '@vueuse/head';
 import { useSidebarStore } from '../../../../stores/sidebar'
 import DropdownUser from './DropdownUser.vue'
 import { ref, watchEffect } from "vue";
@@ -7,16 +8,13 @@ import { ref, watchEffect } from "vue";
 const { toggleSidebar } = useSidebarStore()
 const sidebarStore = useSidebarStore()
 
-// const title = ref("Judul Halaman Baru");
+import { useHead } from '@vueuse/head'
 
 useHead({
-  title: 'Halaman Home - My Website',
-  meta: [
-    { name: 'description', content: 'Ini adalah deskripsi halaman Home' },
-    { property: 'og:title', content: 'My Website' },
-    { property: 'og:description', content: 'Deskripsi singkat tentang website ini' }
-  ]
-})
+  title: 'AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
+  link: [ { rel: 'icon', type: 'image/png', href: 'public/favicon.png' } ],
+  meta: [ { name: 'AMRA', content: 'Aplikasi manajemen travel Haji dan Umrah' } ]
+});
 
 </script>
 
@@ -71,7 +69,7 @@ useHead({
         </router-link> -->
       </div>
       <div class="hidden sm:block">
-        <form action="https://formbold.com/s/unique_form_id" method="POST">
+        <!-- <form action="https://formbold.com/s/unique_form_id" method="POST">
           <div class="relative">
             <button class="absolute top-1/2 left-0 -translate-y-1/2">
               <svg
@@ -103,7 +101,7 @@ useHead({
               class="w-full xl:w-125 bg-transparent pr-4 pl-9 focus:outline-none"
             />
           </div>
-        </form>
+        </form> -->
       </div>
 
       <div class="flex items-center gap-3 2xsm:gap-7">

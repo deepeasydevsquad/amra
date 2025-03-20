@@ -5,12 +5,15 @@ import 'flowbite'
 import { createPinia } from 'pinia'
 import VueApexCharts from 'vue3-apexcharts'
 import { createApp } from 'vue'
+import { createHead } from '@vueuse/head';
 import App from './App.vue'
 import router from './router'
+// import { createMetaManager } from 'vue-meta';
 
 // Import FontAwesome
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
 
 // Import ikon yang dibutuhkan
 import { faUser, faHome, faHouseCrack, faCaretRight, faExchange, faBoxOpen, faUsers, faGlobe, faDatabase,
@@ -23,11 +26,14 @@ library.add( faUser, faHome, faHouseCrack, faCaretRight, faCircle, faExchange, f
   faChartArea, faCogs, faBackward, faForward, faBook, faArrowRight, faPlus, faMoneyBill, faPencil, faTimes);
 
 const app = createApp(App)
+const head = createHead();
 
 app.use(router)
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(createPinia())
 app.use(router)
 app.use(VueApexCharts)
+app.use(head);
+// app.use(createMetaManager());
 
 app.mount('#app')
