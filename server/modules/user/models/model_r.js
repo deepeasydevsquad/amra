@@ -1,3 +1,4 @@
+const fs = require("fs");
 const { Company, Member, Division, Menu, Submenu, Tab } = require("../../../models");
 const jwt = require("jsonwebtoken");
 
@@ -59,6 +60,21 @@ class Model_r {
         const type = decoded.type;
         const username = decoded.username;
 
+        var user_info = { company_code, username, type };
+        await Company.findOne({
+            where: { code: company_code },
+        }).then(async (e) => {
+            if (e) {
+              user_info['logo'] = e.logo;
+              user_info['company_name'] = e.company_name;
+            }
+        });
+
+        var posisiLogo = "/uploads/pengaturan/" + user_info.logo;
+        if ( ! await fs.existsSync(posisiLogo) ) {
+          user_info.logo = "default.png"; // Update jika file tidak ada
+        }
+
         var menu = {};
         await Menu.findAll().then(async (value) => {
           await Promise.all(
@@ -68,7 +84,6 @@ class Model_r {
               console.log(e.id);
               console.log(e.tab);
               console.log(e.path);
-              // console.log(JSON.parse(e.tab));
               console.log("====================");
 
               menu[e.id] = { id : e.id, name : e.name, path : e.path, icon : e.icon, tab : e.path === '#' ? '' : JSON.parse(e.tab)};
@@ -103,7 +118,7 @@ class Model_r {
 
         // }
 
-        return { menu_info : { menu , submenu, tab }, user_info : { company_code, username, type} };
+        return { menu_info : { menu , submenu, tab }, user_info : user_info };
     } catch (error) {
 
       console.log("----------error")

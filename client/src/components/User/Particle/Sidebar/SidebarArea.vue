@@ -7,16 +7,30 @@ import {
   useTabTerpilih,
   globalSelectMenu,
 } from '../../../../stores/sidebar'
-import { ref, defineProps, watch } from 'vue'
+
+import {
+  SettingStore
+} from '../../../../stores/settings'
+
+// import { ref, onMounted } from 'vue'
+
+
+import { ref, defineProps, watch, onMounted } from 'vue'
+
 
 const target = ref(null)
 const sidebarStore = useSidebarStore() // untuk sidebar
 const selectedTab = useSelectedTab()
 const activeTab = useGlobalActiveTab()
 const globaltab = useGlobalTab()
+// const Setting = SettingStore()
+const SettingGlob = SettingStore()
 const tabTerpilih = useTabTerpilih()
 const sideBarPage = globalSelectMenu()
 // const sideBarPage = ref('')
+const logo = ref('default.png');
+
+const BASE_URL = import.meta.env.VITE_APP_API_BASE_URL
 
 interface MenuInfo {
   menu: Record<string, any>
@@ -72,6 +86,13 @@ watch(
   },
   { immediate: true },
 )
+
+onMounted(() => {
+  if (SettingGlob.sharedObject.logo) {
+    logo.value = SettingGlob.sharedObject.logo;
+  }
+});
+
 </script>
 
 <template>
@@ -83,9 +104,9 @@ watch(
     }"
     ref="target"
   >
-    <div class="flex items-center justify-center gap-2 px-6 py-5.5 lg:py-6.5">
+    <div class="flex items-center justify-center gap-2 px-6 py-2.5 lg:py-3.5">
       <router-link to="/">
-        <img src="@/assets/images/logo/logo.png" alt="Logo" />
+        <img :src="BASE_URL + '/uploads/pengaturan/' + logo " alt="Logo" />
       </router-link>
       <button class="block lg:hidden" @click="sidebarStore.isSidebarOpen = false">
         <svg
@@ -112,7 +133,7 @@ watch(
             <li v-for="(item, key) in menu_info?.menu" :key="key">
               <router-link
                 :to="''"
-                class="group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"
+                class="group relative flex items-center gap-2.5 rounded-md py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"
                 @click="menuClick(item.name, item.path, item.tab)"
                 :class="{
                   'bg-graydark dark:bg-meta-4': sideBarPage.sharedString === item.name,

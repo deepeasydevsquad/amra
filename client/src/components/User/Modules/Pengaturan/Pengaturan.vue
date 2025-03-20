@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { updatePengaturan, getPengaturan } from '@/service/pengaturan'
+import Notification from "@/components/Modal/Notification.vue"
+import Confirmation from "@/components/Modal/Confirmation.vue"
+import Warning from "@/components/Modal/Warning.vue"
+
 
 interface Company {
   id: number
@@ -19,6 +23,21 @@ const company = ref<Company | null>(null)
 const isLoading = ref(true)
 const errorMessage = ref('')
 
+// confirmasi
+const showConfirmDialog = ref<boolean>(false);
+const confirmMessage = ref<string>('');
+const confirmTitle = ref<string>('');
+const confirmAction = ref<(() => void) | null>(null);
+
+// notification
+const showNotification = ref<boolean>(false);
+const notificationMessage = ref<string>('');
+const notificationType = ref<'success' | 'error'>('success');
+
+// warning
+const showWarning = ref<boolean>(false);
+const warningMessage = ref<string>('');
+
 const logoFile = ref<File | null>(null)
 const invoiceLogoFile = ref<File | null>(null)
 const iconFile = ref<File | null>(null)
@@ -29,6 +48,10 @@ const fetchCompanyData = async () => {
     const response = await getPengaturan()
     if (response?.company) {
       company.value = response.company
+
+      console.log("___________________________");
+      console.log(company.value);
+      console.log("___________________________");
     } else {
       throw new Error('Data perusahaan tidak ditemukan!')
     }
@@ -43,7 +66,7 @@ const validateForm = () => {
   const errors: Record<string, string> = {}
   if (!company.value) return errors
 
-  const validCurrencies = ['IDR', 'SAR', 'USD']
+  const validCurrencies = ['rp', 'sar', 'usd']
   if (!validCurrencies.includes(company.value.kurs)) {
     errors.kurs = 'Mata uang hanya boleh IDR, SAR, atau USD'
   }
@@ -121,7 +144,14 @@ const handleFileUpload = async (event: Event, type: string) => {
   const error = await validateFile(file, type)
 
   if (error) {
-    alert(error)
+    // alert(error)
+
+    showWarning.value = true //  = ref<boolean>(false);
+    warningMessage.value = error;
+// const showConfirmDialog = ref<boolean>(false);
+// const confirmMessage = ref<string>('');
+// const confirmTitle = ref<string>('');
+// const confirmAction = ref<(() => void) | null>(null);
     target.value = '' // Jika ada error, hentikan proses
     return
   }
@@ -135,11 +165,17 @@ const handleFileUpload = async (event: Event, type: string) => {
 const updateCompanyData = async () => {
   if (!company.value) return
 
+  console.log("-----------1");
   const errors = validateForm()
   if (Object.keys(errors).length > 0) {
-    alert(Object.values(errors).join('\n'))
+    console.log("-----------2");
+    // alert(Object.values(errors).join('\n'))
+    showWarning.value = true //  = ref<boolean>(false);
+    warningMessage.value = Object.values(errors).join('\n');
     return
   }
+
+  console.log("-----------3");
 
   const formData = new FormData()
   formData.append('company_name', company.value.company_name)
@@ -158,10 +194,17 @@ const updateCompanyData = async () => {
     const response = await updatePengaturan(formData)
     console.log('Response dari server:', response) // Debug response
 
-    alert('Pengaturan berhasil diperbarui!')
+    showNotification.value = true;
+    notificationMessage.value = 'Pengaturan berhasil diperbarui!';
+    notificationMessage.value = 'success';
+// const notificationMessage = ref<string>('');
+const notificationType = ref<'success' | 'error'>('success');
   } catch (error) {
     console.error('Error saat update data:', error)
-    alert('Terjadi kesalahan saat memperbarui pengaturan.')
+    // alert('Terjadi kesalahan saat memperbarui pengaturan.')
+    showNotification.value = true;
+    notificationMessage.value = 'Terjadi kesalahan saat memperbarui pengaturan.';
+    notificationMessage.value = 'error';
   }
 }
 
@@ -172,11 +215,10 @@ onMounted(fetchCompanyData)
   <div class="p-6 bg-white min-h-screen">
     <div v-if="isLoading" class="text-center text-gray-600">Loading...</div>
     <div v-else-if="errorMessage" class="text-center text-red-600">{{ errorMessage }}</div>
-
     <div v-else-if="company" class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
+        <!-- Upload Logo -->
         <label class="block text-gray-600 font-semibold mb-1">Logo Surat Perusahaan</label>
-
         <div class="border p-4 rounded-md flex items-center justify-center">
           <img
             v-if="company?.logo"
@@ -184,7 +226,6 @@ onMounted(fetchCompanyData)
             alt="Logo"
             class="h-20"
           />
-
           <up v-else>Loading logo...</up>
         </div>
         <input
@@ -198,59 +239,9 @@ onMounted(fetchCompanyData)
           <span class="font-semibold">1MB</span> | Dimensi:
           <span class="font-semibold">300x80 px</span>
         </p>
-      </div>
 
-      <div>
-        <label class="block text-gray-600 font-semibold mb-1">Nama Perusahaan</label>
-        <input
-          type="text"
-          v-model="company.company_name"
-          class="w-full border p-2 rounded-md text-gray-700"
-        />
-      </div>
-    </div>
-
-    <div v-if="company" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-      <div>
-        <label class="block text-gray-600 font-semibold mb-1">Kurs</label>
-        <select v-model="company.kurs" class="w-full border p-2 rounded-md text-gray-700">
-          <option value="IDR">IDR</option>
-          <option value="SAR">SAR</option>
-          <option value="USD">USD</option>
-        </select>
-      </div>
-      <div>
-        <label class="block text-gray-600 font-semibold mb-1">Email Perusahaan</label>
-        <input
-          type="email"
-          v-model="company.email"
-          class="w-full border p-2 rounded-md text-gray-700"
-        />
-      </div>
-    </div>
-
-    <div v-if="company" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-      <div>
-        <label class="block text-gray-600 font-semibold mb-1">Nomor Whatsapp</label>
-        <input
-          type="text"
-          v-model="company.whatsapp_company_number"
-          class="w-full border p-2 rounded-md text-gray-700"
-        />
-      </div>
-      <div>
-        <label class="block text-gray-600 font-semibold mb-1">Header Invoice</label>
-        <input
-          type="text"
-          v-model="company.invoice_title"
-          class="w-full border p-2 rounded-md text-gray-700"
-        />
-      </div>
-    </div>
-
-    <div v-if="company" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-      <div>
-        <label class="block text-gray-600 font-semibold mb-1">Logo Invoice</label>
+        <!-- Upload Logo Invoice-->
+        <label class="block text-gray-600 font-semibold mb-1 mt-6">Logo Invoice</label>
         <input
           type="file"
           accept=".png"
@@ -262,10 +253,9 @@ onMounted(fetchCompanyData)
           <span class="font-semibold">1MB</span> | Dimensi:
           <span class="font-semibold">270x80 px</span>
         </p>
-      </div>
 
-      <div>
-        <label class="block text-gray-600 font-semibold mb-1">Icon</label>
+        <!-- Upload Icon-->
+        <label class="block text-gray-600 font-semibold mb-1 mt-6">Icon</label>
         <input
           type="file"
           accept=".ico"
@@ -277,6 +267,47 @@ onMounted(fetchCompanyData)
           <span class="font-semibold">500KB</span> | Dimensi:
           <span class="font-semibold">48x48 px</span>
         </p>
+
+      </div>
+      <div>
+        <!-- Input Nama Perusahaan -->
+        <label class="block text-gray-600 font-semibold mb-1">Nama Perusahaan</label>
+        <input
+          type="text"
+          v-model="company.company_name"
+          class="w-full border p-2 rounded-md text-gray-700"
+        />
+
+        <label class="block text-gray-600 font-semibold mb-1 mt-6">Kurs</label>
+        <select v-model="company.kurs" class="w-full border p-2 rounded-md text-gray-700">
+          <option value="rp">IDR</option>
+          <option value="sar">SAR</option>
+          <option value="usd">USD</option>
+        </select>
+
+        <!-- Input Email Perusahaan -->
+        <label class="block text-gray-600 font-semibold mb-1 mt-6">Email Perusahaan</label>
+        <input
+          type="email"
+          v-model="company.email"
+          class="w-full border p-2 rounded-md text-gray-700"
+        />
+
+        <!-- Input Nomor Whatsapp Perusahaan -->
+        <label class="block text-gray-600 font-semibold mb-1 mt-6">Nomor Whatsapp</label>
+        <input
+          type="text"
+          v-model="company.whatsapp_company_number"
+          class="w-full border p-2 rounded-md text-gray-700"
+        />
+
+        <!-- Input Header Perusahaan -->
+        <label class="block text-gray-600 font-semibold mb-1 mt-6">Header Invoice</label>
+        <input
+          type="text"
+          v-model="company.invoice_title"
+          class="w-full border p-2 rounded-md text-gray-700" placeholder="Header Invoice"
+        />
       </div>
     </div>
 
@@ -286,4 +317,22 @@ onMounted(fetchCompanyData)
       </button>
     </div>
   </div>
+
+  <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
+      <button @click="confirmAction && confirmAction()"
+        class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+      >
+        Ya
+      </button>
+      <button
+        @click="showConfirmDialog = false"
+        class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+      >
+        Tidak
+      </button>
+  </Confirmation>
+
+  <Notification  :showNotification="showNotification"  :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false"  ></Notification>
+
+  <Warning :showWarning="showWarning"  :warningMessage="warningMessage" @close="showWarning = false" ></Warning>
 </template>

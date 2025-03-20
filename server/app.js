@@ -75,23 +75,12 @@ app.use(
 );
 
 app.set("view engine", "ejs");
-app.use("/static", express.static(__dirname + "/public"));
-app.use("/photo", express.static("/photo"));
-// app.use("/template", express.static("/template"));
-app.use("/templates", express.static(__dirname + "/template"));
-app.use("/files", express.static(path.join(__dirname, "/public/files")));
+app.use("/uploads", express.static("/uploads"));
+app.use("/uploads", express.static(__dirname + "/uploads"));
 
 (async () => {
   await db.sequelize.sync();
 })();
-
-app.use("/css", express.static(__dirname + "/node_modules/bootstrap/dist/css"));
-app.use("/js", express.static(__dirname + "/node_modules/bootstrap/dist/js"));
-app.use("/jquery", express.static(__dirname + "/node_modules/jquery/dist"));
-app.use(
-  "/jquery-confirm",
-  express.static(__dirname + "/node_modules/jquery-confirm/dist")
-);
 
 for (let x in arr) {
   app.use(arr[x]);

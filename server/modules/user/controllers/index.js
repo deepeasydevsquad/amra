@@ -71,14 +71,14 @@ controllers.user = async (req, res) => {
   try {
     const model_r = new Model_r(req);
 
-    console.log("--------XXXXXXXXXXXXXXXXX");
-    console.log("--------XXXXXXXXXXXXXXXXX");
-    console.log("--------XXXXXXXXXXXXXXXXX");
+    // console.log("--------XXXXXXXXXXXXXXXXX");
+    // console.log("--------XXXXXXXXXXXXXXXXX");
+    // console.log("--------XXXXXXXXXXXXXXXXX");
     const data = await model_r.get_menu_submenu_tab();
 
-    console.log('------------DDD');
-    console.log(data);
-    console.log('------------DDD');
+    // console.log('------------DDD');
+    // console.log(data);
+    // console.log('------------DDD');
   
     res.status(200).json({ 
       error: false,
