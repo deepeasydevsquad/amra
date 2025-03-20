@@ -80,7 +80,7 @@ const selectTab = (tabPath: string, key: number) => {
         :key="key"
       >
         <button
-          class="inline-block p-4 rounded-t-lg"
+          class="inline-block p-4 rounded-t-lg rrr "
           :id="`${tab.sharedObject[item.id].path}-tab`"
           :data-tabs-target="`#${tab.sharedObject[item.id].path}`"
           type="button"
@@ -96,8 +96,8 @@ const selectTab = (tabPath: string, key: number) => {
           :class="
             activeTab.sharedString === tab.sharedObject[item.id].path ||
             (tabTerpilih.sharedNumber === 0 && key === 0)
-              ? 'bg-white text-[#3a477d] font-bold hover:text-[#3a477d] dark:text-[#3a477d] dark:hover:text-[#3a477d] border-[#3a477d] dark:border-[#3a477d]'
-              : 'inline-block p-4 rounded-t-lg dark:border-transparent text-gray-500 hover:text-gray-600 dark:text-gray-400 border-gray-100 hover:border-gray-300 dark:border-gray-700 dark:hover:text-gray-300'
+              ? 'AAA bg-white !text-[#3a477d] font-bold hover:text-[#3a477d] dark:text-[#3a477d] dark:hover:text-[#3a477d] border-[#3a477d] dark:border-[#3a477d]'
+              : 'BBB inline-block p-4 rounded-t-lg dark:border-transparent text-gray-500 hover:text-gray-600 dark:text-gray-400 border-gray-100 hover:border-gray-300 dark:border-gray-700 dark:hover:text-gray-300'
           "
         >
           <font-awesome-icon :icon="tab.sharedObject[item.id].icon" />
