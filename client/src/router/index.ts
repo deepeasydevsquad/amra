@@ -30,6 +30,10 @@ const router = createRouter({
     {
       path: '/user',
       name: 'user',
+      meta: {
+        title: 'Home - My Website',
+        description: 'Ini adalah deskripsi halaman Home'
+      },
       component: UserView,
     },
   ],

@@ -16,7 +16,7 @@
       <span class="border-l border-gray-400 h-6"></span>
       <div class="flex space-x-4">
         <a href="#" class="bg-slate-300 text-sky-800 px-4 py-2 rounded shadow-md">Coba Gratis</a>
-        <a href="#" class="text-sky-800 px-4 py-2 rounded font-semibold">Login</a>
+        <a href="/login" class="text-sky-800 px-4 py-2 rounded font-semibold">Login</a>
       </div>
     </div>
 
