@@ -94,7 +94,7 @@
                         class="px-3 py-2 leading-tight border min-w-[40px]"
                         :class="
                           currentPage === page
-                            ? 'text-white bg-[#3a477d] border-[#3a477d]'
+                            ? 'text-white bg-[#333a48] border-[#333a48]'
                             : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'
                         "
                       >

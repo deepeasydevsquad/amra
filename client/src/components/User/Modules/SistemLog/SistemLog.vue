@@ -1,9 +1,8 @@
 <template>
   <div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">System Log</h1>
 
     <!-- Pencarian -->
-    <div class="flex justify-end mb-4">
+    <div class="flex justify-end items-center mb-4">
       <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
       <input
         v-model="searchQuery"
