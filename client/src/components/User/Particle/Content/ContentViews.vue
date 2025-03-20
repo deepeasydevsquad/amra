@@ -122,8 +122,7 @@ const selectTab = (tabPath: string, key: number) => {
       role="tabpanel"
       :aria-labelledby="`${tab.sharedObject[item.id].path}-tab`"
     >
-      <p class="px-5 mb-5 text-sm text-gray-900 dark:text-white">
-        {{ tab.sharedObject[item.id].desc }}
+      <p class="px-5 mb-5 text-sm text-gray-900 dark:text-white" v-html="tab.sharedObject[item.id].desc">
       </p>
       <component :is="tabComponents[tab.sharedObject[item.id].path]" class="tab"></component>
     </div>

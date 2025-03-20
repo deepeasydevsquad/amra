@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     mobile_number: DataTypes.STRING,
     otp_type: DataTypes.ENUM(['registration','login']),
     otp_status: DataTypes.ENUM(['active','inactive']),
-    user_type: DataTypes.ENUM(['satu_app','company'])
+    user_type: DataTypes.ENUM(['amra_app','company'])
   }, {
     sequelize,
     modelName: 'Otp',

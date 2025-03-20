@@ -30,7 +30,7 @@ module.exports = {
       },
       user_type: {
         type: Sequelize.ENUM,
-        values: ['satu_app','company'],
+        values: ['amra_app','company'],
         defaultValue : "company"
       },
       createdAt: {

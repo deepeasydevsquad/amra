@@ -10,7 +10,7 @@ module.exports = {
         mobile_number: '085262802141',
         otp_type: 'registration',
         otp_status: 'active',
-        user_type: 'amra',
+        user_type: 'amra_app',
         createdAt: new Date(), updatedAt: new Date() },
     ], {});
   },
