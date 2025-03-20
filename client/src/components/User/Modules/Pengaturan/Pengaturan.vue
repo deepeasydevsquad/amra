@@ -312,7 +312,9 @@ onMounted(fetchCompanyData)
     </div>
 
     <div class="mt-6 flex justify-end">
-      <button @click="updateCompanyData" class="bg-blue-600 text-white px-4 py-2 rounded-md">
+
+      <!-- class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" -->
+      <button @click="updateCompanyData" class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2">
         Edit Pengaturan
       </button>
     </div>
