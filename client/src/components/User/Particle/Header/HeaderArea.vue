@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useHead } from '@vueuse/head'
 import { useSidebarStore } from '../../../../stores/sidebar'
 import DropdownUser from './DropdownUser.vue'
 import { ref, watchEffect } from "vue";
@@ -6,7 +7,16 @@ import { ref, watchEffect } from "vue";
 const { toggleSidebar } = useSidebarStore()
 const sidebarStore = useSidebarStore()
 
-const title = ref("Judul Halaman Baru");
+// const title = ref("Judul Halaman Baru");
+
+useHead({
+  title: 'Halaman Home - My Website',
+  meta: [
+    { name: 'description', content: 'Ini adalah deskripsi halaman Home' },
+    { property: 'og:title', content: 'My Website' },
+    { property: 'og:description', content: 'Deskripsi singkat tentang website ini' }
+  ]
+})
 
 </script>
 
