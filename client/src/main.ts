@@ -40,6 +40,8 @@ import {
   faChartArea,
   faCogs,
   faBoxOpen,
+  faBackward,
+  faForward
 } from '@fortawesome/free-solid-svg-icons'
 import { faCircle } from '@fortawesome/free-regular-svg-icons'
 
@@ -58,6 +60,8 @@ library.add(
   faChartArea,
   faCogs,
   faBoxOpen,
+  faBackward,
+  faForward
 )
 
 const app = createApp(App)

@@ -10,10 +10,42 @@ import 'flowbite'
 
 import BerandaUtama from '../../Modules/BerandaUtama/BerandaUtama.vue'
 import TransPaket from '../../Modules/TransPaket/TransPaket.vue'
+import DaftarKota from '../../Modules/DaftarKota/DaftarKota.vue'
+import DaftarFasilitas from '../../Modules/DaftarFasilitas/DaftarFasilitas.vue'
+import DaftarHotel from '../../Modules/DaftarHotel/DaftarHotel.vue'
+import JenisMobil from '../../Modules/JenisMobil/JenisMobil.vue'
+import Cabang from '../../Modules/Cabang/Cabang.vue'
+import Airlines from '../../Modules/Airlines/Airlines.vue'
+import Pengaturan from '../../Modules/Pengaturan/Pengaturan.vue'
+import SistemLog from '../../Modules/SistemLog/SistemLog.vue'
+import DaftarBandara from '../../Modules/DaftarBandara/DaftarBandara.vue'
+import DaftarAsuransi from '../../Modules/DaftarAsuransi/DaftarAsuransi.vue'
+import DaftarProviderVisa from '../../Modules/DaftarProviderVisa/DaftarProviderVisa.vue'
+import DaftarBank from '../../Modules/DaftarBank/DaftarBank.vue'
+import DaftarTipePaket from '../../Modules/DaftarTipePaket/DaftarTipePaket.vue'
+import Grup from '../../Modules/Grup/Grup.vue'
+import Supplier from '../../Modules/Supplier/Supplier.vue'
+import Akun from '../../Modules/Akun/Akun.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
   trans_paket: TransPaket,
+  daftar_kota: DaftarKota,
+  daftar_fasilitas: DaftarFasilitas,
+  daftar_mobil: JenisMobil,
+  daftar_cabang: Cabang,
+  pengaturan: Pengaturan,
+  daftar_hotel: DaftarHotel,
+  airlines: Airlines,
+  daftar_bandara: DaftarBandara,
+  daftar_asuransi: DaftarAsuransi,
+  daftar_provider_visa: DaftarProviderVisa,
+  daftar_bank: DaftarBank,
+  system_log: SistemLog,
+  daftar_grup: Grup,
+  daftar_tipe_paket: DaftarTipePaket,
+  supplier: Supplier,
+  akun: Akun,
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click
@@ -64,7 +96,7 @@ const selectTab = (tabPath: string, key: number) => {
           :class="
             activeTab.sharedString === tab.sharedObject[item.id].path ||
             (tabTerpilih.sharedNumber === 0 && key === 0)
-              ? 'bg-white text-blue-600 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-500 border-blue-600 dark:border-blue-500'
+              ? 'bg-white text-[#3a477d] font-bold hover:text-[#3a477d] dark:text-[#3a477d] dark:hover:text-[#3a477d] border-[#3a477d] dark:border-[#3a477d]'
               : 'inline-block p-4 rounded-t-lg dark:border-transparent text-gray-500 hover:text-gray-600 dark:text-gray-400 border-gray-100 hover:border-gray-300 dark:border-gray-700 dark:hover:text-gray-300'
           "
         >
@@ -90,6 +122,9 @@ const selectTab = (tabPath: string, key: number) => {
       role="tabpanel"
       :aria-labelledby="`${tab.sharedObject[item.id].path}-tab`"
     >
+      <p class="px-5 mb-5 text-sm text-gray-900 dark:text-white">
+        {{ tab.sharedObject[item.id].desc }}
+      </p>
       <component :is="tabComponents[tab.sharedObject[item.id].path]" class="tab"></component>
     </div>
   </div>

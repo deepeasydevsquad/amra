@@ -14,7 +14,7 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/user/login',
+      path: '/login',
       name: 'login',
       component: LoginView,
     },
@@ -36,6 +36,10 @@ const router = createRouter({
     {
       path: '/user',
       name: 'user',
+      meta: {
+        title: 'Home - My Website',
+        description: 'Ini adalah deskripsi halaman Home'
+      },
       component: UserView,
     },
   ],

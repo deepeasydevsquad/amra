@@ -21,16 +21,28 @@ module.exports = (sequelize, DataTypes) => {
       Company.hasMany(models.Mst_kota, {
         foreignKey: "company_id",
       });
-      Company.hasMany(models.Mst_mobil, {
+      Company.hasMany(models.Mst_airline, {
         foreignKey: "company_id",
       });
-      Company.hasMany(models.Saldo_akun, {
+      Company.hasMany(models.Mst_airport, {
         foreignKey: "company_id",
       });
+      Company.hasMany(models.Mst_asuransi, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Mst_provider, {
+        foreignKey: "company_id",
+      });
+      // Company.hasMany(models.Saldo_akun, {
+      //   foreignKey: "company_id",
+      // });
       Company.hasMany(models.Supplier, {
         foreignKey: "company_id",
       });
       Company.hasMany(models.Akun_secondary, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.System_log, {
         foreignKey: "company_id",
       });
      }
@@ -38,7 +50,9 @@ module.exports = (sequelize, DataTypes) => {
   Company.init(
     {
       code: DataTypes.STRING,
+      division_id: DataTypes.STRING,
       kurs: DataTypes.ENUM(["rp", "usd", 'sar']), 
+      division_id: DataTypes.STRING,
       logo: DataTypes.STRING,
       icon: DataTypes.STRING,
       company_name: DataTypes.STRING,
