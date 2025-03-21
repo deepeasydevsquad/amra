@@ -14,6 +14,9 @@ module.exports = (sequelize, DataTypes) => {
       Grup.belongsTo(models.Division, {
         foreignKey: "division_id",
       });
+      Grup.hasMany(models.User, {
+        foreignKey: "grup_id",
+      });
     }
   }
   Grup.init({

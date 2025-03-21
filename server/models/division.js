@@ -23,6 +23,9 @@ module.exports = (sequelize, DataTypes) => {
       Division.belongsTo(models.Company, {
         foreignKey: "company_id",
       });
+      Division.hasMany(models.User, {
+        foreignKey: "division_id",
+      });
     }
   }
   Division.init({
