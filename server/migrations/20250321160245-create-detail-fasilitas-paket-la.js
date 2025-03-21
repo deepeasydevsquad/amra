@@ -22,7 +22,7 @@ module.exports = {
       description: {
         type: Sequelize.TEXT
       },
-      check_id: {
+      check_in: {
         type: Sequelize.DATE
       },
       check_out: {

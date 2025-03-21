@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   Detail_fasilitas_paket_la.init({
     fasilitas_paket_la_id: DataTypes.INTEGER,
     description: DataTypes.TEXT,
-    check_id: DataTypes.DATE,
+    check_in: DataTypes.DATE,
     check_out: DataTypes.DATE,
     day: DataTypes.INTEGER,
     pax: DataTypes.INTEGER,
