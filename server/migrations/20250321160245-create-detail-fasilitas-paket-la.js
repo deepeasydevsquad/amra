@@ -9,9 +9,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      // fasilitas_paket_la_id: {
-      //   type: Sequelize.INTEGER
-      // },
       fasilitas_paket_la_id: {
         type: Sequelize.INTEGER,
         references: {

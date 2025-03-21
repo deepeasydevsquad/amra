@@ -106,7 +106,7 @@ const pageNow = (page: number) => {
 
 // Ambil jumlah kolom agar `colspan` dinamis
 const totalColumns = computed(() => {
-  return document.querySelectorAll('thead th').length || 5
+  return document.querySelectorAll('thead tr th').length || 5
 })
 
 // Fungsi untuk edit dan delete
