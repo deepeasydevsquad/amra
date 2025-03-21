@@ -18,7 +18,8 @@ app.use(cookieParser());
 const arr_router = [
   "user",
   "otp",
-  "registrasi", "kwitansi",
+  "registrasi",
+  "kwitansi",
   "daftar_kota",
   "daftar_fasilitas",
   "daftar_mobil",
@@ -27,7 +28,7 @@ const arr_router = [
   "pengaturan",
   "cabang",
   "sistem_log",
-  "daftar_bandara", 
+  "daftar_bandara",
   "daftar_asuransi",
   "daftar_provider_visa",
   "daftar_bank",
@@ -35,6 +36,7 @@ const arr_router = [
   "daftar_tipe_paket",
   "supplier",
   "akun",
+  "member",
 ];
 
 // routers

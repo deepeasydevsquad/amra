@@ -26,6 +26,7 @@ import DaftarTipePaket from '../../Modules/DaftarTipePaket/DaftarTipePaket.vue'
 import Grup from '../../Modules/Grup/Grup.vue'
 import Supplier from '../../Modules/Supplier/Supplier.vue'
 import Akun from '../../Modules/Akun/Akun.vue'
+import DaftarMember from '../../Modules/Member/DaftarMember.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -46,6 +47,7 @@ const tabComponents = {
   daftar_tipe_paket: DaftarTipePaket,
   supplier: Supplier,
   akun: Akun,
+  daftar_member: DaftarMember,
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click
@@ -80,7 +82,7 @@ const selectTab = (tabPath: string, key: number) => {
         :key="key"
       >
         <button
-          class="inline-block p-4 rounded-t-lg rrr "
+          class="inline-block p-4 rounded-t-lg rrr"
           :id="`${tab.sharedObject[item.id].path}-tab`"
           :data-tabs-target="`#${tab.sharedObject[item.id].path}`"
           type="button"
@@ -122,8 +124,10 @@ const selectTab = (tabPath: string, key: number) => {
       role="tabpanel"
       :aria-labelledby="`${tab.sharedObject[item.id].path}-tab`"
     >
-      <p class="px-5 mb-5 text-sm text-gray-900 dark:text-white" v-html="tab.sharedObject[item.id].desc">
-      </p>
+      <p
+        class="px-5 mb-5 text-sm text-gray-900 dark:text-white"
+        v-html="tab.sharedObject[item.id].desc"
+      ></p>
       <component :is="tabComponents[tab.sharedObject[item.id].path]" class="tab"></component>
     </div>
   </div>
