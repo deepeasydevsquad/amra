@@ -10,7 +10,7 @@
       class="w-full text-gray-700 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       :class="{ 'border-red-500': errors.cabang_id }"
     >
-      <option value="" disabled>Pilih Cabang</option>
+      <option value="0" disabled>Pilih Cabang</option>
       <option v-for="cabang in cabangs" :key="cabang.id" :value="cabang.id">
         {{ cabang.name }}
       </option>
@@ -297,7 +297,7 @@ const form = ref<FormData>({
   whatsapp: '',
   password: '',
   confirmPassword: '',
-  cabang_id: undefined,
+  cabang_id: 0,
 })
 
 // Handle file upload

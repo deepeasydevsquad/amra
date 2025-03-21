@@ -145,7 +145,7 @@ const closeUpdateForm = () => {
 }
 </script>
 <template>
-  <div class="p-6">
+
     <div class="container mx-auto p-4">
       <!-- Tambah data dan Search -->
       <div class="flex justify-between mb-4" v-if="!showAddForm && !showUpdateForm">
@@ -271,7 +271,7 @@ const closeUpdateForm = () => {
         </table>
       </div>
     </div>
-  </div>
+
   <Confirmation
     :showConfirmDialog="showConfirmDialog"
     :confirmTitle="confirmTitle"

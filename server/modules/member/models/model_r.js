@@ -43,6 +43,7 @@ class Model_r {
       order: [["id", "ASC"]],
       attributes: [
         "id",
+        "division_id",
         "fullname",
         "identity_number",
         "identity_type",
@@ -68,6 +69,7 @@ class Model_r {
 
         data = q.rows.map((e) => ({
           id: e.id,
+          cabang_id : e.division_id, 
           fullname: e.fullname,
           identity_number: e.identity_number,
           identity_type: e.identity_type,
