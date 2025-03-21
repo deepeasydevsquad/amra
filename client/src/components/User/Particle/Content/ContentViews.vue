@@ -27,6 +27,7 @@ import Grup from '../../Modules/Grup/Grup.vue'
 import Supplier from '../../Modules/Supplier/Supplier.vue'
 import Akun from '../../Modules/Akun/Akun.vue'
 import DaftarMember from '../../Modules/Member/DaftarMember.vue'
+import KostumerPaketLa from '../../Modules/KostumerPaketLa/KostumerPaketLa.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -48,6 +49,7 @@ const tabComponents = {
   supplier: Supplier,
   akun: Akun,
   daftar_member: DaftarMember,
+  kostumer_paket_la: KostumerPaketLa
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click
