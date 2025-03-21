@@ -222,10 +222,10 @@ const deleteData = async (id: number) => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[75%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Kostumer</th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor HP</th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Alamat</th>
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Kostumer</th>
+            <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor HP</th>
+            <th class="w-[40%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Alamat</th>
+            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
