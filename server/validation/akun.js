@@ -1,4 +1,4 @@
-const { Akun_primary, Division, Akun_secondary } = require("../models");
+const { Akun_primary, Division, Akun_secondary, } = require("../models");
 
 const { getCompanyIdByCode } = require("../helper/companyHelper");
     
@@ -54,6 +54,15 @@ validation.check_primary_id = async ( value ) => {
         throw new Error("Primary ID Akun ini tidak ditemukan dipangkalan data");
     }
     return true;
+}
+
+
+validation.check_id_akun_secondary = async ( value,  { req } ) => {
+    const company_id = await getCompanyIdByCode(req); 
+    var check = await Akun_secondary.findOne({where: { id : value, company_id : company_id }});
+    if (!check) {
+        throw new Error("ID ini tidak terdaftar dipangkalan data");
+    }
 }
 
 

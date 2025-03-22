@@ -56,14 +56,9 @@ class Model_r {
     
       return { akun, cabang };
     } catch (error) {
-
-      console.log("~~~~~~~~~~");
-      console.log(error);
-      console.log("~~~~~~~~~~");
       return {}
     }
   }
-
 
   async get_seluruh_cabang_id ( company_id ) {
     var list_division_id = [];
@@ -76,7 +71,6 @@ class Model_r {
     });
     return list_division_id;
   }
-
 
   async get_daftar_akun() {
     // initialize dependensi properties
@@ -127,10 +121,6 @@ class Model_r {
           })
         );
       });
-
-      console.log("-___________Akun Primary________________-");
-      console.log(saldo_akun_primary);
-      console.log("-___________Akun Primary________________-");
 
       var draf = {};
       await Akun_secondary.findAll({ 

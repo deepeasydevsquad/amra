@@ -1,5 +1,5 @@
 const Model_r = require("../models/model_r");
-// const Model_cud = require("../models/model_cud");
+const Model_cud = require("../models/model_cud");
 const { handleValidationErrors, handleValidationErrors2, handleServerError } = require("../../../helper/handleError");
 
 const controllers = {};
@@ -45,6 +45,54 @@ controllers.check_akun = async (req, res) => {
 
   try {
     res.status(200).json({ error: false });
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
+controllers.add = async (req, res) => {
+
+  if (!(await handleValidationErrors2(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    await model_cud.add();
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Akun Baru berhasil ditambahkan.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Akun Baru Gagal Ditambahkan.',
+      });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
+controllers.delete = async ( req, res) => {
+
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    await model_cud.delete();
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Akun berhasil dihapus.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Akun gagal dihapus.',
+      });
+    }
   } catch (error) {
     handleServerError(res, error.message);
   }

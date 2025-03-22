@@ -30,7 +30,7 @@ export const addAkun = async (param : any) => {
   }
 };
 
-export const editAkun = async (param : any) => {
+export const editAkun = async (id:number, param : any) => {
   try {
     const response = await api.post("/daftar_akun/edit", param); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request
@@ -54,6 +54,15 @@ export const checkAkun = async (param : any) => {
     // console.log(error.response.data);
     // console.log("==================");
     // console.error("Gagal menambahkan kota:", error);
+    return error.response.data; // Bisa ditangani di bagian pemanggilan
+  }
+};
+
+export const deleteAkun = async (param : number) => {
+  try {
+    const response = await api.post("/daftar_akun/delete", { id : param }); // Kirim data ke backend
+    return response.data; // Kembalikan data hasil request
+  } catch (error) {
     return error.response.data; // Bisa ditangani di bagian pemanggilan
   }
 };

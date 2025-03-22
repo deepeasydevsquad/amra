@@ -33,6 +33,17 @@ helper.error_msg = async (errors) => {
   return err_msg;
 };
 
+helper.handleValidationErrors2 = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const err_msg = await helper.error_msg2(errors);
+    res.status(400).json({ error: true, detail : err_msg });
+    return false;
+  }
+  return true;
+};
+
+
 helper.handleValidationErrors = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

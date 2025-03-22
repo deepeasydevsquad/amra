@@ -1,10 +1,16 @@
 <script setup lang="ts">
+  import Notification from "../../../../Modal/Notification.vue"
+
   import { defineProps, defineEmits } from 'vue'
 
   import { ref, computed, onMounted } from 'vue';
   import { getFilterAkun, getData, checkAkun, addAkun, editAkun } from "../../../../../service/akun"; // Import function POST
 
-  // const props = defineProps<{ showStatus: boolean, title: string, data : any }>()
+  interface ErrorsAdd {
+    nomor_add_akun: string;
+    nama_add_akun: string;
+    saldo_add_akun: string;
+  }
 
   interface addUpdateAkunInterface {
     primary_id: number;
@@ -16,28 +22,36 @@
 
   interface Props {
     showStatus: boolean;
-    // title: string;
-    selectedAkun: number,
-    data: addUpdateAkunInterface; // Gantilah `any` dengan tipe yang lebih spesifik jika memungkinkan
+    selectedAkun?: number,
+    data: Partial<addUpdateAkunInterface>; // Gantilah `any` dengan tipe yang lebih spesifik jika memungkinkan
   }
-
-  //  :title="`Tambah Akun Baru`"
 
   const props = defineProps<Props>();
-
   const emit = defineEmits(["close", "update-statusShow"]);
 
-  interface ErrorsAdd {
-    nomor_add_akun: string;
-    nama_add_akun: string;
-    saldo_add_akun: string;
-  }
 
+
+  const selectedAkun = ref<number>();
+  const showNotification = ref<boolean>(false);
+  const showConfirmDialog = ref<boolean>(false);
+  const confirmMessage = ref<string>('');
+  const confirmTitle = ref<string>('');
+  const confirmAction = ref<(() => void) | null>(null);
+  const notificationMessage = ref<string>('');
+  const notificationType = ref<'success' | 'error'>('success');
   const errors_message = ref<ErrorsAdd>({
     nomor_add_akun: '',
     nama_add_akun: '',
     saldo_add_akun :'',
   });
+  const dataAddUpdateAkun = ref<Partial<addUpdateAkunInterface>>({
+    primary_id : 0,
+    prefix : '',
+    nomor: '',
+    nama : '',
+    saldo : ''
+  });
+
 
   const validateFormAddAkun = async (): Promise<boolean> => {
 
@@ -45,23 +59,28 @@
 
     let isValid = true;
 
-    if (!props.data.nomor?.trim()) {
+    if (!dataAddUpdateAkun.value.nomor?.trim()) {
       errors_message.value.nomor_add_akun = 'Nomor Akun tidak boleh kosong';
       isValid = false;
     }
 
-    if (!props.data.nama?.trim()) {
+    if (dataAddUpdateAkun.value.nomor?.trim().length != 4) {
+      errors_message.value.nomor_add_akun = 'Panjang Nomor Akun Hanya 4 Digit, Tidak Boleh Lebih atau Kurang.';
+      isValid = false;
+    }
+
+    if (!dataAddUpdateAkun.value.nama?.trim()) {
       errors_message.value.nama_add_akun = 'Nama Akun tidak boleh kosong';
       isValid = false;
     }
 
-    if (!props.data.saldo?.trim()) {
+    if (!dataAddUpdateAkun.value.saldo?.trim()) {
       errors_message.value.saldo_add_akun = 'Saldo tidak boleh kosong. Jika tidak ada silahkan isikan Rp 0';
       isValid = false;
     }
 
     if( isValid  === true ) {
-      const response = await checkAkun({nomor_akun: props.data.nomor, prefix: props.data.prefix, primary_id: props.data.primary_id });
+      const response = await checkAkun({nomor_akun: dataAddUpdateAkun.value.nomor, prefix: props.data.prefix, primary_id: props.data.primary_id });
       if( response.error == true) {
         var detailError = response.detail;
         for ( let x in detailError ) {
@@ -84,39 +103,44 @@
 
     if (! await validateFormAddAkun()) return;
 
-    // selectedAkun
     const isEdit = !!props.selectedAkun;
 
+    const action = async () => {
+      try {
+        if (isEdit) {
+          const response = await editAkun(selectedAkun.value, dataAddUpdateAkun.value );
+          // showConfirmDialog.value = false;
+          // props.showStatus = false;
+          emit('update-statusShow', false);
+          displayNotification(response.error_msg);
+        } else {
+          dataAddUpdateAkun.value.primary_id = props.data.primary_id;
+          dataAddUpdateAkun.value.prefix = props.data.prefix;
+          const response = await addAkun(dataAddUpdateAkun.value);
+          showConfirmDialog.value = false;
+          emit('update-statusShow', false);
+          displayNotification(response.error_msg);
+        }
+      } catch (error) {
+        showConfirmDialog.value = false;
+      }
+    };
 
-    emit('update-statusShow', false);
+    isEdit ? showConfirmation('Konfirmasi Perubahan', 'Apakah Anda yakin ingin mengubah data ini?', action) : action();
 
+  };
 
-  //   const action = async () => {
-  //   try {
-  //     if (isEdit) {
-  //       // const response = await editKota(selectedKota.value.id, selectedKota.value );
-  //       // showConfirmDialog.value = false;
-  //       // props.showStatus = false;
-  //       emit('update:statusShow', false);
-  //       // displayNotification(response.error_msg);
-  //     } else {
-  //       // const response = await addKota(selectedKota.value);
-  //       // showConfirmDialog.value = false;
-  //       emit('update:statusShow', false);
-  //       // displayNotification(response.error_msg);
-  //     }
-  //     // isModalOpen.value = false;
-  //     // fetchData();
-  //   } catch (error) {
-  //     // if (axios.isAxiosError(error)) {
-  //     //   displayNotification(error.response?.data?.error_msg || 'Terjadi kesalahan saat menyimpan data.', 'error');
-  //     // } else {
-  //     //   displayNotification('Terjadi kesalahan yang tidak terduga.', 'error');
-  //     // }
-  //     // showConfirmDialog.value = false;
-  //   }
-  // };
+  const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
+    notificationMessage.value = message;
+    notificationType.value = type;
+    showNotification.value = true;
+  };
 
+  const showConfirmation = (title: string, message: string, action: () => void) => {
+    confirmTitle.value = title;
+    confirmMessage.value = message;
+    confirmAction.value = action;
+    showConfirmDialog.value = true;
   };
 
   const formatRupiah = (angka :any, prefix = "Rp ") => {
@@ -135,13 +159,28 @@
   };
 
   const formattedPrice = computed(() => {
-    return formatRupiah(props.data.saldo);
+    return formatRupiah(dataAddUpdateAkun.value.saldo);
   });
 
   const formatToRupiah = (event :any )  => {
     let value = event.target.value.replace(/\D/g, "");
-    props.data.saldo = value;
+    dataAddUpdateAkun.value.saldo = value;
   };
+
+  onMounted(async () => {
+    dataAddUpdateAkun.value.primary_id = props.data.primary_id;
+    dataAddUpdateAkun.value.prefix = props.data.prefix;
+  //   const dataAddUpdateAkun = ref<Partial<addUpdateAkunInterface>>({
+  //   primary_id : 0,
+  //   prefix : '',
+  //   nomor: '',
+  //   nama : '',
+  //   saldo : ''
+  // });
+    // await fetchFilterData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
+    // totalColumns.value = document.querySelectorAll("thead th").length;
+  });
+
 
 </script>
 
@@ -168,13 +207,13 @@
                   <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border rounded-e-0 border-gray-300 border-e-0 rounded-s-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
                     {{ data.prefix }}
                   </span>
-                  <input type="text" id="website-admin" v-model="data.nomor" class="rounded-none bg-gray-50 border-t border-b border-e text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5 rounded-e dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Nomor Akun">
+                  <input type="text" id="website-admin" v-model="dataAddUpdateAkun.nomor" class="rounded-none bg-gray-50 border-t border-b border-e text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5 rounded-e dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Nomor Akun">
                 </div>
                 <p v-if="errors_message.nomor_add_akun" class="mt-1 text-sm text-red-600 italic">{{ errors_message.nomor_add_akun }}</p>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nama Akun</label>
-                <input type="text" v-model="data.nama" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal" placeholder="Nama Akun" />
+                <input type="text" v-model="dataAddUpdateAkun.nama" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal" placeholder="Nama Akun" />
                 <p v-if="errors_message.nama_add_akun" class="mt-1 text-sm text-red-600">{{ errors_message.nama_add_akun }}</p>
               </div>
               <div>
@@ -200,6 +239,24 @@
       </div>
     </div>
   </Transition>
+
+   <!-- Confirmation Dialog -->
+   <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
+      <button @click="confirmAction && confirmAction()"
+        class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+      >
+        Ya
+      </button>
+      <button
+        @click="showConfirmDialog = false"
+        class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+      >
+        Tidak
+      </button>
+    </Confirmation>
+
+    <!-- Notification -->
+    <Notification  :showNotification="showNotification"  :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false"  ></Notification>
 </template>
 
 
