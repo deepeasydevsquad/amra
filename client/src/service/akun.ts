@@ -10,11 +10,7 @@ export const getFilterAkun = async () => {
   }
 };
 
-export const daftarAkun = async (param : any) => {
-
-  console.log("---____----");
-  console.log(param);
-  console.log("---____----");
+export const getData = async (param : any) => {
   try {
     const response = await api.post("/daftar_akun/", param); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request
@@ -24,6 +20,25 @@ export const daftarAkun = async (param : any) => {
   }
 };
 
+export const addAkun = async (param : any) => {
+  try {
+    const response = await api.post("/daftar_akun/add", param); // Kirim data ke backend
+    return response.data; // Kembalikan data hasil request
+  } catch (error) {
+    console.error("Gagal menambahkan akun:", error);
+    throw error; // Bisa ditangani di bagian pemanggilan
+  }
+};
+
+export const editAkun = async (param : any) => {
+  try {
+    const response = await api.post("/daftar_akun/edit", param); // Kirim data ke backend
+    return response.data; // Kembalikan data hasil request
+  } catch (error) {
+    console.error("Gagal memperbaharui akun:", error);
+    throw error; // Bisa ditangani di bagian pemanggilan
+  }
+};
 
 export const checkAkun = async (param : any) => {
   try {

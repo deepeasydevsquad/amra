@@ -6,18 +6,31 @@ import ForgotPasswordButton from '@/components/Login/particles/ForgotPasswordBut
 import GuideButton from '@/components/Login/particles/GuideButton.vue'
 import RegisterButton from '@/components/Login/particles/RegisterButton.vue'
 
-const company_code = ref('')
-const username = ref('')
-const password = ref('')
+
+interface Login {
+  type: string;
+  company_code: string;
+  username: string;
+  password: string;
+}
+
+const inputLogin = ref<Partial<Login>>({
+  type: 'administrator',
+  company_code: '',
+  username: '',
+  password: ''
+});
+
+
 const isLoading = ref(true)
 
 const handleLogin = async (type: string) => {
   try {
     // Kirim data login ke server Express.js menggunakan axios
     const response = await axios.post(import.meta.env.VITE_APP_API_BASE_URL + '/auth/login', {
-      type: type,
-      username: username.value,
-      password: password.value,
+      type: inputLogin.value.type,
+      username: inputLogin.value.username,
+      password: inputLogin.value.password,
     })
     // filter
     if (response.status === 200) {
@@ -60,8 +73,12 @@ setTimeout(() => {
         <div class="flex flex-col justify-center w-full mb-0">
           <h2 class="text-3xl font-bold text-center mb-10 text-[#175690]">Selamat Datang</h2>
           <div class="space-y-3">
+            <select v-model="inputLogin.type" class="w-full border rounded-md px-3 py-2 text-gray-700 bg-white" >
+                <option class="text-gray-700" value="administrator">Administrator</option>
+                <option class="text-gray-700" value="staff">Staff</option>
+            </select>
             <input
-              v-model="company_code"
+              v-model="inputLogin.company_code"
               type="text"
               placeholder="Kode Perusahaan"
               class="w-full p-2 border border-gray-300 rounded-lg input-field"
@@ -70,13 +87,13 @@ setTimeout(() => {
               Kode Perusahaan wajib diisi jika anda masuk sebagai Staff.
             </p>
             <input
-              v-model="username"
+              v-model="inputLogin.username"
               type="text"
               placeholder="Username"
               class="w-full p-2 border border-gray-300 rounded-lg input-field"
             />
             <input
-              v-model="password"
+              v-model="inputLogin.password"
               type="password"
               placeholder="Password"
               class="w-full p-2 border border-gray-300 rounded-lg input-field"
@@ -84,24 +101,13 @@ setTimeout(() => {
             <LoginButton
               @click="handleLogin('administrator')"
               icon="lock.svg"
-              label="Masuk dengan akun Admin"
+              label="Masuk Akun Sekarang"
               color="bg-sky-700 text-white"
-            />
-            <LoginButton
-              @click="handleLogin('administrator')"
-              icon="mdi_account-tie.svg"
-              label="Masuk dengan akun Staff"
-              color="border border-gray-400 text-gray-500"
             />
           </div>
         </div>
 
         <p class="text-center mb-4 mt-6 text-[#175690] font-semibold">Atau</p>
-        <!-- <div class="flex mt-6 gap-3 w-full">
-          <ForgotPasswordButton />
-          <GuideButton />
-        </div> -->
-
         <RegisterButton />
         <a href="#" class="text-xs text-center mt-5 mb-16 text-[#175690]">
           Dengan masuk, Anda menyetujui
