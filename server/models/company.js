@@ -45,6 +45,9 @@ module.exports = (sequelize, DataTypes) => {
       Company.hasMany(models.System_log, {
         foreignKey: "company_id",
       });
+      Company.hasMany(models.Level_keagenan, {
+        foreignKey: "company_id",
+      });
      }
   }
   Company.init(
