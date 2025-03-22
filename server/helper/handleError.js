@@ -15,6 +15,15 @@ const MESSAGES = {
 
 const helper = {};
 
+
+helper.error_msg2 = async (errors) => {
+  var detail = [];
+  errors.array().forEach((error) => {
+    detail.push({ path : error.path, msg : error.msg} )
+  });
+  return detail;
+};
+
 helper.error_msg = async (errors) => {
   let num = 0;
   let err_msg = "";

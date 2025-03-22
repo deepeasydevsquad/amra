@@ -1,133 +1,133 @@
 <script setup lang="ts">
+  import PrimaryButton from "./Particle/PrimaryButton.vue"
+  import DangerButton from "./Particle/DangerButton.vue"
+  import SuccessButton from "./Particle/SuccessButton.vue"
+  import ModalAddUpdateAkun from "./Particle/ModalAddUpdateAkun.vue"
+  import Confirmation from "../../../Modal/Confirmation.vue"
+  import Notification from "../../../Modal/Notification.vue"
+  import { getFilterAkun, getData, deleteAkun } from "../../../../service/akun"; // Import function POST
+  import { ref, onMounted, computed, watchEffect } from 'vue';
 
-import PrimaryButton from "./Particle/PrimaryButton.vue"
-import DangerButton from "./Particle/DangerButton.vue"
-import SuccessButton from "./Particle/SuccessButton.vue"
-import ModalAddUpdateAkun from "./Particle/ModalAddUpdateAkun.vue"
-import Confirmation from "../../../Modal/Confirmation.vue"
-import Notification from "../../../Modal/Notification.vue"
+  interface secondaryAkun {
+    id: number;
+    kode: string;
+    name: string;
+  }
 
-// client/src/components/User/Modules/Supplier/Particle/Confirmation.vue
+  interface primaryAkun {
+    id: number;
+    primary_id: number;
+    nomor: string;
+    name: string;
+    type: 'header' | "child",
+    tipe_akun : 'bawaan' | "tambahan",
+    saldo_awal : string,
+    saldo_akhir: string,
+    detail : secondaryAkun
+  }
 
+  interface addUpdateAkunInterface {
+    id: number;
+    primary_id: number;
+    prefix: string,
+    nomor: string;
+    nama: string;
+    saldo: string;
+  }
 
-import { getFilterAkun, getData, deleteAkun } from "../../../../service/akun"; // Import function POST
-import { ref, onMounted, computed, watchEffect } from 'vue';
-import { useCurrencyInput } from 'vue-currency-input';
+  const daftarAkun = ref<primaryAkun[]>([]);
+  const totalColumns = ref(3); // Default 3 kolom
+  const optionFilterAkun = ref([{ id: 0, name: 'Pilih Semua Akun' }]);
+  const optionFilterCabang = ref([{ id: 0, name: 'Pilih Semua Cabang' }]);
+  const selectedOptionAkun = ref(0);
+  const selectedOptionCabang = ref(0);
+  const showConfirmDialog = ref<boolean>(false);
+  const showNotification = ref<boolean>(false);
+  const confirmMessage = ref<string>('');
+  const confirmTitle = ref<string>('');
+  const confirmAction = ref<(() => void) | null>(null);
+  const notificationMessage = ref<string>('');
+  const notificationType = ref<'success' | 'error'>('success');
 
-interface secondaryAkun {
-  id: number;
-  kode: string;
-  name: string;
-}
+  const fetchFilterData = async() => {
+    const response = await getFilterAkun();
+    optionFilterAkun.value = response.data.akun;
+    optionFilterCabang.value = response.data.cabang;
+    await fetch();
+  }
 
-interface primaryAkun {
-  id: number;
-  nomor: string;
-  name: string;
-  type: 'header' | "child",
-  tipe_akun : 'bawaan' | "tambahan",
-  saldo_awal : string,
-  saldo_akhir: string,
-  detail : secondaryAkun
-}
+  const fetch = async() => {
+    const response = await getData({akun: selectedOptionAkun.value, cabang: selectedOptionCabang.value});
+    daftarAkun.value = response.data;
+  }
 
-const daftarAkun = ref<primaryAkun[]>([]);
-const totalColumns = ref(3); // Default 3 kolom
-const optionFilterAkun = ref([{ id: 0, name: 'Pilih Semua Akun' }]);
-const optionFilterCabang = ref([{ id: 0, name: 'Pilih Semua Cabang' }]);
-const selectedOptionAkun = ref(0);
-const selectedOptionCabang = ref(0);
-const showConfirmDialog = ref<boolean>(false);
-const showNotification = ref<boolean>(false);
-const confirmMessage = ref<string>('');
-const confirmTitle = ref<string>('');
-const confirmAction = ref<(() => void) | null>(null);
-const notificationMessage = ref<string>('');
-const notificationType = ref<'success' | 'error'>('success');
+  const selectedAkun = ref<number>();
 
-const fetchFilterData = async() => {
-  const response = await getFilterAkun();
-  optionFilterAkun.value = response.data.akun;
-  optionFilterCabang.value = response.data.cabang;
-  await fetch();
-}
+  const dataAddUpdateAkun = ref<Partial<addUpdateAkunInterface>>({
+    id: 0,
+    primary_id : 0,
+    prefix : '',
+    nomor: '',
+    nama : '',
+    saldo : ''
+  });
 
-const fetch = async() => {
-  const response = await getData({akun: selectedOptionAkun.value, cabang: selectedOptionCabang.value});
-  daftarAkun.value = response.data;
-}
+  const showAddModal = ref<boolean>(false);
+  const addAkunBtn = async (id : number, nomor : string, primary_id : number) => {
+    dataAddUpdateAkun.value.prefix = nomor.toString().charAt(0);
+    dataAddUpdateAkun.value.primary_id = primary_id;
+    dataAddUpdateAkun.value.nomor = '';
+    dataAddUpdateAkun.value.nama = '';
+    dataAddUpdateAkun.value.saldo = '';
+    showAddModal.value = true;
+  }
 
-const selectedAkun = ref<number>();
+  const editAkunBtn = async (id : number, nomor : string, primary_id : number, nama: string, saldo: string) => {
+    selectedAkun.value = id;
+    dataAddUpdateAkun.value.prefix = nomor.toString().charAt(0);
+    dataAddUpdateAkun.value.primary_id = primary_id;
+    dataAddUpdateAkun.value.nomor = nomor.toString().substring(1, 5);
+    dataAddUpdateAkun.value.nama = nama;
+    dataAddUpdateAkun.value.saldo = saldo;
+    showAddModal.value = true;
+  }
 
-interface addUpdateAkunInterface {
-  primary_id: number;
-  prefix: string,
-  nomor: string;
-  nama: string;
-  saldo: string;
-}
+  const deleteAkunBtn = async ( id :number ) => {
+    const delete_action = async () => {
+      try {
+        const response = await deleteAkun(id);
+        displayNotification(response.error_msg);
+          showConfirmDialog.value = false;
+          await fetch();
+      } catch (error) {
+          showConfirmDialog.value = false;
+      }
+    };
+    showConfirmation('Konfirmasi Delete', 'Apakah Anda yakin ingin menghapus data akun ini?', delete_action );
+  }
 
-const dataAddUpdateAkun = ref<Partial<addUpdateAkunInterface>>({
-  primary_id : 0,
-  prefix : '',
-  nomor: '',
-  nama : '',
-  saldo : ''
-});
-
-// ADD AKUN FUNCTION //
-const showAddModal = ref<boolean>(false);
-const addAkunBtn = async (id : number, nomor : string) => {
-  dataAddUpdateAkun.value.prefix = nomor.toString().charAt(0);
-  dataAddUpdateAkun.value.primary_id = id;
-  showAddModal.value = true;
-}
-
-
-const deleteAkunBtn = async ( id :number ) => {
-
-  const delete_action = async () => {
-    try {
-      const response = await deleteAkun(id);
-      displayNotification(response.error_msg);
-        showConfirmDialog.value = false;
-        await fetch();
-    } catch (error) {
-        showConfirmDialog.value = false;
-    }
+  const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
+    notificationMessage.value = message;
+    notificationType.value = type;
+    showNotification.value = true;
   };
 
-  showConfirmation('Konfirmasi Delete', 'Apakah Anda yakin ingin menghapus data akun ini?', delete_action );
-}
+  const showConfirmation = (title: string, message: string, action: () => void) => {
+    confirmTitle.value = title;
+    confirmMessage.value = message;
+    confirmAction.value = action;
+    showConfirmDialog.value = true;
+  };
 
-const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
-  notificationMessage.value = message;
-  notificationType.value = type;
-  showNotification.value = true;
+  const updateStatusShow = (newStatus: boolean) => {
+    showAddModal.value = newStatus;
+    fetch();
+  };
 
-  // if (timeoutId.value) clearTimeout(timeoutId.value);
-
-  // timeoutId.value = window.setTimeout(() => {
-  //   showNotification.value = false;
-  // }, 3000);
-};
-
-const showConfirmation = (title: string, message: string, action: () => void) => {
-  confirmTitle.value = title;
-  confirmMessage.value = message;
-  confirmAction.value = action;
-  showConfirmDialog.value = true;
-};
-
-const updateStatusShow = (newStatus: boolean) => {
-  showAddModal.value = newStatus;
-  fetch();
-};
-
-onMounted(async () => {
-  await fetchFilterData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-  totalColumns.value = document.querySelectorAll("thead th").length;
-});
+  onMounted(async () => {
+    await fetchFilterData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
+    totalColumns.value = document.querySelectorAll("thead th").length;
+  });
 
 </script>
 
@@ -193,7 +193,7 @@ onMounted(async () => {
               <td class="px-6 py-4 text-center" :class="akun.type === 'header' ? 'font-bold bg-gray-200' : '' ">{{ akun.saldo_akhir }}</td>
               <td class="px-6 py-4 text-center" :class="akun.type === 'header' ? 'font-bold uppercase bg-gray-200' : '' ">
                 <div class="flex justify-center gap-2">
-                  <PrimaryButton v-if=" akun.type === 'header'" @click="addAkunBtn(akun.id, akun.nomor)">
+                  <PrimaryButton v-if=" akun.type === 'header'" @click="addAkunBtn(akun.id, akun.nomor, akun.primary_id)">
                     <font-awesome-icon icon="fa-solid fa-plus" class="mr-0" />
                   </PrimaryButton>
                   <template v-else>
@@ -201,7 +201,7 @@ onMounted(async () => {
                       <font-awesome-icon icon="fa-solid fa-money-bill" class="mr-0" />
                     </SuccessButton>
                     <template v-else>
-                      <PrimaryButton >
+                      <PrimaryButton  @click="editAkunBtn(akun.id, akun.nomor, akun.primary_id, akun.name, akun.saldo_awal )" >
                         <font-awesome-icon icon="fa-solid fa-pencil" class="mr-0" />
                       </PrimaryButton>
                       <DangerButton @click="deleteAkunBtn(akun.id)" >

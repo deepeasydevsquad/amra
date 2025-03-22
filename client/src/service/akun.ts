@@ -30,7 +30,7 @@ export const addAkun = async (param : any) => {
   }
 };
 
-export const editAkun = async (id:number, param : any) => {
+export const editAkun = async (param : any) => {
   try {
     const response = await api.post("/daftar_akun/edit", param); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request

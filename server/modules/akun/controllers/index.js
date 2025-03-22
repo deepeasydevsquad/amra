@@ -74,6 +74,30 @@ controllers.add = async (req, res) => {
   }
 }
 
+controllers.edit = async (req, res) => {
+  
+  if (!(await handleValidationErrors2(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    await model_cud.update();
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Data Akun berhasil diupdate.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Data akun gagal diupdate.',
+      });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
 controllers.delete = async ( req, res) => {
 
   if (!(await handleValidationErrors(req, res))) return;

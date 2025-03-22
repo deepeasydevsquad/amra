@@ -1,4 +1,4 @@
-const { Akun_primary, Division, Akun_secondary, } = require("../models");
+const { Akun_primary, Division, Akun_secondary, Op } = require("../models");
 
 const { getCompanyIdByCode } = require("../helper/companyHelper");
     
@@ -29,10 +29,18 @@ validation.check_nomor_akun = async ( value,  { req } ) => {
     const body = req.body;
     const company_id = await getCompanyIdByCode(req);
     const nomor_akun_full = body.prefix.toString() + value 
-    var check = await Akun_secondary.findOne({where: { nomor_akun : nomor_akun_full, company_id : company_id, akun_primary_id : body.primary_id  }});
-    if (check) {
-        throw new Error("Nomor Akun ini sudah terdaftar dipangkalan data");
+    if( body.id ) {
+        var check = await Akun_secondary.findOne({where: { nomor_akun : nomor_akun_full, company_id : company_id, akun_primary_id : body.primary_id, id : { [Op.ne] : body.id}  }});
+        if (check) {
+            throw new Error("Nomor Akun ini sudah terdaftar dipangkalan data");
+        }
+    }else{
+        var check = await Akun_secondary.findOne({where: { nomor_akun : nomor_akun_full, company_id : company_id, akun_primary_id : body.primary_id  }});
+        if (check) {
+            throw new Error("Nomor Akun ini sudah terdaftar dipangkalan data");
+        }
     }
+    
 
     return true;
 }

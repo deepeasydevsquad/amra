@@ -46,6 +46,19 @@ router.post(
 );
 
 router.post(
+  "/daftar_akun/edit",
+  authenticateToken,
+  [
+    body("id").trim().notEmpty().withMessage("ID Akun tidak boleh kosong.").custom(validation.check_id_akun_secondary),
+    body("nama").trim().notEmpty().withMessage("Nama Akun tidak boleh kosong."),
+    body("nomor").trim().notEmpty().withMessage("Nomor Akun tidak boleh kosong.").custom(validation.check_nomor_akun),
+    body("primary_id").trim().notEmpty().withMessage("Primary ID tidak boleh kosong.").custom(validation.check_primary_id),
+    body("saldo").trim(),
+  ],
+  controllers.edit
+);
+
+router.post(
   "/daftar_akun/delete",
   authenticateToken,
   [ body("id").trim().notEmpty().withMessage("ID tidak boleh kosong.").custom(validation.check_id_akun_secondary) ],

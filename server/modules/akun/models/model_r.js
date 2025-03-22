@@ -136,6 +136,7 @@ class Model_r {
             if( draf[e.Akun_primary.nomor_akun] === undefined ) {
               draf[e.Akun_primary.nomor_akun] = { 
                 id: e.Akun_primary.id, 
+                primary_id : e.Akun_primary.id, 
                 type: 'header', 
                 nomor: e.Akun_primary.nomor_akun, 
                 name:e.Akun_primary.nama_akun, 
@@ -147,6 +148,7 @@ class Model_r {
 
             draf[e.nomor_akun] = { 
               id: e.id, 
+              primary_id : e.Akun_primary.id, 
               type: 'child', 
               nomor: e.nomor_akun, 
               name:e.nama_akun,

@@ -75,6 +75,72 @@ class Model_cud {
     }
   }
 
+  // update Akun
+  async update() {
+    // initialize dependensi properties
+    await this.initialize();
+    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+    const body = this.req.body;
+    const primary_id = body.primary_id;
+    const prefix = body.prefix;
+    const nomor_akun = prefix + body.nomor;
+    const nama_akun = body.nama;
+    const saldo = body.saldo;
+
+    try {
+      // delete saldo
+      await Saldo_akun.destroy(
+        {
+          where: {
+            akun_secondary_id: body.id,
+            division_id : this.division_id
+          },
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
+      // insert process
+      const insert = await Akun_secondary.update(
+        {
+          nomor_akun: nomor_akun,
+          nama_akun: nama_akun,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          where: { id: body.id, company_id : this.company_id,  },
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
+      if(saldo > 0 ) {
+        // insert ke saldo
+        await Saldo_akun.create(
+          {
+            division_id : this.division_id, 
+            akun_secondary_id : insert.id,
+            saldo: saldo,
+            periode: 0,
+            createdAt: myDate,
+            updatedAt: myDate,
+          },
+          {
+            transaction: this.t,
+          }
+        );
+      }
+
+      // write log message
+      this.message = `Memperbaharui data akun ID Akun : ${body.id}`;
+    } catch (error) {
+      this.state = false;
+    }
+  }
+
   // delete Akun
   async delete() {
     // initialize dependensi properties

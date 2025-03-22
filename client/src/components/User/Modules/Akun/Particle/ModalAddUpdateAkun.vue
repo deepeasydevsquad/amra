@@ -1,10 +1,9 @@
 <script setup lang="ts">
   import Notification from "../../../../Modal/Notification.vue"
-
+  import Confirmation from "../../../../Modal/Confirmation.vue"
   import { defineProps, defineEmits } from 'vue'
-
-  import { ref, computed, onMounted } from 'vue';
-  import { getFilterAkun, getData, checkAkun, addAkun, editAkun } from "../../../../../service/akun"; // Import function POST
+  import { ref, computed, watchEffect } from 'vue';
+  import { checkAkun, addAkun, editAkun } from "../../../../../service/akun"; // Import function POST
 
   interface ErrorsAdd {
     nomor_add_akun: string;
@@ -28,9 +27,6 @@
 
   const props = defineProps<Props>();
   const emit = defineEmits(["close", "update-statusShow"]);
-
-
-
   const selectedAkun = ref<number>();
   const showNotification = ref<boolean>(false);
   const showConfirmDialog = ref<boolean>(false);
@@ -51,7 +47,6 @@
     nama : '',
     saldo : ''
   });
-
 
   const validateFormAddAkun = async (): Promise<boolean> => {
 
@@ -74,13 +69,8 @@
       isValid = false;
     }
 
-    if (!dataAddUpdateAkun.value.saldo?.trim()) {
-      errors_message.value.saldo_add_akun = 'Saldo tidak boleh kosong. Jika tidak ada silahkan isikan Rp 0';
-      isValid = false;
-    }
-
     if( isValid  === true ) {
-      const response = await checkAkun({nomor_akun: dataAddUpdateAkun.value.nomor, prefix: props.data.prefix, primary_id: props.data.primary_id });
+      const response = await checkAkun({id: selectedAkun.value, nomor_akun: dataAddUpdateAkun.value.nomor, prefix: props.data.prefix, primary_id: props.data.primary_id });
       if( response.error == true) {
         var detailError = response.detail;
         for ( let x in detailError ) {
@@ -100,17 +90,16 @@
 
 
   const save = async () => {
-
     if (! await validateFormAddAkun()) return;
-
     const isEdit = !!props.selectedAkun;
-
     const action = async () => {
       try {
         if (isEdit) {
-          const response = await editAkun(selectedAkun.value, dataAddUpdateAkun.value );
-          // showConfirmDialog.value = false;
-          // props.showStatus = false;
+          var editData = dataAddUpdateAkun.value;
+          editData = {...editData,...{id: selectedAkun.value }}
+          const response = await editAkun(editData );
+          dataAddUpdateAkun.value = {};
+          showConfirmDialog.value = false;
           emit('update-statusShow', false);
           displayNotification(response.error_msg);
         } else {
@@ -120,6 +109,7 @@
           showConfirmDialog.value = false;
           emit('update-statusShow', false);
           displayNotification(response.error_msg);
+          dataAddUpdateAkun.value = {};
         }
       } catch (error) {
         showConfirmDialog.value = false;
@@ -127,7 +117,6 @@
     };
 
     isEdit ? showConfirmation('Konfirmasi Perubahan', 'Apakah Anda yakin ingin mengubah data ini?', action) : action();
-
   };
 
   const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
@@ -167,20 +156,19 @@
     dataAddUpdateAkun.value.saldo = value;
   };
 
-  onMounted(async () => {
+  const closeModal = () => {
+    emit('close')
+    dataAddUpdateAkun.value = {};
+  };
+
+  watchEffect(async () => {
+    selectedAkun.value = props.selectedAkun;
     dataAddUpdateAkun.value.primary_id = props.data.primary_id;
     dataAddUpdateAkun.value.prefix = props.data.prefix;
-  //   const dataAddUpdateAkun = ref<Partial<addUpdateAkunInterface>>({
-  //   primary_id : 0,
-  //   prefix : '',
-  //   nomor: '',
-  //   nama : '',
-  //   saldo : ''
-  // });
-    // await fetchFilterData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-    // totalColumns.value = document.querySelectorAll("thead th").length;
+    dataAddUpdateAkun.value.nomor = props.data.nomor;
+    dataAddUpdateAkun.value.nama = props.data.nama;
+    dataAddUpdateAkun.value.saldo = props.data.saldo;
   });
-
 
 </script>
 
@@ -225,7 +213,7 @@
           </div>
           <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
             <footer>
-              <button @click="emit('close')"
+              <button @click="closeModal"
                 class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" >
                 Batal
               </button>
