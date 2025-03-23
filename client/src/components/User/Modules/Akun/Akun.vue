@@ -276,7 +276,7 @@
             </tr>
           </template>
           <tr v-else>
-            <td colspan="6" class="px-6 py-4 text-center text-base text-gray-600">Daftar Akun tidak ditemukan.</td>
+            <td colspan="7" class="px-6 py-4 text-center text-base text-gray-600">Daftar Akun tidak ditemukan.</td>
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
