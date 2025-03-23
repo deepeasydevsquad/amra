@@ -75,3 +75,12 @@ export const tutupBuku = async (param : any) => {
     throw error;
   }
 };
+
+export const kembalikanBuku = async () => {
+  try {
+    const response = await api.get("/daftar_akun/kembalikan_buku");
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

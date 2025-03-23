@@ -2,7 +2,7 @@
   import Notification from "../../../../Modal/Notification.vue"
   import Confirmation from "../../../../Modal/Confirmation.vue"
   import { defineProps, defineEmits } from 'vue'
-  import { ref, computed, watchEffect } from 'vue';
+  import { ref } from 'vue';
   import { tutupBuku } from "../../../../../service/akun"; // Import function POST
 
   interface ErrorsAdd {
@@ -18,6 +18,7 @@
   }
 
   const props = defineProps<Props>();
+
   const emit = defineEmits(["close", "update-statusShow"]);
   const showNotification = ref<boolean>(false);
   const showConfirmDialog = ref<boolean>(false);
@@ -45,7 +46,6 @@
 
   const tutupBukuFN = async () => {
     if (! await validateFormAddAkun()) return;
-    // const isEdit = !!props.selectedAkun;
     try {
       const response = await tutupBuku(dataTutupBuku.value);
       dataTutupBuku.value = {};

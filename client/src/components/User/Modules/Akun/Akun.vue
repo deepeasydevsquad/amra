@@ -7,8 +7,8 @@
   import ModalTutupBuku from "./Particle/ModalTutupBuku.vue"
   import Confirmation from "../../../Modal/Confirmation.vue"
   import Notification from "../../../Modal/Notification.vue"
-  import { getFilterAkun, getData, deleteAkun, tutupBuku } from "../../../../service/akun"; // Import function POST
-  import { ref, onMounted, computed, watchEffect } from 'vue';
+  import { getFilterAkun, getData, deleteAkun, kembalikanBuku } from "../../../../service/akun"; // Import function POST
+  import { ref, onMounted } from 'vue';
 
   interface secondaryAkun {
     id: number;
@@ -57,8 +57,6 @@
   const notificationMessage = ref<string>('');
   const notificationType = ref<'success' | 'error'>('success');
   const showModalTutupBuku = ref<boolean>(false);
-  // const showConfirmDialogTutupBuku = ref<boolean>(false);
-
 
   const fetchFilterData = async() => {
     const response = await getFilterAkun();
@@ -73,37 +71,28 @@
   }
 
   const actionTutupBuku = async () => {
-
     showConfirmDialog.value = false;
     showModalTutupBuku.value = true;
-
-
-    // try {
-    //   if (isEdit) {
-    //     var editData = dataAddUpdateAkun.value;
-    //     editData = {...editData,...{id: selectedAkun.value }}
-    //     const response = await editAkun(editData );
-    //     dataAddUpdateAkun.value = {};
-    //     showConfirmDialog.value = false;
-    //     emit('update-statusShow', false);
-    //     displayNotification(response.error_msg);
-    //   } else {
-    //     dataAddUpdateAkun.value.primary_id = props.data.primary_id;
-    //     dataAddUpdateAkun.value.prefix = props.data.prefix;
-    //     const response = await addAkun(dataAddUpdateAkun.value);
-    //     showConfirmDialog.value = false;
-    //     emit('update-statusShow', false);
-    //     displayNotification(response.error_msg);
-    //     dataAddUpdateAkun.value = {};
-    //   }
-    // } catch (error) {
-    //   showConfirmDialog.value = false;
-    // }
   }
 
   const tutup_buku = async() => {
     showConfirmDialog.value = true;
     showConfirmation('Konfirmasi Tutup Buku', 'Apakah Anda yakin ingin menutup buku pada periode ini?', actionTutupBuku);
+  }
+
+  const kembalikan_buku = async() => {
+    const kembalikanbuku = async () => {
+      try {
+        const response = await kembalikanBuku();
+        displayNotification(response.error_msg);
+          showConfirmDialog.value = false;
+          await fetch();
+      } catch (error) {
+          showConfirmDialog.value = false;
+      }
+    };
+    showConfirmDialog.value = true;
+    showConfirmation('Konfirmasi Pengembalian Buku', 'Apakah Anda yakin ingin mengembalikan buku ke periode sebelumnya?', kembalikanbuku);
   }
 
   const selectedAkun = ref<number>();
@@ -187,7 +176,7 @@
   }
 
   onMounted(async () => {
-    await fetchFilterData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
+    await fetchFilterData();
     totalColumns.value = document.querySelectorAll("thead th").length;
   });
 
@@ -204,7 +193,7 @@
             <font-awesome-icon icon="fa-solid fa-book" class="mr-2" />
             Tutup Buku
           </button>
-          <button type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-e  border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+          <button type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-e  border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white" @click="kembalikan_buku()">
             <font-awesome-icon icon="fa-solid fa-book" class="mr-2" />
             Kembali Ke Buku Sebelumnya
           </button>
