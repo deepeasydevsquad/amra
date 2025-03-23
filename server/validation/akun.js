@@ -1,7 +1,5 @@
 const { Akun_primary, Division, Akun_secondary, Op } = require("../models");
-
 const { getCompanyIdByCode } = require("../helper/companyHelper");
-    
 const validation = {};
 
 validation.check_akun = async ( value,  { req } ) => {
@@ -40,8 +38,6 @@ validation.check_nomor_akun = async ( value,  { req } ) => {
             throw new Error("Nomor Akun ini sudah terdaftar dipangkalan data");
         }
     }
-    
-
     return true;
 }
 
@@ -52,7 +48,6 @@ validation.check_prefix = async ( value,  { req } ) => {
     if( prefix !== value ) {
         throw new Error("Prefix Akun ini tidak ditemukan dipangkalan data");
     }
-
     return true;
 }
 
@@ -64,7 +59,6 @@ validation.check_primary_id = async ( value ) => {
     return true;
 }
 
-
 validation.check_id_akun_secondary = async ( value,  { req } ) => {
     const company_id = await getCompanyIdByCode(req); 
     var check = await Akun_secondary.findOne({where: { id : value, company_id : company_id }});
@@ -73,6 +67,14 @@ validation.check_id_akun_secondary = async ( value,  { req } ) => {
     }
 }
 
+validation.check_id_akun_secondary_bawaan = async ( value,  { req } ) => {
+    const company_id = await getCompanyIdByCode(req); 
+    var check = await Akun_secondary.findOne({where: { id : value, company_id : company_id,  tipe_akun : 'bawaan' }});
+    if (!check) {
+        throw new Error("ID Akun Secondary ini tidak terdaftar dipangkalan data");
+    }
+    return true;
+}
 
 
 module.exports = validation;

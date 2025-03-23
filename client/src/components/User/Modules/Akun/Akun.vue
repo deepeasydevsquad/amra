@@ -3,9 +3,11 @@
   import DangerButton from "./Particle/DangerButton.vue"
   import SuccessButton from "./Particle/SuccessButton.vue"
   import ModalAddUpdateAkun from "./Particle/ModalAddUpdateAkun.vue"
+  import ModalEditSaldoAkun from "./Particle/ModalEditSaldoAkun.vue"
+  import ModalTutupBuku from "./Particle/ModalTutupBuku.vue"
   import Confirmation from "../../../Modal/Confirmation.vue"
   import Notification from "../../../Modal/Notification.vue"
-  import { getFilterAkun, getData, deleteAkun } from "../../../../service/akun"; // Import function POST
+  import { getFilterAkun, getData, deleteAkun, tutupBuku } from "../../../../service/akun"; // Import function POST
   import { ref, onMounted, computed, watchEffect } from 'vue';
 
   interface secondaryAkun {
@@ -35,6 +37,12 @@
     saldo: string;
   }
 
+  interface dataEditSaldo {
+    id: number;
+    saldo: string;
+  }
+
+  const dataES = ref<Partial<dataEditSaldo>>({ id : 0, saldo: ''});
   const daftarAkun = ref<primaryAkun[]>([]);
   const totalColumns = ref(3); // Default 3 kolom
   const optionFilterAkun = ref([{ id: 0, name: 'Pilih Semua Akun' }]);
@@ -48,6 +56,9 @@
   const confirmAction = ref<(() => void) | null>(null);
   const notificationMessage = ref<string>('');
   const notificationType = ref<'success' | 'error'>('success');
+  const showModalTutupBuku = ref<boolean>(false);
+  // const showConfirmDialogTutupBuku = ref<boolean>(false);
+
 
   const fetchFilterData = async() => {
     const response = await getFilterAkun();
@@ -59,6 +70,40 @@
   const fetch = async() => {
     const response = await getData({akun: selectedOptionAkun.value, cabang: selectedOptionCabang.value});
     daftarAkun.value = response.data;
+  }
+
+  const actionTutupBuku = async () => {
+
+    showConfirmDialog.value = false;
+    showModalTutupBuku.value = true;
+
+
+    // try {
+    //   if (isEdit) {
+    //     var editData = dataAddUpdateAkun.value;
+    //     editData = {...editData,...{id: selectedAkun.value }}
+    //     const response = await editAkun(editData );
+    //     dataAddUpdateAkun.value = {};
+    //     showConfirmDialog.value = false;
+    //     emit('update-statusShow', false);
+    //     displayNotification(response.error_msg);
+    //   } else {
+    //     dataAddUpdateAkun.value.primary_id = props.data.primary_id;
+    //     dataAddUpdateAkun.value.prefix = props.data.prefix;
+    //     const response = await addAkun(dataAddUpdateAkun.value);
+    //     showConfirmDialog.value = false;
+    //     emit('update-statusShow', false);
+    //     displayNotification(response.error_msg);
+    //     dataAddUpdateAkun.value = {};
+    //   }
+    // } catch (error) {
+    //   showConfirmDialog.value = false;
+    // }
+  }
+
+  const tutup_buku = async() => {
+    showConfirmDialog.value = true;
+    showConfirmation('Konfirmasi Tutup Buku', 'Apakah Anda yakin ingin menutup buku pada periode ini?', actionTutupBuku);
   }
 
   const selectedAkun = ref<number>();
@@ -90,6 +135,13 @@
     dataAddUpdateAkun.value.nama = nama;
     dataAddUpdateAkun.value.saldo = saldo;
     showAddModal.value = true;
+  }
+
+  const showModalEditSaldo = ref<boolean>(false);
+  const editSaldo = async (id : number, saldo: string) => {
+    dataES.value.id = id;
+    dataES.value.saldo = saldo;
+    showModalEditSaldo.value = true;
   }
 
   const deleteAkunBtn = async ( id :number ) => {
@@ -124,6 +176,16 @@
     fetch();
   };
 
+  const updateStatusModalEditSaldo = (newStatus : boolean) => {
+    showModalEditSaldo.value = newStatus;
+    fetch();
+  }
+
+  const updateStatusModalTutupBuku = ( newStatus : boolean ) => {
+    showModalTutupBuku.value = newStatus;
+    fetch();
+  }
+
   onMounted(async () => {
     await fetchFilterData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
     totalColumns.value = document.querySelectorAll("thead th").length;
@@ -138,7 +200,7 @@
     <div class="flex justify-between mb-4">
       <div class="inline-flex rounded-md shadow-xs" role="group">
         <div class="inline-flex rounded-md shadow-xs" role="group">
-          <button type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+          <button type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white" @click="tutup_buku()">
             <font-awesome-icon icon="fa-solid fa-book" class="mr-2" />
             Tutup Buku
           </button>
@@ -197,7 +259,7 @@
                     <font-awesome-icon icon="fa-solid fa-plus" class="mr-0" />
                   </PrimaryButton>
                   <template v-else>
-                    <SuccessButton v-if="akun.tipe_akun === 'bawaan' " >
+                    <SuccessButton v-if="akun.tipe_akun === 'bawaan' " @click="editSaldo(akun.id, akun.saldo_awal)">
                       <font-awesome-icon icon="fa-solid fa-money-bill" class="mr-0" />
                     </SuccessButton>
                     <template v-else>
@@ -241,6 +303,13 @@
     <!-- Modal Tambah Akun Baru -->
     <ModalAddUpdateAkun  :showStatus="showAddModal" @update-statusShow="updateStatusShow" :data="dataAddUpdateAkun" :selectedAkun="selectedAkun" @close="showAddModal = false"  />
 
+    <!-- Modal Edit Saldo Akun -->
+    <ModalEditSaldoAkun  :showStatus="showModalEditSaldo" @update-statusShow="updateStatusModalEditSaldo" :data="dataES"  @close="showModalEditSaldo = false"  />
+
+    <!-- Modal Tutup Buku -->
+    <ModalTutupBuku  :showStatus="showModalTutupBuku" @update-statusShow="updateStatusModalTutupBuku" @close="showModalTutupBuku = false"  />
+
+    <!-- Notification -->
     <Notification  :showNotification="showNotification"  :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false"  ></Notification>
   </div>
 </template>

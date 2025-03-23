@@ -1,9 +1,6 @@
 const {Op, Akun_primary, Akun_secondary, Division, Saldo_akun } = require("../../../models");
 const{ getCompanyIdByCode, tipe, getCabang } = require("../../../helper/companyHelper");
-const{ dbList } = require("../../../helper/dbHelper");
 const{ convertToRP } = require("../../../helper/currencyHelper");
-const akun_primary = require("../../../models/akun_primary");
-const saldo_akun = require("../../../models/saldo_akun");
 
 class Model_r {
   constructor(req) {
@@ -87,7 +84,6 @@ class Model_r {
         where_akun_primary = {...where_akun_primary,...{ id : body.akun } };
       }
 
-      var where = {};
       var devision_id = [];
       // get saldo akun
       if( this.type === 'administrator' && cabang == '0'  ) {
@@ -156,7 +152,6 @@ class Model_r {
               saldo_awal : saldo_akun_secondary[e.id] === undefined ? "Rp 0" : await convertToRP(saldo_akun_secondary[e.id]), 
               saldo_akhir : "Rp 0"
             }
-            
           })
         );
       });
@@ -166,110 +161,12 @@ class Model_r {
         data.push(draf[x]);
       }
 
-
-
-
-
-
-
-
-
-
-      return {
-        data,
-      };
+      return { data };
 
     } catch (error) {
-
-      console.log("+++++++++++++++++");
-      console.log(error);
-      console.log("+++++++++++++++++");
       return {};
     }
-
-
-
-
   }
-
-  // async daftar_kota() {
-  //   // initialize dependensi properties
-  //   await this.initialize();
-
-  //   const body = this.req.body;
-  //   var limit = body.perpage;
-  //   var page = 1;
-
-  //   if (body.pageNumber != undefined && body.pageNumber !== '0' ) page = body.pageNumber;
-
-  //   var where = { company_id : this.company_id };
-        
-  //   if (body.search != undefined && body.search != "") {
-  //     where = {...where,...{ 
-  //       [Op.or]: [{ name : { [Op.like]: "%" + body.search + "%" } }, { kode : { [Op.like]: "%" + body.search + "%" } }]
-  //     }};
-  //   }
-
-  //   var sql = {};
-  //   sql["limit"] = limit * 1;
-  //   sql["offset"] = (page - 1) * limit;
-  //   sql["order"] = [["id", "ASC"]];
-  //   sql["attributes"] = [
-  //     "id",
-  //     "kode",
-  //     "name",
-  //     "updatedAt",
-  //   ];
-  //   sql["where"] = where;
-
-  //   try {
-
-  //     const query = await dbList(sql);
-  //     const q = await Mst_kota.findAndCountAll(query.total);
-  //     const total = await q.count;
-  //     var data = [];
-  //     if (total > 0) {
-  //       await Mst_kota.findAll(query.sql).then(async (value) => {
-  //         await Promise.all(
-  //           await value.map(async (e) => {
-  //             data.push({ 
-  //               id : e.id, 
-  //               kode : e.kode,
-  //               name : e.name
-  //             });
-  //           })
-  //         );
-  //       });
-  //     }
-
-  //     return {
-  //       data: data,
-  //       total: total,
-  //     };
-
-  //   } catch (error) {
-  //     return {};
-  //   }
-  // }
-
-  // async infoKota(id, company_id) {
-  //   try {
-  //     var data = {};
-  //     await Mst_kota.findOne({
-  //         where: { id: id },
-  //     }).then(async (e) => {
-  //         if (e) {
-  //             data["id"] = e.id;
-  //             data["kode"] = e.kode;
-  //             data["name"] = e.name;
-  //         }
-  //     });
-     
-  //     return data
-  //   } catch (error) {
-  //     return {}      
-  //   }
-  // } 
 }
 
 module.exports = Model_r;

@@ -1,9 +1,8 @@
 const Model_r = require("./model_r");
-const { sequelize, Akun_secondary, Saldo_akun } = require("../../../models");
+const { sequelize, Op, Akun_secondary, Saldo_akun, Jurnal, Akun_primary, Division, Periode } = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
 const moment = require("moment");
-const akun_primary = require("../../../models/akun_primary");
 
 class Model_cud {
   constructor(req) {
@@ -93,7 +92,8 @@ class Model_cud {
         {
           where: {
             akun_secondary_id: body.id,
-            division_id : this.division_id
+            division_id: this.division_id, 
+            periode: 0
           },
         },
         {
@@ -152,7 +152,8 @@ class Model_cud {
         {
           where: {
             akun_secondary_id: body.id,
-            division_id : this.division_id
+            division_id: this.division_id, 
+            periode: 0
           },
         },
         {
@@ -178,66 +179,273 @@ class Model_cud {
     }
   }
 
-  // // Edit airline
-  // async update() {
-  //   // initialize general property
-  //   await this.initialize();
-  //   const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
-  //   const body = this.req.body;
-  //   // update process
-  //   try {
-  //     // call object
-  //     const model_r = new Model_r(this.req);
-  //     // get info airline
-  //     const infoAirline = await model_r.infoAirline(body.id, this.company_id);
-  //     // update data airline
-  //     await Mst_airline.update(
-  //       {
-  //         name: body.name,
-  //         updatedAt: myDate,
-  //       },
-  //       {
-  //         where: { id: body.id, company_id : this.company_id,  },
-  //       },
-  //       {
-  //         transaction: this.t,
-  //       }
-  //     );
-  //     // write log message
-  //     this.message = `Memperbaharui Data Airline dengan Nama Airline ${infoAirline.name} dan ID Airline : ${body.id} menjadi Nama Airline ${body.name}`;
-  //   } catch (error) {
-  //     this.state = false;
-  //   }
-  // }
+  async update_saldo() {
+    // initialize dependensi properties
+    await this.initialize();
+    const body = this.req.body;
+    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+    const saldo = body.saldo;
+    try {
+      // delete saldo
+      await Saldo_akun.destroy(
+        {
+          where: {
+            akun_secondary_id: body.id,
+            division_id : this.division_id, 
+            periode: 0
+          },
+        },
+        {
+          transaction: this.t,
+        }
+      );
+      // insert new saldo
+      await Saldo_akun.create(
+        {
+          division_id : this.division_id, 
+          akun_secondary_id : body.id,
+          saldo: saldo,
+          periode: 0,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
 
-  // // Hapus Airline
-  // async delete() {
-  //   // initialize dependensi properties
-  //   await this.initialize();
-  //   const body = this.req.body;
-  //   try {
-  //     // call object
-  //     const model_r = new Model_r(this.req);
-  //     // get info airline
-  //     const infoAirline = await model_r.infoAirline(body.id, this.company_id);
-  //     // delete process
-  //     await Mst_airline.destroy(
-  //       {
-  //         where: {
-  //           id: body.id,
-  //           company_id : this.company_id
-  //         },
-  //       },
-  //       {
-  //         transaction: this.t,
-  //       }
-  //     );
-  //     // write log message
-  //     this.message = `Menghapus Airline dengan Nama Airline : ${infoAirline.name} dan ID Airline  : ${infoAirline.id}`;
-  //   } catch (error) {
-  //     this.state = false;
-  //   }
-  // }
+      // write log message
+      this.message = `Mengupdate saldo akun dengan ID Akun : ${body.id}`;
+    } catch (error) {
+      this.state = false;
+    }
+  }
+
+  async tutup_buku() {
+    // initialize dependensi properties
+    await this.initialize();
+    const body = this.req.body;
+    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+
+    try {
+
+      var division = [];
+      await Division.findAll({ where : { company_id : this.company_id }}).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+            division.push(e.id);
+          })
+        );
+      });
+
+      var akun_primary = {};
+      await Akun_primary.findAll().then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+            akun_primary[e.id] = { sn: e.sn, pos : e.pos };
+          })
+        );
+      });
+
+      var akun_secondary_id = {};
+      await Akun_secondary.findAll({ 
+        where : { 
+          company_id : this.company_id,
+        }
+      }).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+             akun_secondary_id[e.nomor_akun] = e.id; 
+          })
+        );
+      });
+
+      var saldo_awal = {};
+      await Saldo_akun.findAll({ 
+        include: { 
+          required : true, 
+          model: Akun_secondary 
+        }, 
+        where : { 
+          division_id : { [Op.in] : division },
+          periode : 0 
+        }
+      }).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+            if(saldo_awal[e.division_id] === undefined ) {
+              saldo_awal = {...saldo_awal,...{[e.division_id] : { [e.Akun_secondary.nomor_akun] : e.saldo } } };
+            }else{
+              if(saldo_awal[e.division_id][e.Akun_secondary.nomor_akun] === undefined ) {
+                saldo_awal[e.division_id] = {...saldo_awal[e.division_id],...{ [e.Akun_secondary.nomor_akun] : e.saldo } };
+              }else{
+                saldo_awal[e.division_id][e.Akun_secondary.nomor_akun] = saldo_awal[e.division_id][e.Akun_secondary.nomor_akun] + e.saldo;
+              }
+            }
+          })
+        );
+      });
+
+      var saldo_jurnal = {};
+      await Jurnal.findAll({ where : { division_id : { [Op.in] : division }, periode_id : 0 }}).then(async (value) => {
+          await Promise.all(
+            await value.map(async (e) => {
+              // info akun
+              var infAkunDebet =  akun_primary[e.akun_debet.toString().charAt(0)];
+              var infAkunKredit =  akun_primary[e.akun_kredit.toString().charAt(0)];
+
+              if( infAkunDebet.sn == 'D') {
+                if(saldo_jurnal[e.division_id] === undefined ) {
+                  saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_debet] : ( e.saldo + 0 ) } } };
+                }else{
+                  if( saldo_jurnal[e.division_id][e.akun_debet] === undefined ) {
+                    saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_debet] : (e.saldo + 0)}}
+                  }else{
+                    saldo_jurnal[e.division_id][e.akun_debet] = saldo_jurnal[e.division_id][e.akun_debet] + e.saldo;
+                  }
+                }
+              }else if ( infAkunDebet.sn == 'K' ) {
+                if(saldo_jurnal[e.division_id] === undefined ) {
+                  saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_debet] : ( 0 - e.saldo ) } } };
+                }else{
+                  if( saldo_jurnal[e.division_id][e.akun_debet] === undefined ) {
+                    saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_debet] : ( 0 - e.saldo )}}
+                  }else{
+                    saldo_jurnal[e.division_id][e.akun_debet] = saldo_jurnal[e.division_id][e.akun_debet] - e.saldo;
+                  }
+                }
+              }
+
+              if( infAkunKredit.sn == 'D') {
+                if(saldo_jurnal[e.division_id] === undefined ) {
+                  saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_kredit] : ( 0 - e.saldo ) } } };
+                }else{
+                  if( saldo_jurnal[e.division_id][e.akun_kredit] === undefined ) {
+                    saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_kredit] : (0 - e.saldo)}}
+                  }else{
+                    saldo_jurnal[e.division_id][e.akun_kredit] = saldo_jurnal[e.division_id][e.akun_kredit] - e.saldo;
+                  }
+                }
+              }else if ( infAkunKredit.sn == 'K' ) {
+                if(saldo_jurnal[e.division_id] === undefined ) {
+                  saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_kredit] : ( e.saldo + 0 ) } } };
+                }else{
+                  if( saldo_jurnal[e.division_id][e.akun_kredit] === undefined ) {
+                    saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_debet] : ( e.saldo + 0 )}}
+                  }else{
+                    saldo_jurnal[e.division_id][e.akun_kredit] = saldo_jurnal[e.division_id][e.akun_kredit] + e.saldo;
+                  }
+                }
+              }
+
+            })
+          );
+      });
+
+      var saldo_akhir = {};
+      for( let x in division ) {
+        if( saldo_awal[division[x]] !== undefined ) {
+          for( let y in saldo_awal[division[x]] ) {
+            if( saldo_akhir[division[x]] === undefined ) {
+              saldo_akhir =  {...saldo_akhir,...{[division[x]] : { [y] : saldo_awal[division[x]][y] } } };
+            }else{
+              if( saldo_akhir[division[x]][y] === undefined ) {
+                saldo_akhir[division[x]] = {...saldo_akhir[division[x]],...{[y] : saldo_awal[division[x]][y] } };
+              }else{
+                saldo_akhir[division[x]][y] = saldo_akhir[division[x]][y] + saldo_awal[division[x]][y];
+              }
+            }
+          }
+        }
+
+        if( saldo_jurnal[division[x]] !== undefined ) {
+          for( let y in saldo_jurnal[division[x]] ) {
+            if( saldo_akhir[division[x]] === undefined ) {
+              saldo_akhir =  {...saldo_akhir,...{[division[x]] : { [y] : saldo_jurnal[division[x]][y] } } };
+            }else{
+              if( saldo_akhir[division[x]][y] === undefined ) {
+                saldo_akhir[division[x]] = {...saldo_akhir[division[x]],...{[y] : saldo_jurnal[division[x]][y] } };
+              }else{
+                saldo_akhir[division[x]][y] = saldo_akhir[division[x]][y] + saldo_jurnal[division[x]][y];
+              }
+            }
+          }
+        }
+      }
+
+      // create periode baru
+      const insert = await Periode.create(
+        {
+          company_id : this.company_id,
+          name : body.nama_periode,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
+      // update semua saldo akun yang periodenya 0 ke periode terbaru
+      for( let p in division ) {
+        await Saldo_akun.update(
+          {
+            periode: insert.id,
+            updatedAt: myDate,
+          },
+          {
+            where: { periode: 0, division_id: division[p]},
+          },
+          {
+            transaction: this.t,
+          }
+        );
+      }
+     
+
+      // update semua periode jurnal dari periode 0 ke periode terbaru
+      await Jurnal.update(
+        {
+          periode_id: insert.id,
+          updatedAt: myDate,
+        },
+        {
+          where: { periode_id: 0, division_id : { [Op.in] : division } },
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
+      for( let u in saldo_akhir ) {
+        for( let i in saldo_akhir[u] ) {
+          await Saldo_akun.create(
+            {
+              division_id : u,
+              akun_secondary_id : akun_secondary_id[i],
+              saldo : saldo_akhir[u][i],
+              periode : 0,
+              createdAt: myDate,
+              updatedAt: myDate,
+            },
+            {
+              transaction: this.t,
+            }
+          );
+        }
+      }
+
+      // write log message
+      this.message = `Menutup Buku Akuntasi pada periode ${body.nama_periode}`;
+    } catch (error) {
+
+      console.log("_____________________________");
+      console.log(error);
+      console.log("_____________________________");
+
+      this.state = false;
+    }
+  }
 
   // response
   async response() {

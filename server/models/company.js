@@ -33,9 +33,6 @@ module.exports = (sequelize, DataTypes) => {
       Company.hasMany(models.Mst_provider, {
         foreignKey: "company_id",
       });
-      // Company.hasMany(models.Saldo_akun, {
-      //   foreignKey: "company_id",
-      // });
       Company.hasMany(models.Supplier, {
         foreignKey: "company_id",
       });
@@ -46,6 +43,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "company_id",
       });
       Company.hasMany(models.Level_keagenan, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Periode, {
         foreignKey: "company_id",
       });
      }
