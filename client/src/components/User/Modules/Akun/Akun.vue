@@ -92,7 +92,7 @@
       }
     };
     showConfirmDialog.value = true;
-    showConfirmation('Konfirmasi Pengembalian Buku', 'Apakah Anda yakin ingin mengembalikan buku ke periode sebelumnya?', kembalikanbuku);
+    showConfirmation('Konfirmasi Pengembalian Buku', 'Jika anda mengembalikan ke periode sebelumnya, maka transaksi <b>JURNAL</b> sekarang akan <b style="color:red;">DIHAPUS</b>. Apakah Anda yakin ingin mengembalikan buku ke periode sebelumnya?', kembalikanbuku);
   }
 
   const selectedAkun = ref<number>();

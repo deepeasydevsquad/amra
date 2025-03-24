@@ -153,9 +153,29 @@ controllers.tutup_buku = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("_____________________________XXXXX");
-    console.log(error);
-    console.log("_____________________________XXXXX");
+    handleServerError(res, error.message);
+  }
+}
+
+controllers.kembalikan_buku = async (req, res) => {
+  // if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    await model_cud.kembalikan_buku();
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Proses pengembalian buku berhasil dilakukan.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Proses pengembalian buku gagal dilakukan.',
+      });
+    }
+  } catch (error) {
     handleServerError(res, error.message);
   }
 }

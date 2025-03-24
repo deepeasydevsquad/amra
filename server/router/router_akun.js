@@ -75,7 +75,6 @@ router.post(
   controllers.update_saldo
 );
 
-// tutup_buku
 router.post(
   "/daftar_akun/tutup_buku",
   authenticateToken,
@@ -83,5 +82,10 @@ router.post(
   controllers.tutup_buku
 );
 
+router.get(
+  "/daftar_akun/kembalikan_buku",
+  authenticateToken,
+  controllers.kembalikan_buku
+);
 
 module.exports = router;

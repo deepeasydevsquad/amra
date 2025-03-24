@@ -25,7 +25,7 @@
                 <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                   <h3 class="text-2xl font-medium leading-6 text-gray-900" id="modal-title">{{ confirmTitle }}</h3>
                   <div class="mt-2">
-                    <p class="text-lg text-gray-500">{{ confirmMessage }}</p>
+                    <p class="text-lg text-gray-500" v-html="confirmMessage"></p>
                   </div>
                 </div>
               </div>

@@ -401,7 +401,6 @@ class Model_cud {
           }
         );
       }
-     
 
       // update semua periode jurnal dari periode 0 ke periode terbaru
       await Jurnal.update(
@@ -438,11 +437,30 @@ class Model_cud {
       // write log message
       this.message = `Menutup Buku Akuntasi pada periode ${body.nama_periode}`;
     } catch (error) {
+      this.state = false;
+    }
+  }
 
-      console.log("_____________________________");
-      console.log(error);
-      console.log("_____________________________");
+  async kembalikan_buku () {
+    // initialize dependensi properties
+    await this.initialize();
+    const body = this.req.body;
+    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
 
+    try {
+      // get last periode
+
+      // delete jurnal
+
+      // delete saldo 
+
+
+      //
+
+
+
+      this.message = `Membuka Buku Akuntasi pada periode ${body.nama_periode}`;
+    } catch (error) {
       this.state = false;
     }
   }
