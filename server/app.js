@@ -37,7 +37,8 @@ const arr_router = [
   "supplier",
   "akun",
   "member",
-  "daftar_kostumer_paket_la"
+  "daftar_kostumer_paket_la",
+  "daftar_paket_la",
 ];
 
 // routers

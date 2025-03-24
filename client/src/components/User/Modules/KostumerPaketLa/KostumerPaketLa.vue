@@ -10,7 +10,7 @@ import Notification from './Particle/Notification.vue'
 import Confirmation from './Particle/Confirmation.vue'
 
 // import api from "@/services/api"; // Import service API
-import { daftarKostumerPaketLA, addKostumerPaketLA, editKostumerPaketLA, deleteKostumerPaketLA } from '../../../../service/daftar_paket_la' // Import function POST
+import { daftarKostumerPaketLA, addKostumerPaketLA, editKostumerPaketLA, deleteKostumerPaketLA } from '../../../../service/daftar_kostumer_paket_la' // Import function POST
 import { ref, onMounted, computed, watchEffect } from 'vue'
 import axios from 'axios'
 

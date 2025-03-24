@@ -1,0 +1,56 @@
+const express = require("express");
+const { body, param } = require("express-validator");
+const controllers = require("../modules/daftar_paket_la/controllers/index");
+const { authenticateToken } = require("../middleware/authenticateToken");
+const validation = require("../validation/daftar_paket_la");
+
+const router = express.Router();
+
+router.post(
+  "/daftar_paket_la/list",
+  authenticateToken,
+  [
+    body("pageNumber").trim(),
+    body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
+    body("search").trim(),
+  ],
+  controllers.get_daftar_paket_la
+);
+
+router.post(
+  "/daftar_paket_la/",
+  authenticateToken,
+  [
+    body("kostumer_paket_la_id").trim().notEmpty().withMessage("ID Kostumer tidak boleh kosong."),
+    body("discount").trim().notEmpty().withMessage("Diskon tidak boleh kosong."),
+    body("total_jamaah").trim().notEmpty().withMessage("Total Jamaah tidak boleh kosong."),
+    body("departure_date").trim().notEmpty().withMessage("Tanggal Kebertanggungan tidak boleh kosong."),
+    body("arrival_date").trim().notEmpty().withMessage("Tanggal Kepulangan tidak boleh kosong."),
+  ],
+  controllers.add
+);
+
+router.post(
+  "/daftar_paket_la/update",
+  authenticateToken,
+  [
+    body("id").trim().notEmpty().withMessage("ID Paket LA tidak boleh kosong.").custom(validation.check_id_paket_la),
+    body("status").trim().notEmpty().withMessage("Status tidak boleh kosong."),
+    body("discount").trim().notEmpty().withMessage("Diskon tidak boleh kosong."),
+    body("total_jamaah").trim().notEmpty().withMessage("Total Jamaah tidak boleh kosong."),
+    body("departure_date").trim().notEmpty().withMessage("Tanggal Kebertanggungan tidak boleh kosong."),
+    body("arrival_date").trim().notEmpty().withMessage("Tanggal Kepulangan tidak boleh kosong."),
+  ],
+  controllers.update
+);
+
+router.post(
+  "/daftar_paket_la/delete",
+  authenticateToken,
+  [
+    body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").isInt().withMessage("ID Kota harus berupa angka.").custom(validation.check_id_paket_la),
+  ],
+  controllers.delete
+);
+
+module.exports = router;
