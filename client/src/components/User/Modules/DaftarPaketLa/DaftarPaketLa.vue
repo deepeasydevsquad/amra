@@ -7,6 +7,7 @@ import CetakIcon from "./Icon/CetakInvoiceIcon.vue"
 // import element
 import DangerButton from "./Particle/DangerButton.vue"
 import EditButton from "./Particle/EditButton.vue"
+import LightButton from "./Particle/LightButton.vue"
 import Notification from "./Particle/Notification.vue"
 import Confirmation from "./Particle/Confirmation.vue"
 import Form from "./Particle/Form.vue"
@@ -334,7 +335,7 @@ const deleteData = async (id: number) => {
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
-        Tambah Data
+        Tambah Transaksi Paket LA
       </button>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
@@ -353,15 +354,15 @@ const deleteData = async (id: number) => {
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
-          <tr>
+          <tr class="bg-gray-100">
             <th class="w-[12%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Register</th>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Klien</th>
-            <th class="w-[45%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Item Transaksi</th>
+            <th class="w-[42%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Item Transaksi</th>
             <th class="w-[18%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Harga</th>
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[13%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="divide-y divide-gray-100 border-t border-gray-100">
       <template v-if="dataPaketLa.length > 0">
         <tr v-for="paket in dataPaketLa" :key="paket.id" class="bg-gray-100">
           <td class="p-3 border border-gray-300 align-top text-center">
@@ -448,18 +449,21 @@ const deleteData = async (id: number) => {
             <p><b>Diskon:</b> Coming Soon</p>
             <p><b>Sudah Dibayar:</b> Coming Soon</p>
             <p><b>Sisa:</b> Coming Soon</p>
-            <!-- <p><b>Total Harga:</b> Rp {{ paket.price.total.toLocaleString() }}</p>
-            <p><b>Diskon:</b> Rp {{ paket.price.discount.toLocaleString() }}</p>
-            <p><b>Sudah Dibayar:</b> Rp {{ paket.price.paid.toLocaleString() }}</p>
-            <p><b>Sisa:</b> Rp {{ paket.price.remaining.toLocaleString() }}</p> -->
           </td>
           <td class="p-3 border border-gray-300 align-top">
-            Coming Soon
-            <div class="grid grid-cols-2 gap-2">
-              <button class="p-2 bg-gray-300 rounded">📂</button>
-              <button class="p-2 bg-gray-300 rounded">💰</button>
-              <button class="p-2 bg-gray-300 rounded">🔄</button>
-              <button class="p-2 bg-gray-300 rounded">📋</button>
+            <div class="grid grid-cols-3 gap-2 justify-between">
+              <LightButton>
+                <font-awesome-icon icon="fa-solid fa-box" />
+              </LightButton>
+              <LightButton>
+                <font-awesome-icon icon="fa-solid fa-money-bill-alt" />
+              </LightButton>
+              <LightButton>
+                <font-awesome-icon icon="fa-solid fa-undo-alt" />
+              </LightButton>
+              <LightButton>
+                <font-awesome-icon icon="fa-solid fa-list-alt" />
+              </LightButton>
               <EditButton @click="openForm(paket)" class="p-2 rounded">
                 <EditIcon />
               </EditButton>
