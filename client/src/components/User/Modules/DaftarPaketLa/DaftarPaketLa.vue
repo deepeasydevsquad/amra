@@ -13,11 +13,9 @@ import Confirmation from "./Particle/Confirmation.vue"
 import Form from "./Particle/Form.vue"
 
 // import api from "@/services/api"; // Import service API
-import { daftarPaketLa, addPaketLa, editPaketLa, deletePaketLa } from "../../../../service/daftar_paket_la"
-import { daftarKostumerPaketLA } from "../../../../service/daftar_kostumer_paket_la"
+import { daftarPaketLA, addPaketLA, editPaketLA, deletePaketLA } from "../../../../service/daftar_paket_la"
 import { ref, onMounted, computed, watchEffect } from 'vue';
 import axios from 'axios';
-import { data } from "autoprefixer"
 
 const itemsPerPage = 100; // Jumlah paket_la per halaman
 const currentPage = ref(1);
@@ -49,10 +47,10 @@ const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
 });
 
-interface PaketLa {
+interface PaketLA {
   id: number;
-  kostumer_paket_la_id: number;
   register_number: string;
+  client_id: number;
   client_name: string;
   client_hp_number: string;
   client_address: string;
@@ -62,13 +60,6 @@ interface PaketLa {
   total_jamaah: number;
   departure_date: string;
   arrival_date: string;
-}
-
-interface KostumerPaketLa {
-  id: number;
-  name: string;
-  mobile_number: string;
-  address: string;
 }
 
 interface Errors {
@@ -82,9 +73,8 @@ interface Errors {
 }
 
 const timeoutId = ref<number | null>(null);
-const dataPaketLa = ref<PaketLa[]>([]);
-const dataKostumer = ref<KostumerPaketLa[]>([]);
-const isFormOpen = ref<boolean>(false);
+const dataPaketLA = ref<PaketLA[]>([]);
+const isModalOpen = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
 const notificationMessage = ref<string>('');
@@ -94,8 +84,7 @@ const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
 const totalColumns = ref(5); // Default 3 kolom
 
-const selectedPaketLa = ref<Partial<PaketLa>>({
-  kostumer_paket_la_id: 0,
+const selectedPaketLA = ref<Partial<PaketLA>>({
   register_number: '',
   client_name: '',
   client_hp_number: '',
@@ -120,19 +109,11 @@ const errors = ref<Errors>({
 
 const fetchData = async () => {
   try {
-      const response = await daftarPaketLa({
+      const response = await daftarPaketLA({
           search: search.value,
           perpage: itemsPerPage,
           pageNumber: currentPage.value,
       });
-
-      const responseKostumer = await daftarKostumerPaketLA({
-          search: search.value,
-          perpage: itemsPerPage,
-          pageNumber: currentPage.value,
-      });
-
-      dataKostumer.value = responseKostumer.data;
 
       if (response.error) {
           displayNotification(response.error_msg, "error");
@@ -140,19 +121,19 @@ const fetchData = async () => {
       }
 
       totalPages.value = Math.ceil(response.total / itemsPerPage);
-      dataPaketLa.value = response.data || []; // Ensure it assigns an array
+      dataPaketLA.value = response.data || []; // Ensure it assigns an array
   } catch (error) {
       console.error('Error fetching data:', error);
       displayNotification('Gagal mengambil data.', 'error');
   }
 };
 
-const openForm = (paket_la?: PaketLa) => {
-  selectedPaketLa.value = paket_la
+const openModal = (paket_la?: PaketLA) => {
+  selectedPaketLA.value = paket_la
     ? { ...paket_la }
     : { client_name: '', client_hp_number: '', client_address: '', discount: 0, total_jamaah: 0, departure_date: '', arrival_date: '' };
 
-  isFormOpen.value = true;
+  isModalOpen.value = true;
 };
 
 onMounted(async () => {
@@ -160,26 +141,26 @@ onMounted(async () => {
   totalColumns.value = document.querySelectorAll("thead th").length;
 });
 
-const validateForm = (): boolean => {
-  errors.value = { kostumer_paket_la_id: '', total_jamaah: '', departure_date: '', arrival_date: ''};
+const validateModal = (): boolean => {
+  errors.value = { client_name: '', total_jamaah: '', departure_date: '', arrival_date: ''};
   let isValid = true;
 
-  if (!selectedPaketLa.value.kostumer_paket_la_id) {
-    errors.value.kostumer_paket_la_id = ' Klien tidak boleh kosong.';
+  if (!selectedPaketLA.value.client_name) {
+    errors.value.client_name = ' Klien tidak boleh kosong.';
     isValid = false;
   }
 
-  if (!selectedPaketLa.value.total_jamaah) {
+  if (!selectedPaketLA.value.total_jamaah) {
     errors.value.total_jamaah = 'Jumlah jamaah tidak boleh kosong.';
     isValid = false;
   }
 
-  if (!selectedPaketLa.value.departure_date) {
+  if (!selectedPaketLA.value.departure_date) {
     errors.value.departure_date = 'Tanggal keberangkatan tidak boleh kosong.';
     isValid = false;
   }
 
-  if (!selectedPaketLa.value.arrival_date) {
+  if (!selectedPaketLA.value.arrival_date) {
     errors.value.arrival_date = 'Tanggal kedatangan tidak boleh kosong.';
     isValid = false;
   }
@@ -207,34 +188,50 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 };
 
 const saveData = async () => {
-  if (!validateForm()) return;
+  if (!validateModal()) return;
 
-  const isEdit = !!selectedPaketLa.value.id;
+  console.log("Data sebelum dikirim:", selectedPaketLA.value); // Debugging
+
+  // Buat salinan data agar tidak merusak state asli
+  const paketLAData = { ...selectedPaketLA.value };
+  delete paketLAData.client_id; // Hapus client_id sebelum dikirim
+
+  console.log("Data setelah hapus clientId:", paketLAData); // Debugging
+
+  const isEdit = !!selectedPaketLA.value.id;
   const action = async () => {
     try {
+      let response;
       if (isEdit) {
-        const response = await editPaketLa(selectedPaketLa.value.id, selectedPaketLa.value );
-        showConfirmDialog.value = false;
-        displayNotification(response.error_msg);
+        response = await editPaketLA(selectedPaketLA.value.id, paketLAData);
       } else {
-        const response = await addPaketLa(selectedPaketLa.value);
-        showConfirmDialog.value = false;
-        displayNotification(response.error_msg);
+        response = await addPaketLA(paketLAData);
       }
-      isFormOpen.value = false;
+
+      console.log("Response dari API:", response); // Debugging
+
+      showConfirmDialog.value = false;
+      displayNotification(response?.error_msg || "Paket berhasil disimpan!", "success");
+      isModalOpen.value = false;
       fetchData();
     } catch (error) {
+      console.error("Error saat menyimpan:", error); // Debugging
+
       if (axios.isAxiosError(error)) {
-        displayNotification(error.response?.data?.error_msg || 'Terjadi kesalahan saat menyimpan data.', 'error');
+        console.log("Response Error dari API:", error.response?.data); // Debugging
+        displayNotification(error.response?.data?.error_msg || "Terjadi kesalahan saat menyimpan data.", "error");
       } else {
-        displayNotification('Terjadi kesalahan yang tidak terduga.', 'error');
+        displayNotification("Terjadi kesalahan yang tidak terduga.", "error");
       }
       showConfirmDialog.value = false;
     }
   };
 
-  isEdit ? showConfirmation('Konfirmasi Perubahan', 'Apakah Anda yakin ingin mengubah data ini?', action) : action();
+  isEdit
+    ? showConfirmation("Konfirmasi Perubahan", "Apakah Anda yakin ingin mengubah data ini?", action)
+    : action();
 };
+
 
 const deleteData = async (id: number) => {
   showConfirmation(
@@ -242,7 +239,7 @@ const deleteData = async (id: number) => {
     'Apakah Anda yakin ingin menghapus data ini?',
     async () => {
       try {
-        const response = await deletePaketLa(id);
+        const response = await deletePaketLA(id);
         showConfirmDialog.value = false;
         displayNotification(response.error_msg);
         fetchData();
@@ -256,81 +253,11 @@ const deleteData = async (id: number) => {
 </script>
 
 <template>
-  <Form
-      v-if="isFormOpen"
-      :PaketLa="selectedPaketLa"
-      :errors="errors"
-      :customers="dataKostumer"
-      v-model:selectedPaketLa="selectedPaketLa"
-      @save="saveData"
-      @cancel="isFormOpen = false"
-    />
-
-  <!-- <div v-if="isFormOpen" class="mx-auto p-6 bg-white shadow-md rounded-md text-gray-900">
-    <h2 class="text-2xl font-bold text-center mb-6">
-      {{ selectedPaketLa?.id ? "Form Edit Paket La" : "Form Tambah Paket La Baru" }}
-    </h2>
-      <div class="grid grid-cols-2 gap-4 justify-center">
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Daftar Kostumer</label>
-        <select v-model="selectedPaketLa.client_name" class="w-full rounded-md border-gray-300 p-2 shadow-sm focus:ring-blue-500">
-          <option disabled value="">Pilih kostumer...</option>
-          <option v-for="dataKostumer in dataKostumer" :key="dataKostumer.name" :value="dataKostumer.name">
-            {{ dataKostumer.name }}
-          </option>
-        </select>
-        <p v-if="errors.client_name" class="text-sm text-red-600">{{ errors.client_name }}</p>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Diskon (%)</label>
-        <input v-model.number="selectedPaketLa.discount" type="number" min="0" max="100"
-          class="w-full rounded-md border-gray-300 p-2 shadow-sm focus:ring-blue-500"
-          placeholder="Masukkan diskon (0-100%)">
-        <p v-if="errors.discount" class="text-sm text-red-600">{{ errors.discount }}</p>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Tanggal Keberangkatan</label>
-        <input v-model="selectedPaketLa.departure_date" type="date"
-          class="w-full rounded-md border-gray-300 p-2 shadow-sm focus:ring-blue-500">
-        <p v-if="errors.departure_date" class="text-sm text-red-600">{{ errors.departure_date }}</p>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Jumlah Jamaah</label>
-        <input v-model.number="selectedPaketLa.total_jamaah" type="number" min="1"
-          class="w-full rounded-md border-gray-300 p-2 shadow-sm focus:ring-blue-500"
-          placeholder="Masukkan jumlah jamaah">
-        <p v-if="errors.total_jamaah" class="text-sm text-red-600">{{ errors.total_jamaah }}</p>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Tanggal Kepulangan</label>
-        <input v-model="selectedPaketLa.arrival_date" type="date"
-          class="w-full rounded-md border-gray-300 p-2 shadow-sm focus:ring-blue-500">
-        <p v-if="errors.arrival_date" class="text-sm text-red-600">{{ errors.arrival_date }}</p>
-      </div>
-
-    </div>
-
-    <div class="flex justify-end space-x-3">
-      <button type="button" @click="isFormOpen = false"
-        class="px-4 py-2 bg-gray-300 rounded-md text-gray-700 hover:bg-gray-400">Batal</button>
-      <button type="submit" @click="saveData"
-        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-        {{ selectedPaketLa?.id ? "Simpan Perubahan" : "Tambah" }}
-      </button>
-    </div>
-  </div> -->
-
-
-  <div v-else class="container mx-auto p-4">
+  <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
       <button
-        @click="openForm()"
+        @click="openModal()"
         class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -355,16 +282,16 @@ const deleteData = async (id: number) => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr class="bg-gray-100">
-            <th class="w-[12%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Register</th>
+            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Register</th>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Klien</th>
-            <th class="w-[42%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Item Transaksi</th>
-            <th class="w-[18%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Harga</th>
+            <th class="w-[45%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Item Transaksi</th>
+            <th class="w-[17%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Harga</th>
             <th class="w-[13%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-      <template v-if="dataPaketLa.length > 0">
-        <tr v-for="paket in dataPaketLa" :key="paket.id" class="bg-gray-100">
+      <template v-if="dataPaketLA.length > 0">
+        <tr v-for="paket in dataPaketLA" :key="paket.id" class="bg-gray-100">
           <td class="p-3 border border-gray-300 align-top text-center">
             {{ paket.register_number }}
           </td>
@@ -464,7 +391,7 @@ const deleteData = async (id: number) => {
               <LightButton>
                 <font-awesome-icon icon="fa-solid fa-list-alt" />
               </LightButton>
-              <EditButton @click="openForm(paket)" class="p-2 rounded">
+              <EditButton @click="openModal(paket)" class="p-2 rounded">
                 <EditIcon />
               </EditButton>
               <DangerButton @click="deleteData(paket.id)" class="p-2 rounded">
@@ -525,8 +452,27 @@ const deleteData = async (id: number) => {
         </tfoot>
       </table>
     </div>
-
   </div>
+
+  <!-- Modal -->
+  <transition
+    enter-active-class="transition duration-200 ease-out"
+    enter-from-class="transform scale-95 opacity-0"
+    enter-to-class="transform scale-100 opacity-100"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="transform scale-100 opacity-100"
+    leave-to-class="transform scale-95 opacity-0"
+  >
+    <Form
+      v-if="isModalOpen && selectedPaketLA"
+      :isModalOpen="isModalOpen"
+      :selectedPaketLA="selectedPaketLA"
+      :errors="errors"
+      @save="saveData"
+      @close="isModalOpen = false"
+    />
+  </transition>
+
   <!-- Confirmation Dialog -->
   <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
     <button @click="confirmAction && confirmAction()"

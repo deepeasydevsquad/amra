@@ -2,7 +2,7 @@ const { sequelize, Paket_la } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
-const { getKostumerPaketLAById } = require("../../../helper/kostumerpaketlaHelper");
+// const { getKostumerPaketLAById } = require("../../../helper/kostumerpaketlaHelper");
 const moment = require("moment");
 
 class Model_cud {
@@ -40,8 +40,7 @@ class Model_cud {
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
-    
-    const { name: client_name, mobile_number: client_hp_number, address: client_address } = await getKostumerPaketLAById(body.kostumer_paket_la_id);
+
     const register_number = await this.generateRegisterNumber();
 
     try {
@@ -50,9 +49,9 @@ class Model_cud {
         {
           division_id: await getCabang(this.req),
           register_number: register_number,
-          client_name: client_name,
-          client_hp_number: client_hp_number,
-          client_address: client_address,
+          client_name: body.client_name,
+          client_hp_number: body.client_hp_number,
+          client_address: body.client_address,
           status: "active",
           discount: body.discount,
           total_price: body.total_price,
@@ -67,7 +66,7 @@ class Model_cud {
         }
       );
       // write log message
-      this.message = `Menambahkan paket la Baru dengan Nomor Registrasi : ${register_number}, Nama klien : ${client_name} dan ID paket la : ${insert.id}`;
+      this.message = `Menambahkan paket la Baru dengan Nomor Registrasi : ${register_number}, Nama klien : ${body.client_name} dan ID paket la : ${insert.id}`;
     } catch (error) {
       this.state = false;
     }
@@ -80,7 +79,6 @@ class Model_cud {
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
-    const { name: client_name, mobile_number: client_hp_number, address: client_address } = await getKostumerPaketLAById(body.kostumer_paket_la_id);
     // update process
     try {
       // call object
@@ -90,9 +88,9 @@ class Model_cud {
       // update data  paket la
       await Paket_la.update(
         {
-          client_name: client_name,
-          client_hp_number: client_hp_number,
-          client_address: client_address,
+          client_name: body.client_name,
+          client_hp_number: body.client_hp_number,
+          client_address: body.client_address,
           // status: body.status,
           discount: body.discount,
           // total_price: body.total_price,
@@ -109,7 +107,7 @@ class Model_cud {
         }
       );
       // write log message
-      this.message = `Memperbaharui Data paket la dengan Nomor Registrasi : ${infoPaketLA.register_number}, Nama klien ${infoPaketLA.client_name} dan ID paket la : ${body.id} menjadi Nama klien ${client_name}`;
+      this.message = `Memperbaharui Data paket la dengan Nomor Registrasi : ${infoPaketLA.register_number}, Nama klien ${infoPaketLA.client_name} dan ID paket la : ${body.id} menjadi Nama klien ${body.client_name}`; 
     } catch (error) {
       this.state = false;
     }

@@ -1,6 +1,7 @@
 const { Op, Paket_la } = require("../../../models");
-const{ getCabang } = require("../../../helper/companyHelper");
-const{ dbList } = require("../../../helper/dbHelper");
+const { getCabang } = require("../../../helper/companyHelper");
+const { dbList } = require("../../../helper/dbHelper");
+const { getIdbyKostumerPaketLA } = require("../../../helper/kostumerpaketlaHelper");
 const moment = require("moment");
 
 class Model_r {
@@ -71,6 +72,7 @@ class Model_r {
               data.push({ 
                 id : e.id,
                 register_number : e.register_number,
+                client_id: await getIdbyKostumerPaketLA(e.client_name, e.client_hp_number, e.client_address),
                 client_name : e.client_name,
                 client_hp_number : e.client_hp_number,
                 client_address : e.client_address,
@@ -78,8 +80,10 @@ class Model_r {
                 discount : e.discount,
                 total_price : e.total_price,
                 total_jamaah : e.total_jamaah,
-                departure_date: moment(e.departure_date).format("DD-MM-YYYY"),
-                arrival_date: moment(e.arrival_date).format("DD-MM-YYYY")
+                departure_date: moment(e.departure_date).format("YYYY-MM-DD"),
+                arrival_date: moment(e.arrival_date).format("YYYY-MM-DD"),
+                createdAt: e.createdAt,
+                updatedAt: e.updatedAt
               });
             })
           );
