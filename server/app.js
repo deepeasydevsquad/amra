@@ -38,6 +38,7 @@ const arr_router = [
   "akun",
   "member",
   "pengguna",
+  "daftar_kostumer_paket_la"
 ];
 
 // routers

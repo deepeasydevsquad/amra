@@ -1,7 +1,5 @@
-const { Akun_primary, Division, Akun_secondary } = require("../models");
-
+const { Akun_primary, Division, Akun_secondary, Op } = require("../models");
 const { getCompanyIdByCode } = require("../helper/companyHelper");
-    
 const validation = {};
 
 validation.check_akun = async ( value,  { req } ) => {
@@ -29,11 +27,17 @@ validation.check_nomor_akun = async ( value,  { req } ) => {
     const body = req.body;
     const company_id = await getCompanyIdByCode(req);
     const nomor_akun_full = body.prefix.toString() + value 
-    var check = await Akun_secondary.findOne({where: { nomor_akun : nomor_akun_full, company_id : company_id, akun_primary_id : body.primary_id  }});
-    if (check) {
-        throw new Error("Nomor Akun ini sudah terdaftar dipangkalan data");
+    if( body.id ) {
+        var check = await Akun_secondary.findOne({where: { nomor_akun : nomor_akun_full, company_id : company_id, akun_primary_id : body.primary_id, id : { [Op.ne] : body.id}  }});
+        if (check) {
+            throw new Error("Nomor Akun ini sudah terdaftar dipangkalan data");
+        }
+    }else{
+        var check = await Akun_secondary.findOne({where: { nomor_akun : nomor_akun_full, company_id : company_id, akun_primary_id : body.primary_id  }});
+        if (check) {
+            throw new Error("Nomor Akun ini sudah terdaftar dipangkalan data");
+        }
     }
-
     return true;
 }
 
@@ -44,7 +48,6 @@ validation.check_prefix = async ( value,  { req } ) => {
     if( prefix !== value ) {
         throw new Error("Prefix Akun ini tidak ditemukan dipangkalan data");
     }
-
     return true;
 }
 
@@ -56,6 +59,22 @@ validation.check_primary_id = async ( value ) => {
     return true;
 }
 
+validation.check_id_akun_secondary = async ( value,  { req } ) => {
+    const company_id = await getCompanyIdByCode(req); 
+    var check = await Akun_secondary.findOne({where: { id : value, company_id : company_id }});
+    if (!check) {
+        throw new Error("ID ini tidak terdaftar dipangkalan data");
+    }
+}
+
+validation.check_id_akun_secondary_bawaan = async ( value,  { req } ) => {
+    const company_id = await getCompanyIdByCode(req); 
+    var check = await Akun_secondary.findOne({where: { id : value, company_id : company_id,  tipe_akun : 'bawaan' }});
+    if (!check) {
+        throw new Error("ID Akun Secondary ini tidak terdaftar dipangkalan data");
+    }
+    return true;
+}
 
 
 module.exports = validation;

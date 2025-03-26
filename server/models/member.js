@@ -17,6 +17,9 @@ module.exports = (sequelize, DataTypes) => {
       Member.hasMany(models.User, {
         foreignKey: "member_id",
       });
+      Member.hasMany(models.Agen, {
+        foreignKey: "member_id",
+      });
     }
   }
   Member.init({

@@ -106,7 +106,7 @@ const pageNow = (page: number) => {
 
 // Ambil jumlah kolom agar `colspan` dinamis
 const totalColumns = computed(() => {
-  return document.querySelectorAll('thead th').length || 5
+  return  5
 })
 
 // Fungsi untuk edit dan delete
@@ -226,7 +226,7 @@ const closeUpdateForm = () => {
           <tbody v-else>
             <tr>
               <td :colspan="totalColumns" class="px-6 py-4 text-center text-gray-500">
-                Daftar Member Tidak di Temukan
+                Daftar Member Tidak di Temukan {{ totalColumns }}
               </td>
             </tr>
           </tbody>
