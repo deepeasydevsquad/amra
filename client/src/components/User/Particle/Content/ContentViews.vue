@@ -27,6 +27,7 @@ import Grup from '../../Modules/Grup/Grup.vue'
 import Supplier from '../../Modules/Supplier/Supplier.vue'
 import Akun from '../../Modules/Akun/Akun.vue'
 import DaftarMember from '../../Modules/Member/DaftarMember.vue'
+import Pengguna from '../../Modules/Pengguna/Pengguna.vue'
 import KostumerPaketLa from '../../Modules/KostumerPaketLa/KostumerPaketLa.vue'
 
 const tabComponents = {
@@ -49,6 +50,7 @@ const tabComponents = {
   supplier: Supplier,
   akun: Akun,
   daftar_member: DaftarMember,
+  pengguna: Pengguna,
   kostumer_paket_la: KostumerPaketLa
 }
 

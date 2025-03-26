@@ -5,6 +5,7 @@ const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
 const moment = require("moment");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const { data } = require("jquery");
 
 class Model_cud {
   constructor(req) {
@@ -74,7 +75,7 @@ class Model_cud {
       await writeLog(this.req, this.t, { msg: this.message });
 
       await this.t.commit();
-      return { success: true, message: this.message };
+      return { success: true, message: this.message, data: insert };
     } catch (error) {
       await this.t.rollback();
       return { success: false, message: error.message };
