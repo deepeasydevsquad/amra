@@ -303,9 +303,37 @@ const deleteData = async (id: number) => {
             </ul>
           </td>
           <td class="p-3 border border-gray-300 align-top">
-            <div class="mb-4 p-2 bg-white border border-gray-300">
-              <p><b>INVOICE:</b> Coming Soon</p>
-              <p><b>TOTAL:</b> Coming Soon</p>
+            <!-- <div class="mb-4 p-2 bg-white border border-gray-300"> -->
+              <!-- <p><b>INVOICE:</b> Coming Soon</p>
+              <p><b>TOTAL:</b> Coming Soon</p> -->
+              <table class="w-full mt-2 border text-center text-xs mb-3">
+                <tbody>
+                  <tr>
+                    <td class="w-[19%] px-6 text-center border font-bold bg-gray-200" >INVOICE</td>
+                    <td class="w-[1%] px-3 border border-left-0" >:</td>
+                    <td class="w-[25%] px-6 border text-left font-bold" >SO31285040</td>
+                    <td class="w-[20%] px-6 text-center border font-bold bg-gray-200">PRINT BTN</td>
+                    <td class="w-[1%] px-3 border" >:</td>
+                    <td class="w-[34%] px-6 border text-left" style="text-transform:uppercase;">
+                        <button type="button" class="h-[35px] mx-[0.1rem] px-4 my-1 py-1 flex justify-center items-center rounded-lg text-gray-900 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" title="Cetak Kwitansi Detail Item Paket LA" onclick="cetak_kwitansi_detail_item_paket_la('174')">
+                            <i class="fas fa-print" style="font-size: 11px;"></i> Cetak Invoice
+                        </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="w-[19%] px-6 py-5 text-center border font-bold" style="background-color: #e7e7e7;">TOTAL</td>
+                    <td class="w-[1%] px-3 border border-left-0" >:</td>
+                    <td class="px-6 border text-left font-bold" colspan="4">RP 12.000.000,-</td>
+                  </tr>
+                  <!-- <tr>
+                    <td class="text-left border border-right-0 align-middle" style="width:15%;background-color: #e7e7e7;">TOTAL</td>
+                    <td class="border border-left-0 border-right-0 border-top-1 px-2 align-middle" style="width:1%;">:</td>
+                    <td colspan="4" class="border text-left border-left-0 border-top-1 px-0 align-middle" style="width:34%;">Rp 4,000,000</td>
+                  </tr> -->
+                  <!-- <tr>
+                  </tr> -->
+                </tbody>
+              </table>
               <table class="w-full mt-2 border text-center text-xs">
                 <thead>
                   <tr class="bg-gray-200">
@@ -334,11 +362,11 @@ const deleteData = async (id: number) => {
                   </tr>
                 </tbody>
               </table>
-              <button class="mt-2 px-3 py-1 bg-gray-300 rounded flex items-center gap-2 font-medium hover:bg-gray-400 transition ease-in-out">
+              <!-- <button class="mt-2 px-3 py-1 bg-gray-300 rounded flex items-center gap-2 font-medium hover:bg-gray-400 transition ease-in-out">
                 <CetakIcon />
                 Cetak Invoice
-              </button>
-            </div>
+              </button> -->
+            <!-- </div> -->
             <!-- <div v-for="invoice in paket.invoices" :key="invoice.id" class="mb-4 p-2 bg-white border border-gray-300">
               <p><b>INVOICE:</b> {{ invoice.invoice_number }}</p>
               <p><b>TOTAL:</b> Rp {{ invoice.total.toLocaleString() }}</p>
