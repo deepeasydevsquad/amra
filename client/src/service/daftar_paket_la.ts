@@ -1,42 +1,41 @@
-import api from "./api"; // Import service API
+import api from "./api";
 
-export const daftarKostumerPaketLA = async (param : any) => {
+export const daftarPaketLA = async (param : any) => {
   try {
-    const response = await api.post("/daftar_kostumer_paket_la/list", param); // Kirim data ke backend
-    return response.data; // Kembalikan data hasil request
+    const response = await api.post("/daftar_paket_la/list", param);
+    return response.data;
   } catch (error) {
-    console.error("Gagal menambahkan kota:", error);
-    throw error; // Bisa ditangani di bagian pemanggilan
+    console.error("Gagal menambahkan paket la:", error);
+    throw error;
   }
 };
 
-export const addKostumerPaketLA = async (param : any) => {
+export const addPaketLA = async (param : any) => {
   try {
-    const response = await api.post("/daftar_kostumer_paket_la", param); // Kirim data ke backend
-    return response.data; // Kembalikan data hasil request
+    const response = await api.post("/daftar_paket_la", param);
+    return response.data;
   } catch (error) {
-    console.error("Gagal menambahkan kota:", error);
-    throw error; // Bisa ditangani di bagian pemanggilan
+    console.error("Gagal menambahkan paket la:", error);
+    throw error;
   }
 };
 
-export const editKostumerPaketLA = async (id : any, param : any) => {
+export const editPaketLA = async (id : any, param : any) => {
   try {
-    const response = await api.post(`/daftar_kostumer_paket_la/update` , {...param,...{id : id }}); // Kirim data ke backend
-    return response.data; // Kembalikan data hasil request
+    const response = await api.post(`/daftar_paket_la/update` , {...param,...{id : id }});
+    return response.data;
   } catch (error) {
-    console.error("Gagal menambahkan kota:", error);
-    throw error; // Bisa ditangani di bagian pemanggilan
+    console.error("Gagal menambahkan paket la:", error);
+    throw error;
   }
 };
 
-export const deleteKostumerPaketLA = async (id : number) => {
+export const deletePaketLA = async (id : number) => {
   try {
-    const response = await api.post(`/daftar_kostumer_paket_la/delete`,{ id : id}); // Kirim data ke backend
-    return response.data; // Kembalikan data hasil request
+    const response = await api.post(`/daftar_paket_la/delete`,{ id : id});
+    return response.data;
   } catch (error) {
-    console.error("Gagal menambahkan kota:", error);
-    throw error; // Bisa ditangani di bagian pemanggilan
+    console.error("Gagal menambahkan paket la:", error);
+    throw error;
   }
 };
-// deleteKostumerPaketLA

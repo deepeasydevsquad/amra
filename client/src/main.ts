@@ -17,13 +17,13 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // Import ikon yang dibutuhkan
 import { faUser, faHome, faHouseCrack, faCaretRight, faExchange, faBoxOpen, faUsers, faGlobe, faDatabase,
-  faChartArea, faCogs, faBackward, faForward, faBook, faArrowRight, faPlus, faMoneyBill, faPencil, faTimes } from '@fortawesome/free-solid-svg-icons'
+  faChartArea, faCogs, faBackward, faForward, faBook, faArrowRight, faPlus, faMoneyBill, faPencil, faTimes, faBox, faMoneyBillAlt, faUndoAlt, faListAlt } from '@fortawesome/free-solid-svg-icons'
 import { faCircle } from '@fortawesome/free-regular-svg-icons'
 
 
 // Tambahkan ikon ke library
 library.add( faUser, faHome, faHouseCrack, faCaretRight, faCircle, faExchange, faBoxOpen, faUsers, faGlobe, faDatabase,
-  faChartArea, faCogs, faBackward, faForward, faBook, faArrowRight, faPlus, faMoneyBill, faPencil, faTimes);
+  faChartArea, faCogs, faBackward, faForward, faBook, faArrowRight, faPlus, faMoneyBill, faPencil, faTimes, faBox, faMoneyBillAlt, faUndoAlt, faListAlt);
 
 const app = createApp(App)
 const head = createHead();

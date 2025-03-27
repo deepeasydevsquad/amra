@@ -201,8 +201,8 @@ const closeUpdateForm = () => {
               <th class="px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
             </tr>
           </thead>
-          <tbody v-if="paginatedMembers.length">
-            <tr v-for="member in paginatedMembers" :key="member.id">
+          <tbody v-if="paginatedMembers.length" class="divide-y divide-gray-100 border-t border-gray-100">
+            <tr v-for="member in paginatedMembers" :key="member.id" class="bg-gray-100">
               <td class="px-6 py-4 text-center">{{ member.fullname }}</td>
               <td class="px-6 py-4 text-center">{{ member.identity_number }}</td>
               <td class="px-6 py-4 text-center">
@@ -223,7 +223,7 @@ const closeUpdateForm = () => {
               </td>
             </tr>
           </tbody>
-          <tbody v-else>
+          <tbody v-else class="divide-y divide-gray-100 border-t border-gray-100">
             <tr>
               <td :colspan="totalColumns" class="px-6 py-4 text-center text-gray-500">
                 Daftar Member Tidak di Temukan {{ totalColumns }}
