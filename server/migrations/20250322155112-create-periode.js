@@ -2,37 +2,22 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Detail_fasilitas_paket_las', {
+    await queryInterface.createTable('Periodes', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      fasilitas_paket_la_id: {
+      company_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Fasilitas_paket_las",
+          model: "Companies",
           key: "id",
         },
       },
-      description: {
-        type: Sequelize.TEXT
-      },
-      check_in: {
-        type: Sequelize.DATE
-      },
-      check_out: {
-        type: Sequelize.DATE
-      },
-      day: {
-        type: Sequelize.INTEGER
-      },
-      pax: {
-        type: Sequelize.INTEGER
-      },
-      price: {
-        type: Sequelize.INTEGER
+      name: {
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
@@ -45,6 +30,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Detail_fasilitas_paket_las');
+    await queryInterface.dropTable('Periodes');
   }
 };

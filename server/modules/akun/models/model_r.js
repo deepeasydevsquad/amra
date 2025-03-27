@@ -1,9 +1,6 @@
-const {Op, Akun_primary, Akun_secondary, Division, Saldo_akun } = require("../../../models");
+const {Op, Akun_primary, Akun_secondary, Division, Saldo_akun, Jurnal } = require("../../../models");
 const{ getCompanyIdByCode, tipe, getCabang } = require("../../../helper/companyHelper");
-const{ dbList } = require("../../../helper/dbHelper");
 const{ convertToRP } = require("../../../helper/currencyHelper");
-const akun_primary = require("../../../models/akun_primary");
-const saldo_akun = require("../../../models/saldo_akun");
 
 class Model_r {
   constructor(req) {
@@ -17,6 +14,95 @@ class Model_r {
     this.company_id = await getCompanyIdByCode(this.req);
     this.type = await tipe(this.req);
     this.cabang_id = await getCabang(this.req);
+  }
+
+  async get_akun_secondary_id() {
+      var akun_secondary_id = {};
+      await Akun_secondary.findAll({ 
+        where : { 
+          company_id : this.company_id,
+        }
+      }).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+             akun_secondary_id[e.nomor_akun] = e.id; 
+          })
+        );
+      });
+      return akun_secondary_id;
+  }
+
+  async get_saldo_jurnal(division) {
+
+    var akun_primary = {};
+    await Akun_primary.findAll().then(async (value) => {
+      await Promise.all(
+        await value.map(async (e) => {
+          akun_primary[e.id] = { sn: e.sn, pos : e.pos };
+        })
+      );
+    });
+
+    var saldo_jurnal = {};
+    
+    await Jurnal.findAll({ where : { division_id : division, periode_id : 0 }}).then(async (value) => {
+      await Promise.all(
+        await value.map(async (e) => {
+          // info akun
+          var infAkunDebet =  akun_primary[e.akun_debet.toString().charAt(0)];
+          var infAkunKredit =  akun_primary[e.akun_kredit.toString().charAt(0)];
+
+          if( infAkunDebet.sn == 'D') {
+              if( saldo_jurnal[e.akun_debet] === undefined ) {
+                saldo_jurnal = {...saldo_jurnal,...{[e.akun_debet] : (e.saldo + 0)}}
+              }else{
+                saldo_jurnal[e.akun_debet] = saldo_jurnal[e.akun_debet] + e.saldo;
+              }
+          }else if ( infAkunDebet.sn == 'K' ) {
+              if( saldo_jurnal[e.akun_debet] === undefined ) {
+                saldo_jurnal = {...saldo_jurnal,...{[e.akun_debet] : ( 0 - e.saldo )}}
+              }else{
+                saldo_jurnal[e.akun_debet] = saldo_jurnal[e.akun_debet] - e.saldo;
+              }
+          }
+
+          if( infAkunKredit.sn == 'D') {
+              if( saldo_jurnal[e.akun_kredit] === undefined ) {
+                saldo_jurnal = {...saldo_jurnal,...{[e.akun_kredit] : (0 - e.saldo)}}
+              }else{
+                saldo_jurnal[e.akun_kredit] = saldo_jurnal[e.akun_kredit] - e.saldo;
+              }
+          }else if ( infAkunKredit.sn == 'K' ) {
+              if( saldo_jurnal[e.akun_kredit] === undefined ) {
+                saldo_jurnal = {...saldo_jurnal,...{[e.akun_debet] : ( e.saldo + 0 )}}
+              }else{
+                saldo_jurnal[e.akun_kredit] = saldo_jurnal[e.akun_kredit] + e.saldo;
+              }
+          }
+        })
+      );
+    });
+
+
+    console.log("*********************");
+    console.log(saldo_jurnal);
+    console.log("*********************");
+
+    var akun_secondary_id = await this.get_akun_secondary_id();
+
+    var list_saldo_jurnal = {};
+    var total_akun_primary = {};
+    for( let x in saldo_jurnal ) {
+      list_saldo_jurnal[akun_secondary_id[x]] = saldo_jurnal[x];
+      var primary_id = x.toString().charAt(0);
+      if(total_akun_primary[primary_id] === undefined ) {
+        total_akun_primary = {...total_akun_primary,...{ [primary_id] : saldo_jurnal[x] } };
+      }else{
+        total_akun_primary[primary_id] = total_akun_primary[primary_id] + saldo_jurnal[x];
+      }
+    }
+
+    return { saldo_jurnal : list_saldo_jurnal , total_akun_primary };
   }
 
   async filter_akun() {
@@ -56,14 +142,9 @@ class Model_r {
     
       return { akun, cabang };
     } catch (error) {
-
-      console.log("~~~~~~~~~~");
-      console.log(error);
-      console.log("~~~~~~~~~~");
       return {}
     }
   }
-
 
   async get_seluruh_cabang_id ( company_id ) {
     var list_division_id = [];
@@ -76,7 +157,6 @@ class Model_r {
     });
     return list_division_id;
   }
-
 
   async get_daftar_akun() {
     // initialize dependensi properties
@@ -93,7 +173,6 @@ class Model_r {
         where_akun_primary = {...where_akun_primary,...{ id : body.akun } };
       }
 
-      var where = {};
       var devision_id = [];
       // get saldo akun
       if( this.type === 'administrator' && cabang == '0'  ) {
@@ -101,6 +180,15 @@ class Model_r {
       }else{
         devision_id.push(cabang);
       }
+
+      
+      var saldo_jurnal = await this.get_saldo_jurnal(devision_id);
+
+
+      console.log("__________________DDD");
+      console.log(saldo_jurnal);
+      console.log("__________________DDD");
+
 
       var saldo_akun_primary = {};
       var saldo_akun_secondary = {};
@@ -128,10 +216,6 @@ class Model_r {
         );
       });
 
-      console.log("-___________Akun Primary________________-");
-      console.log(saldo_akun_primary);
-      console.log("-___________Akun Primary________________-");
-
       var draf = {};
       await Akun_secondary.findAll({ 
         where : { company_id : this.company_id},
@@ -144,27 +228,40 @@ class Model_r {
         await Promise.all(
           await value.map(async (e) => {
             if( draf[e.Akun_primary.nomor_akun] === undefined ) {
+              var saldo_jurnal_primary = saldo_jurnal.total_akun_primary[e.Akun_primary.id] === undefined ? 0 : saldo_jurnal.total_akun_primary[e.Akun_primary.id];
+              var saldo_awal_primary = saldo_akun_primary[e.Akun_primary.id] === undefined ? 0 : saldo_akun_primary[e.Akun_primary.id];
+              var saldo_akhir_primary = saldo_jurnal_primary + saldo_awal_primary;
               draf[e.Akun_primary.nomor_akun] = { 
                 id: e.Akun_primary.id, 
+                primary_id : e.Akun_primary.id, 
                 type: 'header', 
                 nomor: e.Akun_primary.nomor_akun, 
                 name:e.Akun_primary.nama_akun, 
                 tipe_akun : 'bawaan',
-                saldo_awal : saldo_akun_primary[e.Akun_primary.id] === undefined ? 'Rp 0' : await convertToRP(saldo_akun_primary[e.Akun_primary.id]), 
-                saldo_akhir : 'Rp 0'
+                saldo_awal : await convertToRP(saldo_awal_primary), 
+                saldo_akhir : await convertToRP(saldo_akhir_primary),
               }
             }
 
+            var saldo_jurnal_secondary = saldo_jurnal.saldo_jurnal[e.id] === undefined ? 0 : saldo_jurnal.saldo_jurnal[e.id];
+            var saldo_awal_secondary = saldo_akun_secondary[e.id] === undefined ? 0 : saldo_akun_secondary[e.id];
+            var saldo_akhir_secondary = saldo_jurnal_secondary + saldo_awal_secondary;
+
+            console.log("+++++++++++AAA+++++++++++++");
+            console.log(saldo_jurnal_secondary);
+            console.log(saldo_awal_secondary);
+            console.log(saldo_akhir_secondary);
+            console.log("+++++++++++AAA+++++++++++++");
             draf[e.nomor_akun] = { 
               id: e.id, 
+              primary_id : e.Akun_primary.id, 
               type: 'child', 
               nomor: e.nomor_akun, 
               name:e.nama_akun,
-              tipe_akun : e.tipe_akun,
-              saldo_awal : saldo_akun_secondary[e.id] === undefined ? "Rp 0" : await convertToRP(saldo_akun_secondary[e.id]), 
-              saldo_akhir : "Rp 0"
+              tipe_akun: e.tipe_akun,
+              saldo_awal: await convertToRP(saldo_awal_secondary), 
+              saldo_akhir: await convertToRP(saldo_akhir_secondary)
             }
-            
           })
         );
       });
@@ -174,110 +271,16 @@ class Model_r {
         data.push(draf[x]);
       }
 
-
-
-
-
-
-
-
-
-
-      return {
-        data,
-      };
+      return { data };
 
     } catch (error) {
 
-      console.log("+++++++++++++++++");
+      console.log("-----------");
       console.log(error);
-      console.log("+++++++++++++++++");
+      console.log("-----------");
       return {};
     }
-
-
-
-
   }
-
-  // async daftar_kota() {
-  //   // initialize dependensi properties
-  //   await this.initialize();
-
-  //   const body = this.req.body;
-  //   var limit = body.perpage;
-  //   var page = 1;
-
-  //   if (body.pageNumber != undefined && body.pageNumber !== '0' ) page = body.pageNumber;
-
-  //   var where = { company_id : this.company_id };
-        
-  //   if (body.search != undefined && body.search != "") {
-  //     where = {...where,...{ 
-  //       [Op.or]: [{ name : { [Op.like]: "%" + body.search + "%" } }, { kode : { [Op.like]: "%" + body.search + "%" } }]
-  //     }};
-  //   }
-
-  //   var sql = {};
-  //   sql["limit"] = limit * 1;
-  //   sql["offset"] = (page - 1) * limit;
-  //   sql["order"] = [["id", "ASC"]];
-  //   sql["attributes"] = [
-  //     "id",
-  //     "kode",
-  //     "name",
-  //     "updatedAt",
-  //   ];
-  //   sql["where"] = where;
-
-  //   try {
-
-  //     const query = await dbList(sql);
-  //     const q = await Mst_kota.findAndCountAll(query.total);
-  //     const total = await q.count;
-  //     var data = [];
-  //     if (total > 0) {
-  //       await Mst_kota.findAll(query.sql).then(async (value) => {
-  //         await Promise.all(
-  //           await value.map(async (e) => {
-  //             data.push({ 
-  //               id : e.id, 
-  //               kode : e.kode,
-  //               name : e.name
-  //             });
-  //           })
-  //         );
-  //       });
-  //     }
-
-  //     return {
-  //       data: data,
-  //       total: total,
-  //     };
-
-  //   } catch (error) {
-  //     return {};
-  //   }
-  // }
-
-  // async infoKota(id, company_id) {
-  //   try {
-  //     var data = {};
-  //     await Mst_kota.findOne({
-  //         where: { id: id },
-  //     }).then(async (e) => {
-  //         if (e) {
-  //             data["id"] = e.id;
-  //             data["kode"] = e.kode;
-  //             data["name"] = e.name;
-  //         }
-  //     });
-     
-  //     return data
-  //   } catch (error) {
-  //     return {}      
-  //   }
-  // } 
 }
 
 module.exports = Model_r;

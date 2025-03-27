@@ -2,36 +2,39 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Detail_fasilitas_paket_las', {
+    await queryInterface.createTable('Jurnals', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      fasilitas_paket_la_id: {
+      division_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Fasilitas_paket_las",
+          model: "Divisions",
           key: "id",
         },
       },
-      description: {
+      source: {
         type: Sequelize.TEXT
       },
-      check_in: {
-        type: Sequelize.DATE
+      ref: {
+        type: Sequelize.TEXT
       },
-      check_out: {
-        type: Sequelize.DATE
+      ket: {
+        type: Sequelize.TEXT
       },
-      day: {
+      akun_debet: {
         type: Sequelize.INTEGER
       },
-      pax: {
+      akun_kredit: {
         type: Sequelize.INTEGER
       },
-      price: {
+      saldo: {
+        type: Sequelize.INTEGER
+      },
+      periode_id: {
         type: Sequelize.INTEGER
       },
       createdAt: {
@@ -45,6 +48,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Detail_fasilitas_paket_las');
+    await queryInterface.dropTable('Jurnals');
   }
 };
