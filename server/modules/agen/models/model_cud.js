@@ -93,6 +93,7 @@ class Model_cud {
   async update() {
     await this.initialize();
     const body = this.req.body; // Ambil semua data dari body
+    console.log("Data dari front end:", body);
 
     try {
       // Validasi ID dari body

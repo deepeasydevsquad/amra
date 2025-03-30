@@ -99,15 +99,19 @@ const handleSubmit = async () => {
     return
   }
 
-  try {
-    const response = await editAgen({
-      id: idLevel.value,
-      nama: namaLevel.value.trim(),
-      level: Number(level.value),
-      default_fee: defaultFee.value,
-    })
+  const payload = {
+    id: Number(idLevel.value),
+    nama: namaLevel.value.trim(),
+    level: Number(level.value),
+    default_fee: defaultFee.value,
+  }
 
-    console.log('Response:', response.data)
+  console.log('Payload yang dikirim:', payload) // Log sebelum request
+
+  try {
+    const response = await editAgen(payload)
+
+    console.log('Response:', response) // Log response dari backend
     emit('level-updated')
     closeModal()
   } catch (error) {
