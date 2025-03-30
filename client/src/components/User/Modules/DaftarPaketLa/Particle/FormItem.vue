@@ -15,10 +15,6 @@ export default {
       type: Boolean,
       required: true
     },
-    fasilitaspaketla: {
-      type: Array,
-      required: true
-    },
     registerNumber: {
       type: String,
       required: true
