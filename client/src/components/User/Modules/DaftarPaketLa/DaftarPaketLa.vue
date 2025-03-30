@@ -10,12 +10,15 @@ import EditButton from "./Particle/EditButton.vue"
 import LightButton from "./Particle/LightButton.vue"
 import Notification from "./Particle/Notification.vue"
 import Confirmation from "./Particle/Confirmation.vue"
+import FormItem from "./Particle/FormItem.vue"
 import Form from "./Particle/Form.vue"
 
 // import api from "@/services/api"; // Import service API
 import { daftarPaketLA, addPaketLA, editPaketLA, deletePaketLA } from "../../../../service/daftar_paket_la"
+import { daftarFasilitasPaketLA, deleteFasilitasPaketLA } from "../../../../service/fasilitas_paket_la"
 import { ref, onMounted, computed, watchEffect } from 'vue';
 import axios from 'axios';
+import { register } from "module"
 
 const itemsPerPage = 100; // Jumlah paket_la per halaman
 const currentPage = ref(1);
@@ -72,11 +75,14 @@ interface Errors {
   arrival_date: string;
 }
 
+const registerNumber = ref<string>(''); // Register number untuk form item
+const fasilitaspaketla = ref<any[]>([]); // Array untuk menyimpan data fasilitas
 const timeoutId = ref<number | null>(null);
 const dataPaketLA = ref<PaketLA[]>([]);
 const isModalOpen = ref<boolean>(false);
-const showNotification = ref<boolean>(false);
+const isFormItemOpen = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
+const showNotification = ref<boolean>(false);
 const notificationMessage = ref<string>('');
 const notificationType = ref<'success' | 'error'>('success');
 const confirmMessage = ref<string>('');
@@ -121,6 +127,19 @@ const fetchData = async () => {
       }
 
       totalPages.value = Math.ceil(response.total / itemsPerPage);
+
+      const fasilitasResponse = await daftarFasilitasPaketLA({
+          search: search.value,
+          perpage: itemsPerPage,
+          pageNumber: currentPage.value,
+      });
+
+      if (fasilitasResponse.error) {
+          displayNotification(fasilitasResponse.error_msg, "error");
+          return;
+      }
+
+      fasilitaspaketla.value = fasilitasResponse.data || []; // Ensure it assigns an array
       dataPaketLA.value = response.data || []; // Ensure it assigns an array
   } catch (error) {
       console.error('Error fetching data:', error);
@@ -134,6 +153,13 @@ const openModal = (paket_la?: PaketLA) => {
     : { client_name: '', client_hp_number: '', client_address: '', discount: 0, total_jamaah: 0, departure_date: '', arrival_date: '' };
 
   isModalOpen.value = true;
+};
+
+const openFormItem = (regNum: string) => {
+  console.log("Sebelum update:", registerNumber.value);
+  registerNumber.value = regNum;
+  console.log("Setelah update:", registerNumber.value);
+  isFormItemOpen.value = true;
 };
 
 onMounted(async () => {
@@ -232,7 +258,6 @@ const saveData = async () => {
     : action();
 };
 
-
 const deleteData = async (id: number) => {
   showConfirmation(
     'Konfirmasi Hapus',
@@ -250,6 +275,38 @@ const deleteData = async (id: number) => {
     }
   );
 };
+
+const deleteItem = async (id: number, invoice: string, register_number: string) => {
+  showConfirmation(
+    'Konfirmasi Hapus',
+    `Apakah Anda yakin ingin menghapus item?`,
+    async () => {
+      try {
+        const response = await deleteFasilitasPaketLA(id = id, invoice = invoice, register_number = register_number);
+        showConfirmDialog.value = false;
+        displayNotification('Item berhasil dihapus.');
+        fetchData();
+      } catch (error) {
+        console.error('Error deleting item:', error);
+        displayNotification('Terjadi kesalahan saat menghapus item.', 'error');
+      }
+    }
+  );
+};
+
+// const cetakInvoice = async (id: number) => {
+//   try {
+//     const response = await axios.get(`/api/cetak-invoice/${id}`, { responseType: 'blob' });
+//     const url = window.URL.createObjectURL(new Blob([response.data]));
+//     const link = document.createElement('a');
+//     link.href = url;
+//     link.setAttribute('download', `invoice_${id}.pdf`);
+//     document.body.appendChild(link);
+//     link.click();
+//   } catch (error) {
+//     console.error('Error printing invoice:', error);
+//   }
+// };
 </script>
 
 <template>
@@ -303,9 +360,9 @@ const deleteData = async (id: number) => {
             </ul>
           </td>
           <td class="p-3 border border-gray-300 align-top">
-            <!-- <div class="mb-4 p-2 bg-white border border-gray-300"> -->
-              <!-- <p><b>INVOICE:</b> Coming Soon</p>
-              <p><b>TOTAL:</b> Coming Soon</p> -->
+            <!-- <div class="mb-4 p-2 bg-white border border-gray-300">
+              <p><b>INVOICE:</b> Coming Soon</p>
+              <p><b>TOTAL:</b> Coming Soon</p>
               <table class="w-full mt-2 border text-center text-xs mb-3">
                 <tbody>
                   <tr>
@@ -325,13 +382,11 @@ const deleteData = async (id: number) => {
                     <td class="w-[1%] px-3 border border-left-0" >:</td>
                     <td class="px-6 border text-left font-bold" colspan="4">RP 12.000.000,-</td>
                   </tr>
-                  <!-- <tr>
+                  <tr>
                     <td class="text-left border border-right-0 align-middle" style="width:15%;background-color: #e7e7e7;">TOTAL</td>
                     <td class="border border-left-0 border-right-0 border-top-1 px-2 align-middle" style="width:1%;">:</td>
                     <td colspan="4" class="border text-left border-left-0 border-top-1 px-0 align-middle" style="width:34%;">Rp 4,000,000</td>
-                  </tr> -->
-                  <!-- <tr>
-                  </tr> -->
+                  </tr>
                 </tbody>
               </table>
               <table class="w-full mt-2 border text-center text-xs">
@@ -362,15 +417,34 @@ const deleteData = async (id: number) => {
                   </tr>
                 </tbody>
               </table>
-              <!-- <button class="mt-2 px-3 py-1 bg-gray-300 rounded flex items-center gap-2 font-medium hover:bg-gray-400 transition ease-in-out">
+              <button class="mt-2 px-3 py-1 bg-gray-300 rounded flex items-center gap-2 font-medium hover:bg-gray-400 transition ease-in-out">
                 <CetakIcon />
                 Cetak Invoice
-              </button> -->
-            <!-- </div> -->
-            <!-- <div v-for="invoice in paket.invoices" :key="invoice.id" class="mb-4 p-2 bg-white border border-gray-300">
-              <p><b>INVOICE:</b> {{ invoice.invoice_number }}</p>
-              <p><b>TOTAL:</b> Rp {{ invoice.total.toLocaleString() }}</p>
-              <table class="w-full mt-2 border">
+              </button>
+            </div> -->
+            <div v-for="invoice in fasilitaspaketla.filter((inv) => inv.paket_la_id === paket.id)" :key="invoice.id" class="mb-4 p-2 bg-white border border-gray-300">
+              <table class="w-full mt-2 border text-center text-xs mb-3">
+                <tbody>
+                  <tr>
+                    <td class="w-[19%] px-6 text-center border font-bold bg-gray-200">INVOICE</td>
+                    <td class="w-[1%] px-3 border border-left-0">:</td>
+                    <td class="w-[25%] px-6 border text-left font-bold">{{ invoice.invoice }}</td>
+                    <td class="w-[20%] px-6 text-center border font-bold bg-gray-200">PRINT BTN</td>
+                    <td class="w-[1%] px-3 border">:</td>
+                    <td class="w-[34%] px-6 border text-left" style="text-transform:uppercase;">
+                      <button type="button" class="h-[35px] mx-[0.1rem] px-4 my-1 py-1 flex justify-center items-center rounded-lg text-gray-900 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" @click="cetakInvoice(invoice.id)">
+                        <i class="fas fa-print" style="font-size: 11px;"></i> Cetak Invoice
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="w-[19%] px-6 py-5 text-center border font-bold" style="background-color: #e7e7e7;">TOTAL</td>
+                    <td class="w-[1%] px-3 border border-left-0">:</td>
+                    <td class="px-6 border text-left font-bold" colspan="4">Rp {{ invoice.total.toLocaleString() }},-</td>
+                  </tr>
+                </tbody>
+              </table>
+              <table class="w-full mt-2 border text-center text-xs">
                 <thead>
                   <tr class="bg-gray-200">
                     <th class="p-2 border">Deskripsi</th>
@@ -383,21 +457,22 @@ const deleteData = async (id: number) => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in invoice.items" :key="item.id" class="text-center">
+                  <tr v-for="item in invoice.detail_fasilitas" :key="item.id" class="text-center">
                     <td class="p-2 border">{{ item.description }}</td>
-                    <td class="p-2 border">{{ item.checkin }}</td>
-                    <td class="p-2 border">{{ item.checkout }}</td>
+                    <td class="p-2 border">{{ item.check_in }}</td>
+                    <td class="p-2 border">{{ item.check_out }}</td>
                     <td class="p-2 border">{{ item.day }}</td>
                     <td class="p-2 border">{{ item.pax }}</td>
                     <td class="p-2 border">Rp {{ item.price.toLocaleString() }}</td>
                     <td class="p-2 border">
-                      <button @click="deleteItem(item.id)" class="px-3 py-1 bg-red-500 text-white rounded">X</button>
+                      <button @click="deleteItem(item.id, invoice.invoice, paket.register_number)" class="px-1.5 py-1.5 bg-red-500 text-white font-bold rounded hover:bg-red-600">
+                        <DeleteIcon />
+                      </button>
                     </td>
                   </tr>
                 </tbody>
               </table>
-              <button class="mt-2 px-3 py-1 bg-gray-300 rounded">🖨 Cetak Invoice</button>
-            </div> -->
+            </div>
           </td>
           <td class="p-3 border border-gray-300 align-top">
             <p><b>Total Harga:</b> Coming Soon</p>
@@ -407,7 +482,7 @@ const deleteData = async (id: number) => {
           </td>
           <td class="p-3 border border-gray-300 align-top">
             <div class="grid grid-cols-3 gap-2 justify-between">
-              <LightButton>
+              <LightButton  @click="openFormItem(paket.register_number)">
                 <font-awesome-icon icon="fa-solid fa-box" />
               </LightButton>
               <LightButton>
@@ -500,6 +575,25 @@ const deleteData = async (id: number) => {
       @close="isModalOpen = false"
     />
   </transition>
+
+  <!-- FormItem Overlay -->
+  <Transition
+    enter-active-class="transition-opacity duration-200 ease-out"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
+    leave-active-class="transition-opacity duration-200 ease-in"
+    leave-from-class="opacity-100"
+    leave-to-class="opacity-0"
+  >
+    <FormItem
+      v-if="isFormItemOpen"
+      :isFormItemOpen="isFormItemOpen"
+      :fasilitaspaketla="fasilitaspaketla"
+      :registerNumber="registerNumber"
+      @close="isFormItemOpen = false"
+      @refresh="fetchData"
+    />
+  </Transition>
 
   <!-- Confirmation Dialog -->
   <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
