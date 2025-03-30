@@ -90,7 +90,7 @@ router.post(
 
 router.post(
   "/fasilitas_paket_la/delete",
-  // authenticateToken,
+  authenticateToken,
   [
     body("itemId")
       .trim()
