@@ -20,9 +20,9 @@ export const addFasilitasPaketLA = async (param : any) => {
   }
 };
 
-export const deleteFasilitasPaketLA = async (itemId : number, invoice : string, register_number : string ) => {
+export const deleteFasilitasPaketLA = async (itemId : number, fasilitaspaketlaId: number) => {
   try {
-    const response = await api.post(`/fasilitas_paket_la/delete`,{itemId : itemId, invoice : invoice, register_number : register_number}); // Kirim data ke backend
+    const response = await api.post(`/fasilitas_paket_la/delete`,{itemId, fasilitaspaketlaId}); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request
   } catch (error) {
     console.error("Gagal menghapus fasilitas paket la:", error);

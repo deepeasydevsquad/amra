@@ -9,14 +9,14 @@ const notificationMessage = ref<string>('');
 const notificationType = ref<'success' | 'error'>('success');
 
 export default {
-  components: { Notification },
+  components: { Notification, DeleteIconX },
   props: {
     isFormItemOpen: {
       type: Boolean,
       required: true
     },
-    registerNumber: {
-      type: String,
+    paketlaId: {
+      type: Number,
       required: true
     }
   },
@@ -76,7 +76,7 @@ export default {
 
       try {
         await addFasilitasPaketLA({
-          register_number: props.registerNumber,
+          paketlaId: props.paketlaId,
           items: items.value.map(item => ({
             description: item.deskripsi,
             check_in: item.checkIn,
@@ -90,14 +90,13 @@ export default {
         displayNotification('Data berhasil disimpan', 'success');
         setTimeout(() => {
           emit('close');
-          emit('refresh');
         }, 3000);
       } catch (error) {
         displayNotification(error.response?.data?.error_msg || 'Terjadi kesalahan saat menyimpan data.', 'error');
       }
     };
 
-    return { items, errors, addItem, removeItem, saveData, showNotification, notificationMessage, notificationType };
+    return { items, errors, addItem, removeItem, saveData, showNotification, notificationMessage, notificationType, timeoutId, displayNotification, DeleteIconX };
   }
 };
 </script>

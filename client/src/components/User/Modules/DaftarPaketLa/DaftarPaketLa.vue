@@ -74,7 +74,7 @@ interface Errors {
   arrival_date: string;
 }
 
-const registerNumber = ref<string>(''); // Register number untuk form item
+const paketlaId = ref<number | null>(null); // Id number untuk form item
 const fasilitaspaketla = ref<any[]>([]); // Array untuk menyimpan data fasilitas
 const timeoutId = ref<number | null>(null);
 const dataPaketLA = ref<PaketLA[]>([]);
@@ -114,32 +114,32 @@ const errors = ref<Errors>({
 
 const fetchData = async () => {
   try {
-      const response = await daftarPaketLA({
-          search: search.value,
-          perpage: itemsPerPage,
-          pageNumber: currentPage.value,
-      });
+    const response = await daftarPaketLA({
+        search: search.value,
+        perpage: itemsPerPage,
+        pageNumber: currentPage.value,
+    });
 
-      if (response.error) {
-          displayNotification(response.error_msg, "error");
-          return;
-      }
+    if (response.error) {
+        displayNotification(response.error_msg, "error");
+        return;
+    }
 
-      totalPages.value = Math.ceil(response.total / itemsPerPage);
+    totalPages.value = Math.ceil(response.total / itemsPerPage);
 
-      const fasilitasResponse = await daftarFasilitasPaketLA({
-          search: search.value,
-          perpage: itemsPerPage,
-          pageNumber: currentPage.value,
-      });
+    const fasilitasResponse = await daftarFasilitasPaketLA({
+        search: search.value,
+        perpage: itemsPerPage,
+        pageNumber: currentPage.value,
+    });
 
-      if (fasilitasResponse.error) {
-          displayNotification(fasilitasResponse.error_msg, "error");
-          return;
-      }
+    if (fasilitasResponse.error) {
+        displayNotification(fasilitasResponse.error_msg, "error");
+        return;
+    }
 
-      fasilitaspaketla.value = fasilitasResponse.data || []; // Ensure it assigns an array
-      dataPaketLA.value = response.data || []; // Ensure it assigns an array
+    fasilitaspaketla.value = fasilitasResponse.data || []; // Ensure it assigns an array
+    dataPaketLA.value = response.data || []; // Ensure it assigns an array
   } catch (error) {
       console.error('Error fetching data:', error);
       displayNotification('Gagal mengambil data.', 'error');
@@ -154,10 +154,8 @@ const openModal = (paket_la?: PaketLA) => {
   isModalOpen.value = true;
 };
 
-const openFormItem = (regNum: string) => {
-  console.log("Sebelum update:", registerNumber.value);
-  registerNumber.value = regNum;
-  console.log("Setelah update:", registerNumber.value);
+const openFormItem = (id: number) => {
+  paketlaId.value = id;
   isFormItemOpen.value = true;
 };
 
@@ -204,6 +202,7 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
     showNotification.value = false;
   }, 3000);
 };
+
 
 const showConfirmation = (title: string, message: string, action: () => void) => {
   confirmTitle.value = title;
@@ -275,15 +274,19 @@ const deleteData = async (id: number) => {
   );
 };
 
-const deleteItem = async (id: number, invoice: string, register_number: string) => {
+const deleteItem = async (id: number, fasilitaspaketlaId: number) => {
   showConfirmation(
     'Konfirmasi Hapus',
     `Apakah Anda yakin ingin menghapus item?`,
     async () => {
       try {
-        const response = await deleteFasilitasPaketLA(id = id, invoice = invoice, register_number = register_number);
+        const response = await deleteFasilitasPaketLA(id, fasilitaspaketlaId);
+        if (response.error) {
+          displayNotification(response.error_msg, 'error');
+          return;
+        }
         showConfirmDialog.value = false;
-        displayNotification('Item berhasil dihapus.');
+        displayNotification('Item berhasil dihapus', 'success');
         fetchData();
       } catch (error) {
         console.error('Error deleting item:', error);
@@ -402,7 +405,7 @@ const deleteItem = async (id: number, invoice: string, register_number: string) 
                     <td class="p-2 border">{{ item.pax }}</td>
                     <td class="p-2 border">Rp {{ item.price.toLocaleString() }}</td>
                     <td class="p-2 border">
-                      <button @click="deleteItem(item.id, invoice.invoice, paket.register_number)" class="px-1.5 py-1.5 bg-red-500 text-white font-bold rounded hover:bg-red-600">
+                      <button @click="deleteItem(item.id, invoice.id)" class="px-1.5 py-1.5 bg-red-500 text-white font-bold rounded hover:bg-red-600">
                         <DeleteIcon />
                       </button>
                     </td>
@@ -419,7 +422,7 @@ const deleteItem = async (id: number, invoice: string, register_number: string) 
           </td>
           <td class="p-3 border border-gray-300 align-top">
             <div class="grid grid-cols-3 gap-2 justify-between">
-              <LightButton  @click="openFormItem(paket.register_number)">
+              <LightButton  @click="openFormItem(paket.id)">
                 <font-awesome-icon icon="fa-solid fa-box" />
               </LightButton>
               <LightButton>
@@ -525,9 +528,8 @@ const deleteItem = async (id: number, invoice: string, register_number: string) 
     <FormItem
       v-if="isFormItemOpen"
       :isFormItemOpen="isFormItemOpen"
-      :registerNumber="registerNumber"
-      @close="isFormItemOpen = false"
-      @refresh="fetchData"
+      :paketlaId="paketlaId"
+      @close="isFormItemOpen = false; fetchData()"
     />
   </Transition>
 

@@ -13,7 +13,6 @@ class Model_cud {
   }
 
   async initialize() {
-    this.paket_la_id = await getIdbyPaketLa(this.req);
     // initialize transaction
     this.t = await sequelize.transaction();
     this.state = true;
@@ -37,7 +36,6 @@ class Model_cud {
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const invoice = await this.generateInvoiceNumber();
-    const paket_la_id = await getIdbyPaketLa(this.req);
     const body = this.req.body;
     
     try {
@@ -45,7 +43,7 @@ class Model_cud {
         
         const fasilitas = await Fasilitas_paket_la.create(
           {
-              paket_la_id: paket_la_id,
+              paket_la_id: body.paketlaId,
               invoice: invoice,
               total: 0,
               createdAt: myDate,
@@ -157,51 +155,51 @@ class Model_cud {
 
   async delete() {
     await this.initialize();
-    this.fasilitas_paket_la_id = await getIdbyFasilitasPaketLa(this.req);
     const body = this.req.body;
 
     try {
-        const model_r = new Model_r(this.req);
-        const infoFasilitasPaketLA = await model_r.infoFasilitasPaketLA(body.id, this.paket_la_id);
-        const deleted = await Detail_fasilitas_paket_la.destroy({
-            where: {
-                id: body.itemId,
-                fasilitas_paket_la_id: this.fasilitas_paket_la_id,
-            },
-            transaction: this.t,
-        });
-
-        if (!deleted) {
-            throw new Error(`Item dengan ID ${body.itemId} tidak ditemukan atau sudah dihapus.`);
-        }
-
-        // Cek apakah masih ada item tersisa
-        const remainingItems = await Detail_fasilitas_paket_la.count({
-            where: { fasilitas_paket_la_id: this.fasilitas_paket_la_id },
-            transaction: this.t,
-        }); 
-
-        // Hitung total harga dari detail fasilitas paket
-        const totalPrice = (await Detail_fasilitas_paket_la.sum("price", {
-          where: { fasilitas_paket_la_id: this.fasilitas_paket_la_id },
+      const model_r = new Model_r(this.req);
+      // get info fasilitas paket la
+      const infoFasilitasPaketLA = await model_r.infoFasilitasPaketLA(body.fasilitaspaketlaId);
+      const deleted = await Detail_fasilitas_paket_la.destroy({
+          where: {
+            id: body.itemId,
+          },
           transaction: this.t,
-        })) || 0;
+      });
 
-        // Update total harga fasilitas paket
-        await Fasilitas_paket_la.update(
-            { total: totalPrice },
-            { where: { id: this.fasilitas_paket_la_id }, transaction: this.t }
-        );
+      if (!deleted) {
+        throw new Error(`Item dengan ID ${body.itemId} tidak ditemukan atau sudah dihapus.`);
+      }
 
-        if (remainingItems === 0) {
-            await Fasilitas_paket_la.destroy({
-                where: { id: this.fasilitas_paket_la_id, paket_la_id: this.paket_la_id },
-                transaction: this.t,
-            });
-            this.message = `Menghapus seluruh fasilitas paket LA dengan Nomor Invoice: ${body.invoice}, ID Fasilitas Paket LA: ${this.fasilitas_paket_la_id}, dan ID paket la: ${this.paket_la_id}.`;
-        } else {
-            this.message = `Menghapus item fasilitas paket LA dengan Nomor Invoice: ${body.invoice}, ID Fasilitas Paket LA: ${this.fasilitas_paket_la_id}, dan ID: ${body.itemId}.`;
+      // Cek apakah masih ada item tersisa
+      const remainingItems = await Detail_fasilitas_paket_la.count({
+        where: { fasilitas_paket_la_id: body.fasilitaspaketlaId },
+        transaction: this.t,
+      }); 
+
+      // Jika tidak ada item tersisa, hapus fasilitas paket (Invoice paket la)
+      if (remainingItems === 0) {
+        await Fasilitas_paket_la.destroy({
+          where: { id: body.fasilitaspaketlaId },
+          transaction: this.t 
+        });
+          this.message = `Menghapus seluruh fasilitas paket LA dengan Nomor Invoice: ${infoFasilitasPaketLA.invoice}, ID Fasilitas Paket LA: ${body.fasilitaspaketlaId}, dan ID paket la: ${infoFasilitasPaketLA.paket_la_id}.`;
+      } else {
+          this.message = `Menghapus item fasilitas paket LA dengan Nomor Invoice: ${infoFasilitasPaketLA.invoice}, ID Fasilitas Paket LA: ${body.fasilitaspaketlaId}, dan ID: ${body.itemId}.`;
         }
+
+      // Jika masih ada Item, Hitung total harga dari detail fasilitas paket
+      const totalPrice = (await Detail_fasilitas_paket_la.sum("price", {
+        where: { fasilitas_paket_la_id: body.fasilitaspaketlaId },
+        transaction: this.t,
+      })) || 0;
+
+      // Update total harga fasilitas paket
+      await Fasilitas_paket_la.update(
+        { total: totalPrice },
+        { where: { id: body.fasilitaspaketlaId }, transaction: this.t }
+      );
 
     } catch (error) {
         console.error("Error saat menghapus item fasilitas paket LA:", error);

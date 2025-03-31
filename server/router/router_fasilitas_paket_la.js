@@ -1,5 +1,5 @@
 const express = require("express");
-const { body, param } = require("express-validator");
+const { body } = require("express-validator");
 const controllers = require("../modules/fasilitas_paket_la/controllers/index");
 const { authenticateToken } = require("../middleware/authenticateToken");
 const validation = require("../validation/fasilitas_paket_la");
@@ -21,11 +21,11 @@ router.post(
   "/fasilitas_paket_la",
   authenticateToken,
   [
-    body("register_number")
+    body("paketlaId")
       .trim()
       .notEmpty()
-      .withMessage("Nomor Registrasi Paket LA tidak boleh kosong.")
-      .custom(validation.check_register_number),
+      .withMessage("ID Paket LA tidak boleh kosong."),
+      .custom(validation.check_id_paket_la),
 
     body("items")
       .isArray()
@@ -98,15 +98,11 @@ router.post(
       .isInt().withMessage("ID Item harus berupa angka.")
       .custom(validation.check_id_detail_fasilitas_paket_la),
 
-    body("invoice")
+    body("fasilitaspaketlaId")
       .trim()
-      .notEmpty().withMessage("Invoice tidak boleh kosong.")
-      .custom(validation.check_invoice_fasilitas_paket_la),
-
-    body("register_number")
-      .trim()
-      .notEmpty().withMessage("Nomor Registrasi tidak boleh kosong.")
-      .custom(validation.check_register_number),
+      .notEmpty().withMessage("ID Fasilitas Paket LA tidak boleh kosong.")
+      .isInt().withMessage("ID Fasilitas Paket LA harus berupa angka.")
+      .custom(validation.check_id_fasilitas_paket_la),
   ],
   controllers.delete
 );

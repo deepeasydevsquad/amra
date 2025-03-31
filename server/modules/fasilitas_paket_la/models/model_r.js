@@ -1,6 +1,5 @@
 const { Op, Fasilitas_paket_la, Detail_fasilitas_paket_la } = require("../../../models");
 const { dbList } = require("../../../helper/dbHelper");
-const { getIdbyPaketLa } = require("../../../helper/fasilitaspaketlaHelper");
 const moment = require("moment");
 
 class Model_r {
@@ -10,10 +9,8 @@ class Model_r {
   }
 
   async initialize() {
-    // this.paket_la_id = await getIdbyPaketLa(this.req);
     console.log("==========================");
     console.log(this.req.body);
-    // console.log(this.paket_la_id);
     console.log("==========================");
   }
 
