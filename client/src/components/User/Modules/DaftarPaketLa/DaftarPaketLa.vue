@@ -343,26 +343,26 @@ const deleteItem = async (id: number, fasilitaspaketlaId: number) => {
           <tr class="bg-gray-100">
             <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Register</th>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Klien</th>
-            <th class="w-[45%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Item Transaksi</th>
+            <th class="w-[53%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Item Transaksi</th>
             <th class="w-[17%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Harga</th>
-            <th class="w-[13%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[5%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
       <template v-if="dataPaketLA.length > 0">
-        <tr v-for="paket in dataPaketLA" :key="paket.id" class="bg-gray-100">
-          <td class="p-3 border border-gray-300 align-top text-center">
+        <tr v-for="paket in dataPaketLA" :key="paket.id">
+          <td class="p-3  border-gray-300 align-top text-center">
             {{ paket.register_number }}
           </td>
-          <td class="p-3 border border-gray-300 align-top">
+          <td class="p-3  border-gray-300 align-top">
             <ul>
               <li><b>Nama Klien:</b> {{ paket.client_name }}</li>
               <li><b>Nomor HP:</b> {{ paket.client_hp_number }}</li>
               <li><b>Alamat:</b> {{ paket.client_address }}</li>
             </ul>
           </td>
-          <td class="p-3 border border-gray-300 align-top">
-            <div v-for="invoice in fasilitaspaketla.filter((inv) => inv.paket_la_id === paket.id)" :key="invoice.id" class="mb-4 p-2 bg-white border border-gray-300">
+          <td class="p-3 border-gray-300 align-top">
+            <div v-for="invoice in fasilitaspaketla.filter((inv) => inv.paket_la_id === paket.id)" :key="invoice.id" class="mb-4 p-2 bg-white">
               <table class="w-full mt-2 border text-center text-xs mb-3">
                 <tbody>
                   <tr>
@@ -398,13 +398,13 @@ const deleteItem = async (id: number, fasilitaspaketlaId: number) => {
                 </thead>
                 <tbody>
                   <tr v-for="item in invoice.detail_fasilitas" :key="item.id" class="text-center">
-                    <td class="p-2 border">{{ item.description }}</td>
-                    <td class="p-2 border">{{ item.check_in }}</td>
-                    <td class="p-2 border">{{ item.check_out }}</td>
-                    <td class="p-2 border">{{ item.day }}</td>
-                    <td class="p-2 border">{{ item.pax }}</td>
-                    <td class="p-2 border">Rp {{ item.price.toLocaleString() }}</td>
-                    <td class="p-2 border">
+                    <td class="p-2 ">{{ item.description }}</td>
+                    <td class="p-2 ">{{ item.check_in }}</td>
+                    <td class="p-2 ">{{ item.check_out }}</td>
+                    <td class="p-2 ">{{ item.day }}</td>
+                    <td class="p-2 ">{{ item.pax }}</td>
+                    <td class="p-2 ">Rp {{ item.price.toLocaleString() }}</td>
+                    <td class="p-2 ">
                       <button @click="deleteItem(item.id, invoice.id)" class="px-1.5 py-1.5 bg-red-500 text-white font-bold rounded hover:bg-red-600">
                         <DeleteIcon />
                       </button>
@@ -414,14 +414,14 @@ const deleteItem = async (id: number, fasilitaspaketlaId: number) => {
               </table>
             </div>
           </td>
-          <td class="p-3 border border-gray-300 align-top">
+          <td class="p-3  border-gray-300 align-top">
             <p><b>Total Harga:</b> Coming Soon</p>
             <p><b>Diskon:</b> Coming Soon</p>
             <p><b>Sudah Dibayar:</b> Coming Soon</p>
             <p><b>Sisa:</b> Coming Soon</p>
           </td>
-          <td class="p-3 border border-gray-300 align-top">
-            <div class="grid grid-cols-3 gap-2 justify-between">
+          <td class="p-3  border-gray-300 align-top">
+            <div class="grid ">
               <LightButton  @click="openFormItem(paket.id)">
                 <font-awesome-icon icon="fa-solid fa-box" />
               </LightButton>
