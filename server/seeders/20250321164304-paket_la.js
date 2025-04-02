@@ -7,9 +7,10 @@ module.exports = {
       { 
         division_id : 1, 
         register_number: '1S3A13', 
-        client_name: 'Zamzam',
+        kostumer_paket_la_id: 1, 
+        client_name: 'Zamzam Wisata Islami',
         client_hp_number: '0862712512',
-        client_address: 'Tesas12 12',
+        client_address: 'Medan',
         status: 'active',
         discount: 0, 
         total_price: 0, 

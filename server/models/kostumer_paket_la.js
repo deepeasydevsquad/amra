@@ -14,6 +14,9 @@ module.exports = (sequelize, DataTypes) => {
       Kostumer_paket_la.belongsTo(models.Company, {
         foreignKey: "company_id",
       });
+      Kostumer_paket_la.hasMany(models.Paket_la, {
+        foreignKey: "kostumer_paket_la_id",
+      });
     }
   }
   Kostumer_paket_la.init({
