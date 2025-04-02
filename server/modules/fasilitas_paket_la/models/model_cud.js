@@ -1,6 +1,5 @@
 const { sequelize, Fasilitas_paket_la, Detail_fasilitas_paket_la } = require("../../../models");
 const Model_r = require("../models/model_r");
-const { getIdbyPaketLa, getIdbyFasilitasPaketLa } = require("../../../helper/fasilitaspaketlaHelper");
 const { writeLog } = require("../../../helper/writeLogHelper");
 
 const moment = require("moment");

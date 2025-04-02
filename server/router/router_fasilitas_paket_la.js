@@ -23,8 +23,8 @@ router.post(
   [
     body("paketlaId")
       .trim()
-      .notEmpty()
-      .withMessage("ID Paket LA tidak boleh kosong."),
+      .notEmpty().withMessage("ID Paket LA tidak boleh kosong.")
+      .isInt().withMessage("ID Paket LA harus berupa angka.")
       .custom(validation.check_id_paket_la),
 
     body("items")
