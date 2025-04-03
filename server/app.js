@@ -40,6 +40,7 @@ const arr_router = [
   "daftar_kostumer_paket_la",
   "daftar_paket_la",
   "pengguna",
+  "level_agen",
 ];
 
 // routers
