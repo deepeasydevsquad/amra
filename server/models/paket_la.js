@@ -17,6 +17,9 @@ module.exports = (sequelize, DataTypes) => {
       Paket_la.hasMany(models.Fasilitas_paket_la, {
         foreignKey: "paket_la_id",
       });
+      Paket_la.hasMany(models.Paket_la_transaction, {
+        foreignKey: "paket_la_id",
+      });
     }
   }
   Paket_la.init({
