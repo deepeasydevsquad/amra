@@ -129,6 +129,7 @@ watch(
   (newData) => {
     console.log('levelToUpdate berubah:', newData)
     if (newData) {
+      idLevel.value = newData.id || 0
       namaLevel.value = newData.name || ''
       level.value = newData.level || ''
       defaultFee.value = newData.default_fee || ''
