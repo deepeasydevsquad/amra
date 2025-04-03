@@ -9,13 +9,16 @@ import FormAdd from '@/components/User/Modules/Member/Particle/FormAdd.vue'
 import FormUpdate from '@/components/User/Modules/Member/Particle/FormUpdate.vue'
 import Notification from '@/components/User/Modules/Member/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/Member/Particle/Confirmation.vue'
+import AddAgenButton from './particle/AddAgenButton.vue'
+import AddAgenIcon from './icon/AddAgenIcon.vue'
+import FormAddAgen from './particle/FormAddAgen.vue'
 
 interface Members {
-  id: number;
-  fullname: string;
-  identity_number: string;
-  gender: string;
-  whatsapp_number: string;
+  id: number
+  fullname: string
+  identity_number: string
+  gender: string
+  whatsapp_number: string
 }
 
 // State
@@ -33,6 +36,16 @@ const confirmAction = ref(() => {})
 const showNotification = ref(false)
 const notificationType = ref('')
 const notificationMessage = ref('')
+const AddAgenForm = ref(false)
+
+const addAgen = async (id: number) => {
+  const member = members.value.find((m) => m.id === id)
+  if (member) {
+    selectedMember.value = { ...member }
+    console.log('data yang di kirim ke add Agen Form', selectedMember.value)
+    AddAgenForm.value = true
+  }
+}
 
 // Fetch data
 const fetchMember = async () => {
@@ -106,7 +119,7 @@ const pageNow = (page: number) => {
 
 // Ambil jumlah kolom agar `colspan` dinamis
 const totalColumns = computed(() => {
-  return  5
+  return 5
 })
 
 // Fungsi untuk edit dan delete
@@ -153,132 +166,129 @@ const closeUpdateForm = () => {
 }
 </script>
 <template>
-
-    <div class="container mx-auto p-4">
-      <!-- Tambah data dan Search -->
-      <div class="flex justify-between mb-4" v-if="!showAddForm && !showUpdateForm">
-        <button
-          @click="toggleAddForm"
-          class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#2c3240] transition-colors duration-200 ease-in-out flex items-center gap-2"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-          Tambah Member
-        </button>
-        <div class="flex items-center">
-          <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-          <input
-            type="text"
-            v-model="searchQuery"
-            id="search"
-            class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-            placeholder="Cari data..."
+  <div class="container mx-auto p-4">
+    <!-- Tambah data dan Search -->
+    <div class="flex justify-between mb-4" v-if="!showAddForm && !showUpdateForm">
+      <button
+        @click="toggleAddForm"
+        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#2c3240] transition-colors duration-200 ease-in-out flex items-center gap-2"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
           />
-        </div>
-      </div>
-
-      <!-- Form Add -->
-
-      <!-- Tabel Data -->
-      <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
-        <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-          <thead class="bg-gray-50">
-            <tr class="bg-gray-100">
-              <th class="px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama</th>
-              <th class="px-6 py-4 font-medium font-bold text-gray-900 text-center">
-                Nomor Identitas
-              </th>
-              <th class="px-6 py-4 font-medium font-bold text-gray-900 text-center">
-                Jenis Kelamin
-              </th>
-              <th class="px-6 py-4 font-medium font-bold text-gray-900 text-center">WhatsApp</th>
-              <th class="px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
-            </tr>
-          </thead>
-          <tbody v-if="paginatedMembers.length" class="divide-y divide-gray-100 border-t border-gray-100">
-            <tr v-for="member in paginatedMembers" :key="member.id" class="bg-gray-100">
-              <td class="px-6 py-4 text-center">{{ member.fullname }}</td>
-              <td class="px-6 py-4 text-center">{{ member.identity_number }}</td>
-              <td class="px-6 py-4 text-center">
-                {{
-                  member.gender === 'laki_laki'
-                    ? 'Laki - Laki'
-                    : member.gender === 'perempuan'
-                      ? 'Perempuan'
-                      : '-'
-                }}
-              </td>
-              <td class="px-6 py-4 text-center">{{ member.whatsapp_number }}</td>
-              <td class="px-6 py-4 text-center">
-                <div class="flex justify-center gap-2">
-                  <EditButton @click="editMember(member.id)"><EditIcon /></EditButton>
-                  <DangerButton @click="confirmDelete(member.id)"><DeleteIcon /></DangerButton>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-          <tbody v-else class="divide-y divide-gray-100 border-t border-gray-100">
-            <tr>
-              <td :colspan="totalColumns" class="px-6 py-4 text-center text-gray-500">
-                Daftar Member Tidak di Temukan {{ totalColumns }}
-              </td>
-            </tr>
-          </tbody>
-          <tfoot class="bg-gray-100 font-bold">
-            <tr>
-              <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
-                <nav class="flex mt-0 justify-start">
-                  <ul class="inline-flex items-center -space-x-px">
-                    <!-- Tombol Previous -->
-                    <li>
-                      <button
-                        @click="prevPage"
-                        :disabled="currentPage === 1"
-                        class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Previous
-                      </button>
-                    </li>
-
-                    <!-- Nomor Halaman -->
-                    <li v-for="page in pages" :key="page" v-if="paginatedMembers.length">
-                      <button
-                        @click="pageNow(page)"
-                        class="px-3 py-2 leading-tight border"
-                        :class="
-                          currentPage === page
-                            ? 'text-white bg-[#333a48] border-[#333a48]'
-                            : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'
-                        "
-                      >
-                        {{ page }}
-                      </button>
-                    </li>
-
-                    <!-- Tombol Next -->
-                    <li>
-                      <button
-                        @click="nextPage"
-                        :disabled="currentPage === totalPages"
-                        class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Next
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+        </svg>
+        Tambah Member
+      </button>
+      <div class="flex items-center">
+        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
+        <input
+          type="text"
+          v-model="searchQuery"
+          id="search"
+          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+          placeholder="Cari data..."
+        />
       </div>
     </div>
+
+    <!-- Tabel Data -->
+    <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
+      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
+        <thead class="bg-gray-50">
+          <tr class="bg-gray-100">
+            <th class="w-[30%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Identitas</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Jenis Kelamin</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">WhatsApp</th>
+            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody
+          v-if="paginatedMembers.length"
+          class="divide-y divide-gray-100 border-t border-gray-100"
+        >
+          <tr v-for="member in paginatedMembers" :key="member.id" >
+            <td class="px-6 py-4 text-center">{{ member.fullname }}</td>
+            <td class="px-6 py-4 text-center">{{ member.identity_number }}</td>
+            <td class="px-6 py-4 text-center">
+              {{
+                member.gender === 'laki_laki'
+                  ? 'Laki - Laki'
+                  : member.gender === 'perempuan'
+                    ? 'Perempuan'
+                    : '-'
+              }}
+            </td>
+            <td class="px-6 py-4 text-center">{{ member.whatsapp_number }}</td>
+            <td class="px-6 py-4 text-center">
+              <div class="flex justify-center gap-2">
+                <EditButton @click="editMember(member.id)"><EditIcon /></EditButton>
+                <DangerButton @click="confirmDelete(member.id)"><DeleteIcon /></DangerButton>
+                <AddAgenButton @click="addAgen(member.id)"> <AddAgenIcon /></AddAgenButton>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+        <tbody v-else class="divide-y divide-gray-100 border-t border-gray-100">
+          <tr>
+            <td :colspan="totalColumns" class="px-6 py-4 text-center text-gray-500">
+              Daftar Member Tidak di Temukan {{ totalColumns }}
+            </td>
+          </tr>
+        </tbody>
+        <tfoot class="bg-gray-100 font-bold">
+          <tr>
+            <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
+              <nav class="flex mt-0 justify-start">
+                <ul class="inline-flex items-center -space-x-px">
+                  <!-- Tombol Previous -->
+                  <li>
+                    <button
+                      @click="prevPage"
+                      :disabled="currentPage === 1"
+                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Previous
+                    </button>
+                  </li>
+
+                  <!-- Nomor Halaman -->
+                  <li v-for="page in pages" :key="page" v-if="paginatedMembers.length">
+                    <button
+                      @click="pageNow(page)"
+                      class="px-3 py-2 leading-tight border"
+                      :class="
+                        currentPage === page
+                          ? 'text-white bg-[#333a48] border-[#333a48]'
+                          : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'
+                      "
+                    >
+                      {{ page }}
+                    </button>
+                  </li>
+
+                  <!-- Tombol Next -->
+                  <li>
+                    <button
+                      @click="nextPage"
+                      :disabled="currentPage === totalPages"
+                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
 
   <Confirmation
     :showConfirmDialog="showConfirmDialog"
@@ -346,6 +356,15 @@ const closeUpdateForm = () => {
 
       <!-- Form Update -->
       <FormUpdate :member="selectedMember" @save="editMember" @cancel="closeUpdateForm" />
+
+      />
     </div>
   </div>
+
+  <FormAddAgen
+    v-if="AddAgenForm"
+    :member="selectedMember"
+    @close="AddAgenForm = false"
+    :isOpen="AddAgenForm"
+  />
 </template>
