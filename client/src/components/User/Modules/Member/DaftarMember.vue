@@ -195,27 +195,23 @@ const closeUpdateForm = () => {
       </div>
     </div>
 
-    <!-- Form Add -->
-
     <!-- Tabel Data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr class="bg-gray-100">
-            <th class="px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama</th>
-            <th class="px-6 py-4 font-medium font-bold text-gray-900 text-center">
-              Nomor Identitas
-            </th>
-            <th class="px-6 py-4 font-medium font-bold text-gray-900 text-center">Jenis Kelamin</th>
-            <th class="px-6 py-4 font-medium font-bold text-gray-900 text-center">WhatsApp</th>
-            <th class="px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[30%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Identitas</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Jenis Kelamin</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">WhatsApp</th>
+            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody
           v-if="paginatedMembers.length"
           class="divide-y divide-gray-100 border-t border-gray-100"
         >
-          <tr v-for="member in paginatedMembers" :key="member.id" class="bg-gray-100">
+          <tr v-for="member in paginatedMembers" :key="member.id" >
             <td class="px-6 py-4 text-center">{{ member.fullname }}</td>
             <td class="px-6 py-4 text-center">{{ member.identity_number }}</td>
             <td class="px-6 py-4 text-center">

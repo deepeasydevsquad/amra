@@ -1,19 +1,15 @@
 <template>
   <div class="container mx-auto p-4">
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row justify-between mb-6 gap-4">
-      <!-- Search Input -->
-      <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-2">
-        <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
-        <input
-          type="text"
-          id="search"
-          class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-          v-model="searchQuery"
-          @input="handleSearch"
-          placeholder="Cari berdasarkan nama..."
-        />
-      </div>
+    <div class="flex justify-end items-center mb-4">
+      <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+      <input
+        type="text"
+        id="search"
+        class="block w-70 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+        v-model="searchQuery"
+        @input="handleSearch"
+        placeholder="Cari berdasarkan nama..."
+      />
     </div>
 
     <!-- Agen Table -->
@@ -21,9 +17,9 @@
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-6 py-4 font-bold text-gray-900 text-center">Nama Agen</th>
-            <th class="px-6 py-4 font-bold text-gray-900 text-center">Level Keagenan</th>
-            <th class="px-6 py-4 font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[45%] px-6 py-4 font-bold text-gray-900 text-center">Nama Agen</th>
+            <th class="w-[45%] px-6 py-4 font-bold text-gray-900 text-center">Level Keagenan</th>
+            <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
