@@ -2,7 +2,6 @@
 // Import Icon
 import DeleteIcon from "./Icon/DeleteIcon.vue"
 import EditIcon from "./Icon/EditIcon.vue"
-import CetakIcon from "./Icon/CetakInvoiceIcon.vue"
 
 // import element
 import DangerButton from "./Particle/DangerButton.vue"
@@ -52,7 +51,7 @@ const pages = computed(() => {
 interface PaketLA {
   id: number;
   register_number: string;
-  client_id: number;
+  kostumer_paket_la_id: number;
   client_name: string;
   client_hp_number: string;
   client_address: string;
@@ -90,11 +89,9 @@ const confirmAction = ref<(() => void) | null>(null);
 const totalColumns = ref(5); // Default 3 kolom
 
 const selectedPaketLA = ref<Partial<PaketLA>>({
-  register_number: '',
   client_name: '',
   client_hp_number: '',
   client_address: '',
-  status: '',
   discount: 0,
   total_price: 0,
   total_jamaah: 0,
@@ -169,7 +166,7 @@ const validateModal = (): boolean => {
   let isValid = true;
 
   if (!selectedPaketLA.value.client_name) {
-    errors.value.client_name = ' Klien tidak boleh kosong.';
+    errors.value.client_name = 'Klien tidak boleh kosong.';
     isValid = false;
   }
 
@@ -214,13 +211,13 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 const saveData = async () => {
   if (!validateModal()) return;
 
-  console.log("Data sebelum dikirim:", selectedPaketLA.value); // Debugging
+  // console.log("Data sebelum dikirim:", selectedPaketLA.value); // Debugging
 
   // Buat salinan data agar tidak merusak state asli
   const paketLAData = { ...selectedPaketLA.value };
-  delete paketLAData.client_id; // Hapus client_id sebelum dikirim
+  // delete paketLAData.kostumer_paket_la_id; // Hapus kostumer_paket_la_id sebelum dikirim
 
-  console.log("Data setelah hapus clientId:", paketLAData); // Debugging
+  console.log("Data paketLAData:", paketLAData); // Debugging
 
   const isEdit = !!selectedPaketLA.value.id;
   const action = async () => {

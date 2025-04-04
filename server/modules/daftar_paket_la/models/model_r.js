@@ -1,7 +1,6 @@
 const { Op, Paket_la } = require("../../../models");
 const { getCabang } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
-const { getIdbyKostumerPaketLA } = require("../../../helper/kostumerpaketlaHelper");
 const moment = require("moment");
 
 class Model_r {
@@ -45,6 +44,7 @@ class Model_r {
       "id",
       "division_id",
       "register_number",
+      "kostumer_paket_la_id",
       "client_name",
       "client_hp_number",
       "client_address",
@@ -72,7 +72,7 @@ class Model_r {
               data.push({ 
                 id : e.id,
                 register_number : e.register_number,
-                client_id: await getIdbyKostumerPaketLA(e.client_name, e.client_hp_number, e.client_address),
+                kostumer_paket_la_id: e.kostumer_paket_la_id,
                 client_name : e.client_name,
                 client_hp_number : e.client_hp_number,
                 client_address : e.client_address,
@@ -110,6 +110,7 @@ class Model_r {
               data["id"] = e.id;
               data["division_id"] = e.division_id;
               data["register_number"] = e.register_number;
+              data["kostumer_paket_la_id"] = e.kostumer_paket_la_id;
               data["client_name"] = e.client_name;
               data["client_hp_number"] = e.client_hp_number;
               data["client_address"] = e.client_address;

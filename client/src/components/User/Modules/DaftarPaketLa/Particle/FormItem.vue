@@ -21,11 +21,7 @@ export default {
     }
   },
   setup(props, { emit }) {
-    // Initialize items with an empty object
-    const items = ref([
-      { deskripsi: '', checkIn: '', checkOut: '', day: '', pax: '', price: '' }
-    ]);
-
+    const items = ref([{ deskripsi: '', checkIn: '', checkOut: '', day: '', pax: '', price: '' }]);
     const errors = ref([]);
     const timeoutId = ref<number | null>(null);
 
@@ -39,7 +35,7 @@ export default {
       errors.value.splice(index, 1);
     };
 
-    // Notification logic
+    // Notification function
     const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
       notificationMessage.value = message;
       notificationType.value = type;
@@ -51,6 +47,7 @@ export default {
         showNotification.value = false;
       }, 3000);
     };
+
 
     const validate = () => {
       let isValid = true;
@@ -71,10 +68,29 @@ export default {
       return isValid;
     };
 
+    /**
+     * Format the price value of an item
+     * @param index The index of the item
+     */
+    const formatPrice = (index: number) => {
+      const value = parseFloat(items.value[index].price
+        .replace(/[^\d]/g, "") // Remove all characters except digits and dot
+        .replace(/\./g, "") // Remove all dots
+      ) || 0;
+      items.value[index].price = new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(value);
+    };
+
     const saveData = async () => {
       if (!validate()) return;
-
       try {
+        items.value.forEach((item, index) => {
+          items.value[index].price = item.price.replace(/[^\d]/g, '');
+        });
         await addFasilitasPaketLA({
           paketlaId: props.paketlaId,
           items: items.value.map(item => ({
@@ -88,18 +104,17 @@ export default {
         });
 
         displayNotification('Data berhasil disimpan', 'success');
-        setTimeout(() => {
-          emit('close');
-        }, 3000);
+        setTimeout(() => emit('close'), 3000);
       } catch (error) {
         displayNotification(error.response?.data?.error_msg || 'Terjadi kesalahan saat menyimpan data.', 'error');
       }
     };
 
-    return { items, errors, addItem, removeItem, saveData, showNotification, notificationMessage, notificationType, timeoutId, displayNotification, DeleteIconX };
-  }
+    return { items, errors, addItem, removeItem, saveData, showNotification, notificationMessage, notificationType, timeoutId, displayNotification, DeleteIconX, formatPrice };
+  },
 };
 </script>
+
 
 <template>
   <div v-if="isFormItemOpen" class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center bg-gray-500 bg-opacity-75">
@@ -141,7 +156,7 @@ export default {
                 <p v-if="errors[index]?.pax" class="text-sm text-red-600">{{ errors[index].pax }}</p>
               </td>
               <td class="border border-gray-300 p-2">
-                <input v-model="item.price" type="number" class="w-full p-2 border rounded" placeholder="Price">
+                <input v-model="item.price" @input="formatPrice(index)" type="text" class="w-full p-2 border rounded" placeholder="Price">
                 <p v-if="errors[index]?.price" class="text-sm text-red-600">{{ errors[index].price }}</p>
               </td>
               <td class="border border-gray-300 p-2">
