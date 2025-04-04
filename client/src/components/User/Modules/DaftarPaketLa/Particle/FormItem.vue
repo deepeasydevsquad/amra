@@ -58,7 +58,7 @@ export default {
           checkOut: item.checkOut ? '' : 'Tanggal check-out harus diisi',
           day: item.day ? (Number(item.day) <= 0 ? 'Jumlah hari harus lebih dari 0' : '') : 'Jumlah hari harus diisi',
           pax: item.pax ? (Number(item.pax) <= 0 ? 'Jumlah pax harus lebih dari 0' : '') : 'Jumlah pax harus diisi',
-          price: item.price ? (Number(item.price) <= 0 ? 'Harga harus lebih dari 0' : '') : 'Harga harus diisi'
+          price: item.price.replace(/[^\d]/g, '') ? (Number(item.price.replace(/[^\d]/g, '')) <= 0 ? 'Harga harus lebih dari 0' : '') : 'Harga harus diisi'
         };
 
         if (Object.values(errors.value[index]).some(err => err !== '')) {
