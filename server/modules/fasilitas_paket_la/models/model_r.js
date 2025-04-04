@@ -1,4 +1,4 @@
-const { Op, Fasilitas_paket_la, Detail_fasilitas_paket_la } = require("../../../models");
+const { Op, Fasilitas_paket_la, Detail_fasilitas_paket_la, Paket_la } = require("../../../models");
 const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
 
@@ -161,6 +161,29 @@ class Model_r {
       return {}      
     }
   } 
+
+  async total_price(paket_la_id) {
+
+    try {
+      const body = this.req.body;
+      if( paket_la_id !== undefined ) {
+        paket_la_id = body.paketlaId;
+      }
+      var total_price = 0;
+      await Paket_la.findOne({ where: { id: paket_la_id } }).then(async (e) => {
+        if (e) {
+          total_price = e.total_price;
+        }
+      });
+      return total_price;
+    } catch (error) {
+      console.log("CCCCCCCCCCCCCCCCCC");
+      console.log(error);
+      console.log("CCCCCCCCCCCCCCCCCC");
+      return 0;
+    }
+    
+  }
 }
 
 module.exports = Model_r;

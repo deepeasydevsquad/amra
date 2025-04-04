@@ -338,84 +338,125 @@ const deleteItem = async (id: number, fasilitaspaketlaId: number) => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr class="bg-gray-100">
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Register</th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Klien</th>
-            <th class="w-[53%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Item Transaksi</th>
-            <th class="w-[17%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Harga</th>
+            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">No. Register</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Klien</th>
+            <th class="w-[46%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Item Transaksi</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Harga</th>
             <th class="w-[5%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
       <template v-if="dataPaketLA.length > 0">
         <tr v-for="paket in dataPaketLA" :key="paket.id">
-          <td class="p-3  border-gray-300 align-top text-center">
-            {{ paket.register_number }}
-          </td>
-          <td class="p-3  border-gray-300 align-top">
-            <ul>
-              <li><b>Nama Klien:</b> {{ paket.client_name }}</li>
-              <li><b>Nomor HP:</b> {{ paket.client_hp_number }}</li>
-              <li><b>Alamat:</b> {{ paket.client_address }}</li>
-            </ul>
+          <td class="p-3 border-gray-300 align-top font-bold text-center">
+            #{{ paket.register_number }}
           </td>
           <td class="p-3 border-gray-300 align-top">
-            <div v-for="invoice in fasilitaspaketla.filter((inv) => inv.paket_la_id === paket.id)" :key="invoice.id" class="mb-4 p-2 bg-white">
-              <table class="w-full mt-2 border text-center text-xs mb-3">
-                <tbody>
-                  <tr>
-                    <td class="w-[19%] px-6 text-center border font-bold bg-gray-200">INVOICE</td>
-                    <td class="w-[1%] px-3 border border-left-0">:</td>
-                    <td class="w-[25%] px-6 border text-left font-bold">{{ invoice.invoice }}</td>
-                    <td class="w-[20%] px-6 text-center border font-bold bg-gray-200">PRINT BTN</td>
-                    <td class="w-[1%] px-3 border">:</td>
-                    <td class="w-[34%] px-6 border text-left" style="text-transform:uppercase;">
-                      <button type="button" class="h-[35px] mx-[0.1rem] px-4 my-1 py-1 flex justify-center items-center rounded-lg text-gray-900 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" @click="cetakInvoice(invoice.id)">
-                        <i class="fas fa-print" style="font-size: 11px;"></i> Cetak Invoice
-                      </button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="w-[19%] px-6 py-5 text-center border font-bold" style="background-color: #e7e7e7;">TOTAL</td>
-                    <td class="w-[1%] px-3 border border-left-0">:</td>
-                    <td class="px-6 border text-left font-bold" colspan="4">Rp {{ invoice.total.toLocaleString() }},-</td>
-                  </tr>
-                </tbody>
-              </table>
-              <table class="w-full mt-2 border text-center text-xs">
-                <thead>
-                  <tr class="bg-gray-200">
-                    <th class="p-2 border">Deskripsi</th>
-                    <th class="p-2 border">Check-in</th>
-                    <th class="p-2 border">Check-out</th>
-                    <th class="p-2 border">Day</th>
-                    <th class="p-2 border">Pax</th>
-                    <th class="p-2 border">Price</th>
-                    <th class="p-2 border">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in invoice.detail_fasilitas" :key="item.id" class="text-center">
-                    <td class="p-2 ">{{ item.description }}</td>
-                    <td class="p-2 ">{{ item.check_in }}</td>
-                    <td class="p-2 ">{{ item.check_out }}</td>
-                    <td class="p-2 ">{{ item.day }}</td>
-                    <td class="p-2 ">{{ item.pax }}</td>
-                    <td class="p-2 ">Rp {{ item.price.toLocaleString() }}</td>
-                    <td class="p-2 ">
-                      <button @click="deleteItem(item.id, invoice.id)" class="px-1.5 py-1.5 bg-red-500 text-white font-bold rounded hover:bg-red-600">
-                        <DeleteIcon />
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <table class="w-full mt-2 text-center text-xs mb-3">
+              <tbody>
+                <tr>
+                  <td class="w-[35%] px-2 text-left font-bold ">NAMA KLIEN</td>
+                  <td class="w-[1%] px-1 text-center font-bold ">:</td>
+                  <td class="px-2 text-left">{{ paket.client_name }}</td>
+                </tr>
+                <tr>
+                  <td class="px-2 text-left font-bold ">NOMOR HP</td>
+                  <td class="px-1 text-center font-bold ">:</td>
+                  <td class="px-2 text-left">{{ paket.client_hp_number }}</td>
+                </tr>
+                <tr>
+                  <td class="px-2 text-left font-bold ">ALAMAT</td>
+                  <td class="px-1 text-center font-bold ">:</td>
+                  <td class="px-2 text-left">{{ paket.client_address }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+          <td class="px-3 pt-0 border-gray-300 align-top text-center">
+            <template v-if="fasilitaspaketla.length > 0">
+              <div v-for="invoice in fasilitaspaketla.filter((inv) => inv.paket_la_id === paket.id)" :key="invoice.id" class="mb-4 p-2 bg-white">
+                <table class="w-full mt-2 border text-center text-xs mb-3">
+                  <tbody>
+                    <tr>
+                      <td class="w-[19%] px-6 text-center border font-bold bg-gray-200">INVOICE</td>
+                      <td class="w-[1%] px-3 border border-left-0">:</td>
+                      <td class="w-[25%] px-6 border text-left font-bold">{{ invoice.invoice }}</td>
+                      <td class="w-[20%] px-6 text-center border font-bold bg-gray-200">PRINT BTN</td>
+                      <td class="w-[1%] px-3 border">:</td>
+                      <td class="w-[34%] px-6 border text-left" style="text-transform:uppercase;">
+                        <button type="button" class="h-[35px] mx-[0.1rem] px-4 my-1 py-1 flex justify-center items-center rounded-lg text-gray-900 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" @click="cetakInvoice(invoice.id)">
+                          <i class="fas fa-print" style="font-size: 11px;"></i> Cetak Invoice
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="w-[19%] px-6 py-5 text-center border font-bold" style="background-color: #e7e7e7;">TOTAL</td>
+                      <td class="w-[1%] px-3 border border-left-0">:</td>
+                      <td class="px-6 border text-left font-bold" colspan="4">Rp {{ invoice.total.toLocaleString() }},-</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table class="w-full mt-2 border text-center text-xs">
+                  <thead>
+                    <tr class="bg-gray-200">
+                      <th class="p-2 border">Deskripsi</th>
+                      <th class="p-2 border">Check-in</th>
+                      <th class="p-2 border">Check-out</th>
+                      <th class="p-2 border">Day</th>
+                      <th class="p-2 border">Pax</th>
+                      <th class="p-2 border">Price</th>
+                      <th class="p-2 border">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in invoice.detail_fasilitas" :key="item.id" class="text-center">
+                      <td class="p-2 ">{{ item.description }}</td>
+                      <td class="p-2 ">{{ item.check_in }}</td>
+                      <td class="p-2 ">{{ item.check_out }}</td>
+                      <td class="p-2 ">{{ item.day }}</td>
+                      <td class="p-2 ">{{ item.pax }}</td>
+                      <td class="p-2 ">Rp {{ item.price.toLocaleString() }}</td>
+                      <td class="p-2 ">
+                        <button @click="deleteItem(item.id, invoice.id)" class="px-1.5 py-1.5 bg-red-500 text-white font-bold rounded hover:bg-red-600">
+                          <DeleteIcon />
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </template>
+            <template v-else>
+              <div class="p-3">
+                <span class="text-center">Item Tidak Ditemukan</span>
+              </div>
+            </template>
           </td>
           <td class="p-3  border-gray-300 align-top">
-            <p><b>Total Harga:</b> Coming Soon</p>
-            <p><b>Diskon:</b> Coming Soon</p>
-            <p><b>Sudah Dibayar:</b> Coming Soon</p>
-            <p><b>Sisa:</b> Coming Soon</p>
+            <table class="w-full mt-2 text-center text-xs mb-3">
+              <tbody>
+                <tr>
+                  <td class="w-[45%] px-2 text-left font-bold ">TOTAL HARGA</td>
+                  <td class="w-[1%] px-1 text-center font-bold ">:</td>
+                  <td class="px-2 text-left">Rp {{ paket.total_price.toLocaleString() }}</td>
+                </tr>
+                <tr>
+                  <td class="px-2 text-left font-bold ">DISKON</td>
+                  <td class="px-1 text-center font-bold ">:</td>
+                  <td class="px-2 text-left">Rp {{ paket.discount.toLocaleString() }}</td>
+                </tr>
+                <tr>
+                  <td class="px-2 text-left font-bold ">SUDAH DIBAYAR</td>
+                  <td class="px-1 text-center font-bold ">:</td>
+                  <td class="px-2 text-left">Coming Soon</td>
+                </tr>
+                <tr>
+                  <td class="px-2 text-left font-bold ">SISA</td>
+                  <td class="px-1 text-center font-bold ">:</td>
+                  <td class="px-2 text-left">Coming Soon</td>
+                </tr>
+              </tbody>
+            </table>
           </td>
           <td class="p-3  border-gray-300 align-top">
             <div class="grid ">

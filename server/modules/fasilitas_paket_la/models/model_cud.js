@@ -1,4 +1,4 @@
-const { sequelize, Fasilitas_paket_la, Detail_fasilitas_paket_la } = require("../../../models");
+const { sequelize, Fasilitas_paket_la, Detail_fasilitas_paket_la, Paket_la } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 
@@ -31,7 +31,7 @@ class Model_cud {
     }
   }
 
-  async add() {
+  async add(total_price) {
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const invoice = await this.generateInvoiceNumber();
@@ -83,6 +83,17 @@ class Model_cud {
         await Fasilitas_paket_la.update(
             { total: totalPrice, updatedAt: myDate },
             { where: { id: fasilitasId }, transaction: this.t }
+        );
+
+        console.log("_________________XXXX");
+        console.log(totalPrice);
+        console.log(total_price);
+        console.log(totalPrice + total_price);
+        console.log("_________________XXXX");
+
+        await Paket_la.update(
+          { total_price: totalPrice + total_price, updatedAt: myDate },
+          { where: { id: body.paketlaId }, transaction: this.t }
         );
         
         this.message = `Berhasil menambahkan fasilitas dengan Invoice: ${invoice}, ID: ${fasilitasId}, dan ${items.length} item detail.`;
@@ -152,8 +163,9 @@ class Model_cud {
   //   }
   // }
 
-  async delete() {
+  async delete(total_price) {
     await this.initialize();
+    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
     try {
@@ -200,7 +212,16 @@ class Model_cud {
         { where: { id: body.fasilitaspaketlaId }, transaction: this.t }
       );
 
+      await Paket_la.update(
+        { total_price: totalPrice - total_price  , updatedAt: myDate },
+        { where: { id: infoFasilitasPaketLA.paket_la_id }, transaction: this.t }
+      );
+
     } catch (error) {
+
+        console.log("------A");
+        console.log(error);
+        console.log("------A");
         console.error("Error saat menghapus item fasilitas paket LA:", error);
         this.state = false;
         this.message = error.message;

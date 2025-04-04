@@ -30,8 +30,10 @@ controllers.add = async (req, res) => {
       });
     }
 
+    const model_r = new Model_r(req);
+    const total_price = await model_r.total_price();
     const model_cud = new Model_cud(req);
-    await model_cud.add();
+    await model_cud.add(total_price);
     
     // get response
     if (await model_cud.response()) {
@@ -81,8 +83,13 @@ controllers.delete = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
+    const model_r = new Model_r(req);
+
+    const body = req.body;
+    const infoFasilitas =  await model_r.infoFasilitasPaketLA(body.fasilitaspaketlaId);
+    const total_price = await model_r.total_price(infoFasilitas.paket_la_id);
     const model_cud = new Model_cud(req);
-    await model_cud.delete();
+    await model_cud.delete(total_price);
 
     // get response
     if (await model_cud.response()) {
@@ -97,6 +104,9 @@ controllers.delete = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log("------B");
+    console.log(error);
+    console.log("------B");
     handleServerError(res, error.message);
   }
 };
