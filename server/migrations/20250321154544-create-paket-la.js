@@ -19,6 +19,13 @@ module.exports = {
       register_number: {
         type: Sequelize.STRING
       },
+      kostumer_paket_la_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Kostumer_paket_las",
+          key: "id",
+        },
+      },
       client_name: {
         type: Sequelize.STRING
       },

@@ -2,7 +2,6 @@
 // Import Icon
 import DeleteIcon from "./Icon/DeleteIcon.vue"
 import EditIcon from "./Icon/EditIcon.vue"
-import CetakIcon from "./Icon/CetakInvoiceIcon.vue"
 
 // import element
 import DangerButton from "./Particle/DangerButton.vue"
@@ -10,10 +9,12 @@ import EditButton from "./Particle/EditButton.vue"
 import LightButton from "./Particle/LightButton.vue"
 import Notification from "./Particle/Notification.vue"
 import Confirmation from "./Particle/Confirmation.vue"
+import FormItem from "./Particle/FormItem.vue"
 import Form from "./Particle/Form.vue"
 
 // import api from "@/services/api"; // Import service API
 import { daftarPaketLA, addPaketLA, editPaketLA, deletePaketLA } from "../../../../service/daftar_paket_la"
+import { daftarFasilitasPaketLA, deleteFasilitasPaketLA } from "../../../../service/fasilitas_paket_la"
 import { ref, onMounted, computed, watchEffect } from 'vue';
 import axios from 'axios';
 
@@ -50,7 +51,7 @@ const pages = computed(() => {
 interface PaketLA {
   id: number;
   register_number: string;
-  client_id: number;
+  kostumer_paket_la_id: number;
   client_name: string;
   client_hp_number: string;
   client_address: string;
@@ -72,11 +73,14 @@ interface Errors {
   arrival_date: string;
 }
 
+const paketlaId = ref<number | null>(null); // Id number untuk form item
+const fasilitaspaketla = ref<any[]>([]); // Array untuk menyimpan data fasilitas
 const timeoutId = ref<number | null>(null);
 const dataPaketLA = ref<PaketLA[]>([]);
 const isModalOpen = ref<boolean>(false);
-const showNotification = ref<boolean>(false);
+const isFormItemOpen = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
+const showNotification = ref<boolean>(false);
 const notificationMessage = ref<string>('');
 const notificationType = ref<'success' | 'error'>('success');
 const confirmMessage = ref<string>('');
@@ -85,11 +89,9 @@ const confirmAction = ref<(() => void) | null>(null);
 const totalColumns = ref(5); // Default 3 kolom
 
 const selectedPaketLA = ref<Partial<PaketLA>>({
-  register_number: '',
   client_name: '',
   client_hp_number: '',
   client_address: '',
-  status: '',
   discount: 0,
   total_price: 0,
   total_jamaah: 0,
@@ -109,19 +111,32 @@ const errors = ref<Errors>({
 
 const fetchData = async () => {
   try {
-      const response = await daftarPaketLA({
-          search: search.value,
-          perpage: itemsPerPage,
-          pageNumber: currentPage.value,
-      });
+    const response = await daftarPaketLA({
+        search: search.value,
+        perpage: itemsPerPage,
+        pageNumber: currentPage.value,
+    });
 
-      if (response.error) {
-          displayNotification(response.error_msg, "error");
-          return;
-      }
+    if (response.error) {
+        displayNotification(response.error_msg, "error");
+        return;
+    }
 
-      totalPages.value = Math.ceil(response.total / itemsPerPage);
-      dataPaketLA.value = response.data || []; // Ensure it assigns an array
+    totalPages.value = Math.ceil(response.total / itemsPerPage);
+
+    const fasilitasResponse = await daftarFasilitasPaketLA({
+        search: search.value,
+        perpage: itemsPerPage,
+        pageNumber: currentPage.value,
+    });
+
+    if (fasilitasResponse.error) {
+        displayNotification(fasilitasResponse.error_msg, "error");
+        return;
+    }
+
+    fasilitaspaketla.value = fasilitasResponse.data || []; // Ensure it assigns an array
+    dataPaketLA.value = response.data || []; // Ensure it assigns an array
   } catch (error) {
       console.error('Error fetching data:', error);
       displayNotification('Gagal mengambil data.', 'error');
@@ -136,6 +151,11 @@ const openModal = (paket_la?: PaketLA) => {
   isModalOpen.value = true;
 };
 
+const openFormItem = (id: number) => {
+  paketlaId.value = id;
+  isFormItemOpen.value = true;
+};
+
 onMounted(async () => {
   await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
   totalColumns.value = document.querySelectorAll("thead th").length;
@@ -146,7 +166,7 @@ const validateModal = (): boolean => {
   let isValid = true;
 
   if (!selectedPaketLA.value.client_name) {
-    errors.value.client_name = ' Klien tidak boleh kosong.';
+    errors.value.client_name = 'Klien tidak boleh kosong.';
     isValid = false;
   }
 
@@ -180,6 +200,7 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   }, 3000);
 };
 
+
 const showConfirmation = (title: string, message: string, action: () => void) => {
   confirmTitle.value = title;
   confirmMessage.value = message;
@@ -190,13 +211,13 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 const saveData = async () => {
   if (!validateModal()) return;
 
-  console.log("Data sebelum dikirim:", selectedPaketLA.value); // Debugging
+  // console.log("Data sebelum dikirim:", selectedPaketLA.value); // Debugging
 
   // Buat salinan data agar tidak merusak state asli
   const paketLAData = { ...selectedPaketLA.value };
-  delete paketLAData.client_id; // Hapus client_id sebelum dikirim
+  // delete paketLAData.kostumer_paket_la_id; // Hapus kostumer_paket_la_id sebelum dikirim
 
-  console.log("Data setelah hapus clientId:", paketLAData); // Debugging
+  console.log("Data paketLAData:", paketLAData); // Debugging
 
   const isEdit = !!selectedPaketLA.value.id;
   const action = async () => {
@@ -232,7 +253,6 @@ const saveData = async () => {
     : action();
 };
 
-
 const deleteData = async (id: number) => {
   showConfirmation(
     'Konfirmasi Hapus',
@@ -250,6 +270,42 @@ const deleteData = async (id: number) => {
     }
   );
 };
+
+const deleteItem = async (id: number, fasilitaspaketlaId: number) => {
+  showConfirmation(
+    'Konfirmasi Hapus',
+    `Apakah Anda yakin ingin menghapus item?`,
+    async () => {
+      try {
+        const response = await deleteFasilitasPaketLA(id, fasilitaspaketlaId);
+        if (response.error) {
+          displayNotification(response.error_msg, 'error');
+          return;
+        }
+        showConfirmDialog.value = false;
+        displayNotification('Item berhasil dihapus', 'success');
+        fetchData();
+      } catch (error) {
+        console.error('Error deleting item:', error);
+        displayNotification('Terjadi kesalahan saat menghapus item.', 'error');
+      }
+    }
+  );
+};
+
+// const cetakInvoice = async (id: number) => {
+//   try {
+//     const response = await axios.get(`/api/cetak-invoice/${id}`, { responseType: 'blob' });
+//     const url = window.URL.createObjectURL(new Blob([response.data]));
+//     const link = document.createElement('a');
+//     link.href = url;
+//     link.setAttribute('download', `invoice_${id}.pdf`);
+//     document.body.appendChild(link);
+//     link.click();
+//   } catch (error) {
+//     console.error('Error printing invoice:', error);
+//   }
+// };
 </script>
 
 <template>
@@ -282,132 +338,129 @@ const deleteData = async (id: number) => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr class="bg-gray-100">
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Register</th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Klien</th>
-            <th class="w-[45%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Item Transaksi</th>
-            <th class="w-[17%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Harga</th>
-            <th class="w-[13%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">No. Register</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Klien</th>
+            <th class="w-[46%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Item Transaksi</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Harga</th>
+            <th class="w-[5%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
       <template v-if="dataPaketLA.length > 0">
-        <tr v-for="paket in dataPaketLA" :key="paket.id" class="bg-gray-100">
-          <td class="p-3 border border-gray-300 align-top text-center">
-            {{ paket.register_number }}
+        <tr v-for="paket in dataPaketLA" :key="paket.id">
+          <td class="p-3 border-gray-300 align-top font-bold text-center">
+            #{{ paket.register_number }}
           </td>
-          <td class="p-3 border border-gray-300 align-top">
-            <ul>
-              <li><b>Nama Klien:</b> {{ paket.client_name }}</li>
-              <li><b>Nomor HP:</b> {{ paket.client_hp_number }}</li>
-              <li><b>Alamat:</b> {{ paket.client_address }}</li>
-            </ul>
+          <td class="p-3 border-gray-300 align-top">
+            <table class="w-full mt-2 text-center text-xs mb-3">
+              <tbody>
+                <tr>
+                  <td class="w-[35%] px-2 text-left font-bold ">NAMA KLIEN</td>
+                  <td class="w-[1%] px-1 text-center font-bold ">:</td>
+                  <td class="px-2 text-left">{{ paket.client_name }}</td>
+                </tr>
+                <tr>
+                  <td class="px-2 text-left font-bold ">NOMOR HP</td>
+                  <td class="px-1 text-center font-bold ">:</td>
+                  <td class="px-2 text-left">{{ paket.client_hp_number }}</td>
+                </tr>
+                <tr>
+                  <td class="px-2 text-left font-bold ">ALAMAT</td>
+                  <td class="px-1 text-center font-bold ">:</td>
+                  <td class="px-2 text-left">{{ paket.client_address }}</td>
+                </tr>
+              </tbody>
+            </table>
           </td>
-          <td class="p-3 border border-gray-300 align-top">
-            <!-- <div class="mb-4 p-2 bg-white border border-gray-300"> -->
-              <!-- <p><b>INVOICE:</b> Coming Soon</p>
-              <p><b>TOTAL:</b> Coming Soon</p> -->
-              <table class="w-full mt-2 border text-center text-xs mb-3">
-                <tbody>
-                  <tr>
-                    <td class="w-[19%] px-6 text-center border font-bold bg-gray-200" >INVOICE</td>
-                    <td class="w-[1%] px-3 border border-left-0" >:</td>
-                    <td class="w-[25%] px-6 border text-left font-bold" >SO31285040</td>
-                    <td class="w-[20%] px-6 text-center border font-bold bg-gray-200">PRINT BTN</td>
-                    <td class="w-[1%] px-3 border" >:</td>
-                    <td class="w-[34%] px-6 border text-left" style="text-transform:uppercase;">
-                        <button type="button" class="h-[35px] mx-[0.1rem] px-4 my-1 py-1 flex justify-center items-center rounded-lg text-gray-900 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" title="Cetak Kwitansi Detail Item Paket LA" onclick="cetak_kwitansi_detail_item_paket_la('174')">
-                            <i class="fas fa-print" style="font-size: 11px;"></i> Cetak Invoice
+          <td class="px-3 pt-0 border-gray-300 align-top text-center">
+            <template v-if="fasilitaspaketla.length > 0">
+              <div v-for="invoice in fasilitaspaketla.filter((inv) => inv.paket_la_id === paket.id)" :key="invoice.id" class="mb-4 p-2 bg-white">
+                <table class="w-full mt-2 border text-center text-xs mb-3">
+                  <tbody>
+                    <tr>
+                      <td class="w-[19%] px-6 text-center border font-bold bg-gray-200">INVOICE</td>
+                      <td class="w-[1%] px-3 border border-left-0">:</td>
+                      <td class="w-[25%] px-6 border text-left font-bold">{{ invoice.invoice }}</td>
+                      <td class="w-[20%] px-6 text-center border font-bold bg-gray-200">PRINT BTN</td>
+                      <td class="w-[1%] px-3 border">:</td>
+                      <td class="w-[34%] px-6 border text-left" style="text-transform:uppercase;">
+                        <button type="button" class="h-[35px] mx-[0.1rem] px-4 my-1 py-1 flex justify-center items-center rounded-lg text-gray-900 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" @click="cetakInvoice(invoice.id)">
+                          <i class="fas fa-print" style="font-size: 11px;"></i> Cetak Invoice
                         </button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="w-[19%] px-6 py-5 text-center border font-bold" style="background-color: #e7e7e7;">TOTAL</td>
-                    <td class="w-[1%] px-3 border border-left-0" >:</td>
-                    <td class="px-6 border text-left font-bold" colspan="4">RP 12.000.000,-</td>
-                  </tr>
-                  <!-- <tr>
-                    <td class="text-left border border-right-0 align-middle" style="width:15%;background-color: #e7e7e7;">TOTAL</td>
-                    <td class="border border-left-0 border-right-0 border-top-1 px-2 align-middle" style="width:1%;">:</td>
-                    <td colspan="4" class="border text-left border-left-0 border-top-1 px-0 align-middle" style="width:34%;">Rp 4,000,000</td>
-                  </tr> -->
-                  <!-- <tr>
-                  </tr> -->
-                </tbody>
-              </table>
-              <table class="w-full mt-2 border text-center text-xs">
-                <thead>
-                  <tr class="bg-gray-200">
-                    <th class="p-2 border w-[25%]">Deskripsi</th>
-                    <th class="p-2 border w-[15%]">Check-in</th>
-                    <th class="p-2 border w-[15%]">Check-out</th>
-                    <th class="p-2 border w-[10%]">Day</th>
-                    <th class="p-2 border w-[10%]">Pax</th>
-                    <th class="p-2 border w-[20%]">Price</th>
-                    <th class="p-2 border w-[15%]">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr  class="text-center">
-                    <td class="p-2 border">Coming Soon</td>
-                    <td class="p-2 border">{{ paket.departure_date }}</td>
-                    <td class="p-2 border">{{ paket.arrival_date }}</td>
-                    <td class="p-2 border">Coming Soon</td>
-                    <td class="p-2 border">{{ paket.total_jamaah }}</td>
-                    <td class="p-2 border">Coming Soon</td>
-                    <td class="p-2 border">
-                      <button class="px-1.5 py-1.5 bg-red-500 text-white font-bold rounded hover:bg-red-600">
-                        <DeleteIcon />
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <!-- <button class="mt-2 px-3 py-1 bg-gray-300 rounded flex items-center gap-2 font-medium hover:bg-gray-400 transition ease-in-out">
-                <CetakIcon />
-                Cetak Invoice
-              </button> -->
-            <!-- </div> -->
-            <!-- <div v-for="invoice in paket.invoices" :key="invoice.id" class="mb-4 p-2 bg-white border border-gray-300">
-              <p><b>INVOICE:</b> {{ invoice.invoice_number }}</p>
-              <p><b>TOTAL:</b> Rp {{ invoice.total.toLocaleString() }}</p>
-              <table class="w-full mt-2 border">
-                <thead>
-                  <tr class="bg-gray-200">
-                    <th class="p-2 border">Deskripsi</th>
-                    <th class="p-2 border">Check-in</th>
-                    <th class="p-2 border">Check-out</th>
-                    <th class="p-2 border">Day</th>
-                    <th class="p-2 border">Pax</th>
-                    <th class="p-2 border">Price</th>
-                    <th class="p-2 border">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in invoice.items" :key="item.id" class="text-center">
-                    <td class="p-2 border">{{ item.description }}</td>
-                    <td class="p-2 border">{{ item.checkin }}</td>
-                    <td class="p-2 border">{{ item.checkout }}</td>
-                    <td class="p-2 border">{{ item.day }}</td>
-                    <td class="p-2 border">{{ item.pax }}</td>
-                    <td class="p-2 border">Rp {{ item.price.toLocaleString() }}</td>
-                    <td class="p-2 border">
-                      <button @click="deleteItem(item.id)" class="px-3 py-1 bg-red-500 text-white rounded">X</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <button class="mt-2 px-3 py-1 bg-gray-300 rounded">🖨 Cetak Invoice</button>
-            </div> -->
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="w-[19%] px-6 py-5 text-center border font-bold" style="background-color: #e7e7e7;">TOTAL</td>
+                      <td class="w-[1%] px-3 border border-left-0">:</td>
+                      <td class="px-6 border text-left font-bold" colspan="4">Rp {{ invoice.total.toLocaleString() }},-</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table class="w-full mt-2 border text-center text-xs">
+                  <thead>
+                    <tr class="bg-gray-200">
+                      <th class="p-2 border">Deskripsi</th>
+                      <th class="p-2 border">Check-in</th>
+                      <th class="p-2 border">Check-out</th>
+                      <th class="p-2 border">Day</th>
+                      <th class="p-2 border">Pax</th>
+                      <th class="p-2 border">Price</th>
+                      <th class="p-2 border">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in invoice.detail_fasilitas" :key="item.id" class="text-center">
+                      <td class="p-2 ">{{ item.description }}</td>
+                      <td class="p-2 ">{{ item.check_in }}</td>
+                      <td class="p-2 ">{{ item.check_out }}</td>
+                      <td class="p-2 ">{{ item.day }}</td>
+                      <td class="p-2 ">{{ item.pax }}</td>
+                      <td class="p-2 ">Rp {{ item.price.toLocaleString() }}</td>
+                      <td class="p-2 ">
+                        <button @click="deleteItem(item.id, invoice.id)" class="px-1.5 py-1.5 bg-red-500 text-white font-bold rounded hover:bg-red-600">
+                          <DeleteIcon />
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </template>
+            <template v-else>
+              <div class="p-3">
+                <span class="text-center">Item Tidak Ditemukan</span>
+              </div>
+            </template>
           </td>
-          <td class="p-3 border border-gray-300 align-top">
-            <p><b>Total Harga:</b> Coming Soon</p>
-            <p><b>Diskon:</b> Coming Soon</p>
-            <p><b>Sudah Dibayar:</b> Coming Soon</p>
-            <p><b>Sisa:</b> Coming Soon</p>
+          <td class="p-3  border-gray-300 align-top">
+            <table class="w-full mt-2 text-center text-xs mb-3">
+              <tbody>
+                <tr>
+                  <td class="w-[45%] px-2 text-left font-bold ">TOTAL HARGA</td>
+                  <td class="w-[1%] px-1 text-center font-bold ">:</td>
+                  <td class="px-2 text-left">Rp {{ paket.total_price.toLocaleString() }}</td>
+                </tr>
+                <tr>
+                  <td class="px-2 text-left font-bold ">DISKON</td>
+                  <td class="px-1 text-center font-bold ">:</td>
+                  <td class="px-2 text-left">Rp {{ paket.discount.toLocaleString() }}</td>
+                </tr>
+                <tr>
+                  <td class="px-2 text-left font-bold ">SUDAH DIBAYAR</td>
+                  <td class="px-1 text-center font-bold ">:</td>
+                  <td class="px-2 text-left">Coming Soon</td>
+                </tr>
+                <tr>
+                  <td class="px-2 text-left font-bold ">SISA</td>
+                  <td class="px-1 text-center font-bold ">:</td>
+                  <td class="px-2 text-left">Coming Soon</td>
+                </tr>
+              </tbody>
+            </table>
           </td>
-          <td class="p-3 border border-gray-300 align-top">
-            <div class="grid grid-cols-3 gap-2 justify-between">
-              <LightButton>
+          <td class="p-3  border-gray-300 align-top">
+            <div class="grid ">
+              <LightButton  @click="openFormItem(paket.id)">
                 <font-awesome-icon icon="fa-solid fa-box" />
               </LightButton>
               <LightButton>
@@ -500,6 +553,23 @@ const deleteData = async (id: number) => {
       @close="isModalOpen = false"
     />
   </transition>
+
+  <!-- FormItem Overlay -->
+  <Transition
+    enter-active-class="transition-opacity duration-200 ease-out"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
+    leave-active-class="transition-opacity duration-200 ease-in"
+    leave-from-class="opacity-100"
+    leave-to-class="opacity-0"
+  >
+    <FormItem
+      v-if="isFormItemOpen"
+      :isFormItemOpen="isFormItemOpen"
+      :paketlaId="paketlaId"
+      @close="isFormItemOpen = false; fetchData()"
+    />
+  </Transition>
 
   <!-- Confirmation Dialog -->
   <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >

@@ -32,11 +32,11 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Nama Kostumer</label>
               <select
-                v-model="selectedPaketLA.client_id"
+                v-model="selectedPaketLA.kostumer_paket_la_id"
                 @change="updateClientInfo"
                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
               >
-                <option value="">Pilih Kostumer</option>
+                <option value="0">Pilih Kostumer</option>
                 <option v-for="customer in dataKostumer" :key="customer.id" :value="customer.id">
                   {{ customer.name }}
                 </option>
@@ -92,7 +92,7 @@
           </button>
           <button
             @click="$emit('close')"
-            class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+            class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-400 bg-gray-200 px-4 py-2 text-base font-medium text-gray-800 shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
           >
             Batal
           </button>
@@ -125,10 +125,11 @@ export default {
         });
         dataKostumer.value = responseKostumer.data || [];
 
-        // Jika sedang edit data, pastikan data pelanggan diisi berdasarkan client_id
-        if (props.selectedPaketLA.client_id) {
-          updateClientInfo();
+        // Jika data tidak ada alias undefined (buat data baru), maka data kostumer_paket_la_id bernilai 0
+        if (!props.selectedPaketLA.kostumer_paket_la_id) {
+          props.selectedPaketLA.kostumer_paket_la_id = 0
         }
+
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -136,14 +137,14 @@ export default {
 
     onMounted(fetchData);
 
-    // Fungsi untuk update info pelanggan berdasarkan client_id
+    // Fungsi untuk update info pelanggan berdasarkan kostumer_paket_la_id
     const updateClientInfo = () => {
       console.log("Props Selected PaketLA:", props.selectedPaketLA);
       console.log("Data Kostumer (Array):", dataKostumer.value);
 
-      const clientId = typeof props.selectedPaketLA.client_id === "object"
-        ? props.selectedPaketLA.client_id.id
-        : props.selectedPaketLA.client_id;
+      const clientId = typeof props.selectedPaketLA.kostumer_paket_la_id === "object"
+        ? props.selectedPaketLA.kostumer_paket_la_id.id
+        : props.selectedPaketLA.kostumer_paket_la_id;
 
       const selectedClient = dataKostumer.value.find(client => client.id === clientId);
       console.log("Client Ditemukan:", selectedClient || "Tidak ditemukan!");
@@ -159,9 +160,9 @@ export default {
       }
     };
 
-    // Watch perubahan client_id agar update client_name
+    // Watch perubahan kostumer_paket_la_id agar update client_name
     watch(
-      () => props.selectedPaketLA.client_id,
+      () => props.selectedPaketLA.kostumer_paket_la_id,
       () => updateClientInfo()
     );
 
@@ -169,7 +170,7 @@ export default {
     watch(
       () => props.isModalOpen,
       (newVal) => {
-        if (newVal && props.selectedPaketLA?.client_id) {
+        if (newVal && props.selectedPaketLA?.kostumer_paket_la_id) {
           updateClientInfo();
         }
       }
