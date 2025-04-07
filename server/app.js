@@ -43,6 +43,7 @@ const arr_router = [
   "pengguna",
   "level_agen",
   "daftar_agen",
+  "deposit_saldo",
 ];
 
 // routers
