@@ -19,6 +19,7 @@ const arr_router = [
   "user",
   "otp",
   "registrasi",
+  "invoice",
   "kwitansi",
   "daftar_kota",
   "daftar_fasilitas",

@@ -41,23 +41,23 @@ class Model_cud {
     return "Tipe user tidak diketahui";
   }
 
-  async generateInvoice() {
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const numbers = "0123456789";
+  // async generateInvoice() {
+  //   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  //   const numbers = "0123456789";
 
-    let huruf = "";
-    let angka = "";
+  //   let huruf = "";
+  //   let angka = "";
 
-    for (let i = 0; i < 3; i++) {
-      huruf += letters.charAt(Math.floor(Math.random() * letters.length));
-      angka += numbers.charAt(Math.floor(Math.random() * numbers.length));
-    }
+  //   for (let i = 0; i < 3; i++) {
+  //     huruf += letters.charAt(Math.floor(Math.random() * letters.length));
+  //     angka += numbers.charAt(Math.floor(Math.random() * numbers.length));
+  //   }
 
-    return huruf + angka; // Contoh: "ABC123"
-  }
+  //   return huruf + angka; // Contoh: "ABC123"
+  // }
 
   // ✅ Tambah deposit
-  async tambahDeposit() {
+  async tambahDeposit( invoice ) {
     await this.initialize();
     const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
@@ -78,7 +78,7 @@ class Model_cud {
         {
           company_id: this.company_id,
           member_id: body.memberId,
-          invoice: await this.generateInvoice(),
+          invoice: invoice,
           nominal: body.nominal,
           saldo_sebelum: saldoSebelum,
           saldo_sesudah: saldoSesudah,
@@ -107,15 +107,11 @@ class Model_cud {
         }
       );
 
-      this.message = `Menambahkan deposit ke ${
-        member.fullname
-      } sebesar Rp${body.nominal.toLocaleString("id-ID")}`;
-      return await this.response();
+      this.message = `Menambahkan deposit ke ${ member.fullname } sebesar Rp${body.nominal.toLocaleString("id-ID")}`;
     } catch (error) {
       console.error("Gagal tambah deposit:", error);
       this.state = false;
       this.message = "Gagal menambahkan deposit";
-      return await this.response();
     }
   }
 
@@ -124,17 +120,20 @@ class Model_cud {
     if (this.state) {
       await writeLog(this.req, this.t, { msg: this.message });
       await this.t.commit();
-      return {
-        success: true,
-        message: this.message,
-        id: this.insertedDeposit?.id,
-        invoice: this.insertedDeposit?.invoice,
-      };
+      return true; 
+
     } else {
       await this.t.rollback();
-      return { success: false, message: this.message };
+      return false;
+
     }
   }
 }
+
+// { success: false, message: this.message };
+// { success: true, message: this.message };  
+// ,
+// id: this.insertedDeposit?.id,
+// invoice: this.insertedDeposit?.invoice,
 
 module.exports = Model_cud;

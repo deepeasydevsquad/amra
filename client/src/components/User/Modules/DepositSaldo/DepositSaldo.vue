@@ -67,7 +67,7 @@
             class="hover:bg-gray-50 transition-colors"
           >
             <td class="px-6 py-4 text-center">{{ deposit.invoice || '-' }}</td>
-            <td class="px-6 py-4 text-center">{{ deposit.Member.fullname || '-' }}</td>
+            <td class="px-6 py-4 text-center">{{ deposit.fullname || '-' }}</td>
             <td class="px-6 py-4 text-left">
               <ul class="space-y-1 text-sm">
                 <li class="flex items-start">
@@ -315,9 +315,9 @@ const fetchDeposit = async () => {
   isLoading.value = true
   try {
     const response = await daftarDeposit({
-      page: currentPage.value,
+      pageNumber: currentPage.value,
       search: searchQuery.value,
-      limit: itemsPerPage.value,
+      perpage: itemsPerPage.value,
     })
 
     deposits.value = response.data || []
@@ -344,13 +344,15 @@ const handleSearch = () => {
   currentPage.value = 1
 
   // Debounce the search input
-  if (searchTimeout.value) {
-    clearTimeout(searchTimeout.value)
-  }
+  // if (searchTimeout.value) {
+  //   clearTimeout(searchTimeout.value)
+  // }
 
-  searchTimeout.value = window.setTimeout(() => {
-    fetchDeposit()
-  }, 500)
+  fetchDeposit()
+
+  // searchTimeout.value = window.setTimeout(() => {
+
+  // }, 500)
 }
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {

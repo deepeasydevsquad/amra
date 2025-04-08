@@ -4,7 +4,7 @@ import UserView from '@/views/UserView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import KwitansiView from '@/views/KwitansiView.vue'
-import InvoiceDeposit from '@/components/User/Modules/DepositSaldo/InvoiceDeposit.vue'
+import InvoiceDeposit from '@/components/User/Modules/Invoice/InvoiceDeposit.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,7 +44,7 @@ const router = createRouter({
       component: UserView,
     },
     {
-      path: '/invoice-deposit',
+      path: '/invoice-deposit/:id',
       name: 'invoice-deposit',
       component: InvoiceDeposit,
     },

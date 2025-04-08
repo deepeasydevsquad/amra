@@ -2,7 +2,7 @@ import api from './api' // Import service API
 
 export const daftarDeposit = async (param: any) => {
   try {
-    const response = await api.get('/get-deposit', param) // Kirim data ke backend
+    const response = await api.post('/get-deposit', param) // Kirim data ke backend
     return response.data // Kembalikan data hasil request
   } catch (error) {
     console.error('Gagal mengambil data deposit', error)

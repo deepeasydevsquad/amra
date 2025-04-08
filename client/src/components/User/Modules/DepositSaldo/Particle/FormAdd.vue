@@ -142,7 +142,7 @@
             :disabled="isSubmitting"
             class="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition disabled:opacity-50"
           >
-            <span>SIMPAN</span>
+            <span>TAMBAH DEPOSIT</span>
           </button>
         </div>
       </form>
@@ -260,15 +260,17 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 const handleSubmit = async () => {
   try {
     const result = await addDeposit(form.value)
-    console.log('🟢 ID dari addDeposit:', result.id)
+    // console.log('🟢 ID dari addDeposit:', result.id)
+    // console.log("-----------------");
+    // console.log(result);
+    // console.log(result.data.invoice);
+    // console.log("-----------------");
 
     await delay(100) // tunggu sebentar
-    const depositInfo = await infoDeposit(result.id)
-    localStorage.setItem('depositInfo', JSON.stringify(depositInfo))
-    window.open('/invoice-deposit', '_blank')
-
-    console.log('Deposit info:', depositInfo)
-
+    // const depositInfo = await infoDeposit(result.id)
+    // localStorage.setItem('depositInfo', JSON.stringify(depositInfo))
+    window.open('/invoice-deposit/'+ result.data.invoice, '_blank')
+    // console.log('Deposit info:', depositInfo)
     emit('success')
   } catch (error) {
     console.error('Gagal menambahkan deposit:', error)
