@@ -1,15 +1,5 @@
 <template>
   <div class="bg-white p-8 text-sm text-gray-800">
-    <!-- Tombol Download PDF - TIDAK AKAN MUNCUL DI PRINT -->
-    <div class="mb-6 flex justify-end no-print">
-      <button
-        @click="downloadPDF"
-        class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition"
-      >
-        Download PDF
-      </button>
-    </div>
-
     <!-- Wrapper PDF -->
     <div id="invoice">
       <!-- Header -->
@@ -22,7 +12,7 @@
           />
         </div>
         <div class="text-right w-2/3">
-          <h2 class="text-2xl font-extrabold uppercase">{{ company?.company_name || '-' }}</h2>
+          <h2 class="text-xl font-extrabold uppercase">{{ company?.company_name || '-' }}</h2>
           <p class="text-sm font-bold tracking-wide leading-snug">
             {{ company?.Divisions?.[0]?.address || '-' }}, {{ company?.Divisions?.[0]?.city || '-'
             }}<br />
@@ -54,7 +44,7 @@
       </div>
 
       <!-- Tabel Transaksi -->
-      <table class="w-full text-left border border-collapse mb-4 table-fixed">
+      <table class="w-full text-left border border-collapse mb-4">
         <thead class="bg-gray-100">
           <tr>
             <th class="border p-2 w-1/5">Waktu Transaksi</th>
@@ -104,7 +94,6 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
-import html2pdf from 'html2pdf.js'
 import { dataCompany } from '@/service/deposit_saldo'
 const BASE_URL = import.meta.env.VITE_APP_API_BASE_URL
 
@@ -123,52 +112,52 @@ const fetchCompany = async () => {
 const formatRupiah = (val: number) => (val ? val.toLocaleString('id-ID') : '0')
 const formatDate = (val: string) => (val ? val.replace('T', ' ').slice(0, 19) : '-')
 
-const downloadPDF = () => {
-  const element = document.getElementById('invoice')
-  if (!element) return
-
-  const opt = {
-    margin: 0.5,
-    filename: 'kwitansi-pembayaran.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-  }
-
-  html2pdf().set(opt).from(element).save()
-}
-
 onMounted(() => {
   fetchCompany()
   const raw = localStorage.getItem('depositInfo')
   deposit.value = raw ? JSON.parse(raw) : null
 
   if (deposit.value) {
-    setTimeout(() => window.print(), 500)
+    setTimeout(() => {
+      window.scrollTo(0, 0)
+      window.print()
+    }, 500)
   }
 })
 </script>
 
 <style scoped>
 @media print {
-  .no-print {
-    display: none !important;
-  }
-
-  body {
+  @page {
+    size: A4;
     margin: 0;
-    padding: 0;
-    -webkit-print-color-adjust: exact;
   }
 
   html,
   body {
-    width: 100%;
-    height: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 210mm;
+    height: 297mm;
+    overflow: hidden;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: white !important;
   }
 
-  @page {
-    margin: 0.5in;
+  #invoice {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    padding: 20mm; /* biar gak terlalu mepet pinggir */
+    background: white !important;
+  }
+
+  .no-print {
+    display: none !important;
   }
 }
 </style>

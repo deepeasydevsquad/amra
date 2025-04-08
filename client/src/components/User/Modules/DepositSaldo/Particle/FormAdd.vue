@@ -99,19 +99,18 @@
 
         <!-- Biaya Deposit -->
         <div class="mb-4">
-          <label for="biaya" class="block text-sm font-medium text-gray-700 mb-1"
-            >Biaya Deposit (Rp)</label
-          >
+          <label for="biaya" class="block text-sm font-medium text-gray-700 mb-1">
+            Biaya Deposit (Rp)
+          </label>
           <input
-            type="number"
+            type="text"
             id="nominal"
-            v-model.number="form.nominal"
+            v-model="computedNominal"
             placeholder="Masukkan nominal"
-            min="1000"
-            step="1000"
             class="text-gray-700 w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
             required
           />
+
           <p class="text-xs text-gray-500 mt-1">Minimal deposit Rp1.000</p>
         </div>
 
@@ -156,6 +155,34 @@ import { ref, computed, onMounted } from 'vue'
 import { getMember } from '@/service/member'
 import { addDeposit, infoDeposit } from '@/service/deposit_saldo'
 
+import { reactive } from 'vue'
+
+const computedNominal = computed({
+  get() {
+    return form.value.nominal
+      ? 'Rp ' + form.value.nominal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+      : ''
+  },
+  set(value: string) {
+    const clean = value.replace(/[^\d]/g, '')
+    form.value.nominal = Number(clean)
+  },
+})
+
+interface FormType {
+  nominal: number
+}
+
+function formatRupiah(angka: number | null): string {
+  if (!angka || angka === 0) return ''
+  return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+}
+
+function updateNominal(value: string): void {
+  const clean = value.replace(/[^\d]/g, '')
+  form.nominal = Number(clean)
+}
+
 interface Member {
   id: string | number
   fullname: string
@@ -164,7 +191,7 @@ interface Member {
 
 interface DepositForm {
   memberId: string | number
-  nominal: number | null
+  nominal: number | 0
   info: string
 }
 
