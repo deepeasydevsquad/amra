@@ -4,6 +4,7 @@ import UserView from '@/views/UserView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import KwitansiView from '@/views/KwitansiView.vue'
+import InvoicePaketLa from '../components/User/Modules/DaftarPaketLa/InvoicePaketLa.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -41,6 +42,11 @@ const router = createRouter({
         description: 'Ini adalah deskripsi halaman Home'
       },
       component: UserView,
+    },
+    {
+      path: '/invoice-paket-la',
+      name: 'invoice-paket-la',
+      component: InvoicePaketLa,
     },
   ],
 })
