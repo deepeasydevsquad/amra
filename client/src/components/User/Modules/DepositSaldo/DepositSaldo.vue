@@ -103,7 +103,7 @@
             <td class="px-6 py-4 text-center">{{ formatDate(deposit.createdAt) || '-' }}</td>
             <td class="px-6 py-4 text-center">
               <div class="flex justify-center gap-2">
-                <DangerButton @click="" title="Print Invoice">
+                <DangerButton @click="cetakKitansi(deposit.invoice)" title="Print Invoice">
                   <DeleteIcon />
                 </DangerButton>
               </div>
@@ -263,6 +263,14 @@ const handleDepositSuccess = () => {
   showFormAdd.value = false
   fetchDeposit() // Refresh data
   displayNotification('Deposit berhasil ditambahkan', 'success')
+}
+
+const cetakKitansi = (invoice: string) => {
+  if (!invoice) {
+    displayNotification('Nomor transaksi tidak tersedia', 'error')
+    return
+  }
+  window.open(`/invoice-deposit/${invoice}`, '_blank')
 }
 
 // Computed Properties
