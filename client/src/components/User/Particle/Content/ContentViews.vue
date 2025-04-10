@@ -32,6 +32,7 @@ import KostumerPaketLa from '../../Modules/KostumerPaketLa/KostumerPaketLa.vue'
 import DaftarPaketLa from '../../Modules/DaftarPaketLa/DaftarPaketLa.vue'
 import LevelAgen from '../../Modules/LevelAgen/LevelAgen.vue'
 import DaftarAgen from '../../Modules/DaftarAgen/DaftarAgen.vue'
+import DepositSaldo from '../../Modules/DepositSaldo/DepositSaldo.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -58,6 +59,7 @@ const tabComponents = {
   pengguna: Pengguna,
   level_agen: LevelAgen,
   daftar_agen: DaftarAgen,
+  deposit_saldo: DepositSaldo,
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click

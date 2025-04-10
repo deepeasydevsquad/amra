@@ -19,6 +19,7 @@ const arr_router = [
   "user",
   "otp",
   "registrasi",
+  "invoice",
   "kwitansi",
   "daftar_kota",
   "daftar_fasilitas",
@@ -44,6 +45,7 @@ const arr_router = [
   "level_agen",
   "daftar_agen",
   "invoice_paket_la",
+  "deposit_saldo",
 ];
 
 // routers

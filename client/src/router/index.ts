@@ -5,6 +5,7 @@ import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import KwitansiView from '@/views/KwitansiView.vue'
 import InvoicePaketLa from '../components/User/Modules/DaftarPaketLa/InvoicePaketLa.vue'
+import InvoiceDeposit from '@/components/User/Modules/Invoice/InvoiceDeposit.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,7 +40,7 @@ const router = createRouter({
       name: 'user',
       meta: {
         title: 'Home - My Website',
-        description: 'Ini adalah deskripsi halaman Home'
+        description: 'Ini adalah deskripsi halaman Home',
       },
       component: UserView,
     },
@@ -47,6 +48,11 @@ const router = createRouter({
       path: '/invoice-paket-la',
       name: 'invoice-paket-la',
       component: InvoicePaketLa,
+    },
+    {
+      path: '/invoice-deposit/:id',
+      name: 'invoice-deposit',
+      component: InvoiceDeposit,
     },
   ],
 })
