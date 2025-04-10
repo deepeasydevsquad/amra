@@ -98,7 +98,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="p-8 text-gray-900 font-sans text-sm">
+  <div class="min-h-screen p-8 text-gray-900 font-sans text-sm">
     <!-- Header -->
     <div class="flex items-center justify-between border-b-2 border-gray-400 pb-4 mb-6">
       <img
@@ -202,7 +202,16 @@ onMounted(async () => {
 
 
 <style scoped>
-/* Optional tambahan styling jika diperlukan */
+@media print {
+  @page {
+    size: A4;
+    background-color: #fff !important;
+    -webkit-print-color-adjust: exact;
+  }
+  * {
+    background: #fff !important;
+  }
+}
 </style>
 
 
