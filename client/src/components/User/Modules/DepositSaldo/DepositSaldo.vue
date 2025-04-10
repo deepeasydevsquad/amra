@@ -73,6 +73,17 @@
                 <li class="flex items-start">
                   <span class="text-gray-600 mr-2">➤</span>
                   <div>
+                    <span class="font-medium">Nominal Deposit:</span>
+                    {{
+                      deposit.nominal
+                        ? 'Rp' + new Intl.NumberFormat('id-ID').format(deposit.nominal)
+                        : '-'
+                    }}
+                  </div>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-gray-600 mr-2">➤</span>
+                  <div>
                     <span class="font-medium">Saldo Sebelum:</span>
                     {{
                       deposit.saldo_sebelum

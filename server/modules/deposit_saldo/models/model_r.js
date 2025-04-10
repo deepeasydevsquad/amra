@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 const {
   Member,
@@ -11,7 +11,6 @@ const {
 } = require("../../../models");
 const { Op } = require("sequelize");
 const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
-
 
 class Model_r {
   constructor(req) {
@@ -46,16 +45,14 @@ class Model_r {
     var data = {};
     await Company.findOne({
       where: { id: this.company_id },
-      include: [
-        { model: Division }
-      ],
+      include: [{ model: Division }],
     }).then(async (e) => {
       if (e) {
-          // data["id"] = e.id;
-          // data["kode"] = e.kode;
-          // data["name"] = e.name;
+        // data["id"] = e.id;
+        // data["kode"] = e.kode;
+        // data["name"] = e.name;
       }
-  });
+    });
 
     // await Mst_bank.findOne({
     //     where: { id: id },
@@ -96,6 +93,7 @@ class Model_r {
       order: [["id", "ASC"]],
       attributes: [
         "id",
+        "nominal",
         "saldo_sebelum",
         "saldo_sesudah",
         "penerima",
@@ -105,11 +103,11 @@ class Model_r {
       ],
       where,
       include: [
-        { 
-          model: Member, 
-          attributes: ["fullname"], 
-          as: "Member" , 
-        }
+        {
+          model: Member,
+          attributes: ["fullname"],
+          as: "Member",
+        },
       ],
     };
 
@@ -118,19 +116,20 @@ class Model_r {
       var data = [];
       await Promise.all(
         await rows.map(async (e) => {
-          data.push({ 
-            id : e.id,
-            fullname : e.Member.fullname,
-            saldo_sebelum : e.saldo_sebelum,
-            saldo_sesudah : e.saldo_sesudah,
-            penerima : e.penerima,
-            invoice : e.invoice, 
-            createdAt : e.createdAt, 
-            updatedAt : e.updatedAt
+          data.push({
+            id: e.id,
+            nominal: e.nominal,
+            fullname: e.Member.fullname,
+            saldo_sebelum: e.saldo_sebelum,
+            saldo_sesudah: e.saldo_sesudah,
+            penerima: e.penerima,
+            invoice: e.invoice,
+            createdAt: e.createdAt,
+            updatedAt: e.updatedAt,
           });
         })
       );
-      return { data : data , total: count };
+      return { data: data, total: count };
     } catch (error) {
       console.error("Error fetching deposits:", error);
       return { data: [], total: 0 };
