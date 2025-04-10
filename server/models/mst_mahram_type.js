@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Mst_pendidikan extends Model {
+  class Mst_mahram_type extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,16 +11,17 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Mst_pendidikan.hasMany(models.Jamaah, {
-        foreignKey: "last_education",
+      Mst_mahram_type.hasMany(models.Mahram, {
+        foreignKey: "mst_mahram_type_id",
       });
     }
   }
-  Mst_pendidikan.init({
-    name: DataTypes.STRING
+  Mst_mahram_type.init({
+    name: DataTypes.STRING,
+    gender: DataTypes.ENUM(['laki_laki', 'perempuan'])
   }, {
     sequelize,
-    modelName: 'Mst_pendidikan',
+    modelName: 'Mst_mahram_type',
   });
-  return Mst_pendidikan;
+  return Mst_mahram_type;
 };

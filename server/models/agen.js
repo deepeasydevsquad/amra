@@ -17,6 +17,9 @@ module.exports = (sequelize, DataTypes) => {
       Agen.belongsTo(models.Member, {
         foreignKey: "member_id",
       });
+      Agen.hasMany(models.Jamaah, {
+        foreignKey: "agen_id",
+      });
     }
   }
   Agen.init({
