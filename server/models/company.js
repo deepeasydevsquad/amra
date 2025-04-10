@@ -54,6 +54,12 @@ module.exports = (sequelize, DataTypes) => {
       Company.hasMany(models.Deposit, {
         foreignKey: "company_id",
       });
+      Company.hasMany(models.Mahram, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Jamaah, {
+        foreignKey: "company_id",
+      });
      }
   }
   Company.init(

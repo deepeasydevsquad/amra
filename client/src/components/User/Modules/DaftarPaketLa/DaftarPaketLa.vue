@@ -16,6 +16,8 @@ import Form from "./Particle/Form.vue"
 import { daftarPaketLA, addPaketLA, editPaketLA, deletePaketLA } from "../../../../service/daftar_paket_la"
 import { daftarFasilitasPaketLA, deleteFasilitasPaketLA } from "../../../../service/fasilitas_paket_la"
 import { ref, onMounted, computed, watchEffect } from 'vue';
+import { useInvoiceStore } from '../../../../stores/invoiceStore';
+import router from '@/router'; // ini untuk navigasi ke halaman lain
 import axios from 'axios';
 
 const itemsPerPage = 100; // Jumlah paket_la per halaman
@@ -210,12 +212,7 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 
 const saveData = async () => {
   if (!validateModal()) return;
-
-  // console.log("Data sebelum dikirim:", selectedPaketLA.value); // Debugging
-
-  // Buat salinan data agar tidak merusak state asli
   const paketLAData = { ...selectedPaketLA.value };
-  // delete paketLAData.kostumer_paket_la_id; // Hapus kostumer_paket_la_id sebelum dikirim
 
   console.log("Data paketLAData:", paketLAData); // Debugging
 
@@ -293,19 +290,17 @@ const deleteItem = async (id: number, fasilitaspaketlaId: number) => {
   );
 };
 
-// const cetakInvoice = async (id: number) => {
-//   try {
-//     const response = await axios.get(`/api/cetak-invoice/${id}`, { responseType: 'blob' });
-//     const url = window.URL.createObjectURL(new Blob([response.data]));
-//     const link = document.createElement('a');
-//     link.href = url;
-//     link.setAttribute('download', `invoice_${id}.pdf`);
-//     document.body.appendChild(link);
-//     link.click();
-//   } catch (error) {
-//     console.error('Error printing invoice:', error);
-//   }
-// };
+const cetakInvoice = async (paketId: number, fasilitasId: number) => {
+  try {
+    const invoiceStore = useInvoiceStore();
+    invoiceStore.setInvoiceData(paketId, fasilitasId);
+
+    // Arahkan ke halaman cetak (misalnya /invoice-paket-la)
+    router.push({ name: 'invoice-paket-la' });
+  } catch (error) {
+    console.error('Error printing invoice:', error);
+  }
+};
 </script>
 
 <template>
@@ -384,7 +379,9 @@ const deleteItem = async (id: number, fasilitaspaketlaId: number) => {
                       <td class="w-[20%] px-6 text-center border font-bold bg-gray-200">PRINT BTN</td>
                       <td class="w-[1%] px-3 border">:</td>
                       <td class="w-[34%] px-6 border text-left" style="text-transform:uppercase;">
-                        <button type="button" class="h-[35px] mx-[0.1rem] px-4 my-1 py-1 flex justify-center items-center rounded-lg text-gray-900 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" @click="cetakInvoice(invoice.id)">
+                        <button type="button" class="h-[35px] mx-[0.1rem] px-4 my-1 py-1 flex justify-center items-center rounded-lg text-gray-900 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+                          @click="cetakInvoice(paket.id, invoice.id)"
+                        >
                           <i class="fas fa-print" style="font-size: 11px;"></i> Cetak Invoice
                         </button>
                       </td>
@@ -568,10 +565,10 @@ const deleteItem = async (id: number, fasilitaspaketlaId: number) => {
       :isFormItemOpen="isFormItemOpen"
       :paketlaId="paketlaId"
       @close="isFormItemOpen = false; fetchData()"
-    />
+      />
   </Transition>
 
-  <!-- Confirmation Dialog -->
+    <!-- Confirmation Dialog -->
   <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
     <button @click="confirmAction && confirmAction()"
       class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
@@ -588,4 +585,5 @@ const deleteItem = async (id: number, fasilitaspaketlaId: number) => {
 
   <!-- Notification Popup -->
   <Notification  :showNotification="showNotification"  :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false"  ></Notification>
+
 </template>

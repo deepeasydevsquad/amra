@@ -44,6 +44,7 @@ const arr_router = [
   "pengguna",
   "level_agen",
   "daftar_agen",
+  "invoice_paket_la",
   "deposit_saldo",
 ];
 

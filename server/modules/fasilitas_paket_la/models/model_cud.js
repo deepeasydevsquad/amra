@@ -104,65 +104,6 @@ class Model_cud {
     }
   }
 
-  // // Edit fasilitas paket la
-  // async update() {
-  //   // initialize general property
-  //   await this.initialize();
-  //   const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
-  //   const body = this.req.body;
-
-  //   if (!body.id) {
-  //       throw new Error("ID fasilitas paket LA tidak boleh kosong.");
-  //   }
-
-  //   try {
-  //       // call object
-  //       const model_r = new Model_r(this.req);
-  //       // get info fasilitas paket la
-  //       const infoFasilitasPaketLA = await model_r.infoFasilitasPaketLA(body.id, this.paket_la_id);
-        
-  //       if (!infoFasilitasPaketLA) {
-  //           throw new Error("Data fasilitas paket LA tidak ditemukan.");
-  //       }
-
-  //       // update data fasilitas paket la
-  //       await Detail_fasilitas_paket_la.update(
-  //           {
-  //               description: body.description,
-  //               check_in: body.check_in,
-  //               check_out: body.check_out,
-  //               day: body.day,
-  //               pax: body.pax,
-  //               price: body.price,
-  //               updatedAt: myDate,
-  //           },
-  //           {
-  //               where: { id: body.id, fasilitas_paket_la_id: this.paket_la_id },
-  //               transaction: this.t,
-  //           }
-  //       );
-
-  //       // update total harga fasilitas paket la
-  //       await Fasilitas_paket_la.update(
-  //           {
-  //               total: await this.totalPrice(this.paket_la_id),
-  //               updatedAt: myDate,
-  //           },
-  //           {
-  //               where: { id: body.id, paket_la_id: this.paket_la_id },
-  //               transaction: this.t
-  //           }
-  //       );
-
-  //       // write log message
-  //       this.message = `Memperbarui Data fasilitas paket LA dengan Nomor Registrasi: ${infoFasilitasPaketLA.invoice}, 
-  //       Nama klien: ${infoFasilitasPaketLA.client_name}, ID paket LA: ${body.id}, menjadi Nama klien: ${body.client_name}`;
-  //   } catch (error) {
-  //       console.error("Error saat memperbarui fasilitas paket LA:", error);
-  //       this.state = false;
-  //   }
-  // }
-
   async delete(total_price) {
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
@@ -212,8 +153,15 @@ class Model_cud {
         { where: { id: body.fasilitaspaketlaId }, transaction: this.t }
       );
 
+      // // Jika ada data fasilitas Item, Hitung total harga dari Fasilitas Paket LA
+      // const totalPrice_paketla = (await Fasilitas_paket_la.sum("total", {
+      //   where: { paket_la_id: infoFasilitasPaketLA.paket_la_id},
+      //   transaction: this.t,
+      // })) || 0;
+
+      // Update total harga paket la
       await Paket_la.update(
-        { total_price: totalPrice - total_price  , updatedAt: myDate },
+        { total_price: totalPrice - total_price, updatedAt: myDate },
         { where: { id: infoFasilitasPaketLA.paket_la_id }, transaction: this.t }
       );
 

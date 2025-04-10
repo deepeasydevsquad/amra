@@ -14,6 +14,9 @@ module.exports = (sequelize, DataTypes) => {
       Kelurahan.belongsTo(models.Kecamatan, {
         foreignKey: "kecamatan_id",
       });
+      Kelurahan.hasMany(models.Jamaah, {
+        foreignKey: "kelurahan_id",
+      });
     }
   }
   Kelurahan.init({
