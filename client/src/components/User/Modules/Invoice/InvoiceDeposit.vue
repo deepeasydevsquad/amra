@@ -46,11 +46,11 @@
       <table class="w-full text-left border border-collapse mb-4">
         <thead class="bg-gray-100">
           <tr>
-            <th class="w-[20%] border p-2 w-1/5">Waktu Transaksi</th>
-            <th class="w-[15%] border p-2 w-1/5">Keperluan</th>
-            <th class="w-[20%] border p-2 w-1/5">Penerima</th>
-            <th class="w-[25%] border p-2 w-2/5">Info</th>
-            <th class="w-[20%] border p-2 w-1/5">Jumlah</th>
+            <th class="w-[20%] border p-2">Waktu Transaksi</th>
+            <th class="w-[15%] border p-2">Keperluan</th>
+            <th class="w-[20%] border p-2">Penerima</th>
+            <th class="w-[25%] border p-2">Info</th>
+            <th class="w-[20%] border p-2">Jumlah</th>
           </tr>
         </thead>
         <tbody>
