@@ -20,6 +20,12 @@ module.exports = (sequelize, DataTypes) => {
       Agen.hasMany(models.Jamaah, {
         foreignKey: "agen_id",
       });
+      Agen.hasMany(models.Fee_agen, {
+        foreignKey: "agen_id",
+      });
+      Agen.hasMany(models.Pembayaran_fee_agen, {
+        foreignKey: "agen_id",
+      });
     }
   }
   Agen.init({
