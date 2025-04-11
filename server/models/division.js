@@ -32,6 +32,9 @@ module.exports = (sequelize, DataTypes) => {
       Division.hasMany(models.Jurnal, {
         foreignKey: "division_id",
       });
+      Division.hasMany(models.Jamaah, {
+        foreignKey: "division_id",
+      });
     }
   }
   Division.init({

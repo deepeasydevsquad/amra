@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { getInvoicePaketLA  } from '../../../../service/invoice_paketla'
 import { useInvoiceStore } from '../../../../stores/invoiceStore'
+import Header from './Particle/Header.vue'
 import router from '@/router'; // ini untuk navigasi ke halaman lain
 
 interface DetailFasilitas {
@@ -100,22 +101,7 @@ onMounted(async () => {
 <template>
   <div class="min-h-screen p-8 text-gray-900 font-sans text-sm">
     <!-- Header -->
-    <div class="flex items-center justify-between border-b-2 border-gray-400 pb-4 mb-6">
-      <img
-        :src="companyData?.logo ? `${BASE_URL}/uploads/pengaturan/${companyData?.logo}` : `${BASE_URL}/uploads/pengaturan/logo1.png`"
-        alt="Logo"
-        class="h-16 object-contain"
-      />
-      <div class="text-right leading-tight">
-        <h2 class="text-2xl font-bold uppercase">{{ companyData?.company_name || '-' }}</h2>
-        <p>{{ companyData?.detail_company?.address || '-' }}</p>
-        <p>
-          Kode Pos: {{ companyData?.detail_company?.pos_code || '-' }},
-          Email: {{ companyData?.email || '-' }},
-          Telp: {{ companyData?.whatsapp_company_number || '-' }}
-        </p>
-      </div>
-    </div>
+    <Header :data="companyData"></Header>
 
     <!-- Title -->
     <h3 class="text-center text-lg font-bold mb-6 border-b pb-2">INVOICE ITEM FASILITAS PAKET LA</h3>

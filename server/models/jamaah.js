@@ -12,8 +12,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Jamaah.belongsTo(models.Company, {
-        foreignKey: "company_id",
+      Jamaah.belongsTo(models.Division, {
+        foreignKey: "division_id",
       });
       Jamaah.belongsTo(models.Agen, {
         foreignKey: "agen_id",
@@ -33,11 +33,14 @@ module.exports = (sequelize, DataTypes) => {
       Jamaah.hasMany(models.Mahram, {
         foreignKey: "jamaah_id",
       });
+      Jamaah.hasMany(models.Peminjaman, {
+        foreignKey: "jamaah_id",
+      });
     }
   }
 
   Jamaah.init({
-    company_id: DataTypes.INTEGER,
+    division_id: DataTypes.INTEGER,
     agen_id: DataTypes.INTEGER,
     member_id: DataTypes.INTEGER,
     kelurahan_id: DataTypes.BIGINT.UNSIGNED,
