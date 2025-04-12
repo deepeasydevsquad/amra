@@ -46,6 +46,7 @@ const arr_router = [
   "daftar_agen",
   "invoice_paket_la",
   "deposit_saldo",
+  "pembayaran_paket_la",
 ];
 
 // routers
