@@ -68,10 +68,6 @@ export default {
       return isValid;
     };
 
-    /**
-     * Format the price value of an item
-     * @param index The index of the item
-     */
     const formatPrice = (index: number) => {
       const value = parseFloat(items.value[index].price
         .replace(/[^\d]/g, "") // Remove all characters except digits and dot

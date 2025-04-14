@@ -10,6 +10,7 @@ import LightButton from "./Particle/LightButton.vue"
 import Notification from "./Particle/Notification.vue"
 import Confirmation from "./Particle/Confirmation.vue"
 import FormItem from "./Particle/FormItem.vue"
+import FormPembayaran from "./Particle/FormPembayaran.vue"
 import Form from "./Particle/Form.vue"
 
 // import api from "@/services/api"; // Import service API
@@ -81,6 +82,7 @@ const timeoutId = ref<number | null>(null);
 const dataPaketLA = ref<PaketLA[]>([]);
 const isModalOpen = ref<boolean>(false);
 const isFormItemOpen = ref<boolean>(false);
+const isFormPembayaranOpen = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
 const notificationMessage = ref<string>('');
@@ -156,6 +158,10 @@ const openModal = (paket_la?: PaketLA) => {
 const openFormItem = (id: number) => {
   paketlaId.value = id;
   isFormItemOpen.value = true;
+};
+const openFormPembayaran = (id: number) => {
+  paketlaId.value = id;
+  isFormPembayaranOpen.value = true;
 };
 
 onMounted(async () => {
@@ -460,7 +466,7 @@ const cetakInvoice = async (paketId: number, fasilitasId: number) => {
               <LightButton  @click="openFormItem(paket.id)">
                 <font-awesome-icon icon="fa-solid fa-box" />
               </LightButton>
-              <LightButton>
+              <LightButton @click="openFormPembayaran(paket.id)">
                 <font-awesome-icon icon="fa-solid fa-money-bill-alt" />
               </LightButton>
               <LightButton>
@@ -547,8 +553,8 @@ const cetakInvoice = async (paketId: number, fasilitasId: number) => {
       :selectedPaketLA="selectedPaketLA"
       :errors="errors"
       @save="saveData"
-      @close="isModalOpen = false"
-    />
+      @close="isModalOpen = false; fetchData()"
+      />
   </transition>
 
   <!-- FormItem Overlay -->
@@ -565,6 +571,23 @@ const cetakInvoice = async (paketId: number, fasilitasId: number) => {
       :isFormItemOpen="isFormItemOpen"
       :paketlaId="paketlaId"
       @close="isFormItemOpen = false; fetchData()"
+      />
+  </Transition>
+
+  <!-- FormPembayaran Overlay -->
+  <Transition
+    enter-active-class="transition-opacity duration-200 ease-out"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
+    leave-active-class="transition-opacity duration-200 ease-in"
+    leave-from-class="opacity-100"
+    leave-to-class="opacity-0"
+  >
+    <FormPembayaran
+      v-if="isFormPembayaranOpen"
+      :isFormPembayaranOpen="isFormPembayaranOpen"
+      :paketlaId="paketlaId"
+      @close="isFormPembayaranOpen = false; fetchData()"
       />
   </Transition>
 

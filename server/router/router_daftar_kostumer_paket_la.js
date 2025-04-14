@@ -21,9 +21,9 @@ router.post(
   "/daftar_kostumer_paket_la/",
   authenticateToken,
   [
-    body("name").trim().notEmpty().withMessage("Nama Kota tidak boleh kosong.").toUpperCase(),
+    body("name").trim().notEmpty().withMessage("Nama Kota tidak boleh kosong."),
     body("mobile_number").trim().notEmpty().withMessage("Nomor Telepon tidak boleh kosong."),
-    body("address").trim().notEmpty().withMessage("Alamat tidak boleh kosong.").toUpperCase(),
+    body("address").trim().notEmpty().withMessage("Alamat tidak boleh kosong."),
   ],
   controllers.add
 );
@@ -33,9 +33,9 @@ router.post(
   authenticateToken,
   [
     body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").custom(validation.check_id_kostumer_paket_la),
-    body("name").trim().notEmpty().withMessage("Nama Kota tidak boleh kosong.").toUpperCase(),
+    body("name").trim().notEmpty().withMessage("Nama Kota tidak boleh kosong."),
     body("mobile_number").trim().notEmpty().withMessage("Nomor Telepon tidak boleh kosong."),
-    body("address").trim().notEmpty().withMessage("Alamat tidak boleh kosong.").toUpperCase(),
+    body("address").trim().notEmpty().withMessage("Alamat tidak boleh kosong."),
   ],
   controllers.update
 );
