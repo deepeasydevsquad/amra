@@ -13,7 +13,7 @@ module.exports = {
         client_address: 'Medan',
         status: 'active',
         discount: 0, 
-        total_price: 0, 
+        total_price: 120000, 
         total_jamaah: 40, 
         departure_date:  new Date(), 
         arrival_date:  new Date(), 
