@@ -1,4 +1,4 @@
-ikata<script lang="ts">
+<script lang="ts">
 import { getItemTransaksi, addPembayaranPaketLa } from '../../../../../service/pembayaran_paket_la';
 import { watch, ref, computed, onMounted } from 'vue';
 import Notification from './Notification.vue';
@@ -115,7 +115,8 @@ export default {
         // Reset form
         itemsPembayaran.value = {paid: 0, deposit_name: '', deposit_hp_number: '', deposit_address: ''};
         formattedData.value = '';
-        fetchData();
+
+        emit('close');
       } catch (error: any) {
         displayNotification(error.response?.data?.error_msg || 'Terjadi kesalahan saat menyimpan data.', 'error');
       }
