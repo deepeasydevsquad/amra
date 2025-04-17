@@ -286,11 +286,6 @@ async deleteJamaah() {
       transaction: this.t,
     });
 
-    // Hapus Member
-    await this.db.Member.destroy({
-      where: { id: member_id },
-      transaction: this.t,
-    });
 
     this.state = true;
     this.message = `✅ Berhasil hapus jamaah dan member dengan member_id ${member_id}`;

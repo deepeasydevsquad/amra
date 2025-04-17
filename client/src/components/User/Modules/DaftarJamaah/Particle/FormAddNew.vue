@@ -1,14 +1,14 @@
 <template>
   <!-- Modal Backdrop -->
   <div
-    class="fixed inset-0 z-50 bg-black bg-opacity-50 overflow-y-auto flex items-center justify-center p-4"
+    class="fixed inset-0 z-50 bg-black bg-opacity-50 overflow-y-auto flex items-start justify-center p-4 pt-32 pl-20"
   >
     <!-- Modal Container -->
     <div
-      class="bg-white rounded-2xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto pt-20 pl-30"
+      class="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
     >
       <!-- Modal Header -->
-      <div class="sticky top-0 bg-white z-10 border-b p-6">
+      <div class="bg-white z-10 border-b p-6">
         <h2 class="text-2xl font-bold text-gray-700 text-center">Form Jamaah Baru</h2>
       </div>
 
@@ -77,8 +77,8 @@
               <label class="block text-sm font-medium text-gray-700">Kewarganegaraan*</label>
               <select v-model="formData.kewarganegaraan" class="input" required>
                 <option value="">Pilih negara</option>
-                <option value="wni">Indonesia</option>
-                <option value="wna">Asing</option>
+                <option value="wni">WNI</option>
+                <option value="wna">WNA</option>
               </select>
             </div>
 
@@ -240,7 +240,7 @@
 
             <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700">Kode Pos</label>
-              <input v-model="formData.kode_pos" type="text" class="input" placeholder="40134" />
+              <input v-model="formData.kode_pos" type="text" class="input" placeholder="Masukan Kode Poss" />
             </div>
 
             <div class="space-y-2">
@@ -449,6 +449,7 @@
             <div class="space-y-2">
   <label class="block text-sm font-medium text-gray-700">Pengalaman Haji</label>
   <select v-model="formData.pengalaman_haji" class="input">
+  <option value=""> Pilih Pengalaman Haji</option>
     <option v-for="item in dataPengalaman" :key="item.id" :value="item.id">
       {{ item.name }}
     </option>
@@ -469,6 +470,7 @@
 <div class="space-y-2">
   <label class="block text-sm font-medium text-gray-700">Pengalaman Umrah</label>
   <select v-model="formData.pengalaman_umrah" class="input">
+    <option value=""> Pilih Pengalaman Umrah</option>
     <option v-for="item in dataPengalaman" :key="item.id" :value="item.id">
       {{ item.name }}
     </option>
@@ -829,16 +831,19 @@ import {
   daftarPekerjaan,
   daftarPendidikan,
   daftarPengalaman
-} from '../../../../../service/data_master'
+} from '@/service/data_master'
 
 
 
-import { getMember } from '../../../../../service/member'
+import { getMember } from '@/service/member'
 
-import { addJamaah } from '../../../../../service/daftar_jamaah'
+import { addJamaah } from '@/service/daftar_jamaah'
 
-import { daftarAgen} from '../../../../../service/agen'
+import { daftarAgen} from '@/service/agen'
 
+
+
+const emit = defineEmits(['close','success'])
 
 const dataPengalaman = ref([])
 const dataPengalamanUmrah = ref('')
@@ -866,7 +871,7 @@ const formData = ref({
   whatsapp_number: '',
   password: '',
   kelurahan_id: null,
-  agen_id: null,
+  agen_id: '',
   title: '',
   nama_ayah: '',
   nama_passport: '',
@@ -881,9 +886,9 @@ const formData = ref({
   pengalaman_umrah: '' ,
   tahun_umrah: null,
   desease: '',
-  last_education: null,
+  last_education: '',
   blood_type: '',
-  mst_pekerjaan_id: null,
+  mst_pekerjaan_id: '',
   profession_instantion_name: '',
   profession_instantion_address: '',
   profession_instantion_telephone: '',
@@ -895,7 +900,7 @@ const formData = ref({
   kewarganegaraan: 'wni',
   mahram: {
     mahram_id: null,
-    mst_mahram_type_id: null,
+    mst_mahram_type_id: '',
   },
   keterangan: '',
   alamat: '',

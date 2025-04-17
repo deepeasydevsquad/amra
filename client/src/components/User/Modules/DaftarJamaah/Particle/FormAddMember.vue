@@ -122,8 +122,8 @@
 const emit = defineEmits(['close', 'next']) // Emit event to parent component
 
 import { ref, computed, onMounted } from 'vue'
-import { getMember } from '../../../../../service/member' // Service to get all members
-import { daftarJamaah } from '../../../../../service/daftar_jamaah' // Service to get all jamaah
+import { getMember } from '@/service/member' // Service to get all members
+import { daftarJamaah } from '@/service/daftar_jamaah' // Service to get all jamaah
 
 // Handle next step logic and emit data
 const handleNextStep = () => {

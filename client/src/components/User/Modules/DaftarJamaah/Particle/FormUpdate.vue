@@ -392,7 +392,7 @@
             <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700">Jenis Mahram</label>
               <select v-model="formData.mahram.mst_mahram_type_id" class="input">
-                <option disabled value="">Pilih jenis mahram</option>
+                <option disabled value="0">Pilih jenis mahram</option>
 
                 <option v-for="jenis in mahramOptions" :key="jenis.id" :value="jenis.id">
                   {{ jenis.name }}
@@ -816,15 +816,15 @@ import {
   daftarPekerjaan,
   daftarPendidikan,
   daftarPengalaman
-} from '../../../../../service/data_master'
+} from '@/service/data_master'
 
 
 
-import { getMember } from '../../../../../service/member'
+import { getMember } from '@/service/member'
 
-import { editJamaah } from '../../../../../service/daftar_jamaah'
+import { editJamaah } from '@/service/daftar_jamaah'
 
-import { daftarAgen} from '../../../../../service/agen'
+import { daftarAgen} from '@/service/agen'
 
 
 
@@ -855,7 +855,7 @@ const formData = ref({
   whatsapp_number: '',
   password: '',
   kelurahan_id: null,
-  agen_id: null,
+  agen_id: '',
   title: '',
   nama_ayah: '',
   nama_passport: '',
@@ -884,7 +884,7 @@ const formData = ref({
   kewarganegaraan: '',
   mahram: {
     mahram_id: null,
-    mst_mahram_type_id: null,
+    mst_mahram_type_id: 0,
   },
   keterangan: '',
   alamat: '',

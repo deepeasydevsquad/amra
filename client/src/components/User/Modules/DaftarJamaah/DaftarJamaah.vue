@@ -234,18 +234,18 @@ v-if="ShowFormUpdate"
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { daftarJamaah, deleteJamaah } from '../../../../service/daftar_jamaah.ts'
-import Confirmation from './Particle/Confirmation.vue'
-import Notification from './Particle/Notification.vue'
-import DeleteIcon from './Icon/DeleteIcon.vue'
-import DangerButton from './Particle/DangerButton.vue'
-import EditIcon from './Icon/EditIcon.vue'
-import EditButton from './Particle/EditButton.vue'
-import ModalConfirm from './Particle/ModalConfirm.vue'
-import FormAddNew from './Particle/FormAddNew.vue'
-import FormAddMember from './Particle/FormAddMember.vue'
-import FormMember from './Particle/FormMember.vue'
-import FormUpdate from './Particle/FormUpdate.vue'
+import { daftarJamaah, deleteJamaah } from '@/service/daftar_jamaah.ts'
+import Confirmation from '@/components/user/modules/DaftarJamaah/Particle/Confirmation.vue'
+import Notification from '@/components/user/modules/DaftarJamaah/Particle/Notification.vue'
+import DeleteIcon from '@/components/user/modules/DaftarJamaah/Icon/DeleteIcon.vue'
+import DangerButton from '@/components/user/modules/DaftarJamaah/Particle/DangerButton.vue'
+import EditIcon from '@/components/user/modules/DaftarJamaah/Icon/EditIcon.vue'
+import EditButton from '@/components/user/modules/DaftarJamaah/Particle/EditButton.vue'
+import ModalConfirm from '@/components/user/modules/DaftarJamaah/Particle/ModalConfirm.vue'
+import FormAddNew from '@/components/user/modules/DaftarJamaah/Particle/FormAddNew.vue'
+import FormAddMember from '@/components/user/modules/DaftarJamaah/Particle/FormAddMember.vue'
+import FormMember from '@/components/user/modules/DaftarJamaah/Particle/FormMember.vue'
+import FormUpdate from '@/components/user/modules/DaftarJamaah/Particle/FormUpdate.vue'
 
 
 
@@ -333,6 +333,7 @@ const updateSuccess = async (data: any) => {
 
 const handleJamaahSuccess = () => {
   showFormAdd.value = false
+  showFormMember.value = false
   fetchJamaah() // Refresh data
   displayNotification('Jamaah berhasil ditambahkan', 'success')
 }

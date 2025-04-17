@@ -1,6 +1,6 @@
 <template>
     <div
-    class="fixed inset-0 z-50 bg-black bg-opacity-50 overflow-y-auto flex items-center justify-center p-4"
+    class="fixed inset-0 z-50 bg-black bg-opacity-50 overflow-y-auto flex items-start justify-center p-4 pt-32 pl-20"
   >
     <!-- Modal Container -->
     <div
@@ -67,18 +67,18 @@
 
                <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Nomor Passport</label>
-              <input v-model="formData.nomor_passport" type="text" class="input" />
+              <input v-model="formData.nomor_passport" type="text" class="input" placeholder="Masukan Nomor Passport" />
             </div>
 
 
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Tempat Dikeluarkan Passport</label>
-              <input v-model="formData.tempat_di_keluarkan_passport" type="text" class="input" />
+              <input v-model="formData.tempat_di_keluarkan_passport" type="text" class="input" placeholder="tempat di kerluarkan Passport"/>
             </div>
 
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Tanggal Dikeluarkan</label>
-              <input v-model="formData.tanggal_di_keluarkan_passport" type="date" class="input" />
+              <input v-model="formData.tanggal_di_keluarkan_passport" type="date" class="input" placeholder="tanggal di kerluarkan passport"/>
             </div>
 
             <div class="space-y-1">
@@ -89,6 +89,7 @@
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Jenis Identitas*</label>
               <select v-model="formData.identity_type" class="input" required>
+                <option value="">Pilih Jenis Identitas</option>
                 <option value="ktp">KTP</option>
                 <option value="passport">Passport</option>
               </select>
@@ -97,6 +98,7 @@
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Kewarganegaraan*</label>
               <select v-model="formData.kewarganegaraan" class="input" required>
+              <option value="">Pilih kewarganegaraan</option>
                 <option value="wni">WNI</option>
                 <option value="wna">WNA</option>
               </select>
@@ -115,12 +117,12 @@
 
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Kode Pos</label>
-              <input v-model="formData.kode_pos" type="text" class="input" />
+              <input v-model="formData.kode_pos" type="text" class="input" placeholder="Masukan Kode Poss"/>
             </div>
 
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Telepon*</label>
-              <input v-model="formData.nomor_telephone" type="tel" class="input" required />
+              <input v-model="formData.nomor_telephone" type="tel" class="input" placeholder="Masukan Nomor Telepon" required />
             </div>
           </div>
 
@@ -178,19 +180,19 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Nama Ayah Kandung</label>
-              <input v-model="formData.nama_ayah" type="text" class="input" />
+              <input v-model="formData.nama_ayah" type="text" class="input"  placeholder="masukan nama ayah"/>
             </div>
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Nama Keluarga</label>
-              <input v-model="formData.nama_keluarga" type="text" class="input" />
+              <input v-model="formData.nama_keluarga" type="text" class="input" placeholder="masukan nama keluarga"/>
             </div>
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Telepon Keluarga</label>
-              <input v-model="formData.telephone_keluarga" type="tel" class="input" />
+              <input v-model="formData.telephone_keluarga" type="tel" class="input" placeholder="masukan nomor telpon keluarga"/>
             </div>
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Alamat Keluarga</label>
-              <input v-model="formData.alamat_keluarga" type="text" class="input" />
+              <input v-model="formData.alamat_keluarga" type="text" class="input" placeholder="masukan alamat keluarga"/>
             </div>
           </div>
 
@@ -338,7 +340,8 @@
                 v-model="formData.tahun_haji" 
                 type="text" 
                 class="input" 
-                :disabled="formData.pengalaman_haji !== '1'"
+                
+                placeholder="masukan tahun haji"
               />
             </div>
             <div class="space-y-1">
@@ -356,12 +359,13 @@
                 v-model="formData.tahun_umrah" 
                 type="text" 
                 class="input" 
-                :disabled="formData.pengalaman_umrah !== '1'"
+                
+                placeholder="Masukan Tahun Umrah"
               />
             </div>
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Berangkat Dari</label>
-              <input v-model="formData.berangkat_dari" type="text" class="input" />
+              <input v-model="formData.berangkat_dari" type="text" class="input" placeholder="berangkat dari ......."/>
             </div>
           </div>
 
@@ -378,15 +382,15 @@
             </div>
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Nama Instansi Pekerjaan</label>
-              <input v-model="formData.profession_instantion_name" type="text" class="input" />
+              <input v-model="formData.profession_instantion_name" type="text" class="input"  placeholder="masukan nama instansi pekerjaan"/>
             </div>
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Alamat Instansi Pekerjaan</label>
-              <input v-model="formData.profession_instantion_address" type="text" class="input" />
+              <input v-model="formData.profession_instantion_address" type="text" class="input" placeholder="masukan alamat instansi pekerjaan"/>
             </div>
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Telepon Pekerjaan</label>
-              <input v-model="formData.profession_instantion_telephone" type="tel" class="input" />
+              <input v-model="formData.profession_instantion_telephone" type="tel" class="input" placeholder="masukan nomor telepon pekerjaan"/>
             </div>
           </div>
 
@@ -403,7 +407,7 @@
             </div>
             <div class="space-y-1">
               <label class="block text-sm font-medium text-gray-700">Riwayat Penyakit</label>
-              <input v-model="formData.desease" type="text" class="input" />
+              <input v-model="formData.desease" type="text" class="input" placeholder="Masukan Riwayat Penyakit (BILA ADA)"/>
             </div>
           </div>
 
@@ -411,7 +415,7 @@
           <div class="space-y-1">
             <label class="block text-sm font-medium text-gray-700">Agen</label>
             <select v-model="formData.agen_id" class="input">
-              <option value="">Pilih agen</option>
+              <option value="0">Pilih agen</option>
               <option v-for="agen in agenList" :key="agen.id" :value="agen.id">
                 {{ agen.Member.fullname }}
               </option>
@@ -540,7 +544,7 @@ const props = defineProps<{
   }
 }>()
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close','success'])
 
 // Format tanggal
 const formatDate = (rawDate?: string): string => {
@@ -565,7 +569,7 @@ const formData = reactive({
   whatsapp_number: '',
   password: '',
   kelurahan_id: null,
-  agen_id: null,
+  agen_id: 0,
   title: '',
   nama_ayah: '',
   nama_passport: '',
@@ -575,14 +579,14 @@ const formData = reactive({
   masa_berlaku_passport: '',
   kode_pos: '',
   nomor_telephone: '',
-  pengalaman_haji: '0',
+  pengalaman_haji: '',
   tahun_haji: null,
-  pengalaman_umrah: '0',
+  pengalaman_umrah: '',
   tahun_umrah: null,
   desease: '',
-  last_education: null,
+  last_education: '',
   blood_type: '',
-  mst_pekerjaan_id: null,
+  mst_pekerjaan_id: '',
   profession_instantion_name: '',
   profession_instantion_address: '',
   profession_instantion_telephone: '',
