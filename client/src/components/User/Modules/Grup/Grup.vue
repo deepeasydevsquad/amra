@@ -1,15 +1,15 @@
 
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
-import ModalAdd from './Particle/ModalAdd.vue'
-import ModalUpdate from './Particle/ModalUpdate.vue'
+import ModalAdd from '@/components/User/Modules/Grup/Particle/ModalAdd.vue'
+import ModalUpdate from '@/components/User/Modules/Grup/Particle/ModalUpdate.vue'
 import { daftarGrup, addGrup, editGrup, hapusGrup } from '../../../../service/grup'
 import DeleteIcon from '@/components/User/Modules/Grup/Icon/DeleteIcon.vue'
-import EditIcon from './Icon/EditIcon.vue'
-import DangerButton from './Particle/DangerButton.vue'
-import EditButton from './Particle/EditButton.vue'
-import Notification from './Particle/Notification.vue'
-import Confirm from './Particle/ModalConfirmDelete.vue'
+import EditIcon from '@/components/User/Modules/Grup/Icon/EditIcon.vue'
+import DangerButton from '@/components/User/Modules/Grup/Particle/DangerButton.vue'
+import EditButton from '@/components/User/Modules/Grup/Particle/EditButton.vue'
+import Notification from '@/components/User/Modules/Grup/Particle/Notification.vue'
+import Confirm from '@/components/User/Modules/Grup/Particle/ModalConfirmDelete.vue'
 
 const data = ref([])
 const isAddModalOpen = ref(false)
