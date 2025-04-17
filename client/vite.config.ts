@@ -16,4 +16,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    outDir: '/opt/lampp/htdocs/amra_baru', // ← ganti ke folder tujuan kamu
+    emptyOutDir: true
+  }
 })
