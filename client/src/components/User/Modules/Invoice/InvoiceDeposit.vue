@@ -97,13 +97,12 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
-import { dataInvoiceDeposit } from '../../../../service/invoice'
+import { dataInvoiceDeposit } from '@/service/invoice.ts'
 import { useRoute } from 'vue-router'
-import Header from './Particle/Header.vue'
+import Header from '@/components/User/Modules/Invoice/Particle/Header.vue'
 
 const route = useRoute()
 const invoiceId = route.params.id
-const BASE_URL = import.meta.env.VITE_APP_API_BASE_URL
 const company = ref<any>(null)
 
 const fetch = async () => {

@@ -1,14 +1,15 @@
 <script lang="ts">
 import { getItemTransaksi, addPembayaranPaketLa } from '../../../../../service/pembayaran_paket_la';
 import { watch, ref, computed, onMounted } from 'vue';
-import Notification from './Notification.vue';
-import CetakIcon from '../Icon/CetakIcon.vue';
+import Notification from '@/components/User/Modules/DaftarPaketLa/Particle/Notification.vue';
+import CetakIcon from '@/components/User/Modules/DaftarPaketLa/Icon/CetakIcon.vue';
 
 interface ItemTransaksi {
   id: number;
   invoice: string;
   paid: number;
   status: string;
+  date: string;
   receiver: string;
   price?: string;
 }
@@ -30,7 +31,8 @@ export default {
   components: { Notification, CetakIcon },
   props: {
     isFormPembayaranOpen: Boolean,
-    paketlaId: Number
+    paketlaId: Number,
+    registerNumber: String
   },
   setup(props, { emit }) {
     const showNotification = ref(false);
@@ -122,6 +124,22 @@ export default {
       }
     };
 
+    const cetakKwitansiTerakhir = async () => {
+        try {
+
+          if (!props.registerNumber) {
+            displayNotification('Nomor register tidak tersedia', 'error')
+            return
+          }
+
+          const url = `/kwitansi-terakhir/${props.registerNumber}`
+          window.open(url, '_blank', 'noopener,noreferrer,width=800,height=600,scrollbars=yes')
+        } catch (error) {
+          console.error('Error printing register number:', error)
+          displayNotification('Terjadi kesalahan saat membuka register number.', 'error')
+        }
+      }
+
     const fetchData = async () => {
       console.groupCollapsed(`Fetching data for paketlaId ${props.paketlaId}`);
       try {
@@ -154,6 +172,7 @@ export default {
     return {
       transaksi,
       CetakIcon,
+      cetakKwitansiTerakhir,
       itemsPembayaran,
       errors,
       showNotification,
@@ -197,7 +216,7 @@ export default {
                     <td class="p-2 border">{{ item.invoice }}</td>
                     <td class="p-2 border">Rp {{ item.paid.toLocaleString() }}</td>
                     <td class="p-2 border">{{ item.status }}</td>
-                    <td class="p-2 border">Belum dibuat</td>
+                    <td class="p-2 border">{{ item.date }}</td>
                     <td class="p-2 border">{{ item.receiver }}</td>
                     <td class="p-2 border">
                       <button class="px-1 py-1 bg-blue-500 text-white rounded flex items-center">
@@ -280,7 +299,7 @@ export default {
             Bayar
           </button>
           <button
-
+            @click="cetakKwitansiTerakhir()"
             class="mt-3 inline-flex w-full justify-center rounded-md border  bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
           >Cetak Kwitansi Terakhir</button>
           <button

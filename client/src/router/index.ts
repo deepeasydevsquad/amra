@@ -6,6 +6,7 @@ import RegisterView from '@/views/RegisterView.vue'
 import KwitansiView from '@/views/KwitansiView.vue'
 import InvoicePaketLa from '@/components/User/Modules/Invoice/InvoicePaketLa.vue'
 import InvoiceDeposit from '@/components/User/Modules/Invoice/InvoiceDeposit.vue'
+import InvoiceKwitansiTerakhir from '@/components/User/Modules/Invoice/InvoiceKwitansiTerakhir.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -45,7 +46,7 @@ const router = createRouter({
       component: UserView,
     },
     {
-      path: '/invoice-paket-la',
+      path: '/invoice-paket-la/:id',
       name: 'invoice-paket-la',
       component: InvoicePaketLa,
     },
@@ -53,6 +54,11 @@ const router = createRouter({
       path: '/invoice-deposit/:id',
       name: 'invoice-deposit',
       component: InvoiceDeposit,
+    },
+    {
+      path: '/kwitansi-terakhir/:id',
+      name: 'kwitansi-terakhir',
+      component: InvoiceKwitansiTerakhir,
     },
   ],
 })

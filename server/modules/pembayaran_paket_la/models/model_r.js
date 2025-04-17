@@ -67,7 +67,7 @@ class Model_r {
                   paid: trx.paid,
                   status: trx.status,
                   receiver: trx.receiver,
-                  createdAt: trx.createdAt,
+                  date: moment(trx.createdAt).format('YYYY-MM-DD HH:mm:ss'),
                   updatedAt: trx.updatedAt,
                 })),
               });
