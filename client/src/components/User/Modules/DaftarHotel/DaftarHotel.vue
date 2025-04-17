@@ -1,17 +1,17 @@
 <script setup lang="ts">
 // Import Icon
-import DeleteIcon from "./Icon/DeleteIcon.vue"
-import EditIcon from "./Icon/EditIcon.vue"
+import DeleteIcon from "@/components/User/Modules/DaftarHotel/Icon/DeleteIcon.vue"
+import EditIcon from "@/components/User/Modules/DaftarHotel/Icon/EditIcon.vue"
 
 // import element
-import DangerButton from "./Particle/DangerButton.vue"
-import EditButton from "./Particle/EditButton.vue"
-import Notification from "./Particle/Notification.vue"
-import Confirmation from "./Particle/Confirmation.vue"
+import DangerButton from "@/components/User/Modules/DaftarHotel/Particle/DangerButton.vue"
+import EditButton from "@/components/User/Modules/DaftarHotel/Particle/EditButton.vue"
+import Notification from "@/components/User/Modules/DaftarHotel/Particle/Notification.vue"
+import Confirmation from "@/components/User/Modules/DaftarHotel/Particle/Confirmation.vue"
 
 // import api from "@/services/api"; // Import service API
-import { daftarHotel, addHotel, editHotel, deleteHotel } from "../../../../service/daftar_hotel" // Import function POST
-import { daftarKota } from "../../../../service/daftar_kota"; // Import function GET
+import { daftarHotel, addHotel, editHotel, deleteHotel } from "@/service/daftar_hotel" // Import function POST
+import { daftarKota } from "@/service/daftar_kota"; // Import function GET
 import { ref, onMounted, computed, watchEffect } from 'vue';
 import axios from 'axios';
 

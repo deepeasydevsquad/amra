@@ -3,7 +3,7 @@
 import { onMounted, ref, computed } from 'vue'
 import ModalAdd from '@/components/User/Modules/Grup/Particle/ModalAdd.vue'
 import ModalUpdate from '@/components/User/Modules/Grup/Particle/ModalUpdate.vue'
-import { daftarGrup, addGrup, editGrup, hapusGrup } from '../../../../service/grup'
+import { daftarGrup, addGrup, editGrup, hapusGrup } from '@/service/grup'
 import DeleteIcon from '@/components/User/Modules/Grup/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/Grup/Icon/EditIcon.vue'
 import DangerButton from '@/components/User/Modules/Grup/Particle/DangerButton.vue'
