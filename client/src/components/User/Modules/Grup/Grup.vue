@@ -1,3 +1,134 @@
+
+<script setup lang="ts">
+import { onMounted, ref, computed } from 'vue'
+import ModalAdd from './Particle/ModalAdd.vue'
+import ModalUpdate from './Particle/ModalUpdate.vue'
+import { daftarGrup, addGrup, editGrup, hapusGrup } from '../../../../service/grup'
+import DeleteIcon from './Icon/DeleteIcon.vue'
+import EditIcon from './Icon/EditIcon.vue'
+import DangerButton from './Particle/DangerButton.vue'
+import EditButton from './Particle/EditButton.vue'
+import Notification from './Particle/Notification.vue'
+import Confirm from './Particle/ModalConfirmDelete.vue'
+
+const data = ref([])
+const isAddModalOpen = ref(false)
+const isUpdateModalOpen = ref(false)
+const grupToUpdate = ref<any>(null)
+
+const showNotification = ref(false)
+const notificationType = ref<'success' | 'error'>('success')
+const notificationMessage = ref('')
+
+const currentPage = ref(1)
+const itemsPerPage = ref(5)
+
+const totalPages = computed(() => Math.ceil(data.value.length / itemsPerPage.value))
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return data.value.slice(start, end)
+})
+
+const pages = computed(() => {
+  const pagesArray = []
+  for (let i = 1; i <= totalPages.value; i++) {
+    pagesArray.push(i)
+  }
+  return pagesArray
+})
+
+const showConfirmDialog = ref(false)
+const confirmTitle = ref('')
+const confirmMessage = ref('')
+const confirmAction = ref<() => void>(() => {})
+
+const fetchGrup = async () => {
+  try {
+    const response = await daftarGrup()
+    if (response.success && response.data) {
+      data.value = response.data
+      console.log(response.data)
+    }
+  } catch (error) {
+    console.error('Gagal mengambil data grup:', error)
+  }
+}
+
+const handleSaveGroup = async (grup) => {
+  try {
+    console.log('Mengirim data ke API:', grup) // Cek data sebelum dikirim
+
+    if (grup.id) {
+      const response = await editGrup(grup)
+      console.log('Response dari API update:', response)
+      showNotificationMessage('success', 'Data grup berhasil diupdate!')
+    } else {
+      const response = await addGrup(grup)
+      console.log('Response dari API tambah:', response)
+      showNotificationMessage('success', 'Data grup berhasil ditambahkan!')
+    }
+
+    await fetchGrup() // Refresh UI setelah update
+  } catch (error) {
+    console.error('Error menyimpan grup:', error)
+    showNotificationMessage('error', 'Gagal menyimpan data grup.')
+  }
+}
+
+const openUpdateModal = (grup) => {
+  grupToUpdate.value = grup
+  isUpdateModalOpen.value = true
+}
+
+const handleDeleteGroup = (grupId) => {
+  confirmTitle.value = 'Konfirmasi Hapus'
+  confirmMessage.value = 'Apakah Anda yakin ingin menghapus grup ini?'
+  confirmAction.value = () => deleteGroup(grupId)
+  showConfirmDialog.value = true
+}
+
+const deleteGroup = async (grupId) => {
+  try {
+    await hapusGrup(grupId)
+    showNotificationMessage('success', 'Data grup berhasil dihapus!')
+    await fetchGrup()
+  } catch (error) {
+    showNotificationMessage('error', 'Gagal menghapus grup.')
+  } finally {
+    showConfirmDialog.value = false
+  }
+}
+
+const confirmDelete = () => {
+  confirmAction.value()
+}
+
+const showNotificationMessage = (type, message) => {
+  notificationType.value = type
+  notificationMessage.value = message
+  showNotification.value = true
+  setTimeout(() => (showNotification.value = false), 3000)
+}
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+  }
+}
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--
+  }
+}
+
+const pageNow = (page) => {
+  currentPage.value = page
+}
+
+onMounted(fetchGrup)
+</script>
 <template>
   <div class="container mx-auto p-4">
     <div class="flex justify-between mb-4">
@@ -182,133 +313,3 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
-import ModalAdd from './Particle/ModalAdd.vue'
-import ModalUpdate from './Particle/ModalUpdate.vue'
-import { daftarGrup, addGrup, editGrup, hapusGrup } from '../../../../service/grup'
-import DeleteIcon from './Icon/DeleteIcon.vue'
-import EditIcon from './Icon/EditIcon.vue'
-import DangerButton from './Particle/DangerButton.vue'
-import EditButton from './Particle/EditButton.vue'
-import Notification from './Particle/Notification.vue'
-import Confirm from './Particle/ModalConfirmDelete.vue'
-
-const data = ref([])
-const isAddModalOpen = ref(false)
-const isUpdateModalOpen = ref(false)
-const grupToUpdate = ref<any>(null)
-
-const showNotification = ref(false)
-const notificationType = ref<'success' | 'error'>('success')
-const notificationMessage = ref('')
-
-const currentPage = ref(1)
-const itemsPerPage = ref(5)
-
-const totalPages = computed(() => Math.ceil(data.value.length / itemsPerPage.value))
-const paginatedData = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value
-  const end = start + itemsPerPage.value
-  return data.value.slice(start, end)
-})
-
-const pages = computed(() => {
-  const pagesArray = []
-  for (let i = 1; i <= totalPages.value; i++) {
-    pagesArray.push(i)
-  }
-  return pagesArray
-})
-
-const showConfirmDialog = ref(false)
-const confirmTitle = ref('')
-const confirmMessage = ref('')
-const confirmAction = ref<() => void>(() => {})
-
-const fetchGrup = async () => {
-  try {
-    const response = await daftarGrup()
-    if (response.success && response.data) {
-      data.value = response.data
-      console.log(response.data)
-    }
-  } catch (error) {
-    console.error('Gagal mengambil data grup:', error)
-  }
-}
-
-const handleSaveGroup = async (grup) => {
-  try {
-    console.log('Mengirim data ke API:', grup) // Cek data sebelum dikirim
-
-    if (grup.id) {
-      const response = await editGrup(grup)
-      console.log('Response dari API update:', response)
-      showNotificationMessage('success', 'Data grup berhasil diupdate!')
-    } else {
-      const response = await addGrup(grup)
-      console.log('Response dari API tambah:', response)
-      showNotificationMessage('success', 'Data grup berhasil ditambahkan!')
-    }
-
-    await fetchGrup() // Refresh UI setelah update
-  } catch (error) {
-    console.error('Error menyimpan grup:', error)
-    showNotificationMessage('error', 'Gagal menyimpan data grup.')
-  }
-}
-
-const openUpdateModal = (grup) => {
-  grupToUpdate.value = grup
-  isUpdateModalOpen.value = true
-}
-
-const handleDeleteGroup = (grupId) => {
-  confirmTitle.value = 'Konfirmasi Hapus'
-  confirmMessage.value = 'Apakah Anda yakin ingin menghapus grup ini?'
-  confirmAction.value = () => deleteGroup(grupId)
-  showConfirmDialog.value = true
-}
-
-const deleteGroup = async (grupId) => {
-  try {
-    await hapusGrup(grupId)
-    showNotificationMessage('success', 'Data grup berhasil dihapus!')
-    await fetchGrup()
-  } catch (error) {
-    showNotificationMessage('error', 'Gagal menghapus grup.')
-  } finally {
-    showConfirmDialog.value = false
-  }
-}
-
-const confirmDelete = () => {
-  confirmAction.value()
-}
-
-const showNotificationMessage = (type, message) => {
-  notificationType.value = type
-  notificationMessage.value = message
-  showNotification.value = true
-  setTimeout(() => (showNotification.value = false), 3000)
-}
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++
-  }
-}
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--
-  }
-}
-
-const pageNow = (page) => {
-  currentPage.value = page
-}
-
-onMounted(fetchGrup)
-</script>

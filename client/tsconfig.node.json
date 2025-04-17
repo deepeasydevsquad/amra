@@ -12,10 +12,19 @@
     "eslint.config.*"
   ],
   "compilerOptions": {
+    "noEmit": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "types": ["node", "vue", "vite/client"],
+    "types": ["node", "vue", "vite/client"], 
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmitOnError": false
   }
 }
+  // "compilerOptions": {
+    // "module": "ESNext",
+    // "moduleResolution": "Bundler",
+    // "types": ["node", "vue", "vite/client"],
+    // "skipLibCheck": true,
+    // "noEmit": true
+  
