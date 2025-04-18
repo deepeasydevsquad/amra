@@ -1,24 +1,22 @@
 <script setup lang="ts">
 // Import Icon
-import DeleteIcon from "./Icon/DeleteIcon.vue"
-import EditIcon from "./Icon/EditIcon.vue"
+import DeleteIcon from '@/components/User/Modules/Supplier/Icon/DeleteIcon.vue'
+import EditIcon from '@/components/User/Modules/Supplier/Icon/EditIcon.vue'
 
 // import element
-import DangerButton from "./Particle/DangerButton.vue"
-import EditButton from "./Particle/EditButton.vue"
-import Notification from "./Particle/Notification.vue"
-import Confirmation from "./Particle/Confirmation.vue"
+import DangerButton from '@/components/User/Modules/Supplier/Particle/DangerButton.vue'
+import EditButton from '@/components/User/Modules/Supplier/Particle/EditButton.vue'
+import Notification from '@/components/User/Modules/Supplier/Particle/Notification.vue'
+import Confirmation from '@/components/User/Modules/Supplier/Particle/Confirmation.vue'
 
-// import api from "@/services/api"; // Import service API
-import { daftarSupplier, daftarBank, addSupplier, editSupplier, deleteSupplier } from "../../../../service/supplier"; // Import function POST
-import { ref, onMounted, computed, watchEffect } from 'vue';
+// Import service API
+import { daftarSupplier, daftarBank, addSupplier, editSupplier, deleteSupplier } from '@/service/supplier'; // Import function POST
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
 const itemsPerPage = 100; // Jumlah supplier per halaman
 const currentPage = ref(1);
 const search = ref("");
-//const perpage = ref(100);
-const pageNumber = ref(0);
 const totalPages = ref(0);
 
 const nextPage = () => {
