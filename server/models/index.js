@@ -12,9 +12,18 @@ const db = {};
 
 let sequelize;
 if (config.use_env_variable) {
+  console.log("++++SSSS+++++Atas");
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
-  // sequelize = new Sequelize(config.database, config.username, config.password, config);
+  console.log("++++SSSS+++++Bawah");
+  console.log(process.env.DB_NAME);
+  console.log(process.env.DB_USER);
+  console.log(process.env.DB_PASS);
+  console.log(process.env.DB_HOST);
+  console.log(process.env.DB_PORT);
+  console.log(process.env.DB_DIALECT);
+  console.log("++++SSSS+++++Bawah");
+
   sequelize = new Sequelize(
     process.env.DB_NAME,
     process.env.DB_USER,
