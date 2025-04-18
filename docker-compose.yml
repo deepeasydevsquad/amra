@@ -1,0 +1,59 @@
+services:
+  server:
+    build: ./server
+    container_name: Container_server
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server:/app
+    environment:
+      SECRET_KEY: "your_secret_key"
+      REFRESH_SECRET_KEY: "your_refresh_secret_key"
+      NODE_ENV: "development"
+      PORT: 3001
+      DB_HOST: "host.docker.internal"  # Update with MySQL container name or host
+      DB_PORT: 3306
+      DB_NAME: "amra_db"
+      DB_USER: "root"
+      DB_PASSWORD: "your_password"
+    networks:
+      - app-network
+
+  client:
+    build: ./client
+    container_name: Container_client
+    ports:
+      - "8081:80"  # Map container port 80 to host port 8080
+    volumes:
+      - ./client:/app
+    environment:
+      VITE_APP_API_BASE_URL: "http://server:3001"  # Link to backend
+      NODE_ENV: "development"
+    depends_on:
+      - server
+    networks:
+      - app-network
+
+  # Uncomment and configure MySQL if you need a database service
+  # mysql:
+  #   image: mysql:8.0
+  #   container_name: mysql-8.0
+  #   restart: always
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     MYSQL_DATABASE: "amra_db"
+  #     MYSQL_USER: 'user'
+  #     MYSQL_PASSWORD: 'password'
+  #     MYSQL_ROOT_PASSWORD: "root_password"
+  #   volumes:
+  #     - mysql-data:/var/lib/mysql
+  #   networks:
+  #     - app-network
+
+volumes:
+  mysql-data:
+
+networks:
+  app-network:
+    driver: bridge

@@ -66,7 +66,7 @@ arr_router.forEach((e) => {
 });
 
 // models
-const db = require("../server/models");
+const db = require('./models');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
