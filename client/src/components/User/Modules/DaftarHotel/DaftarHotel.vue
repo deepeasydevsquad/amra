@@ -1,25 +1,23 @@
 <script setup lang="ts">
 // Import Icon
-import DeleteIcon from "@/components/User/Modules/DaftarHotel/Icon/DeleteIcon.vue"
-import EditIcon from "@/components/User/Modules/DaftarHotel/Icon/EditIcon.vue"
+import DeleteIcon from '@/components/User/Modules/DaftarHotel/Icon/DeleteIcon.vue'
+import EditIcon from '@/components/User/Modules/DaftarHotel/Icon/EditIcon.vue'
 
 // import element
-import DangerButton from "@/components/User/Modules/DaftarHotel/Particle/DangerButton.vue"
-import EditButton from "@/components/User/Modules/DaftarHotel/Particle/EditButton.vue"
-import Notification from "@/components/User/Modules/DaftarHotel/Particle/Notification.vue"
-import Confirmation from "@/components/User/Modules/DaftarHotel/Particle/Confirmation.vue"
+import DangerButton from '@/components/User/Modules/DaftarHotel/Particle/DangerButton.vue'
+import EditButton from '@/components/User/Modules/DaftarHotel/Particle/EditButton.vue'
+import Notification from '@/components/User/Modules/DaftarHotel/Particle/Notification.vue'
+import Confirmation from '@/components/User/Modules/DaftarHotel/Particle/Confirmation.vue'
 
-// import api from "@/services/api"; // Import service API
-import { daftarHotel, addHotel, editHotel, deleteHotel } from "@/service/daftar_hotel" // Import function POST
-import { daftarKota } from "@/service/daftar_kota"; // Import function GET
-import { ref, onMounted, computed, watchEffect } from 'vue';
+// Import service API
+import { daftarHotel, addHotel, editHotel, deleteHotel } from '@/service/daftar_hotel' // Import function POST
+import { daftarKota } from '@/service/daftar_kota'; // Import function GET
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
 const itemsPerPage = 100; // Jumlah hotel per halaman
 const currentPage = ref(1);
 const search = ref("");
-//const perpage = ref(100);
-const pageNumber = ref(0);
 const totalPages = ref(0);
 
 const nextPage = () => {
