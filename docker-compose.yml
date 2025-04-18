@@ -56,8 +56,8 @@ services:
       - ./mysql_config/my.cnf:/etc/mysql/my.cnf  # Mount file my.cnf ke dalam container
     networks:
       - app-network
-    ports:
-      - "3306:3306"
+    # ports:
+    #   - "3307:3306"
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
