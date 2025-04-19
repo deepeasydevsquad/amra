@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { getMember, deleteMember as deleteMemberApi } from '@/service/member'
-import DeleteIcon from '@/components/User/Modules/Member/icon/DeleteIcon.vue'
-import EditIcon from '@/components/User/Modules/Member/icon/EditIcon.vue'
+import DeleteIcon from '@/components/User/Modules/Member/Icon/DeleteIcon.vue'
+import EditIcon from '@/components/User/Modules/Member/Icon/EditIcon.vue'
 import DangerButton from '@/components/User/Modules/Member/Particle/DangerButton.vue'
 import EditButton from '@/components/User/Modules/Member/Particle/EditButton.vue'
 import FormAdd from '@/components/User/Modules/Member/Particle/FormAdd.vue'
 import FormUpdate from '@/components/User/Modules/Member/Particle/FormUpdate.vue'
 import Notification from '@/components/User/Modules/Member/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/Member/Particle/Confirmation.vue'
-import AddAgenButton from './particle/AddAgenButton.vue'
-import AddAgenIcon from './icon/AddAgenIcon.vue'
-import FormAddAgen from './particle/FormAddAgen.vue'
+import AddAgenButton from '@/components/User/Modules/Member/Particle/AddAgenButton.vue'
+import AddAgenIcon from '@/components/User/Modules/Member/Icon/AddAgenIcon.vue'
+import FormAddAgen from '@/components/User/Modules/Member/Particle//FormAddAgen.vue'
 
 interface Members {
   id: number
