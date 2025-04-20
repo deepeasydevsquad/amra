@@ -69,7 +69,9 @@ export default {
 
       if (item.paid <= 0) errors.value.paid = 'Jumlah bayar harus lebih dari 0';
       if (paid > total) errors.value.paid = 'Jumlah bayar tidak boleh lebih besar dari total harga';
-      if (sisa.value < 0) errors.value.sisa = 'Sisa bayar tidak boleh negatif';
+      if (paid > total) {
+        displayNotification('Jumlah bayar tidak boleh lebih besar dari total harga', 'error');
+      }
       if (!item.deposit_name) errors.value.deposit_name = 'Nama deposit harus diisi';
       if (!item.deposit_hp_number) errors.value.deposit_hp_number = 'Nomor HP deposit harus diisi';
       if (!item.deposit_address) errors.value.deposit_address = 'Alamat deposit harus diisi';
@@ -80,7 +82,8 @@ export default {
     const sisa = computed(() => {
       const paid = totalPaid.value + itemsPembayaran.value.paid;
       const total = transaksi.value ? transaksi?.value.total_price : 0;
-      return total - paid || 0;
+      const sisa = total - paid;
+      return sisa < 0 ? 0 : sisa;
     });
 
     const totalPaid = computed(() => {

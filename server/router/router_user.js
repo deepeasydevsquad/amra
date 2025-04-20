@@ -23,7 +23,6 @@ router.post('/auth/login',
 router.get('/user', authenticateToken, controllers.user);
 
 //   (req, res) => {
-
 // }
 
 
