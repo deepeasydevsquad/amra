@@ -1,12 +1,10 @@
 <template>
   <!-- Modal Backdrop -->
   <div
-    class="fixed inset-0 z-50 bg-black bg-opacity-50 overflow-y-auto flex items-center justify-center p-4"
+    class="fixed inset-0 z-50 bg-black bg-opacity-50 overflow-y-auto flex items-start justify-center p-4 pt-32"
   >
     <!-- Modal Container -->
-    <div
-      class="bg-white rounded-2xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto pt-20 pl-30"
-    >
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
       <!-- Modal Header -->
       <div class="sticky top-0 bg-white z-10 border-b p-6">
         <h2 class="text-2xl font-bold text-gray-700 text-center">Form Update Data Jamaah</h2>
@@ -136,107 +134,181 @@
             </div>
 
             <div class="relative space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Provinsi*</label>
-              <input
-                type="text"
-                class="input w-full text-gray-700"
-                v-model="searchProvinsi"
-                @focus="isOpenProvinsi = true"
-                @blur="blurDropdown('isOpenProvinsi')"
-                placeholder="Cari provinsi..."
-              />
-              <ul
-                v-if="isOpenProvinsi && filteredProvinsi.length > 0"
-                class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-              >
-                <li
-                  v-for="provinsi in filteredProvinsi"
-                  :key="provinsi.id"
-                  @mousedown.prevent="selectProvinsi(provinsi)"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
-                >
-                  {{ provinsi.name }}
-                </li>
-              </ul>
-            </div>
+  <label class="block text-sm font-medium text-gray-700">Provinsi*</label>
+
+  <!-- Trigger (kelihatan seperti select box) -->
+  <div
+    class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
+    @click="isOpenProvinsi = !isOpenProvinsi"
+  >
+    <span>{{ selectedProvinsi?.name || '-- Pilih Provinsi --' }}</span>
+    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </div>
+
+  <!-- Dropdown -->
+  <div
+    v-if="isOpenProvinsi"
+    class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
+  >
+    <input
+      type="text"
+      class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
+      v-model="searchProvinsi"
+      placeholder="Cari provinsi..."
+      @blur="blurDropdown('isOpenProvinsi')"
+      @click.stop
+    />
+    <ul>
+      <li
+        v-for="provinsi in filteredProvinsi"
+        :key="provinsi.id"
+        @mousedown.prevent="selectProvinsi(provinsi)"
+        class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
+      >
+        {{ provinsi.name }}
+      </li>
+      <li v-if="filteredProvinsi.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
+    </ul>
+  </div>
+</div>
+
 
             <div class="relative space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Kabupaten/Kota*</label>
-              <input
-                type="text"
-                class="input w-full text-gray-700"
-                v-model="searchKabupaten"
-                @focus="isOpenKabupaten = true"
-                @blur="blurDropdown('isOpenKabupaten')"
-                placeholder="Cari Kabupaten/Kota..."
-                :disabled="!formData.provinsi_id"
-              />
-              <ul
-                v-if="isOpenKabupaten && filteredKabupaten.length > 0"
-                class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-              >
-                <li
-                  v-for="kabupaten in filteredKabupaten"
-                  :key="kabupaten.id"
-                  @mousedown.prevent="selectKabupaten(kabupaten)"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
-                >
-                  {{ kabupaten.name }}
-                </li>
-              </ul>
-            </div>
+  <label class="block text-sm font-medium text-gray-700">Kabupaten/Kota*</label>
+
+  <!-- Trigger -->
+  <div
+    class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
+    :class="{ 'opacity-50 cursor-not-allowed': !formData.provinsi_id }"
+    @click="formData.provinsi_id && (isOpenKabupaten = !isOpenKabupaten)"
+  >
+    <span>
+      {{ selectedKabupaten?.name || '-- Pilih Kabupaten/Kota --' }}
+    </span>
+    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </div>
+
+  <!-- Dropdown -->
+  <div
+    v-if="isOpenKabupaten"
+    class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
+  >
+    <input
+      type="text"
+      class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
+      v-model="searchKabupaten"
+      placeholder="Cari Kabupaten/Kota..."
+      @blur="blurDropdown('isOpenKabupaten')"
+      @click.stop
+    />
+    <ul>
+      <li
+        v-for="kabupaten in filteredKabupaten"
+        :key="kabupaten.id"
+        @mousedown.prevent="selectKabupaten(kabupaten)"
+        class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
+      >
+        {{ kabupaten.name }}
+      </li>
+      <li v-if="filteredKabupaten.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
+    </ul>
+  </div>
+</div>
+
 
             <div class="relative space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Kecamatan*</label>
-              <input
-                type="text"
-                class="input w-full text-gray-700"
-                v-model="searchKecamatan"
-                @focus="isOpenKecamatan = true"
-                @blur="blurDropdown('isOpenKecamatan')"
-                placeholder="Cari Kecamatan..."
-                :disabled="!formData.kabupaten_id"
-              />
-              <ul
-                v-if="isOpenKecamatan && filteredKecamatan.length > 0"
-                class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-              >
-                <li
-                  v-for="kecamatan in filteredKecamatan"
-                  :key="kecamatan.id"
-                  @mousedown.prevent="selectKecamatan(kecamatan)"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
-                >
-                  {{ kecamatan.name }}
-                </li>
-              </ul>
-            </div>
+  <label class="block text-sm font-medium text-gray-700">Kecamatan*</label>
+
+  <!-- Trigger -->
+  <div
+    class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
+    :class="{ 'opacity-50 cursor-not-allowed': !formData.kabupaten_id }"
+    @click="formData.kabupaten_id && (isOpenKecamatan = !isOpenKecamatan)"
+  >
+    <span>
+      {{ selectedKecamatan?.name || '-- Pilih Kecamatan --' }}
+    </span>
+    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </div>
+
+  <!-- Dropdown -->
+  <div
+    v-if="isOpenKecamatan"
+    class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
+  >
+    <input
+      type="text"
+      class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
+      v-model="searchKecamatan"
+      placeholder="Cari Kecamatan..."
+      @blur="blurDropdown('isOpenKecamatan')"
+      @click.stop
+    />
+    <ul>
+      <li
+        v-for="kecamatan in filteredKecamatan"
+        :key="kecamatan.id"
+        @mousedown.prevent="selectKecamatan(kecamatan)"
+        class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
+      >
+        {{ kecamatan.name }}
+      </li>
+      <li v-if="filteredKecamatan.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
+    </ul>
+  </div>
+</div>
+
 
             <div class="relative space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Kelurahan*</label>
-              <input
-                type="text"
-                class="input w-full text-gray-700"
-                v-model="searchKelurahan"
-                @focus="isOpenKelurahan = true"
-                @blur="blurDropdown('isOpenKelurahan')"
-                placeholder="Cari Kelurahan..."
-                :disabled="!formData.kecamatan_id"
-              />
-              <ul
-                v-if="isOpenKelurahan && filteredKelurahan.length > 0"
-                class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-              >
-                <li
-                  v-for="kelurahan in filteredKelurahan"
-                  :key="kelurahan.id"
-                  @mousedown.prevent="selectKelurahan(kelurahan)"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
-                >
-                  {{ kelurahan.name }}
-                </li>
-              </ul>
-            </div>
+  <label class="block text-sm font-medium text-gray-700">Kelurahan*</label>
+
+  <!-- Trigger -->
+  <div
+    class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
+    :class="{ 'opacity-50 cursor-not-allowed': !formData.kecamatan_id }"
+    @click="formData.kecamatan_id && (isOpenKelurahan = !isOpenKelurahan)"
+  >
+    <span>
+      {{ selectedKelurahan?.name || '-- Pilih Kelurahan --' }}
+    </span>
+    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </div>
+
+  <!-- Dropdown -->
+  <div
+    v-if="isOpenKelurahan"
+    class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
+  >
+    <input
+      type="text"
+      class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
+      v-model="searchKelurahan"
+      placeholder="Cari Kelurahan..."
+      @blur="blurDropdown('isOpenKelurahan')"
+      @click.stop
+    />
+    <ul>
+      <li
+        v-for="kelurahan in filteredKelurahan"
+        :key="kelurahan.id"
+        @mousedown.prevent="selectKelurahan(kelurahan)"
+        class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
+      >
+        {{ kelurahan.name }}
+      </li>
+      <li v-if="filteredKelurahan.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
+    </ul>
+  </div>
+</div>
+
 
             <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700">Kode Pos</label>
@@ -365,19 +437,35 @@
             </div>
 
              <div class="md:col-span-2 space-y-2 relative">
-    <label class="block text-sm font-medium text-gray-700">Nama Mahram</label>
+  <label class="block text-sm font-medium text-gray-700">Nama Mahram</label>
+
+  <!-- Trigger -->
+  <div
+    class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
+    @click="isOpenMahram = !isOpenMahram"
+  >
+    <span>
+      {{ selectedMahram?.fullname || '-- Pilih Mahram --' }}
+    </span>
+    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </div>
+
+  <!-- Dropdown -->
+  <div
+    v-if="isOpenMahram"
+    class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
+  >
     <input
       type="text"
-      class="input w-full text-gray-700"
+      class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
       v-model="searchMahram"
-      @focus="isOpenMahram = true"
-      @blur="blurDropdown"
       placeholder="Cari nama mahram..."
+      @blur="blurDropdown('isOpenMahram')"
+      @click.stop
     />
-    <ul
-      v-if="isOpenMahram && filteredMahram.length > 0"
-      class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md mt-1"
-    >
+    <ul>
       <li
         v-for="person in filteredMahram"
         :key="person.id"
@@ -386,8 +474,10 @@
       >
         {{ person.fullname }}
       </li>
+      <li v-if="filteredMahram.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
     </ul>
   </div>
+</div>
 
             <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700">Jenis Mahram</label>
@@ -945,8 +1035,12 @@ const filteredProvinsi = computed(() => {
 })
 
 const filteredKabupaten = computed(() => {
-  return kabupatenList.value.filter((p) =>
-    p.name.toLowerCase().includes(searchKabupaten.value.toLowerCase()),
+  if (!formData.value.provinsi_id) return []
+
+  return kabupatenList.value.filter(
+    (kab) =>
+      kab.provinsi_id === formData.value.provinsi_id &&
+      kab.name.toLowerCase().includes(searchKabupaten.value.toLowerCase()),
   )
 })
 
@@ -969,35 +1063,52 @@ const filteredMahram = computed(() => {
 })
 
 // Fungsi untuk memilih data dropdown
+
+
+const selectedProvinsi = ref('')
+
 const selectProvinsi = (provinsi) => {
   formData.value.provinsi_id = provinsi.id
   searchProvinsi.value = provinsi.name
+  selectedProvinsi.value = provinsi
   isOpenProvinsi.value = false
   fetchKabupaten(provinsi.id)
 }
 
+const selectedKabupaten = ref('')
+
 const selectKabupaten = (kabupaten) => {
   formData.value.kabupaten_id = kabupaten.id
   searchKabupaten.value = kabupaten.name
+  selectedKabupaten.value = kabupaten
   isOpenKabupaten.value = false
   fetchKecamatan(kabupaten.id)
 }
 
+const selectedKecamatan = ref('')
+
 const selectKecamatan = (kecamatan) => {
   formData.value.kecamatan_id = kecamatan.id
   searchKecamatan.value = kecamatan.name
+  selectedKecamatan.value = kecamatan
   isOpenKecamatan.value = false
   fetchKelurahan(kecamatan.id)
 }
 
+const selectedKelurahan = ref('')
+
 const selectKelurahan = (kelurahan) => {
   formData.value.kelurahan_id = kelurahan.id
   searchKelurahan.value = kelurahan.name
+  selectedKelurahan.value = kelurahan
   isOpenKelurahan.value = false
 }
 
+const selectedMahram = ref('')
+
 const selectMahram = (mahram) => {
   formData.value.mahram.mahram_id = mahram.id
+  selectedMahram.value = mahram
   searchMahram.value = mahram.fullname
   isOpenMahram.value = false
 }

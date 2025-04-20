@@ -126,55 +126,78 @@
             </div>
           </div>
 
-          <!-- Daftar Mahram -->
-          <div class="border p-4 rounded-xl space-y-2">
-            <p class="font-semibold text-gray-700">Daftar Mahram</p>
-            <div v-for="(mahram, index) in mahramList" :key="index" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="relative">
-                <label class="block text-sm font-medium text-gray-700">Nama Mahram</label>
-                <input
-                  type="text"
-                  class="input w-full"
-                  v-model="searchMahram[index]"
-                  @focus="isOpenMahram[index] = true"
-                  @blur="setTimeout(() => { isOpenMahram[index] = false }, 200)"
-                  placeholder="Cari nama mahram..."
-                />
-                <ul
-                  v-if="isOpenMahram[index] && filteredMahram(index).length > 0"
-                  class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md mt-1"
-                >
-                  <li
-                    v-for="person in filteredMahram(index)"
-                    :key="person.id"
-                    @mousedown.prevent="selectMahram(person, index)"
-                    class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  >
-                    {{ person.fullname }}
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Jenis Mahram</label>
-                <select v-model="mahram.jenis" class="input w-full">
-                  <option value="">Pilih jenis</option>
-                  <option v-for="type in mahramOptions" :key="type.id" :value="type.id">
-                    {{ type.name }}
-                  </option>
-                </select>
-              </div>
-            </div>
-            <button
-              type="button"
-              @click="addMahram"
-              class="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700 transition"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              Tambah Mahram
-            </button>
-          </div>
+        <!-- Daftar Mahram -->
+<div class="border p-4 rounded-xl space-y-2">
+  <p class="font-semibold text-gray-700">Daftar Mahram</p>
+  <div
+    v-for="(mahram, index) in mahramList"
+    :key="index"
+    class="grid grid-cols-1 md:grid-cols-2 gap-4"
+  >
+    <div class="relative space-y-2">
+      <label class="block text-sm font-medium text-gray-700">Nama Mahram</label>
+      <div
+        class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
+        @click="isOpenMahram[index] = !isOpenMahram[index]"
+      >
+        <span>{{ selectedMahram.fullname || '-- Pilih Nama Mahram --' }}</span>
+        <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+
+      <!-- Dropdown -->
+      <div
+        v-if="isOpenMahram[index]"
+        class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
+      >
+        <input
+          type="text"
+          class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
+          v-model="searchMahram[index]"
+          placeholder="Cari nama mahram..."
+          @blur="blurDropdownDynamic(index)"
+          @click.stop
+        />
+        <ul>
+          <li
+            v-for="person in filteredMahram(index)"
+            :key="person.id"
+            @mousedown.prevent="selectMahram(person, index)"
+            class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
+          >
+            {{ person.fullname }}
+          </li>
+          <li v-if="filteredMahram(index).length === 0" class="px-4 py-2 text-gray-400 text-sm">
+            Tidak ditemukan
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Jenis Mahram</label>
+      <select v-model="mahram.jenis" class="input w-full">
+        <option value="">Pilih jenis</option>
+        <option v-for="type in mahramOptions" :key="type.id" :value="type.id">
+          {{ type.name }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <button
+    type="button"
+    @click="addMahram"
+    class="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700 transition"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>
+    Tambah Mahram
+  </button>
+</div>
+
 
           <!-- Keluarga -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -196,111 +219,163 @@
             </div>
           </div>
 
-          <!-- Lokasi -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="relative space-y-1">
-              <label class="block text-sm font-medium text-gray-700">Provinsi*</label>
-              <input
-                type="text"
-                class="input w-full"
-                v-model="searchProvinsi"
-                @focus="isOpenProvinsi = true"
-                @blur="setTimeout(() => { isOpenProvinsi = false }, 200)"
-                placeholder="Cari provinsi..."
-              />
-              <ul
-                v-if="isOpenProvinsi && filteredProvinsi.length > 0"
-                class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-              >
-                <li
-                  v-for="provinsi in filteredProvinsi"
-                  :key="provinsi.id"
-                  @mousedown.prevent="selectProvinsi(provinsi)"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                >
-                  {{ provinsi.name }}
-                </li>
-              </ul>
-            </div>
+  <!-- Provinsi -->
+  <div class="relative space-y-2">
+    <label class="block text-sm font-medium text-gray-700">Provinsi*</label>
+    <div
+      class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
+      @click="isOpenProvinsi = !isOpenProvinsi"
+    >
+      <span>{{ selectedProvinsi?.name || '-- Pilih Provinsi --' }}</span>
+      <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+    <div
+      v-if="isOpenProvinsi"
+      class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
+    >
+      <input
+        type="text"
+        class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
+        v-model="searchProvinsi"
+        placeholder="Cari provinsi..."
+        @blur="blurDropdown('isOpenProvinsi')"
+        @click.stop
+      />
+      <ul>
+        <li
+          v-for="provinsi in filteredProvinsi"
+          :key="provinsi.id"
+          @mousedown.prevent="selectProvinsi(provinsi)"
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
+        >
+          {{ provinsi.name }}
+        </li>
+        <li v-if="filteredProvinsi.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
+      </ul>
+    </div>
+  </div>
 
-            <div class="relative space-y-1">
-              <label class="block text-sm font-medium text-gray-700">Kabupaten/Kota*</label>
-              <input
-                type="text"
-                class="input w-full"
-                v-model="searchKabupaten"
-                @focus="isOpenKabupaten = true"
-                @blur="setTimeout(() => { isOpenKabupaten = false }, 200)"
-                placeholder="Cari kabupaten/kota..."
-                :disabled="!formData.provinsi_id"
-              />
-              <ul
-                v-if="isOpenKabupaten && filteredKabupaten.length > 0"
-                class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-              >
-                <li
-                  v-for="kabupaten in filteredKabupaten"
-                  :key="kabupaten.id"
-                  @mousedown.prevent="selectKabupaten(kabupaten)"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                >
-                  {{ kabupaten.name }}
-                </li>
-              </ul>
-            </div>
+  <!-- Kabupaten -->
+  <div class="relative space-y-2">
+    <label class="block text-sm font-medium text-gray-700">Kabupaten/Kota*</label>
+    <div
+      class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
+      :class="{ 'opacity-50 cursor-not-allowed': !formData?.provinsi_id }"
+      @click="formData?.provinsi_id && (isOpenKabupaten = !isOpenKabupaten)"
+    >
+      <span>{{ selectedKabupaten?.name || '-- Pilih Kabupaten/Kota --' }}</span>
+      <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+    <div
+      v-if="isOpenKabupaten"
+      class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
+    >
+      <input
+        type="text"
+        class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
+        v-model="searchKabupaten"
+        placeholder="Cari Kabupaten/Kota..."
+        @blur="blurDropdown('isOpenKabupaten')"
+        @click.stop
+      />
+      <ul>
+        <li
+          v-for="kabupaten in filteredKabupaten"
+          :key="kabupaten.id"
+          @mousedown.prevent="selectKabupaten(kabupaten)"
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
+        >
+          {{ kabupaten.name }}
+        </li>
+        <li v-if="filteredKabupaten.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
+      </ul>
+    </div>
+  </div>
 
-            <div class="relative space-y-1">
-              <label class="block text-sm font-medium text-gray-700">Kecamatan*</label>
-              <input
-                type="text"
-                class="input w-full"
-                v-model="searchKecamatan"
-                @focus="isOpenKecamatan = true"
-                @blur="setTimeout(() => { isOpenKecamatan = false }, 200)"
-                placeholder="Cari kecamatan..."
-                :disabled="!formData.kabupaten_id"
-              />
-              <ul
-                v-if="isOpenKecamatan && filteredKecamatan.length > 0"
-                class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-              >
-                <li
-                  v-for="kecamatan in filteredKecamatan"
-                  :key="kecamatan.id"
-                  @mousedown.prevent="selectKecamatan(kecamatan)"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                >
-                  {{ kecamatan.name }}
-                </li>
-              </ul>
-            </div>
+  <!-- Kecamatan -->
+  <div class="relative space-y-2">
+    <label class="block text-sm font-medium text-gray-700">Kecamatan*</label>
+    <div
+      class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
+      :class="{ 'opacity-50 cursor-not-allowed': !formData?.kabupaten_id }"
+      @click="formData?.kabupaten_id && (isOpenKecamatan = !isOpenKecamatan)"
+    >
+      <span>{{ selectedKecamatan?.name || '-- Pilih Kecamatan --' }}</span>
+      <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+    <div
+      v-if="isOpenKecamatan"
+      class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
+    >
+      <input
+        type="text"
+        class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
+        v-model="searchKecamatan"
+        placeholder="Cari Kecamatan..."
+        @blur="blurDropdown('isOpenKecamatan')"
+        @click.stop
+      />
+      <ul>
+        <li
+          v-for="kecamatan in filteredKecamatan"
+          :key="kecamatan.id"
+          @mousedown.prevent="selectKecamatan(kecamatan)"
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
+        >
+          {{ kecamatan.name }}
+        </li>
+        <li v-if="filteredKecamatan.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
+      </ul>
+    </div>
+  </div>
 
-            <div class="relative space-y-1">
-              <label class="block text-sm font-medium text-gray-700">Kelurahan*</label>
-              <input
-                type="text"
-                class="input w-full"
-                v-model="searchKelurahan"
-                @focus="isOpenKelurahan = true"
-                @blur="setTimeout(() => { isOpenKelurahan = false }, 200)"
-                placeholder="Cari kelurahan..."
-                :disabled="!formData.kecamatan_id"
-              />
-              <ul
-                v-if="isOpenKelurahan && filteredKelurahan.length > 0"
-                class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-              >
-                <li
-                  v-for="kelurahan in filteredKelurahan"
-                  :key="kelurahan.id"
-                  @mousedown.prevent="selectKelurahan(kelurahan)"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                >
-                  {{ kelurahan.name }}
-                </li>
-              </ul>
-            </div>
-          </div>
+  <!-- Kelurahan -->
+  <div class="relative space-y-2">
+    <label class="block text-sm font-medium text-gray-700">Kelurahan*</label>
+    <div
+      class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
+      :class="{ 'opacity-50 cursor-not-allowed': !formData?.kecamatan_id }"
+      @click="formData?.kecamatan_id && (isOpenKelurahan = !isOpenKelurahan)"
+    >
+      <span>{{ selectedKelurahan?.name || '-- Pilih Kelurahan --' }}</span>
+      <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+    <div
+      v-if="isOpenKelurahan"
+      class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
+    >
+      <input
+        type="text"
+        class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
+        v-model="searchKelurahan"
+        placeholder="Cari Kelurahan..."
+        @blur="blurDropdown('isOpenKelurahan')"
+        @click.stop
+      />
+      <ul>
+        <li
+          v-for="kelurahan in filteredKelurahan"
+          :key="kelurahan.id"
+          @mousedown.prevent="selectKelurahan(kelurahan)"
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
+        >
+          {{ kelurahan.name }}
+        </li>
+        <li v-if="filteredKelurahan.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
 
           <!-- Status -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -660,8 +735,15 @@ const filteredProvinsi = computed(() => {
 });
 
 const filteredKabupaten = computed(() => {
-  return kabupatenList.value.filter(p => 
-    p.name.toLowerCase().includes(searchKabupaten.value.toLowerCase())
+  // Pastikan kabupatenList sudah terisi dan berupa array
+  if (!kabupatenList.value || !Array.isArray(kabupatenList.value)) return []
+  
+  // Jika tidak ada provinsi yang dipilih, return array kosong
+  if (!formData.provinsi_id) return []
+  
+  return kabupatenList.value.filter(kab => 
+    kab.provinsi_id === formData.provinsi_id &&
+    kab.name.toLowerCase().includes(searchKabupaten.value.toLowerCase())
   )
 })
 
@@ -703,35 +785,51 @@ const handleFoto = (event: Event) => {
   }
 }
 
+
+const selectedProvinsi = ref('')
+
 const selectProvinsi = (provinsi) => {
   formData.provinsi_id = provinsi.id
+  selectedProvinsi.value = provinsi
   searchProvinsi.value = provinsi.name
   isOpenProvinsi.value = false
   fetchKabupaten(provinsi.id)
 }
 
+const selectedKabupaten = ref(null)
+
 const selectKabupaten = (kabupaten) => {
   formData.kabupaten_id = kabupaten.id
+  selectedKabupaten.value = kabupaten
   searchKabupaten.value = kabupaten.name
   isOpenKabupaten.value = false
   fetchKecamatan(kabupaten.id)
 }
 
+const selectedKecamatan = ref('')
+
 const selectKecamatan = (kecamatan) => {
   formData.kecamatan_id = kecamatan.id
+  selectedKecamatan.value = kecamatan
   searchKecamatan.value = kecamatan.name
   isOpenKecamatan.value = false
   fetchKelurahan(kecamatan.id)
 }
 
+const selectedKelurahan = ref('')
+
 const selectKelurahan = (kelurahan) => {
   formData.kelurahan_id = kelurahan.id
+  selectedKelurahan.value = kelurahan
   searchKelurahan.value = kelurahan.name
   isOpenKelurahan.value = false
 }
 
+const selectedMahram = ref('')
+
 const selectMahram = (person, index) => {
   mahramList.value[index].mahram_id = person.id
+  selectedMahram.value = person
   searchMahram.value[index] = person.fullname
   isOpenMahram.value[index] = false
 }
