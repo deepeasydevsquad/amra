@@ -12,7 +12,11 @@ export const daftarJamaah = async (param: any) => {
 
 export const addJamaah = async (param: any) => {
   try {
-    const response = await api.post('/add-daftar-jamaah', param) // Kirim data ke backend
+    const response = await api.post('/add-daftar-jamaah', param, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }) // Kirim data ke backend
     return response.data // Kembalikan data hasil request
   } catch (error) {
     console.error('Gagal menambah data jamaah:', error)
@@ -20,26 +24,25 @@ export const addJamaah = async (param: any) => {
   }
 }
 
-export const editJamaah = async ( param : any ) => {
+export const editJamaah = async (param: any) => {
   try {
-    const response = await api.post('/edit-daftar-jamaah', param)
+    const response = await api.post('/edit-daftar-jamaah', param, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
     return response.data
-  }catch(error){
+  } catch (error) {
     console.error('gagal update data jamaah', error)
     throw error
   }
 }
 
-const confirmDelete = (id: number) => {
-  userIdToDelete.value = id
-  showDeleteConfirmDialog.value = true
-}
-
-export const deleteJamaah = async ( param : any) => {
-    try {
+export const deleteJamaah = async (param: any) => {
+  try {
     const response = await api.post('/delete-daftar-jamaah', param)
     return response.data
-  }catch(error){
+  } catch (error) {
     console.error('gagal delete data jamaah', error)
     throw error
   }
