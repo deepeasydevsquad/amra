@@ -36,13 +36,11 @@
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">Nomor Identitas</th>
-            <th class="w-[30%] px-6 py-4 font-bold text-gray-900 text-center">Nama Jamaah</th>
-            <th class="w-[30%] px-6 py-4 font-bold text-gray-900 text-center">Nomor Passport</th>
-            <th class="w-[20%] px-6 py-4 font-bold text-gray-900 text-center">
-              Tempat Tanggal Lahir
-            </th>
-            <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[15%] px-6 py-4 font-bold text-gray-900 text-center">Nomor Identitas</th>
+            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center">Nama Jamaah</th>
+            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center">Nomor Passport</th>
+            <th class="w-[20%] px-6 py-4 font-bold text-gray-900 text-center">Tempat / Tanggal Lahir</th>
+            <th class="w-[15%] px-6 py-4 font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -58,11 +56,11 @@
           <!-- Empty State -->
           <tr v-else-if="jamaah.length === 0">
             <td colspan="5" class="px-6 py-4 text-center text-base text-gray-600">
-              {{ searchQuery ? 'Hasil pencarian tidak ditemukan' : 'Belum ada data deposit' }}
+              {{ searchQuery ? 'Hasil pencarian tidak ditemukan' : 'Data jamaah tidak ditemukan' }}
             </td>
           </tr>
 
-          <!-- Deposit Data -->
+          <!-- Data Jamaah -->
           <tr
             v-for="jamaahs in jamaah"
             :key="jamaahs.id"
@@ -179,7 +177,7 @@
 />
 
 
-  <FormAddMember 
+  <FormAddMember
   v-if="showFormAddMember"
   @close = 'showFormAddMember = false'
   @next="handleNextStep"
@@ -192,7 +190,7 @@
   @success="handleJamaahSuccess"
 />
 
-<FormUpdate 
+<FormUpdate
 v-if="ShowFormUpdate"
  :jamaah="selectedJamaah"
 @close="ShowFormUpdate = false"
@@ -248,10 +246,6 @@ import FormMember from '@/components/user/modules/DaftarJamaah/Particle/FormMemb
 import FormUpdate from '@/components/user/modules/DaftarJamaah/Particle/FormUpdate.vue'
 
 
-
-
-
-
 const ShowFormUpdate = ref(false)
 const selectedJamaah = ref(null) // <-- buat simpen data jamaah yg mau diedit
 
@@ -261,8 +255,21 @@ const handleFormUpdate = async (jamaah: any) => {
 }
 
 
+interface Jamaah {
+  id: number;
+  nomor_identitas: string;
+  nama_jamaah: string;
+  nomor_passport: string;
+  tempat_tanggal_lahir: string;
+}
+
+interface JamaahIdToDelete {
+  id: number;
+}
+
+
 // Reactive State
-const jamaah = ref([])
+const jamaah = ref<Jamaah[]>([]);
 const searchQuery = ref('')
 const currentPage = ref(1)
 const totalPages = ref(1)
@@ -284,7 +291,7 @@ const showFormAddMember = ref(false)
 const jamaahModal = ref()
 
 
-const jamaahIdToDelete = ref('')
+const jamaahIdToDelete = ref<number | null>(null);
 
 const confirmDelete = (id: number) => {
   jamaahIdToDelete.value = id
@@ -346,7 +353,7 @@ const handleNextStep = (formData: any) => {
     displayNotification("Data tidak valid", "error");
     return;
   }
-  
+
   // Setelah validasi sukses, simpan data yang dipilih dan lanjutkan ke FormMember
   selectedMemberData.value = formData; // Isi data yang dipilih
   showFormAddMember.value = false;  // Sembunyikan FormAddNew

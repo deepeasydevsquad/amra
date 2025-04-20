@@ -18,6 +18,9 @@ exports.getJamaah = async (req, res) => {
 };
 
 exports.addJamaah = async (req, res) => {
+
+  if (!(await handleValidationErrors(req, res))) return;
+  
   try {
     const model = new Model_cud(req);
     await model.tambahJamaah(); // insert data

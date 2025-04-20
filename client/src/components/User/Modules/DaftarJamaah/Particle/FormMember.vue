@@ -3,11 +3,9 @@
     class="fixed inset-0 z-50 bg-black bg-opacity-50 overflow-y-auto flex items-start justify-center p-4 pt-32 pl-20"
   >
     <!-- Modal Container -->
-    <div
-      class="bg-white rounded-2xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto pt-20 pl-10"
-    >
+    <div  class="bg-white rounded-2xl shadow-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto pt-20 pl-10 pr-10"  >
       <!-- Catatan -->
-      <div class="bg-yellow-100 border-l-4 border-yellow-400 p-4 text-sm text-gray-800 rounded-lg">
+      <div class="bg-yellow-100 border-l-4 border-yellow-400 p-4 text-sm text-gray-800 rounded-lg text-left">
         <p class="font-medium mb-2">Catatan:</p>
         <ul class="list-disc pl-5 space-y-1">
           <li>Sebelum menyimpan data jamaah, pastikan semua data penting sudah anda isi.</li>
@@ -21,93 +19,112 @@
 
       <!-- Foto Jamaah -->
       <h3 class="text-lg font-semibold text-gray-700 mb-8 mt-8">Info Member</h3>
-      <div class="w-full flex justify-center">
-        <div class="w-40 h-40 rounded-lg overflow-hidden border border-gray-300 bg-gray-100 flex items-center justify-center">
-          <img
-            v-if="defaultData?.photo_url"
-            :src="defaultData.photo_url"
-            alt="Foto Jamaah"
-            class="object-cover w-full h-full"
-          />
-          <div v-else class="text-gray-400 text-sm">No Photo</div>
-        </div>
-      </div>
+      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
+        <tbody>
+          <tr >
+            <td rowspan="6" class="w-[15%] py-1 px-6">
+              <div class="w-full flex justify-center">
+                <div class="w-40 h-40 rounded-lg overflow-hidden border border-gray-300 bg-gray-100 flex items-center justify-center">
+                  <img
+                    v-if="defaultData?.photo_url"
+                    :src="defaultData.photo_url"
+                    alt="Foto Jamaah"
+                    class="object-cover w-full h-full"
+                  />
+                  <div v-else class="text-gray-400 text-sm">No Photo</div>
+                </div>
+              </div>
+            </td>
+            <td class="w-[15%] px-2 py-2 text-left">Nama</td>
+            <td class="w-[1%] px-2 py-2 text-center ">:</td>
+            <td class="border-b border-dashed border-gray-400">{{ defaultData?.fullname || '-' }}</td>
+          </tr>
+          <tr >
+            <td class="py-2 px-2 text-left">Nomor Identitas</td>
+            <td class="px-2 py-2 text-center">:</td>
+            <td class="border-b border-dashed border-gray-400 px-2">{{ defaultData?.identity_number || '-' }}</td>
+         </tr>
+          <tr >
+            <td class="py-2 px-2 text-left">Jenis Kelamin</td>
+            <td class="px-2 py-2 text-center">:</td>
+            <td class="border-b border-dashed border-gray-400 px-2"> {{ defaultData?.gender === 'laki_laki' ? 'Laki - Laki' : 'Perempuan' }}</td>
+
+          </tr>
+          <tr >
+            <td class="py-2 px-2 text-left">No Whatsapp</td>
+            <td class="px-2 py-2 text-center">:</td>
+            <td class="border-b border-dashed border-gray-400 px-2">{{ defaultData?.whatsapp_number || '-' }}</td>
+
+          </tr>
+          <tr>
+            <td class="py-2 px-2 text-left">Tempat Lahir</td>
+            <td class="px-2 py-2 text-center">:</td>
+            <td class="border-b border-dashed border-gray-400 px-2">{{ defaultData?.birth_place || '-' }}</td>
+
+          </tr>
+          <tr>
+            <td class="py-2 px-2 text-left">Tanggal Lahir</td>
+            <td class="px-2 py-2 text-center">:</td>
+            <td class="border-b border-dashed border-gray-400 px-2">{{ formatDate(defaultData?.birth_date) || '-' }}</td>
+
+          </tr>
+        </tbody>
+      </table>
 
       <!-- Info Jamaah -->
-      <div>
-        <div class="pt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-gray-700 text-sm">
-          <p class="font-semibold text-lg"><span>Nama:</span> {{ defaultData?.fullname || '-' }}</p>
-          <p class="font-semibold text-lg"><span>No Identitas:</span> {{ defaultData?.identity_number || '-' }}</p>
-          <p class="font-semibold text-lg">
-            <span>Jenis Kelamin:</span> 
-            {{ defaultData?.gender === 'laki_laki' ? 'Laki - Laki' : 'Perempuan' }}
-          </p>
-          <p class="font-semibold text-lg"><span>No. WhatsApp:</span> {{ defaultData?.whatsapp_number || '-' }}</p>
-          <p class="font-semibold text-lg"><span>Tempat Lahir:</span> {{ defaultData?.birth_place || '-' }}</p>
-          <p class="font-semibold text-lg"><span>Tanggal Lahir:</span> {{ formatDate(defaultData?.birth_date) || '-' }}</p>
-        </div>
-      </div>
-            <h3 class="text-lg font-semibold text-gray-700 mb-8 mt-8">Info Jamaah</h3>
+      <h3 class="text-lg font-semibold text-gray-700 mb-8 mt-8">Info Jamaah</h3>
       <!-- Form Input -->
-      <div class="max-h-[90vh] overflow-y-auto p-4 text-gray-700">
-
+      <div class=" overflow-y-auto px-4 py-0 text-gray-700">
 
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <!-- Identitas -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-1">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 col-span-2 mb-8">
+            <div class="col-span-1">
               <label class="block text-sm font-medium text-gray-700"> Title</label>
               <select v-model="formData.title" class="input" required>
-                <option value=""tuan>Tuan</option>
+                <option value="0">Pilih Title</option>
+                <option value="tuan">Tuan</option>
                 <option value="nyonya">Nyonya</option>
                 <option value="nona">Nona</option>
               </select>
             </div>
-
-
-               <div class="space-y-1">
+            <div class="col-span-1">
               <label class="block text-sm font-medium text-gray-700">Nomor Passport</label>
               <input v-model="formData.nomor_passport" type="text" class="input" placeholder="Masukan Nomor Passport" />
             </div>
-
-
-            <div class="space-y-1">
+            <div class="col-span-2">
               <label class="block text-sm font-medium text-gray-700">Tempat Dikeluarkan Passport</label>
-              <input v-model="formData.tempat_di_keluarkan_passport" type="text" class="input" placeholder="tempat di kerluarkan Passport"/>
+              <input v-model="formData.tempat_di_keluarkan_passport" type="text" class="input" placeholder="Tempat di kerluarkan Passport"/>
             </div>
-
-            <div class="space-y-1">
+            <div class="col-span-1">
               <label class="block text-sm font-medium text-gray-700">Tanggal Dikeluarkan</label>
-              <input v-model="formData.tanggal_di_keluarkan_passport" type="date" class="input" placeholder="tanggal di kerluarkan passport"/>
+              <input v-model="formData.tanggal_di_keluarkan_passport" type="date" class="input" placeholder="Tanggal di kerluarkan passport"/>
             </div>
-
-            <div class="space-y-1">
+            <div class="col-span-1">
               <label class="block text-sm font-medium text-gray-700">Masa Berlaku Passport</label>
               <input v-model="formData.masa_berlaku_passport" type="date" class="input" />
             </div>
-
-            <div class="space-y-1">
+            <div class="col-span-1">
               <label class="block text-sm font-medium text-gray-700">Jenis Identitas*</label>
               <select v-model="formData.identity_type" class="input" required>
-                <option value="">Pilih Jenis Identitas</option>
+                <option value="0">Pilih Jenis Identitas</option>
                 <option value="ktp">KTP</option>
                 <option value="passport">Passport</option>
               </select>
             </div>
-
-            <div class="space-y-1">
+            <div class="col-span-1">
               <label class="block text-sm font-medium text-gray-700">Kewarganegaraan*</label>
               <select v-model="formData.kewarganegaraan" class="input" required>
-              <option value="">Pilih kewarganegaraan</option>
+                <option value="0">Pilih kewarganegaraan</option>
                 <option value="wni">WNI</option>
                 <option value="wna">WNA</option>
               </select>
             </div>
 
-            <div class="space-y-1">
+            <div class="col-span-1">
               <label class="block text-sm font-medium text-gray-700">Golongan Darah</label>
               <select v-model="formData.blood_type" class="input">
-                <option value="">Pilih</option>
+                <option value="0">Pilih</option>
                 <option value="A">A</option>
                 <option value="B">B</option>
                 <option value="AB">AB</option>
@@ -115,271 +132,265 @@
               </select>
             </div>
 
-            <div class="space-y-1">
+            <div class="col-span-1">
               <label class="block text-sm font-medium text-gray-700">Kode Pos</label>
               <input v-model="formData.kode_pos" type="text" class="input" placeholder="Masukan Kode Poss"/>
             </div>
 
-            <div class="space-y-1">
+            <div class="col-span-2">
               <label class="block text-sm font-medium text-gray-700">Telepon*</label>
               <input v-model="formData.nomor_telephone" type="tel" class="input" placeholder="Masukan Nomor Telepon" required />
             </div>
           </div>
 
-        <!-- Daftar Mahram -->
-<div class="border p-4 rounded-xl space-y-2">
-  <p class="font-semibold text-gray-700">Daftar Mahram</p>
-  <div
-    v-for="(mahram, index) in mahramList"
-    :key="index"
-    class="grid grid-cols-1 md:grid-cols-2 gap-4"
-  >
-    <div class="relative space-y-2">
-      <label class="block text-sm font-medium text-gray-700">Nama Mahram</label>
-      <div
-        class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
-        @click="isOpenMahram[index] = !isOpenMahram[index]"
-      >
-        <span>{{ selectedMahram.fullname || '-- Pilih Nama Mahram --' }}</span>
-        <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-        </svg>
-      </div>
+          <!-- Daftar Mahram -->
+          <div class="border p-4 rounded-xl space-y-2 mb-10">
+            <p class="font-semibold text-gray-700 mb-4">Daftar Mahram</p>
+            <div v-for="(mahram, index) in mahramList" :key="index" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-3 " >
+              <div class="relative space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Nama Mahram</label>
+                <div
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
+                  @click="isOpenMahram[index] = !isOpenMahram[index]"
+                >
+                  <span>{{ selectedMahram.fullname || '-- Pilih Nama Mahram --' }}</span>
+                  <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
 
-      <!-- Dropdown -->
-      <div
-        v-if="isOpenMahram[index]"
-        class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-      >
-        <input
-          type="text"
-          class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
-          v-model="searchMahram[index]"
-          placeholder="Cari nama mahram..."
-          @blur="blurDropdownDynamic(index)"
-          @click.stop
-        />
-        <ul>
-          <li
-            v-for="person in filteredMahram(index)"
-            :key="person.id"
-            @mousedown.prevent="selectMahram(person, index)"
-            class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
-          >
-            {{ person.fullname }}
-          </li>
-          <li v-if="filteredMahram(index).length === 0" class="px-4 py-2 text-gray-400 text-sm">
-            Tidak ditemukan
-          </li>
-        </ul>
-      </div>
-    </div>
+                <!-- Dropdown -->
+                <div
+                  v-if="isOpenMahram[index]"
+                  class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
+                >
+                  <input
+                    type="text"
+                    class="w-full px-3 py-2 font-medium  text-sm border-b focus:outline-none text-gray-700"
+                    v-model="searchMahram[index]"
+                    placeholder="Cari nama mahram..."
+                    @blur="blurDropdownDynamic(index)"
+                    @click.stop
+                  />
+                  <ul>
+                    <li
+                      v-for="person in filteredMahram(index)"
+                      :key="person.id"
+                      @mousedown.prevent="selectMahram(person, index)"
+                      class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
+                    >
+                      {{ person.fullname }}
+                    </li>
+                    <li v-if="filteredMahram(index).length === 0" class="px-4 py-2 text-gray-400 text-sm">
+                      Tidak ditemukan
+                    </li>
+                  </ul>
+                </div>
+              </div>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Jenis Mahram</label>
-      <select v-model="mahram.jenis" class="input w-full">
-        <option value="">Pilih jenis</option>
-        <option v-for="type in mahramOptions" :key="type.id" :value="type.id">
-          {{ type.name }}
-        </option>
-      </select>
-    </div>
-  </div>
+              <div class="relative space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Jenis Mahram</label>
+                <select v-model="mahram.jenis" class="input w-full py-2 text-sm" style="height: 42px;font-size: 16px;">
+                  <option value="">Pilih jenis</option>
+                  <option v-for="type in mahramOptions" :key="type.id" :value="type.id">
+                    {{ type.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
 
-  <button
-    type="button"
-    @click="addMahram"
-    class="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700 transition"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-    </svg>
-    Tambah Mahram
-  </button>
-</div>
+            <!-- <button class="w-full flex mt-12 items-center justify-center gap-2 bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700 transition"> -->
 
 
+            <button
+              type="button"
+              @click="addMahram"
+              class="w-full flex mt-12 items-center justify-center gap-2 bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700 transition"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Tambah Mahram
+            </button>
+          </div>
+
+          <!-- <div class="grid grid-cols-1 md:grid-cols-4 gap-4 col-span-2 mb-8"> -->
           <!-- Keluarga -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-1">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 col-span-2 mt-8">
+            <div class="col-span-2 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Nama Ayah Kandung</label>
-              <input v-model="formData.nama_ayah" type="text" class="input"  placeholder="masukan nama ayah"/>
+              <input v-model="formData.nama_ayah" type="text" class="input"  placeholder="Masukkan nama ayah"/>
             </div>
-            <div class="space-y-1">
+            <div class="col-span-2 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Nama Keluarga</label>
-              <input v-model="formData.nama_keluarga" type="text" class="input" placeholder="masukan nama keluarga"/>
+              <input v-model="formData.nama_keluarga" type="text" class="input" placeholder="Masukkan nama keluarga"/>
             </div>
-            <div class="space-y-1">
+            <div class="col-span-1 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Telepon Keluarga</label>
-              <input v-model="formData.telephone_keluarga" type="tel" class="input" placeholder="masukan nomor telpon keluarga"/>
+              <input v-model="formData.telephone_keluarga" type="tel" class="input" placeholder="Masukkan nomor telpon keluarga"/>
             </div>
-            <div class="space-y-1">
+            <div class="col-span-3 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Alamat Keluarga</label>
-              <input v-model="formData.alamat_keluarga" type="text" class="input" placeholder="masukan alamat keluarga"/>
+              <input v-model="formData.alamat_keluarga" type="text" class="input" placeholder="Masukkan alamat keluarga"/>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-  <!-- Provinsi -->
-  <div class="relative space-y-2">
-    <label class="block text-sm font-medium text-gray-700">Provinsi*</label>
-    <div
-      class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
-      @click="isOpenProvinsi = !isOpenProvinsi"
-    >
-      <span>{{ selectedProvinsi?.name || '-- Pilih Provinsi --' }}</span>
-      <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-      </svg>
-    </div>
-    <div
-      v-if="isOpenProvinsi"
-      class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-    >
-      <input
-        type="text"
-        class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
-        v-model="searchProvinsi"
-        placeholder="Cari provinsi..."
-        @blur="blurDropdown('isOpenProvinsi')"
-        @click.stop
-      />
-      <ul>
-        <li
-          v-for="provinsi in filteredProvinsi"
-          :key="provinsi.id"
-          @mousedown.prevent="selectProvinsi(provinsi)"
-          class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
-        >
-          {{ provinsi.name }}
-        </li>
-        <li v-if="filteredProvinsi.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
-      </ul>
-    </div>
-  </div>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 col-span-2 mt-8">
+            <!-- Provinsi -->
+            <div class="relative space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Provinsi*</label>
+              <div
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
+                @click="isOpenProvinsi = !isOpenProvinsi"
+              >
+                <span>{{ selectedProvinsi?.name || '-- Pilih Provinsi --' }}</span>
+                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              <div
+                v-if="isOpenProvinsi"
+                class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
+              >
+                <input
+                  type="text"
+                  class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
+                  v-model="searchProvinsi"
+                  placeholder="Cari provinsi..."
+                  @blur="blurDropdown('isOpenProvinsi')"
+                  @click.stop
+                />
+                <ul>
+                  <li
+                    v-for="provinsi in filteredProvinsi"
+                    :key="provinsi.id"
+                    @mousedown.prevent="selectProvinsi(provinsi)"
+                    class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
+                  >
+                    {{ provinsi.name }}
+                  </li>
+                  <li v-if="filteredProvinsi.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
+                </ul>
+              </div>
+            </div>
+            <!-- Kabupaten -->
+            <div class="relative space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Kabupaten/Kota*</label>
+              <div
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
+                :class="{ 'opacity-50 cursor-not-allowed': !formData?.provinsi_id }"
+                @click="formData?.provinsi_id && (isOpenKabupaten = !isOpenKabupaten)"
+              >
+                <span>{{ selectedKabupaten?.name || '-- Pilih Kabupaten/Kota --' }}</span>
+                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              <div
+                v-if="isOpenKabupaten"
+                class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
+              >
+                <input
+                  type="text"
+                  class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
+                  v-model="searchKabupaten"
+                  placeholder="Cari Kabupaten/Kota..."
+                  @blur="blurDropdown('isOpenKabupaten')"
+                  @click.stop
+                />
+                <ul>
+                  <li
+                    v-for="kabupaten in filteredKabupaten"
+                    :key="kabupaten.id"
+                    @mousedown.prevent="selectKabupaten(kabupaten)"
+                    class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
+                  >
+                    {{ kabupaten.name }}
+                  </li>
+                  <li v-if="filteredKabupaten.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
+                </ul>
+              </div>
+            </div>
 
-  <!-- Kabupaten -->
-  <div class="relative space-y-2">
-    <label class="block text-sm font-medium text-gray-700">Kabupaten/Kota*</label>
-    <div
-      class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
-      :class="{ 'opacity-50 cursor-not-allowed': !formData?.provinsi_id }"
-      @click="formData?.provinsi_id && (isOpenKabupaten = !isOpenKabupaten)"
-    >
-      <span>{{ selectedKabupaten?.name || '-- Pilih Kabupaten/Kota --' }}</span>
-      <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-      </svg>
-    </div>
-    <div
-      v-if="isOpenKabupaten"
-      class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-    >
-      <input
-        type="text"
-        class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
-        v-model="searchKabupaten"
-        placeholder="Cari Kabupaten/Kota..."
-        @blur="blurDropdown('isOpenKabupaten')"
-        @click.stop
-      />
-      <ul>
-        <li
-          v-for="kabupaten in filteredKabupaten"
-          :key="kabupaten.id"
-          @mousedown.prevent="selectKabupaten(kabupaten)"
-          class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
-        >
-          {{ kabupaten.name }}
-        </li>
-        <li v-if="filteredKabupaten.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
-      </ul>
-    </div>
-  </div>
+            <!-- Kecamatan -->
+            <div class="relative space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Kecamatan*</label>
+              <div
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
+                :class="{ 'opacity-50 cursor-not-allowed': !formData?.kabupaten_id }"
+                @click="formData?.kabupaten_id && (isOpenKecamatan = !isOpenKecamatan)"
+              >
+                <span>{{ selectedKecamatan?.name || '-- Pilih Kecamatan --' }}</span>
+                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              <div
+                v-if="isOpenKecamatan"
+                class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
+              >
+                <input
+                  type="text"
+                  class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
+                  v-model="searchKecamatan"
+                  placeholder="Cari Kecamatan..."
+                  @blur="blurDropdown('isOpenKecamatan')"
+                  @click.stop
+                />
+                <ul>
+                  <li v-for="kecamatan in filteredKecamatan" :key="kecamatan.id" @mousedown.prevent="selectKecamatan(kecamatan)"
+                    class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700" >
+                    {{ kecamatan.name }}
+                  </li>
+                  <li v-if="filteredKecamatan.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
+                </ul>
+              </div>
+            </div>
 
-  <!-- Kecamatan -->
-  <div class="relative space-y-2">
-    <label class="block text-sm font-medium text-gray-700">Kecamatan*</label>
-    <div
-      class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
-      :class="{ 'opacity-50 cursor-not-allowed': !formData?.kabupaten_id }"
-      @click="formData?.kabupaten_id && (isOpenKecamatan = !isOpenKecamatan)"
-    >
-      <span>{{ selectedKecamatan?.name || '-- Pilih Kecamatan --' }}</span>
-      <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-      </svg>
-    </div>
-    <div
-      v-if="isOpenKecamatan"
-      class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-    >
-      <input
-        type="text"
-        class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
-        v-model="searchKecamatan"
-        placeholder="Cari Kecamatan..."
-        @blur="blurDropdown('isOpenKecamatan')"
-        @click.stop
-      />
-      <ul>
-        <li
-          v-for="kecamatan in filteredKecamatan"
-          :key="kecamatan.id"
-          @mousedown.prevent="selectKecamatan(kecamatan)"
-          class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
-        >
-          {{ kecamatan.name }}
-        </li>
-        <li v-if="filteredKecamatan.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Kelurahan -->
-  <div class="relative space-y-2">
-    <label class="block text-sm font-medium text-gray-700">Kelurahan*</label>
-    <div
-      class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
-      :class="{ 'opacity-50 cursor-not-allowed': !formData?.kecamatan_id }"
-      @click="formData?.kecamatan_id && (isOpenKelurahan = !isOpenKelurahan)"
-    >
-      <span>{{ selectedKelurahan?.name || '-- Pilih Kelurahan --' }}</span>
-      <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-      </svg>
-    </div>
-    <div
-      v-if="isOpenKelurahan"
-      class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-    >
-      <input
-        type="text"
-        class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
-        v-model="searchKelurahan"
-        placeholder="Cari Kelurahan..."
-        @blur="blurDropdown('isOpenKelurahan')"
-        @click.stop
-      />
-      <ul>
-        <li
-          v-for="kelurahan in filteredKelurahan"
-          :key="kelurahan.id"
-          @mousedown.prevent="selectKelurahan(kelurahan)"
-          class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
-        >
-          {{ kelurahan.name }}
-        </li>
-        <li v-if="filteredKelurahan.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
-      </ul>
-    </div>
-  </div>
-</div>
+            <!-- Kelurahan -->
+            <div class="relative space-y-2">
+              <label class="block text-sm font-medium text-gray-700">Kelurahan*</label>
+              <div
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
+                :class="{ 'opacity-50 cursor-not-allowed': !formData?.kecamatan_id }"
+                @click="formData?.kecamatan_id && (isOpenKelurahan = !isOpenKelurahan)"
+              >
+                <span>{{ selectedKelurahan?.name || '-- Pilih Kelurahan --' }}</span>
+                <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              <div
+                v-if="isOpenKelurahan"
+                class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
+              >
+                <input
+                  type="text"
+                  class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
+                  v-model="searchKelurahan"
+                  placeholder="Cari Kelurahan..."
+                  @blur="blurDropdown('isOpenKelurahan')"
+                  @click.stop
+                />
+                <ul>
+                  <li
+                    v-for="kelurahan in filteredKelurahan"
+                    :key="kelurahan.id"
+                    @mousedown.prevent="selectKelurahan(kelurahan)"
+                    class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
+                  >
+                    {{ kelurahan.name }}
+                  </li>
+                  <li v-if="filteredKelurahan.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
+                </ul>
+              </div>
+            </div>
+          </div>
 
 
           <!-- Status -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-1">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 col-span-2 mt-8">
+            <div class="col-span-2 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Status Pernikahan*</label>
               <select v-model="formData.status_nikah" class="input" required>
                 <option value="belum_menikah">Belum Menikah</option>
@@ -387,129 +398,118 @@
                 <option value="cerai">Cerai</option>
               </select>
             </div>
-            <div class="space-y-1">
+            <div class="col-span-2 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Tanggal Menikah</label>
-              <input 
-                v-model="formData.tanggal_nikah" 
-                type="date" 
-                class="input" 
-                :disabled="formData.status_nikah !== 'menikah'" 
+              <input
+                v-model="formData.tanggal_nikah"
+                type="date"
+                class="input"
+                :disabled="formData.status_nikah !== 'menikah'"
               />
             </div>
           </div>
 
           <!-- Pengalaman -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-1">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 col-span-2 mt-8">
+            <div class="col-span-1 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Pengalaman Haji</label>
                <select v-model="formData.pengalaman_haji" class="input">
-                <option value="">Pilih Pengalaman</option>
+                <option value="0">Pilih Pengalaman Haji</option>
                 <option v-for="pengalamanHaji in pengalamanList" :key="pengalamanHaji.id" :value="pengalamanHaji.id">
                   {{ pengalamanHaji.name }}
                 </option>
               </select>
             </div>
-            <div class="space-y-1">
+            <div class="col-span-1 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Tahun Haji</label>
-              <input 
-                v-model="formData.tahun_haji" 
-                type="text" 
-                class="input" 
-                
+              <input
+                v-model="formData.tahun_haji"
+                type="text"
+                class="input"
                 placeholder="masukan tahun haji"
               />
             </div>
-            <div class="space-y-1">
+            <div class="col-span-1 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Pengalaman Umrah</label>
                 <select v-model="formData.pengalaman_umrah" class="input">
-                <option value="">Pilih Pengalaman</option>
+                <option value="0">Pilih Pengalaman Umrah</option>
                 <option v-for="pengalamanUmrah in pengalamanList" :key="pengalamanUmrah.id" :value="pengalamanUmrah.id">
                   {{ pengalamanUmrah.name }}
                 </option>
               </select>
             </div>
-            <div class="space-y-1">
+            <div class="col-span-1 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Tahun Umrah</label>
-              <input 
-                v-model="formData.tahun_umrah" 
-                type="text" 
-                class="input" 
-                
+              <input
+                v-model="formData.tahun_umrah"
+                type="text"
+                class="input"
+
                 placeholder="Masukan Tahun Umrah"
               />
             </div>
-            <div class="space-y-1">
+            <div class="col-span-1 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Berangkat Dari</label>
               <input v-model="formData.berangkat_dari" type="text" class="input" placeholder="berangkat dari ......."/>
             </div>
-          </div>
-
-          <!-- Pekerjaan -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-1">
+            <div class="col-span-1 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Pekerjaan</label>
               <select v-model="formData.mst_pekerjaan_id" class="input">
-                <option value="">Pilih pekerjaan</option>
+                <option value="0">Pilih Pekerjaan</option>
                 <option v-for="pekerjaan in pekerjaanList" :key="pekerjaan.id" :value="pekerjaan.id">
                   {{ pekerjaan.name }}
                 </option>
               </select>
             </div>
-            <div class="space-y-1">
+            <div class="col-span-2 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Nama Instansi Pekerjaan</label>
-              <input v-model="formData.profession_instantion_name" type="text" class="input"  placeholder="masukan nama instansi pekerjaan"/>
+              <input v-model="formData.profession_instantion_name" type="text" class="input"  placeholder="Masukan nama instansi pekerjaan"/>
             </div>
-            <div class="space-y-1">
+            <div class="col-span-2 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Alamat Instansi Pekerjaan</label>
-              <input v-model="formData.profession_instantion_address" type="text" class="input" placeholder="masukan alamat instansi pekerjaan"/>
+              <input v-model="formData.profession_instantion_address" type="text" class="input" placeholder="Masukan alamat instansi pekerjaan"/>
             </div>
-            <div class="space-y-1">
+            <div class=" space-y-1">
               <label class="block text-sm font-medium text-gray-700">Telepon Pekerjaan</label>
-              <input v-model="formData.profession_instantion_telephone" type="tel" class="input" placeholder="masukan nomor telepon pekerjaan"/>
+              <input v-model="formData.profession_instantion_telephone" type="tel" class="input" placeholder="Masukan nomor telepon pekerjaan"/>
             </div>
-          </div>
-
-          <!-- Pendidikan & Penyakit -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="space-y-1">
+            <div class="col-span-1 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Pendidikan Terakhir</label>
               <select v-model="formData.last_education" class="input">
-                <option value="">Pilih pendidikan</option>
+                <option value="0">Pilih Pendidikan</option>
                 <option v-for="pendidikan in pendidikanList" :key="pendidikan.id" :value="pendidikan.id">
                   {{ pendidikan.name }}
                 </option>
               </select>
             </div>
-            <div class="space-y-1">
+            <div class="col-span-2 space-y-1">
               <label class="block text-sm font-medium text-gray-700">Riwayat Penyakit</label>
               <input v-model="formData.desease" type="text" class="input" placeholder="Masukan Riwayat Penyakit (BILA ADA)"/>
             </div>
-          </div>
-
-          <!-- Agen -->
-          <div class="space-y-1">
-            <label class="block text-sm font-medium text-gray-700">Agen</label>
-            <select v-model="formData.agen_id" class="input">
-              <option value="0">Pilih agen</option>
-              <option v-for="agen in agenList" :key="agen.id" :value="agen.id">
-                {{ agen.Member.fullname }}
-              </option>
-            </select>
+            <div class="col-span-2 space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Agen</label>
+              <select v-model="formData.agen_id" class="input">
+                <option value="0">Pilih agen</option>
+                <option v-for="agen in agenList" :key="agen.id" :value="agen.id">
+                  {{ agen.Member.fullname }}
+                </option>
+              </select>
+            </div>
           </div>
 
           <!-- Upload Foto -->
           <div class="space-y-2">
             <label class="block font-medium text-gray-700">Foto Jamaah</label>
-            <input 
-              type="file" 
-              @change="handleFoto" 
-              accept="image/*" 
-              class="input" 
+            <input
+              type="file"
+              @change="handleFoto"
+              accept="image/*"
+              class="input"
             />
-            <img 
-              v-if="photoPreview" 
-              :src="photoPreview" 
-              class="w-32 h-32 object-cover rounded border border-gray-300 mt-2" 
+            <img
+              v-if="photoPreview"
+              :src="photoPreview"
+              class="w-32 h-32 object-cover rounded border border-gray-300 mt-2"
             />
           </div>
 
@@ -550,10 +550,10 @@
                 Buku Kuning
               </label>
             </div>
-            <textarea 
-              v-model="dokumen.keterangan" 
-              placeholder="Keterangan Tambahan" 
-              class="input mt-2 w-full"
+            <textarea
+              v-model="dokumen.keterangan"
+              placeholder="Keterangan Tambahan"
+              class="input mt-5 w-full" style="resize: none;"
             ></textarea>
           </div>
 
@@ -563,21 +563,21 @@
           </div>
 
           <!-- Tombol Submit -->
-          <div class="flex justify-end space-x-4 pt-4">
+          <div class="flex justify-end space-x-4 pt-4 pb-8">
             <button
-              type="submit"
-              class="bg-green-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-green-700 transition"
-              :disabled="isLoading"
-            >
-              <span v-if="isLoading">Menyimpan...</span>
-              <span v-else>Simpan Jamaah</span>
-            </button>
-            <button 
-              @click="$emit('close')" 
+              @click="$emit('close')"
               class="text-sm text-gray-500 hover:underline"
               :disabled="isLoading"
             >
               Tutup
+            </button>
+            <button
+              type="submit"
+              class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#2c3240] transition-colors duration-200 ease-in-out flex items-center gap-2"
+              :disabled="isLoading"
+            >
+              <span v-if="isLoading">Menyimpan...</span>
+              <span v-else>Simpan Data Jamaah</span>
             </button>
           </div>
         </form>
@@ -637,7 +637,7 @@ const formData = reactive({
   memberId: '',
   fullname: '',
   identity_number: '',
-  identity_type: '',
+  identity_type: '0',
   gender: '',
   birth_place: '',
   birth_date: '',
@@ -645,7 +645,7 @@ const formData = reactive({
   password: '',
   kelurahan_id: null,
   agen_id: 0,
-  title: '',
+  title: '0',
   nama_ayah: '',
   nama_passport: '',
   nomor_passport: '',
@@ -654,14 +654,14 @@ const formData = reactive({
   masa_berlaku_passport: '',
   kode_pos: '',
   nomor_telephone: '',
-  pengalaman_haji: '',
+  pengalaman_haji: '0',
   tahun_haji: null,
-  pengalaman_umrah: '',
+  pengalaman_umrah: '0',
   tahun_umrah: null,
   desease: '',
-  last_education: '',
-  blood_type: '',
-  mst_pekerjaan_id: '',
+  last_education: '0',
+  blood_type: '0',
+  mst_pekerjaan_id: '0',
   profession_instantion_name: '',
   profession_instantion_address: '',
   profession_instantion_telephone: '',
@@ -670,7 +670,7 @@ const formData = reactive({
   telephone_keluarga: '',
   status_nikah: 'belum_menikah',
   tanggal_nikah: null,
-  kewarganegaraan: 'wni',
+  kewarganegaraan: '0',
   provinsi_id: null,
   kabupaten_id: null,
   kecamatan_id: null,
@@ -701,15 +701,21 @@ const dokumen = reactive({
 const photoPreview = ref('')
 const photoFile = ref<File | null>(null)
 
+
+interface ListInterface {
+  id: number;
+  name: string;
+}
+
 // Data master
-const provinsiList = ref([])
-const kabupatenList = ref([])
-const kecamatanList = ref([])
-const kelurahanList = ref([])
+const provinsiList = ref<ListInterface[]>([])
+const kabupatenList = ref<ListInterface[]>([])
+const kecamatanList = ref<ListInterface[]>([])
+const kelurahanList = ref<ListInterface[]>([])
 const mahramOptions = ref([])
-const pekerjaanList = ref([])
-const pendidikanList = ref([])
-const pengalamanList = ref([])
+const pekerjaanList = ref<ListInterface[]>([])
+const pendidikanList = ref<ListInterface[]>([])
+const pengalamanList = ref<ListInterface[]>([])
 const agenList = ref([])
 const memberList = ref([])
 
@@ -729,7 +735,7 @@ const errorMessage = ref('')
 
 // Computed
 const filteredProvinsi = computed(() => {
-  return provinsiList.value.filter(p => 
+  return provinsiList.value.filter(p =>
     p.name.toLowerCase().includes(searchProvinsi.value.toLowerCase())
   );
 });
@@ -737,31 +743,31 @@ const filteredProvinsi = computed(() => {
 const filteredKabupaten = computed(() => {
   // Pastikan kabupatenList sudah terisi dan berupa array
   if (!kabupatenList.value || !Array.isArray(kabupatenList.value)) return []
-  
+
   // Jika tidak ada provinsi yang dipilih, return array kosong
   if (!formData.provinsi_id) return []
-  
-  return kabupatenList.value.filter(kab => 
+
+  return kabupatenList.value.filter(kab =>
     kab.provinsi_id === formData.provinsi_id &&
     kab.name.toLowerCase().includes(searchKabupaten.value.toLowerCase())
   )
 })
 
 const filteredKecamatan = computed(() => {
-  return kecamatanList.value.filter(p => 
+  return kecamatanList.value.filter(p =>
     p.name.toLowerCase().includes(searchKecamatan.value.toLowerCase())
   )
 })
 
 const filteredKelurahan = computed(() => {
-  return kelurahanList.value.filter(p => 
+  return kelurahanList.value.filter(p =>
     p.name.toLowerCase().includes(searchKelurahan.value.toLowerCase())
   )
 })
 
 const filteredMahram = (index: number) => {
   const term = searchMahram.value[index]?.toLowerCase() || ''
-  return memberList.value.filter(p => 
+  return memberList.value.filter(p =>
     p.fullname.toLowerCase().includes(term)
   )
 }
@@ -788,7 +794,7 @@ const handleFoto = (event: Event) => {
 
 const selectedProvinsi = ref('')
 
-const selectProvinsi = (provinsi) => {
+const selectProvinsi = (provinsi  : any) => {
   formData.provinsi_id = provinsi.id
   selectedProvinsi.value = provinsi
   searchProvinsi.value = provinsi.name
@@ -798,7 +804,7 @@ const selectProvinsi = (provinsi) => {
 
 const selectedKabupaten = ref(null)
 
-const selectKabupaten = (kabupaten) => {
+const selectKabupaten = (kabupaten  : any) => {
   formData.kabupaten_id = kabupaten.id
   selectedKabupaten.value = kabupaten
   searchKabupaten.value = kabupaten.name
@@ -808,7 +814,7 @@ const selectKabupaten = (kabupaten) => {
 
 const selectedKecamatan = ref('')
 
-const selectKecamatan = (kecamatan) => {
+const selectKecamatan = (kecamatan  : any) => {
   formData.kecamatan_id = kecamatan.id
   selectedKecamatan.value = kecamatan
   searchKecamatan.value = kecamatan.name
@@ -818,7 +824,7 @@ const selectKecamatan = (kecamatan) => {
 
 const selectedKelurahan = ref('')
 
-const selectKelurahan = (kelurahan) => {
+const selectKelurahan = (kelurahan : any) => {
   formData.kelurahan_id = kelurahan.id
   selectedKelurahan.value = kelurahan
   searchKelurahan.value = kelurahan.name
@@ -827,7 +833,7 @@ const selectKelurahan = (kelurahan) => {
 
 const selectedMahram = ref('')
 
-const selectMahram = (person, index) => {
+const selectMahram = (person  : any, index) => {
   mahramList.value[index].mahram_id = person.id
   selectedMahram.value = person
   searchMahram.value[index] = person.fullname
@@ -874,7 +880,7 @@ const fetchDataMaster = async () => {
   }
 }
 
-const fetchKabupaten = async (provinsiId) => {
+const fetchKabupaten = async (provinsiId : any) => {
   try {
     const response = await daftarKabupaten({ provinsi_id: provinsiId })
     kabupatenList.value = response.data
@@ -889,7 +895,7 @@ const fetchKabupaten = async (provinsiId) => {
   }
 }
 
-const fetchKecamatan = async (kabupatenId) => {
+const fetchKecamatan = async (kabupatenId : any) => {
   try {
     const response = await daftarKecamatan({ kabupaten_id: kabupatenId })
     kecamatanList.value = response.data
@@ -902,7 +908,7 @@ const fetchKecamatan = async (kabupatenId) => {
   }
 }
 
-const fetchKelurahan = async (kecamatanId) => {
+const fetchKelurahan = async (kecamatanId : any) => {
   try {
     const response = await daftarKelurahan({ kecamatan_id: kecamatanId })
     kelurahanList.value = response.data

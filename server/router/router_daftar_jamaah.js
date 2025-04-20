@@ -12,7 +12,12 @@ router.post(
   controller.getJamaah
 );
 
-router.post("/add-daftar-jamaah", authenticateToken, controller.addJamaah);
+router.post("/add-daftar-jamaah", 
+  authenticateToken, 
+  
+  controller.addJamaah);
+
+
 router.post("/edit-daftar-jamaah", authenticateToken, controller.editJamaah);
 router.post(
   "/delete-daftar-jamaah",

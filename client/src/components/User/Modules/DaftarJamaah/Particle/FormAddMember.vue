@@ -48,11 +48,11 @@
 
       <!-- Footer Buttons -->
       <div class="flex justify-end space-x-4 mt-6">
-        <button  @click="handleNextStep" class="bg-sky-700 text-white text-sm px-4 py-2 rounded-lg hover:bg-sky-800 transition">
-          Selanjutnya
-        </button>
         <button @click="$emit('close')" class="text-sm text-gray-500 hover:underline">
           Tutup
+        </button>
+        <button  @click="handleNextStep" class="bg-sky-700 text-white text-sm px-4 py-2 rounded-lg hover:bg-sky-800 transition">
+          Selanjutnya
         </button>
       </div>
 
@@ -107,11 +107,11 @@
 
       <!-- Footer Buttons -->
       <div class="flex justify-end space-x-4 mt-6">
-        <button  @click="handleNextStep" class="bg-sky-700 text-white text-sm px-4 py-2 rounded-lg hover:bg-sky-800 transition">
-          Selanjutnya
-        </button>
         <button @click="$emit('close')" class="text-sm text-gray-500 hover:underline">
           Tutup
+        </button>
+        <button  @click="handleNextStep" class="bg-sky-700 text-white text-sm px-4 py-2 rounded-lg hover:bg-sky-800 transition">
+          Selanjutnya
         </button>
       </div>
 
