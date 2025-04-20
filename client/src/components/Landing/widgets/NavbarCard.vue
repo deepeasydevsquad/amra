@@ -4,7 +4,6 @@
     <div class="text-2xl font-bold">
       <img src="/Landing/logo.png" alt="logo" width="114" />
     </div>
-
     <!-- Menu for larger screens -->
     <div class="hidden sm:flex items-center space-x-4 md:space-x-6 text-lg font-semibold">
       <div class="flex space-x-4 md:space-x-6">
@@ -16,10 +15,9 @@
       <span class="border-l border-gray-400 h-6"></span>
       <div class="flex space-x-4">
         <a href="#" class="bg-slate-300 text-sky-800 px-4 py-2 rounded shadow-md">Coba Gratis</a>
-        <a href="#" class="text-sky-800 px-4 py-2 rounded font-semibold">Login</a>
+        <a href="/login" class="text-sky-800 px-4 py-2 rounded font-semibold">Login</a>
       </div>
     </div>
-
     <!-- Hamburger Menu for Mobile -->
     <button @click="toggleMenu" class="sm:hidden focus:outline-none">
       <svg class="w-6 h-6 text-sky-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

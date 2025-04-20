@@ -1,0 +1,19 @@
+'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up (queryInterface, Sequelize) {
+    await queryInterface.bulkInsert('Mst_banks', [
+      { 
+        company_id : 1, 
+        kode : 'BSI', 
+        name : 'Bank Syariah Indonesia', 
+        createdAt: new Date(), 
+        updatedAt: new Date() },
+    ], {});
+  },
+
+  async down (queryInterface, Sequelize) {
+    await queryInterface.bulkDelete('Mst_banks', null, {});
+  }
+};

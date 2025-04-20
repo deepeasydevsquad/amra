@@ -2,10 +2,10 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const process = require("process");
 const express = require("express");
-const path = require('path');
+const path = require("path");
 const session = require("express-session");
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 dotenv.config();
 
@@ -16,73 +16,39 @@ app.use(cors());
 app.use(cookieParser());
 
 const arr_router = [
-  "user", "daftar_kota", "daftar_fasilitas"];
-//   {
-//     folder: "frontend",
-//     list: [
-//       'artikel',
-//       'cerita_aksi',
-//       'program', 
-//     ]
-//   },
-//   "member",
-//   "login",
-//   "surveyor",
-//   "administrator",
-//   {
-//     folder: "administrator",
-//     list: [
-//       "info_survei", 
-//       "beranda",
-//       "daftar_asnaf",
-//       "daftar_program",
-//       "daftar_monev",
-//       "daftar_jenis_kegiatan",
-//       "daftar_penyaluran_realisasi",
-//       "daftar_penyaluran_selesai",
-//       "daftar_bakal_penerima_bantuan", 
-//       "kriteria",
-//       "syarat",
-//       "permohonan_bantuan",
-//       "daftar_surveyor",
-//       "daftar_member", 
-//       "riwayat_pemasukan_zakat",
-//       "riwayat_pemasukan_infaq", 
-//       "daftar_grup_akses", 
-//       "daftar_pengguna",
-//       "system_log", 
-//       "kabar", 
-//       "profil", 
-//       "kontak_kami", 
-//       "laporan_page",
-//       "slider_landing_page", 
-//       "system_log_surveyor", 
-//       "riwayat_pesan_whatsapp", 
-//       "pengaturan_whatsapp", 
-//       "daftar_program_bantuan", 
-//       "daftar_desa",
-//       "daftar_kecamatan", 
-//       "program_donasi",
-//       "daftar_tab", 
-//       'riwayat_pemasukan_donasi', 
-//       "laporan_asnaf_muallaf",
-//       "laporan_asnaf_fakir",
-//       "laporan_asnaf_miskin",
-//       "laporan_asnaf_amil",
-//       "laporan_asnaf_fisabilillah",
-//       "laporan_asnaf_ibnu_sabil",
-//       "laporan_asnaf_gharim",
-//       "laporan_umum",
-//       'daftar_bank', 
-//       'bank_pemasukan',
-//       'pengaturan_umum', 
-//       "penyaluran_amil",
-//       "rekap_penyaluran_per_asnaf",
-//       "rekap_penyaluran_per_kode_asnaf",
-//       "rekap_penyaluran_per_kecamatan",
-//     ],
-//   },
-// ];
+  "user",
+  "otp",
+  "registrasi",
+  "invoice",
+  "kwitansi",
+  "daftar_kota",
+  "daftar_fasilitas",
+  "daftar_mobil",
+  "daftar_hotel",
+  "airlines",
+  "pengaturan",
+  "cabang",
+  "sistem_log",
+  "daftar_bandara",
+  "daftar_asuransi",
+  "daftar_provider_visa",
+  "daftar_bank",
+  "grup",
+  "daftar_tipe_paket",
+  "supplier",
+  "akun",
+  "member",
+  "daftar_kostumer_paket_la",
+  "daftar_paket_la",
+  "fasilitas_paket_la",
+  "pengguna",
+  "level_agen",
+  "daftar_agen",
+  "invoice_paket_la",
+  "deposit_saldo",
+  "daftar_jamaah",
+  "data_master",
+];
 
 // routers
 var arr = {};
@@ -122,24 +88,12 @@ app.use(
 );
 
 app.set("view engine", "ejs");
-app.use("/static", express.static(__dirname + "/public"));
-app.use("/photo", express.static("/photo"));
-// app.use("/template", express.static("/template"));
-app.use("/templates", express.static(__dirname + "/template"));
-app.use('/files', express.static(path.join(__dirname, '/public/files')));
-
+app.use("/uploads", express.static("/uploads"));
+app.use("/uploads", express.static(__dirname + "/uploads"));
 
 (async () => {
   await db.sequelize.sync();
 })();
-
-app.use("/css", express.static(__dirname + "/node_modules/bootstrap/dist/css"));
-app.use("/js", express.static(__dirname + "/node_modules/bootstrap/dist/js"));
-app.use("/jquery", express.static(__dirname + "/node_modules/jquery/dist"));
-app.use(
-  "/jquery-confirm",
-  express.static(__dirname + "/node_modules/jquery-confirm/dist")
-);
 
 for (let x in arr) {
   app.use(arr[x]);

@@ -1,35 +1,87 @@
-const { Company } = require("../models"); // Sesuaikan dengan model Company
+const { Company, Member, Division } = require("../models"); // Sesuaikan dengan model Company
 const jwt = require("jsonwebtoken");
 
 const companyHelper = {};
 
-
 companyHelper.getCompanyIdByCode = async (req) => {
-    try {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const decoded = jwt.decode(token);
+    const company_code = decoded.company_code;
 
-      const authHeader = req.headers['authorization'];
-      const token = authHeader && authHeader.split(' ')[1];
-      const decoded = jwt.decode(token);
-      const company_code = decoded.company_code;
+    console.log("==============Decode");
+    console.log(decoded);
+    console.log("==============Decode");
 
-      const company = await Company.findOne({
-        where: { code: company_code },
-        attributes: ["id"], // Hanya ambil field 'id' dari Company
-      });
+    const company = await Company.findOne({
+      where: { code: company_code },
+      attributes: ["id"], // Hanya ambil field 'id' dari Company
+    });
 
+    return company ? company.id : null;
+  } catch (error) {
+    console.log("99999999999999999");
+    console.log(error);
+    console.log("99999999999999999");
 
+    // console.error("Error fetching company ID:", error);
+    throw error;
+  }
+};
 
-      console.log('==============Company ID');
-      console.log(company.id);
-      console.log('==============Company ID');
+companyHelper.tipe = async (req) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const decoded = jwt.decode(token);
+    return decoded.type;
+  } catch (error) {
+    console.log("sssss");
+    console.log(error);
+    console.log("sssss");
+    return "";
+  }
+};
 
+companyHelper.username = async (req) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const decoded = jwt.decode(token);
+    return decoded.username;
+  } catch (error) {
+    return "";
+  }
+};
 
-      return company ? company.id : null;
-    } catch (error) {
-      console.error("Error fetching company ID:", error);
-      throw error;
-    }
+companyHelper.getCabang = async (req) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  const decoded = jwt.decode(token);
+  // return decoded.type;
+  if (decoded.type === "administrator") {
+    const company = await Company.findOne({
+      where: { code: decoded.company_code },
+      attributes: ["division_id"],
+    });
+    return company.division_id;
+  } else {
+    const company = await Member.findOne({
+      where: { whatsapp_number: decoded.username },
+      attributes: ["division_id"],
+      include: {
+        required: true,
+        model: Division,
+        include: {
+          required: true,
+          model: Company,
+          where: { code: decoded.company_code },
+        },
+      },
+    });
+    return company.division_id;
+  }
 };
 
 module.exports = companyHelper;
-

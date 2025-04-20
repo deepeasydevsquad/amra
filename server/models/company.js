@@ -21,10 +21,16 @@ module.exports = (sequelize, DataTypes) => {
       Company.hasMany(models.Mst_kota, {
         foreignKey: "company_id",
       });
-      Company.hasMany(models.Mst_mobil, {
+      Company.hasMany(models.Mst_airline, {
         foreignKey: "company_id",
       });
-      Company.hasMany(models.Saldo_akun, {
+      Company.hasMany(models.Mst_airport, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Mst_asuransi, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Mst_provider, {
         foreignKey: "company_id",
       });
       Company.hasMany(models.Supplier, {
@@ -36,12 +42,32 @@ module.exports = (sequelize, DataTypes) => {
       Company.hasMany(models.System_log, {
         foreignKey: "company_id",
       });
+      Company.hasMany(models.Level_keagenan, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Periode, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Paket_la, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Deposit, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Mahram, {
+        foreignKey: "company_id",
+      });
+      Company.hasMany(models.Jamaah, {
+        foreignKey: "company_id",
+      });
      }
   }
   Company.init(
     {
       code: DataTypes.STRING,
+      division_id: DataTypes.STRING,
       kurs: DataTypes.ENUM(["rp", "usd", 'sar']), 
+      division_id: DataTypes.STRING,
       logo: DataTypes.STRING,
       icon: DataTypes.STRING,
       company_name: DataTypes.STRING,

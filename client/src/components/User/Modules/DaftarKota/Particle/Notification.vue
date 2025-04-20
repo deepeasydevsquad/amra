@@ -1,5 +1,17 @@
 <script setup lang="ts">
-  const props = defineProps<{ showNotification: boolean, notificationType : any, notificationMessage : any,  }>()
+import { defineProps, defineEmits } from 'vue'
+
+const props = defineProps<{
+  showNotification: boolean,
+  notificationType: string,
+  notificationMessage: string,
+}>()
+
+const emit = defineEmits(['close'])
+
+const closeNotification = () => {
+  emit('close')  // Emit event ke parent
+}
 </script>
 
 <template>
@@ -34,7 +46,7 @@
             </div>
           </div>
           <button
-            @click="showNotification = false"
+            @click="closeNotification"
             class="absolute top-2 right-2 text-gray-400 hover:text-gray-500"
           >
             <span class="sr-only">Close</span>

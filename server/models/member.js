@@ -14,6 +14,18 @@ module.exports = (sequelize, DataTypes) => {
       Member.belongsTo(models.Division, {
         foreignKey: "division_id",
       });
+      Member.hasMany(models.User, {
+        foreignKey: "member_id",
+      });
+      Member.hasMany(models.Agen, {
+        foreignKey: "member_id",
+      });
+      Member.hasMany(models.Deposit, {
+        foreignKey: "member_id",
+      });
+      Member.hasMany(models.Jamaah, {
+        foreignKey: "member_id",
+      });
     }
   }
   Member.init({
@@ -26,6 +38,8 @@ module.exports = (sequelize, DataTypes) => {
     birth_date: DataTypes.DATE,
     birth_place: DataTypes.STRING,
     whatsapp_number: DataTypes.STRING,
+    total_deposit: DataTypes.INTEGER,
+    total_tabungan: DataTypes.INTEGER,
     password: DataTypes.STRING
   }, {
     sequelize,

@@ -11,17 +11,17 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Saldo_akun.belongsTo(models.Company, {
-        foreignKey: "company_id",
+      Saldo_akun.belongsTo(models.Division, {
+        foreignKey: "division_id",
       });
-      Saldo_akun.belongsTo(models.Akun_primary, {
-        foreignKey: "akun_primary_id",
+      Saldo_akun.belongsTo(models.Akun_secondary, {
+        foreignKey: "akun_secondary_id",
       });
     }
   }
   Saldo_akun.init({
-    company_id: DataTypes.INTEGER,
-    akun_primary_id: DataTypes.INTEGER,
+    division_id: DataTypes.INTEGER,
+    akun_secondary_id: DataTypes.INTEGER,
     saldo: DataTypes.INTEGER,
     periode: DataTypes.INTEGER,
     desc: DataTypes.TEXT

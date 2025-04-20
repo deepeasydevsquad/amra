@@ -1,20 +1,28 @@
 <script setup lang="ts">
-// import { useSidebarStore } from '@/stores/sidebar'
-// import { useSidebarStore } from '@/stores/sidebar'
+
+// import { useHead } from '@vueuse/head';
 import { useSidebarStore } from '../../../../stores/sidebar'
-// import DarkModeSwitcher from './DarkModeSwitcher.vue'
-// import DropdownMessage from './DropdownMessage.vue'
-// import DropdownNotification from './DropdownNotification.vue'
 import DropdownUser from './DropdownUser.vue'
+import { ref, watchEffect } from "vue";
 
 const { toggleSidebar } = useSidebarStore()
 const sidebarStore = useSidebarStore()
+
+import { useHead } from '@vueuse/head'
+
+useHead({
+  title: 'AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
+  link: [ { rel: 'icon', type: 'image/png', href: 'public/favicon.png' } ],
+  meta: [ { name: 'AMRA', content: 'Aplikasi manajemen travel Haji dan Umrah' } ]
+});
+
 </script>
 
 <template>
   <header
     class="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none"
   >
+    <!-- <title>AMRA :: Aplikasi Manajemen Travel Haji dan Umrah</title> -->
     <!-- <font-awesome-icon :icon="['fas', 'user']" /> -->
     <div class="flex flex-grow items-center justify-between py-4 px-4 shadow-2 md:px-6 2xl:px-11">
       <div class="flex items-center gap-2 sm:gap-4 lg:hidden">
@@ -61,7 +69,7 @@ const sidebarStore = useSidebarStore()
         </router-link> -->
       </div>
       <div class="hidden sm:block">
-        <form action="https://formbold.com/s/unique_form_id" method="POST">
+        <!-- <form action="https://formbold.com/s/unique_form_id" method="POST">
           <div class="relative">
             <button class="absolute top-1/2 left-0 -translate-y-1/2">
               <svg
@@ -93,7 +101,7 @@ const sidebarStore = useSidebarStore()
               class="w-full xl:w-125 bg-transparent pr-4 pl-9 focus:outline-none"
             />
           </div>
-        </form>
+        </form> -->
       </div>
 
       <div class="flex items-center gap-3 2xsm:gap-7">

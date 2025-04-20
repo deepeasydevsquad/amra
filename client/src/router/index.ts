@@ -3,6 +3,9 @@ import HomeView from '@/views/HomeView.vue'
 import UserView from '@/views/UserView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
+import KwitansiView from '@/views/KwitansiView.vue'
+import InvoicePaketLa from '../components/User/Modules/DaftarPaketLa/InvoicePaketLa.vue'
+import InvoiceDeposit from '@/components/User/Modules/Invoice/InvoiceDeposit.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -13,7 +16,7 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/user/login',
+      path: '/login',
       name: 'login',
       component: LoginView,
     },
@@ -23,6 +26,11 @@ const router = createRouter({
       component: RegisterView,
     },
     {
+      path: '/kwitansi',
+      name: 'kwitansi',
+      component: KwitansiView,
+    },
+    {
       path: '/tab-tes',
       name: 'tab-tes',
       component: () => import('../views/MemberAreaView.vue'),
@@ -30,7 +38,21 @@ const router = createRouter({
     {
       path: '/user',
       name: 'user',
+      meta: {
+        title: 'Home - My Website',
+        description: 'Ini adalah deskripsi halaman Home',
+      },
       component: UserView,
+    },
+    {
+      path: '/invoice-paket-la',
+      name: 'invoice-paket-la',
+      component: InvoicePaketLa,
+    },
+    {
+      path: '/invoice-deposit/:id',
+      name: 'invoice-deposit',
+      component: InvoiceDeposit,
     },
   ],
 })

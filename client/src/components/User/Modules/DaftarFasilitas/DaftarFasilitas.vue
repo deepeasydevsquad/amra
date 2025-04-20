@@ -190,7 +190,7 @@ const deleteData = async (id: number) => {
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
-        Tambah Fasilitas Baru
+        Tambah Fasilitas
       </button>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
@@ -231,7 +231,7 @@ const deleteData = async (id: number) => {
             </tr>
           </template>
           <tr v-else>
-            <td colspan="4" class="px-6 py-4 text-center text-base text-gray-600">Daftar fasilitas tidak ditemukan.</td>
+            <td colspan="2" class="px-6 py-4 text-center text-base text-gray-600">Daftar fasilitas tidak ditemukan.</td>
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
@@ -284,53 +284,6 @@ const deleteData = async (id: number) => {
 
 
 
-
-    <!-- <nav aria-label="Page navigation example">
-      <ul class="inline-flex -space-x-px text-base h-10">
-        <li>
-          <a href="#" class="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Previous</a>
-        </li>
-        <li>
-          <a href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
-        </li>
-        <li>
-          <a href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
-        </li>
-        <li>
-          <a href="#" aria-current="page" class="flex items-center justify-center px-4 h-10 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
-        </li>
-        <li>
-          <a href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">4</a>
-        </li>
-        <li>
-          <a href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">5</a>
-        </li>
-        <li>
-          <a href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</a>
-        </li>
-      </ul>
-    </nav> -->
-
-    <!-- <div class="flex justify-center items-center gap-2 mt-4">
-      <button
-        @click="prevPage"
-        :disabled="currentPage === 1"
-        class="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-      >
-        <font-awesome-icon :icon="['fas', 'backward']" />
-      </button>
-
-      <span class="px-3 py-1 text-gray-700">Page {{ currentPage }} of {{ totalPages }}</span>
-
-      <button
-        @click="nextPage"
-        :disabled="nextIsDisabled"
-        class="px-3 py-1  rounded "
-        :class="`${ nextIsDisabled ? ' bg-gray-300 disabled:opacity-50' : 'bg-black'}`"
-      >
-      <font-awesome-icon :icon="['fas', 'forward']" />
-      </button>
-    </div> -->
 
     <!-- Modal Form -->
     <Transition
@@ -397,6 +350,6 @@ const deleteData = async (id: number) => {
     </Confirmation>
 
     <!-- Notification Popup -->
-    <Notification  :showNotification="showNotification"  :notificationType="notificationType" :notificationMessage="notificationMessage" ></Notification>
+    <Notification  :showNotification="showNotification"  :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false"  ></Notification>
   </div>
 </template>

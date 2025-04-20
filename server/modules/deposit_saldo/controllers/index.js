@@ -1,0 +1,62 @@
+const Model_r = require("../models/model_r");
+const Model_cud = require("../models/model_cud");
+const { handleServerError, handleValidationErrors } = require("../../../helper/handleError");
+
+exports.getDeposit = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.daftarDeposit();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
+exports.getCompany = async (req, res) => {
+  try {
+    const model = new Model_r(req);
+    const data = await model.dataCompany();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
+exports.addDeposit = async (req, res) => {
+  
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_r = new Model_r(req);
+    const generated_invoice = await model_r.generateInvoice();
+    const model_cud = new Model_cud(req);
+    await model_cud.tambahDeposit( generated_invoice );
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Proses Deposit Saldo Berhasil Dilakukan.',
+        data : { invoice : generated_invoice }
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Proses Deposit Saldo Gagal Dilakukan.',
+      });
+    }
+    
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+exports.infoDeposit = async (req, res) => {
+  try {
+    const model = new Model_r(req);
+    const data = await model.infoDeposit();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
