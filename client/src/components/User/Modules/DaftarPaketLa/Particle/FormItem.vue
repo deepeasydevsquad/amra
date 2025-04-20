@@ -1,7 +1,7 @@
 <script lang="ts">
 import { addFasilitasPaketLA } from '../../../../../service/fasilitas_paket_la';
-import DeleteIconX from '../Icon/DeleteIconX.vue';
-import Notification from './Notification.vue';
+import DeleteIconX from '@/components/User/Modules/DaftarPaketLa/Icon/DeleteIconX.vue';
+import Notification from '@/components/User/Modules/DaftarPaketLa/Particle/Notification.vue';
 import { ref } from 'vue';
 
 const showNotification = ref<boolean>(false);

@@ -20,6 +20,16 @@ router.get("/invoice/invoice-deposit/:invoice",
     controller.invoice_deposit
 );
 
+router.get("/invoice/invoice-paket-la/:invoice",
+    authenticateToken,
+    controller.invoice_paket_la
+)
+
+router.get("/invoice/kwitansi-terakhir/:register_number",
+    authenticateToken,
+    controller.kwitansi_terakhir
+)
+
 // router.post("/add-deposit", 
 //     authenticateToken, 
 //     controller.addDeposit

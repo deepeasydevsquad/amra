@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { getMember, deleteMember as deleteMemberApi } from '@/service/member.ts'
+import { getMember, deleteMember as deleteMemberApi } from '@/service/member'
 import DeleteIcon from '@/components/User/Modules/Member/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/Member/Icon/EditIcon.vue'
 import DangerButton from '@/components/User/Modules/Member/Particle/DangerButton.vue'
@@ -11,7 +11,7 @@ import Notification from '@/components/User/Modules/Member/Particle/Notification
 import Confirmation from '@/components/User/Modules/Member/Particle/Confirmation.vue'
 import AddAgenButton from '@/components/User/Modules/Member/Particle/AddAgenButton.vue'
 import AddAgenIcon from '@/components/User/Modules/Member/Icon/AddAgenIcon.vue'
-import FormAddAgen from '@/components/User/Modules/Member/Particle/FormAddAgen.vue'
+import FormAddAgen from '@/components/User/Modules/Member/Particle//FormAddAgen.vue'
 
 interface Members {
   id: number
