@@ -1,9 +1,13 @@
+version: '3.8'
+
 services:
   server:
-    image: muammar88/amra_saas_server:v1.0
+    build: ./server
     container_name: Container_server
     ports:
       - "3001:3001"
+    volumes:
+      - ./server:/app
     environment:
       SECRET_KEY: "9813kbk31023khvviuytyuwqkiwvj9mnb757uytr34nm123o"
       REFRESH_SECRET_KEY: "y87238giehgaiuwgd82o123455gskiassmnxzxclaoihdsobk"
@@ -24,10 +28,12 @@ services:
       - app-network
 
   client:
-    image: muammar88/amra_saas_client:v1.0
+    build: ./client
     container_name: Container_client
     ports:
       - "8081:80"
+    volumes:
+      - ./client:/app
     environment:
       VITE_APP_API_BASE_URL: "http://server:3001"
       NODE_ENV: "development"
@@ -50,7 +56,9 @@ services:
       - ./mysql_config/my.cnf:/etc/mysql/my.cnf  # Mount file my.cnf ke dalam container
     networks:
       - app-network
-  
+    ports:
+      - "3307:3306"
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin_container
