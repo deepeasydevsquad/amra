@@ -41,22 +41,16 @@ jobs:
         username: ${{ env.SSH_USER }}
         key: ${{ env.SSH_PRIVATE_KEY }}
         script: |
-        
           cd /home/dbmachine/amra
-          
           # Pull latest images
           docker pull muammar88/amra_saas_client:v1.0
           docker pull muammar88/amra_saas_server:v1.0
-
           # Stop and remove containers if exist
-          docker-compose -f docker-compose.dev.yml down || true
-
+          docker-compose down || true
           # Start services using docker-compose
-          docker-compose -f docker-compose.dev.yml up -d
-
+          docker-compose up -d
+          sleep 60
           # Run Sequelize migration and seed scripts
           docker exec -i Container_server npx sequelize-cli db:migrate:undo:all
           docker exec -i Container_server npx sequelize-cli db:migrate
-          docker exec -i Container_server npx sequelize-cli db:seed:all
-
-          
+          # docker exec -i Container_server npx sequelize-cli db:seed:all
