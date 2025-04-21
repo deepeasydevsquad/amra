@@ -2,7 +2,7 @@
   <header class="text-white bg-cover bg-no-repeat bg-center min-h-[670px] flex items-start pt-12" :style="{ backgroundImage: `url(${bgUrl})` }">
       <div class="w-full max-w-2xl p-6 md:p-12 lg:w-1/2">
           <h1 class="text-3xl font-semibold md:text-4xl lg:text-5xl text-center md:text-left">
-              Kelola Travel Anti Mahal 123123 dan Berkualitas
+              Kelola Travel Anti Mahal dan Berkualitas
           </h1>
           <p class="mt-4 text-lg text-center md:text-left">Sistem manajemen umrah dan travel terintegrasi dan lengkap</p>
           <p class="text-lg text-center md:text-left">untuk membantu pengelolaan bisnis.</p>
