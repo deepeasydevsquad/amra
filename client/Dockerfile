@@ -1,32 +1,36 @@
-# build stage
+# ========================
+# Build Stage
+# ========================
 FROM node:lts-alpine as build-stage
+
+# Set working directory
 WORKDIR /app
+
+# Install dependencies
 COPY package*.json ./
 RUN npm install
+
+# Copy source code and build
 COPY . .
 RUN npm run build
 
-# production stage with Apache
-FROM httpd:alpine as production-stage
+# ========================
+# Production Stage
+# ========================
+FROM httpd:2.4-alpine as production-stage
 
-# Salin built files ke folder publik Apache
+# Copy built files to Apache's public folder
 COPY --from=build-stage /app/dist/ /usr/local/apache2/htdocs/
 
-# Salin .htaccess untuk mengatur routing Vue
+# Copy .htaccess if exists
 COPY .htaccess /usr/local/apache2/htdocs/.htaccess
 
-# Modifikasi konfigurasi Apache agar dapat membaca .htaccess dan memungkinkan mod_rewrite
-RUN echo '<Directory "/usr/local/apache2/htdocs">' >> /usr/local/apache2/conf/httpd.conf && \
-    echo '    AllowOverride All' >> /usr/local/apache2/conf/httpd.conf && \
-    echo '    Require all granted' >> /usr/local/apache2/conf/httpd.conf && \
-    echo '</Directory>' >> /usr/local/apache2/conf/httpd.conf
+# Enable .htaccess and mod_rewrite
+RUN sed -i '/<Directory "\/usr\/local\/apache2\/htdocs">/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /usr/local/apache2/conf/httpd.conf \
+ && sed -i 's/#LoadModule rewrite_module/LoadModule rewrite_module/' /usr/local/apache2/conf/httpd.conf
 
-# Pastikan mod_rewrite aktif
-RUN sed -i 's/#LoadModule rewrite_module/LoadModule rewrite_module/' /usr/local/apache2/conf/httpd.conf
-
-# Expose port 80
+# Expose port
 EXPOSE 80
 
-# Jalankan Apache di foreground
+# Start Apache in foreground
 CMD ["httpd-foreground"]
-
