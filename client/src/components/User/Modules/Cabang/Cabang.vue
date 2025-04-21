@@ -139,17 +139,17 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import Modal from './particle/Modal.vue'
-import ModalUpdate from './particle/ModalUpdate.vue'
+import Modal from './Particle/Modal.vue'
+import ModalUpdate from './Particle/ModalUpdate.vue'
 import { daftarCabang, addCabang, editCabang, hapusCabang } from '../../../../service/cabang'
 import DeleteIcon from './Icon/DeleteIcon.vue'
 import EditIcon from './Icon/EditIcon.vue'
 
 // import element
-import DangerButton from './particle/DangerButton.vue'
-import EditButton from './particle/EditButton.vue'
-import Notification from './particle/Notification.vue'
-import Confirmation from './particle/Confirmation.vue'
+import DangerButton from './Particle/DangerButton.vue'
+import EditButton from './Particle/EditButton.vue'
+import Notification from './Particle/Notification.vue'
+import Confirmation from './Particle/Confirmation.vue'
 
 const cabangs = ref([])
 const search = ref('')

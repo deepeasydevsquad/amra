@@ -29,7 +29,13 @@ module.exports = (sequelize, DataTypes) => {
       Division.hasMany(models.Paket_la, {
         foreignKey: "division_id",
       });
+      Division.hasMany(models.Paket, {
+        foreignKey: "division_id",
+      });
       Division.hasMany(models.Jurnal, {
+        foreignKey: "division_id",
+      });
+      Division.hasMany(models.Jamaah, {
         foreignKey: "division_id",
       });
     }

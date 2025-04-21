@@ -1,7 +1,7 @@
 <script lang="ts">
 import { addFasilitasPaketLA } from '../../../../../service/fasilitas_paket_la';
-import DeleteIconX from '../Icon/DeleteIconX.vue';
-import Notification from './Notification.vue';
+import DeleteIconX from '@/components/User/Modules/DaftarPaketLa/Icon/DeleteIconX.vue';
+import Notification from '@/components/User/Modules/DaftarPaketLa/Particle/Notification.vue';
 import { ref } from 'vue';
 
 const showNotification = ref<boolean>(false);
@@ -68,10 +68,6 @@ export default {
       return isValid;
     };
 
-    /**
-     * Format the price value of an item
-     * @param index The index of the item
-     */
     const formatPrice = (index: number) => {
       const value = parseFloat(items.value[index].price
         .replace(/[^\d]/g, "") // Remove all characters except digits and dot

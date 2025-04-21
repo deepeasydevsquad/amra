@@ -179,6 +179,7 @@ export default defineComponent({
     // Fetch Data Kwitansi
     const fetchTransaction = async () => {
       try {
+        // @ts-ignore
         const response = await getKwitansi()
         console.log('Kwitansi response:', response)
 

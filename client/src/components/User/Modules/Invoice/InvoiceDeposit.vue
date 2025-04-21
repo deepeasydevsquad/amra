@@ -3,7 +3,8 @@
     <!-- Wrapper PDF -->
     <div id="invoice" v-if="company && Object.keys(company.data).length > 0">
       <!-- Header -->
-      <div class="flex justify-between items-start border-b pb-4 mb-4">
+       <Header :data="company.data"></Header>
+      <!-- <div class="flex justify-between items-start border-b pb-4 mb-4">
         <div class="w-1/3">
           <img
             :src="company?.data.logo ? `${BASE_URL}/uploads/pengaturan/${company.data.logo}` : 'default.png'"
@@ -20,7 +21,7 @@
             {{ company?.data.email || '-' }} Telp: {{ company?.data.whatsapp_company_number || '-' }}
           </p>
         </div>
-      </div>
+      </div> -->
 
       <h2 class="text-lg font-bold mb-4 text-left">Kwitansi Pembayaran Deposit Saldo</h2>
 
@@ -96,12 +97,12 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
-import { dataInvoiceDeposit } from '../../../../service/invoice'
+import { dataInvoiceDeposit } from '@/service/invoice.ts'
 import { useRoute } from 'vue-router'
+import Header from '@/components/User/Modules/Invoice/Particle/Header.vue'
 
 const route = useRoute()
 const invoiceId = route.params.id
-const BASE_URL = import.meta.env.VITE_APP_API_BASE_URL
 const company = ref<any>(null)
 
 const fetch = async () => {

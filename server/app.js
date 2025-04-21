@@ -10,11 +10,40 @@ const cookieParser = require("cookie-parser");
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 3001;
 
-app.use(cors());
+// CORS dinamis, izinkan semua origin yang datang
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // untuk Postman, curl, dll.
+    return callback(null, origin); // izinkan semua origin
+  },
+  credentials: true,
+}));
+
 app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
+const sessionDuration = 3600000; // 1 jam
+
+app.use(
+  session({
+    secret: "OutletTacob4",
+    name: "amra_sessid",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      expires: new Date(Date.now() + sessionDuration),
+      maxAge: sessionDuration,
+    },
+  })
+);
+
+app.set("view engine", "ejs");
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Load router dinamis
 const arr_router = [
   "user",
   "otp",
@@ -44,61 +73,42 @@ const arr_router = [
   "pengguna",
   "level_agen",
   "daftar_agen",
-  "invoice_paket_la",
   "deposit_saldo",
+  "pembayaran_paket_la",
   "daftar_jamaah",
   "data_master",
 ];
 
-// routers
-var arr = {};
+const arr = {};
 arr_router.forEach((e) => {
-  if (typeof e == "object" && Object.keys(e.list).length > 0) {
+  if (typeof e === "object" && Object.keys(e.list).length > 0) {
     for (let x in e.list) {
-      arr["router_" + e.list[x]] = require("./router/" +
-        e.folder +
-        "/" +
-        e.list[x] +
-        "/index");
+      arr["router_" + e.list[x]] = require(`./router/${e.folder}/${e.list[x]}/index`);
     }
   } else {
-    arr["router_" + e] = require("./router/router_" + e);
+    arr["router_" + e] = require(`./router/router_${e}`);
   }
 });
 
-// models
-const db = require("../server/models");
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-hour = 3600000;
-
-app.use(
-  session({
-    secret: "OutletTacob4",
-    name: "secretName",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      expires: new Date(Date.now() + hour),
-      maxAge: hour,
-    },
-  })
-);
-
-app.set("view engine", "ejs");
-app.use("/uploads", express.static("/uploads"));
-app.use("/uploads", express.static(__dirname + "/uploads"));
+// Load model dan sync
+const db = require("./models");
 
 (async () => {
   await db.sequelize.sync();
 })();
 
+// Gunakan semua router yang sudah dimuat
 for (let x in arr) {
   app.use(arr[x]);
 }
 
-app.listen(port, function () {
+// Middleware untuk error handler
+app.use((err, req, res, next) => {
+  console.error("Internal Server Error:", err.stack);
+  res.status(500).json({ message: "Something went wrong!" });
+});
+
+// Start server
+app.listen(port, () => {
   console.log("Server Running On Port " + port);
 });

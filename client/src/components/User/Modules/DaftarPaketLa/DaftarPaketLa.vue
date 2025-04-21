@@ -1,29 +1,27 @@
 <script setup lang="ts">
 // Import Icon
-import DeleteIcon from "./Icon/DeleteIcon.vue"
-import EditIcon from "./Icon/EditIcon.vue"
+import DeleteIcon from "@/components/User/Modules/DaftarPaketLa/Icon/DeleteIcon.vue"
+import EditIcon from "@/components/User/Modules/DaftarPaketLa/Icon/EditIcon.vue"
 
 // import element
-import DangerButton from "./Particle/DangerButton.vue"
-import EditButton from "./Particle/EditButton.vue"
-import LightButton from "./Particle/LightButton.vue"
-import Notification from "./Particle/Notification.vue"
-import Confirmation from "./Particle/Confirmation.vue"
-import FormItem from "./Particle/FormItem.vue"
-import Form from "./Particle/Form.vue"
+import DangerButton from "@/components/User/Modules/DaftarPaketLa/Particle/DangerButton.vue"
+import EditButton from "@/components/User/Modules/DaftarPaketLa/Particle/EditButton.vue"
+import LightButton from "@/components/User/Modules/DaftarPaketLa/Particle/LightButton.vue"
+import Notification from "@/components/User/Modules/DaftarPaketLa/Particle/Notification.vue"
+import Confirmation from "@/components/User/Modules/DaftarPaketLa/Particle/Confirmation.vue"
+import FormItem from "@/components/User/Modules/DaftarPaketLa/Particle/FormItem.vue"
+import FormPembayaran from "@/components/User/Modules/DaftarPaketLa/Particle/FormPembayaran.vue"
+import Form from "@/components/User/Modules/DaftarPaketLa/Particle/Form.vue"
 
-// import api from "@/services/api"; // Import service API
+// import API
 import { daftarPaketLA, addPaketLA, editPaketLA, deletePaketLA } from "../../../../service/daftar_paket_la"
 import { daftarFasilitasPaketLA, deleteFasilitasPaketLA } from "../../../../service/fasilitas_paket_la"
-import { ref, onMounted, computed, watchEffect } from 'vue';
-import { useInvoiceStore } from '../../../../stores/invoiceStore';
-import router from '@/router'; // ini untuk navigasi ke halaman lain
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
 const itemsPerPage = 100; // Jumlah paket_la per halaman
 const currentPage = ref(1);
 const search = ref("");
-const pageNumber = ref(0);
 const totalPages = ref(0);
 
 const nextPage = () => {
@@ -76,11 +74,13 @@ interface Errors {
 }
 
 const paketlaId = ref<number | null>(null); // Id number untuk form item
+const registerNumber = ref<string | null>(null);  // regNumb untuk form KwitansiTerakhir
 const fasilitaspaketla = ref<any[]>([]); // Array untuk menyimpan data fasilitas
 const timeoutId = ref<number | null>(null);
 const dataPaketLA = ref<PaketLA[]>([]);
 const isModalOpen = ref<boolean>(false);
 const isFormItemOpen = ref<boolean>(false);
+const isFormPembayaranOpen = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
 const notificationMessage = ref<string>('');
@@ -156,6 +156,11 @@ const openModal = (paket_la?: PaketLA) => {
 const openFormItem = (id: number) => {
   paketlaId.value = id;
   isFormItemOpen.value = true;
+};
+const openFormPembayaran = (id: number, register_number: string) => {
+  paketlaId.value = id ;
+  registerNumber.value = register_number;
+  isFormPembayaranOpen.value = true;
 };
 
 onMounted(async () => {
@@ -290,17 +295,21 @@ const deleteItem = async (id: number, fasilitaspaketlaId: number) => {
   );
 };
 
-const cetakInvoice = async (paketId: number, fasilitasId: number) => {
+const cetakInvoice = async (invoice: string) => {
   try {
-    const invoiceStore = useInvoiceStore();
-    invoiceStore.setInvoiceData(paketId, fasilitasId);
+    if (!invoice) {
+      displayNotification('Nomor invoice tidak tersedia', 'error')
+      return
+    }
 
-    // Arahkan ke halaman cetak (misalnya /invoice-paket-la)
-    router.push({ name: 'invoice-paket-la' });
+    const url = `/invoice-paket-la/${invoice}`
+    window.open(url, '_blank', 'noopener,noreferrer,width=800,height=600,scrollbars=yes')
   } catch (error) {
-    console.error('Error printing invoice:', error);
+    console.error('Error printing invoice:', error)
+    displayNotification('Terjadi kesalahan saat membuka invoice.', 'error')
   }
-};
+}
+
 </script>
 
 <template>
@@ -380,7 +389,7 @@ const cetakInvoice = async (paketId: number, fasilitasId: number) => {
                       <td class="w-[1%] px-3 border">:</td>
                       <td class="w-[34%] px-6 border text-left" style="text-transform:uppercase;">
                         <button type="button" class="h-[35px] mx-[0.1rem] px-4 my-1 py-1 flex justify-center items-center rounded-lg text-gray-900 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
-                          @click="cetakInvoice(paket.id, invoice.id)"
+                          @click="cetakInvoice(invoice.invoice)"
                         >
                           <i class="fas fa-print" style="font-size: 11px;"></i> Cetak Invoice
                         </button>
@@ -460,7 +469,7 @@ const cetakInvoice = async (paketId: number, fasilitasId: number) => {
               <LightButton  @click="openFormItem(paket.id)">
                 <font-awesome-icon icon="fa-solid fa-box" />
               </LightButton>
-              <LightButton>
+              <LightButton @click="openFormPembayaran(paket.id, paket.register_number)">
                 <font-awesome-icon icon="fa-solid fa-money-bill-alt" />
               </LightButton>
               <LightButton>
@@ -547,8 +556,8 @@ const cetakInvoice = async (paketId: number, fasilitasId: number) => {
       :selectedPaketLA="selectedPaketLA"
       :errors="errors"
       @save="saveData"
-      @close="isModalOpen = false"
-    />
+      @close="isModalOpen = false; fetchData()"
+      />
   </transition>
 
   <!-- FormItem Overlay -->
@@ -565,6 +574,24 @@ const cetakInvoice = async (paketId: number, fasilitasId: number) => {
       :isFormItemOpen="isFormItemOpen"
       :paketlaId="paketlaId"
       @close="isFormItemOpen = false; fetchData()"
+      />
+  </Transition>
+
+  <!-- FormPembayaran Overlay -->
+  <Transition
+    enter-active-class="transition-opacity duration-200 ease-out"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
+    leave-active-class="transition-opacity duration-200 ease-in"
+    leave-from-class="opacity-100"
+    leave-to-class="opacity-0"
+  >
+    <FormPembayaran
+      v-if="isFormPembayaranOpen"
+      :isFormPembayaranOpen="isFormPembayaranOpen"
+      :paketlaId="paketlaId"
+      :registerNumber="registerNumber"
+      @close="isFormPembayaranOpen = false; fetchData()"
       />
   </Transition>
 

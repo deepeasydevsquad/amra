@@ -14,6 +14,9 @@ module.exports = (sequelize, DataTypes) => {
       Mst_asuransi.belongsTo(models.Company, {
         foreignKey: "company_id",
       });
+      Mst_asuransi.hasMany(models.Paket, {
+        foreignKey: "asuransi_id",
+      });
     }
   }
   Mst_asuransi.init({

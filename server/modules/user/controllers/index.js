@@ -11,6 +11,14 @@ controllers.login_process = async (req, res) => {
   // process
   try {
     const body = req.body;
+
+    console.log("Login Proses=====+");
+    console.log(body.type);
+    console.log(body.company_code);
+    console.log(body.username);
+    console.log(body.password);
+    console.log("Login Proses=====+");
+
     const model_r = new Model_r(req);
     const data = await model_r.get_user_information();
     // filter if data not in database
@@ -49,7 +57,7 @@ controllers.login_process = async (req, res) => {
               access_token: accessToken, 
               refresh_token: refreshToken,
               error: false,
-              error_msg: 'Username atau Password anda tidak ditemukan dipangkalan data.'
+              error_msg: 'Sukses.'
             });
         } 
       }
@@ -61,6 +69,10 @@ controllers.login_process = async (req, res) => {
       });
     }
   } catch (error) {  
+
+    console.log("Error Login Proses=====+");
+    console.log(error);
+    console.log("Error Login Proses=====+");
     handleServerError(res, error);
   }
 }
