@@ -55,7 +55,7 @@ jobs:
           docker-compose -f docker-compose.dev.yml up -d
 
           # Run Sequelize migration and seed scripts
-          cd ./server  # Pastikan berada di direktori yang benar
-          npx sequelize-cli db:migrate:undo:all
-          npx sequelize-cli db:migrate
-          npx sequelize-cli db:seed:all
+          docker exec -it Container_server npx sequelize-cli db:migrate:undo:all
+          docker exec -it Container_server npx sequelize-cli db:migrate
+          docker exec -it Container_server npx sequelize-cli db:seed:all
+          
