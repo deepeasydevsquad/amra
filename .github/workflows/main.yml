@@ -41,6 +41,9 @@ jobs:
         username: ${{ env.SSH_USER }}
         key: ${{ env.SSH_PRIVATE_KEY }}
         script: |
+        
+          cd ./amra
+          
           # Pull latest images
           docker pull $FRONT_IMAGE
           docker pull $BACK_IMAGE
