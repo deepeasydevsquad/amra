@@ -1,51 +1,58 @@
-name: Deploy Frontend(Vue.js) & Backend Express.js App Amra
+name: CI/CD Deploy Amra App
 
 on:
   push:
-    branches:
-      - master  # Jalankan saat push ke branch `main`
+    branches: [ staging ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      FRONT_IMAGE: muammar88/amra_saas_client:v1.0
+      BACK_IMAGE: muammar88/amra_saas_server:v1.0
+      SERVER_IP: ${{ secrets.SERVER_IP }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
+      DOCKER_HUB_PASS: ${{ secrets.DOCKER_HUB_PASS }}
+
     steps:
-    - name: Checkout repository
+    - name: Checkout repo
       uses: actions/checkout@v3
 
-    - name: Install SSH Key
+    - name: Login to DockerHub
+      run: echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_USER" --password-stdin
+
+    - name: Build and push client image
       run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+        docker build -t $FRONT_IMAGE ./client
+        docker push $FRONT_IMAGE
 
-    - name: Deploy to Server
+    - name: Build and push backend image
       run: |
-        ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
-        cd /home/${{ secrets.USERNAME }}/amra_saas
+        docker build -t $BACK_IMAGE ./server
+        docker push $BACK_IMAGE
 
-        # Install NVM and use Node.js version 20.12.2
-        export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-        nvm use 20.12.2  # Sesuaikan dengan versi Node.js yang Anda gunakan
+    - name: Deploy to Ubuntu server via SSH
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ env.SERVER_IP }}
+        username: ${{ env.SSH_USER }}
+        key: ${{ env.SSH_PRIVATE_KEY }}
+        script: |
+          # Pull latest images
+          docker pull $FRONT_IMAGE
+          docker pull $BACK_IMAGE
 
-        # Pull kode terbaru
-        git pull origin staging
+          # Stop and remove containers if exist
+          docker-compose -f docker-compose.dev.yml down || true
 
-        # Install dependencies frontend
-        cd client
-        npm install
-        npm run build
-        echo "Copying dist files..."
-        sudo cp -r dist/* /opt/lampp/htdocs/ || echo "Copy failed"
+          # Start services using docker-compose
+          docker-compose -f docker-compose.dev.yml up -d
 
-        # Install dependencies backend
-        cd ../server
-        npm install
-
-        # Restart backend (gunakan PM2 atau service systemd)
-        pm2 restart server || pm2 start app.js --name server
-
-        EOF
+          # Run Sequelize migration and seed scripts
+          cd ./server  # Pastikan berada di direktori yang benar
+          npx sequelize-cli db:migrate:undo:all
+          npx sequelize-cli db:migrate
+          npx sequelize-cli db:seed:all
