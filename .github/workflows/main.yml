@@ -49,10 +49,10 @@ jobs:
           docker pull muammar88/amra_saas_server:v1.0
 
           # Stop and remove containers if exist
-          docker-compose -f down || true
+          docker-compose down || true
 
           # Start services using docker-compose
-          docker-compose -f up -d
+          docker-compose up -d
 
           sleep 60
 
