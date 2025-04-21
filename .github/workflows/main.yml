@@ -58,7 +58,7 @@ jobs:
 
           # Run Sequelize migration and seed scripts
           docker exec -i Container_server npx sequelize-cli db:migrate:undo:all
-          docker exec -i Container_server npx sequelize-cli db:migrate
-          docker exec -i Container_server npx sequelize-cli db:seed:all
+          # docker exec -i Container_server npx sequelize-cli db:migrate
+          # docker exec -i Container_server npx sequelize-cli db:seed:all
 
           
