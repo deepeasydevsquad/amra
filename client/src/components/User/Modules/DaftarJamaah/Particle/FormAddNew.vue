@@ -954,7 +954,6 @@ const formData = ref({
   birth_place: '',
   birth_date: '',
   whatsapp_number: '',
-  password: '',
   kelurahan_id: null,
   agen_id: '',
   title: '',
@@ -1058,7 +1057,7 @@ const selectedMahram = ref(null)
 const selectMahram = (mahram) => {
   formData.value.mahram.mahram_id = mahram.id
   searchMahram.value = mahram.fullname
-  selectedMahram.value = mahram 
+  selectedMahram.value = mahram
   isOpenMahram.value = false
 }
 
