@@ -57,8 +57,11 @@ jobs:
 
             # Run Sequelize migration and seed scripts
             if docker exec -i Container_server npx sequelize-cli db:migrate:undo:all; then
-              docker exec -i Container_server npx sequelize-cli db:migrate
-              # docker exec -i Container_server npx sequelize-cli db:seed:all
+              if docker exec -i Container_server npx sequelize-cli db:migrate; then
+                docker exec -i Container_server npx sequelize-cli db:seed:all
+              else
+                echo "⚠️ Gagal menjalankan undo migration. Skip proses migrate."  
+              fi  
             else
               echo "⚠️ Gagal menjalankan undo migration. Skip proses migrate."
             fi
