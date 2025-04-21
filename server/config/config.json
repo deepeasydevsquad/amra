@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "root",
-    "password": "",
+    "username": "amra_user",
+    "password": "amra_password",
     "database":"amra_db",
-    "host": "localhost",
+    "host": "mysql",
     "dialect": "mysql"
   },
   "test": {
