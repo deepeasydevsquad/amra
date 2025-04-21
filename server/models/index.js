@@ -31,7 +31,8 @@ if (config.use_env_variable) {
     {
       host: process.env.DB_HOST,
       dialect: process.env.DB_DIALECT || 'mysql',
-      port: process.env.DB_PORT || 3307
+      port: process.env.DB_PORT || 3307, 
+      logging: console.log,
     }
   );
 }
