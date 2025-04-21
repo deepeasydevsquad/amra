@@ -13,39 +13,22 @@ const tambahJamaahValidator = [
     .withMessage("Tanggal lahir wajib diisi")
     .custom((val) => moment(val, "YYYY-MM-DD", true).isValid())
     .withMessage("Tanggal lahir harus format tanggal"),
-
   body("whatsapp_number").notEmpty().withMessage("Nomor WhatsApp wajib diisi"),
-
-  body("passwords")
-    .if(body("MemberId").not().exists())
-    .notEmpty()
-    .withMessage("Password wajib jika tidak ada MemberId"),
-
+  body("passwords").if(body("MemberId").not().exists()).notEmpty().withMessage("Password wajib jika tidak ada MemberId"),
   body("kelurahan_id").notEmpty().withMessage("Kelurahan wajib diisi"),
   body("title").notEmpty().withMessage("Title wajib diisi"),
   body("nama_ayah").notEmpty().withMessage("Nama ayah wajib diisi"),
-
   body("nama_passport").optional(),
   body("nomor_passport").optional(),
-  body("tanggal_di_keluarkan_passport")
-    .optional()
-    .custom((val) => moment(val, "YYYY-MM-DD HH:mm:ss", true).isValid())
-    .withMessage("Tanggal passport harus format tanggal"),
+  body("tanggal_di_keluarkan_passport").optional().custom((val) => moment(val, "YYYY-MM-DD HH:mm:ss", true).isValid()).withMessage("Tanggal passport harus format tanggal"),
   body("tempat_di_keluarkan_passport").optional(),
-  body("masa_berlaku_passport")
-    .optional()
-    .custom((val) => moment(val, "YYYY-MM-DD HH:mm:ss", true).isValid())
-    .withMessage("Masa berlaku passport harus format tanggal"),
-
+  body("masa_berlaku_passport").optional().custom((val) => moment(val, "YYYY-MM-DD HH:mm:ss", true).isValid()).withMessage("Masa berlaku passport harus format tanggal"),
   body("kode_pos").optional(),
   body("nomor_telephone").optional(),
-
   body("pengalaman_haji").optional().isInt(),
   body("tahun_haji").optional(),
-
   body("pengalaman_umrah").optional().isInt(),
   body("tahun_umrah").optional(),
-
   body("desease").optional(),
   body("last_education").optional(),
   body("blood_type").optional(),
@@ -85,13 +68,10 @@ const updateJamaahValidator = [
     .optional()
     .custom((val) => moment(val, "YYYY-MM-DD", true).isValid())
     .withMessage("Tanggal lahir harus format tanggal"),
-
   body("whatsapp_number").optional(),
-
   body("kelurahan_id").optional(),
   body("title").optional(),
   body("nama_ayah").optional(),
-
   body("nama_passport").optional(),
   body("nomor_passport").optional(),
   body("tanggal_di_keluarkan_passport")
@@ -103,16 +83,12 @@ const updateJamaahValidator = [
     .optional()
     .custom((val) => moment(val, "YYYY-MM-DD HH:mm:ss", true).isValid())
     .withMessage("Masa berlaku passport harus format tanggal"),
-
   body("kode_pos").optional(),
   body("nomor_telephone").optional(),
-
   body("pengalaman_haji").optional().isInt(),
   body("tahun_haji").optional(),
-
   body("pengalaman_umrah").optional().isInt(),
   body("tahun_umrah").optional(),
-
   body("desease").optional(),
   body("last_education").optional(),
   body("blood_type").optional(),
