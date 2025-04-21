@@ -49,10 +49,10 @@ jobs:
           docker pull muammar88/amra_saas_server:v1.0
 
           # Stop and remove containers if exist
-          docker-compose -f docker-compose.dev.yml down || true
+          docker-compose -f down || true
 
           # Start services using docker-compose
-          docker-compose -f docker-compose.dev.yml up -d
+          docker-compose -f up -d
 
           # Run Sequelize migration and seed scripts
           docker exec -i Container_server npx sequelize-cli db:migrate:undo:all
