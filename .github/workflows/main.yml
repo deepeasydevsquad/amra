@@ -60,8 +60,8 @@ jobs:
               if docker exec -i Container_server npx sequelize-cli db:migrate; then
                 docker exec -i Container_server npx sequelize-cli db:seed:all
               else
-                echo "⚠️ Gagal menjalankan undo migration. Skip proses migrate."  
+                echo "⚠️ Gagal menjalankan migration. Skip proses migrate."  
               fi  
             else
-              echo "⚠️ Gagal menjalankan undo migration. Skip proses migrate."
+              echo "⚠️ Gagal menjalankan undo migration. Skip proses undo migrate."
             fi
