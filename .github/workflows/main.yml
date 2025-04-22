@@ -16,6 +16,9 @@ jobs:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
       DOCKER_HUB_PASS: ${{ secrets.DOCKER_HUB_PASS }}
+      DB_USERNAME_ROOT: ${{ secrets.DB_USERNAME_ROOT_AMRA }}
+      DB_PASSWORD_ROOT: ${{ secrets.DB_PASSWORD_ROOT_AMRA }}
+      
 
     steps:
       - name: Checkout repo
@@ -56,7 +59,7 @@ jobs:
             sleep 60
 
             # Run Sequelize migration and seed scripts
-            if docker exec -i mysql_container mysql -u root -proot_password -e "DROP DATABASE IF EXISTS amra_db; CREATE DATABASE amra_db;"; then
+            if docker exec -i mysql_container mysql -u ${{ env.DB_USERNAME_ROOT }} -p${{ env.DB_PASSWORD_ROOT }} -e "DROP DATABASE IF EXISTS amra_db; CREATE DATABASE amra_db;"; then
               if docker exec -i Container_server npx sequelize-cli db:migrate; then
                 docker exec -i Container_server npx sequelize-cli db:seed:all --debug
               else
