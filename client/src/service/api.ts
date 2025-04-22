@@ -1,7 +1,11 @@
 import axios from 'axios'
 
 // Gunakan variabel lingkungan dari .env
-const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL || 'https://amra-app.com'
+const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL
+
+console.log("API_base_url");
+console.log(API_BASE_URL);
+console.log("API_base_url");
 
 // Base URL API
 const api = axios.create({
