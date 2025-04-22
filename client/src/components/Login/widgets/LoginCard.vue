@@ -5,6 +5,7 @@ import LoginButton from '@/components/Login/particles/LoginButton.vue'
 import ForgotPasswordButton from '@/components/Login/particles/ForgotPasswordButton.vue'
 import GuideButton from '@/components/Login/particles/GuideButton.vue'
 import RegisterButton from '@/components/Login/particles/RegisterButton.vue'
+import api from '@/service/api' // Import service API
 
 
 interface Login {
@@ -35,12 +36,15 @@ const handleLogin = async (type: string) => {
   console.log("API_BASE_URL-----------");
 
   try {
+    const baseUrl = window.location.protocol + '//' + window.location.hostname + ':3001';
     // Kirim data login ke server Express.js menggunakan axios
-    const response = await axios.post(window.location.hostname + ':3001/auth/login', {
+    const response = await axios.post(baseUrl + '/auth/login', {
       type: inputLogin.value.type,
       username: inputLogin.value.username,
       password: inputLogin.value.password,
     })
+
+    // const response = await api.post("/daftar_akun/", param);
     // filter
     if (response.status === 200) {
       console.log('Login successful', response.data)
