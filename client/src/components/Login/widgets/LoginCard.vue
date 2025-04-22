@@ -52,7 +52,7 @@ const handleLogin = async (type: string) => {
       localStorage.setItem('access_token', response.data.access_token)
       localStorage.setItem('refresh_token', response.data.refresh_token)
 
-      // window.location.href = '/user'
+      window.location.href = '/user'
       // Tindakan setelah login berhasil, seperti redirect
     } else {
       console.log('Login failed', response.data)
