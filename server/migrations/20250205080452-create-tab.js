@@ -19,7 +19,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       desc: {
-        type: Sequelize.LONGTEXT
+        type: Sequelize.TEXT
       },
       createdAt: {
         allowNull: false,
