@@ -29,7 +29,7 @@ module.exports = {
       nama_akun: {
         type: Sequelize.STRING
       },
-      tipe: {
+      tipe_akun: {
         type: Sequelize.ENUM,
         values: ["bawaan", "tambahan"],
         defaultValue : "bawaan"

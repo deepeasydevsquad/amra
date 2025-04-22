@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     akun_primary_id: DataTypes.INTEGER,
     nomor_akun: DataTypes.STRING,
     nama_akun: DataTypes.STRING,
-    tipe_akun: DataTypes.ENUM('bawaan', 'tambahan'),
+    tipe_akun: DataTypes.ENUM(['bawaan', 'tambahan']),
     path: DataTypes.STRING
   }, {
     sequelize,
