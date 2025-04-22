@@ -2,6 +2,9 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
+
+    console.log("🚧 Migrating table Jamaah...");
+    
     await queryInterface.createTable('Jamaahs', {
       id: {
         allowNull: false,
@@ -31,7 +34,7 @@ module.exports = {
         },
       },
       kelurahan_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         references: {
           model: "Kelurahans",
           key: "id",

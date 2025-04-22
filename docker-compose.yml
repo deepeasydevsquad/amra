@@ -2,6 +2,8 @@ services:
   server:
     image: muammar88/amra_saas_server:v1.0
     container_name: Container_server
+    volumes:
+      - ./server:/app
     ports:
       - "3001:3001"
     environment:

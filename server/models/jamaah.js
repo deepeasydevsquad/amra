@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      console.log("~~~~~~~~~~~~~~~~~~~~~");
+      console.log("🔥 Associating Jamaah with:", Object.keys(models));
+      console.log("~~~~~~~~~~~~~~~~~~~~~");
       // define association here
       Jamaah.belongsTo(models.Division, {
         foreignKey: "division_id",
@@ -43,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
     division_id: DataTypes.INTEGER,
     agen_id: DataTypes.INTEGER,
     member_id: DataTypes.INTEGER,
-    kelurahan_id: DataTypes.BIGINT.UNSIGNED,
+    kelurahan_id: DataTypes.BIGINT,
     title: DataTypes.ENUM(["tuan", "nona", "nyonya"]),
     nama_ayah: DataTypes.STRING,
     nama_passport: DataTypes.STRING,
