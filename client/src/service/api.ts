@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // Gunakan variabel lingkungan dari .env
-const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL
+const API_BASE_URL = window.location.origin
 
 console.log("API_base_url");
 console.log(API_BASE_URL);

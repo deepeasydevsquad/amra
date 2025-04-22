@@ -29,9 +29,14 @@ const handleLogin = async (type: string) => {
   console.log("VITE_APP_API_BASE_URL-----------");
   console.log(import.meta.env.VITE_APP_API_BASE_URL);
   console.log("VITE_APP_API_BASE_URL-----------");
+  const API_BASE_URL = window.location.origin;
+  console.log("API_BASE_URL-----------");
+  console.log(API_BASE_URL);
+  console.log("API_BASE_URL-----------");
+
   try {
     // Kirim data login ke server Express.js menggunakan axios
-    const response = await axios.post(import.meta.env.VITE_APP_API_BASE_URL + '/auth/login', {
+    const response = await axios.post(API_BASE_URL + '/auth/login', {
       type: inputLogin.value.type,
       username: inputLogin.value.username,
       password: inputLogin.value.password,
