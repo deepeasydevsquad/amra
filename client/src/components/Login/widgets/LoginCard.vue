@@ -36,7 +36,7 @@ const handleLogin = async (type: string) => {
 
   try {
     // Kirim data login ke server Express.js menggunakan axios
-    const response = await axios.post(API_BASE_URL + '/auth/login', {
+    const response = await axios.post(window.location.hostname + ':3001/auth/login', {
       type: inputLogin.value.type,
       username: inputLogin.value.username,
       password: inputLogin.value.password,
