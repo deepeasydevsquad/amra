@@ -29,7 +29,7 @@ const handleLogin = async (type: string) => {
   console.log("VITE_APP_API_BASE_URL-----------");
   console.log(import.meta.env.VITE_APP_API_BASE_URL);
   console.log("VITE_APP_API_BASE_URL-----------");
-  const API_BASE_URL = window.location.origin;
+  const API_BASE_URL = window.location.hostname + ':3001';
   console.log("API_BASE_URL-----------");
   console.log(API_BASE_URL);
   console.log("API_BASE_URL-----------");
