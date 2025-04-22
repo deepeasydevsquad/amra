@@ -23,7 +23,7 @@ FROM httpd:2.4-alpine as production-stage
 COPY --from=build-stage /app/dist/ /usr/local/apache2/htdocs/
 
 # Copy .htaccess if exists
-COPY ./dist/.htaccess /usr/local/apache2/htdocs/.htaccess
+# COPY ./dist/.htaccess /usr/local/apache2/htdocs/.htaccess
 
 # Enable .htaccess and mod_rewrite
 RUN sed -i '/<Directory "\/usr\/local\/apache2\/htdocs">/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /usr/local/apache2/conf/httpd.conf \
