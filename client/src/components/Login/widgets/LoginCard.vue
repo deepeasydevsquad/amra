@@ -25,6 +25,10 @@ const inputLogin = ref<Partial<Login>>({
 const isLoading = ref(true)
 
 const handleLogin = async (type: string) => {
+
+  console.log("VITE_APP_API_BASE_URL-----------");
+  console.log(import.meta.env.VITE_APP_API_BASE_URL);
+  console.log("VITE_APP_API_BASE_URL-----------");
   try {
     // Kirim data login ke server Express.js menggunakan axios
     const response = await axios.post(import.meta.env.VITE_APP_API_BASE_URL + '/auth/login', {
@@ -39,7 +43,7 @@ const handleLogin = async (type: string) => {
       localStorage.setItem('access_token', response.data.access_token)
       localStorage.setItem('refresh_token', response.data.refresh_token)
 
-      window.location.href = '/user'
+      // window.location.href = '/user'
       // Tindakan setelah login berhasil, seperti redirect
     } else {
       console.log('Login failed', response.data)
