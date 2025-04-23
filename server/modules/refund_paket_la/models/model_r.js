@@ -34,13 +34,15 @@ class Model_r {
     return data;
   }
 
-  async pembayaran_paket_la() {
+  async refund_paket_la() {
     // initialize dependensi properties
     await this.initialize();
 
     const body = this.req.body;
 
     var where = { id: body.paketlaId, division_id: this.division_id };
+
+    console.log("Body paketlaid: ", body.paketlaId);
 
     var sql = {};
     sql["order"] = [["id", "ASC"]];
@@ -51,7 +53,7 @@ class Model_r {
     sql["include"] = [
       {
         model: Paket_la_transaction,
-        where: { company_id: this.company_id},
+        where: { company_id: this.company_id },
         attributes: [
           "id",
           "invoice",
@@ -80,17 +82,7 @@ class Model_r {
             value.map(async (e) => {
               data  = ({
                 id: e.id,
-                total_price: e.total_price,
                 total_paid: totalPaid ? totalPaid : 0,
-                item_transaksi: e.Paket_la_transactions.map((trx) => ({
-                  id: trx.id,
-                  invoice: trx.invoice,
-                  paid: trx.paid,
-                  status: trx.status,
-                  receiver: trx.receiver,
-                  date: moment(trx.createdAt).format('YYYY-MM-DD HH:mm:ss'),
-                  updatedAt: trx.updatedAt,
-                })),
               });
             })
           );

@@ -5,12 +5,12 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 const controllers = {};
 
 // **Mendapatkan daftar paket_la**
-controllers.get_pembayaran_paket_la = async (req, res) => {
+controllers.get_refund_paket_la = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_r = new Model_r(req);
-    const feedBack = await model_r.pembayaran_paket_la(); // Ambil daftar paket_la dari model
+    const feedBack = await model_r.refund_paket_la(); // Ambil daftar paket_la dari model
     res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
   } catch (error) {
     handleServerError(res, error.message);
@@ -28,12 +28,12 @@ controllers.add = async (req, res) => {
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Pembayaran Paket LA Baru berhasil ditambahkan.',
+        error_msg: 'Refund Paket LA Baru berhasil ditambahkan.',
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Pembayaran Paket LA Baru Gagal Ditambahkan.',
+        error_msg: 'Refund Paket LA Baru Gagal Ditambahkan.',
       });
     }
   } catch (error) {

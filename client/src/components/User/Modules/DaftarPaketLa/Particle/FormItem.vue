@@ -1,5 +1,5 @@
 <script lang="ts">
-import { addFasilitasPaketLA } from '../../../../../service/fasilitas_paket_la';
+import { addFasilitasPaketLA } from '@/service/fasilitas_paket_la';
 import DeleteIconX from '@/components/User/Modules/DaftarPaketLa/Icon/DeleteIconX.vue';
 import Notification from '@/components/User/Modules/DaftarPaketLa/Particle/Notification.vue';
 import { ref } from 'vue';
