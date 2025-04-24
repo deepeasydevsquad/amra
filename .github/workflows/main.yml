@@ -55,8 +55,14 @@ jobs:
           docker-compose -f up -d
 
           # Run Sequelize migration and seed scripts
-          docker exec -i Container_server npx sequelize-cli db:migrate:undo:all
-          docker exec -i Container_server npx sequelize-cli db:migrate
-          docker exec -i Container_server npx sequelize-cli db:seed:all
+          if docker exec -i mysql_container mysql -u ${{ env.DB_USERNAME_ROOT }} -p${{ env.DB_PASSWORD_ROOT }} -e "DROP DATABASE IF EXISTS amra_db; CREATE DATABASE amra_db;"; then
+            if docker exec -i Container_server npx sequelize-cli db:migrate; then
+              docker exec -i Container_server npx sequelize-cli db:seed:all --debug
+            else
+              echo "⚠️ Gagal menjalankan migration. Skip proses migrate."  
+            fi
+          else
+            echo "⚠️ Gagal menjalankan Menghapus Database."  
+          fi 
 
           
