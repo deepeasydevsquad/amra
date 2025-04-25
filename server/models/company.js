@@ -48,9 +48,6 @@ module.exports = (sequelize, DataTypes) => {
       Company.hasMany(models.Periode, {
         foreignKey: "company_id",
       });
-      Company.hasMany(models.Paket_la, {
-        foreignKey: "company_id",
-      });
       Company.hasMany(models.Deposit, {
         foreignKey: "company_id",
       });
