@@ -63,25 +63,25 @@ class Model_cud {
     return "Tipe user tidak diketahui";
   }
 
-  async validatePaymentAmount(paketlaId, paid, infoPembayaranPaketLA) {
+  async validateRefundAmount(paketlaId, refundAmount, infoPembayaranPaketLA) {
     try {
       const paketla = await Paket_la.findByPk(paketlaId);
 
-      console.group("======== Validasi Pembayaran Paket LA =======");
+      console.group("======== Validasi Refund Paket LA =======");
       console.log("Paket LA:", paketla);
-      console.log("Jumlah Bayar:", paid);
+      console.log("Jumlah Refund:", refundAmount);
       console.log("Total Harga Paket LA:", paketla.total_price);
 
       const totalBayar = infoPembayaranPaketLA.item_transaksi.filter(trx => trx.status === "payment").reduce((total, trx) => total + Number(trx.paid), 0);
       const totalRefund = infoPembayaranPaketLA.item_transaksi.filter(trx => trx.status === "refund").reduce((total, trx) => total + Number(trx.paid), 0);
-      const kekurangan = totalBayar - totalRefund;
-      const kelebihan = Number(paid) + kekurangan;
+      const totalDibayar = totalBayar - totalRefund;
+      const kekurangan = totalDibayar - Number(refundAmount);
 
       console.log("Total Bayar yang terjadi:", totalBayar);
       console.log("Total Refund yang terjadi:", totalRefund);
+      console.log("Jumlah Refund:", refundAmount);
       console.log("Kekurangan:", kekurangan);
-      console.log("Kelebihan:", kelebihan);
-      console.log("Validasi:", kelebihan <= paketla.total_price ? "Valid" : "Tidak Valid");
+      console.log("Validasi:", kekurangan >= 0 ? "Valid" : "Tidak Valid");
       console.log("===========================================");
       console.groupEnd();
 
@@ -89,16 +89,18 @@ class Model_cud {
         return { valid: false, message: "Data Paket LA tidak ditemukan." };
       }
 
-      if (kelebihan > paketla.total_price) { return { valid: false, message: "Jumlah bayar tidak boleh lebih besar dari total harga Paket LA." }; }
+      if (kekurangan < 0) {
+        return { valid: false, message: "Jumlah refund tidak boleh lebih besar dari total pembayaran yang sudah dilakukan." };
+      }
 
       return { valid: true, paketla };
     } catch (error) {
-      return { valid: false, message: `Terjadi kesalahan saat memvalidasi pembayaran: ${error.message}` };
+      return { valid: false, message: `Terjadi kesalahan saat memvalidasi refund: ${error.message}` };
     }
   }
   
 
-  // Tambah pembayaran paket la
+  // Tambah refund paket la
   async add() {
     // initialize dependensi properties
     await this.initialize();
@@ -113,7 +115,7 @@ class Model_cud {
     // get info  paket la
     const infoPembayaranPaketLA = await model_r.infoPembayaranPaketLA(body.paketlaId, this.company_id);
 
-    const { valid, message } = await this.validatePaymentAmount(body.paketlaId, body.paid, infoPembayaranPaketLA);
+    const { valid, message } = await this.validateRefundAmount(body.paketlaId, body.paid, infoPembayaranPaketLA);
     const invoice = await this.generateInvoiceNumber(body.paketlaId);
     const penerima = await this.penerima();
     
@@ -130,8 +132,8 @@ class Model_cud {
           company_id: this.company_id,
           paket_la_id: body.paketlaId,
           invoice: invoice,
-          paid: body.paid,
-          status: "payment",
+          paid: body.refund,
+          status: "refund",
           receiver: penerima,
           deposit_name: body.deposit_name,
           deposit_hp_number: body.deposit_hp_number,

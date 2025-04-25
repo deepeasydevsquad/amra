@@ -7,7 +7,7 @@ module.exports = {
       { 
         company_id : 1, 
         name : 'Cabang Langsa', 
-        city : 'Langsa', 
+        kota_id : 1, 
         pos_code : '2232233', 
         address : 'Tes Alamat', 
         note: '', 

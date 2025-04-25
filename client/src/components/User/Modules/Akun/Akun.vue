@@ -46,7 +46,7 @@
   const daftarAkun = ref<primaryAkun[]>([]);
   const totalColumns = ref(3); // Default 3 kolom
   const optionFilterAkun = ref([{ id: 0, name: 'Pilih Semua Akun' }]);
-  const optionFilterCabang = ref([{ id: 0, name: 'Pilih Semua Cabang' }]);
+  const optionFilterCabang = ref([]); // { id: 0, name: 'Pilih Semua Cabang' }
   const selectedOptionAkun = ref(0);
   const selectedOptionCabang = ref(0);
   const showConfirmDialog = ref<boolean>(false);
@@ -62,6 +62,12 @@
     const response = await getFilterAkun();
     optionFilterAkun.value = response.data.akun;
     optionFilterCabang.value = response.data.cabang;
+    selectedOptionCabang.value = response.data.cabang[0].id;
+
+    console.log('_____xxxx____');
+    console.log(response.data.cabang[0].id);
+    console.log(selectedOptionCabang.value);
+    console.log('_____xxxx____');
     await fetch();
   }
 

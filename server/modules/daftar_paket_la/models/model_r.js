@@ -55,10 +55,10 @@ class Model_r {
       "departure_date",
       "arrival_date",
       "createdAt",
-      "updatedAt",
+      "updatedAt"
     ];
     sql["where"] = where;
-
+    
     try {
 
       const query = await dbList(sql);

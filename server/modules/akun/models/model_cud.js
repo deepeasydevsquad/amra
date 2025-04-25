@@ -76,6 +76,11 @@ class Model_cud {
 
   // update Akun
   async update() {
+
+    console.log("________________________");
+    console.log("_______Update___________");
+    console.log("________________________");
+
     // initialize dependensi properties
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
@@ -102,7 +107,7 @@ class Model_cud {
       );
 
       // insert process
-      const insert = await Akun_secondary.update(
+      const update = await Akun_secondary.update(
         {
           nomor_akun: nomor_akun,
           nama_akun: nama_akun,
@@ -117,12 +122,24 @@ class Model_cud {
         }
       );
 
+      console.log('~~~~~~~~~~~~~Saldo');
+      console.log('~~~~~~~~~~~~~Saldo');
+      console.log('~~~~~~~~~~~~~Saldo');
+      console.log(saldo);
+      console.log('~~~~~~~~~~~~~Saldo');
+      console.log('~~~~~~~~~~~~~Saldo');
+
       if(saldo > 0 ) {
+
+        console.log('~~~~~~~~~~~~~');
+        console.log(this.division_id);
+        console.log(body.id);
+        console.log('~~~~~~~~~~~~~');
         // insert ke saldo
         await Saldo_akun.create(
           {
             division_id : this.division_id, 
-            akun_secondary_id : insert.id,
+            akun_secondary_id : body.id,
             saldo: saldo,
             periode: 0,
             createdAt: myDate,

@@ -22,4 +22,5 @@ COPY . .
 EXPOSE 3001
 
 # Jalankan dengan dockerize untuk menunggu mysql, lalu nodemon untuk auto-restart pada perubahan file
-CMD ["dockerize", "-wait", "tcp://mysql:3306", "-timeout", "60s", "npm", "start"]
+# CMD ["dockerize", "-wait", "tcp://mysql:3306", "-timeout", "60s", "npm", "start"]
+CMD ["sh", "-c", "dockerize -wait tcp://mysql:3306 -timeout 60s && npm start"]

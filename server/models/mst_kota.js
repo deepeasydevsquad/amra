@@ -17,6 +17,9 @@ module.exports = (sequelize, DataTypes) => {
       Mst_kota.hasMany(models.Mst_hotel, {
         foreignKey: "kota_id",
       });
+      Mst_kota.hasMany(models.Division, {
+        foreignKey: "kota_id",
+      });
     }
   }
   Mst_kota.init({
