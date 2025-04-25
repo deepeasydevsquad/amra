@@ -9,17 +9,17 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      company_id: {
+      division_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Companies",
+          model: "Divisions",
           key: "id",
         },
       },
-      akun_primary_id: {
+      akun_secondary_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Akun_primaries",
+          model: "Akun_secondaries",
           key: "id",
         },
       },

@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const ExcelJS = require('exceljs');
 
 const {
   Member,
@@ -7,6 +8,8 @@ const {
   Jamaah,
   sequelize,
   Division,
+  Mst_pekerjaan,
+  Mst_pendidikan
 } = require("../../../models");
 const { Op } = require("sequelize");
 const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
@@ -195,6 +198,180 @@ class Model_r {
     return { data: [], total: 0 };
   }
 }
+
+
+async download_jamaah() {
+  const body = this.req.body;
+  const limit = body.perpage || 10;
+  const page =
+    body.pageNumber && body.pageNumber !== "0" ? body.pageNumber : 1;
+
+  let where = {};
+
+  if (body.division_id) {
+    where.division_id = body.division_id;
+  }
+
+  if (body.search) {
+    where = {
+      ...where,
+      [Op.or]: [
+        { fullname: { [Op.like]: `%${body.search}%` } },
+        { identity_number: { [Op.like]: `%${body.search}%` } },
+      ],
+    };
+  }
+
+  const sql = {
+    limit: parseInt(limit),
+    offset: (page - 1) * limit,
+    order: [["id", "ASC"]],
+    where: where,
+    attributes: [
+      "nomor_passport",
+      "nama_ayah",
+      "nama_passport",
+      "tanggal_di_keluarkan_passport",
+      "tempat_di_keluarkan_passport",
+      "masa_berlaku_passport",
+      "nomor_telephone",
+      "last_education", // bisa dihapus dari sini kalau ambil dari relasi
+      "mst_pekerjaan_id", // sama juga
+      "telephone_keluarga",
+      "status_nikah",
+      "kewarganegaraan",
+      "title",
+    ],
+    include: [
+      {
+        model: Member,
+        attributes: [
+          "fullname",
+          "identity_number",
+          "identity_type",
+          "birth_date",
+          "birth_place",
+        ],
+      },
+      {
+        model: Mst_pekerjaan, 
+  
+        attributes: ["name"], 
+      },
+      {
+        model: Mst_pendidikan, 
+        attributes: ["name"],
+      },
+    ],
+  };
+  try {
+    const q = await Jamaah.findAndCountAll(sql); // Cari data dari Jamaah
+    const total = q.count;
+    let data = [];
+
+    if (total > 0) {
+      data = q.rows.map((jamaah) => {
+        const member = jamaah.Member || {};
+        const pekerjaan = jamaah.Mst_pekerjaan || {};
+        const pendidikan = jamaah.Mst_pendidikan || {};
+    
+        return {
+          nama_jamaah: member.fullname || "-",
+          nomor_identitas: member.identity_number || "-",
+          jenis_identitas: member.identity_type || "-",
+          tempat_lahir: member.birth_place || "-",
+          tanggal_lahir: member.birth_date
+            ? new Date(member.birth_date).toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              })
+            : "-",
+    
+          nomor_passport: jamaah.nomor_passport || "-",
+          nama_passport: jamaah.nama_passport || "-",
+          nama_ayah: jamaah.nama_ayah || "-",
+          tanggal_dikeluarkan_passport: jamaah.tanggal_di_keluarkan_passport || "-",
+          tempat_dikeluarkan_passport: jamaah.tempat_di_keluarkan_passport || "-",
+          masa_berlaku_passport: jamaah.masa_berlaku_passport || "-",
+          nomor_telephone: jamaah.nomor_telephone || "-",
+          telephone_keluarga: jamaah.telephone_keluarga || "-",
+          status_nikah: jamaah.status_nikah || "-",
+          kewarganegaraan: jamaah.kewarganegaraan || "-",
+          title: jamaah.title || "-",
+    
+          nama_pekerjaan: pekerjaan.name || "-",
+          nama_pendidikan: pendidikan.name || "-",
+        };
+      });
+    }
+    return {
+      data: data,
+      total: total,
+    };
+  } catch (error) {
+    console.error("ERROR: daftar_jamaah()", error);
+    return { data: [], total: 0 };
+  }
+}
+
+
+async exportToExcel(data) {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Data Jamaah");
+
+  // Define kolom header
+  worksheet.columns = [
+    { header: "Nama Jamaah", key: "nama_jamaah", width: 25 },
+    { header: "Nomor Identitas", key: "nomor_identitas", width: 20 },
+    { header: "Jenis Identitas", key: "jenis_identitas", width: 15 },
+    { header: "Tempat Lahir", key: "tempat_lahir", width: 20 },
+    { header: "Tanggal Lahir", key: "tanggal_lahir", width: 20 },
+
+    { header: "Nomor Passport", key: "nomor_passport", width: 20 },
+    { header: "Nama Passport", key: "nama_passport", width: 25 },
+    { header: "Nama Ayah", key: "nama_ayah", width: 25 },
+    { header: "Tanggal Dikeluarkan Passport", key: "tanggal_dikeluarkan_passport", width: 25 },
+    { header: "Tempat Dikeluarkan Passport", key: "tempat_dikeluarkan_passport", width: 25 },
+    { header: "Masa Berlaku Passport", key: "masa_berlaku_passport", width: 25 },
+
+    { header: "Nomor Telephone", key: "nomor_telephone", width: 20 },
+    { header: "Telephone Keluarga", key: "telephone_keluarga", width: 20 },
+    { header: "Status Nikah", key: "status_nikah", width: 15 },
+    { header: "Kewarganegaraan", key: "kewarganegaraan", width: 15 },
+    { header: "Title", key: "title", width: 10 },
+
+    { header: "Pekerjaan", key: "nama_pekerjaan", width: 25 },
+    { header: "Pendidikan Terakhir", key: "nama_pendidikan", width: 25 },
+  ];
+
+  // Tambahkan data ke worksheet
+  data.forEach((row) => {
+    worksheet.addRow(row);
+  });
+
+  // Format header biar tebal
+  worksheet.getRow(1).font = { bold: true };
+
+  // Simpan workbook ke buffer
+  const buffer = await workbook.xlsx.writeBuffer();
+
+  // Kembalikan buffer buat response express
+  return buffer;
+}
+async download_jamaah_excel(req, res) {
+  await this.initialize();
+
+  const result = await this.download_jamaah();
+  const buffer = await this.exportToExcel(result.data);
+
+  res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  res.setHeader("Content-Disposition", "attachment; filename=Data_Jamaah.xlsx");
+
+  res.send(buffer);
+}
+
+
 
 }
 

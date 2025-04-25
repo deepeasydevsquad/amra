@@ -65,3 +65,12 @@ exports.deleteJamaah = async (req, res) => {
     handleServerError(res, error.message);
   }
 };
+
+exports.downloadJamaah = async (req, res) => {
+  try {
+    const model = new Model_r(req);
+    await model.download_jamaah_excel(req, res); 
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};

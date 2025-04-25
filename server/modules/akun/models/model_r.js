@@ -110,6 +110,7 @@ class Model_r {
     await this.initialize();
     
     try {
+      // 
       var akun = [{id : 0, name : 'Pilih Semua Akun'}];
       await Akun_primary.findAll().then(async (value) => {
           await Promise.all(
@@ -125,9 +126,10 @@ class Model_r {
       var where_cabang = { company_id: this.company_id };
       if( this.type !== 'administrator' ) {
         where_cabang = {...where_cabang,...{company_id: this.company_id, id : this.cabang_id}}
-      }else{
-        cabang.push({id : 0, name : 'Pilih Semua Cabang'});
       }
+      // else{
+      //   cabang.push({id : 0, name : 'Pilih Semua Cabang'});
+      // }
 
       await Division.findAll( { where : where_cabang }).then(async (value) => {
         await Promise.all(
