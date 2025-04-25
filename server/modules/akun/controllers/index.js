@@ -66,6 +66,9 @@ controllers.edit = async (req, res) => {
   
   if (!(await handleValidationErrors2(req, res))) return;
 
+  console.log("******************");
+  console.log("Edit******************");
+  console.log("******************");
   try {
     const model_cud = new Model_cud(req);
     await model_cud.update();

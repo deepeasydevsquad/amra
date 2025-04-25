@@ -13,6 +13,9 @@ RUN npm install
 # Salin seluruh isi project
 COPY . .
 
+# Set environment variable untuk memastikan file watch berjalan dengan polling
+ENV CHOKIDAR_USEPOLLING=true
+
 # Port default untuk Vite dev server
 EXPOSE 5173
 

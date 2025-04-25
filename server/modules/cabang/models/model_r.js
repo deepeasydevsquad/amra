@@ -23,13 +23,35 @@ class Model_r {
       const company_id = await getCompanyIdByCode(this.req);
       if (!company_id) throw new Error("Company ID tidak ditemukan.");
 
-      const divisions = await Division.findAll();
+      var data = [];
+      await Division.findAll({
+        where : { company_id : company_id },
+        include : {
+          required: true,
+          model : Mst_kota
+        }
+      }).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+            data.push({ 
+              id : e.id, 
+              name : e.name, 
+              city : e.Mst_kota.name,
+              post_code: e.post_code, 
+              address: e.address,
+              note: e.note
+            });
+          })
+        );
+      });
 
-      return { success: true, data: divisions };
+      return { success: true, data };
     } catch (error) {
       return { success: false, error: error.message };
     }
   }
+
+  // sas
 
   async getDivisionById(id) {
     try {
