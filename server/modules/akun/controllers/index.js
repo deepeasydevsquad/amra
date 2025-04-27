@@ -5,6 +5,7 @@ const { handleValidationErrors, handleValidationErrors2, handleServerError } = r
 const controllers = {};
 
 controllers.filter_akun = async (req, res) => {
+  
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
@@ -17,6 +18,7 @@ controllers.filter_akun = async (req, res) => {
 };
 
 controllers.get_daftar_akun = async (req, res) => {
+  
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
@@ -24,11 +26,13 @@ controllers.get_daftar_akun = async (req, res) => {
     const feedBack = await model_r.get_daftar_akun();
     res.status(200).json({ error: false, data : feedBack.data });
   } catch (error) {
+    
     handleServerError(res, error.message);
   }
 }
 
 controllers.check_akun = async (req, res) => {
+  
   if (!(await handleValidationErrors2(req, res))) return;
 
   try {
@@ -63,12 +67,9 @@ controllers.add = async (req, res) => {
 }
 
 controllers.edit = async (req, res) => {
-  
+
   if (!(await handleValidationErrors2(req, res))) return;
 
-  console.log("******************");
-  console.log("Edit******************");
-  console.log("******************");
   try {
     const model_cud = new Model_cud(req);
     await model_cud.update();
@@ -138,6 +139,7 @@ controllers.update_saldo = async ( req, res ) => {
 }
 
 controllers.tutup_buku = async (req, res) => {
+  
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
@@ -156,26 +158,36 @@ controllers.tutup_buku = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log("Error");
+    console.log(error);
+    console.log("Error");
     handleServerError(res, error.message);
   }
 }
 
 controllers.kembalikan_buku = async (req, res) => {
-  // if (!(await handleValidationErrors(req, res))) return;
 
   try {
-    const model_cud = new Model_cud(req);
-    await model_cud.kembalikan_buku();
-    // get response
-    if (await model_cud.response()) {
-      res.status(200).json({
-        error: false,
-        error_msg: 'Proses pengembalian buku berhasil dilakukan.',
-      });
-    } else {
+    const model_r = new Model_r(req);
+    if( await model_r.count_periode() >= 1) {
+      const model_cud = new Model_cud(req);
+      await model_cud.kembalikan_buku();
+      // get response
+      if (await model_cud.response()) {
+        res.status(200).json({
+          error: false,
+          error_msg: 'Proses pengembalian buku berhasil dilakukan.',
+        });
+      } else {
+        res.status(400).json({
+          error: true,
+          error_msg: 'Proses pengembalian buku gagal dilakukan.',
+        });
+      }
+    }else{
       res.status(400).json({
         error: true,
-        error_msg: 'Proses pengembalian buku gagal dilakukan.',
+        error_msg: 'Periode Sebelumnya tidak ditemukan..',
       });
     }
   } catch (error) {

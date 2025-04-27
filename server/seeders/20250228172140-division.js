@@ -12,7 +12,20 @@ module.exports = {
         address : 'Tes Alamat', 
         note: '', 
         tanda_tangan : '',
-        createdAt: new Date(), updatedAt: new Date() },
+        createdAt: new Date(), 
+        updatedAt: new Date() 
+      },
+      { 
+        company_id : 1, 
+        name : 'Cabang Banda Aceh', 
+        kota_id : 2, 
+        pos_code : '2232233', 
+        address : 'Tes Alamat', 
+        note: '', 
+        tanda_tangan : '',
+        createdAt: new Date(), 
+        updatedAt: new Date() 
+      },
     ], {});
   },
 

@@ -40,7 +40,6 @@ router.post(
     body("nama").trim().notEmpty().withMessage("Nama Akun tidak boleh kosong."),
     body("nomor").trim().notEmpty().withMessage("Nomor Akun tidak boleh kosong.").custom(validation.check_nomor_akun),
     body("primary_id").trim().notEmpty().withMessage("Primary ID tidak boleh kosong.").custom(validation.check_primary_id),
-    body("saldo").trim(),
   ],
   controllers.add
 );
@@ -53,7 +52,6 @@ router.post(
     body("nama").trim().notEmpty().withMessage("Nama Akun tidak boleh kosong."),
     body("nomor").trim().notEmpty().withMessage("Nomor Akun tidak boleh kosong.").custom(validation.check_nomor_akun),
     body("primary_id").trim().notEmpty().withMessage("Primary ID tidak boleh kosong.").custom(validation.check_primary_id),
-    body("saldo").trim(),
   ],
   controllers.edit
 );
@@ -70,6 +68,7 @@ router.post(
   authenticateToken,
   [
     body("id").trim().notEmpty().withMessage("ID Akun tidak boleh kosong.").custom(validation.check_id_akun_secondary_bawaan),
+    body("cabang").trim().notEmpty().withMessage("ID Cabang tidak boleh kosong.").custom(validation.check_id_cabang),
     body("saldo").trim(),
   ],
   controllers.update_saldo

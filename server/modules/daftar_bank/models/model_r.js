@@ -1,4 +1,4 @@
-const { Op, Mst_bank } = require("../../../models");
+const { Op, Mst_bank, Akun_secondary, Division } = require("../../../models");
 const{ getCompanyIdByCode } = require("../../../helper/companyHelper");
 const{ dbList } = require("../../../helper/dbHelper");
 
@@ -84,12 +84,45 @@ class Model_r {
               data["name"] = e.name;
           }
       });
-     
       return data
     } catch (error) {
       return {}      
     }
   } 
+
+  async get_seluruh_cabang_id ( company_id ) {
+    var list_division_id = [];
+    await Division.findAll( { where : { company_id : company_id } }).then(async (value) => {
+      await Promise.all(
+        await value.map(async (e) => {
+          list_division_id.push(e.id);
+        })
+      );
+    });
+    return list_division_id;
+  }
+
+  async getInfoAkunSecondary(company_id, kodeBank){
+    var data = {};
+    await Akun_secondary.findOne({
+      attributes : ['id'],
+      where: { company_id: company_id, path : 'bank:kodeBank:' + kodeBank, tipe_akun: 'bawaan' },
+    }).then(async (e) => {
+        if (e) {
+            data["id"] = e.id;
+        }
+    });
+    return data
+  }
+
+  async generate_nomor_akun_secondary_bank( company_id ) {
+    var nomorAkunBank = 11020;
+    while (true) {
+      nomorAkunBank = nomorAkunBank + 1;
+        const sama = await Akun_secondary.findOne({ where: { nomor_akun: nomorAkunBank, company_id: company_id } });
+      if (!sama) return nomorAkunBank;
+    }
+  }
 }
 
 module.exports = Model_r;
