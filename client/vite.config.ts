@@ -17,6 +17,8 @@ export default defineConfig({
     port: 5173,            // Port default Vite dev server
     watch: {
       usePolling: true,     // Penting agar perubahan file terdeteksi dalam Docker
+      interval: 1000, // Biar pollingnya gak seberat itu
+      ignored: ['**/node_modules/**', '**/.git/**', '**/dist/**']
     },
   },
 })
