@@ -41,20 +41,7 @@ class Model_cud {
     return "Tipe user tidak diketahui";
   }
 
-  // async generateInvoice() {
-  //   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  //   const numbers = "0123456789";
 
-  //   let huruf = "";
-  //   let angka = "";
-
-  //   for (let i = 0; i < 3; i++) {
-  //     huruf += letters.charAt(Math.floor(Math.random() * letters.length));
-  //     angka += numbers.charAt(Math.floor(Math.random() * numbers.length));
-  //   }
-
-  //   return huruf + angka; // Contoh: "ABC123"
-  // }
 
   // ✅ Tambah deposit
   async tambahDeposit( invoice ) {

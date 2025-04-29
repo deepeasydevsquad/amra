@@ -1,7 +1,7 @@
 {
   "development": {
-    "username": "amra_user",
-    "password": "amra_password",
+    "username": "root",
+    "password": "root_password",
     "database": "amra_db",
     "host": "mysql",
     "dialect": "mysql"

@@ -20,7 +20,7 @@ router.post(
 router.post(
   "/add-daftar-jamaah",
   upload.single("photo"), // ⬅️ HARUS duluan
-  tambahJamaahValidator, // ⬅️ Setelah upload biar req.body kebaca
+  // tambahJamaahValidator,
   authenticateToken,
   controller.addJamaah
 );

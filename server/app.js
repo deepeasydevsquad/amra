@@ -77,6 +77,7 @@ const arr_router = [
   "pembayaran_paket_la",
   "daftar_jamaah",
   "data_master",
+  "peminjaman",
 ];
 
 const arr = {};
