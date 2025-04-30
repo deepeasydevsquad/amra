@@ -7,7 +7,7 @@ const process = require('process');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 // const config = require(__dirname + '/../../../config/database.json')[env];
-const config = require('../config/config.json')[process.env.NODE_ENV || 'development'];
+const config = require('../config/config.js')[process.env.NODE_ENV || 'development'];
 const db = {};
 
 let sequelize;
@@ -46,6 +46,10 @@ fs
     const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
   });
+
+console.log("DB--------------------");
+console.log(db);
+console.log("DB--------------------");
 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {

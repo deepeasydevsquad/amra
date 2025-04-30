@@ -12,7 +12,8 @@ module.exports = {
         akun_debet: '11010', 
         akun_kredit: '31000',
         saldo: '100000000',
-        periode_id: 0,  
+        periode_id: 0,
+        removable: true,
         createdAt: new Date(), 
         updatedAt: new Date() 
       },
@@ -24,7 +25,8 @@ module.exports = {
         akun_debet: '13000', 
         akun_kredit: '41000',
         saldo: '30000000',
-        periode_id: 0,  
+        periode_id: 0,
+        removable: true,
         createdAt: new Date(), 
         updatedAt: new Date() 
       },
@@ -37,6 +39,7 @@ module.exports = {
         akun_kredit: '11010',
         saldo: '3000000',
         periode_id: 0,  
+        removable: true,
         createdAt: new Date(), 
         updatedAt: new Date() 
       }

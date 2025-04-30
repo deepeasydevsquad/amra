@@ -3,6 +3,18 @@ const jwt = require("jsonwebtoken");
 
 const companyHelper = {};
 
+companyHelper.getSeluruhCabangId = async ( company_id ) => {
+  var data = [];
+  await Division.findAll( { where : { company_id : company_id } }).then(async (value) => {
+    await Promise.all(
+      await value.map(async (e) => {
+        data.push(e.id);
+      })
+    );
+  });
+  return data;
+}
+
 companyHelper.getCompanyIdByCode = async (req) => {
   try {
     const authHeader = req.headers["authorization"];
