@@ -7,6 +7,14 @@ const {
   Mst_mahram_type,
   Mst_pekerjaan,
   Mst_pendidikan,
+  Mst_kota,
+  Mst_provider,
+  Mst_paket_type,
+  Mst_asuransi,
+  Mst_airline,
+  Mst_airport,
+  Mst_hotel,
+  Mst_fasilitas,
   Pengalaman_haji_umrah,
 } = require("../../../models");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
@@ -15,6 +23,11 @@ const { dbList } = require("../../../helper/dbHelper");
 class Model_r {
   constructor(req) {
     this.req = req;
+    this.company_id;
+  }
+
+  async initialize() {
+    this.company_id = await getCompanyIdByCode(this.req);
   }
 
   async daftar_provinsi() {
@@ -310,6 +323,253 @@ class Model_r {
       return {};
     }
   }
+
+  async getKota() {
+    await this.initialize();
+    const sql = {
+      where: { company_id: this.company_id },
+      attributes: ["id", "name"],
+      order: [["name", "ASC"]],
+    };
+    try {
+
+      // Mengambil query dari dbList
+      const query = await dbList(sql);
+      console.log(query); // Debugging query
+
+      // Mengambil data dari Provider tanpa filter pencarian
+      const result = await Mst_kota.findAndCountAll(query.sql);
+      const total = result.count;
+
+      // Map data hasil
+      const data = result.rows.map((e) => ({
+        id: e.id,
+        name: e.name,
+      }));
+
+      // Return data dan total
+      return { data, total };
+    } catch (error) {
+      console.error(error); // Debugging error
+      return {};
+    }
+  }
+
+  async getProvider() {
+    await this.initialize();
+    const sql = {
+      where: { company_id: this.company_id },
+      attributes: ["id", "name"],
+      order: [["name", "ASC"]],
+    };
+    try {
+      // Mengambil data dari Provider tanpa filter pencarian
+      const result = await Mst_provider.findAndCountAll(sql);
+      const total = result.count;
+      // Map data hasil
+      const data = result.rows.map((e) => ({
+        id: e.id,
+        name: e.name,
+      }));
+      // Return data dan total
+      console.log("getProvider: ", data);
+      return { 
+        data: data, 
+        total: total
+      };
+    } catch (error) {
+      console.error(error); // Debugging error
+      return {};
+    }
+  }
+
+  async getPaketType() {
+    await this.initialize();
+    const sql = {
+      where: { company_id: this.company_id },
+      attributes: ["id", "name"],
+      order: [["name", "ASC"]],
+    };
+    try {
+      // Mengambil query dari dbList
+      const query = await dbList(sql);
+      console.log(query); // Debugging query
+
+      // Mengambil data dari Paket Type tanpa filter pencarian
+      const result = await Mst_paket_type.findAndCountAll(query.sql);
+      const total = result.count;
+      // Map data hasil
+      const data = result.rows.map((e) => ({
+        id: e.id,
+        name: e.name,
+      }));
+      // Return data dan total
+      return { 
+        data: data, 
+        total: total
+      };
+    } catch (error) {
+      console.error(error); // Debugging error
+      return {};
+    }
+  }
+
+  async getAsuransi() {
+    await this.initialize();
+    const sql = {
+      where: { company_id: this.company_id },
+      attributes: ["id", "name"],
+      order: [["name", "ASC"]],
+    };
+    try {
+      // Mengambil query dari dbList
+      const query = await dbList(sql);
+      console.log(query); // Debugging query
+
+      // Mengambil data dari Asuransi tanpa filter pencarian
+      const result = await Mst_asuransi.findAndCountAll(query.sql);
+      const total = result.count;
+      // Map data hasil
+      const data = result.rows.map((e) => ({
+        id: e.id,
+        name: e.name,
+      }));
+      // Return data dan total
+      return { 
+        data: data, 
+        total: total
+      };
+    } catch (error) {
+      console.error(error); // Debugging error
+      return {};
+    }
+  }
+
+  async getAirlines() {
+    await this.initialize();
+    const sql = {
+      where: { company_id: this.company_id },
+      attributes: ["id", "name"],
+      order: [["name", "ASC"]],
+    };
+    try {
+      // Mengambil query dari dbList
+      const query = await dbList(sql);
+      console.log(query); // Debugging query
+
+      // Mengambil data dari Airlines tanpa filter pencarian
+      const result = await Mst_airline.findAndCountAll(query.sql);
+      const total = result.count;
+      // Map data hasil
+      const data = result.rows.map((e) => ({
+        id: e.id,
+        name: e.name,
+      }));
+      // Return data dan total
+      return { 
+        data: data, 
+        total: total
+      };
+    } catch (error) {
+      console.error(error); // Debugging error
+      return {};
+    }
+  }
+
+  async getAirport() {
+    await this.initialize();
+    const sql = {
+      where: { company_id: this.company_id },
+      attributes: ["id", "name"],
+      order: [["name", "ASC"]],
+    };
+    try {
+      // Mengambil query dari dbList
+      const query = await dbList(sql);
+      console.log(query); // Debugging query
+
+      // Mengambil data dari Airport tanpa filter pencarian
+      const result = await Mst_airport.findAndCountAll(query.sql);
+      const total = result.count;
+      // Map data hasil
+      const data = result.rows.map((e) => ({
+        id: e.id,
+        name: e.name,
+      }));
+      // Return data dan total
+      return { 
+        data: data, 
+        total: total
+      };
+    } catch (error) {
+      console.error(error); // Debugging error
+      return {};
+    }
+  }
+
+  async getHotel() {
+    await this.initialize();
+    const sql = {
+      where: { company_id: this.company_id },
+      attributes: ["id", "name"],
+      order: [["name", "ASC"]],
+    };
+    try {
+      // Mengambil query dari dbList
+      const query = await dbList(sql);
+      console.log(query); // Debugging query
+
+      // Mengambil data dari Hotel tanpa filter pencarian
+      const result = await Mst_hotel.findAndCountAll(query.sql);
+      const total = result.count;
+      // Map data hasil
+      const data = result.rows.map((e) => ({
+        id: e.id,
+        name: e.name,
+      }));
+      // Return data dan total
+      return { 
+        data: data, 
+        total: total
+      };
+    } catch (error) {
+      console.error(error); // Debugging error
+      return {};
+    }
+  }
+
+  async getFacilities() {
+    await this.initialize();
+    const sql = {
+      where: { company_id: this.company_id },
+      attributes: ["id", "name"],
+      order: [["name", "ASC"]],
+    };
+    try {
+      // Mengambil query dari dbList
+      const query = await dbList(sql);
+      console.log(query); // Debugging query
+
+      // Mengambil data dari Facilities tanpa filter pencarian
+      const result = await Mst_fasilitas.findAndCountAll(query.sql);
+      const total = result.count;
+      // Map data hasil
+      const data = result.rows.map((e) => ({
+        id: e.id,
+        name: e.name,
+      }));
+      console.log("getFacilities: ", data);
+      // Return data dan total
+      return { 
+        data: data, 
+        total: total
+      };
+    } catch (error) {
+      console.error(error); // Debugging error
+      return {};
+    }
+  }
+
 }
 
 module.exports = Model_r;

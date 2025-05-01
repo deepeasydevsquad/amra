@@ -5,7 +5,7 @@ export const daftarProviderVisa = async (param : any) => {
     const response = await api.post("/daftar_provider_visa/list", param);
     return response.data;
   } catch (error) {
-    console.error("Gagal menambahkan provider visa:", error);
+    console.error("Gagal mengambil provider visa:", error);
     throw error;
   }
 };
@@ -25,7 +25,7 @@ export const editProviderVisa = async (id : any, param : any) => {
     const response = await api.post(`/daftar_provider_visa/update` , {...param,...{id : id }});
     return response.data;
   } catch (error) {
-    console.error("Gagal menambahkan provider visa:", error);
+    console.error("Gagal mengedit provider visa:", error);
     throw error;
   }
 };
@@ -35,7 +35,7 @@ export const deleteProviderVisa = async (id : number) => {
     const response = await api.post(`/daftar_provider_visa/delete`,{ id : id});
     return response.data;
   } catch (error) {
-    console.error("Gagal menambahkan provider visa:", error);
+    console.error("Gagal menghapus provider visa:", error);
     throw error;
   }
 };

@@ -5,7 +5,7 @@ export const daftarHotel = async (param : any) => {
     const response = await api.post("/daftar_hotel/list", param); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request
   } catch (error) {
-    console.error("Gagal menambahkan hotel:", error);
+    console.error("Gagal mengambil hotel:", error);
     throw error; // Bisa ditangani di bagian pemanggilan
   }
 };
@@ -25,7 +25,7 @@ export const editHotel = async (id : any, param : any) => {
     const response = await api.post(`/daftar_hotel/update` , {...param,...{id : id }}); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request
   } catch (error) {
-    console.error("Gagal menambahkan hotel:", error);
+    console.error("Gagal mengedit hotel:", error);
     throw error; // Bisa ditangani di bagian pemanggilan
   }
 };
@@ -35,7 +35,7 @@ export const deleteHotel = async (id : number) => {
     const response = await api.post(`/daftar_hotel/delete`,{ id : id}); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request
   } catch (error) {
-    console.error("Gagal menambahkan hotel:", error);
+    console.error("Gagal menghapus hotel:", error);
     throw error; // Bisa ditangani di bagian pemanggilan
   }
 };

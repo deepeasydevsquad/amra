@@ -92,3 +92,90 @@ exports.getPengalamanHajiUmrah = async (req, res) => {
     handleServerError(res, error.message);
   }
 };
+exports.getKota = async (req, res) => {
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.getKota();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+exports.getProvider = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.getProvider();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+exports.getPaketType = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.getPaketType();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+exports.getAsuransi = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.getAsuransi();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+exports.getAirlines = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.getAirlines();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+exports.getAirport = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.getAirport();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+exports.getHotel = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.getHotel();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+exports.getFacilities = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.getFacilities();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};

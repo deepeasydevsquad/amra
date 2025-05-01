@@ -5,7 +5,7 @@ export const daftarAsuransi = async (param : any) => {
     const response = await api.post("/daftar_asuransi/list", param);
     return response.data;
   } catch (error) {
-    console.error("Gagal menambahkan asuransi:", error);
+    console.error("Gagal mengambil asuransi:", error);
     throw error;
   }
 };
@@ -25,7 +25,7 @@ export const editAsuransi = async (id : any, param : any) => {
     const response = await api.post(`/daftar_asuransi/update` , {...param,...{id : id }});
     return response.data;
   } catch (error) {
-    console.error("Gagal menambahkan asuransi:", error);
+    console.error("Gagal mengedit asuransi:", error);
     throw error;
   }
 };
@@ -35,7 +35,7 @@ export const deleteAsuransi = async (id : number) => {
     const response = await api.post(`/daftar_asuransi/delete`,{ id : id});
     return response.data;
   } catch (error) {
-    console.error("Gagal menambahkan asuransi:", error);
+    console.error("Gagal menghapus asuransi:", error);
     throw error;
   }
 };

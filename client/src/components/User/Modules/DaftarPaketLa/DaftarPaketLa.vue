@@ -1,21 +1,21 @@
 <script setup lang="ts">
 // Import Icon
-import DeleteIcon from "@/components/User/Modules/DaftarPaketLa/Icon/DeleteIcon.vue"
-import EditIcon from "@/components/User/Modules/DaftarPaketLa/Icon/EditIcon.vue"
+import DeleteIcon from '@/components/User/Modules/DaftarPaketLa/Icon/DeleteIcon.vue'
+import EditIcon from '@/components/User/Modules/DaftarPaketLa/Icon/EditIcon.vue'
 
 // import element
-import DangerButton from "@/components/User/Modules/DaftarPaketLa/Particle/DangerButton.vue"
-import EditButton from "@/components/User/Modules/DaftarPaketLa/Particle/EditButton.vue"
-import LightButton from "@/components/User/Modules/DaftarPaketLa/Particle/LightButton.vue"
-import Notification from "@/components/User/Modules/DaftarPaketLa/Particle/Notification.vue"
-import Confirmation from "@/components/User/Modules/DaftarPaketLa/Particle/Confirmation.vue"
-import FormItem from "@/components/User/Modules/DaftarPaketLa/Particle/FormItem.vue"
-import FormPembayaran from "@/components/User/Modules/DaftarPaketLa/Particle/FormPembayaran.vue"
-import Form from "@/components/User/Modules/DaftarPaketLa/Particle/Form.vue"
+import DangerButton from '@/components/User/Modules/DaftarPaketLa/Particle/DangerButton.vue'
+import EditButton from '@/components/User/Modules/DaftarPaketLa/Particle/EditButton.vue'
+import LightButton from '@/components/User/Modules/DaftarPaketLa/Particle/LightButton.vue'
+import Notification from '@/components/User/Modules/DaftarPaketLa/Particle/Notification.vue'
+import Confirmation from '@/components/User/Modules/DaftarPaketLa/Particle/Confirmation.vue'
+import FormItem from '@/components/User/Modules/DaftarPaketLa/Particle/FormItem.vue'
+import FormPembayaran from '@/components/User/Modules/DaftarPaketLa/Particle/FormPembayaran.vue'
+import Form from '@/components/User/Modules/DaftarPaketLa/Particle/Form.vue'
 
 // import API
-import { daftarPaketLA, addPaketLA, editPaketLA, deletePaketLA } from "../../../../service/daftar_paket_la"
-import { daftarFasilitasPaketLA, deleteFasilitasPaketLA } from "../../../../service/fasilitas_paket_la"
+import { daftarPaketLA, addPaketLA, editPaketLA, deletePaketLA } from '@/service/daftar_paket_la'
+import { daftarFasilitasPaketLA, deleteFasilitasPaketLA } from '@/service/fasilitas_paket_la'
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
