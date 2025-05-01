@@ -62,6 +62,7 @@ jobs:
             if docker exec -i mysql_container mysql -u ${{ env.DB_USERNAME_ROOT }} -p${{ env.DB_PASSWORD_ROOT }} -e "DROP DATABASE IF EXISTS amra_db; CREATE DATABASE amra_db;"; then
               if docker exec -i Container_server npx sequelize-cli db:migrate; then
                 docker exec -i Container_server npx sequelize-cli db:seed:all --debug
+                docker restart Container_server
               else
                 echo "⚠️ Gagal menjalankan migration. Skip proses migrate."  
               fi
