@@ -272,6 +272,7 @@ class Model_cud {
           jamaah_id: peminjam_id,
           register_number,
           nominal,
+          status_peminjaman: 'belum_lunas',
           tenor: body.tenor,
           dp,
           petugas,
