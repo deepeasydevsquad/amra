@@ -496,7 +496,7 @@ const onPriceInput = (event: Event, id: number) => {
 
 <template>
   <!-- FORM START -->
-  <div v-if="props.isFormOpen" class="bg-white p-2 rounded-lg shadow-lg">
+  <div v-if="props.isFormOpen" class="bg-white p-2 rounded-lg">
     <form @submit.prevent="saveData">
       <!-- Halaman Atas -->
       <div class="grid grid-cols-2 gap-4 text-gray-500 md:grid-cols-[minmax(0,_1fr)_500px]">
