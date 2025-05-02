@@ -27,22 +27,14 @@
     </div>
     <div class="overflow-hidden rounded-lg -gray-200 shadow-md">
       <div class="overflow-x-auto">
-        <table class="w-full -collapse bg-white text-left text-sm text-gray-500">
+        <table class="w-full table-fixed border-collapse bg-white text-left text-sm text-gray-500">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-4 py-3 font-bold text-gray-900 text-center w-[20%] -gray-200">
-                Nama Kota
-              </th>
-              <th class="px-4 py-3 font-bold text-gray-900 text-center w-[15%] -gray-200">
-                Kode Pos
-              </th>
-              <th class="px-4 py-3 font-bold text-gray-900 text-center w-[25%] -gray-200">
-                Alamat
-              </th>
-              <th class="px-4 py-3 font-bold text-gray-900 text-center w-[30%] -gray-200">
-                Catatan
-              </th>
-              <th class="px-4 py-3 font-bold text-gray-900 text-center w-[10%] -gray-200">Aksi</th>
+              <th class="w-[20%] px-4 py-3 font-bold text-gray-900 text-center">Nama Kota</th>
+              <th class="w-[15%] px-4 py-3 font-bold text-gray-900 text-center">Kode Pos</th>
+              <th class="w-[25%] px-4 py-3 font-bold text-gray-900 text-center">Alamat</th>
+              <th class="w-[30%] px-4 py-3 font-bold text-gray-900 text-center">Catatan</th>
+              <th class="w-[10%] px-4 py-3 font-bold text-gray-900 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 -t -gray-100" v-if="paginatedCabang.length > 0">
@@ -54,9 +46,7 @@
               <td class="px-4 py-3 text-center -gray-200">{{ cabang.city }}</td>
               <td class="px-4 py-3 text-center -gray-200">{{ cabang.pos_code }}</td>
               <td class="px-4 py-3 text-center -gray-200">{{ cabang.address }}</td>
-              <td class="px-4 py-3 text-center -gray-200 truncate">
-                {{ cabang.note }}
-              </td>
+              <td class="w-[30%]  px-4 py-3 text-left -gray-200">{{ cabang.note }}</td>
               <td class="px-4 py-3 text-center -gray-200 flex justify-center gap-2">
                 <EditButton @click="openModal('edit', cabang)">
                   <EditIcon></EditIcon>

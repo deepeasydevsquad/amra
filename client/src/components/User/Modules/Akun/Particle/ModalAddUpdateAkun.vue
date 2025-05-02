@@ -3,12 +3,12 @@
   import Confirmation from "../../../../Modal/Confirmation.vue"
   import { defineProps, defineEmits } from 'vue'
   import { ref, computed, watchEffect } from 'vue';
-  import { checkAkun, addAkun, editAkun } from "../../../../../service/akun"; // Import function POST
+  import { checkAkun, addAkun, editAkun } from "@/service/akun"; // Import function POST
 
   interface ErrorsAdd {
     nomor_add_akun: string;
     nama_add_akun: string;
-    saldo_add_akun: string;
+    // saldo_add_akun: string;
   }
 
   interface addUpdateAkunInterface {
@@ -16,7 +16,6 @@
     prefix: string,
     nomor: string;
     nama: string;
-    saldo: string;
   }
 
   interface Props {
@@ -38,19 +37,17 @@
   const errors_message = ref<ErrorsAdd>({
     nomor_add_akun: '',
     nama_add_akun: '',
-    saldo_add_akun :'',
   });
   const dataAddUpdateAkun = ref<Partial<addUpdateAkunInterface>>({
     primary_id : 0,
     prefix : '',
     nomor: '',
     nama : '',
-    saldo : ''
   });
 
   const validateFormAddAkun = async (): Promise<boolean> => {
 
-    errors_message.value = { nomor_add_akun: '', nama_add_akun: '', saldo_add_akun : '' };
+    errors_message.value = { nomor_add_akun: '', nama_add_akun: '' };
 
     let isValid = true;
 
@@ -132,29 +129,29 @@
     showConfirmDialog.value = true;
   };
 
-  const formatRupiah = (angka :any, prefix = "Rp ") => {
-    let numberString = angka.toString().replace(/\D/g, ""),
-      split = numberString.split(","),
-      sisa = split[0].length % 3,
-      rupiah = split[0].substr(0, sisa),
-      ribuan = split[0].substr(sisa).match(/\d{3}/g);
+  // const formatRupiah = (angka :any, prefix = "Rp ") => {
+  //   let numberString = angka.toString().replace(/\D/g, ""),
+  //     split = numberString.split(","),
+  //     sisa = split[0].length % 3,
+  //     rupiah = split[0].substr(0, sisa),
+  //     ribuan = split[0].substr(sisa).match(/\d{3}/g);
 
-    if (ribuan) {
-      let separator = sisa ? "." : "";
-      rupiah += separator + ribuan.join(".");
-    }
+  //   if (ribuan) {
+  //     let separator = sisa ? "." : "";
+  //     rupiah += separator + ribuan.join(".");
+  //   }
 
-    return prefix + (rupiah || "0");
-  };
+  //   return prefix + (rupiah || "0");
+  // };
 
-  const formattedPrice = computed(() => {
-    return formatRupiah(dataAddUpdateAkun.value.saldo);
-  });
+  // const formattedPrice = computed(() => {
+  //   return formatRupiah(dataAddUpdateAkun.value.saldo);
+  // });
 
-  const formatToRupiah = (event :any )  => {
-    let value = event.target.value.replace(/\D/g, "");
-    dataAddUpdateAkun.value.saldo = value;
-  };
+  // const formatToRupiah = (event :any )  => {
+  //   let value = event.target.value.replace(/\D/g, "");
+  //   dataAddUpdateAkun.value.saldo = value;
+  // };
 
   const closeModal = () => {
     emit('close')
@@ -167,7 +164,7 @@
     dataAddUpdateAkun.value.prefix = props.data.prefix;
     dataAddUpdateAkun.value.nomor = props.data.nomor;
     dataAddUpdateAkun.value.nama = props.data.nama;
-    dataAddUpdateAkun.value.saldo = props.data.saldo;
+    // dataAddUpdateAkun.value.saldo = props.data.saldo;
   });
 
 </script>
@@ -204,11 +201,11 @@
                 <input type="text" v-model="dataAddUpdateAkun.nama" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal" placeholder="Nama Akun" />
                 <p v-if="errors_message.nama_add_akun" class="mt-1 text-sm text-red-600">{{ errors_message.nama_add_akun }}</p>
               </div>
-              <div>
+              <!-- <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Saldo</label>
                 <input class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal" placeholder="Saldo" type="text" id="rupiah" v-model="formattedPrice" @input="formatToRupiah"/>
                 <p v-if="errors_message.saldo_add_akun" class="mt-1 text-sm text-red-600">{{ errors_message.saldo_add_akun }}</p>
-              </div>
+              </div> -->
             </div>
           </div>
           <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">

@@ -52,7 +52,7 @@ class Model_cud {
       const division = await Division.create(
         {
           company_id: this.company_id,
-          city: cityData.name, // Simpan nama kota
+          kota_id : city,
           name,
           pos_code,
           address,

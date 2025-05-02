@@ -10,6 +10,35 @@ export const daftarJamaah = async (param: any) => {
   }
 }
 
+export const downloadJamaah = async (param: any) => {
+  try {
+    const response = await api.post('/download-daftar-jamaah', param, {
+      responseType: 'blob', // << penting biar axios handle sebagai file
+    })
+
+    // Bikin blob dari data response
+    const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    
+    // Buat URL dari blob
+    const url = window.URL.createObjectURL(blob)
+
+    // Buat element <a> buat trigger download
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'daftar_jamaah.xlsx') // Nama file
+    document.body.appendChild(link)
+    link.click()
+
+    // Cleanup
+    link.remove()
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Gagal download data jamaah:', error)
+    throw error
+  }
+}
+
+
 export const addJamaah = async (param: any) => {
   try {
     const response = await api.post('/add-daftar-jamaah', param, {

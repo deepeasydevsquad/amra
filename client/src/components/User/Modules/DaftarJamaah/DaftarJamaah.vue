@@ -1,21 +1,42 @@
 <template>
   <div class="container mx-auto p-4">
+    <div class="container mx-auto p-4">
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
-      <!-- Button Tambah Deposit -->
-      <button
-        @click="ConfirmJamaahModal()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2 w-fit"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M18 9v6m3-3h-6m-4 4a4 4 0 100-8 4 4 0 000 8zm0 0c-2.21 0-4 1.79-4 4v1h8v-1c0-2.21-1.79-4-4-4z"
-          />
-        </svg>
-        Tambah Jamaah
-      </button>
+      
+      <!-- Wrap tombol-tombol dalam satu flex container -->
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Button Tambah Jamaah -->
+        <button
+          @click="ConfirmJamaahModal()"
+          class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M18 9v6m3-3h-6m-4 4a4 4 0 100-8 4 4 0 000 8zm0 0c-2.21 0-4 1.79-4 4v1h8v-1c0-2.21-1.79-4-4-4z"
+            />
+          </svg>
+          Tambah Jamaah
+        </button>
+
+        <!-- Button Download -->
+        <button
+          @click="download_Jamaah()"
+          class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"
+            />
+          </svg>
+          Download Data Jamaah
+        </button>
+      </div>
 
       <!-- Search Input -->
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
@@ -30,6 +51,7 @@
         />
       </div>
     </div>
+  </div>
     <!-- Tes -->
     <!-- Deposit Table -->
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
@@ -232,7 +254,7 @@ v-if="ShowFormUpdate"
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { daftarJamaah, deleteJamaah } from '@/service/daftar_jamaah.ts'
+import { daftarJamaah, deleteJamaah, downloadJamaah } from '@/service/daftar_jamaah.ts'
 import Confirmation from '@/components/User/Modules/DaftarJamaah/Particle/Confirmation.vue'
 import Notification from '@/components/User/Modules/DaftarJamaah/Particle/Notification.vue'
 import DeleteIcon from '@/components/User/Modules/DaftarJamaah/Icon/DeleteIcon.vue'
@@ -245,6 +267,15 @@ import FormAddMember from '@/components/User/Modules/DaftarJamaah/Particle/FormA
 import FormMember from '@/components/User/Modules/DaftarJamaah/Particle/FormMember.vue'
 import FormUpdate from '@/components/User/Modules/DaftarJamaah/Particle/FormUpdate.vue'
 
+
+const download_Jamaah = async () => {
+  try {
+    const response = await downloadJamaah()
+    console.log('Downloaded data:', response)
+  } catch (error) {
+    console.error('Error fetching Jamaah:', error)
+  }
+}
 
 const ShowFormUpdate = ref(false)
 const selectedJamaah = ref(null) // <-- buat simpen data jamaah yg mau diedit

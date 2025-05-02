@@ -6,6 +6,13 @@ module.exports = {
     await queryInterface.bulkInsert('Mst_kota', [
       { 
         company_id : 1, 
+        kode : 'LGS', 
+        name : 'Langsa', 
+        createdAt: new Date(), 
+        updatedAt: new Date() 
+      },
+      { 
+        company_id : 1, 
         kode : 'BNA', 
         name : 'Banda Aceh', 
         createdAt: new Date(), 

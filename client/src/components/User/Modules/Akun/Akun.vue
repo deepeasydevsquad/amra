@@ -7,7 +7,7 @@
   import ModalTutupBuku from "./Particle/ModalTutupBuku.vue"
   import Confirmation from "../../../Modal/Confirmation.vue"
   import Notification from "../../../Modal/Notification.vue"
-  import { getFilterAkun, getData, deleteAkun, kembalikanBuku } from "../../../../service/akun"; // Import function POST
+  import { getFilterAkun, getData, deleteAkun, kembalikanBuku } from "@/service/akun"; // Import function POST
   import { ref, onMounted } from 'vue';
 
   interface secondaryAkun {
@@ -42,11 +42,16 @@
     saldo: string;
   }
 
+  interface filterCabang {
+    id: number;
+    name: string;
+  }
+
   const dataES = ref<Partial<dataEditSaldo>>({ id : 0, saldo: ''});
   const daftarAkun = ref<primaryAkun[]>([]);
   const totalColumns = ref(3); // Default 3 kolom
   const optionFilterAkun = ref([{ id: 0, name: 'Pilih Semua Akun' }]);
-  const optionFilterCabang = ref([{ id: 0, name: 'Pilih Semua Cabang' }]);
+  const optionFilterCabang = ref<filterCabang[]>([]); // { id: 0, name: 'Pilih Semua Cabang' }
   const selectedOptionAkun = ref(0);
   const selectedOptionCabang = ref(0);
   const showConfirmDialog = ref<boolean>(false);
@@ -62,6 +67,12 @@
     const response = await getFilterAkun();
     optionFilterAkun.value = response.data.akun;
     optionFilterCabang.value = response.data.cabang;
+    selectedOptionCabang.value = response.data.cabang[0].id;
+
+    console.log('_____xxxx____');
+    console.log(response.data.cabang[0].id);
+    console.log(selectedOptionCabang.value);
+    console.log('_____xxxx____');
     await fetch();
   }
 
@@ -248,10 +259,10 @@
                     <font-awesome-icon icon="fa-solid fa-plus" class="mr-0" />
                   </PrimaryButton>
                   <template v-else>
-                    <SuccessButton v-if="akun.tipe_akun === 'bawaan' " @click="editSaldo(akun.id, akun.saldo_awal)">
+                    <SuccessButton  @click="editSaldo(akun.id, akun.saldo_awal)">
                       <font-awesome-icon icon="fa-solid fa-money-bill" class="mr-0" />
                     </SuccessButton>
-                    <template v-else>
+                    <template v-if="akun.tipe_akun !== 'bawaan' " >
                       <PrimaryButton  @click="editAkunBtn(akun.id, akun.nomor, akun.primary_id, akun.name, akun.saldo_awal )" >
                         <font-awesome-icon icon="fa-solid fa-pencil" class="mr-0" />
                       </PrimaryButton>
@@ -290,10 +301,10 @@
     </Confirmation>
 
     <!-- Modal Tambah Akun Baru -->
-    <ModalAddUpdateAkun  :showStatus="showAddModal" @update-statusShow="updateStatusShow" :data="dataAddUpdateAkun" :selectedAkun="selectedAkun" @close="showAddModal = false"  />
+    <ModalAddUpdateAkun  :showStatus="showAddModal" @update-statusShow="updateStatusShow" :data="dataAddUpdateAkun" :selectedAkun="selectedAkun"  @close="showAddModal = false"  />
 
     <!-- Modal Edit Saldo Akun -->
-    <ModalEditSaldoAkun  :showStatus="showModalEditSaldo" @update-statusShow="updateStatusModalEditSaldo" :data="dataES"  @close="showModalEditSaldo = false"  />
+    <ModalEditSaldoAkun  :showStatus="showModalEditSaldo" @update-statusShow="updateStatusModalEditSaldo" :data="dataES" :cabang="selectedOptionCabang"  @close="showModalEditSaldo = false"  />
 
     <!-- Modal Tutup Buku -->
     <ModalTutupBuku  :showStatus="showModalTutupBuku" @update-statusShow="updateStatusModalTutupBuku" @close="showModalTutupBuku = false"  />

@@ -4,18 +4,20 @@ import DeleteIcon from '@/components/User/Modules/DaftarPaketLa/Icon/DeleteIcon.
 import EditIcon from '@/components/User/Modules/DaftarPaketLa/Icon/EditIcon.vue'
 
 // import element
-import DangerButton from '@/components/User/Modules/DaftarPaketLa/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/DaftarPaketLa/Particle/EditButton.vue'
-import LightButton from '@/components/User/Modules/DaftarPaketLa/Particle/LightButton.vue'
-import Notification from '@/components/User/Modules/DaftarPaketLa/Particle/Notification.vue'
-import Confirmation from '@/components/User/Modules/DaftarPaketLa/Particle/Confirmation.vue'
-import FormItem from '@/components/User/Modules/DaftarPaketLa/Particle/FormItem.vue'
-import FormPembayaran from '@/components/User/Modules/DaftarPaketLa/Particle/FormPembayaran.vue'
-import Form from '@/components/User/Modules/DaftarPaketLa/Particle/Form.vue'
+import DangerButton from "@/components/User/Modules/DaftarPaketLa/Particle/DangerButton.vue"
+import EditButton from "@/components/User/Modules/DaftarPaketLa/Particle/EditButton.vue"
+import LightButton from "@/components/User/Modules/DaftarPaketLa/Particle/LightButton.vue"
+import Notification from "@/components/User/Modules/DaftarPaketLa/Particle/Notification.vue"
+import Confirmation from "@/components/User/Modules/DaftarPaketLa/Particle/Confirmation.vue"
+import FormItem from "@/components/User/Modules/DaftarPaketLa/Particle/FormItem.vue"
+import FormPembayaran from "@/components/User/Modules/DaftarPaketLa/Particle/FormPembayaran.vue"
+import FormRefund from "@/components/User/Modules/DaftarPaketLa/Particle/FormRefund.vue"
+import Form from "@/components/User/Modules/DaftarPaketLa/Particle/Form.vue"
 
 // import API
-import { daftarPaketLA, addPaketLA, editPaketLA, deletePaketLA } from '@/service/daftar_paket_la'
-import { daftarFasilitasPaketLA, deleteFasilitasPaketLA } from '@/service/fasilitas_paket_la'
+import { daftarPaketLA, addPaketLA, editPaketLA, deletePaketLA } from "@/service/daftar_paket_la"
+import { daftarFasilitasPaketLA, deleteFasilitasPaketLA } from "@/service/fasilitas_paket_la"
+
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
@@ -81,6 +83,7 @@ const dataPaketLA = ref<PaketLA[]>([]);
 const isModalOpen = ref<boolean>(false);
 const isFormItemOpen = ref<boolean>(false);
 const isFormPembayaranOpen = ref<boolean>(false);
+const isFormRefundOpen = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
 const notificationMessage = ref<string>('');
@@ -158,10 +161,16 @@ const openFormItem = (id: number) => {
   isFormItemOpen.value = true;
 };
 const openFormPembayaran = (id: number, register_number: string) => {
-  paketlaId.value = id ;
+  paketlaId.value = id;
   registerNumber.value = register_number;
   isFormPembayaranOpen.value = true;
 };
+
+const openFormRefund = (id: number, register_number: string) => {
+  paketlaId.value = id;
+  registerNumber.value = register_number;
+  isFormRefundOpen.value = true
+}
 
 onMounted(async () => {
   await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
@@ -472,7 +481,7 @@ const cetakInvoice = async (invoice: string) => {
               <LightButton @click="openFormPembayaran(paket.id, paket.register_number)">
                 <font-awesome-icon icon="fa-solid fa-money-bill-alt" />
               </LightButton>
-              <LightButton>
+              <LightButton @click="openFormRefund(paket.id, paket.register_number)">
                 <font-awesome-icon icon="fa-solid fa-undo-alt" />
               </LightButton>
               <LightButton>
@@ -592,6 +601,24 @@ const cetakInvoice = async (invoice: string) => {
       :paketlaId="paketlaId"
       :registerNumber="registerNumber"
       @close="isFormPembayaranOpen = false; fetchData()"
+      />
+  </Transition>
+
+  <!-- FormPembayaran Overlay -->
+  <Transition
+    enter-active-class="transition-opacity duration-200 ease-out"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
+    leave-active-class="transition-opacity duration-200 ease-in"
+    leave-from-class="opacity-100"
+    leave-to-class="opacity-0"
+  >
+    <FormRefund
+      v-if="isFormRefundOpen"
+      :isFormRefundOpen="isFormRefundOpen"
+      :paketlaId="paketlaId"
+      :registerNumber="registerNumber"
+      @close="isFormRefundOpen = false; fetchData()"
       />
   </Transition>
 

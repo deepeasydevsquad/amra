@@ -15,6 +15,25 @@ class Model_r {
     this.division_id = await getCabang(this.req);
   }
 
+  async totalPaid(paketlaId) {
+    const payment = await Paket_la_transaction.sum("paid", {
+      where: {
+        paket_la_id: paketlaId,
+        status: "payment",
+      },
+    });
+
+    const refund = await Paket_la_transaction.sum("paid", {
+      where: {
+        paket_la_id: paketlaId,
+        status: "refund",
+      },
+    });
+
+    const data = payment - refund;
+    return data;
+  }
+
   async pembayaran_paket_la() {
     // initialize dependensi properties
     await this.initialize();
@@ -32,7 +51,7 @@ class Model_r {
     sql["include"] = [
       {
         model: Paket_la_transaction,
-        where: { company_id: this.company_id },
+        where: { company_id: this.company_id},
         attributes: [
           "id",
           "invoice",
@@ -52,6 +71,7 @@ class Model_r {
       const query = await dbList(sql); // ini query masih dari struktur awal
       const q = await Paket_la.findAndCountAll(query.total);
       const total = await q.count;
+      const totalPaid = await this.totalPaid(body.paketlaId);
     
       var data = [];
       if (total > 0) {
@@ -61,6 +81,7 @@ class Model_r {
               data  = ({
                 id: e.id,
                 total_price: e.total_price,
+                total_paid: totalPaid ? totalPaid : 0,
                 item_transaksi: e.Paket_la_transactions.map((trx) => ({
                   id: trx.id,
                   invoice: trx.invoice,

@@ -24,7 +24,8 @@ module.exports = (sequelize, DataTypes) => {
     akun_debet: DataTypes.INTEGER,
     akun_kredit: DataTypes.INTEGER,
     saldo: DataTypes.INTEGER,
-    periode_id: DataTypes.INTEGER
+    periode_id: DataTypes.INTEGER, 
+    removable: DataTypes.ENUM(["true", "false"]),
   }, {
     sequelize,
     modelName: 'Jurnal',

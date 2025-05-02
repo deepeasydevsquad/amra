@@ -66,19 +66,25 @@ class Model_cud {
   async validatePaymentAmount(paketlaId, paid, infoPembayaranPaketLA) {
     try {
       const paketla = await Paket_la.findByPk(paketlaId);
-      
-      console.group("======== Validasi Pembayaran Paket LA ======="); // Memulai grup log debugging
+
+      console.group("======== Validasi Pembayaran Paket LA =======");
       console.log("Paket LA:", paketla);
       console.log("Jumlah Bayar:", paid);
       console.log("Total Harga Paket LA:", paketla.total_price);
-      
-      const kelebihan = infoPembayaranPaketLA.item_transaksi.reduce((total, trx) => total + Number(trx.paid), 0) + Number(paid); // Menghitung total jumlah bayar
-      
+
+      const totalBayar = infoPembayaranPaketLA.item_transaksi.filter(trx => trx.status === "payment").reduce((total, trx) => total + Number(trx.paid), 0);
+      const totalRefund = infoPembayaranPaketLA.item_transaksi.filter(trx => trx.status === "refund").reduce((total, trx) => total + Number(trx.paid), 0);
+      const kekurangan = totalBayar - totalRefund;
+      const kelebihan = Number(paid) + kekurangan;
+
+      console.log("Total Bayar yang terjadi:", totalBayar);
+      console.log("Total Refund yang terjadi:", totalRefund);
+      console.log("Kekurangan:", kekurangan);
       console.log("Kelebihan:", kelebihan);
       console.log("Validasi:", kelebihan <= paketla.total_price ? "Valid" : "Tidak Valid");
       console.log("===========================================");
       console.groupEnd();
-      
+
       if (!paketla) {
         return { valid: false, message: "Data Paket LA tidak ditemukan." };
       }
@@ -92,9 +98,9 @@ class Model_cud {
   }
   
 
-  // Tambah  paket la
+  // Tambah pembayaran paket la
   async add() {
-    // initialize dependensi propertiesA
+    // initialize dependensi properties
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
@@ -143,75 +149,6 @@ class Model_cud {
       this.state = false;
     }
   }
-
-  // // Edit  paket la
-  // async update() {
-  //   // initialize general property
-  //   await this.initialize();
-  //   const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
-  //   const body = this.req.body;
-
-  //   // update process
-  //   try {
-  //     // call object
-  //     const model_r = new Model_r(this.req);
-  //     // get info  paket la
-  //     const infoPaketLA = await model_r.infoPaketLA(body.id, this.company_id);
-  //     // update data  paket la
-  //     await Paket_la_transaction.update(
-  //       {
-  //         kostumer_paket_la_id: body.kostumer_paket_la_id,
-  //         client_name: body.client_name,
-  //         client_hp_number: body.client_hp_number,
-  //         client_address: body.client_address,
-  //         discount: body.discount,
-  //         total_jamaah: body.total_jamaah,
-  //         departure_date: body.departure_date,
-  //         arrival_date: body.arrival_date,
-  //         updatedAt: myDate,
-  //       },
-  //       {
-  //         where: { id: body.id, company_id: this.company_id },
-  //       },
-  //       {
-  //         transaction: this.t,
-  //       }
-  //     );
-  //     // write log message
-  //     this.message = `Memperbaharui Data paket la dengan Nomor Registrasi : ${infoPaketLA.invoice}, Nama klien ${infoPaketLA.client_name} dan ID paket la : ${body.id} menjadi Nama klien ${body.client_name}`; 
-  //   } catch (error) {
-  //     this.state = false;
-  //   }
-  // }
-
-  // // Hapus  paket la
-  // async delete() {
-  //   // initialize dependensi properties
-  //   await this.initialize();
-  //   const body = this.req.body;
-  //   try {
-  //     // call object
-  //     const model_r = new Model_r(this.req);
-  //     // get info  paket la
-  //     const infoPaketLA = await model_r.infoPaketLA(body.id, this.company_id);
-  //     // delete process
-  //     await Paket_la_transaction.destroy(
-  //       {
-  //         where: {
-  //           id: body.id,
-  //           company_id: this.company_id,
-  //         },
-  //       },
-  //       {
-  //         transaction: this.t,
-  //       }
-  //     );
-  //     // write log message
-  //     this.message = `Menghapus paket la dengan Nomor Registrasi : ${infoPaketLA.invoice}, Nama klien : ${infoPaketLA.client_name} dan ID paket la : ${infoPaketLA.id}`;
-  //   } catch (error) {
-  //     this.state = false;
-  //   }
-  // }
 
   // response
   async response() {

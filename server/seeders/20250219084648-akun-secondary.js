@@ -3,10 +3,10 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-
     await queryInterface.bulkInsert('Akun_secondaries', [
       { company_id: 1, akun_primary_id: 1, nomor_akun: '11010', nama_akun : 'KAS', tipe_akun : 'bawaan', path : 'kas', createdAt: new Date(), updatedAt: new Date() },
       { company_id: 1, akun_primary_id: 1, nomor_akun: '11020', nama_akun : 'BANK', tipe_akun : 'bawaan', path : 'bank', createdAt: new Date(), updatedAt: new Date() },
+      { company_id: 1, akun_primary_id: 1, nomor_akun: '11021', nama_akun : 'BANK SYARIAH INDONESIA', tipe_akun : 'bawaan', path : 'bank:kodeBank:BSI', createdAt: new Date(), updatedAt: new Date() },
       { company_id: 1, akun_primary_id: 1, nomor_akun: '13000', nama_akun : 'PIUTANG', tipe_akun : 'bawaan', path : 'piutang', createdAt: new Date(), updatedAt: new Date() },
       { company_id: 1, akun_primary_id: 1, nomor_akun: '14000', nama_akun : 'KENDARAAN', tipe_akun : 'tambahan', path : '', createdAt: new Date(), updatedAt: new Date() },
       { company_id: 1, akun_primary_id: 1, nomor_akun: '14010', nama_akun : 'AKUMULASI PENYUSUTAN KENDARAAN', tipe_akun : 'tambahan', path : '', createdAt: new Date(), updatedAt: new Date() },
@@ -36,6 +36,7 @@ module.exports = {
       { company_id: 1, akun_primary_id: 5, nomor_akun: '54000', nama_akun : 'HPP PASSPORT', tipe_akun : 'bawaan', path : 'hpp_passport', createdAt: new Date(), updatedAt: new Date() },
       { company_id: 1, akun_primary_id: 5, nomor_akun: '55000', nama_akun : 'HPP TRANSPORT', tipe_akun : 'bawaan', path : 'hpp_transport', createdAt: new Date(), updatedAt: new Date() },
       { company_id: 1, akun_primary_id: 5, nomor_akun: '56000', nama_akun : 'PROMOSI DAN IKLAN', tipe_akun : 'bawaan', path : '', createdAt: new Date(), updatedAt: new Date() },
+      { company_id: 1, akun_primary_id: 6, nomor_akun: '60001', nama_akun : 'GAJI KARYAWAN', tipe_akun : 'bawaan', path : '', createdAt: new Date(), updatedAt: new Date() },
     ], {});
   },
 

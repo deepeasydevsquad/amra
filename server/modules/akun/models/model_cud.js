@@ -32,7 +32,6 @@ class Model_cud {
       const prefix = body.prefix;
       const nomor_akun = prefix + body.nomor;
       const nama_akun = body.nama;
-      const saldo = body.saldo;
 
       // insert process
       const insert = await Akun_secondary.create(
@@ -51,22 +50,6 @@ class Model_cud {
         }
       );
 
-      if(saldo > 0 ) {
-        // insert ke saldo
-        await Saldo_akun.create(
-          {
-            division_id : this.division_id, 
-            akun_secondary_id : insert.id,
-            saldo: saldo,
-            periode: 0,
-            createdAt: myDate,
-            updatedAt: myDate,
-          },
-          {
-            transaction: this.t,
-          }
-        );
-      }
       // write log message
       this.message = `Menambahkan Akun Baru dengan Nama Akun : ${body.nama}, Nomor Akun : ${nomor_akun} dan ID Akun : ${insert.id}`;
     } catch (error) {
@@ -84,25 +67,10 @@ class Model_cud {
     const prefix = body.prefix;
     const nomor_akun = prefix + body.nomor;
     const nama_akun = body.nama;
-    const saldo = body.saldo;
 
     try {
-      // delete saldo
-      await Saldo_akun.destroy(
-        {
-          where: {
-            akun_secondary_id: body.id,
-            division_id: this.division_id, 
-            periode: 0
-          },
-        },
-        {
-          transaction: this.t,
-        }
-      );
-
       // insert process
-      const insert = await Akun_secondary.update(
+      await Akun_secondary.update(
         {
           nomor_akun: nomor_akun,
           nama_akun: nama_akun,
@@ -117,23 +85,6 @@ class Model_cud {
         }
       );
 
-      if(saldo > 0 ) {
-        // insert ke saldo
-        await Saldo_akun.create(
-          {
-            division_id : this.division_id, 
-            akun_secondary_id : insert.id,
-            saldo: saldo,
-            periode: 0,
-            createdAt: myDate,
-            updatedAt: myDate,
-          },
-          {
-            transaction: this.t,
-          }
-        );
-      }
-
       // write log message
       this.message = `Memperbaharui data akun ID Akun : ${body.id}`;
     } catch (error) {
@@ -147,18 +98,20 @@ class Model_cud {
     await this.initialize();
     const body = this.req.body;
     try {
+
+      const model_r = new Model_r(this.req);
+      const division_id = await model_r.get_seluruh_cabang_id(this.company_id);
+
       // delete saldo
       await Saldo_akun.destroy(
         {
           where: {
             akun_secondary_id: body.id,
-            division_id: this.division_id, 
+            division_id: { [Op.in] : division_id },
             periode: 0
           },
         },
-        {
-          transaction: this.t,
-        }
+        { transaction: this.t }
       );
       // delete akun seconday
       await Akun_secondary.destroy(
@@ -168,9 +121,7 @@ class Model_cud {
             company_id : this.company_id
           },
         },
-        {
-          transaction: this.t,
-        }
+        { transaction: this.t }
       );
       // write log message
       this.message = `Menghapus Akun dengan ID Aakun : ${body.id}`;
@@ -191,18 +142,16 @@ class Model_cud {
         {
           where: {
             akun_secondary_id: body.id,
-            division_id : this.division_id, 
+            division_id : body.cabang, 
             periode: 0
           },
         },
-        {
-          transaction: this.t,
-        }
+        { transaction: this.t }
       );
       // insert new saldo
       await Saldo_akun.create(
         {
-          division_id : this.division_id, 
+          division_id : body.cabang,
           akun_secondary_id : body.id,
           saldo: saldo,
           periode: 0,
@@ -228,151 +177,19 @@ class Model_cud {
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
 
     try {
-
-      var division = [];
-      await Division.findAll({ where : { company_id : this.company_id }}).then(async (value) => {
-        await Promise.all(
-          await value.map(async (e) => {
-            division.push(e.id);
-          })
-        );
-      });
-
-      var akun_primary = {};
-      await Akun_primary.findAll().then(async (value) => {
-        await Promise.all(
-          await value.map(async (e) => {
-            akun_primary[e.id] = { sn: e.sn, pos : e.pos };
-          })
-        );
-      });
-
-      var akun_secondary_id = {};
-      await Akun_secondary.findAll({ 
-        where : { 
-          company_id : this.company_id,
-        }
-      }).then(async (value) => {
-        await Promise.all(
-          await value.map(async (e) => {
-             akun_secondary_id[e.nomor_akun] = e.id; 
-          })
-        );
-      });
-
-      var saldo_awal = {};
-      await Saldo_akun.findAll({ 
-        include: { 
-          required : true, 
-          model: Akun_secondary 
-        }, 
-        where : { 
-          division_id : { [Op.in] : division },
-          periode : 0 
-        }
-      }).then(async (value) => {
-        await Promise.all(
-          await value.map(async (e) => {
-            if(saldo_awal[e.division_id] === undefined ) {
-              saldo_awal = {...saldo_awal,...{[e.division_id] : { [e.Akun_secondary.nomor_akun] : e.saldo } } };
-            }else{
-              if(saldo_awal[e.division_id][e.Akun_secondary.nomor_akun] === undefined ) {
-                saldo_awal[e.division_id] = {...saldo_awal[e.division_id],...{ [e.Akun_secondary.nomor_akun] : e.saldo } };
-              }else{
-                saldo_awal[e.division_id][e.Akun_secondary.nomor_akun] = saldo_awal[e.division_id][e.Akun_secondary.nomor_akun] + e.saldo;
-              }
-            }
-          })
-        );
-      });
-
-      var saldo_jurnal = {};
-      await Jurnal.findAll({ where : { division_id : { [Op.in] : division }, periode_id : 0 }}).then(async (value) => {
-          await Promise.all(
-            await value.map(async (e) => {
-              // info akun
-              var infAkunDebet =  akun_primary[e.akun_debet.toString().charAt(0)];
-              var infAkunKredit =  akun_primary[e.akun_kredit.toString().charAt(0)];
-
-              if( infAkunDebet.sn == 'D') {
-                if(saldo_jurnal[e.division_id] === undefined ) {
-                  saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_debet] : ( e.saldo + 0 ) } } };
-                }else{
-                  if( saldo_jurnal[e.division_id][e.akun_debet] === undefined ) {
-                    saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_debet] : (e.saldo + 0)}}
-                  }else{
-                    saldo_jurnal[e.division_id][e.akun_debet] = saldo_jurnal[e.division_id][e.akun_debet] + e.saldo;
-                  }
-                }
-              }else if ( infAkunDebet.sn == 'K' ) {
-                if(saldo_jurnal[e.division_id] === undefined ) {
-                  saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_debet] : ( 0 - e.saldo ) } } };
-                }else{
-                  if( saldo_jurnal[e.division_id][e.akun_debet] === undefined ) {
-                    saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_debet] : ( 0 - e.saldo )}}
-                  }else{
-                    saldo_jurnal[e.division_id][e.akun_debet] = saldo_jurnal[e.division_id][e.akun_debet] - e.saldo;
-                  }
-                }
-              }
-
-              if( infAkunKredit.sn == 'D') {
-                if(saldo_jurnal[e.division_id] === undefined ) {
-                  saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_kredit] : ( 0 - e.saldo ) } } };
-                }else{
-                  if( saldo_jurnal[e.division_id][e.akun_kredit] === undefined ) {
-                    saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_kredit] : (0 - e.saldo)}}
-                  }else{
-                    saldo_jurnal[e.division_id][e.akun_kredit] = saldo_jurnal[e.division_id][e.akun_kredit] - e.saldo;
-                  }
-                }
-              }else if ( infAkunKredit.sn == 'K' ) {
-                if(saldo_jurnal[e.division_id] === undefined ) {
-                  saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_kredit] : ( e.saldo + 0 ) } } };
-                }else{
-                  if( saldo_jurnal[e.division_id][e.akun_kredit] === undefined ) {
-                    saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_debet] : ( e.saldo + 0 )}}
-                  }else{
-                    saldo_jurnal[e.division_id][e.akun_kredit] = saldo_jurnal[e.division_id][e.akun_kredit] + e.saldo;
-                  }
-                }
-              }
-
-            })
-          );
-      });
-
-      var saldo_akhir = {};
-      for( let x in division ) {
-        if( saldo_awal[division[x]] !== undefined ) {
-          for( let y in saldo_awal[division[x]] ) {
-            if( saldo_akhir[division[x]] === undefined ) {
-              saldo_akhir =  {...saldo_akhir,...{[division[x]] : { [y] : saldo_awal[division[x]][y] } } };
-            }else{
-              if( saldo_akhir[division[x]][y] === undefined ) {
-                saldo_akhir[division[x]] = {...saldo_akhir[division[x]],...{[y] : saldo_awal[division[x]][y] } };
-              }else{
-                saldo_akhir[division[x]][y] = saldo_akhir[division[x]][y] + saldo_awal[division[x]][y];
-              }
-            }
-          }
-        }
-
-        if( saldo_jurnal[division[x]] !== undefined ) {
-          for( let y in saldo_jurnal[division[x]] ) {
-            if( saldo_akhir[division[x]] === undefined ) {
-              saldo_akhir =  {...saldo_akhir,...{[division[x]] : { [y] : saldo_jurnal[division[x]][y] } } };
-            }else{
-              if( saldo_akhir[division[x]][y] === undefined ) {
-                saldo_akhir[division[x]] = {...saldo_akhir[division[x]],...{[y] : saldo_jurnal[division[x]][y] } };
-              }else{
-                saldo_akhir[division[x]][y] = saldo_akhir[division[x]][y] + saldo_jurnal[division[x]][y];
-              }
-            }
-          }
-        }
-      }
-
+      const model_r = new Model_r(this.req);
+      // dapatkan division id dari seluruh id cabang
+      const division = await model_r.get_seluruh_cabang_id();
+      // dapatkan akun primary dari database
+      const akun_primary = await model_r.get_akun_primary();
+      // dapatkan akun secondary dari database
+      const akun_secondary_id = await model_r.get_akun_secondary();
+      // dapatkan saldo awal setiap devisi
+      const saldo_awal = await model_r.get_saldo_awal(division);
+      // dapatkan saldo jurnal
+      const saldo_jurnal = await model_r.get_saldo_jurnal(akun_primary, division);
+      // dapatkan saldo akhir
+      const saldo_akhir = await model_r.get_saldo_akhir(division, saldo_awal, saldo_jurnal);
       // create periode baru
       const insert = await Periode.create(
         {
@@ -415,28 +232,36 @@ class Model_cud {
           transaction: this.t,
         }
       );
-
+      
+      var laba_bersih = await model_r.laba_bersih(saldo_akhir);
+      var varInclude = [1,2,3];
       for( let u in saldo_akhir ) {
         for( let i in saldo_akhir[u] ) {
-          await Saldo_akun.create(
-            {
-              division_id : u,
-              akun_secondary_id : akun_secondary_id[i],
-              saldo : saldo_akhir[u][i],
-              periode : 0,
-              createdAt: myDate,
-              updatedAt: myDate,
-            },
-            {
-              transaction: this.t,
-            }
-          );
+          var prefix = i.toString().charAt(0);
+          if( varInclude.includes(parseInt( prefix )) ){
+            await Saldo_akun.create(
+              {
+                division_id : u,
+                akun_secondary_id : akun_secondary_id[i],
+                saldo : ( i == '31000' ? saldo_akhir[u][i] + laba_bersih[u] : saldo_akhir[u][i] ),
+                periode : 0,
+                createdAt: myDate,
+                updatedAt: myDate,
+              },
+              {
+                transaction: this.t,
+              }
+            );
+          }
         }
       }
 
       // write log message
       this.message = `Menutup Buku Akuntasi pada periode ${body.nama_periode}`;
     } catch (error) {
+      console.log("DDDDDDD");
+      console.log(error);
+      console.log("DDDDDDD");
       this.state = false;
     }
   }
@@ -448,16 +273,69 @@ class Model_cud {
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
 
     try {
+      const model_r = new Model_r(this.req);
       // get last periode
-
+      const last_periode = await model_r.get_last_periode_id();
+      // dapatkan division id dari seluruh id cabang
+      const division = await model_r.get_seluruh_cabang_id();
       // delete jurnal
+      await Jurnal.destroy(
+        {
+          where: {
+            division_id: {
+              [Op.in] : division
+            },
+            periode_id: 0
+          },
+        },
+        { transaction: this.t }
+      );
+      // update jurnal
+      await Jurnal.update(
+        {
+          periode_id: 0,
+          updatedAt: myDate,
+        },
+        {
+          where: { periode_id: last_periode, division_id: { [Op.in] : division } },
+        },
+        {
+          transaction: this.t,
+        }
+      );
 
-      // delete saldo 
-
-
-      //
-
-
+      // delete saldo
+      await Saldo_akun.destroy(
+        {
+          where: {
+            division_id: {
+              [Op.in] : division
+            },
+            periode: 0
+          },
+        },
+        { transaction: this.t }
+      );
+      // update saldo
+      await Saldo_akun.update(
+        {
+          periode: 0,
+          updatedAt: myDate,
+        },
+        {
+          where: { periode: last_periode, division_id: { [Op.in] : division } },
+        },
+        {
+          transaction: this.t,
+        }
+      );
+      // delete periode
+      await Periode.destroy(
+        {
+          where: { id: last_periode },
+        },
+        { transaction: this.t }
+      );
 
       this.message = `Membuka Buku Akuntasi pada periode ${body.nama_periode}`;
     } catch (error) {
