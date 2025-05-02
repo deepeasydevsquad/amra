@@ -36,6 +36,7 @@ import DepositSaldo from '../../Modules/DepositSaldo/DepositSaldo.vue'
 import DaftarJamaah from '../../Modules/DaftarJamaah/DaftarJamaah.vue'
 import Jurnal from '../../Modules/Jurnal/Jurnal.vue'
 import Investor from '../../Modules/Investor/Investor.vue'
+import DaftarPaket from '../../Modules/DaftarPaket/DaftarPaket.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -65,7 +66,8 @@ const tabComponents = {
   deposit_saldo: DepositSaldo,
   daftar_jamaah: DaftarJamaah,
   jurnal: Jurnal,
-  investor: Investor
+  investor: Investor,
+  daftar_paket: DaftarPaket
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click

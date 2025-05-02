@@ -5,7 +5,7 @@ export const daftarPaketLA = async (param : any) => {
     const response = await api.post("/daftar_paket_la/list", param);
     return response.data;
   } catch (error) {
-    console.error("Gagal menambahkan paket la:", error);
+    console.error("Gagal mengambil paket la:", error);
     throw error;
   }
 };
@@ -25,7 +25,7 @@ export const editPaketLA = async (id : any, param : any) => {
     const response = await api.post(`/daftar_paket_la/update` , {...param,...{id : id }});
     return response.data;
   } catch (error) {
-    console.error("Gagal menambahkan paket la:", error);
+    console.error("Gagal mengedit paket la:", error);
     throw error;
   }
 };
@@ -35,7 +35,7 @@ export const deletePaketLA = async (id : number) => {
     const response = await api.post(`/daftar_paket_la/delete`,{ id : id});
     return response.data;
   } catch (error) {
-    console.error("Gagal menambahkan paket la:", error);
+    console.error("Gagal menghapus paket la:", error);
     throw error;
   }
 };

@@ -79,3 +79,84 @@ export const daftarPengalaman = async (param : any) => {
     throw error;
   }
 };
+
+export const daftarKota = async () => {
+  try {
+    const response = await api.post("/get-kota");
+    return response.data;
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
+};
+
+export const daftarAirlines = async () => {
+  try {
+    const response = await api.post("/get-airlines");
+    return response.data;
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
+};
+
+export const daftarAsuransi = async () => {
+  try {
+    const response = await api.post("/get-asuransi");
+    return response.data;
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
+};
+
+export const daftarHotel = async () => {
+  try {
+    const response = await api.post("/get-hotel");
+    console.log("response", response);
+    return response.data;
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
+};
+
+export const daftarBandara = async () => {
+  try {
+    const response = await api.post("/get-bandara");
+    return response.data;
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
+};
+
+export const daftarTipePaket = async () => {
+  try {
+    const response = await api.post("/get-tipe-paket");
+    return response.data;
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
+};
+
+export const daftarFasilitas = async () => {
+  try {
+    const response = await api.post("/get-fasilitas");
+    return response.data;
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
+};
+
+export const daftarProviderVisa = async () => {
+  try {
+    const response = await api.post("/get-provider-visa");
+    return response.data;
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
+};

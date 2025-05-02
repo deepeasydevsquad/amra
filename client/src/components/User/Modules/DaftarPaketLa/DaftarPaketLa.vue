@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Import Icon
-import DeleteIcon from "@/components/User/Modules/DaftarPaketLa/Icon/DeleteIcon.vue"
-import EditIcon from "@/components/User/Modules/DaftarPaketLa/Icon/EditIcon.vue"
+import DeleteIcon from '@/components/User/Modules/DaftarPaketLa/Icon/DeleteIcon.vue'
+import EditIcon from '@/components/User/Modules/DaftarPaketLa/Icon/EditIcon.vue'
 
 // import element
 import DangerButton from "@/components/User/Modules/DaftarPaketLa/Particle/DangerButton.vue"
@@ -17,6 +17,7 @@ import Form from "@/components/User/Modules/DaftarPaketLa/Particle/Form.vue"
 // import API
 import { daftarPaketLA, addPaketLA, editPaketLA, deletePaketLA } from "@/service/daftar_paket_la"
 import { daftarFasilitasPaketLA, deleteFasilitasPaketLA } from "@/service/fasilitas_paket_la"
+
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 

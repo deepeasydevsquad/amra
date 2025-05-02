@@ -70,6 +70,7 @@ const arr_router = [
   "daftar_kostumer_paket_la",
   "daftar_paket_la",
   "fasilitas_paket_la",
+  "daftar_paket",
   "pengguna",
   "level_agen",
   "daftar_agen",

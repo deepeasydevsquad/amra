@@ -5,7 +5,7 @@ export const daftarBandara = async (param : any) => {
     const response = await api.post("/daftar_bandara/list", param); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request
   } catch (error) {
-    console.error("Gagal menambahkan bandara:", error);
+    console.error("Gagal mengambil bandara:", error);
     throw error; // Bisa ditangani di bagian pemanggilan
   }
 };
@@ -25,7 +25,7 @@ export const editBandara = async (id : any, param : any) => {
     const response = await api.post(`/daftar_bandara/update` , {...param,...{id : id }}); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request
   } catch (error) {
-    console.error("Gagal menambahkan bandara:", error);
+    console.error("Gagal mengedit bandara:", error);
     throw error; // Bisa ditangani di bagian pemanggilan
   }
 };
@@ -35,7 +35,7 @@ export const deleteBandara = async (id : number) => {
     const response = await api.post(`/daftar_bandara/delete`,{ id : id}); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request
   } catch (error) {
-    console.error("Gagal menambahkan bandara:", error);
+    console.error("Gagal menghapus bandara:", error);
     throw error; // Bisa ditangani di bagian pemanggilan
   }
 };
