@@ -222,7 +222,11 @@
   </Confirmation>
 
   <!-- Form Tambah Peminjaman -->
-  <FormAddPeminjaman :modalTambahPinjaman="modalTambahPinjaman" @close="handleAddPinjaman()" />
+  <FormAddPeminjaman
+    :modalTambahPinjaman="modalTambahPinjaman"
+    @close="handleAddPinjaman()"
+    @tutup="modalTambahPinjaman = false"
+  />
 
   <!-- Notifikasi -->
   <Notification

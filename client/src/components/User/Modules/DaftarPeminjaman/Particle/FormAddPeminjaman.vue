@@ -7,7 +7,7 @@
       <div class="bg-white p-6 rounded-lg shadow-lg w-96">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-xl font-semibold text-gray-800">Tambah Peminjaman</h3>
-          <button @click="closeModal" class="text-gray-600 hover:text-gray-800">&times;</button>
+          <button @click="TutupModal" class="text-gray-600 hover:text-gray-800">&times;</button>
         </div>
         <form @submit.prevent="submitForm" class="space-y-4">
           <!-- Form content -->
@@ -96,7 +96,7 @@
           </div>
 
           <div class="mt-4 flex justify-end space-x-2">
-            <button @click="closeModal" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md">
+            <button @click="TutupModal" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md">
               Batal
             </button>
             <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">
@@ -166,7 +166,12 @@ const props = defineProps({
 // Emit untuk memberitahu parent saat modal ditutup
 const emit = defineEmits<{
   (e: 'close'): void
+  (e: 'tutup'): void
 }>()
+
+const TutupModal = () => {
+  emit('tutup')
+}
 
 // Menutup modal
 const closeModal = () => {
