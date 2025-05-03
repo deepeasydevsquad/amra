@@ -34,6 +34,11 @@ module.exports = {
       saldo: {
         type: Sequelize.INTEGER
       },
+      removable: {
+        type: Sequelize.ENUM,
+        values: ["true", "false"],
+        defaultValue : "true"
+      },
       periode_id: {
         type: Sequelize.INTEGER
       },
