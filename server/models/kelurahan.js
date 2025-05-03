@@ -20,11 +20,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Kelurahan.init({
-    // id: {
-    //   type: DataTypes.BIGINT.UNSIGNED,
-    //   autoIncrement: true,
-    //   primaryKey: true,
-    // },
+    id: {
+      type: DataTypes.BIGINT,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     kecamatan_id: DataTypes.INTEGER,
     name: DataTypes.STRING
   }, {

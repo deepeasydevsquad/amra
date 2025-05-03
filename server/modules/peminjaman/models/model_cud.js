@@ -179,7 +179,7 @@ class Model_cud {
           jamaah_id: peminjam_id,
           register_number,
           nominal,
-          tenor,
+          tenor: body.tenor,
           dp,
           petugas,
           createdAt: now,
