@@ -39,6 +39,9 @@ module.exports = (sequelize, DataTypes) => {
       Jamaah.hasMany(models.Peminjaman, {
         foreignKey: "jamaah_id",
       });
+      Jamaah.hasMany(models.Tabungan, {
+        foreignKey: "jamaah_id",
+      });
     }
   }
 
