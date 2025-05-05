@@ -79,6 +79,7 @@ const arr_router = [
   "refund_paket_la",
   "daftar_jamaah",
   "data_master",
+  "peminjaman",
   "jurnal"
 ];
 

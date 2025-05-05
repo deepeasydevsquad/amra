@@ -1,0 +1,125 @@
+const {
+  Peminjaman,
+  Skema_peminjaman,
+  Riwayat_pembayaran_peminjaman,
+  Jamaah,
+  Member,
+  sequelize,
+} = require("../../../models");
+const { getCompanyIdByCode } = require("../../../helper/companyHelper");
+const { Op } = require("sequelize");
+
+class Model_r {
+  constructor(req) {
+    this.req = req;
+    this.company_id = null;
+  }
+
+  // Inisialisasi company_id berdasarkan kode perusahaan
+  async initialize() {
+    this.company_id = await getCompanyIdByCode(this.req);
+  }
+
+  // Method untuk mendapatkan daftar peminjaman
+  async daftarPeminjaman() {
+    await this.initialize();
+    const { body } = this.req;
+
+    const limit = parseInt(body.perpage, 10) || 10;
+    const page =
+      parseInt(body.pageNumber, 10) > 0 ? parseInt(body.pageNumber, 10) : 1;
+    const offset = (page - 1) * limit;
+
+    const search = body.search;
+    let where = {
+      company_id: this.company_id,
+    };
+
+    if (search) {
+      where = {
+        ...where,
+        [Op.or]: [
+          { register_number: { [Op.like]: `%${search}%` } },
+          { "$Jamaah.Member.fullname$": { [Op.like]: `%${search}%` } },
+          { "$Jamaah.Member.identity_number$": { [Op.like]: `%${search}%` } },
+        ],
+      };
+    }
+
+    try {
+      const result = await Peminjaman.findAndCountAll({
+        limit,
+        offset,
+        order: [["id", "ASC"]],
+        where,
+        include: [
+          {
+            model: Skema_peminjaman,
+            attributes: ["term", "nominal"],
+            required: false,
+          },
+          {
+            model: Riwayat_pembayaran_peminjaman,
+            attributes: ["invoice", "nominal", "status"],
+            required: false,
+          },
+          {
+            model: Jamaah,
+            attributes: ["id", "member_id"],
+            include: [
+              {
+                model: Member,
+                attributes: ["fullname", "identity_number"],
+              },
+            ],
+          },
+        ],
+      });
+
+      const data = result.rows.map((peminjaman) => {
+        const jamaah = peminjaman.Jamaah;
+        const member = jamaah?.Member;
+
+        const nominalSkema = peminjaman.Skema_peminjamans?.[0]?.nominal || null;
+
+        const totalBayar = Array.isArray(
+          peminjaman.Riwayat_pembayaran_peminjamans
+        )
+          ? peminjaman.Riwayat_pembayaran_peminjamans.reduce(
+              (sum, riwayat) => sum + (riwayat.nominal || 0),
+              0
+            )
+          : 0;
+
+        return {
+          id: peminjaman.id,
+          nama_jamaah: member?.fullname || null,
+          identity_number: member?.identity_number || null,
+          register_number: peminjaman.register_number,
+          status_peminjaman: peminjaman.status_peminjaman,
+          nominal: peminjaman.nominal,
+          tenor: peminjaman.tenor,
+          dp: peminjaman.dp,
+          nominal_skema: nominalSkema || 0,
+          total_bayar: totalBayar,
+          riwayat_pembayaran: Array.isArray(
+            peminjaman.Riwayat_pembayaran_peminjamans
+          )
+            ? peminjaman.Riwayat_pembayaran_peminjamans.map((riwayat) => ({
+                invoice: riwayat.invoice,
+                nominal: riwayat.nominal,
+                status: riwayat.status,
+              }))
+            : [],
+        };
+      });
+
+      return { data, total: result.count };
+    } catch (error) {
+      console.error("Error daftarPeminjaman:", error);
+      return { data: [], total: 0 };
+    }
+  }
+}
+
+module.exports = Model_r;

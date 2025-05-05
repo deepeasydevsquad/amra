@@ -34,6 +34,7 @@ import LevelAgen from '../../Modules/LevelAgen/LevelAgen.vue'
 import DaftarAgen from '../../Modules/DaftarAgen/DaftarAgen.vue'
 import DepositSaldo from '../../Modules/DepositSaldo/DepositSaldo.vue'
 import DaftarJamaah from '../../Modules/DaftarJamaah/DaftarJamaah.vue'
+import DaftarPeminjaman from '../../Modules/DaftarPeminjaman/DaftarPeminjaman.vue'
 import Jurnal from '../../Modules/Jurnal/Jurnal.vue'
 import Investor from '../../Modules/Investor/Investor.vue'
 import DaftarPaket from '../../Modules/DaftarPaket/DaftarPaket.vue'
@@ -65,6 +66,7 @@ const tabComponents = {
   daftar_agen: DaftarAgen,
   deposit_saldo: DepositSaldo,
   daftar_jamaah: DaftarJamaah,
+  daftar_peminjaman: DaftarPeminjaman,
   jurnal: Jurnal,
   investor: Investor,
   daftar_paket: DaftarPaket
