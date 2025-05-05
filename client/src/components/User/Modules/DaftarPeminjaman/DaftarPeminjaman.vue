@@ -37,11 +37,11 @@
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-6 py-4 font-bold text-gray-900 text-left w-40">Nomor Register</th>
-            <th class="px-6 py-4 font-bold text-gray-900 text-left w-64">Info Jamaah</th>
-            <th class="px-6 py-4 font-bold text-gray-900 text-left w-64">Info Pinjaman</th>
-            <th class="px-6 py-4 font-bold text-gray-900 text-left w-[320px]">Detail Peminjaman</th>
-            <th class="px-6 py-4 font-bold text-gray-900 text-center w-28">Aksi</th>
+            <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">No. Register</th>
+            <th class="w-[22%] px-6 py-4 font-bold text-gray-900 text-center w-64">Info Jamaah</th>
+            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center w-64">Info Pinjaman</th>
+            <th class="w-[30%] px-6 py-4 font-bold text-gray-900 text-center w-[320px]">Detail Peminjaman</th>
+            <th class="w-[13%] px-6 py-4 font-bold text-gray-900 text-center w-28">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -74,44 +74,46 @@
 
             <!-- Info Jamaah -->
             <td class="px-6 py-4 text-left align-top space-y-2 text-sm text-gray-600">
-              <div class="flex justify-between w-full">
-                <span>Nama Jamaah</span>
-                <span class="font-semibold text-gray-800">{{ pinjaman.nama_jamaah }}</span>
-              </div>
-              <div class="flex justify-between w-full">
-                <span>Nomor Identitas</span>
-                <span>{{ pinjaman.identity_number }}</span>
-              </div>
+              <table class="w-full">
+                <tbody>
+                  <tr>
+                    <td class="w-[50%]">Nama Jamaah</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">{{ pinjaman.nama_jamaah }}</td>
+                  </tr>
+                  <tr>
+                    <td >Nomor Identitas</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">{{ pinjaman.identity_number }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </td>
 
             <!-- Info Pinjaman -->
             <td class="px-6 py-4 text-left align-top space-y-2 text-sm text-gray-600">
-              <div class="flex justify-between w-full">
-                <span>Jumlah Peminjaman</span>
-                <span>{{ formatIDR(pinjaman.nominal) }}</span>
-              </div>
-              <div class="flex justify-between w-full">
-                <span>Jumlah DP</span>
-                <span>{{ formatIDR(pinjaman.dp) }}</span>
-              </div>
-              <div class="flex justify-between w-full">
-                <span>Tenor</span>
-                <span>{{ pinjaman.tenor }} Bulan</span>
-              </div>
-              <div class="flex justify-between w-full">
-                <span>Biaya Perbulan</span>
-                <span>{{ formatIDR(pinjaman.nominal_skema) }}</span>
-              </div>
-              <div class="flex justify-between w-full">
-                <span>Sudah Bayar</span>
-                <span>{{ formatIDR(pinjaman.total_bayar) }}</span>
-              </div>
-              <div class="flex justify-between w-full">
-                <span>Status Peminjaman</span>
-                <span class="capitalize">
-                  {{ pinjaman.status_peminjaman.replace('_', ' ') }}
-                </span>
-              </div>
+              <table class="w-full">
+                <tbody>
+                  <tr>
+                    <td class="w-[50%]">Jumlah Peminjaman</td><td>:</td><td class="text-right space-y-2 text-sm py-1">{{ formatIDR(pinjaman.nominal) }}</td>
+                  </tr>
+                  <tr>
+                    <td >Jumlah DP</td><td>:</td><td class="text-right space-y-2 text-sm py-1">{{ formatIDR(pinjaman.dp) }}</td>
+                  </tr>
+                  <tr>
+                    <td >Tenor</td><td>:</td><td class="text-right space-y-2 text-sm py-1">{{ pinjaman.tenor }} Bulan</td>
+                  </tr>
+                  <tr>
+                    <td >Biaya Perbulan</td><td>:</td><td class="text-right space-y-2 text-sm py-1">{{ formatIDR(pinjaman.nominal_skema) }}</td>
+                  </tr>
+                  <tr>
+                    <td >Sudah Bayar</td><td>:</td><td class="text-right space-y-2 text-sm py-1">{{ formatIDR(pinjaman.total_bayar) }}</td>
+                  </tr>
+                  <tr>
+                    <td >Status Peminjaman</td><td>:</td><td class="text-right space-y-2 text-sm py-1"> {{ pinjaman.status_peminjaman.replace('_', ' ') }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </td>
 
             <!-- Detail Peminjaman (kosong / bisa diganti tabel nested) -->
@@ -120,19 +122,26 @@
               <table class="w-full border border-gray-200 text-xs">
                 <thead>
                   <tr class="bg-gray-100">
-                    <th colspan="4" class="px-2 py-1 text-center">Riwayat Pembayaran Pinjaman</th>
+                    <th colspan="4" class="px-2 py-2 text-center">RIWAYAT PEMBAYARAN PEMINJAMAN</th>
+                  </tr>
+                  <tr>
+                    <th class="w-[25%] px-2 py-2 border font-bold text-center">#Invoice</th>
+                    <th class="w-[40%] px-2 py-2 border font-bold text-center">Biaya</th>
+                    <th class="w-[20%] px-2 py-2 border font-bold text-center">Status</th>
+                    <th class="w-[15%] px-2 py-2 border font-bold text-center">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td class="px-2 py-1">Invoice</td>
-                    <td class="px-2 py-1">Biaya</td>
-                    <td class="px-2 py-1">Status</td>
-                    <td class="px-2 py-1">Action</td>
-                  </tr>
-                  <tr v-for="detail in pinjaman.details" :key="detail.id">
-                    <td class="px-2 py-1">{{ detail.tanggal }}</td>
-                    <td class="px-2 py-1">{{ formatIDR(detail.jumlah) }}</td>
+                  <template v-if="pinjaman.riwayat_pembayaran.length > 0">
+                    <tr v-for="detail in pinjaman.riwayat_pembayaran" :key="detail.id">
+                      <td class="px-2 py-1">{{ detail.invoice }}</td>
+                      <td class="px-2 py-1">{{ formatIDR(detail.jumlah) }}</td>
+                      <td class="px-2 py-1">{{ detail.status }}</td>
+                      <td class="px-2 py-1"></td>
+                    </tr>
+                  </template>
+                  <tr v-else>
+                    <td class="px-2 py-2 text-center" colspan="4">Riwayat pembayaran pinjaman tidak ditemukan</td>
                   </tr>
                 </tbody>
               </table>
@@ -141,7 +150,16 @@
             <!-- Tombol Aksi -->
             <td class="px-6 py-4 text-center align-top">
               <div class="flex justify-center gap-2">
-                <EditButton @click="" title="Edit Pengguna">
+                <EditButton @click="" title="Cetak Kwitansi Peminjaman">
+                  <EditIcon />
+                </EditButton>
+                <EditButton @click="" title="Pembayaran Cicilan">
+                  <EditIcon />
+                </EditButton>
+                <EditButton @click="" title="Edit Skema Cicilan">
+                  <EditIcon />
+                </EditButton>
+                <EditButton @click="" title="Hapus Peminjaman">
                   <EditIcon />
                 </EditButton>
               </div>

@@ -182,6 +182,7 @@ class Model_cud {
           tenor: body.tenor,
           dp,
           petugas,
+          status_peminjaman: 'belum_lunas',
           createdAt: now,
           updatedAt: now,
         },
