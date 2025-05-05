@@ -18,6 +18,41 @@ module.exports = {
         createdAt: new Date(), 
         updatedAt: new Date() 
       },
+      { 
+        company_id : 1, 
+        kode : 'MDN', 
+        name : 'Medan', 
+        createdAt: new Date(), 
+        updatedAt: new Date() 
+      },
+      { 
+        company_id : 1, 
+        kode : 'JKT', 
+        name : 'Jakarta', 
+        createdAt: new Date(), 
+        updatedAt: new Date() 
+      },
+      { 
+        company_id : 1, 
+        kode : 'MDH', 
+        name : 'Madinah', 
+        createdAt: new Date(), 
+        updatedAt: new Date() 
+      },
+      { 
+        company_id : 1, 
+        kode : 'JDH', 
+        name : 'Jeddah', 
+        createdAt: new Date(), 
+        updatedAt: new Date() 
+      },
+      { 
+        company_id : 1, 
+        kode : 'MKH', 
+        name : 'Mekkah', 
+        createdAt: new Date(), 
+        updatedAt: new Date() 
+      },
     ], {});
   },
 

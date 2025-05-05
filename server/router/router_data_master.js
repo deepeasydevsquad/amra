@@ -62,4 +62,52 @@ router.post(
   controller.getPengalamanHajiUmrah
 );
 
+router.post  (
+  "/get-kota",
+  authenticateToken,
+  controller.getKota
+);
+
+router.post(
+  "/get-airlines",
+  authenticateToken,
+  controller.getAirlines
+);
+
+router.post(
+  "/get-asuransi",
+  authenticateToken,
+  controller.getAsuransi
+);
+
+router.post(
+  "/get-hotel",
+  authenticateToken,
+  controller.getHotel
+);
+
+router.post(
+  "/get-bandara",
+  authenticateToken,
+  controller.getAirport
+);
+
+router.post(
+  "/get-tipe-paket",
+  authenticateToken,
+  controller.getPaketType
+);
+
+router.post(
+  "/get-fasilitas",
+  authenticateToken,
+  controller.getFacilities
+);
+
+router.post(
+  "/get-provider-visa",
+  authenticateToken,
+  controller.getProvider
+);
+
 module.exports = router;

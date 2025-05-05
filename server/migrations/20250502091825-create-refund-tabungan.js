@@ -2,25 +2,40 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Mst_kota', {
+    await queryInterface.createTable('Refund_tabungans', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      company_id: {
+      invoice: {
+        type: Sequelize.STRING
+      },
+      tabungan_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Companies",
+          model: "Tabungans",
           key: "id",
         },
       },
-      kode: {
+      nominal_ditahan: {
+        type: Sequelize.INTEGER
+      },
+      nominal_refund: {
+        type: Sequelize.INTEGER
+      },
+      petugas_refund: {
         type: Sequelize.STRING
       },
-      name: {
-        type: Sequelize.STRING
+      info: {
+        type: Sequelize.TEXT
+      },
+      saldo_tabungan_sebelum: {
+        type: Sequelize.INTEGER
+      },
+      saldo_tabungan_sesudah: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
@@ -33,6 +48,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Mst_kota');
+    await queryInterface.dropTable('Refund_tabungans');
   }
 };

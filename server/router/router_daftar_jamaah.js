@@ -17,10 +17,11 @@ router.post(
   controller.getJamaah
 );
 
+router.post("/download-daftar-jamaah", authenticateToken, controller.downloadJamaah);
+
 router.post(
   "/add-daftar-jamaah",
   upload.single("photo"), // ⬅️ HARUS duluan
-  // tambahJamaahValidator,
   authenticateToken,
   controller.addJamaah
 );

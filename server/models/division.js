@@ -38,12 +38,18 @@ module.exports = (sequelize, DataTypes) => {
       Division.hasMany(models.Jamaah, {
         foreignKey: "division_id",
       });
+      Division.belongsTo(models.Mst_kota, {
+        foreignKey: "kota_id",
+      });
+      Division.belongsTo(models.Tabungan, {
+        foreignKey: "tabungan_id",
+      });
     }
   }
   Division.init({
     company_id: DataTypes.INTEGER,
     name: DataTypes.STRING,
-    city: DataTypes.STRING,
+    kota_id: DataTypes.INTEGER, 
     pos_code: DataTypes.STRING,
     address: DataTypes.TEXT,
     note: DataTypes.TEXT,

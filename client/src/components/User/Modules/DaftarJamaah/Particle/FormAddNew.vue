@@ -661,8 +661,8 @@
           <!-- Section 10: Agen -->
           <div class="space-y-2">
             <label class="block text-sm font-medium text-gray-700">Agen*</label>
-            <select v-model="formData.agen_id" class="input" required>
-              <option value="">Pilih agen</option>
+            <select v-model="formData.agen_id" class="input" >
+              <option value="0">Pilih agen</option>
               <option v-for="agen in dataAgen" :key="agen.id" :value="agen.id">
                 {{ agen.Member.fullname }}
               </option>

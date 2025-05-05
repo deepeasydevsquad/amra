@@ -32,30 +32,4 @@ router.post(
   controllers.add
 );
 
-// router.post(
-//   "/pembayaran_paket_la/update",
-//   authenticateToken,
-//   [
-//     body("id").trim().notEmpty().withMessage("ID Paket LA tidak boleh kosong.").custom(validation.check_id_paket_la),
-//     body("client_name").trim().notEmpty().withMessage("Nama Kostumer tidak boleh kosong."),
-//     body("client_hp_number").trim().notEmpty().withMessage("Nomor HP Kostumer tidak boleh kosong."),
-//     body("client_address").trim().notEmpty().withMessage("Alamat Kostumer tidak boleh kosong."),
-//     // body("status").trim().notEmpty().withMessage("Status tidak boleh kosong."),
-//     body("discount").trim().notEmpty().withMessage("Diskon tidak boleh kosong."),
-//     body("total_jamaah").trim().notEmpty().withMessage("Total Jamaah tidak boleh kosong."),
-//     body("departure_date").trim().notEmpty().withMessage("Tanggal Kebertanggungan tidak boleh kosong."),
-//     body("arrival_date").trim().notEmpty().withMessage("Tanggal Kepulangan tidak boleh kosong."),
-//   ],
-//   controllers.update
-// );
-
-// router.post(
-//   "/pembayaran_paket_la/delete",
-//   authenticateToken,
-//   [
-//     body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").isInt().withMessage("ID Kota harus berupa angka.").custom(validation.check_id_paket_la),
-//   ],
-//   controllers.delete
-// );
-
 module.exports = router;

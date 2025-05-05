@@ -35,6 +35,9 @@ import DaftarAgen from '../../Modules/DaftarAgen/DaftarAgen.vue'
 import DepositSaldo from '../../Modules/DepositSaldo/DepositSaldo.vue'
 import DaftarJamaah from '../../Modules/DaftarJamaah/DaftarJamaah.vue'
 import DaftarPeminjaman from '../../Modules/DaftarPeminjaman/DaftarPeminjaman.vue'
+import Jurnal from '../../Modules/Jurnal/Jurnal.vue'
+import Investor from '../../Modules/Investor/Investor.vue'
+import DaftarPaket from '../../Modules/DaftarPaket/DaftarPaket.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -64,6 +67,9 @@ const tabComponents = {
   deposit_saldo: DepositSaldo,
   daftar_jamaah: DaftarJamaah,
   daftar_peminjaman: DaftarPeminjaman,
+  jurnal: Jurnal,
+  investor: Investor,
+  daftar_paket: DaftarPaket
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click

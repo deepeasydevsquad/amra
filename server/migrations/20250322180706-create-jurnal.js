@@ -42,6 +42,11 @@ module.exports = {
       periode_id: {
         type: Sequelize.INTEGER
       },
+      removable: {
+        type: Sequelize.ENUM,
+        values: ["true", "false"],
+        defaultValue : "true"
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

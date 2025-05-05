@@ -23,6 +23,9 @@ module.exports = (sequelize, DataTypes) => {
       Paket.hasMany(models.Paket_price, {
         foreignKey: "paket_id",
       });
+      Paket.hasMany(models.Tabungan, {
+        foreignKey: "target_paket_id",
+      });
     }
   }
   Paket.init({

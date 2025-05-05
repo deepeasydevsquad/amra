@@ -70,14 +70,17 @@ const arr_router = [
   "daftar_kostumer_paket_la",
   "daftar_paket_la",
   "fasilitas_paket_la",
+  "daftar_paket",
   "pengguna",
   "level_agen",
   "daftar_agen",
   "deposit_saldo",
   "pembayaran_paket_la",
+  "refund_paket_la",
   "daftar_jamaah",
   "data_master",
   "peminjaman",
+  "jurnal"
 ];
 
 const arr = {};

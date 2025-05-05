@@ -19,8 +19,12 @@ module.exports = {
       name: {
         type: Sequelize.STRING
       },
-      city: {
-        type: Sequelize.STRING
+      kota_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Mst_kota",
+          key: "id",
+        },
       },
       pos_code: {
         type: Sequelize.STRING

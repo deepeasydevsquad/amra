@@ -1,5 +1,5 @@
 <script lang="ts">
-import { getItemTransaksi, addPembayaranPaketLa } from '../../../../../service/pembayaran_paket_la';
+import { getItemTransaksi, addPembayaranPaketLa } from '@/service/pembayaran_paket_la';
 import { watch, ref, computed, onMounted } from 'vue';
 import Notification from '@/components/User/Modules/DaftarPaketLa/Particle/Notification.vue';
 import CetakIcon from '@/components/User/Modules/DaftarPaketLa/Icon/CetakIcon.vue';
@@ -17,6 +17,7 @@ interface ItemTransaksi {
 interface DataTransaksi {
   id: number;
   total_price: number;
+  total_paid: number;
   item_transaksi: ItemTransaksi[];
 }
 
@@ -87,7 +88,7 @@ export default {
     });
 
     const totalPaid = computed(() => {
-      return transaksi.value?.item_transaksi.reduce((acc, item) => acc + item.paid, 0) || 0;
+      return transaksi.value?.total_paid || 0;
     });
 
     const formatPrice = (value: number | string): string => {
@@ -128,20 +129,20 @@ export default {
     };
 
     const cetakKwitansiTerakhir = async () => {
-        try {
+      try {
 
-          if (!props.registerNumber) {
-            displayNotification('Nomor register tidak tersedia', 'error')
-            return
-          }
-
-          const url = `/kwitansi-terakhir/${props.registerNumber}`
-          window.open(url, '_blank', 'noopener,noreferrer,width=800,height=600,scrollbars=yes')
-        } catch (error) {
-          console.error('Error printing register number:', error)
-          displayNotification('Terjadi kesalahan saat membuka register number.', 'error')
+        if (!props.registerNumber) {
+          displayNotification('Nomor register tidak tersedia', 'error')
+          return
         }
+
+        const url = `/kwitansi-terakhir/${props.registerNumber}`
+        window.open(url, '_blank', 'noopener,noreferrer,width=800,height=600,scrollbars=yes')
+      } catch (error) {
+        console.error('Error printing register number:', error)
+        displayNotification('Terjadi kesalahan saat membuka register number.', 'error')
       }
+    }
 
     const fetchData = async () => {
       console.groupCollapsed(`Fetching data for paketlaId ${props.paketlaId}`);
@@ -218,7 +219,7 @@ export default {
                   <tr v-if="transaksi?.item_transaksi.length > 0" v-for="(item, index) in transaksi?.item_transaksi" :key="index" class="text-center">
                     <td class="p-2 border">{{ item.invoice }}</td>
                     <td class="p-2 border">Rp {{ item.paid.toLocaleString() }}</td>
-                    <td class="p-2 border">{{ item.status }}</td>
+                    <td class="p-2 border capitalize">{{ item.status }}</td>
                     <td class="p-2 border">{{ item.date }}</td>
                     <td class="p-2 border">{{ item.receiver }}</td>
                     <td class="p-2 border">

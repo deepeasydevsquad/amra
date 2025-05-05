@@ -54,7 +54,7 @@ onMounted(() => {
         </div>
         <div class="border rounded-md p-3 min-h-[60px]">
           <p class="text-xs font-semibold text-gray-600">Status</p>
-          <p class="text-base font-medium">{{ kwitansiData?.Transaksi[0].status || '-' }}</p>
+          <p class="text-base font-medium uppercase">{{ kwitansiData?.Transaksi[0].status || '-' }}</p>
         </div>
         <div class="border rounded-md p-3 min-h-[60px]">
           <p class="text-xs font-semibold text-gray-600">Info Client</p>
@@ -71,7 +71,7 @@ onMounted(() => {
             <tr>
               <th class="w-[20%] border p-2">Tanggal Transaksi</th>
               <th class="w-[15%] border p-2">Nomor Invoice</th>
-              <th class="w-[15%] border p-2">Status</th>
+              <th class="w-[15%] border p-2 capitalize">Status</th>
               <th class="w-[30%] border p-2">Penerima</th>
               <th class="w-[20%] border p-2">Biaya</th>
             </tr>

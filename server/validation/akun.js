@@ -69,9 +69,18 @@ validation.check_id_akun_secondary = async ( value,  { req } ) => {
 
 validation.check_id_akun_secondary_bawaan = async ( value,  { req } ) => {
     const company_id = await getCompanyIdByCode(req); 
-    var check = await Akun_secondary.findOne({where: { id : value, company_id : company_id,  tipe_akun : 'bawaan' }});
+    var check = await Akun_secondary.findOne({where: { id : value, company_id : company_id }});
     if (!check) {
         throw new Error("ID Akun Secondary ini tidak terdaftar dipangkalan data");
+    }
+    return true;
+}
+
+validation.check_id_cabang = async ( value,  { req } ) => {
+    const company_id = await getCompanyIdByCode(req); 
+    var check = await Division.findOne({where: { id : value, company_id : company_id }});
+    if (!check) {
+        throw new Error("ID Cabang ini tidak terdaftar dipangkalan data");
     }
     return true;
 }

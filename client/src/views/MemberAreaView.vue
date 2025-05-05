@@ -24,7 +24,7 @@ function setSelected(tab) {
         	<h1>Put Profile Content Here</h1>
         </Tab>
   	</TabNav>
-  	
+
   </div>
 
 </template>

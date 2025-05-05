@@ -12,12 +12,14 @@
   interface dataEditSaldo {
     id: number;
     saldo: string;
+    cabang: number;
   }
 
   interface Props {
     showStatus: boolean;
     selectedAkun?: number,
     data: Partial<dataEditSaldo>;
+    cabang: number;
   }
 
   const props = defineProps<Props>();
@@ -34,7 +36,8 @@
   });
   const dataEditSaldos = ref<Partial<dataEditSaldo>>({
     id : 0,
-    saldo : ''
+    saldo : '',
+    cabang : 0
   });
 
   const validateFormAddAkun = async (): Promise<boolean> => {
@@ -52,6 +55,7 @@
     const isEdit = !!props.selectedAkun;
     const action = async () => {
       try {
+        dataEditSaldos.value.cabang = props.cabang;
         const response = await updateSaldo(dataEditSaldos.value);
         dataEditSaldos.value = {};
         showConfirmDialog.value = false;
