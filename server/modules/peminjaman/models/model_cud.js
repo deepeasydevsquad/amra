@@ -182,7 +182,7 @@ class Model_cud {
           tenor: body.tenor,
           dp,
           petugas,
-          status_peminjaman: 'belum_lunas',
+          status_peminjaman: "belum_lunas",
           createdAt: now,
           updatedAt: now,
         },
@@ -246,6 +246,104 @@ class Model_cud {
       this.state = false;
       this.message = "Gagal membuat peminjaman: " + err.message;
       console.error(err);
+    }
+  }
+
+  async updateSkema() {
+    await this.initialize(); // bikin this.t
+
+    const { peminjaman_id, updatedSkema } = this.req.body;
+
+    if (!Array.isArray(updatedSkema) || updatedSkema.length === 0) {
+      this.state = false;
+      this.message = "Data skema kosong atau tidak valid.";
+      return;
+    }
+
+    // Validasi nominal
+    for (const updated of updatedSkema) {
+      if (updated.nominal <= 0) {
+        this.state = false;
+        this.message = "Nominal tidak boleh kurang dari atau sama dengan 0.";
+        return;
+      }
+    }
+
+    try {
+      const peminjaman = await Peminjaman.findByPk(peminjaman_id, {
+        transaction: this.t,
+      });
+
+      if (!peminjaman) {
+        this.state = false;
+        this.message = "Data peminjaman tidak ditemukan.";
+        return;
+      }
+
+      // Update skema
+      await Promise.all(
+        updatedSkema.map((updated) =>
+          Skema_peminjaman.update(
+            { term: updated.term, nominal: updated.nominal },
+            { where: { id: updated.id }, transaction: this.t }
+          )
+        )
+      );
+
+      // Ambil data terbaru setelah update
+      const updatedData = await Skema_peminjaman.findAll({
+        where: { peminjaman_id },
+        order: [["term", "ASC"]],
+        transaction: this.t,
+      });
+
+      const totalNominal = updatedData.reduce(
+        (sum, item) => sum + item.nominal,
+        0
+      );
+
+      // Jika total nominal lebih besar atau lebih kecil dari nominal peminjaman
+      const selisih = peminjaman.nominal - totalNominal;
+
+      if (selisih !== 0) {
+        const lastTerm = updatedData[updatedData.length - 1];
+
+        // Jika total nominal lebih besar (kurangi nominal pada pembayaran terakhir)
+        if (selisih < 0) {
+          const newNominal = lastTerm.nominal + selisih;
+          if (newNominal < 0) {
+            this.state = false;
+            this.message = "Nominal tidak valid, periksa pembaruan skema.";
+            return;
+          }
+
+          await Skema_peminjaman.update(
+            { nominal: newNominal },
+            { where: { id: lastTerm.id }, transaction: this.t }
+          );
+        }
+
+        // Jika total nominal lebih kecil (tambah nominal pada pembayaran terakhir)
+        if (selisih > 0) {
+          const newNominal = lastTerm.nominal + selisih;
+          if (newNominal < 0) {
+            this.state = false;
+            this.message = "Nominal tidak valid, periksa pembaruan skema.";
+            return;
+          }
+
+          await Skema_peminjaman.update(
+            { nominal: newNominal },
+            { where: { id: lastTerm.id }, transaction: this.t }
+          );
+        }
+      }
+
+      this.message = "Skema berhasil diperbarui";
+    } catch (err) {
+      this.state = false;
+      this.message = "Gagal memperbarui skema: " + err.message;
+      console.error("updateSkema Error:", err);
     }
   }
 

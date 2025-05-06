@@ -39,8 +39,12 @@
           <tr>
             <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">No. Register</th>
             <th class="w-[22%] px-6 py-4 font-bold text-gray-900 text-center w-64">Info Jamaah</th>
-            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center w-64">Info Pinjaman</th>
-            <th class="w-[30%] px-6 py-4 font-bold text-gray-900 text-center w-[320px]">Detail Peminjaman</th>
+            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center w-64">
+              Info Pinjaman
+            </th>
+            <th class="w-[30%] px-6 py-4 font-bold text-gray-900 text-center w-[320px]">
+              Detail Peminjaman
+            </th>
             <th class="w-[13%] px-6 py-4 font-bold text-gray-900 text-center w-28">Aksi</th>
           </tr>
         </thead>
@@ -82,9 +86,11 @@
                     <td class="text-right space-y-2 text-sm py-1">{{ pinjaman.nama_jamaah }}</td>
                   </tr>
                   <tr>
-                    <td >Nomor Identitas</td>
+                    <td>Nomor Identitas</td>
                     <td>:</td>
-                    <td class="text-right space-y-2 text-sm py-1">{{ pinjaman.identity_number }}</td>
+                    <td class="text-right space-y-2 text-sm py-1">
+                      {{ pinjaman.identity_number }}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -95,22 +101,42 @@
               <table class="w-full">
                 <tbody>
                   <tr>
-                    <td class="w-[50%]">Jumlah Peminjaman</td><td>:</td><td class="text-right space-y-2 text-sm py-1">{{ formatIDR(pinjaman.nominal) }}</td>
+                    <td class="w-[50%]">Jumlah Peminjaman</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">
+                      {{ formatIDR(pinjaman.nominal) }}
+                    </td>
                   </tr>
                   <tr>
-                    <td >Jumlah DP</td><td>:</td><td class="text-right space-y-2 text-sm py-1">{{ formatIDR(pinjaman.dp) }}</td>
+                    <td>Jumlah DP</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">{{ formatIDR(pinjaman.dp) }}</td>
                   </tr>
                   <tr>
-                    <td >Tenor</td><td>:</td><td class="text-right space-y-2 text-sm py-1">{{ pinjaman.tenor }} Bulan</td>
+                    <td>Tenor</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">{{ pinjaman.tenor }} Bulan</td>
                   </tr>
                   <tr>
-                    <td >Biaya Perbulan</td><td>:</td><td class="text-right space-y-2 text-sm py-1">{{ formatIDR(pinjaman.nominal_skema) }}</td>
+                    <td>Biaya Perbulan</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">
+                      {{ formatIDR(pinjaman.nominal_skema) }}
+                    </td>
                   </tr>
                   <tr>
-                    <td >Sudah Bayar</td><td>:</td><td class="text-right space-y-2 text-sm py-1">{{ formatIDR(pinjaman.total_bayar) }}</td>
+                    <td>Sudah Bayar</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">
+                      {{ formatIDR(pinjaman.total_bayar) }}
+                    </td>
                   </tr>
                   <tr>
-                    <td >Status Peminjaman</td><td>:</td><td class="text-right space-y-2 text-sm py-1"> {{ pinjaman.status_peminjaman.replace('_', ' ') }}</td>
+                    <td>Status Peminjaman</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">
+                      {{ pinjaman.status_peminjaman.replace('_', ' ') }}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -141,27 +167,33 @@
                     </tr>
                   </template>
                   <tr v-else>
-                    <td class="px-2 py-2 text-center" colspan="4">Riwayat pembayaran pinjaman tidak ditemukan</td>
+                    <td class="px-2 py-2 text-center" colspan="4">
+                      Riwayat pembayaran pinjaman tidak ditemukan
+                    </td>
                   </tr>
                 </tbody>
               </table>
             </td>
 
             <!-- Tombol Aksi -->
-            <td class="px-6 py-4 text-center align-top">
-              <div class="flex justify-center gap-2">
-                <EditButton @click="" title="Cetak Kwitansi Peminjaman">
-                  <EditIcon />
+            <td class="px-2 py-2 text-center align-top">
+              <div class="flex flex-wrap justify-center gap-1 max-w-[64px] mx-auto">
+                <CetakButton @click="" title="Cetak Kwitansi Peminjaman" class="p-1 w-6 h-6">
+                  <CetakIcon class="w-4 h-4" />
+                </CetakButton>
+                <BayarButton @click="" title="Pembayaran Cicilan" class="p-1 w-6 h-6">
+                  <BayarIcon class="w-4 h-4" />
+                </BayarButton>
+                <EditButton
+                  @click="handleModalUpdate(pinjaman.id)"
+                  title="Edit Skema Cicilan"
+                  class="p-1 w-6 h-6"
+                >
+                  <EditIcon class="w-4 h-4" />
                 </EditButton>
-                <EditButton @click="" title="Pembayaran Cicilan">
-                  <EditIcon />
-                </EditButton>
-                <EditButton @click="" title="Edit Skema Cicilan">
-                  <EditIcon />
-                </EditButton>
-                <EditButton @click="" title="Hapus Peminjaman">
-                  <EditIcon />
-                </EditButton>
+                <DangerButton @click="" title="Hapus Peminjaman" class="p-1 w-6 h-6">
+                  <DeleteIcon class="w-4 h-4" />
+                </DangerButton>
               </div>
             </td>
           </tr>
@@ -253,6 +285,13 @@
     :notificationMessage="notificationMessage"
     @close="showNotification = false"
   />
+
+  <FormUpdateSkema
+    v-if="showFormUpdateModal"
+    @close="showFormUpdateModal = false"
+    :peminjamanId="peminjamanId"
+    @update="handleUpdate"
+  />
 </template>
 
 <script setup lang="ts">
@@ -260,16 +299,40 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { daftarPinjaman } from '@/service/daftar_pinjaman'
 import DeleteIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/EditIcon.vue'
-
+import CetakIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/CetakIcon.vue'
+import CetakButton from '@/components/User/Modules/DaftarPeminjaman/Particle/CetakButton.vue'
+import BayarIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/BayarIcon.vue'
+import BayarButton from '@/components/User/Modules/DaftarPeminjaman/Particle/BayarButton.vue'
 // Import komponen lainnya
 import DangerButton from '@/components/User/Modules/DaftarPeminjaman/Particle/DangerButton.vue'
 import EditButton from '@/components/User/Modules/DaftarPeminjaman/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/DaftarPeminjaman/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/DaftarPeminjaman/Particle/Confirmation.vue'
 import FormAddPeminjaman from '@/components/User/Modules/DaftarPeminjaman/Particle/FormAddPeminjaman.vue'
+import FormUpdateSkema from '@/components/User/Modules/DaftarPeminjaman/Particle/FormUpdateSkema.vue'
+
+// Interface untuk Type Safety
+interface Pinjaman {
+  id: number
+  register_number: string
+  nama_jamaah: string
+  identity_number: string
+  nominal: number
+  dp: number
+  tenor: number
+  nominal_skema: number
+  total_bayar: number
+  status_peminjaman: string
+  riwayat_pembayaran: Array<{
+    id: number
+    invoice: string
+    jumlah: number
+    status: string
+  }>
+}
 
 // Data State
-const pinjamans = ref([])
+const pinjamans = ref<Pinjaman[]>([])
 const searchQuery = ref('')
 const currentPage = ref(1)
 const totalPages = ref(1)
@@ -277,14 +340,12 @@ const totalItems = ref(0)
 const itemsPerPage = ref(10)
 const maxVisiblePages = 5
 const isLoading = ref(false)
+const peminjamanId = ref(0)
 
+// Modal State
 const modalTambahPinjaman = ref(false)
-const isModalOpen = ref(false)
-const penggunaToUpdate = ref(null)
 const showDeleteConfirmDialog = ref(false)
-const userIdToDelete = ref<number | null>(null)
-const showFormAddModal = ref(false)
-const showAddPenggunaModal = ref(false)
+const showFormUpdateModal = ref(false)
 
 // Notifikasi State
 const showNotification = ref(false)
@@ -293,24 +354,32 @@ const notificationType = ref<'success' | 'error'>('success')
 const timeoutId = ref<number | null>(null)
 const searchTimeout = ref<number | null>(null)
 
+const handleModalUpdate = (id: number) => {
+  peminjamanId.value = id // Set dulu id-nya
+  showFormUpdateModal.value = true // Baru buka modal
+  console.log(peminjamanId.value)
+}
+
+const handleUpdate = async () => {
+  showFormUpdateModal.value = false
+  displayNotification('Peminjaman berhasil diupdate', 'success')
+}
+
 // Computed Properties
 const visiblePages = computed(() => {
   const pages = []
   const halfVisible = Math.floor(maxVisiblePages / 2)
 
-  let startPage = currentPage.value - halfVisible
-  let endPage = currentPage.value + halfVisible
+  let startPage = Math.max(1, currentPage.value - halfVisible)
+  let endPage = Math.min(totalPages.value, currentPage.value + halfVisible)
 
-  // Adjust jika hampir di awal
-  if (startPage < 1) {
-    startPage = 1
-    endPage = Math.min(maxVisiblePages, totalPages.value)
-  }
-
-  // Adjust jika hampir di akhir
-  if (endPage > totalPages.value) {
-    endPage = totalPages.value
-    startPage = Math.max(1, endPage - maxVisiblePages + 1)
+  // Adjust jika visible pages kurang dari maxVisiblePages
+  if (endPage - startPage + 1 < maxVisiblePages) {
+    if (currentPage.value < totalPages.value / 2) {
+      endPage = Math.min(totalPages.value, startPage + maxVisiblePages - 1)
+    } else {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1)
+    }
   }
 
   for (let i = startPage; i <= endPage; i++) {
@@ -319,30 +388,19 @@ const visiblePages = computed(() => {
   return pages
 })
 
+// Format Currency
 const formatIDR = (nominal: number) => {
-  return nominal.toLocaleString('id-ID', {
+  return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
-  })
+    minimumFractionDigits: 0,
+  }).format(nominal)
 }
-
-// Lifecycle Hook
-onMounted(() => {
-  fetchPinjaman()
-})
-
-onUnmounted(() => {
-  if (timeoutId.value) {
-    clearTimeout(timeoutId.value)
-  }
-  if (searchTimeout.value) {
-    clearTimeout(searchTimeout.value)
-  }
-})
 
 // Fetch Data Peminjaman
 const fetchPinjaman = async () => {
   isLoading.value = true
+  pinjamans.value = []
 
   try {
     const response = await daftarPinjaman({
@@ -350,44 +408,46 @@ const fetchPinjaman = async () => {
       perpage: itemsPerPage.value,
       pageNumber: currentPage.value,
     })
-    totalPages.value = Math.ceil(response.total / itemsPerPage.value)
-    pinjamans.value = response.data
+
+    // Debugging response
+    console.log('API Response:', response)
+
+    // Handle berbagai kemungkinan struktur response
+    if (response && (response.data || response)) {
+      const data = response.data || response
+      pinjamans.value = Array.isArray(data) ? data : data.data || []
+      totalItems.value = data.total || data.length || 0
+      totalPages.value = Math.ceil(totalItems.value / itemsPerPage.value) || 1
+    } else {
+      throw new Error('Format response tidak valid')
+    }
   } catch (error) {
     console.error('Error fetching pinjaman:', error)
-    showNotification.value = true
-    notificationMessage.value = 'Gagal memuat data pinjaman'
-    notificationType.value = 'error'
+    displayNotification('Gagal memuat data pinjaman: ' + (error as Error).message, 'error')
+    pinjamans.value = []
+    totalPages.value = 1
+    totalItems.value = 0
   } finally {
     isLoading.value = false
   }
 }
 
+// Notifikasi
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message
   notificationType.value = type
   showNotification.value = true
 
-  if (timeoutId.value) clearTimeout(timeoutId.value)
+  if (timeoutId.value) {
+    clearTimeout(timeoutId.value)
+  }
 
   timeoutId.value = window.setTimeout(() => {
     showNotification.value = false
   }, 3000)
 }
 
-const showConfirmDialog = ref<boolean>(false)
-
-const confirmMessage = ref<string>('')
-const confirmTitle = ref<string>('')
-const confirmAction = ref<(() => void) | null>(null)
-
-const showConfirmation = (title: string, message: string, action: () => void) => {
-  confirmTitle.value = title
-  confirmMessage.value = message
-  confirmAction.value = action
-  showConfirmDialog.value = true
-}
-
-// Handle Search
+// Handle Search dengan debounce
 const handleSearch = () => {
   currentPage.value = 1
   if (searchTimeout.value) {
@@ -399,7 +459,7 @@ const handleSearch = () => {
   }, 500)
 }
 
-// Handle Pagination
+// Pagination
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--
@@ -415,23 +475,38 @@ const nextPage = () => {
 }
 
 const goToPage = (page: number) => {
-  currentPage.value = page
-  fetchPinjaman()
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+    fetchPinjaman()
+  }
 }
 
-// Menampilkan Modal Tambah Peminjaman
+// Modal
 const bukaModalPeminjaman = () => {
   modalTambahPinjaman.value = true
 }
 
-// Menutup Modal Tambah Peminjaman
 const handleAddPinjaman = () => {
   modalTambahPinjaman.value = false
   displayNotification('Peminjaman berhasil ditambahkan', 'success')
   fetchPinjaman()
 }
+
+// Lifecycle Hooks
+onMounted(() => {
+  fetchPinjaman()
+})
+
+onUnmounted(() => {
+  if (timeoutId.value) {
+    clearTimeout(timeoutId.value)
+  }
+  if (searchTimeout.value) {
+    clearTimeout(searchTimeout.value)
+  }
+})
 </script>
 
 <style scoped>
-/* Anda dapat menambahkan gaya CSS khusus untuk komponen ini di sini */
+/* Style tetap sama */
 </style>

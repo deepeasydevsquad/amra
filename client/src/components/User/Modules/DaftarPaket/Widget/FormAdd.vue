@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import Notification from '@/components/User/Modules/DaftarPaket/Particle/Notification.vue';
-import Confirmation from '@/components/User/Modules/DaftarPaket/Particle/Confirmation.vue';
-import SearchableSelect from '@/components/User/Modules/DaftarPaket/Particle/SearchableSelect.vue';
-import SearchableCheckboxList from '@/components/User/Modules/DaftarPaket/Particle/SearchableCheckboxList.vue';
+import Notification from '@/components/User/Modules/DaftarPaket/Particle/Notification.vue'
+import Confirmation from '@/components/User/Modules/DaftarPaket/Particle/Confirmation.vue'
+import SearchableSelect from '@/components/User/Modules/DaftarPaket/Particle/SearchableSelect.vue'
+import SearchableCheckboxList from '@/components/User/Modules/DaftarPaket/Particle/SearchableCheckboxList.vue'
 
-import { onMounted, reactive, ref } from 'vue';
-import { addPaket } from '@/service/daftar_Paket'
+import { onMounted, reactive, ref } from 'vue'
+import { addPaket } from '@/service/daftar_paket'
 import {
   daftarKota,
   daftarAirlines,
@@ -15,7 +15,7 @@ import {
   daftarTipePaket,
   daftarFasilitas,
   daftarProviderVisa,
-} from '@/service/data_master';
+} from '@/service/data_master'
 
 const props = defineProps<{
   isFormOpen: boolean
@@ -26,87 +26,87 @@ const emit = defineEmits<{
 }>()
 
 interface ErrorFields {
-  name: string;
-  photo: string;
-  jenis_kegiatan: string;
-  description: string;
-  departure_date: string;
-  return_date: string;
-  departure_from: string;
-  duration_trip: string;
-  mahram_fee: string;
-  quota_jamaah: string;
-  city_visited: string;
-  airlines: string;
-  hotel: string;
-  facilities: string;
-  show_homepage: string ;
-  airport_destination: string;
-  airport_departure: string;
-  departure_time: string;
-  arrival_time: string;
-  provider_visa_id: string;
-  asuransi_id: string;
-  no_polis: string;
-  tgl_input_polis: string;
-  tgl_awal_polis: string;
-  tgl_akhir_polis: string;
-  paket_types: string;
+  name: string
+  photo: string
+  jenis_kegiatan: string
+  description: string
+  departure_date: string
+  return_date: string
+  departure_from: string
+  duration_trip: string
+  mahram_fee: string
+  quota_jamaah: string
+  city_visited: string
+  airlines: string
+  hotel: string
+  facilities: string
+  show_homepage: string
+  airport_destination: string
+  airport_departure: string
+  departure_time: string
+  arrival_time: string
+  provider_visa_id: string
+  asuransi_id: string
+  no_polis: string
+  tgl_input_polis: string
+  tgl_awal_polis: string
+  tgl_akhir_polis: string
+  paket_types: string
 }
 
 interface Kota {
-  id: number;
-  kode: string;
-  name: string;
+  id: number
+  kode: string
+  name: string
 }
 interface Airlines {
-  id: number;
-  name: string;
+  id: number
+  name: string
 }
 interface Asuransi {
-  id: number;
-  name: string;
+  id: number
+  name: string
 }
 interface Hotel {
-  id: number;
-  name: string;
+  id: number
+  name: string
 }
 interface Bandara {
-  id: number;
-  name: string;
+  id: number
+  name: string
 }
 interface TipePaket {
-  id: number;
-  name: string;
+  id: number
+  name: string
 }
 interface Fasilitas {
-  id: number;
-  name: string;
+  id: number
+  name: string
 }
 interface ProviderVisa {
-  id: number;
-  name: string;
+  id: number
+  name: string
 }
 
 // Data from API
-const kotaList = ref<Kota[]>([]);
-const airlinesList = ref<Airlines[]>([]);
-const asuransiList = ref<Asuransi[]>([]);
-const hotelList = ref<Hotel[]>([]);
-const bandaraList = ref<Bandara[]>([]);
-const tipePaketList = ref<TipePaket[]>([]);
-const fasilitasList = ref<Fasilitas[]>([]);
-const providerVisaList = ref<ProviderVisa[]>([]);
+const kotaList = ref<Kota[]>([])
+const airlinesList = ref<Airlines[]>([])
+const asuransiList = ref<Asuransi[]>([])
+const hotelList = ref<Hotel[]>([])
+const bandaraList = ref<Bandara[]>([])
+const tipePaketList = ref<TipePaket[]>([])
+const fasilitasList = ref<Fasilitas[]>([])
+const providerVisaList = ref<ProviderVisa[]>([])
 
 // notification, confirmation, error
-const showConfirmDialog = ref(false);
-const confirmMessage = ref('');
-const confirmTitle = ref('');
-const confirmAction = ref<(() => void) | null>(null);
-const showNotification = ref(false);
-const notificationMessage = ref('');
-const notificationType = ref('');
-const timeoutId = ref<number | null>(null);
+const showConfirmDialog = ref(false)
+const confirmMessage = ref('')
+const confirmTitle = ref('')
+const confirmAction = ref<(() => void) | null>(null)
+const showNotification = ref(false)
+const notificationMessage = ref('')
+const notificationType = ref('')
+const timeoutId = ref<number | null>(null)
 const errors = ref<ErrorFields>({
   name: '',
   photo: '',
@@ -133,8 +133,8 @@ const errors = ref<ErrorFields>({
   tgl_input_polis: '',
   tgl_awal_polis: '',
   tgl_akhir_polis: '',
-  paket_types: ''
-});
+  paket_types: '',
+})
 
 // Form reactive
 const form = reactive({
@@ -164,92 +164,84 @@ const form = reactive({
   no_polis: '',
   tgl_input_polis: '',
   tgl_awal_polis: '',
-  tgl_akhir_polis: ''
+  tgl_akhir_polis: '',
 })
 
 // Notification function
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
-  notificationMessage.value = message;
-  notificationType.value = type;
-  showNotification.value = true;
+  notificationMessage.value = message
+  notificationType.value = type
+  showNotification.value = true
 
-  if (timeoutId.value) clearTimeout(timeoutId.value);
+  if (timeoutId.value) clearTimeout(timeoutId.value)
 
   timeoutId.value = window.setTimeout(() => {
-    showNotification.value = false;
-  }, 3000);
-};
+    showNotification.value = false
+  }, 3000)
+}
 
 // Handle file upload
 const handleFileUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
 
   if (file) {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-    const maxSize = 600 * 1024; // 600KB
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg']
+    const maxSize = 600 * 1024 // 600KB
 
     if (!allowedTypes.includes(file.type)) {
-      displayNotification('Format file tidak didukung. Hanya file .jpg, .jpeg, .png.', 'error');
-      target.value = '';
-      form.photo = null;
-      return;
+      displayNotification('Format file tidak didukung. Hanya file .jpg, .jpeg, .png.', 'error')
+      target.value = ''
+      form.photo = null
+      return
     }
 
     if (file.size > maxSize) {
-      displayNotification('Ukuran file melebihi 600KB.', 'error');
-      target.value = '';
-      form.photo = null;
-      return;
+      displayNotification('Ukuran file melebihi 600KB.', 'error')
+      target.value = ''
+      form.photo = null
+      return
     }
 
-    form.photo = file;
+    form.photo = file
   }
 }
 
 const fetchData = async () => {
-  const [
-    kota,
-    airlines,
-    asuransi,
-    hotel,
-    bandara,
-    tipePaket,
-    fasilitas,
-    providerVisa,
-  ] = await Promise.all([
-    daftarKota(),
-    daftarAirlines(),
-    daftarAsuransi(),
-    daftarHotel(),
-    daftarBandara(),
-    daftarTipePaket(),
-    daftarFasilitas(),
-    daftarProviderVisa(),
-  ]);
+  const [kota, airlines, asuransi, hotel, bandara, tipePaket, fasilitas, providerVisa] =
+    await Promise.all([
+      daftarKota(),
+      daftarAirlines(),
+      daftarAsuransi(),
+      daftarHotel(),
+      daftarBandara(),
+      daftarTipePaket(),
+      daftarFasilitas(),
+      daftarProviderVisa(),
+    ])
 
-  kotaList.value = kota.data;
-  airlinesList.value = airlines.data;
-  asuransiList.value = asuransi.data;
-  hotelList.value = hotel.data;
-  bandaraList.value = bandara.data;
-  tipePaketList.value = tipePaket.data;
-  fasilitasList.value = fasilitas.data;
-  providerVisaList.value = providerVisa.data;
+  kotaList.value = kota.data
+  airlinesList.value = airlines.data
+  asuransiList.value = asuransi.data
+  hotelList.value = hotel.data
+  bandaraList.value = bandara.data
+  tipePaketList.value = tipePaket.data
+  fasilitasList.value = fasilitas.data
+  providerVisaList.value = providerVisa.data
 
-  console.log('Kota List:', kotaList.value);
-  console.log('Airlines List:', airlinesList.value);
-  console.log('Asuransi List:', asuransiList.value);
-  console.log('Hotel List:', hotelList.value);
-  console.log('Bandara List:', bandaraList.value);
-  console.log('Tipe Paket List:', tipePaketList.value);
-  console.log('Fasilitas List:', fasilitasList.value);
-  console.log('Provider Visa List:', providerVisaList.value);
+  console.log('Kota List:', kotaList.value)
+  console.log('Airlines List:', airlinesList.value)
+  console.log('Asuransi List:', asuransiList.value)
+  console.log('Hotel List:', hotelList.value)
+  console.log('Bandara List:', bandaraList.value)
+  console.log('Tipe Paket List:', tipePaketList.value)
+  console.log('Fasilitas List:', fasilitasList.value)
+  console.log('Provider Visa List:', providerVisaList.value)
 }
 
 onMounted(() => {
-  fetchData();
-});
+  fetchData()
+})
 
 const validateForm = (): boolean => {
   errors.value = {
@@ -278,220 +270,221 @@ const validateForm = (): boolean => {
     tgl_input_polis: '',
     tgl_awal_polis: '',
     tgl_akhir_polis: '',
-    paket_types: ''
-  };
-  let isValid = true;
+    paket_types: '',
+  }
+  let isValid = true
 
   if (!form.name) {
-    errors.value.name = 'Nama paket tidak boleh kosong.';
-    isValid = false;
+    errors.value.name = 'Nama paket tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.photo) {
-    errors.value.photo = 'Foto tidak boleh kosong.';
-    isValid = false;
+    errors.value.photo = 'Foto tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.jenis_kegiatan) {
-    errors.value.jenis_kegiatan = 'Jenis kegiatan tidak boleh kosong.';
-    isValid = false;
+    errors.value.jenis_kegiatan = 'Jenis kegiatan tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.description) {
-    errors.value.description = 'Deskripsi paket tidak boleh kosong.';
-    isValid = false;
+    errors.value.description = 'Deskripsi paket tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.departure_date) {
-    errors.value.departure_date = 'Tanggal keberangkatan tidak boleh kosong.';
-    isValid = false;
+    errors.value.departure_date = 'Tanggal keberangkatan tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.return_date) {
-    errors.value.return_date = 'Tanggal kembali tidak boleh kosong.';
-    isValid = false;
+    errors.value.return_date = 'Tanggal kembali tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.departure_from) {
-    errors.value.departure_from = 'Kota keberangkatan tidak boleh kosong.';
-    isValid = false;
+    errors.value.departure_from = 'Kota keberangkatan tidak boleh kosong.'
+    isValid = false
   }
 
-
   if (!form.mahram_fee) {
-    errors.value.mahram_fee = 'Biaya mahram tidak boleh kosong.';
-    isValid = false;
+    errors.value.mahram_fee = 'Biaya mahram tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.quota_jamaah) {
-    errors.value.quota_jamaah = 'Kuota jamaah tidak boleh kosong.';
-    isValid = false;
+    errors.value.quota_jamaah = 'Kuota jamaah tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.city_visited || !form.city_visited.length) {
-    errors.value.city_visited = 'Kota yang dikunjungi tidak boleh kosong.';
-    isValid = false;
+    errors.value.city_visited = 'Kota yang dikunjungi tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.airlines || !form.airlines.length) {
-    errors.value.airlines = 'Maskapai tidak boleh kosong.';
-    isValid = false;
+    errors.value.airlines = 'Maskapai tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.hotel || !form.hotel.length) {
-    errors.value.hotel = 'Hotel tidak boleh kosong.';
-    isValid = false;
+    errors.value.hotel = 'Hotel tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.facilities || !form.facilities.length) {
-    errors.value.facilities = 'Fasilitas tidak boleh kosong.';
-    isValid = false;
+    errors.value.facilities = 'Fasilitas tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.airport_destination) {
-    errors.value.airport_destination = 'Bandara tujuan tidak boleh kosong.';
-    isValid = false;
+    errors.value.airport_destination = 'Bandara tujuan tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.airport_departure) {
-    errors.value.airport_departure = 'Bandara keberangkatan tidak boleh kosong.';
-    isValid = false;
+    errors.value.airport_departure = 'Bandara keberangkatan tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.departure_time) {
-    errors.value.departure_time = 'Waktu keberangkatan tidak boleh kosong.';
-    isValid = false;
+    errors.value.departure_time = 'Waktu keberangkatan tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.arrival_time) {
-    errors.value.arrival_time = 'Waktu kedatangan tidak boleh kosong.';
-    isValid = false;
+    errors.value.arrival_time = 'Waktu kedatangan tidak boleh kosong.'
+    isValid = false
   }
 
-
   if (!form.provider_visa_id) {
-    errors.value.provider_visa_id = 'Provider visa tidak boleh kosong.';
-    isValid = false;
+    errors.value.provider_visa_id = 'Provider visa tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.asuransi_id) {
-    errors.value.asuransi_id = 'Asuransi tidak boleh kosong.';
-    isValid = false;
+    errors.value.asuransi_id = 'Asuransi tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.no_polis) {
-    errors.value.no_polis = 'Nomor polis tidak boleh kosong.';
-    isValid = false;
+    errors.value.no_polis = 'Nomor polis tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.tgl_input_polis) {
-    errors.value.tgl_input_polis = 'Tanggal input polis tidak boleh kosong.';
-    isValid = false;
+    errors.value.tgl_input_polis = 'Tanggal input polis tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.tgl_awal_polis) {
-    errors.value.tgl_awal_polis = 'Tanggal awal polis tidak boleh kosong.';
-    isValid = false;
+    errors.value.tgl_awal_polis = 'Tanggal awal polis tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.tgl_akhir_polis) {
-    errors.value.tgl_akhir_polis = 'Tanggal akhir polis tidak boleh kosong.';
-    isValid = false;
+    errors.value.tgl_akhir_polis = 'Tanggal akhir polis tidak boleh kosong.'
+    isValid = false
   }
 
   if (!form.paket_types || !form.paket_types.length) {
-    errors.value.paket_types = 'Tipe paket tidak boleh kosong.';
-    isValid = false;
+    errors.value.paket_types = 'Tipe paket tidak boleh kosong.'
+    isValid = false
   }
 
-  return isValid;
-};
+  return isValid
+}
 
 const saveData = async () => {
   try {
     if (!validateForm()) {
-      displayNotification('Tolong lengkapi form dengan benar.', 'error');
-      return;
+      displayNotification('Tolong lengkapi form dengan benar.', 'error')
+      return
     }
 
-    console.log('Form data:', form);
+    console.log('Form data:', form)
 
-    const formData = new FormData();
+    const formData = new FormData()
 
     // Menambahkan data form lainnya
     Object.entries(form).forEach(([key, value]) => {
       if (value !== null && value !== '') {
-        if (key !== 'photo' && key !== 'paket_prices') { // photo & paket_prices sudah ditangani manual
+        if (key !== 'photo' && key !== 'paket_prices') {
+          // photo & paket_prices sudah ditangani manual
           if (key === 'mahram_fee') {
-            formData.append(key, unformatPrice(value));
-          } else if (['city_visited', 'airlines', 'hotel', 'facilities', 'paket_types'].includes(key)) {
+            formData.append(key, unformatPrice(value))
+          } else if (
+            ['city_visited', 'airlines', 'hotel', 'facilities', 'paket_types'].includes(key)
+          ) {
             if (Array.isArray(value) && value.length > 0) {
-              formData.append(key, JSON.stringify(value));
+              formData.append(key, JSON.stringify(value))
             }
           } else {
-            formData.append(key, value);
+            formData.append(key, value)
           }
         }
       }
-    });
+    })
 
     if (form.paket_prices && typeof form.paket_prices === 'object') {
       const pricesArray = Object.entries(form.paket_prices).map(([id, price]) => ({
         id: Number(id),
         price: Number(price),
-      }));
-      formData.append('paket_prices', JSON.stringify(pricesArray));
+      }))
+      formData.append('paket_prices', JSON.stringify(pricesArray))
     }
 
     // Pastikan photo adalah File object yang valid
     if (form.photo && form.photo instanceof File) {
-      formData.append('photo', form.photo);
+      formData.append('photo', form.photo)
     }
 
     // Debug isi formData (optional, bisa dihapus saat production)
     for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
+      console.log(`${key}:`, value)
     }
 
-    await addPaket(formData);
+    await addPaket(formData)
 
-    displayNotification('Data berhasil disimpan', 'success');
-    setTimeout(() => emit('close'), 3000);
+    displayNotification('Data berhasil disimpan', 'success')
+    setTimeout(() => emit('close'), 3000)
   } catch (error) {
-    console.error(error);
-    displayNotification('Gagal menyimpan data', 'error');
+    console.error(error)
+    displayNotification('Gagal menyimpan data', 'error')
   }
-};
+}
 
 // Fungsi format harga (Rp, titik ribuan)
 const formatPrice = (value: number | string): string => {
-  const numericString = String(value).replace(/[^\d]/g, '');
-  const numericValue = parseInt(numericString, 10) || 0;
+  const numericString = String(value).replace(/[^\d]/g, '')
+  const numericValue = parseInt(numericString, 10) || 0
 
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(numericValue);
-};
+  }).format(numericValue)
+}
 
 // Fungsi untuk ambil angka asli (unformat Rp)
 const unformatPrice = (formatted: string): number => {
-  return parseInt(formatted.replace(/[^\d]/g, ''), 10) || 0;
-};
+  return parseInt(formatted.replace(/[^\d]/g, ''), 10) || 0
+}
 
 // Fungsi saat input harga
 const onPriceInput = (event: Event, id: number) => {
-  const target = event.target as HTMLInputElement;
-  const rawValue = target.value;
+  const target = event.target as HTMLInputElement
+  const rawValue = target.value
 
   // Simpan harga numerik ke form
-  form.paket_prices[id] = unformatPrice(rawValue);
+  form.paket_prices[id] = unformatPrice(rawValue)
 
   // Format ulang tampilan input
-  target.value = formatPrice(form.paket_prices[id]);
-};
+  target.value = formatPrice(form.paket_prices[id])
+}
 </script>
 
 <template>
@@ -502,12 +495,13 @@ const onPriceInput = (event: Event, id: number) => {
       <div class="grid grid-cols-2 gap-4 text-gray-500 md:grid-cols-[minmax(0,_1fr)_500px]">
         <div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-800">
-
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 Photo <span class="text-red-500">*</span>
               </label>
-              <div class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500">
+              <div
+                class="flex items-center border border-gray-300 rounded-lg shadow-sm focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500"
+              >
                 <label
                   for="file-upload"
                   class="px-3 py-2 bg-gray-100 text-gray-700 border-gray-300 rounded-l-lg cursor-pointer hover:bg-gray-200 text-sm shrink-0 transition duration-150 ease-in-out"
@@ -549,16 +543,20 @@ const onPriceInput = (event: Event, id: number) => {
               <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Jenis Kegiatan
-              </label>
-              <select v-model="form.jenis_kegiatan" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+              <label class="block text-sm font-medium text-gray-700 mb-1"> Jenis Kegiatan </label>
+              <select
+                v-model="form.jenis_kegiatan"
+                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                required
+              >
                 <option value="" disabled>Pilih Jenis Kegiatan</option>
                 <option value="haji" selected>Haji</option>
                 <option value="umrah">Umrah</option>
                 <option value="haji_umrah">Haji dan Umrah</option>
               </select>
-              <p v-if="errors.jenis_kegiatan" class="mt-1 text-sm text-red-600">{{ errors.jenis_kegiatan }}</p>
+              <p v-if="errors.jenis_kegiatan" class="mt-1 text-sm text-red-600">
+                {{ errors.jenis_kegiatan }}
+              </p>
             </div>
 
             <div>
@@ -584,9 +582,7 @@ const onPriceInput = (event: Event, id: number) => {
 
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-gray-800 mt-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                No Polis
-              </label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"> No Polis </label>
               <input
                 type="text"
                 v-model="form.no_polis"
@@ -605,7 +601,9 @@ const onPriceInput = (event: Event, id: number) => {
                 v-model="form.tgl_input_polis"
                 class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
               />
-              <p v-if="errors.tgl_input_polis" class="mt-1 text-sm text-red-600">{{ errors.tgl_input_polis }}</p>
+              <p v-if="errors.tgl_input_polis" class="mt-1 text-sm text-red-600">
+                {{ errors.tgl_input_polis }}
+              </p>
             </div>
 
             <div>
@@ -617,7 +615,9 @@ const onPriceInput = (event: Event, id: number) => {
                 v-model="form.tgl_awal_polis"
                 class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
               />
-              <p v-if="errors.tgl_awal_polis" class="mt-1 text-sm text-red-600">{{ errors.tgl_awal_polis }}</p>
+              <p v-if="errors.tgl_awal_polis" class="mt-1 text-sm text-red-600">
+                {{ errors.tgl_awal_polis }}
+              </p>
             </div>
 
             <div>
@@ -629,23 +629,25 @@ const onPriceInput = (event: Event, id: number) => {
                 v-model="form.tgl_akhir_polis"
                 class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
               />
-              <p v-if="errors.tgl_akhir_polis" class="mt-1 text-sm text-red-600">{{ errors.tgl_akhir_polis }}</p>
+              <p v-if="errors.tgl_akhir_polis" class="mt-1 text-sm text-red-600">
+                {{ errors.tgl_akhir_polis }}
+              </p>
             </div>
           </div>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Deskripsi Paket
-          </label>
+          <label class="block text-sm font-medium text-gray-700 mb-1"> Deskripsi Paket </label>
           <textarea
             v-model="form.description"
             class="w-full border-gray-300 placeholder-gray-500 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
             placeholder="Deskripsi Paket"
             rows="9"
-            style="resize: none;"
+            style="resize: none"
           ></textarea>
-          <p v-if="errors.description" class="mt-1 text-sm text-red-600">{{ errors.description }}</p>
+          <p v-if="errors.description" class="mt-1 text-sm text-red-600">
+            {{ errors.description }}
+          </p>
         </div>
       </div>
 
@@ -681,13 +683,17 @@ const onPriceInput = (event: Event, id: number) => {
         <div class="grid grid-cols-9 gap-4">
           <!-- Tanggal -->
           <div class="col-span-3">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Keberangkatan</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Tanggal Keberangkatan</label
+            >
             <input
               type="date"
               v-model="form.departure_date"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            >
-            <p v-if="errors.departure_date" class="mt-1 text-sm text-red-600">{{ errors.departure_date }}</p>
+            />
+            <p v-if="errors.departure_date" class="mt-1 text-sm text-red-600">
+              {{ errors.departure_date }}
+            </p>
           </div>
           <div class="col-span-3">
             <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Kepulangan</label>
@@ -695,8 +701,10 @@ const onPriceInput = (event: Event, id: number) => {
               type="date"
               v-model="form.return_date"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            >
-            <p v-if="errors.return_date" class="mt-1 text-sm text-red-600">{{ errors.return_date }}</p>
+            />
+            <p v-if="errors.return_date" class="mt-1 text-sm text-red-600">
+              {{ errors.return_date }}
+            </p>
           </div>
           <!-- Biaya Mahram -->
           <div class="col-span-3">
@@ -707,8 +715,10 @@ const onPriceInput = (event: Event, id: number) => {
               placeholder="Biaya Mahram"
               class="w-full border-gray-300 placeholder:text-gray-500 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
               @input="form.mahram_fee = formatPrice(form.mahram_fee)"
-            >
-            <p v-if="errors.mahram_fee" class="mt-1 text-sm text-red-600">{{ errors.mahram_fee }}</p>
+            />
+            <p v-if="errors.mahram_fee" class="mt-1 text-sm text-red-600">
+              {{ errors.mahram_fee }}
+            </p>
           </div>
 
           <!-- Quota, Durasi, dan Berangkat Dari -->
@@ -719,8 +729,10 @@ const onPriceInput = (event: Event, id: number) => {
               v-model="form.quota_jamaah"
               placeholder="Quota Jamaah"
               class="w-full border-gray-300 placeholder:text-gray-500 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            >
-            <p v-if="errors.quota_jamaah" class="mt-1 text-sm text-red-600">{{ errors.quota_jamaah }}</p>
+            />
+            <p v-if="errors.quota_jamaah" class="mt-1 text-sm text-red-600">
+              {{ errors.quota_jamaah }}
+            </p>
           </div>
           <div class="col-span-2">
             <SearchableSelect
@@ -746,13 +758,17 @@ const onPriceInput = (event: Event, id: number) => {
 
       <!-- Halaman Bawah -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-gray-800 mt-4">
-
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
             Tampilkan di Halaman Utama
           </label>
           <div class="flex items-center">
-            <input type="checkbox" v-model="form.show_homepage" class="w-4 h-4 rounded-sm border-2 border-gray-400 text-blue-500 focus:ring-blue-500" :value="1">
+            <input
+              type="checkbox"
+              v-model="form.show_homepage"
+              class="w-4 h-4 rounded-sm border-2 border-gray-400 text-blue-500 focus:ring-blue-500"
+              :value="1"
+            />
             <span class="text-sm ml-2">Tampilkan</span>
           </div>
         </div>
@@ -812,30 +828,29 @@ const onPriceInput = (event: Event, id: number) => {
 
         <!-- Kolom 6: Waktu Keberangkatan -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Waktu Keberangkatan
-          </label>
+          <label class="block text-sm font-medium text-gray-700 mb-1"> Waktu Keberangkatan </label>
           <input
             type="datetime-local"
             v-model="form.departure_time"
             class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
           />
-          <p v-if="errors.departure_time" class="mt-1 text-sm text-red-600">{{ errors.departure_time }}</p>
+          <p v-if="errors.departure_time" class="mt-1 text-sm text-red-600">
+            {{ errors.departure_time }}
+          </p>
         </div>
 
         <!-- Kolom 7: Waktu Kedatangan -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Waktu Kedatangan
-          </label>
+          <label class="block text-sm font-medium text-gray-700 mb-1"> Waktu Kedatangan </label>
           <input
             type="datetime-local"
             v-model="form.arrival_time"
             class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
           />
-          <p v-if="errors.arrival_time" class="mt-1 text-sm text-red-600">{{ errors.arrival_time }}</p>
+          <p v-if="errors.arrival_time" class="mt-1 text-sm text-red-600">
+            {{ errors.arrival_time }}
+          </p>
         </div>
-
       </div>
 
       <div class="flex justify-end mt-6 bg-gray-100 p-2 rounded-lg shadow-sm">
@@ -863,10 +878,16 @@ const onPriceInput = (event: Event, id: number) => {
     :confirmTitle="confirmTitle"
     :confirmMessage="confirmMessage"
   >
-    <button @click="confirmAction && confirmAction()" class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">
+    <button
+      @click="confirmAction && confirmAction()"
+      class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+    >
       Ya
     </button>
-    <button @click="showConfirmDialog = false" class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+    <button
+      @click="showConfirmDialog = false"
+      class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+    >
       Tidak
     </button>
   </Confirmation>
