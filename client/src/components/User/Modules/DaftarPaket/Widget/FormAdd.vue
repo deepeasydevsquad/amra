@@ -5,7 +5,7 @@ import SearchableSelect from '@/components/User/Modules/DaftarPaket/Particle/Sea
 import SearchableCheckboxList from '@/components/User/Modules/DaftarPaket/Particle/SearchableCheckboxList.vue';
 
 import { onMounted, reactive, ref } from 'vue';
-import { addPaket } from '@/service/daftar_Paket'
+import { addPaket } from '@/service/daftar_paket'
 import {
   daftarKota,
   daftarAirlines,
