@@ -1,15 +1,22 @@
 <script setup lang="ts">
 // Import Icon
-import DeleteIcon from "@/components/User/Modules/DaftarPaket/Icon/DeleteIcon.vue"
-import EditIcon from "@/components/User/Modules/DaftarPaket/Icon/EditIcon.vue"
+import DeleteIcon from '@/components/User/Modules/DaftarPaket/Icon/DeleteIcon.vue'
+import EditIcon from '@/components/User/Modules/DaftarPaket/Icon/EditIcon.vue'
+import DetailIcon from '@/components/User/Modules/DaftarPaket/Icon/DetailIcon.vue'
 
 // import element
-import DangerButton from "@/components/User/Modules/DaftarPaket/Particle/DangerButton.vue"
-import EditButton from "@/components/User/Modules/DaftarPaket/Particle/EditButton.vue"
-import Notification from "@/components/User/Modules/DaftarPaket/Particle/Notification.vue"
-import Confirmation from "@/components/User/Modules/DaftarPaket/Particle/Confirmation.vue"
-import FormAdd from "@/components/User/Modules/DaftarPaket/Widget/FormAdd.vue"
-import FormEdit from "@/components/User/Modules/DaftarPaket/Widget/FormEdit.vue"
+import DangerButton from '@/components/User/Modules/DaftarPaket/Particle/DangerButton.vue'
+import EditButton from '@/components/User/Modules/DaftarPaket/Particle/EditButton.vue'
+import Notification from '@/components/User/Modules/DaftarPaket/Particle/Notification.vue'
+import DetailButton from '@/components/User/Modules/DaftarPaket/Particle/DetailButton.vue'
+import Confirmation from '@/components/User/Modules/DaftarPaket/Particle/Confirmation.vue'
+
+// import widget
+import FormAdd from '@/components/User/Modules/DaftarPaket/Widget/FormAdd.vue'
+import FormEdit from '@/components/User/Modules/DaftarPaket/Widget/FormEdit.vue'
+
+// import component
+import FormTransaksi from '@/components/User/Modules/DaftarPaket/Widget/FormTransaksi.vue'
 
 // import API
 import { daftarPaket, deletePaket } from '@/service/daftar_paket'
@@ -17,7 +24,7 @@ import { ref, onMounted, computed } from 'vue';
 
 const itemsPerPage = 100; // Jumlah paket_la per halaman
 const currentPage = ref(1);
-const search = ref("");
+const search = ref('');
 const filter = ref('');
 const totalPages = ref(0);
 
@@ -89,6 +96,7 @@ const timeoutId = ref<number | null>(null);
 const dataPaket = ref<Paket[]>([]);
 const isFormOpen = ref<boolean>(false);
 const isFormOpenEdit = ref<boolean>(false);
+const isFormOpenTransaksi = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
@@ -158,6 +166,11 @@ const openFormEdit = (paketId: number) => {
   paket.value = paketId;
 }
 
+const openFormTransaksi = (paketId: number) => {
+  isFormOpenTransaksi.value = true;
+  paket.value = paketId;
+}
+
 const deleteData = async (id: number) => {
   showConfirmation(
     'Konfirmasi Hapus',
@@ -195,6 +208,13 @@ const deleteData = async (id: number) => {
       :isFormOpen="isFormOpenEdit"
       :paketId="paket"
       @close="isFormOpenEdit = false; fetchData()"
+      />
+    </div>
+    <div v-else-if="isFormOpenTransaksi">
+      <FormTransaksi
+      :isFormOpenTransaksi="isFormOpenTransaksi"
+      :paketId="paket"
+      @close="isFormOpenTransaksi = false; fetchData()"
       />
     </div>
     <div v-else-if="dataPaket" class="container mx-auto">
@@ -284,6 +304,9 @@ const deleteData = async (id: number) => {
                 <td class="px-6 py-4 text-center">{{ paket.quota_jamaah }} Orang</td>
                 <td class="px-6 py-4 text-center">
                   <div class="flex justify-center gap-2">
+                    <DetailButton @click="openFormTransaksi(paket.id)">
+                      <DetailIcon></DetailIcon>
+                    </DetailButton>
                     <EditButton @click="openFormEdit(paket.id)">
                       <EditIcon></EditIcon>
                     </EditButton>
