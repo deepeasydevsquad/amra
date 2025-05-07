@@ -14,8 +14,9 @@
         <div v-for="(item, index) in skema" :key="item.id" class="flex items-center gap-4">
           <label class="w-16 font-medium text-center">{{ item.term }}</label>
           <input
-            type="number"
-            v-model.number="skema[index].nominal"
+            type="text"
+            :value="formatIDR(item.nominal)"
+            @input="onInputNominal($event, index)"
             class="flex-1 border rounded px-3 py-2"
           />
         </div>
@@ -39,7 +40,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['close', 'update'])
 
-const skema = ref([])
+const skema = ref<Array<{ id: number; term: string; nominal: number }>>([])
 
 const fetchSkema = async () => {
   try {
@@ -59,13 +60,28 @@ const handleSave = async () => {
 
     console.log('Payload preview:', payload)
 
-    await updateSkema(payload) // Pastikan API lo menerima JSON
-
+    await updateSkema(payload)
     skema.value = []
     emit('update')
   } catch (error) {
     console.error('Gagal menyimpan skema:', error)
   }
+}
+
+// Format angka ke format IDR
+const formatIDR = (value: number) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+  }).format(value || 0)
+}
+
+// Handle input manual
+const onInputNominal = (event: Event, index: number) => {
+  const rawValue = (event.target as HTMLInputElement).value.replace(/[^0-9]/g, '')
+  const numericValue = parseInt(rawValue, 10) || 0
+  skema.value[index].nominal = numericValue
 }
 
 // Re-fetch data setiap kali peminjamanId berubah
