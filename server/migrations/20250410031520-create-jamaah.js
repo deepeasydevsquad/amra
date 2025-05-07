@@ -72,13 +72,13 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       tahun_haji: {
-        type: Sequelize.DATE
+        type: Sequelize.INTEGER
       },
       pengalaman_umrah: {
         type: Sequelize.INTEGER,
       },
       tahun_umrah: {
-        type: Sequelize.DATE
+        type: Sequelize.INTEGER
       },
       desease: {
         type: Sequelize.STRING
