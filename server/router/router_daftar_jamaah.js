@@ -10,6 +10,8 @@ const {
 
 const router = express.Router();
 
+router.get("/get-member-not-jamaah", authenticateToken, controller.getMemberNotJamaah);
+
 router.post(
   "/get-daftar-jamaah",
   [body("pageNumber").trim(), body("perpage").trim(), body("search").trim()],

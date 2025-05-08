@@ -5,6 +5,17 @@ const {
   handleValidationErrors,
 } = require("../../../helper/handleError");
 
+
+exports.getMemberNotJamaah = async ( req, res) => {
+  try {
+    const model = new Model_r(req);
+    const data = await model.getMemberNotJamaah();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
 exports.getJamaah = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
