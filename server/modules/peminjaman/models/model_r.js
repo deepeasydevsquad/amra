@@ -120,6 +120,31 @@ class Model_r {
       return { data: [], total: 0 };
     }
   }
+
+  async getSkemaPeminjmanByID() {
+    await this.initialize(); // Pastikan inisialisasi selesai
+    const { peminjaman_id } = this.req.body;
+    try {
+      // Cari data Skema_peminjaman berdasarkan peminjaman_id
+      const result = await Skema_peminjaman.findAndCountAll({
+        where: {
+          peminjaman_id: peminjaman_id, // Gunakan peminjaman_id yang diterima
+        },
+      });
+
+      // Mapping data sesuai format yang diinginkan
+      const data = result.rows.map((skema) => ({
+        id: skema.id,
+        term: skema.term,
+        nominal: skema.nominal,
+      }));
+
+      return { data, total: result.count };
+    } catch (error) {
+      console.error("Error getSkemaByPeminjamanID:", error);
+      return { data: [], total: 0 };
+    }
+  }
 }
 
 module.exports = Model_r;
