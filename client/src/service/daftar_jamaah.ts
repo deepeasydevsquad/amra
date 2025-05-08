@@ -1,5 +1,16 @@
 import api from './api' // Import service API
 
+
+export const getMember = async () => {
+  try {
+    const response = await api.get('/get-member-not-jamaah')
+    return response.data
+  } catch (error) {
+    console.error('Gagal Mengambil Data:', error)
+    throw error
+  }
+}
+
 export const daftarJamaah = async (param: any) => {
   try {
     const response = await api.post('/get-daftar-jamaah', param) // Kirim data ke backend
@@ -18,7 +29,7 @@ export const downloadJamaah = async (param: any) => {
 
     // Bikin blob dari data response
     const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-    
+
     // Buat URL dari blob
     const url = window.URL.createObjectURL(blob)
 

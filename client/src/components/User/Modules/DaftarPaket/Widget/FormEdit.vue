@@ -3,7 +3,6 @@ import Notification from '@/components/User/Modules/DaftarPaket/Particle/Notific
 import Confirmation from '@/components/User/Modules/DaftarPaket/Particle/Confirmation.vue'
 import SearchableSelect from '@/components/User/Modules/DaftarPaket/Particle/SearchableSelect.vue'
 import SearchableCheckboxList from '@/components/User/Modules/DaftarPaket/Particle/SearchableCheckboxList.vue'
-
 import { onMounted, reactive, ref } from 'vue'
 import { getPaket, editPaket } from '@/service/daftar_paket'
 import {

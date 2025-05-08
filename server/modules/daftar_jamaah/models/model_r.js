@@ -12,17 +12,72 @@ const {
   Mst_pendidikan
 } = require("../../../models");
 const { Op } = require("sequelize");
-const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, tipe, getCabang } = require("../../../helper/companyHelper");
 
 class Model_r {
   constructor(req) {
     this.req = req;
     this.company_id = null;
+    this.division_id = null;
   }
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
+    this.division_id = await getCabang(this.req);
     console.log("company_id =>", this.company_id);
+  }
+
+
+  async getMemberNotJamaah() {
+    var memberJamaahId = [];
+    const qJ = await Jamaah.findAndCountAll({
+      attributes: ["member_id"],
+      where: { division_id : this.division_id }
+    });
+
+    if( qJ.count > 0 ) {
+      await Promise.all(
+        await rows.map(async (e) => {
+          memberJamaahId.push(e.member_id);
+        })
+      );
+    }
+
+    var where = { division_id : this.division_id };
+
+    if( memberJamaahId.length > 0 ) {
+      where = {...where,...{id : {[Op.notIn] : memberJamaahId } } };
+    }
+
+    const sql = {
+      order: [["id", "ASC"]],
+      attributes: ["id", "fullname", "identity_number"],
+      where: where
+    };
+
+    try {
+      const { count, rows } = await Member.findAndCountAll(sql);
+      let data = [];
+      if (count > 0) {
+        await Promise.all(
+          await rows.map(async (e) => {
+            data.push({
+              id: e.id,
+              fullname: e.fullname,
+              identity_number : e.identity_number,
+            });
+          })
+        );
+      }
+
+      return {
+        data: data,
+        total: count,
+      };
+    } catch (error) {
+      console.error("ERROR: daftar_member()", error);
+      return { data: [], total: 0 };
+    }
   }
 
   async daftar_jamaah() {
