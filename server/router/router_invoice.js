@@ -5,38 +5,47 @@ const { authenticateToken } = require("../middleware/authenticateToken");
 
 const router = express.Router();
 
-// router.post("/get-deposit", 
+// router.post("/get-deposit",
 //     [
 //         body("pageNumber").trim(),
 //         body("perpage").trim(),
 //         body("search").trim(),
-//     ], 
-//     authenticateToken, 
+//     ],
+//     authenticateToken,
 //     controller.getDeposit
 // );
 
-router.get("/invoice/invoice-deposit/:invoice", 
-    authenticateToken,
-    controller.invoice_deposit
+router.get(
+  "/invoice/invoice-deposit/:invoice",
+  authenticateToken,
+  controller.invoice_deposit
 );
 
-router.get("/invoice/invoice-paket-la/:invoice",
-    authenticateToken,
-    controller.invoice_paket_la
-)
+router.get(
+  "/invoice/invoice-paket-la/:invoice",
+  authenticateToken,
+  controller.invoice_paket_la
+);
 
-router.get("/invoice/kwitansi-terakhir/:register_number",
-    authenticateToken,
-    controller.kwitansi_terakhir
-)
+router.get(
+  "/invoice/kwitansi-terakhir/:register_number",
+  authenticateToken,
+  controller.kwitansi_terakhir
+);
 
-// router.post("/add-deposit", 
-//     authenticateToken, 
+router.get(
+  "/invoice/pembayaran-perbulan/:invoice",
+  authenticateToken,
+  controller.invoice_pembayaran_perbulan
+);
+
+// router.post("/add-deposit",
+//     authenticateToken,
 //     controller.addDeposit
 // );
 
-// router.post("/info-deposit", 
-//     authenticateToken, 
+// router.post("/info-deposit",
+//     authenticateToken,
 //     controller.infoDeposit
 // );
 

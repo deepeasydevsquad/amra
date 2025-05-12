@@ -41,4 +41,16 @@ router.post(
   controllers.updateSkema
 );
 
+router.post(
+  "/bayar-perbulan",
+  authenticateToken,
+  [
+    body("peminjaman_id")
+      .notEmpty()
+      .withMessage("id peminjaman tidak boleh kosong."),
+    body("nominal").notEmpty().withMessage("nominal tidak boleh kosong."),
+  ],
+  controllers.pembayaranPerbulan
+);
+
 module.exports = router;

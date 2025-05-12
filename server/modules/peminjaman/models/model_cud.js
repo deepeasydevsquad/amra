@@ -16,8 +16,9 @@ const moment = require("moment");
 const { sequelize } = require("../../../models");
 
 class Model_cud {
-  constructor(req) {
+  constructor(req, res) {
     this.req = req;
+    this.res = res;
     this.company_id = null;
     this.message = "";
     this.t = null;
@@ -344,6 +345,55 @@ class Model_cud {
       this.state = false;
       this.message = "Gagal memperbarui skema: " + err.message;
       console.error("updateSkema Error:", err);
+    }
+  }
+
+  async generateInvoicePembayaran() {
+    const prefix = "BYR-";
+    const year = new Date().getFullYear();
+
+    const randomAlphanumeric = (length) => {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      let result = "";
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    };
+    const invoiceCode = `${prefix}${year}${randomAlphanumeric(6)}`;
+    return invoiceCode;
+  }
+
+  async pembayaranPerbulan() {
+    await this.initialize();
+
+    const { peminjaman_id, nominal } = this.req.body;
+    this.invoice = await this.generateInvoicePembayaran(); // Simpan invoice dalam properti ini
+    const petugas = await this.petugas();
+    const status = "cicilan";
+    const now = moment().format("YYYY-MM-DD HH:mm:ss");
+    console.log("data dari front end:", this.req.body);
+
+    try {
+      await Riwayat_pembayaran_peminjaman.create(
+        {
+          company_id: this.company_id,
+          peminjaman_id,
+          invoice: this.invoice, // Gunakan invoice yang sudah disimpan
+          nominal,
+          petugas,
+          status,
+          createdAt: now,
+          updatedAt: now,
+        },
+        { transaction: this.t }
+      );
+
+      this.message = "Pembayaran perbulan berhasil dibuat"; // Set message
+    } catch (err) {
+      this.state = false;
+      this.message = "Gagal membuat pembayaran perbulan: " + err.message;
+      console.error("pembayaranPerbulan Error:", err);
     }
   }
 

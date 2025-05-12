@@ -161,7 +161,7 @@
                   <template v-if="pinjaman.riwayat_pembayaran.length > 0">
                     <tr v-for="detail in pinjaman.riwayat_pembayaran" :key="detail.id">
                       <td class="px-2 py-2 text-center">{{ detail.invoice }}</td>
-                      <td class="px-2 py-2 text-center">{{  formatIDR(detail.nominal) }}</td>
+                      <td class="px-2 py-2 text-center">{{ formatIDR(detail.nominal) }}</td>
                       <td class="px-2 py-2 text-center">{{ detail.status }}</td>
                       <td class="px-2 py-2"></td>
                     </tr>
@@ -181,7 +181,16 @@
                 <CetakButton @click="" title="Cetak Kwitansi Peminjaman" class="p-1 w-6 h-6">
                   <CetakIcon class="w-4 h-4" />
                 </CetakButton>
-                <BayarButton @click="" title="Pembayaran Cicilan" class="p-1 w-6 h-6">
+                <BayarButton
+                  @click="
+                    bukaModalBayar({
+                      id: pinjaman.id,
+                      riwayat_pembayaran: pinjaman.riwayat_pembayaran,
+                    })
+                  "
+                  title="Pembayaran Cicilan"
+                  class="p-1 w-6 h-6"
+                >
                   <BayarIcon class="w-4 h-4" />
                 </BayarButton>
                 <EditButton
@@ -286,6 +295,12 @@
     @close="showNotification = false"
   />
 
+  <FormPembayaran
+    :isOpen="showFormPembayaranModal"
+    :peminjaman="peminjamanData"
+    @close="handleBayarPinjaman"
+  />
+
   <FormUpdateSkema
     v-if="showFormUpdateModal"
     @close="showFormUpdateModal = false"
@@ -308,9 +323,9 @@ import DangerButton from '@/components/User/Modules/DaftarPeminjaman/Particle/Da
 import EditButton from '@/components/User/Modules/DaftarPeminjaman/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/DaftarPeminjaman/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/DaftarPeminjaman/Particle/Confirmation.vue'
-import FormAddPeminjaman from '@/components/User/Modules/DaftarPeminjaman/Particle/FormAddPeminjaman.vue'
-import FormUpdateSkema from '@/components/User/Modules/DaftarPeminjaman/Particle/FormUpdateSkema.vue'
-
+import FormAddPeminjaman from '@/components/User/Modules/DaftarPeminjaman/widget/FormAddPeminjaman.vue'
+import FormUpdateSkema from '@/components/User/Modules/DaftarPeminjaman/widget/FormUpdateSkema.vue'
+import FormPembayaran from '@/components/User/Modules/DaftarPeminjaman/widget/FormPembayaran.vue'
 // Interface untuk Type Safety
 interface Pinjaman {
   id: number
@@ -346,6 +361,7 @@ const peminjamanId = ref(0)
 const modalTambahPinjaman = ref(false)
 const showDeleteConfirmDialog = ref(false)
 const showFormUpdateModal = ref(false)
+const showFormPembayaranModal = ref(false)
 
 // Notifikasi State
 const showNotification = ref(false)
@@ -358,6 +374,12 @@ const handleModalUpdate = (id: number) => {
   peminjamanId.value = id // Set dulu id-nya
   showFormUpdateModal.value = true // Baru buka modal
   console.log(peminjamanId.value)
+}
+
+const handleBayarPinjaman = () => {
+  showFormPembayaranModal.value = false
+  displayNotification('Berhasil Bayar Pinjaman', 'success')
+  fetchPinjaman()
 }
 
 const handleUpdate = async () => {
@@ -484,6 +506,13 @@ const goToPage = (page: number) => {
 // Modal
 const bukaModalPeminjaman = () => {
   modalTambahPinjaman.value = true
+}
+
+const peminjamanData = ref({})
+
+const bukaModalBayar = (data) => {
+  peminjamanData.value = data
+  showFormPembayaranModal.value = true
 }
 
 const handleAddPinjaman = () => {
