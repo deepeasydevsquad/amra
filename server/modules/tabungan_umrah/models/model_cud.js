@@ -1,5 +1,7 @@
 const { 
+  sequelize,
   Company,
+  Division,
   Paket,
   Tabungan,
   Jamaah,
@@ -13,7 +15,7 @@ const {
  } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
-const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
 const moment = require("moment");
 const fs = require('fs');
 const path = require('path');
@@ -55,33 +57,44 @@ class Model_cud {
   }
 
   async generateInvoice() {
-    // generate kode number, kode number format : 6 random alphanumeric characters
-    const possibleAbjad = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const possibleAngka = "0123456789";
-    
-    let invoice;
-    let sama;
+  // Generate a 6-character alphanumeric invoice code
+  const possibleLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const possibleNumbers = "0123456789";
   
-    do {
-      invoice = Array.from({ length: 3 }, () =>
-        possibleAbjad.charAt(Math.floor(Math.random() * possibleAbjad.length))
-      ).join("") +
-      Array.from({ length: 3 }, () =>
-        possibleAngka.charAt(Math.floor(Math.random() * possibleAngka.length))
-      ).join("");
+  let invoice;
+  let exists;
 
-      const [inRiwayat, inDeposit, inFee] = await Promise.all([
-        Riwayat_tabungan.findOne({ where: { invoice: invoice } }),
-        Deposit.findOne({ where: { invoice: invoice } }),
-        Fee_agen.findOne({ where: { invoice: invoice } }),
-      ]);
-  
-      sama = inRiwayat || inDeposit || inFee;
-  
-    } while (sama);
-  
-    return invoice;
-  }
+  do {
+    const lettersPart = Array.from({ length: 3 }, () =>
+      possibleLetters.charAt(Math.floor(Math.random() * possibleLetters.length))
+    ).join("");
+    
+    const numbersPart = Array.from({ length: 3 }, () =>
+      possibleNumbers.charAt(Math.floor(Math.random() * possibleNumbers.length))
+    ).join("");
+
+    invoice = lettersPart + numbersPart;
+
+    const [inRiwayat, inDeposit] = await Promise.all([
+      Riwayat_tabungan.findOne({
+        where: { invoice },
+        include: [{
+          model: Tabungan,
+          include: [{
+            model: Division,
+            where: { company_id: this.company_id },
+          }],
+        }],
+      }),
+      Deposit.findOne({ where: { invoice, company_id: this.company_id } }),
+    ]);
+
+    exists = inRiwayat || inDeposit;
+
+  } while (exists);
+
+  return invoice;
+}
   
   // === CREATE ===
   async add() {
@@ -95,6 +108,8 @@ class Model_cud {
         invoiceTabungan = await this.generateInvoice();
         invoiceDeposit = await this.generateInvoice();
       } while (invoiceTabungan === invoiceDeposit); // pastikan invoice tabungan dan deposit tidak sama
+
+      const penerima = await this.penerima();
 
       console.log("Data Body:", body);
       console.log("Company ID:", this.company_id);
@@ -113,7 +128,7 @@ class Model_cud {
         batal_berangkat: body.batal_berangkat || 'tidak',
         transaksi_paket_id: body.transaksi_paket_id || null,
         sisa_pembelian: body.sisa_pembelian || 0,
-        invoice_sisa_deposit: invoiceTabungan,
+        invoice_sisa_deposit: null,
         createdAt: dateNow,
         updatedAt: dateNow,
       }, { transaction: this.t });
@@ -123,7 +138,7 @@ class Model_cud {
         invoice: invoiceTabungan,
         tabungan_id: tabungan.id,
         nominal_tabungan: body.biaya_deposit,
-        penerima: this.penerima(),
+        penerima: penerima,
         sumber_dana: body.sumber_dana,
         saldo_tabungan_sebelum: 0,
         saldo_tabungan_sesudah: body.biaya_deposit,
@@ -169,7 +184,7 @@ class Model_cud {
           saldo_sebelum: member.total_deposit,
           saldo_sesudah: member.total_deposit - body.biaya_deposit,
           sumber_dana: body.sumber_dana,
-          penerima: this.penerima(),
+          penerima: penerima,
           tipe_transaksi: "deposit",
           info: `Digunakan untuk tabungan umrah (invoice: ${invoiceTabungan})`,
           createdAt: dateNow,
