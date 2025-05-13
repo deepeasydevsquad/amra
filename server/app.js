@@ -80,7 +80,8 @@ const arr_router = [
   "daftar_jamaah",
   "data_master",
   "peminjaman",
-  "jurnal"
+  "jurnal",
+  "tabungan_umrah",
 ];
 
 const arr = {};

@@ -30,6 +30,11 @@ router.get("/invoice/kwitansi-terakhir/:register_number",
     controller.kwitansi_terakhir
 )
 
+router.get("/invoice/kwitansi-tabungan-umrah/:invoice",
+    authenticateToken,
+    controller.kwitansi_tabungan_umrah
+)
+
 // router.post("/add-deposit", 
 //     authenticateToken, 
 //     controller.addDeposit

@@ -7,6 +7,7 @@ import KwitansiView from '@/views/KwitansiView.vue'
 import InvoicePaketLa from '@/components/User/Modules/Invoice/InvoicePaketLa.vue'
 import InvoiceDeposit from '@/components/User/Modules/Invoice/InvoiceDeposit.vue'
 import InvoiceKwitansiTerakhir from '@/components/User/Modules/Invoice/InvoiceKwitansiTerakhir.vue'
+import KwitansiTabunganUmrah from '@/components/User/Modules/Invoice/KwitansiTabunganUmrah.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -60,7 +61,12 @@ const router = createRouter({
       name: 'kwitansi-terakhir',
       component: InvoiceKwitansiTerakhir,
     },
-  ],
+    {
+      path: '/kwitansi-tabungan-umrah/:id',
+      name: 'kwitansi-tabungan-umrah',
+      component: KwitansiTabunganUmrah,
+    },
+    ],
 })
 
 export default router

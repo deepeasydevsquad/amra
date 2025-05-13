@@ -30,3 +30,13 @@ export const getKwitansiTerakhir = async (param : string) => {
     throw error; // Bisa ditangani di bagian pemanggilan
   }
 };
+
+export const getKwitansiTabunganUmrah = async (param : string) => {
+  try {
+    const response = await api.get(`/invoice/kwitansi-tabungan-umrah/${param}`); // Kirim data ke backend
+    return response.data; // Kembalikan data hasil request
+  } catch (error) {
+    console.error("Gagal mengambil kwitansi terakhir tabungan umrah:", error);
+    throw error; // Bisa ditangani di bagian pemanggilan
+  }
+}
