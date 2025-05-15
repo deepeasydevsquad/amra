@@ -25,12 +25,8 @@
           <tr>
             <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">No. Register</th>
             <th class="w-[20%] px-6 py-4 font-bold text-gray-900 text-center w-64">Info Jamaah</th>
-            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center w-64">
-              Info Pinjaman
-            </th>
-            <th class="w-[40%] px-6 py-4 font-bold text-gray-900 text-center w-[320px]">
-              Detail Peminjaman
-            </th>
+            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center w-64">Info Pinjaman</th>
+            <th class="w-[40%] px-6 py-4 font-bold text-gray-900 text-center w-[320px]">Detail Peminjaman</th>
             <th class="w-[5%] px-6 py-4 font-bold text-gray-900 text-center w-28">Aksi</th>
           </tr>
         </thead>
@@ -43,14 +39,12 @@
               </div>
             </td>
           </tr>
-
           <!-- State Kosong -->
           <tr v-else-if="pinjamans.length === 0">
             <td colspan="5" class="px-6 py-4 text-center text-base text-gray-600">
               {{ searchQuery ? 'Hasil pencarian tidak ditemukan' : 'Belum ada data pengguna' }}
             </td>
           </tr>
-
           <!-- Baris Data -->
           <tr
             v-for="pinjaman in pinjamans"

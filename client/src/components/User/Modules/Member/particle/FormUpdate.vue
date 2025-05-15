@@ -1,6 +1,6 @@
 <template>
-  <div class="p-6 bg-white rounded-lg shadow-md">
-    <h2 class="text-gray-700 text-center text-2xl font-semibold mb-6">Update Member</h2>
+  <div class="p-6 bg-white rounded-lg ">
+    <h2 class="text-gray-700 text-left text-2xl font-semibold mb-6">Update Member</h2>
 
     <!-- Input Cabang (Hanya untuk Administrator) -->
     <div v-if="members[0]?.tipe === 'administrator'" class="mb-6">

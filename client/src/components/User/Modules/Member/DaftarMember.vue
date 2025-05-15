@@ -13,6 +13,8 @@ import AddAgenButton from '@/components/User/Modules/Member/Particle/AddAgenButt
 import AddAgenIcon from '@/components/User/Modules/Member/Icon/AddAgenIcon.vue'
 import FormAddAgen from '@/components/User/Modules/Member/Particle/FormAddAgen.vue'
 
+import LightButton from "@/components/Button/LightButton.vue"
+
 //sas
 ////
 interface Members {
@@ -228,9 +230,9 @@ const closeUpdateForm = () => {
             <td class="px-6 py-4 text-center">{{ member.whatsapp_number }}</td>
             <td class="px-6 py-4 text-center">
               <div class="flex justify-center gap-2">
-                <EditButton @click="editMember(member.id)"><EditIcon /></EditButton>
+                <LightButton @click="editMember(member.id)"><EditIcon /></LightButton>
+                <LightButton  @click="addAgen(member.id)"><AddAgenIcon /></LightButton>
                 <DangerButton @click="confirmDelete(member.id)"><DeleteIcon /></DangerButton>
-                <AddAgenButton @click="addAgen(member.id)"> <AddAgenIcon /></AddAgenButton>
               </div>
             </td>
           </tr>
