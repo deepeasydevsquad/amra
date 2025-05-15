@@ -29,6 +29,9 @@ module.exports = {
       nominal: {
         type: Sequelize.INTEGER
       },
+      duedate: {
+        type: Sequelize.DATEONLY
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

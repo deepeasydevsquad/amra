@@ -2,41 +2,47 @@ const express = require("express");
 const controllers = require("../modules/peminjaman/controllers/index");
 const { body } = require("express-validator");
 const { authenticateToken } = require("../middleware/authenticateToken");
+const validation = require("../validation/peminjaman");
 const router = express.Router();
 
-console.log("controllers:", controllers);
-console.log("update:", controllers.updateSkema);
+/**
+ * menambah peminjaman jamaah
+ */
 router.post(
   "/add-peminjaman",
   authenticateToken,
   [
-    body("jamaah_id").notEmpty().withMessage("jamaah tidak boleh kosong."),
-    body("nomimal").notEmpty().withMessage("nominal tidak boleh kosong."),
-    body("tenor").notEmpty().withMessage("tenor tidak boleh kosong."),
+    body("dp").trim(),
+    body("jamaah_id").notEmpty().withMessage("Id Jamaah Tidak Boleh Kosong.").custom(validation.check_id_jamaah),
+    body("mulai_bayar").notEmpty().withMessage("Tanggal Mulai Bayar Tidak Boleh Kosong.").isDate({ format: 'YYYY-MM-DD' }).withMessage('Format Tanggal Mulai Bayar Tidak Sesuai'),
+    body("nomimal").notEmpty().withMessage("Nominal Peminjaman Tidak Boleh Kosong."),
+    body("sudah_berangkat"),
+    body("tenor").notEmpty().withMessage("Tenor Tidak Boleh Kosong.").isNumeric().withMessage('Tenor hanya boleh berisi angka tanpa spasi atau simbol lainnya'),
   ],
   controllers.addPinjaman
 );
 
+/**
+ * menambah peminjaman jamaah
+ */
 router.post("/get-peminjaman", authenticateToken, controllers.daftarPinjaman);
 
-router.post("/get-skema", authenticateToken, controllers.SkemaByID);
+/**
+ * mengambil informasi peminjaman
+ */
+router.post("/get-skema", 
+  authenticateToken,  
+  [
+    body("peminjaman_id").trim().notEmpty().withMessage("Id Jamaah Tidak Boleh Kosong.").custom(validation.check_id_peminjaman),
+  ], 
+  controllers.SkemaByID);
 
 router.post(
   "/update-skema",
   authenticateToken,
   [
-    body("peminjaman_id")
-      .notEmpty()
-      .withMessage("id peminjaman tidak boleh kosong."),
-    body("id")
-      .notEmpty()
-      .withMessage("id skema peminjaman tidak boleh kosong."),
-    body("nomimal")
-      .notEmpty()
-      .withMessage("nominal  skema peminjaman tidak boleh kosong."),
-    body("term")
-      .notEmpty()
-      .withMessage("term skema peminjaman tidak boleh kosong."),
+    body("peminjaman_id").notEmpty().withMessage("id peminjaman tidak boleh kosong.").custom(validation.check_id_peminjaman),
+    body("updatedSkema").custom(validation.check_skema),
   ],
   controllers.updateSkema
 );

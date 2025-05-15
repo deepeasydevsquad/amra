@@ -130,6 +130,7 @@ const onFormattedInput = (e: Event) => {
 
 // Close modal
 const emitClose = () => emit('close')
+const emitSuccess = () => emit('success')
 
 // Submit handler
 const handleSubmit = async () => {
@@ -150,7 +151,7 @@ const handleSubmit = async () => {
     // Membuka invoice di jendela baru
     window.open(invoiceUrl, '_blank')
 
-    emitClose()
+    emitSuccess()
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       errorMessage.value = error.response.data.message || 'Terjadi kesalahan.'

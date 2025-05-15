@@ -279,8 +279,15 @@
   <FormPembayaran
     :isOpen="showFormPembayaranModal"
     :peminjaman="peminjamanData"
-    @close="handleBayarPinjaman"
+    @close="handleCloseBayarPinjaman"
+    @success="handleSuccessBayarPinjaman"
   />
+<!--
+  const handleCloseBayarPinjaman = () => {
+  showFormPembayaranModal.value = false
+}
+
+const handleSuccessBayarPinjaman = () => { -->
 
   <FormUpdateSkema
     v-if="showFormUpdateModal"
@@ -366,7 +373,11 @@ const handleModalUpdate = (id: number) => {
   console.log(peminjamanId.value)
 }
 
-const handleBayarPinjaman = () => {
+const handleCloseBayarPinjaman = () => {
+  showFormPembayaranModal.value = false
+}
+
+const handleSuccessBayarPinjaman = () => {
   showFormPembayaranModal.value = false
   displayNotification('Berhasil Bayar Pinjaman', 'success')
   fetchPinjaman()
