@@ -260,7 +260,7 @@ import { daftarJamaah, deleteJamaah, downloadJamaah } from '@/service/daftar_jam
 import Confirmation from '@/components/User/Modules/DaftarJamaah/Particle/Confirmation.vue'
 import Notification from '@/components/User/Modules/DaftarJamaah/Particle/Notification.vue'
 import DeleteIcon from '@/components/User/Modules/DaftarJamaah/Icon/DeleteIcon.vue'
-import DangerButton from '@/components/User/Modules/DaftarJamaah/Particle/DangerButton.vue'
+// import DangerButton from '@/components/User/Modules/DaftarJamaah/Particle/DangerButton.vue'
 import EditIcon from '@/components/User/Modules/DaftarJamaah/Icon/EditIcon.vue'
 import EditButton from '@/components/User/Modules/DaftarJamaah/Particle/EditButton.vue'
 import ModalConfirm from '@/components/User/Modules/DaftarJamaah/Particle/ModalConfirm.vue'
@@ -269,6 +269,8 @@ import FormAddMember from '@/components/User/Modules/DaftarJamaah/Particle/FormA
 import FormMember from '@/components/User/Modules/DaftarJamaah/Particle/FormMember.vue'
 import FormUpdate from '@/components/User/Modules/DaftarJamaah/Particle/FormUpdate.vue'
 import LightButton from "@/components/Button/LightButton.vue"
+import DangerButton from '@/components/Button/DangerButton.vue'
+
 
 
 const download_Jamaah = async () => {

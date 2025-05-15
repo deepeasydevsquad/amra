@@ -302,8 +302,7 @@ import BayarIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/BayarIcon
 import BayarButton from '@/components/User/Modules/DaftarPeminjaman/Particle/BayarButton.vue'
 // Import komponen lainnya
 
-import DangerButton from '@/components/User/Modules/DaftarPeminjaman/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/DaftarPeminjaman/Particle/EditButton.vue'
+
 import Notification from '@/components/User/Modules/DaftarPeminjaman/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/DaftarPeminjaman/Particle/Confirmation.vue'
 import FormAddPeminjaman from '@/components/User/Modules/DaftarPeminjaman/widget/FormAddPeminjaman.vue'
@@ -313,6 +312,7 @@ import FormPembayaran from '@/components/User/Modules/DaftarPeminjaman/widget/Fo
 // Button
 import LightButton from "@/components/Button/LightButton.vue"
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
+import DangerButton from '@/components/Button/DangerButton.vue'
 // Icon
 import IconPlus from "@/components/Icons/IconPlus.vue"
 

@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { getMember, deleteMember as deleteMemberApi } from '@/service/member'
 import DeleteIcon from '@/components/User/Modules/Member/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/Member/Icon/EditIcon.vue'
-import DangerButton from '@/components/User/Modules/Member/Particle/DangerButton.vue'
+// import DangerButton from '@/components/User/Modules/Member/Particle/DangerButton.vue'
 import EditButton from '@/components/User/Modules/Member/Particle/EditButton.vue'
 import FormAdd from '@/components/User/Modules/Member/Particle/FormAdd.vue'
 import FormUpdate from '@/components/User/Modules/Member/Particle/FormUpdate.vue'
@@ -14,6 +14,7 @@ import AddAgenIcon from '@/components/User/Modules/Member/Icon/AddAgenIcon.vue'
 import FormAddAgen from '@/components/User/Modules/Member/Particle/FormAddAgen.vue'
 
 import LightButton from "@/components/Button/LightButton.vue"
+import DangerButton from "@/components/Button/DangerButton.vue"
 
 //sas
 ////
@@ -229,10 +230,10 @@ const closeUpdateForm = () => {
             </td>
             <td class="px-6 py-4 text-center">{{ member.whatsapp_number }}</td>
             <td class="px-6 py-4 text-center">
-              <div class="flex justify-center gap-2">
-                <LightButton @click="editMember(member.id)"><EditIcon /></LightButton>
-                <LightButton  @click="addAgen(member.id)"><AddAgenIcon /></LightButton>
-                <DangerButton @click="confirmDelete(member.id)"><DeleteIcon /></DangerButton>
+              <div class="flex justify-center">
+                <LightButton @click="editMember(member.id)" class="p-2 "><EditIcon /></LightButton>
+                <LightButton  @click="addAgen(member.id)" class="p-2 "><AddAgenIcon /></LightButton>
+                <DangerButton @click="confirmDelete(member.id)" class="p-2 "><DeleteIcon /></DangerButton>
               </div>
             </td>
           </tr>
