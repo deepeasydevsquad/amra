@@ -66,12 +66,12 @@ controllers.delete = async (req, res) => {
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Paket berhasil dihapus.',
+        error_msg: 'Tabungan Umrah berhasil dihapus.',
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Paket Gagal Dihapus.',
+        error_msg: 'Tabungan Umrah Gagal Dihapus.',
       });
     }
   } catch (error) {

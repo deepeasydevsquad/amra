@@ -2,7 +2,6 @@ const {
   sequelize,
   Company,
   Division,
-  Paket,
   Tabungan,
   Jamaah,
   Riwayat_tabungan,
@@ -60,7 +59,6 @@ class Model_cud {
   // Generate a 6-character alphanumeric invoice code
   const possibleLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const possibleNumbers = "0123456789";
-  
   let invoice;
   let exists;
 
@@ -92,9 +90,31 @@ class Model_cud {
     exists = inRiwayat || inDeposit;
 
   } while (exists);
+    return invoice;
+  }
 
-  return invoice;
-}
+  async generateInvoiceAgen() {
+    const possibleLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const possibleNumbers = "0123456789";
+    let invoice;
+    let exists;
+    
+    do {
+      const lettersPart = Array.from({ length: 3 }, () =>
+        possibleLetters.charAt(Math.floor(Math.random() * possibleLetters.length))
+      ).join("");
+      
+      const numbersPart = Array.from({ length: 3 }, () =>
+        possibleNumbers.charAt(Math.floor(Math.random() * possibleNumbers.length))
+      ).join("");
+      
+      invoice = lettersPart + numbersPart;
+      
+      const inDeposit = await Fee_agen.findOne({ where: { invoice, company_id: this.company_id } });
+      exists = inDeposit;
+    } while (exists);
+    return invoice;
+  }
   
   // === CREATE ===
   async add() {
@@ -148,32 +168,33 @@ class Model_cud {
       }, { transaction: this.t });
 
       // === 3. Jika ada agen, insert ke FEE_KEAGENAN ===
-      // if (body.fee_agen_id) {
-      //   await Fee_agen.create({
-      //     company_id: this.company_id,
-      //     agen_id: body.fee_agen_id,
-      //     invoice: invoice,
-      //     nominal: body.nominal_fee || 0,
-      //     status_bayar: 'belum_bayar',
-      //     info: body.info_fee || null,
-      //     pembayaran_fee_agen_id: body.fee_agen_id,
-      //     createdAt: dateNow,
-      //     updatedAt: dateNow,
-      //   }, { transaction: this.t });
-      // }
+      const jamaah = await Jamaah.findOne({
+        where: { id: body.jamaah_id },
+        include: [{ model: Agen, include: [{ model: Level_keagenan }] }],
+      });
+      if (jamaah && jamaah.Agen) {
+        const invoiceAgen = await this.generateInvoiceAgen();
+        await Fee_agen.create({
+          company_id: this.company_id,
+          agen_id: jamaah.Agen.id,
+          invoice: invoiceAgen,
+          nominal: jamaah.Agen.Level_keagenan.default_fee || 0,
+          status_bayar: 'belum_lunas',
+          info: null,
+          pembayaran_fee_agen_id: null,
+          grup_id: null,
+          createdAt: dateNow,
+          updatedAt: dateNow,
+        }, { transaction: this.t });
+      }
 
       // === 4. Jika sumber dana adalah "Deposit", update data member dan insert ke DEPOSIT ===
+      const member = await Member.findOne({ where: { id: body.jamaah_id } });
       if (body.sumber_dana.toLowerCase() === "deposit") {
         // Kurangi total deposit di tabel MEMBER
-        const member = await Member.findOne({ where: { jamaah_id: body.jamaah_id } });
         if (!member || member.total_deposit < body.biaya_deposit) {
           throw new Error("Deposit tidak mencukupi.");
         }
-
-        await member.update({
-          total_deposit: member.total_deposit - body.biaya_deposit,
-          updatedAt: dateNow
-        }, { transaction: this.t });
 
         // Insert ke tabel DEPOSIT (log pengurangan)
         await Deposit.create({
@@ -185,12 +206,19 @@ class Model_cud {
           saldo_sesudah: member.total_deposit - body.biaya_deposit,
           sumber_dana: body.sumber_dana,
           penerima: penerima,
-          tipe_transaksi: "deposit",
+          tipe_transaksi: "pindah_ke_tabungan",
           info: `Digunakan untuk tabungan umrah (invoice: ${invoiceTabungan})`,
           createdAt: dateNow,
           updatedAt: dateNow,
         }, { transaction: this.t });
       }
+
+      // update data member
+      await member.update({
+        total_deposit: member.total_deposit - body.biaya_deposit,
+        total_tabungan: member.total_tabungan === null ? 0 : member.total_tabungan + body.biaya_deposit,
+        updatedAt: dateNow
+      }, { transaction: this.t });
 
       this.message = `Data tabungan berhasil disimpan dengan invoice: ${invoiceTabungan}`;
     } catch (error) {
@@ -204,65 +232,86 @@ class Model_cud {
 
   // Hapus paket
   async delete() {
-    // initialize dependensi properties
     await this.initialize();
     const body = this.req.body;
-    try {
-      // call object
-      const model_r = new Model_r(this.req);
-      // get info paket
-      console.log("Body ID:", body.id);
-      console.log("Division ID:", this.division_id);
-      const paketInfo = await model_r.infoPaket(body.id, this.division_id);
+    const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
 
-      // delete process
-      // get paket price info
-      const paketPriceInfo = await Paket_price.findAll({
-        where: {
-          paket_id: paketInfo.id,
-        },
+    try {
+      const tabungan = await Tabungan.findOne({
+        where: { id: body.id },
+        include: [
+          {
+            model: Riwayat_tabungan,
+            order: [["id", "DESC"]],
+            limit: 1,
+          },
+          {
+            model: Jamaah,
+          },
+        ],
         transaction: this.t,
       });
 
-      console.log("Paket Price Info:", paketPriceInfo);
-      // delete paket price
-      if (paketPriceInfo.length > 0) {
-        await Paket_price.destroy({
-          where: {
-            paket_id: paketInfo.id,
-          },
-          transaction: this.t,
-        });
+      if (!tabungan) {
+        throw new Error("Data tabungan tidak ditemukan.");
       }
 
-      // Ambil nama file saja dan buat path lengkap
-      const fileName = path.basename(paketInfo.photo); // Ambil nama file
-      const filePath = path.resolve(__dirname, '../../../uploads/daftar_paket', fileName);
+      const member = await Member.findOne({
+        where: { id: tabungan.jamaah_id },
+        transaction: this.t,
+      });
 
-      // Cek dan hapus file 
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-        console.log(`Deleted file: ${filePath}`);
-      } else {
-        console.log(`File not found: ${filePath}`);
+      if (!member) {
+        throw new Error("Data member tidak ditemukan.");
       }
 
-      // delete paket
-      await Paket.destroy(
-        {
-          where: {
-            id: body.id,
-            division_id: this.division_id,
-          },
-          transaction: this.t,
-        }
-      );
+      const nominalTerakhir = tabungan.total_tabungan;
+      const saldoSebelum = member.total_deposit;
+      const saldoSesudah = saldoSebelum + nominalTerakhir;
 
+      // 1. Tambahkan kembali saldo tabungan ke deposit member
+      await member.update({
+        total_deposit: saldoSesudah,
+        total_tabungan: member.total_tabungan - nominalTerakhir,
+        updatedAt: dateNow,
+      }, { transaction: this.t });
+
+      // 2. Buat catatan log deposit (pengembalian)
+      const invoiceDeposit = await this.generateInvoice();
+      const penerima = await this.penerima();
+
+      await Deposit.create({
+        company_id: this.company_id,
+        member_id: member.id,
+        invoice: invoiceDeposit,
+        nominal: nominalTerakhir,
+        saldo_sebelum: saldoSebelum,
+        saldo_sesudah: saldoSesudah,
+        sumber_dana: "deposit",
+        penerima: penerima,
+        tipe_transaksi: "deposit",
+        info: `Pengembalian dari pembatalan tabungan ID: ${tabungan.id}`,
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      }, { transaction: this.t });
+
+      // 3. Hapus Riwayat Tabungan
+      await Riwayat_tabungan.destroy({
+        where: { tabungan_id: tabungan.id },
+        transaction: this.t,
+      });
+
+      // 4. Hapus Tabungan
+      await Tabungan.destroy({
+        where: { id: tabungan.id },
+        transaction: this.t,
+      });
+
+      this.message = `Tabungan ID ${tabungan.id} berhasil dihapus. Dana sebesar ${nominalTerakhir} dikembalikan ke deposit.`;
       this.state = true;
-      // write log message
-      this.message = `Menghapus paket dengan Kode: ${paketInfo.kode}, Nama : ${paketInfo.name} dan ID : ${paketInfo.id}`;
     } catch (error) {
-      console.error("Error deleting paket:", error);
+      console.error("Error deleting tabungan:", error);
+      this.message = error.message || "Gagal menghapus tabungan.";
       this.state = false;
     }
   }

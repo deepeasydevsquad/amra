@@ -13,7 +13,10 @@ const {
   sequelize,
   Sequelize,
   Division,
-  Riwayat_tabungan
+  Jamaah,
+  Tabungan,
+  Riwayat_tabungan,
+  Mst_kota
 } = require("../../../models");
 const { Op } = require("sequelize");
 const { getCompanyIdByCode, tipe, getCabang } = require("../../../helper/companyHelper");
@@ -31,39 +34,52 @@ class Model_r {
     this.division_id = await getCabang(this.req);
   }
 
-  async header_kwitansi_invoice() {
-    var data = {};
-    await Division.findOne({
-      attributes : ['name', 'city', "pos_code", 'address'],
-      where: { id: this.company_id },
-      include: [
-        {
-          required : true, 
-          model: Company, 
-          attributes: ['logo', "company_name", "email", "whatsapp_company_number", "invoice_logo", "invoice_title" ] 
-        }
-      ],
-    }).then(async (e) => {
-      if (e) {
-        var exisFile = false;
-        if( e.Company.invoice_logo !== null )  {
-          const filePath = path.join(__dirname, 'uploads', e.Company.invoice_logo);
-          if( fs.existsSync(filePath) ) {
-            exisFile = true;
-          }
-        }
-        data['logo'] = exisFile ? e.Company.invoice_logo : 'default.png';
-        data['company_name'] = e.Company.company_name;
-        data["city"] = e.city;
-        data['address'] = e.address;
-        data['pos_code'] = e.pos_code;
-        data['email'] = e.Company.email;
-        data['whatsapp_company_number'] = e.Company.whatsapp_company_number;
-      }
-    });
+async header_kwitansi_invoice() {
+  const data = {};
+  const division = await Division.findOne({
+    attributes: ["name", "pos_code", "address"],
+    where: { id: this.division_id },
+    include: [
+      {
+        model: Company,
+        required: true,
+        attributes: [
+          "logo",
+          "company_name",
+          "email",
+          "whatsapp_company_number",
+          "invoice_logo",
+          "invoice_title",
+        ],
+      },
+      {
+        model: Mst_kota,
+        required: true,
+        attributes: ["name"],
+      },
+    ],
+  });
 
-    return data;
+  if (division) {
+    const invoiceLogo = division.Company?.invoice_logo;
+    const logoPath = invoiceLogo
+      ? path.resolve(__dirname, "../../../uploads", invoiceLogo)
+      : null;
+
+    const exists = invoiceLogo && fs.existsSync(logoPath);
+
+    data.logo = exists ? invoiceLogo : "default.png";
+    data.company_name = division.Company?.company_name ?? "-";
+    data.city = division.Mst_kota?.name ?? "-";
+    data.address = division.address ?? "-";
+    data.pos_code = division.pos_code ?? "-";
+    data.email = division.Company?.email ?? "-";
+    data.whatsapp_company_number = division.Company?.whatsapp_company_number ?? "-";
   }
+
+  console.log(data);
+  return data;
+}
 
   async dataInvoiceDeposit() {
     await this.initialize();
@@ -236,42 +252,56 @@ class Model_r {
     try {
       var data = {...data,...await this.header_kwitansi_invoice() };
 
-      const adaRegNum = await Riwayat_tabungan.findOne({
+      console.log("this.req.params.invoice", this.req.params.invoice);
+
+      const adaInvoice = await Riwayat_tabungan.findOne({
         where: {
           invoice: this.req.params.invoice,
         },
       });
 
-      if (!adaRegNum) {
+      if (!adaInvoice) {
         return {};
       }
 
+      console.log("=================");
+      console.log(adaInvoice);
+      console.log("=================");
+
       const sql = {
-        attributes: ["invoice", "sumber_dana", "penerima", "info_tabungan", ""],
+        attributes: ["invoice", "nominal_tabungan", "sumber_dana", "penerima", "saldo_tabungan_sebelum", "saldo_tabungan_sesudah", "info_tabungan", "createdAt"],
         where: {
-          division_id: this.division_id,
-          register_number: this.req.params.register_number
+          invoice: this.req.params.invoice,
         },
         include: {
-            model: Paket_la_transaction,
-            attributes: ["status", "invoice", "paid", "createdAt", "receiver"],
-            required: true,
-            limit: 1,
-            order: [["createdAt", "DESC"]],
+            model: Tabungan,
+            attributes: ["createdAt"],
+            include: [
+              {
+                model: Jamaah,
+                include: [
+                  {
+                    model: Member,
+                    attributes: ["fullname", "whatsapp_number"],
+                  },
+                ],
+              },
+            ]
           },
       };
   
-      await Paket_la.findOne(sql).then(async (e) => {
+      await Riwayat_tabungan.findOne(sql).then(async (e) => {
         if (e) {
-          data["register_number"] = e.register_number;
-          data["client_name"] = e.client_name;
-          data["Transaksi"] = (e.Paket_la_transactions || []).map( transaction => ({
-            status: transaction.status,
-            invoice: transaction.invoice,
-            receiver: transaction.receiver,
-            paid: transaction.paid,
-            date: moment(transaction.createdAt).format("YYYY-MM-DD HH:mm:ss")
-          }));
+          data["invoice"] = e.invoice,
+          data["fullname"] = e.Tabungan.Jamaah.Member.fullname,
+          data["whatsapp_number"] = e.Tabungan.Jamaah.Member.whatsapp_number,
+          data["nominal_tabungan"] = e.nominal_tabungan,
+          data["sumber_dana"] = e.sumber_dana,
+          data["penerima"] = e.penerima,
+          data["saldo_tabungan_sebelum"] = e.saldo_tabungan_sebelum,
+          data["saldo_tabungan_sesudah"] = e.saldo_tabungan_sesudah,
+          data["info_tabungan"] = e.info_tabungan,
+          data["createdAt"] = e.createdAt
         }
       })
 

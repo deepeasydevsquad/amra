@@ -50,7 +50,7 @@ validation.check_id_target_paket = async (value, { req }) => {
     }
 }
 
-validation.check_saldo_deposit_dan_nominal_tabungan = async (value, { req }) => {
+validation.check_saldo_deposit_dan_biaya = async (value, { req }) => {
     try {
         const division_id = await getCabang(req);
 
@@ -77,8 +77,8 @@ validation.check_saldo_deposit_dan_nominal_tabungan = async (value, { req }) => 
         }
 
         if (Number(value) > totalDeposit) {
-            console.debug(`Nominal tabungan melebihi total deposit`);
-            throw new Error("Nominal tabungan melebihi total deposit");
+            console.debug(`Biaya deposit melebihi saldo deposit yang tersedia`);
+            throw new Error("Biaya deposit melebihi saldo deposit yang tersedia");
         }
 
         return true;

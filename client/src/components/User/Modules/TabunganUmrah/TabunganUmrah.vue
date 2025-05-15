@@ -1,26 +1,18 @@
 <script setup lang="ts">
 // Import Icon
-import DeleteIcon from '@/components/User/Modules/TabunganUmrah/Icon/DeleteIcon.vue'
-import EditIcon from '@/components/User/Modules/TabunganUmrah/Icon/EditIcon.vue'
-import DetailIcon from '@/components/User/Modules/TabunganUmrah/Icon/DetailIcon.vue'
 import CetakIcon from '@/components/User/Modules/TabunganUmrah/Icon/CetakIcon.vue'
 
 // import element
 import LightButton from '@/components/User/Modules/TabunganUmrah/Particle/LightButton.vue'
 import DangerButton from '@/components/User/Modules/TabunganUmrah/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/TabunganUmrah/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue'
-import DetailButton from '@/components/User/Modules/TabunganUmrah/Particle/DetailButton.vue'
 import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confirmation.vue'
 
 // import widget
 import FormAdd from '@/components/User/Modules/TabunganUmrah/Widget/FormAdd.vue'
 
-// import component
-// import FormTransaksi from '@/components/User/Modules/TabunganUmrah/Widget/FormTransaksi.vue'
-
 // import API
-import { daftar_tabungan_umrah } from '@/service/tabungan_umrah'
+import { daftar_tabungan_umrah, deleteTabunganUmrah } from '@/service/tabungan_umrah'
 import { ref, onMounted, computed } from 'vue';
 
 const itemsPerPage = 100; // Jumlah paket_la per halaman
@@ -150,27 +142,23 @@ const openModal = () => {
   isModalOpen.value = true;
 }
 
-// const deleteData = async (id: number) => {
-//   showConfirmation(
-//     'Konfirmasi Hapus',
-//     'Apakah Anda yakin ingin menghapus data ini?',
-//     async () => {
-//       try {
-//         const response = await deletePaket(id);
-//         if (response.error) {
-//           displayNotification(response.error_msg, 'error');
-//           return;
-//         }
-//         showConfirmDialog.value = false;
-//         displayNotification(response.error_msg || "Operasi berhasil!", "success");
-//         fetchData();
-//       } catch (error) {
-//         console.error('Error deleting data:', error);
-//         displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
-//       }
-//     }
-//   );
-// };
+const deleteData = async (id: number) => {
+  showConfirmation(
+    'Konfirmasi Hapus',
+    'Apakah Anda yakin ingin menghapus data ini?',
+    async () => {
+      try {
+        const response = await deleteTabunganUmrah(id);
+        showConfirmDialog.value = false;
+        displayNotification("Operasi berhasil!", "success");
+        fetchData();
+      } catch (error) {
+        console.error('Error deleting data:', error);
+        displayNotification(error?.response?.data?.error_msg, 'error');
+      }
+    }
+  );
+};
 
 const cetakKwitansi = async (invoice: string) => {
   try {
@@ -243,15 +231,15 @@ const cetakKwitansi = async (invoice: string) => {
           </thead>
           <tbody class="divide-y divide-gray-100 border-t border-gray-100">
             <template v-if="dataTabunganUmrah && dataTabunganUmrah.length > 0">
-              <tr v-for="jamaah in dataTabunganUmrah" :key="jamaah.id" class="hover:bg-gray-100">
+              <tr v-for="tabungan in dataTabunganUmrah" :key="tabungan.id" class="hover:bg-gray-100">
                 <td class="px-6 align-top">
                   <table class="text-sm text-gray-700 border-t border-b border-gray-200">
                     <tr v-for="(label, value) in {
-                        'Nama Jamaah': jamaah.member.fullname,
-                        'Nomor Identitas': jamaah.member.identity_number,
-                        'Tempat / Tgl Lahir': `${jamaah.member.birth_place} / ${jamaah.member.birth_date}`,
-                        'Nama Agen': jamaah.agen ? `${jamaah.agen.fullname} (Level : ${jamaah.agen.level})` : '-',
-                        'Nama Target Paket': jamaah.target_paket_name || 'Target Paket Tidak Ditemukan'
+                        'Nama Jamaah': tabungan.member.fullname,
+                        'Nomor Identitas': tabungan.member.identity_number,
+                        'Tempat / Tgl Lahir': `${tabungan.member.birth_place} / ${tabungan.member.birth_date}`,
+                        'Nama Agen': tabungan.agen ? `${tabungan.agen.fullname} (Level : ${tabungan.agen.level})` : '-',
+                        'Nama Target Paket': tabungan.target_paket_name || 'Target Paket Tidak Ditemukan'
                         }" :key="label" class="border-t border-gray-200 hover:bg-gray-200">
                       <td class="py-1.5"><strong>{{ value }}</strong></td>
                       <td class="pl-8 pr-2">:</td>
@@ -264,14 +252,14 @@ const cetakKwitansi = async (invoice: string) => {
                     <div class="flex items-start ">
                       <span class="w-40 font-semibold">Total Tabungan</span>
                       <span class="px-2">:</span>
-                      <span class="font-bold">Rp {{ jamaah.total_tabungan.toLocaleString() }}</span>
+                      <span class="font-bold">Rp {{ tabungan.total_tabungan.toLocaleString() }}</span>
                     </div>
                   </div>
                   <div class="mt-4 border-t pt-2">
                     <div class="rounded-t bg-gray-200 px-2 py-2 font-semibold text-center">
                       Riwayat Tabungan Umrah
                     </div>
-                    <template v-if="jamaah.riwayat_tabungan.length">
+                    <template v-if="tabungan.riwayat_tabungan.length">
                       <table class="w-full mb-4 text-xs text-center text-gray-700 border">
                         <thead class="bg-gray-50 border-b">
                           <tr>
@@ -284,7 +272,7 @@ const cetakKwitansi = async (invoice: string) => {
                           </tr>
                         </thead>
                         <tbody>
-                          <tr v-for="(riwayat, index) in jamaah.riwayat_tabungan" :key="index" class="border-t hover:bg-gray-200">
+                          <tr v-for="(riwayat, index) in tabungan.riwayat_tabungan" :key="index" class="border-t hover:bg-gray-200">
                             <td class="p-2 border">{{ index + 1 }}</td>
                             <td class="p-2 border">{{ riwayat.invoice }}</td>
                             <td class="p-2 border">Rp {{ riwayat.nominal_tabungan.toLocaleString() }},-</td>
@@ -305,7 +293,7 @@ const cetakKwitansi = async (invoice: string) => {
                     <div class="rounded-t bg-gray-200 px-2 py-2 font-semibold text-center">
                       Riwayat Handover Fasilitas
                     </div>
-                    <!-- <template v-if="jamaah.handover.length">
+                    <!-- <template v-if="tabungan.handover.length">
                       <table class="w-full mb-4 text-xs text-left text-gray-700 border">
                         <thead class="bg-gray-50 border-b">
                           <tr>
@@ -315,11 +303,11 @@ const cetakKwitansi = async (invoice: string) => {
                           </tr>
                         </thead>
                         <tbody>
-                          <tr v-for="(handover, index) in jamaah.handover" :key="index" class="border-t hover:bg-gray-200">
+                          <tr v-for="(handover, index) in tabungan.handover" :key="index" class="border-t hover:bg-gray-200">
                             <td class="p-2 border text-center">{{ handover.invoice }}</td>
                             <td class="p-2 border">{{ handover.fasilitas }}</td>
                             <td class="p-2 border">
-                              <a href="#" @click.prevent="printHandoverFasilitas(jamaah.id, handover.id)">
+                              <a href="#" @click.prevent="printHandoverFasilitas(tabungan.id, handover.id)">
                               <a href="#">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2-4h6a2 2 0 012 2v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4a2 2 0 012-2h2" />
@@ -340,34 +328,34 @@ const cetakKwitansi = async (invoice: string) => {
                 </td>
                 <td class="px-6 py-4 text-center grid grid-cols-2 gap-2">
                   <!-- Cetak -->
-                  <LightButton col-span-1 title="Cetak Kwitansi" @click.prevent="cetakKwitansi(jamaah.invoice_sisa_deposit)">
+                  <LightButton col-span-1 title="Cetak Kwitansi" @click.prevent="cetakKwitansi(tabungan.invoice_sisa_deposit)">
                     <font-awesome-icon icon="fa-solid fa-print" />
                   </LightButton>
 
                   <!-- Lihat Paket -->
-                  <LightButton col-span-1 title="Lihat Paket" @click.prevent="lihatPaket(jamaah)">
+                  <!-- <LightButton col-span-1 title="Lihat Paket" @click.prevent="lihatPaket(tabungan)">
                     <font-awesome-icon icon="fa-solid fa-box" />
-                  </LightButton>
+                  </LightButton> -->
 
                   <!-- Setor Tabungan -->
-                  <LightButton col-span-1 title="Setor Tabungan" @click.prevent="setorTabungan(jamaah)">
+                  <!-- <LightButton col-span-1 title="Setor Tabungan" @click.prevent="setorTabungan(tabungan)">
                     <font-awesome-icon icon="fa-solid fa-hand-holding-usd" />
-                  </LightButton>
+                  </LightButton> -->
 
                   <!-- Riwayat Tabungan -->
-                  <LightButton col-span-1 title="Riwayat Tabungan" @click.prevent="lihatRiwayat(jamaah)">
+                  <!-- <LightButton col-span-1 title="Riwayat Tabungan" @click.prevent="lihatRiwayat(tabungan)">
                     <font-awesome-icon icon="fa-solid fa-money-bill-wave" />
-                  </LightButton>
+                  </LightButton> -->
 
                   <!-- Info Agen -->
-                  <LightButton col-span-1 title="Info Agen" @click.prevent="lihatAgen(jamaah)">
+                  <!-- <LightButton col-span-1 title="Info Agen" @click.prevent="lihatAgen(tabungan)">
                     <font-awesome-icon icon="fa-solid fa-handshake" />
-                  </LightButton>
+                  </LightButton> -->
 
                   <!-- Hapus -->
-                  <LightButton col-span-1 title="Hapus" @click.prevent="hapusData(jamaah)">
+                  <DangerButton col-span-1 title="Hapus Tabungan" @click="deleteData(tabungan.id)">
                     <font-awesome-icon icon="fa-solid fa-times" />
-                  </LightButton>
+                  </DangerButton>
                 </td>
               </tr>
             </template>

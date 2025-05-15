@@ -38,7 +38,7 @@ router.post(
       .custom(validation.check_id_jamaah),
     body("target_id")
       .trim()
-      .notEmpty().withMessage("Target ID tidak boleh kosong.")
+      .optional({ checkFalsy: true })
       .isInt().withMessage("Target ID harus berupa angka.")
       .custom(validation.check_id_target_paket),
     body("sumber_dana")
@@ -48,7 +48,7 @@ router.post(
       .trim()
       .notEmpty().withMessage("Biaya Deposit tidak boleh kosong.")
       .isNumeric().withMessage("Biaya Deposit harus berupa angka.")
-      .custom(validation.check_saldo_deposit_dan_nominal_tabungan),
+      .custom(validation.check_saldo_deposit_dan_biaya),
     body("info_deposit")
       .trim(),
   ],
@@ -59,7 +59,7 @@ router.post(
   "/daftar_tabungan_umrah/delete",
   authenticateToken,
   [
-    body("id").trim().notEmpty().withMessage("ID Paket tidak boleh kosong.").isInt().withMessage("ID Paket harus berupa angka."),
+    body("id").trim().notEmpty().withMessage("ID Tabungan Umrah tidak boleh kosong.").isInt().withMessage("ID Tabungan Umrah harus berupa angka."),
   ],
   controllers.delete
 );

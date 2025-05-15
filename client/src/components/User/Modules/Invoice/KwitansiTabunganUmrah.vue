@@ -1,130 +1,146 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getKwitansiTabunganUmrah  } from '@/service/invoice.ts'
 import { useRoute } from 'vue-router'
+import { getKwitansiTabunganUmrah } from '@/service/invoice.ts'
 import Header from '@/components/User/Modules/Invoice/Particle/Header.vue'
 
 const route = useRoute()
-const regnum = route.params.id
-const kwitansiData = ref<any>({});
+const invoice = route.params.id
+const data = ref<any>(null)
 
 const fetchData = async () => {
   try {
-    const response = await getKwitansiTabunganUmrah(regnum.toString())
-    kwitansiData.value = response.data
-    console.log(kwitansiData.value)
+    const response = await getKwitansiTabunganUmrah(invoice.toString())
+    data.value = response.data
   } catch (error) {
-    console.error("Error fetching invoice data:", error)
+    console.error("Gagal ambil data kwitansi:", error)
   }
 }
 
 function formatCurrency(value: number) {
-  return new Intl.NumberFormat("id-ID").format(value)
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(value)
+}
+
+function formatDate(date: string) {
+  return new Date(date).toISOString().slice(0, 19).replace('T', ' ')
 }
 
 onMounted(() => {
-  try {
-    fetchData()
-
-    // Tunggu sebentar agar DOM selesai dirender
-    setTimeout(() => {
-      window.scrollTo(0, 0)
-      window.print()
-      setTimeout(() => {
-        window.close();
-      }, 1000);
-    }, 1500) // kasih delay dikit kalau perlu render dulu
-
-  } catch (err) {
-    console.error("Error:", err)
-  }
+  fetchData()
+  setTimeout(() => {
+    window.scrollTo(0, 0)
+    window.print()
+    // setTimeout(() => {
+    //   window.close()
+    // }, 1000)
+  }, 1500)
 })
 </script>
 
 <template>
-  <div class="bg-white p-10 text-sm text-gray-800 min-h-screen">
-    <div v-if="kwitansiData && Object.keys(kwitansiData).length > 0">
-      <Header :data="kwitansiData"></Header>
-      <h2 class="text-center text-lg font-bold mb-3 pb-2">KWITANSI TERAKHIR PAKET LA</h2>
-      <!-- Info Transaksi -->
-      <div class="grid grid-cols-3 gap-4 mb-6">
-        <div class="border rounded-md p-3 min-h-[60px]">
-          <p class="text-xs font-semibold text-gray-600">Nomor Register</p>
-          <p class="text-base font-medium">{{ kwitansiData?.register_number || '-' }}</p>
-        </div>
-        <div class="border rounded-md p-3 min-h-[60px]">
-          <p class="text-xs font-semibold text-gray-600">Status</p>
-          <p class="text-base font-medium uppercase">{{ kwitansiData?.Transaksi[0].status || '-' }}</p>
-        </div>
-        <div class="border rounded-md p-3 min-h-[60px]">
-          <p class="text-xs font-semibold text-gray-600">Info Client</p>
-          <p class="text-base font-medium">
-            {{ kwitansiData?.client_name || '-' }}
-          </p>
+  <div class="bg-white p-8 text-sm text-gray-900 min-h-screen">
+    <div v-if="data">
+      <Header :data="data"></Header>
+      <!-- Header Kwitansi -->
+
+      <!-- Judul -->
+      <h2 class="text-center text-lg font-bold border-b pb-2 mb-4">
+        KWITANSI PEMBAYARAN TABUNGAN UMRAH
+      </h2>
+      <!-- Info Jamaah & Transaksi -->
+      <div class="border rounded p-4 bg-white shadow-sm mb-6 text-xs">
+        <div class="grid grid-cols-5 gap-4">
+          <div>
+            <p class="text-gray-500 font-bold">Kode Transaksi</p>
+            <p class="font-medium">{{ data.invoice }}</p>
+          </div>
+          <div>
+            <p class="text-gray-500 font-bold">Sumber Dana</p>
+            <p class="font-medium">{{ data.sumber_dana }}</p>
+          </div>
+          <div>
+            <p class="text-gray-500 font-bold">Status Transaksi</p>
+            <p class="font-medium">Sukses</p>
+          </div>
+          <div>
+            <p class="text-gray-500 font-bold">Keperluan</p>
+            <p class="font-medium">Tabungan Umrah</p>
+          </div>
+          <div>
+            <p class="text-gray-500 font-bold">Info Calon Jamaah</p>
+            <p class="font-medium">
+              {{ data.fullname }}<br />
+              <span class="text-gray-700">(WA : {{ data.whatsapp_number }})</span>
+            </p>
+          </div>
         </div>
       </div>
 
       <!-- Tabel Transaksi -->
-      <div class="overflow-x-auto print:overflow-visible">
-        <table class="w-full text-center border border-collapse mb-4 print:text-xs">
+      <div class="border rounded p-4 bg-white shadow-sm mb-6">
+        <h2 class="text-md font-bold mb-2 pb-2">Detail Transaksi</h2>
+        <table class="w-full text-center border border-collapse mb-6 text-sm print:text-xs border-b border-gray-300">
           <thead class="bg-gray-100">
             <tr>
-              <th class="w-[20%] border p-2">Tanggal Transaksi</th>
-              <th class="w-[15%] border p-2">Nomor Invoice</th>
-              <th class="w-[15%] border p-2 capitalize">Status</th>
-              <th class="w-[30%] border p-2">Penerima</th>
-              <th class="w-[20%] border p-2">Biaya</th>
+              <th class="border-b border-gray-300 p-2">Tanggal</th>
+              <th class="border-b border-gray-300 p-2">Keperluan</th>
+              <th class="border-b border-gray-300 p-2">Penerima</th>
+              <th class="border-b border-gray-300 p-2">Info</th>
+              <th class="border-b border-gray-300 p-2">Jumlah</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td class="border p-2">{{ kwitansiData?.Transaksi[0].date }}</td>
-              <td class="border p-2">{{ kwitansiData?.Transaksi[0].invoice }}</td>
-              <td class="border p-2 capitalize">{{ kwitansiData?.Transaksi[0].status }}</td>
-              <td class="border p-2">{{ kwitansiData?.Transaksi[0].receiver }}</td>
-              <td class="border p-2">Rp {{ formatCurrency(kwitansiData?.Transaksi[0].paid) }}</td>
+              <td class="border-b border-gray-300 p-2">{{ formatDate(data.createdAt) }}</td>
+              <td class="border-b border-gray-300 p-2">Tabungan Umrah</td>
+              <td class="border-b border-gray-300 p-2">{{ data.penerima }}</td>
+              <td class="border-b border-gray-300 p-2">{{ data.info_tabungan }}</td>
+              <td class="border-b border-gray-300 p-2">{{ formatCurrency(data.nominal_tabungan) }}</td>
             </tr>
           </tbody>
           <tfoot>
             <tr>
-              <td class="border p-2 text-right" colspan="4">Total Pembayaran</td>
-              <td class="border p-2">Rp {{ formatCurrency(kwitansiData?.Transaksi[0].paid) }}</td>
+              <td colspan="4" class="border-b border-gray-300 p-2 text-right">Saldo Sebelumnya</td>
+              <td class="border-b border-gray-300 p-2">{{ formatCurrency(data.saldo_tabungan_sebelum) }}</td>
+            </tr>
+            <tr>
+              <td colspan="4" class="border-b border-gray-300 p-2 text-right font-bold">Saldo Sekarang</td>
+              <td class="border-b border-gray-300 p-2 font-bold">{{ formatCurrency(data.saldo_tabungan_sesudah) }}</td>
             </tr>
           </tfoot>
         </table>
       </div>
 
       <!-- Tanda Tangan -->
-      <div class="flex justify-between mt-8">
+      <div class="flex justify-between text-center mt-12">
         <div>
-          <p class="mb-12">Klien</p>
-          <p class="border-t border-gray-400 w-40"></p>
+          <p class="mb-12">Member/Jamaah</p>
+          <p class="border-t border-gray-400 w-48 mx-auto"></p>
         </div>
         <div>
           <p class="mb-12">Penerima</p>
-          <p class="border-t border-gray-400 w-40"></p>
+          <p class="border-t border-gray-400 w-48 mx-auto"></p>
         </div>
       </div>
     </div>
-    <div v-else class="flex items-center justify-center min-h-screen">
-      <div class="text-center bg-red-50 border border-red-200 text-red-600 p-6 rounded-xl shadow-sm">
-        <h2 class="text-xl font-semibold mb-2">Nomor Register Tidak Ditemukan</h2>
-        <p class="text-sm">Silakan periksa kembali nomor register atau hubungi administrator.</p>
-      </div>
+
+    <!-- Jika data kosong -->
+    <div v-else class="text-center text-red-600 py-12">
+      <p class="text-lg font-semibold">Data tidak ditemukan</p>
     </div>
   </div>
 </template>
-
 
 <style scoped>
 @media print {
   @page {
     size: A4;
-    background-color: #fff !important;
+    margin: 10mm;
     -webkit-print-color-adjust: exact;
-    font-size: 12px;
   }
 }
 </style>
-
-

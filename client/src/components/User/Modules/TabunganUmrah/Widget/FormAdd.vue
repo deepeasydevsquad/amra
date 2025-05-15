@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import SearchableSelect from '@/components/User/Modules/TabunganUmrah/Particle/SearchableSelect.vue'
+import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue';
 
 import { onMounted, reactive, ref, watch } from 'vue'
-import { getJamaah, getPaket, getAgen, addTabunganUmrah } from '@/service/daftar_tabungan_umrah'
+import { getJamaah, getPaket, getAgen, addTabunganUmrah } from '@/service/tabungan_umrah'
 
 const props = defineProps<{ isModalOpen: boolean }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
@@ -65,7 +66,7 @@ const fetchData = async () => {
     ])
 
     JamaahList.value = jamaahResponse.data
-    PaketList.value = paketResponse.data
+    PaketList.value = [{ id: null, name: 'Pilih Paket' }, ...paketResponse.data]
     checkAndFetchAgen(form.jamaah_id) // kalau sudah ada isi default
   } catch (error) {
     displayNotification('Failed to fetch data', 'error')
@@ -130,7 +131,7 @@ const saveData = async () => {
     isLoading.value = true
     const payload: {
       jamaah_id: number;
-      target_id: number;
+      target_id: number | null;
       sumber_dana: string;
       biaya_deposit: number;
       info_deposit?: string;
@@ -146,10 +147,9 @@ const saveData = async () => {
 
     console.log('Saving data:', payload)
     await addTabunganUmrah(payload)
-    displayNotification('Data added successfully')
     emit('close')
   } catch (error) {
-    displayNotification('Failed to add data', 'error')
+    displayNotification(error?.response?.data?.error_msg, 'error')
   } finally {
     isLoading.value = false
   }
@@ -193,6 +193,10 @@ const formatPrice = (value: number | string): string => {
 const unformatPrice = (formatted: string): number => {
   return parseInt(formatted.replace(/[^\d]/g, ''), 10) || 0
 }
+
+const kwitansiTabunganUmrah = () => {
+
+}
 </script>
 
 
@@ -217,6 +221,7 @@ const unformatPrice = (formatted: string): number => {
                 label="Nama Jamaah"
                 placeholder="Pilih Jamaah"
                 :error="errors.jamaah_id"
+                required="true"
               />
             </div>
             <div>
@@ -228,7 +233,10 @@ const unformatPrice = (formatted: string): number => {
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Sumber Dana</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Sumber Dana
+                <span class="text-red-600">*</span>
+              </label>
               <select
                 v-model="form.sumber_dana"
                 class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
@@ -241,7 +249,10 @@ const unformatPrice = (formatted: string): number => {
               <p v-if="errors.sumber_dana" class="mt-1 text-sm text-red-600">{{ errors.sumber_dana }}</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">Biaya Deposit</label>
+              <label class="block text-sm font-medium text-gray-700">
+                Biaya Deposit
+                <span class="text-red-600">*</span>
+              </label>
               <input
                 type="text"
                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
@@ -252,7 +263,10 @@ const unformatPrice = (formatted: string): number => {
               <p v-if="errors.biaya_deposit" class="mt-1 text-sm text-red-600">{{ errors.biaya_deposit }}</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">Informasi Deposit</label>
+              <label class="block text-sm font-medium text-gray-700">
+                Informasi Deposit
+                <span class="text-red-600">*</span>
+              </label>
               <textarea
                 v-model="form.info_deposit"
                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
@@ -285,4 +299,11 @@ const unformatPrice = (formatted: string): number => {
       </div>
     </div>
   </div>
+    <!-- Notification -->
+  <Notification
+    :showNotification="showNotification"
+    :notificationType="notificationType"
+    :notificationMessage="notificationMessage"
+    @close="showNotification = false"
+  />
 </template>

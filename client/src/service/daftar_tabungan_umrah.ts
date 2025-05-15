@@ -35,17 +35,17 @@ export const addTabunganUmrah = async (param : any) => {
     const response = await api.post("/daftar_tabungan_umrah", param);
     return response.data;
   } catch (error) {
-    console.error("Gagal menambahkan paket la:", error);
+    console.error("Gagal menambahkan tabungan umrah:", error);
     throw error;
   }
 };
 
-export const deletePaketLA = async (id : number) => {
+export const deleteTabunganUmrah = async (id : number) => {
   try {
-    const response = await api.post(`/daftar_paket_la/delete`,{ id : id});
+    const response = await api.post(`/daftar_tabungan_umrah/delete`,{ id : id});
     return response.data;
   } catch (error) {
-    console.error("Gagal menghapus paket la:", error);
+    console.error("Gagal menghapus tabungan umrah:", error);
     throw error;
   }
 };
