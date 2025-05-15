@@ -40,3 +40,12 @@ export const updateSkema = async ( param : any) => {
   }
 }
 
+export const pembayaranPerbulan = async (param : any) => {
+  try {
+    const response = await api.post("/bayar-perbulan", param); // Kirim data ke backend
+    return response.data; // Kembalikan data hasil request
+  } catch (error) {
+    console.error("Gagal membuat pembayaran perbulan:", error);
+    throw error; // Bisa ditangani di bagian pemanggilan
+  }
+}

@@ -71,3 +71,29 @@ exports.updateSkema = async (req, res) => {
     handleServerError(res, error);
   }
 };
+
+exports.pembayaranPerbulan = async (req, res) => {
+  const model = new Model_cud(req, res); // Pass both req and res to the constructor
+  try {
+    await model.pembayaranPerbulan(); // Operasikan pembayaran per bulan di model
+
+    // Mengirim respons berdasarkan status setelah pembayaran perbulan
+    const success = await model.response();
+
+    if (success) {
+      res.status(200).json({
+        message: model.message || "Pembayaran perbulan berhasil dibuat",
+        status: "success",
+        invoice: model.invoice, // Mengirim invoice yang dihasilkan
+      });
+    } else {
+      res.status(400).json({
+        message: model.message || "Gagal bayar pembayaran perbulan",
+        status: "failed",
+      });
+    }
+  } catch (error) {
+    console.error("Terjadi error saat bayar pembayaran perbulan:", error);
+    handleServerError(res, error);
+  }
+};
