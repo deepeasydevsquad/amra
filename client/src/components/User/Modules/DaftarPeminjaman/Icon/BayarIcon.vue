@@ -1,6 +1,6 @@
 <template>
   <svg
-    class="w-5 h-5 text-white"
+    class="w-5 h-5 text-black"
     fill="none"
     stroke="currentColor"
     stroke-width="2"

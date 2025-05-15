@@ -3,21 +3,7 @@
     <!-- Header dengan Add User dan Search -->
     <div class="flex flex-col md:flex-row justify-between mb-6 gap-4">
       <!-- Tombol Tambah Peminjaman -->
-      <button
-        @click="bukaModalPeminjaman()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2 w-full md:w-auto justify-center"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-        Tambah Peminjaman
-      </button>
-
+      <PrimaryButton @click="bukaModalPeminjaman()"><IconPlus></IconPlus> Tambah Peminjaman</PrimaryButton>
       <!-- Input Pencarian -->
       <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-2">
         <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
@@ -178,28 +164,23 @@
             <!-- Tombol Aksi -->
             <td class="px-2 py-2 text-center align-top">
               <div class="flex flex-wrap justify-center gap-1 max-w-[64px] mx-auto">
-                <CetakButton @click="" title="Cetak Kwitansi Peminjaman" class="p-1 w-6 h-6">
+                <LightButton  @click="">
                   <CetakIcon class="w-4 h-4" />
-                </CetakButton>
-                <BayarButton
-                  @click="
+                </LightButton>
+                <LightButton  @click="
                     bukaModalBayar({
                       id: pinjaman.id,
                       riwayat_pembayaran: pinjaman.riwayat_pembayaran,
                     })
-                  "
-                  title="Pembayaran Cicilan"
-                  class="p-1 w-6 h-6"
-                >
-                  <BayarIcon class="w-4 h-4" />
-                </BayarButton>
-                <EditButton
-                  @click="handleModalUpdate(pinjaman.id)"
+                  " title="Pembayaran Cicilan"
+                  class="p-1 w-6 h-6">
+                    <BayarIcon class="w-4 h-4" />
+                </LightButton>
+                <LightButton  @click="handleModalUpdate(pinjaman.id)"
                   title="Edit Skema Cicilan"
-                  class="p-1 w-6 h-6"
-                >
-                  <EditIcon class="w-4 h-4" />
-                </EditButton>
+                  class="p-1 w-6 h-6">
+                <EditIcon class="w-4 h-4" />
+                </LightButton>
                 <DangerButton @click="" title="Hapus Peminjaman" class="p-1 w-6 h-6">
                   <DeleteIcon class="w-4 h-4" />
                 </DangerButton>
@@ -319,6 +300,7 @@ import CetakButton from '@/components/User/Modules/DaftarPeminjaman/Particle/Cet
 import BayarIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/BayarIcon.vue'
 import BayarButton from '@/components/User/Modules/DaftarPeminjaman/Particle/BayarButton.vue'
 // Import komponen lainnya
+
 import DangerButton from '@/components/User/Modules/DaftarPeminjaman/Particle/DangerButton.vue'
 import EditButton from '@/components/User/Modules/DaftarPeminjaman/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/DaftarPeminjaman/Particle/Notification.vue'
@@ -326,6 +308,14 @@ import Confirmation from '@/components/User/Modules/DaftarPeminjaman/Particle/Co
 import FormAddPeminjaman from '@/components/User/Modules/DaftarPeminjaman/widget/FormAddPeminjaman.vue'
 import FormUpdateSkema from '@/components/User/Modules/DaftarPeminjaman/widget/FormUpdateSkema.vue'
 import FormPembayaran from '@/components/User/Modules/DaftarPeminjaman/widget/FormPembayaran.vue'
+
+// Button
+import LightButton from "@/components/Button/LightButton.vue"
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
+// Icon
+import IconPlus from "@/components/Icons/IconPlus.vue"
+
+
 // Interface untuk Type Safety
 interface Pinjaman {
   id: number
