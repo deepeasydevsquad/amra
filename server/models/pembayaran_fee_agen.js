@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "agen_id",
       });
       Pembayaran_fee_agen.hasMany(models.Fee_agen, {
-        foreignKey: "grup_id",
+        foreignKey: "pembayaran_fee_agen_id",
       });
     }
   }

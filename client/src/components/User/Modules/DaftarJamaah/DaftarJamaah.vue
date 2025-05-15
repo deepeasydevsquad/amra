@@ -2,7 +2,7 @@
   <div class="container mx-auto p-4">
     <div class="container mx-auto p-4">
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
-      
+
       <!-- Wrap tombol-tombol dalam satu flex container -->
       <div class="flex flex-wrap items-center gap-2">
         <!-- Button Tambah Jamaah -->
@@ -94,12 +94,14 @@
             <td class="px-6 py-4 text-center">{{ jamaahs.tempat_tanggal_lahir || '-' }}</td>
             <td class="px-6 py-4 text-center">
               <div class="flex justify-center gap-2">
+                <LightButton @click="handleFormUpdate(jamaahs)" title="Edit Jamaah"><EditIcon /></LightButton>
+
                 <DangerButton @click="confirmDelete(jamaahs.id)" title="Print Invoice">
                   <DeleteIcon />
                 </DangerButton>
-                <EditButton @click="handleFormUpdate(jamaahs)" title="Edit Jamaah">
+                <!-- <EditButton @click="handleFormUpdate(jamaahs)" title="Edit Jamaah">
                   <EditIcon />
-                </EditButton>
+                </EditButton> -->
               </div>
             </td>
           </tr>
@@ -266,6 +268,7 @@ import FormAddNew from '@/components/User/Modules/DaftarJamaah/Particle/FormAddN
 import FormAddMember from '@/components/User/Modules/DaftarJamaah/Particle/FormAddMember.vue'
 import FormMember from '@/components/User/Modules/DaftarJamaah/Particle/FormMember.vue'
 import FormUpdate from '@/components/User/Modules/DaftarJamaah/Particle/FormUpdate.vue'
+import LightButton from "@/components/Button/LightButton.vue"
 
 
 const download_Jamaah = async () => {
