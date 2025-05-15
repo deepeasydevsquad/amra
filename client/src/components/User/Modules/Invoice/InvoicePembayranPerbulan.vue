@@ -1,97 +1,106 @@
 <template>
-  <div class="bg-white p-0 text-sm text-gray-800 min-h-screen">
-    <!-- Wrapper PDF -->
-    <div id="invoice" v-if="company && company.data">
+  <div class="bg-white text-sm text-gray-800 min-h-screen">
+    <div id="invoice" v-if="company && company.data" class="mx-auto p-4">
       <!-- Header -->
       <Header :data="company.data" />
 
-      <!-- Detail Invoice -->
-      <div class="invoice-details">
-        <h2 class="text-left text-xl font-bold mt-10 mb-4">Kwitansi Peminjaman Dana Jamaah</h2>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
-          <!-- No Register -->
-          <div class="p-4 border border-gray-400 rounded-lg">
-            <p class="font-semibold">No Register:</p>
-            <p class="font-normal">{{ company.data.register_number }}</p>
-          </div>
-
-          <!-- Info Peminjaman -->
-          <div class="p-4 border border-gray-400 rounded-lg">
-            <p class="font-semibold">Info Peminjaman:</p>
-            <ul class="list-disc pl-5">
-              <li>
-                Pinjaman:
-                <span class="font-normal">{{ formatRupiah(company.data.pinjaman_nominal) }}</span>
-              </li>
-              <li>
-                Tenor: <span class="font-normal">{{ company.data.pinjaman_tenor }} Bulan</span>
-              </li>
-              <li>
-                Status: <span class="font-normal">{{ company.data.status_peminjaman }}</span>
-              </li>
-              <li>
-                Sudah Dibayar:
-                <span class="font-normal">{{ formatRupiah(company.data.total_pembayaran) }}</span>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Info Jamaah -->
-          <div class="p-4 border border-gray-400 rounded-lg">
-            <p class="font-semibold">Info Jamaah:</p>
-            <ul class="list-disc pl-5">
-              <li>
-                Nama: <span class="font-normal">{{ company.data.nama_jamaah }}</span>
-              </li>
-              <li>
-                NIK: <span class="font-normal">{{ company.data.identity_number }}</span>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Tanggal Transaksi -->
-          <div class="p-4 border border-gray-400 rounded-lg">
-            <p class="font-semibold">Tanggal Transaksi:</p>
-            <p class="font-normal">{{ company.data.tanggal_pembayaran }}</p>
-          </div>
-        </div>
-
-        <h3 class="text-left text-xl font-bold mt-10 mb-4">Detail Pembayaran Pinjaman</h3>
-        <table class="min-w-full border border-gray-400 print-table">
-          <thead>
-            <tr>
-              <th class="border border-gray-400">No. Invoice</th>
-              <th class="border border-gray-400">Pembayaran</th>
-              <th class="border border-gray-400">Status</th>
-              <th class="border border-gray-400">Term</th>
-              <th class="border border-gray-400">Tanggal Transaksi</th>
-            </tr>
-          </thead>
+      <div class="border border-gray-400 rounded-md p-4 mt-4">
+        <table class="w-full text-sm leading-relaxed border-collapse">
           <tbody>
             <tr>
-              <td class="border border-gray-400">{{ company.data.invoice }}</td>
-              <td class="border border-gray-400">{{ formatRupiah(company.data.nominal) }}</td>
-              <td class="border border-gray-400">{{ company.data.status_pembayaran }}</td>
-              <td class="border border-gray-400">{{ company.data.term }}</td>
-              <td class="border border-gray-400">{{ company.data.tanggal_pembayaran }}</td>
+              <!-- No Register -->
+              <td class="align-top w-[23%] p-2">
+                <p class="font-semibold mb-1 text-center uppercase">No Register</p>
+                <p class="text-center">{{ company.data.register_number }}</p>
+              </td>
+
+              <!-- Info Peminjaman -->
+              <td class="align-top w-[23%] p-2">
+                <p class="font-semibold mb-1 text-center uppercase">Info Peminjaman</p>
+                <table class="w-full pl-4 font-bold">
+                  <tbody>
+                    <tr>
+                      <td>Pinjam:</td>
+                      <td>{{ formatRupiah(company.data.pinjaman_nominal) }}</td>
+                    </tr>
+                    <tr>
+                      <td>Tenor:</td>
+                      <td>{{ company.data.pinjaman_tenor }} Bulan</td>
+                    </tr>
+                    <tr>
+                      <td>Sudah Bayar:</td>
+                      <td>{{ formatRupiah(company.data.total_pembayaran) }}</td>
+                    </tr>
+                    <tr>
+                      <td>Status:</td>
+                      <td>
+                        <span>
+                          {{
+                            company.data.status_peminjaman === 'belum_lunas'
+                              ? 'Belum Lunas'
+                              : 'Lunas'
+                          }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+
+              <!-- Info Jamaah -->
+              <td class="align-top w-[23%] p-2">
+                <p class="font-semibold mb-1 text-center uppercase">Info Jamaah</p>
+                <p class="text-center">
+                  {{ company.data.nama_jamaah }}<br />
+                  (&nbsp;{{ company.data.identity_number }}&nbsp;)
+                </p>
+              </td>
+
+              <!-- Tanggal Transaksi -->
+              <td class="align-top w-[23%] p-2">
+                <p class="font-semibold mb-1 text-center uppercase">Tanggal Transaksi</p>
+                <p class="text-center">{{ company.data.tanggal_pembayaran }}</p>
+              </td>
             </tr>
           </tbody>
         </table>
+      </div>
 
-        <!-- TTD -->
-        <div class="mt-10 flex justify-end space-x-20 pr-10">
-          <div class="flex flex-col items-center">
-            <p class="font-semibold">Jamaah</p>
-            <p class="mt-20">{{ company.data.nama_jamaah }}</p>
-          </div>
-          <div class="flex flex-col items-center">
-            <p class="font-semibold">Petugas</p>
-            <p class="mt-20">{{ company.data.nama_petugas }}</p>
-          </div>
+      <h3 class="text-left text-xl font-bold mt-10 mb-4">Detail Pembayaran Pinjaman</h3>
+      <table class="min-w-full border border-gray-400 print-table">
+        <thead>
+          <tr>
+            <th class="border border-gray-400">No. Invoice</th>
+            <th class="border border-gray-400">Pembayaran</th>
+            <th class="border border-gray-400">Status</th>
+            <th class="border border-gray-400">Term</th>
+            <th class="border border-gray-400">Tanggal Transaksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="border border-gray-400">{{ company.data.invoice }}</td>
+            <td class="border border-gray-400">{{ formatRupiah(company.data.nominal) }}</td>
+            <td class="border border-gray-400">{{ company.data.status_pembayaran }}</td>
+            <td class="border border-gray-400">{{ company.data.term }}</td>
+            <td class="border border-gray-400">{{ company.data.tanggal_pembayaran }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="mt-10 flex justify-end space-x-20 pr-10">
+        <div class="flex flex-col items-center">
+          <p class="font-bold">Jamaah</p>
+          <p class="mt-20 text-sm font-semibold">{{ company.data.nama_jamaah }}</p>
+          <p>(&nbsp;{{ company.data.identity_number }}&nbsp;)</p>
+        </div>
+        <div class="flex flex-col items-center">
+          <p class="font-bold">Petugas</p>
+          <p class="mt-20 font-semibold">( &nbsp;{{ company.data.nama_petugas }} &nbsp;)</p>
         </div>
       </div>
     </div>
+
     <div v-else class="text-center py-10">Memuat data invoice...</div>
   </div>
 </template>
@@ -111,10 +120,7 @@ onMounted(async () => {
     const response = await getInvoicePembayaranPerbulan(invoicePembayaranPerbulan)
     const isWrapped = 'data' in response && 'error' in response
     const data = isWrapped ? response.data : response
-
     company.value = { data }
-
-    // Nunggu DOM update, baru trigger print
     await nextTick()
     window.print()
   } catch (error) {
@@ -122,7 +128,6 @@ onMounted(async () => {
   }
 })
 
-// Fungsi format rupiah
 const formatRupiah = (value: number | string): string => {
   const angka = typeof value === 'number' ? value : parseInt(value)
   return angka.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })
@@ -130,36 +135,57 @@ const formatRupiah = (value: number | string): string => {
 </script>
 
 <style scoped>
-.invoice-details {
-  padding: 10px;
+#invoice {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 1rem;
 }
+
 table {
   width: 100%;
   border-collapse: collapse;
 }
+
 th,
 td {
   padding: 8px 12px;
   text-align: left;
 }
 
+.print-table th,
+.print-table td {
+  border: 1px solid #000;
+  padding: 6px 10px;
+}
+
+td p {
+  margin-bottom: 0.5rem; /* atau 8px */
+}
 @media print {
+  html,
   body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
-  th,
-  td {
-    border: 1px solid #000 !important;
+  #invoice {
+    width: 210mm !important;
+    padding: 1rem !important;
   }
 
-  .print-table {
-    border: 1px solid #000;
+  .flex-wrap {
+    flex-wrap: wrap !important;
   }
 
-  button {
-    display: none !important;
+  .w-\[23\%\] {
+    width: 23% !important;
+  }
+
+  .list-disc {
+    list-style-type: disc !important;
   }
 }
 </style>
