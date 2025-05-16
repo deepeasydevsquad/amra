@@ -42,7 +42,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="bg-white min-h-screen p-10 text-gray-900 font-sans text-sm">
+  <div class="bg-white min-h-screen p-8 text-gray-900 font-sans text-sm">
     <div v-if="invoiceData && Object.keys(invoiceData).length > 0">
       <!-- Header -->
       <Header :data="invoiceData"></Header>

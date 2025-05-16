@@ -1,0 +1,326 @@
+const {
+  Op,
+  Paket,
+  Tabungan,
+  Jamaah,
+  Riwayat_tabungan,
+  Agen,
+  Level_keagenan,
+  Fee_agen,
+  Member,
+  Deposit,
+  Jurnal,
+} = require("../../../models");
+const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
+const { getAgenById } = require("../../../helper/AgenJamaahHelper");
+const { dbList } = require("../../../helper/dbHelper");
+const moment = require("moment");
+  
+class Model_r {
+  constructor(req) {
+    this.req = req;
+    this.company_id;
+    this.division_id;
+  }
+
+  async initialize() {
+    this.company_id = await getCompanyIdByCode(this.req);
+    this.division_id = await getCabang(this.req);
+  }
+
+  async daftar_tabungan_umrah() {
+    // initialize dependensi properties
+    await this.initialize();
+
+    const body = this.req.body;
+    const pageNumber = parseInt(body.pageNumber) || 1;
+    const perpage = parseInt(body.perpage) || 10;
+    const offset = (pageNumber - 1) * perpage;
+    const search = body.search || "";
+    const filter = body.filter || "belum_beli_paket";
+    const today = moment().format('YYYY-MM-DD');
+
+    var where = { division_id: this.division_id };
+    
+    if (filter === "belum_beli_paket") {
+      where = {
+        ...where,
+        transaksi_paket_id: {
+          [Op.is]: null,
+        },
+      };
+    } else if (filter === "sudah_beli_paket") {
+      where = {
+        ...where,
+        transaksi_paket_id: {
+          [Op.not]: null,
+        },
+      };
+    } else if (filter === "batal_berangkat") {
+      where = {
+        ...where,
+        batal_berangkat: {
+          [Op.eq]: "ya",
+        },
+      };
+    }
+
+    const searchJamaahIds = async (searchTerm) => {
+      const jamaahIds = await Jamaah.findAll({
+        attributes: ['id'],
+        where: {
+          [Op.or]: [
+            { "$member.fullname$": { [Op.like]: `%${searchTerm}%` } },
+            { "$member.identity_number$": { [Op.like]: `%${searchTerm}%` } },
+          ],
+        },
+        include: [
+          {
+            model: Member,
+            attributes: [],
+          },
+        ],
+        raw: true,
+      }).then((res) => res.map((r) => r.id));
+
+      return jamaahIds;
+    };
+
+    if (search) {
+      const jamaahIds = await searchJamaahIds(search);
+      where = {
+        ...where,
+        jamaah_id: { [Op.in]: jamaahIds },
+      };
+    }
+
+    var sql = {};
+    sql["order"] = [["id", "ASC"]];
+    sql["attributes"] = [
+      "id",
+      "target_paket_id",
+      "total_tabungan",
+      "status",
+      "fee_agen_id",
+      "batal_berangkat",
+      "transaksi_paket_id",
+      "sisa_pembelian",
+      "invoice_sisa_deposit",
+      "createdAt",
+      "updatedAt"
+    ];
+    sql["include"] = [
+      {
+        model: Jamaah,
+        attributes: [
+          "id",
+        ],
+        required: true,
+        include: [
+          {
+            model: Member,
+            attributes: [
+              "id",
+              "fullname",
+              "identity_number",
+              "birth_place",
+              "birth_date",
+            ],
+            required: false
+          },
+        ]
+      }
+    ];
+    sql["where"] = where;
+    sql["limit"] = perpage;
+    sql["offset"] = offset;
+
+    try {
+      const query = await dbList(sql);
+      const q = await Tabungan.findAndCountAll(query.total);
+      const total = await q.count;
+      
+      var data = [];
+      if (total > 0) {
+        await Tabungan.findAll(query.sql).then(async (value) => {
+          await Promise.all(
+            value.map(async (e) => {
+              data.push({
+                id: e.id,
+                member: e.Jamaah?.Member
+                  ? {
+                      fullname: e.Jamaah.Member.fullname,
+                      identity_number: e.Jamaah.Member.identity_number,
+                      birth_place: e.Jamaah.Member.birth_place,
+                      birth_date: moment(e.Jamaah.Member.birth_date).format('DD MMMM YYYY'),
+                    }
+                  : { fullname: "-", identity_number: "-", birth_place: "-", birth_date: "-" },
+                target_paket_name: (await Paket.findOne({ where: { id: e.target_paket_id }, attributes: ["name"] }))?.name || "-",
+                total_tabungan: e.total_tabungan,
+                status: e.status,
+                fee_agen_id: e.fee_agen_id || "-",
+                agen: (await getAgenById[e.fee_agen_id]) ? { fullname: (await getAgenById[e.fee_agen_id]).fullname, level: (await getAgenById[e.fee_agen_id]).Level_keagenan?.name || "-" } : { fullname: "-", level: "-" },
+                batal_berangkat: e.batal_berangkat,
+                transaksi_paket_id: e.transaksi_paket_id,
+                sisa_pembelian: e.sisa_pembelian,
+                invoice_sisa_deposit: e.invoice_sisa_deposit,
+                riwayat_tabungan: await Promise.all(
+                  (await Riwayat_tabungan.findAll({
+                    where: {
+                      tabungan_id: e.id,
+                    },
+                    order: [["createdAt", "DESC"]], // Ambil riwayat tabungan terakhir (jika banyak)
+                  })).map(async (riwayat) => ({
+                    id: riwayat.id,
+                    invoice: riwayat.invoice,
+                    nominal_tabungan: riwayat.nominal_tabungan,
+                    transaksi: moment(riwayat.createdAt).format('YYYY-MM-DD HH:mm:ss'),
+                    penerima: riwayat.penerima
+                  }))
+                ),          
+                createdAt: moment(e.createdAt).format('YYYY-MM-DD HH:mm:ss'),
+                updatedAt: moment(e.updatedAt).format('YYYY-MM-DD HH:mm:ss')
+              });
+            })
+          );          
+        });
+      }
+
+      return {
+        data: data,
+        total: total,
+      };
+
+    } catch (error) {
+      console.error("Error in daftar_tabungan_umrah:", error);
+      return {};
+    }
+  }
+
+  async getJamaahTabunganUmrah () {
+    try {
+      await this.initialize();
+
+      const jamaah = await Jamaah.findAll({
+        where: {
+          division_id: this.division_id,
+        },
+        attributes: ["id", "agen_id"],
+        include: [{
+          model: Member,
+          attributes: ["fullname"],
+        }],
+      });
+
+      return {
+        data: jamaah.map(e => ({
+          id: e.id,
+          agen_id: e.agen_id,
+          name: e.Member.fullname
+        })),
+        total: jamaah.length,
+      };
+
+    } catch (error) {
+      console.error("Error in getJamaahTabunganUmrah:", error);
+      return {};
+    }
+  }
+
+  async getPaketTabunganUmrah () {
+    try {
+      await this.initialize();
+      var data = {};
+      const paket = await Paket.findAll({
+        where: {
+          division_id: this.division_id,
+          departure_date: {
+            [Op.gte]: moment().format('YYYY-MM-DD'),
+          },
+        },
+        attributes: ["id", "name"],
+      });
+
+      if (paket) {
+        data["data"] = paket;
+      }
+
+      return data;
+
+    } catch (error) {
+      console.error("Error in getPaketTabunganUmrah:", error);
+      return {};
+    }
+  }
+
+  async getAgenById () {
+    try {
+      await this.initialize();
+      const body = this.req.body;
+      console.log(body);
+      var data = {};
+      const agen = await Agen.findOne({
+        where: {
+          id: body.id,
+        },
+        attributes: ["id"],
+        include: [
+          {
+            model: Member,
+            attributes: ["fullname"],
+          },
+          {
+            model: Level_keagenan,
+            attributes: ["default_fee"],
+          }
+        ],
+      });
+
+      if (agen) {
+        data["data"] = {
+          id: agen.id,
+          name: agen.Member.fullname,
+          default_fee: Number(agen.Level_keagenan.default_fee)
+        };
+      }
+
+      return data;
+
+    } catch (error) {
+      console.error("Error in getAgenById:", error);
+      return {};
+    }
+  }
+
+  // async infoPaket(id, division_id) {
+  //   try {
+  //     var data = {};
+  //     const paket = await Paket.findOne({
+  //       where: { id: id, division_id: division_id },
+  //       include: [
+  //         {
+  //           model: Paket_price,
+  //           attributes: ["id", "mst_paket_type_id", "price"],
+  //           required: false,
+  //         },
+  //       ],
+  //     });
+  //     if (paket) {
+  //       data["id"] = paket.id;
+  //       data["kode"] = paket.kode;
+  //       data["photo"] = paket.photo;
+  //       data["name"] = paket.name;
+  //       data["paket_prices"] = paket.Paket_prices.reduce((acc, price) => {
+  //         acc[price.mst_paket_type_id] = price.price;
+  //         return acc;
+  //       }, {});
+  //     }
+
+  //     return data;  
+  //   } catch (error) {
+  //     return {};
+  //   }
+  // }
+}
+
+module.exports = Model_r;

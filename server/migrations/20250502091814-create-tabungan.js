@@ -63,7 +63,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       invoice_sisa_deposit: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,

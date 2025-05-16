@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
     batal_berangkat: DataTypes.ENUM(['ya', 'tidak']),
     transaksi_paket_id: DataTypes.INTEGER,
     sisa_pembelian: DataTypes.INTEGER,
-    invoice_sisa_deposit: DataTypes.INTEGER
+    invoice_sisa_deposit: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Tabungan',

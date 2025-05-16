@@ -42,7 +42,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="bg-white p-10 text-sm text-gray-800 min-h-screen">
+  <div class="bg-white p-8 text-sm text-gray-800 min-h-screen">
     <div v-if="kwitansiData && Object.keys(kwitansiData).length > 0">
       <Header :data="kwitansiData"></Header>
       <h2 class="text-center text-lg font-bold mb-3 pb-2">KWITANSI TERAKHIR PAKET LA</h2>
