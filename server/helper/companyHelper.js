@@ -21,11 +21,6 @@ companyHelper.getCompanyIdByCode = async (req) => {
     const token = authHeader && authHeader.split(" ")[1];
     const decoded = jwt.decode(token);
     const company_code = decoded.company_code;
-
-    console.log("==============Decode");
-    console.log(decoded);
-    console.log("==============Decode");
-
     const company = await Company.findOne({
       where: { code: company_code },
       attributes: ["id"], // Hanya ambil field 'id' dari Company
@@ -33,11 +28,6 @@ companyHelper.getCompanyIdByCode = async (req) => {
 
     return company ? company.id : null;
   } catch (error) {
-    console.log("99999999999999999");
-    console.log(error);
-    console.log("99999999999999999");
-
-    // console.error("Error fetching company ID:", error);
     throw error;
   }
 };
