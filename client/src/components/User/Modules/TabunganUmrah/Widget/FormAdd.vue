@@ -145,8 +145,8 @@ const saveData = async () => {
 
     if (form.info_deposit) payload.info_deposit = form.info_deposit
 
-    console.log('Saving data:', payload)
-    await addTabunganUmrah(payload)
+    const response = await addTabunganUmrah(payload)
+    window.open(`/kwitansi-tabungan-umrah/${response.data.invoice}`, '_blank')
     emit('close')
   } catch (error) {
     displayNotification(error?.response?.data?.error_msg, 'error')
@@ -192,10 +192,6 @@ const formatPrice = (value: number | string): string => {
 // Fungsi untuk ambil angka asli (unformat Rp)
 const unformatPrice = (formatted: string): number => {
   return parseInt(formatted.replace(/[^\d]/g, ''), 10) || 0
-}
-
-const kwitansiTabunganUmrah = () => {
-
 }
 </script>
 

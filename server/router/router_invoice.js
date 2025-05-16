@@ -1,7 +1,8 @@
 const express = require("express");
-const { body } = require("express-validator");
+const { body, param } = require("express-validator");
 const controller = require("../modules/invoice/controllers/index");
 const { authenticateToken } = require("../middleware/authenticateToken");
+// const validation = require("../validation/invoice");
 
 const router = express.Router();
 
@@ -14,6 +15,14 @@ const router = express.Router();
 //     authenticateToken, 
 //     controller.getDeposit
 // );
+
+router.post("/invoice/cek-kwitansi-tabungan-umrah",
+    authenticateToken,
+    [
+        body("invoice").trim().notEmpty().withMessage("Invoice tidak boleh kosong."),
+    ],
+    controller.cek_kwitansi_tabungan_umrah
+);
 
 router.get("/invoice/invoice-deposit/:invoice", 
     authenticateToken,

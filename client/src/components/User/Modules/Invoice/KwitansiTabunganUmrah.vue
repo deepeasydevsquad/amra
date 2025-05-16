@@ -7,13 +7,17 @@ import Header from '@/components/User/Modules/Invoice/Particle/Header.vue'
 const route = useRoute()
 const invoice = route.params.id
 const data = ref<any>(null)
+const isLoading = ref(true)
 
 const fetchData = async () => {
   try {
+    isLoading.value = true
     const response = await getKwitansiTabunganUmrah(invoice.toString())
     data.value = response.data
+    isLoading.value = false
   } catch (error) {
     console.error("Gagal ambil data kwitansi:", error)
+    isLoading.value = false
   }
 }
 
@@ -29,23 +33,30 @@ function formatDate(date: string) {
   return new Date(date).toISOString().slice(0, 19).replace('T', ' ')
 }
 
-onMounted(() => {
-  fetchData()
-  setTimeout(() => {
-    window.scrollTo(0, 0)
-    window.print()
-    // setTimeout(() => {
-    //   window.close()
-    // }, 1000)
-  }, 1500)
+onMounted(async () => {
+  await fetchData()
+  if (!data.value) {
+    window.close()
+  } else {
+    setTimeout(() => {
+      window.scrollTo(0, 0)
+      window.print()
+      setTimeout(() => {
+        window.close()
+      }, 1000)
+    }, 1500)
+  }
 })
 </script>
 
 <template>
+  <div v-if="isLoading" class="flex justify-center items-center h-screen">
+    <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+  </div>
   <div class="bg-white p-8 text-sm text-gray-900 min-h-screen">
-    <div v-if="data">
-      <Header :data="data"></Header>
+    <div v-if="!isLoading">
       <!-- Header Kwitansi -->
+      <Header :data="data"></Header>
 
       <!-- Judul -->
       <h2 class="text-center text-lg font-bold border-b pb-2 mb-4">
@@ -86,17 +97,17 @@ onMounted(() => {
         <table class="w-full text-center border border-collapse mb-6 text-sm print:text-xs border-b border-gray-300">
           <thead class="bg-gray-100">
             <tr>
-              <th class="border-b border-gray-300 p-2">Tanggal</th>
-              <th class="border-b border-gray-300 p-2">Keperluan</th>
-              <th class="border-b border-gray-300 p-2">Penerima</th>
-              <th class="border-b border-gray-300 p-2">Info</th>
-              <th class="border-b border-gray-300 p-2">Jumlah</th>
+              <th class="border-b border-gray-300 p-2 w-[20%]">Tanggal</th>
+              <th class="border-b border-gray-300 p-2 w-[10%]">Keperluan</th>
+              <th class="border-b border-gray-300 p-2 w-[30%]">Penerima</th>
+              <th class="border-b border-gray-300 p-2 w-[30%]">Info</th>
+              <th class="border-b border-gray-300 p-2 w-[10%]">Jumlah</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td class="border-b border-gray-300 p-2">{{ formatDate(data.createdAt) }}</td>
-              <td class="border-b border-gray-300 p-2">Tabungan Umrah</td>
+              <td class="border-b border-gray-300 p-2">paket_deposit</td>
               <td class="border-b border-gray-300 p-2">{{ data.penerima }}</td>
               <td class="border-b border-gray-300 p-2">{{ data.info_tabungan }}</td>
               <td class="border-b border-gray-300 p-2">{{ formatCurrency(data.nominal_tabungan) }}</td>
@@ -127,11 +138,6 @@ onMounted(() => {
         </div>
       </div>
     </div>
-
-    <!-- Jika data kosong -->
-    <div v-else class="text-center text-red-600 py-12">
-      <p class="text-lg font-semibold">Data tidak ditemukan</p>
-    </div>
   </div>
 </template>
 
@@ -144,3 +150,4 @@ onMounted(() => {
   }
 }
 </style>
+

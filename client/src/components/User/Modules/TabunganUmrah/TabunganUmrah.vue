@@ -12,7 +12,7 @@ import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confi
 import FormAdd from '@/components/User/Modules/TabunganUmrah/Widget/FormAdd.vue'
 
 // import API
-import { daftar_tabungan_umrah, deleteTabunganUmrah } from '@/service/tabungan_umrah'
+import { daftar_tabungan_umrah, deleteTabunganUmrah, cekKwitansiTabunganUmrah } from '@/service/tabungan_umrah'
 import { ref, onMounted, computed } from 'vue';
 
 const itemsPerPage = 100; // Jumlah paket_la per halaman
@@ -162,7 +162,10 @@ const deleteData = async (id: number) => {
 
 const cetakKwitansi = async (invoice: string) => {
   try {
-    if (!invoice) {
+    console.log(invoice)
+    const adaInvoice = await cekKwitansiTabunganUmrah(invoice);
+    console.log(adaInvoice)
+    if (adaInvoice === null) {
       displayNotification('Nomor invoice tidak tersedia', 'error')
       return
     }

@@ -94,10 +94,10 @@ const validateForm = (): boolean => {
   errors.value = { name: '' };
   let isValid = true;
 
-  // if (!selectedAirlines.value.name?.trim()) {
-  //   errors.value.name = 'Nama Maskapai tidak boleh kosong';
-  //   isValid = false;
-  // }
+  if (!selectedAirlines.value.name?.trim()) {
+    errors.value.name = 'Nama Maskapai tidak boleh kosong';
+    isValid = false;
+  }
   return isValid;
 };
 

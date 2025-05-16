@@ -17,9 +17,6 @@ module.exports = (sequelize, DataTypes) => {
       Pembayaran_fee_agen.belongsTo(models.Agen, {
         foreignKey: "agen_id",
       });
-      Pembayaran_fee_agen.hasMany(models.Fee_agen, {
-        foreignKey: "grup_id",
-      });
     }
   }
   Pembayaran_fee_agen.init({

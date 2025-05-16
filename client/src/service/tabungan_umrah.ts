@@ -1,5 +1,18 @@
 import api from "./api";
 
+export const cekKwitansiTabunganUmrah = async (invoice: string) => {
+  try {
+    console.log("========================================")
+    console.log(`/invoice/cek-kwitansi-tabungan-umrah`)
+    console.log("========================================")
+    const response = await api.post(`/invoice/cek-kwitansi-tabungan-umrah`, { invoice });
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil kwitansi terakhir tabungan umrah:", error);
+    throw error;
+  }
+}
+
 export const getJamaah = async () => {
   try {
     const response = await api.get("/get-Jamaah-Tabungan-Umrah/list");

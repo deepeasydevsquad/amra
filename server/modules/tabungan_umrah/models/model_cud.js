@@ -144,7 +144,7 @@ class Model_cud {
         target_paket_id: body.target_id,
         total_tabungan: body.biaya_deposit,
         status: 'active',
-        fee_agen_id: body.fee_agen_id || null,
+        fee_agen_id: null,
         batal_berangkat: body.batal_berangkat || 'tidak',
         transaksi_paket_id: body.transaksi_paket_id || null,
         sisa_pembelian: body.sisa_pembelian || 0,
@@ -172,9 +172,9 @@ class Model_cud {
         where: { id: body.jamaah_id },
         include: [{ model: Agen, include: [{ model: Level_keagenan }] }],
       });
-      if (jamaah && jamaah.Agen) {
+      if (jamaah?.Agen) {
         const invoiceAgen = await this.generateInvoiceAgen();
-        await Fee_agen.create({
+        const agen = await Fee_agen.create({
           company_id: this.company_id,
           agen_id: jamaah.Agen.id,
           invoice: invoiceAgen,
@@ -182,28 +182,38 @@ class Model_cud {
           status_bayar: 'belum_lunas',
           info: null,
           pembayaran_fee_agen_id: null,
-          grup_id: null,
           createdAt: dateNow,
           updatedAt: dateNow,
         }, { transaction: this.t });
+
+        await tabungan.update({
+          fee_agen_id: agen.id,
+        }, {
+          where: { id: tabungan.id },
+          transaction: this.t,
+        });
       }
 
       // === 4. Jika sumber dana adalah "Deposit", update data member dan insert ke DEPOSIT ===
       const member = await Member.findOne({ where: { id: body.jamaah_id } });
-      if (body.sumber_dana.toLowerCase() === "deposit") {
-        // Kurangi total deposit di tabel MEMBER
-        if (!member || member.total_deposit < body.biaya_deposit) {
+      if (!member) throw new Error("Data member tidak ditemukan.");
+
+      const sumberDana = body.sumber_dana.toLowerCase();
+
+      if (sumberDana === "deposit") {
+        // === Validasi deposit cukup ===
+        if (member.total_deposit < Number(body.biaya_deposit)) {
           throw new Error("Deposit tidak mencukupi.");
         }
 
-        // Insert ke tabel DEPOSIT (log pengurangan)
+        // === Insert ke tabel DEPOSIT (log pengurangan) ===
         await Deposit.create({
           company_id: this.company_id,
           member_id: member.id,
           invoice: invoiceDeposit,
-          nominal: -body.biaya_deposit,
+          nominal: -Number(body.biaya_deposit),
           saldo_sebelum: member.total_deposit,
-          saldo_sesudah: member.total_deposit - body.biaya_deposit,
+          saldo_sesudah: Number(member.total_deposit) - Number(body.biaya_deposit),
           sumber_dana: body.sumber_dana,
           penerima: penerima,
           tipe_transaksi: "pindah_ke_tabungan",
@@ -211,16 +221,24 @@ class Model_cud {
           createdAt: dateNow,
           updatedAt: dateNow,
         }, { transaction: this.t });
+
+        // === Update total deposit dan total tabungan ===
+        await member.update({
+          total_deposit: member.total_deposit - Number(body.biaya_deposit),
+          total_tabungan: (member.total_tabungan || 0) + Number(body.biaya_deposit),
+          updatedAt: dateNow
+        }, { transaction: this.t });
+
+      } else if (sumberDana === "cash") {
+        // === Langsung tambahkan ke tabungan tanpa sentuh deposit ===
+        await member.update({
+          total_tabungan: Number(member.total_tabungan || 0) + Number(body.biaya_deposit),
+          updatedAt: dateNow
+        }, { transaction: this.t });
       }
 
-      // update data member
-      await member.update({
-        total_deposit: member.total_deposit - body.biaya_deposit,
-        total_tabungan: member.total_tabungan === null ? 0 : member.total_tabungan + body.biaya_deposit,
-        updatedAt: dateNow
-      }, { transaction: this.t });
-
       this.message = `Data tabungan berhasil disimpan dengan invoice: ${invoiceTabungan}`;
+      return invoiceTabungan;
     } catch (error) {
       console.log("=========================")
       console.log("Error:", error);
@@ -304,6 +322,11 @@ class Model_cud {
       // 4. Hapus Tabungan
       await Tabungan.destroy({
         where: { id: tabungan.id },
+        transaction: this.t,
+      });
+
+      await Fee_agen.destroy({
+        where: { id: tabungan.fee_agen_id },
         transaction: this.t,
       });
 

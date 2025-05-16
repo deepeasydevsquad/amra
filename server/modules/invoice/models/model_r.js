@@ -312,6 +312,17 @@ async header_kwitansi_invoice() {
       return {}
     }
   }
+
+  async checkKwitansiTabunganUmrah() {
+    try {
+      const body = this.req.body;
+      const adaData = await Riwayat_tabungan.findOne({ where: { invoice: body.invoice } });
+      return adaData ? {data: true} : {data: null};
+    } catch (error) {
+        console.error(error);
+        throw {};
+    }
+  }
 }
 
 module.exports = Model_r;

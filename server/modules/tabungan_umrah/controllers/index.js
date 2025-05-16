@@ -36,12 +36,13 @@ controllers.add = async (req, res) => {
 
   try {
     const model_cud = new Model_cud(req);
-    await model_cud.add();
+    const invoice = await model_cud.add();
     // get response
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
         error_msg: 'Tabungan Umrah Baru berhasil ditambahkan.',
+        data: { invoice: invoice },
       });
     } else {
       res.status(400).json({
