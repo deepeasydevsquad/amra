@@ -172,9 +172,7 @@ watch(() => form.jamaah_id, async (newId) => {
   }
 })
 
-onMounted(() => {
-  fetchData()
-})
+onMounted(() => { fetchData() })
 
 // Fungsi format harga (Rp, titik ribuan)
 const formatPrice = (value: number | string): string => {
@@ -190,23 +188,20 @@ const formatPrice = (value: number | string): string => {
 }
 
 // Fungsi untuk ambil angka asli (unformat Rp)
-const unformatPrice = (formatted: string): number => {
-  return parseInt(formatted.replace(/[^\d]/g, ''), 10) || 0
-}
+const unformatPrice = (formatted: string): number => { return parseInt(formatted.replace(/[^\d]/g, ''), 10) || 0 }
 </script>
-
 
 <template>
   <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
     <div class="animate-spin h-5 w-5 border-b-2 border-white rounded-full"></div>
   </div>
   <div v-if="isModalOpen && !isLoading" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+    <div class="flex min-h-screen items-end justify-center px-6 pt-6 pb-20 text-center sm:block sm:p-0">
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="$emit('close')"></div>
       <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
-      <div class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
-        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-          <h3 class="text-2xl flex justify-center font-bold leading-6 text-gray-900 mb-4">
+      <div class="relative p-6 inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+        <div class="bg-white">
+          <h3 class="text-2xl flex font-bold leading-6 text-gray-900 mb-4">
             Form Transaksi Tabungan Umrah
           </h3>
           <div class="space-y-4 text-gray-800">
@@ -246,7 +241,7 @@ const unformatPrice = (formatted: string): number => {
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700">
-                Biaya Deposit
+                Biaya Tabungan
                 <span class="text-red-600">*</span>
               </label>
               <input
@@ -260,7 +255,7 @@ const unformatPrice = (formatted: string): number => {
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700">
-                Informasi Deposit
+                Informasi Tabungan
                 <span class="text-red-600">*</span>
               </label>
               <textarea
@@ -278,7 +273,7 @@ const unformatPrice = (formatted: string): number => {
             </div>
           </div>
         </div>
-        <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+        <div class="bg-gray-50 pb-3 pt-6 sm:flex sm:flex-row-reverse sm:px-0">
           <button
             @click="saveData()"
             class="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
@@ -296,10 +291,5 @@ const unformatPrice = (formatted: string): number => {
     </div>
   </div>
     <!-- Notification -->
-  <Notification
-    :showNotification="showNotification"
-    :notificationType="notificationType"
-    :notificationMessage="notificationMessage"
-    @close="showNotification = false"
-  />
+  <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" />
 </template>
