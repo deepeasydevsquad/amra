@@ -3,7 +3,9 @@
     <!-- Header dengan Add User dan Search -->
     <div class="flex flex-col md:flex-row justify-between mb-6 gap-4">
       <!-- Tombol Tambah Peminjaman -->
-      <PrimaryButton @click="bukaModalPeminjaman()"><IconPlus></IconPlus> Tambah Peminjaman</PrimaryButton>
+      <PrimaryButton @click="bukaModalPeminjaman()"
+        ><IconPlus></IconPlus> Tambah Peminjaman</PrimaryButton
+      >
       <!-- Input Pencarian -->
       <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-2">
         <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
@@ -25,8 +27,12 @@
           <tr>
             <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">No. Register</th>
             <th class="w-[20%] px-6 py-4 font-bold text-gray-900 text-center w-64">Info Jamaah</th>
-            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center w-64">Info Pinjaman</th>
-            <th class="w-[40%] px-6 py-4 font-bold text-gray-900 text-center w-[320px]">Detail Peminjaman</th>
+            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center w-64">
+              Info Pinjaman
+            </th>
+            <th class="w-[40%] px-6 py-4 font-bold text-gray-900 text-center w-[320px]">
+              Detail Peminjaman
+            </th>
             <th class="w-[5%] px-6 py-4 font-bold text-gray-900 text-center w-28">Aksi</th>
           </tr>
         </thead>
@@ -158,22 +164,28 @@
             <!-- Tombol Aksi -->
             <td class="px-2 py-2 text-center align-top">
               <div class="flex flex-wrap justify-center gap-1 max-w-[64px] mx-auto">
-                <LightButton  @click="">
+                <LightButton @click="handleCetak(pinjaman)">
                   <CetakIcon class="w-4 h-4" />
                 </LightButton>
-                <LightButton  @click="
+
+                <LightButton
+                  @click="
                     bukaModalBayar({
                       id: pinjaman.id,
                       riwayat_pembayaran: pinjaman.riwayat_pembayaran,
                     })
-                  " title="Pembayaran Cicilan"
-                  class="p-1 w-6 h-6">
-                    <BayarIcon class="w-4 h-4" />
+                  "
+                  title="Pembayaran Cicilan"
+                  class="p-1 w-6 h-6"
+                >
+                  <BayarIcon class="w-4 h-4" />
                 </LightButton>
-                <LightButton  @click="handleModalUpdate(pinjaman.id)"
+                <LightButton
+                  @click="handleModalUpdate(pinjaman.id)"
                   title="Edit Skema Cicilan"
-                  class="p-1 w-6 h-6">
-                <EditIcon class="w-4 h-4" />
+                  class="p-1 w-6 h-6"
+                >
+                  <EditIcon class="w-4 h-4" />
                 </LightButton>
                 <DangerButton @click="" title="Hapus Peminjaman" class="p-1 w-6 h-6">
                   <DeleteIcon class="w-4 h-4" />
@@ -276,7 +288,7 @@
     @close="handleCloseBayarPinjaman"
     @success="handleSuccessBayarPinjaman"
   />
-<!--
+  <!--
   const handleCloseBayarPinjaman = () => {
   showFormPembayaranModal.value = false
 }
@@ -302,7 +314,6 @@ import BayarIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/BayarIcon
 import BayarButton from '@/components/User/Modules/DaftarPeminjaman/Particle/BayarButton.vue'
 // Import komponen lainnya
 
-
 import Notification from '@/components/User/Modules/DaftarPeminjaman/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/DaftarPeminjaman/Particle/Confirmation.vue'
 import FormAddPeminjaman from '@/components/User/Modules/DaftarPeminjaman/widget/FormAddPeminjaman.vue'
@@ -310,12 +321,11 @@ import FormUpdateSkema from '@/components/User/Modules/DaftarPeminjaman/widget/F
 import FormPembayaran from '@/components/User/Modules/DaftarPeminjaman/widget/FormPembayaran.vue'
 
 // Button
-import LightButton from "@/components/Button/LightButton.vue"
-import PrimaryButton from "@/components/Button/PrimaryButton.vue"
+import LightButton from '@/components/Button/LightButton.vue'
+import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import DangerButton from '@/components/Button/DangerButton.vue'
 // Icon
-import IconPlus from "@/components/Icons/IconPlus.vue"
-
+import IconPlus from '@/components/Icons/IconPlus.vue'
 
 // Interface untuk Type Safety
 interface Pinjaman {
@@ -380,6 +390,28 @@ const handleSuccessBayarPinjaman = () => {
 const handleUpdate = async () => {
   showFormUpdateModal.value = false
   displayNotification('Peminjaman berhasil diupdate', 'success')
+}
+
+const invoiceTerakhir = (pinjaman: Pinjaman): string | null => {
+  const riwayat = pinjaman.riwayat_pembayaran ?? []
+
+  if (riwayat.length === 0) return null
+
+  const sorted = [...riwayat].sort((a, b) => {
+    return new Date(b.create).getTime() - new Date(a.create).getTime()
+  })
+
+  return sorted[0].invoice
+}
+
+const handleCetak = (pinjaman: Pinjaman) => {
+  const lastInvoice = invoiceTerakhir(pinjaman)
+  if (lastInvoice) {
+    // contoh pemakaian: buka tab baru ke URL cetak
+    window.open(`/invoice-pembayaran/${lastInvoice}`, '_blank')
+  } else {
+    displayNotification('Nomor invoice tidak tersedia', 'error')
+  }
 }
 
 // Computed Properties

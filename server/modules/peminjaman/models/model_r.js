@@ -60,7 +60,7 @@ class Model_r {
           },
           {
             model: Riwayat_pembayaran_peminjaman,
-            attributes: ["invoice", "nominal", "status"],
+            attributes: ["invoice", "nominal", "status", "createdAt"],
             required: false,
           },
           {
@@ -109,6 +109,7 @@ class Model_r {
                 invoice: riwayat.invoice,
                 nominal: riwayat.nominal,
                 status: riwayat.status,
+                create: riwayat.createdAt,
               }))
             : [],
         };
@@ -123,7 +124,7 @@ class Model_r {
 
   async getSkemaPeminjmanByID() {
     await this.initialize(); // Pastikan inisialisasi selesai
-    
+
     const { peminjaman_id } = this.req.body;
 
     try {
@@ -139,7 +140,7 @@ class Model_r {
         id: skema.id,
         term: skema.term,
         nominal: skema.nominal,
-        duedate: skema.duedate
+        duedate: skema.duedate,
       }));
 
       return { data, total: result.count };
