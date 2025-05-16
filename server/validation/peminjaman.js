@@ -1,13 +1,13 @@
 const { Division, Jamaah, Peminjaman } = require("../models");
-const { getCabang, getCompanyIdByCode } = require("../helper/companyHelper");
+const { getCabang, getCompanyIdByCode, tipe } = require("../helper/companyHelper");
 const { convertToRP } = require("../helper/currencyHelper");
     
 const validation = {};
 
-validation.check_id_jamaah = async ( value ) => {
+validation.check_id_jamaah = async ( value, { req } ) => {
     const company_id = await getCompanyIdByCode(req);
-    const tipe = await tipe(req);
-    if( tipe === 'administrator' ) {
+    const tipes = await tipe(req);
+    if( tipes === 'administrator' ) {
         var check = await Jamaah.findOne({ 
             include : {
                 required : true, 
@@ -20,7 +20,7 @@ validation.check_id_jamaah = async ( value ) => {
         if (!check) {
             throw new Error("ID Jamaah tidak terdaftar dipangkalan data");
         }
-    } else if ( tipe != 'administrator') {
+    } else if ( tipes != 'administrator') {
         const division_id = await getCabang(req);
         var check = await Jamaah.findOne({ 
             where : { 
@@ -50,7 +50,6 @@ validation.check_skema = async ( value,  { req } ) => {
     var error = false;
     // updatedSkema
     var totalNominal = 0;
-    var error_tanggal_jatuh_tempo = false;
     var tanggal_jatuh_tempo = [];
     for( let x in value ) {
         totalNominal = totalNominal + value[x].nominal;
