@@ -17,19 +17,6 @@ controllers.get_daftar_tabungan_umrah = async (req, res) => {
   }
 };
 
-// **Mendapatkan daftar tabungan berdasarkan id**
-controllers.get_daftar_tabungan_umrah_by_id = async (req, res) => {
-  if (!(await handleValidationErrors(req, res))) return;
-
-  try {
-    const model_r = new Model_r(req);
-    const feedBack = await model_r.get_tabungan(); // Ambil daftar tabungan dari model
-    res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
-  } catch (error) {
-    handleServerError(res, error.message);
-  }
-};
-
 // **Menambahkan tabungan baru**
 controllers.add = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;

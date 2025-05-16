@@ -37,31 +37,33 @@ class Model_r {
     const perpage = parseInt(body.perpage) || 10;
     const offset = (pageNumber - 1) * perpage;
     const search = body.search || "";
-    const filter = body.filter || "";
+    const filter = body.filter || "belum_beli_paket";
     const today = moment().format('YYYY-MM-DD');
 
     var where = { division_id: this.division_id };
-
-    // if (filter === "belum_beli_paket") {
-    //   where = {
-    //     ...where,
-    //     departure_date: {
-    //       [Op.gt]: today,
-    //     },
-    //   };
-    // } else if (filter === "sudah_beli_paket") {
-    //   where = {
-    //     ...where,
-    //     departure_date: {
-    //       [Op.lte]: today,
-    //     },
-    //   };
-    // } else if (filter === "batal_berangkat") {
-    //   where = {
-    //     ...where,
-    //     batal_berangkat: "ya",
-    //   };
-    // }
+    
+    if (filter === "belum_beli_paket") {
+      where = {
+        ...where,
+        transaksi_paket_id: {
+          [Op.is]: null,
+        },
+      };
+    } else if (filter === "sudah_beli_paket") {
+      where = {
+        ...where,
+        transaksi_paket_id: {
+          [Op.not]: null,
+        },
+      };
+    } else if (filter === "batal_berangkat") {
+      where = {
+        ...where,
+        batal_berangkat: {
+          [Op.eq]: "ya",
+        },
+      };
+    }
 
     const searchJamaahIds = async (searchTerm) => {
       const jamaahIds = await Jamaah.findAll({
