@@ -234,21 +234,21 @@ const resetForm = () => {
 </script>
 
 <style scoped>
-/* Styling untuk modal */
-.bg-opacity-50 {
-  background-color: rgba(0, 0, 0, 0.5);
-}
+  /* Styling untuk modal */
+  .bg-opacity-50 {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
 
-/* Transisi animasi modal */
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
-}
+  /* Transisi animasi modal */
+  .modal-fade-enter-active,
+  .modal-fade-leave-active {
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease;
+  }
 
-.modal-fade-enter, .modal-fade-leave-to /* .modal-fade-leave-active in <2.1.8 */ {
-  opacity: 0;
-  transform: scale(0.9);
-}
+  .modal-fade-enter, .modal-fade-leave-to /* .modal-fade-leave-active in <2.1.8 */ {
+    opacity: 0;
+    transform: scale(0.9);
+  }
 </style>

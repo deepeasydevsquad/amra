@@ -6,16 +6,6 @@ const { authenticateToken } = require("../middleware/authenticateToken");
 
 const router = express.Router();
 
-// router.post("/get-deposit", 
-//     [
-//         body("pageNumber").trim(),
-//         body("perpage").trim(),
-//         body("search").trim(),
-//     ], 
-//     authenticateToken, 
-//     controller.getDeposit
-// );
-
 router.post("/invoice/cek-kwitansi-tabungan-umrah",
     authenticateToken,
     [
@@ -26,32 +16,29 @@ router.post("/invoice/cek-kwitansi-tabungan-umrah",
 
 router.get("/invoice/invoice-deposit/:invoice", 
     authenticateToken,
-    controller.invoice_deposit
+    controller.invoice_deposit);
+
+router.get(
+  "/invoice/invoice-paket-la/:invoice",
+  authenticateToken,
+  controller.invoice_paket_la
 );
 
-router.get("/invoice/invoice-paket-la/:invoice",
-    authenticateToken,
-    controller.invoice_paket_la
-)
+router.get(
+  "/invoice/kwitansi-terakhir/:register_number",
+  authenticateToken,
+  controller.kwitansi_terakhir
+);
 
-router.get("/invoice/kwitansi-terakhir/:register_number",
-    authenticateToken,
-    controller.kwitansi_terakhir
-)
+router.get(
+  "/invoice/pembayaran-perbulan/:invoice",
+  authenticateToken,
+  controller.invoice_pembayaran_perbulan
+);
 
 router.get("/invoice/kwitansi-tabungan-umrah/:invoice",
     authenticateToken,
     controller.kwitansi_tabungan_umrah
 )
-
-// router.post("/add-deposit", 
-//     authenticateToken, 
-//     controller.addDeposit
-// );
-
-// router.post("/info-deposit", 
-//     authenticateToken, 
-//     controller.infoDeposit
-// );
 
 module.exports = router;

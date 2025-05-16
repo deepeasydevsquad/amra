@@ -1,18 +1,17 @@
 console.log("===> peminjamanController loaded");
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
-const {
-  handleServerError,
-  handleValidationErrors,
-} = require("../../../helper/handleError");
+const { handleServerError, handleValidationErrors } = require("../../../helper/handleError");
 
 exports.addPinjaman = async (req, res) => {
-  const model = new Model_cud(req);
-  try {
-    await model.createPeminjaman();
-    const success = await model.response();
+  // filter error
+  if (!(await handleValidationErrors(req, res))) return;
 
-    if (success) {
+  try {
+    const model = new Model_cud(req);
+    await model.createPeminjaman();
+
+    if ( await model.response() ) {
       res.status(200).json({
         message: model.message || "Peminjaman berhasil dibuat",
         status: "success",
@@ -40,8 +39,10 @@ exports.daftarPinjaman = async (req, res) => {
 };
 
 exports.SkemaByID = async (req, res) => {
+  // filter error
+  if (!(await handleValidationErrors(req, res))) return;
+
   try {
-    console.log("Inside SkemaByID controller"); // Debug
     const model = new Model_r(req);
     const data = await model.getSkemaPeminjmanByID();
     res.status(200).json(data);
@@ -49,13 +50,17 @@ exports.SkemaByID = async (req, res) => {
     handleServerError(res, error.message);
   }
 };
-exports.updateSkema = async (req, res) => {
-  const model = new Model_cud(req);
-  try {
-    await model.updateSkema();
-    const success = await model.response();
 
-    if (success) {
+exports.updateSkema = async (req, res) => {
+  // filter error
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_cud(req);
+    await model.updateSkema();
+    // const success = ;
+
+    if ( await model.response() ) {
       res.status(200).json({
         message: model.message || "skema berhasil di update",
         status: "success",
@@ -68,6 +73,32 @@ exports.updateSkema = async (req, res) => {
     }
   } catch (error) {
     console.error("Terjadi error saat update Skema Peminjaman:", error);
+    handleServerError(res, error);
+  }
+};
+
+exports.pembayaranPerbulan = async (req, res) => {
+  const model = new Model_cud(req, res); // Pass both req and res to the constructor
+  try {
+    await model.pembayaranPerbulan(); // Operasikan pembayaran per bulan di model
+
+    // Mengirim respons berdasarkan status setelah pembayaran perbulan
+    const success = await model.response();
+
+    if (success) {
+      res.status(200).json({
+        message: model.message || "Pembayaran perbulan berhasil dibuat",
+        status: "success",
+        invoice: model.invoice, // Mengirim invoice yang dihasilkan
+      });
+    } else {
+      res.status(400).json({
+        message: model.message || "Gagal bayar pembayaran perbulan",
+        status: "failed",
+      });
+    }
+  } catch (error) {
+    console.error("Terjadi error saat bayar pembayaran perbulan:", error);
     handleServerError(res, error);
   }
 };

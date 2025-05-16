@@ -9,6 +9,8 @@ import EditButton from '@/components/User/Modules/KostumerPaketLa/Particle/EditB
 import Notification from '@/components/User/Modules/KostumerPaketLa/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/KostumerPaketLa/Particle/Confirmation.vue'
 
+import LightButton from "@/components/User/Modules/DaftarPaketLa/Particle/LightButton.vue"
+
 // Import service API
 import { daftarKostumerPaketLA, addKostumerPaketLA, editKostumerPaketLA, deleteKostumerPaketLA } from '@/service/daftar_kostumer_paket_la' // Import function POST
 import { ref, onMounted, computed } from 'vue'
@@ -235,9 +237,9 @@ const deleteData = async (id: number) => {
               <td class="px-6 py-4 text-center">{{ kostumerpaketla.address }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
-                  <EditButton @click="openModal(kostumerpaketla)">
+                  <LightButton @click="openModal(kostumerpaketla)">
                     <EditIcon></EditIcon>
-                  </EditButton>
+                  </LightButton>
                   <DangerButton @click="deleteData(kostumerpaketla.id)">
                     <DeleteIcon></DeleteIcon>
                   </DangerButton>

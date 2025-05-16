@@ -3,21 +3,7 @@
     <!-- Header dengan Add User dan Search -->
     <div class="flex flex-col md:flex-row justify-between mb-6 gap-4">
       <!-- Tombol Tambah Peminjaman -->
-      <button
-        @click="bukaModalPeminjaman()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2 w-full md:w-auto justify-center"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-        Tambah Peminjaman
-      </button>
-
+      <PrimaryButton @click="bukaModalPeminjaman()"><IconPlus></IconPlus> Tambah Peminjaman</PrimaryButton>
       <!-- Input Pencarian -->
       <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-2">
         <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
@@ -39,12 +25,8 @@
           <tr>
             <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">No. Register</th>
             <th class="w-[20%] px-6 py-4 font-bold text-gray-900 text-center w-64">Info Jamaah</th>
-            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center w-64">
-              Info Pinjaman
-            </th>
-            <th class="w-[40%] px-6 py-4 font-bold text-gray-900 text-center w-[320px]">
-              Detail Peminjaman
-            </th>
+            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center w-64">Info Pinjaman</th>
+            <th class="w-[40%] px-6 py-4 font-bold text-gray-900 text-center w-[320px]">Detail Peminjaman</th>
             <th class="w-[5%] px-6 py-4 font-bold text-gray-900 text-center w-28">Aksi</th>
           </tr>
         </thead>
@@ -57,14 +39,12 @@
               </div>
             </td>
           </tr>
-
           <!-- State Kosong -->
           <tr v-else-if="pinjamans.length === 0">
             <td colspan="5" class="px-6 py-4 text-center text-base text-gray-600">
               {{ searchQuery ? 'Hasil pencarian tidak ditemukan' : 'Belum ada data pengguna' }}
             </td>
           </tr>
-
           <!-- Baris Data -->
           <tr
             v-for="pinjaman in pinjamans"
@@ -161,7 +141,7 @@
                   <template v-if="pinjaman.riwayat_pembayaran.length > 0">
                     <tr v-for="detail in pinjaman.riwayat_pembayaran" :key="detail.id">
                       <td class="px-2 py-2 text-center">{{ detail.invoice }}</td>
-                      <td class="px-2 py-2 text-center">{{  formatIDR(detail.nominal) }}</td>
+                      <td class="px-2 py-2 text-center">{{ formatIDR(detail.nominal) }}</td>
                       <td class="px-2 py-2 text-center">{{ detail.status }}</td>
                       <td class="px-2 py-2"></td>
                     </tr>
@@ -178,19 +158,23 @@
             <!-- Tombol Aksi -->
             <td class="px-2 py-2 text-center align-top">
               <div class="flex flex-wrap justify-center gap-1 max-w-[64px] mx-auto">
-                <CetakButton @click="" title="Cetak Kwitansi Peminjaman" class="p-1 w-6 h-6">
+                <LightButton  @click="">
                   <CetakIcon class="w-4 h-4" />
-                </CetakButton>
-                <BayarButton @click="" title="Pembayaran Cicilan" class="p-1 w-6 h-6">
-                  <BayarIcon class="w-4 h-4" />
-                </BayarButton>
-                <EditButton
-                  @click="handleModalUpdate(pinjaman.id)"
+                </LightButton>
+                <LightButton  @click="
+                    bukaModalBayar({
+                      id: pinjaman.id,
+                      riwayat_pembayaran: pinjaman.riwayat_pembayaran,
+                    })
+                  " title="Pembayaran Cicilan"
+                  class="p-1 w-6 h-6">
+                    <BayarIcon class="w-4 h-4" />
+                </LightButton>
+                <LightButton  @click="handleModalUpdate(pinjaman.id)"
                   title="Edit Skema Cicilan"
-                  class="p-1 w-6 h-6"
-                >
-                  <EditIcon class="w-4 h-4" />
-                </EditButton>
+                  class="p-1 w-6 h-6">
+                <EditIcon class="w-4 h-4" />
+                </LightButton>
                 <DangerButton @click="" title="Hapus Peminjaman" class="p-1 w-6 h-6">
                   <DeleteIcon class="w-4 h-4" />
                 </DangerButton>
@@ -286,6 +270,19 @@
     @close="showNotification = false"
   />
 
+  <FormPembayaran
+    :isOpen="showFormPembayaranModal"
+    :peminjaman="peminjamanData"
+    @close="handleCloseBayarPinjaman"
+    @success="handleSuccessBayarPinjaman"
+  />
+<!--
+  const handleCloseBayarPinjaman = () => {
+  showFormPembayaranModal.value = false
+}
+
+const handleSuccessBayarPinjaman = () => { -->
+
   <FormUpdateSkema
     v-if="showFormUpdateModal"
     @close="showFormUpdateModal = false"
@@ -304,12 +301,21 @@ import CetakButton from '@/components/User/Modules/DaftarPeminjaman/Particle/Cet
 import BayarIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/BayarIcon.vue'
 import BayarButton from '@/components/User/Modules/DaftarPeminjaman/Particle/BayarButton.vue'
 // Import komponen lainnya
-import DangerButton from '@/components/User/Modules/DaftarPeminjaman/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/DaftarPeminjaman/Particle/EditButton.vue'
+
+
 import Notification from '@/components/User/Modules/DaftarPeminjaman/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/DaftarPeminjaman/Particle/Confirmation.vue'
-import FormAddPeminjaman from '@/components/User/Modules/DaftarPeminjaman/Particle/FormAddPeminjaman.vue'
-import FormUpdateSkema from '@/components/User/Modules/DaftarPeminjaman/Particle/FormUpdateSkema.vue'
+import FormAddPeminjaman from '@/components/User/Modules/DaftarPeminjaman/widget/FormAddPeminjaman.vue'
+import FormUpdateSkema from '@/components/User/Modules/DaftarPeminjaman/widget/FormUpdateSkema.vue'
+import FormPembayaran from '@/components/User/Modules/DaftarPeminjaman/widget/FormPembayaran.vue'
+
+// Button
+import LightButton from "@/components/Button/LightButton.vue"
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
+import DangerButton from '@/components/Button/DangerButton.vue'
+// Icon
+import IconPlus from "@/components/Icons/IconPlus.vue"
+
 
 // Interface untuk Type Safety
 interface Pinjaman {
@@ -346,6 +352,7 @@ const peminjamanId = ref(0)
 const modalTambahPinjaman = ref(false)
 const showDeleteConfirmDialog = ref(false)
 const showFormUpdateModal = ref(false)
+const showFormPembayaranModal = ref(false)
 
 // Notifikasi State
 const showNotification = ref(false)
@@ -358,6 +365,16 @@ const handleModalUpdate = (id: number) => {
   peminjamanId.value = id // Set dulu id-nya
   showFormUpdateModal.value = true // Baru buka modal
   console.log(peminjamanId.value)
+}
+
+const handleCloseBayarPinjaman = () => {
+  showFormPembayaranModal.value = false
+}
+
+const handleSuccessBayarPinjaman = () => {
+  showFormPembayaranModal.value = false
+  displayNotification('Berhasil Bayar Pinjaman', 'success')
+  fetchPinjaman()
 }
 
 const handleUpdate = async () => {
@@ -484,6 +501,13 @@ const goToPage = (page: number) => {
 // Modal
 const bukaModalPeminjaman = () => {
   modalTambahPinjaman.value = true
+}
+
+const peminjamanData = ref({})
+
+const bukaModalBayar = (data) => {
+  peminjamanData.value = data
+  showFormPembayaranModal.value = true
 }
 
 const handleAddPinjaman = () => {

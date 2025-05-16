@@ -114,9 +114,10 @@
             <td class="px-6 py-4 text-center">{{ formatDate(deposit.createdAt) || '-' }}</td>
             <td class="px-6 py-4 text-center">
               <div class="flex justify-center gap-2">
-                <DangerButton @click="cetakKitansi(deposit.invoice)" title="Print Invoice">
+                <!-- <DangerButton @click="cetakKitansi(deposit.invoice)" title="Print Invoice">
                   <DeleteIcon />
-                </DangerButton>
+                </DangerButton> -->
+                <LightButton @click="cetakKitansi(deposit.invoice)" title="Print Invoice"><DeleteIcon /></LightButton>
               </div>
             </td>
           </tr>
@@ -245,6 +246,7 @@ import Notification from './Particle/Notification.vue'
 import DeleteIcon from './Icon/DeleteIcon.vue'
 import DangerButton from './Particle/DangerButton.vue'
 import FormAdd from './Particle/FormAdd.vue'
+import LightButton from "@/components/Button/LightButton.vue"
 
 // Reactive State
 const deposits = ref([])
@@ -362,16 +364,7 @@ const handleSearch = () => {
   // Reset to first page when searching
   currentPage.value = 1
 
-  // Debounce the search input
-  // if (searchTimeout.value) {
-  //   clearTimeout(searchTimeout.value)
-  // }
-
   fetchDeposit()
-
-  // searchTimeout.value = window.setTimeout(() => {
-
-  // }, 500)
 }
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {

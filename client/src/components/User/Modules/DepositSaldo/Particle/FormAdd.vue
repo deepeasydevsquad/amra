@@ -130,20 +130,8 @@
 
         <!-- Actions -->
         <div class="flex justify-end gap-2">
-          <button
-            type="button"
-            @click="emit('close')"
-            class="px-4 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
-          >
-            BATAL
-          </button>
-          <button
-            type="submit"
-            :disabled="isSubmitting"
-            class="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition disabled:opacity-50"
-          >
-            <span>TAMBAH DEPOSIT</span>
-          </button>
+          <button type="button" @click="emit('close')" class="px-4 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition">BATAL</button>
+          <PrimaryButton type="submit" :disabled="isSubmitting">TAMBAH DEPOSIT</PrimaryButton>
         </div>
       </form>
     </div>
@@ -154,6 +142,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { getMember } from '@/service/member'
 import { addDeposit, infoDeposit } from '@/service/deposit_saldo'
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
 import { reactive } from 'vue'
 
@@ -260,17 +249,8 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 const handleSubmit = async () => {
   try {
     const result = await addDeposit(form.value)
-    // console.log('🟢 ID dari addDeposit:', result.id)
-    // console.log("-----------------");
-    // console.log(result);
-    // console.log(result.data.invoice);
-    // console.log("-----------------");
-
     await delay(100) // tunggu sebentar
-    // const depositInfo = await infoDeposit(result.id)
-    // localStorage.setItem('depositInfo', JSON.stringify(depositInfo))
     window.open('/invoice-deposit/'+ result.data.invoice, '_blank')
-    // console.log('Deposit info:', depositInfo)
     emit('success')
   } catch (error) {
     console.error('Gagal menambahkan deposit:', error)

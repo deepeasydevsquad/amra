@@ -123,7 +123,9 @@ class Model_r {
 
   async getSkemaPeminjmanByID() {
     await this.initialize(); // Pastikan inisialisasi selesai
+    
     const { peminjaman_id } = this.req.body;
+
     try {
       // Cari data Skema_peminjaman berdasarkan peminjaman_id
       const result = await Skema_peminjaman.findAndCountAll({
@@ -137,6 +139,7 @@ class Model_r {
         id: skema.id,
         term: skema.term,
         nominal: skema.nominal,
+        duedate: skema.duedate
       }));
 
       return { data, total: result.count };

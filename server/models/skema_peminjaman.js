@@ -23,7 +23,8 @@ module.exports = (sequelize, DataTypes) => {
     company_id: DataTypes.INTEGER,
     peminjaman_id: DataTypes.INTEGER,
     term: DataTypes.INTEGER,
-    nominal: DataTypes.INTEGER
+    nominal: DataTypes.INTEGER,
+    duedate: DataTypes.DATEONLY
   }, {
     sequelize,
     modelName: 'Skema_peminjaman',

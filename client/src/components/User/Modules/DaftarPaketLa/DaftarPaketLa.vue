@@ -4,15 +4,18 @@ import DeleteIcon from '@/components/User/Modules/DaftarPaketLa/Icon/DeleteIcon.
 import EditIcon from '@/components/User/Modules/DaftarPaketLa/Icon/EditIcon.vue'
 
 // import element
-import DangerButton from "@/components/User/Modules/DaftarPaketLa/Particle/DangerButton.vue"
+// import DangerButton from "@/components/User/Modules/DaftarPaketLa/Particle/DangerButton.vue"
 import EditButton from "@/components/User/Modules/DaftarPaketLa/Particle/EditButton.vue"
-import LightButton from "@/components/User/Modules/DaftarPaketLa/Particle/LightButton.vue"
+// import LightButton from "@/components/User/Modules/DaftarPaketLa/Particle/LightButton.vue"
 import Notification from "@/components/User/Modules/DaftarPaketLa/Particle/Notification.vue"
 import Confirmation from "@/components/User/Modules/DaftarPaketLa/Particle/Confirmation.vue"
 import FormItem from "@/components/User/Modules/DaftarPaketLa/Particle/FormItem.vue"
 import FormPembayaran from "@/components/User/Modules/DaftarPaketLa/Particle/FormPembayaran.vue"
 import FormRefund from "@/components/User/Modules/DaftarPaketLa/Particle/FormRefund.vue"
 import Form from "@/components/User/Modules/DaftarPaketLa/Particle/Form.vue"
+
+import LightButton from "@/components/Button/LightButton.vue"
+import DangerButton from "@/components/Button/DangerButton.vue"
 
 // import API
 import { daftarPaketLA, addPaketLA, editPaketLA, deletePaketLA } from "@/service/daftar_paket_la"
@@ -487,9 +490,9 @@ const cetakInvoice = async (invoice: string) => {
               <LightButton>
                 <font-awesome-icon icon="fa-solid fa-list-alt" />
               </LightButton>
-              <EditButton @click="openModal(paket)" class="p-2 rounded">
+              <LightButton @click="openModal(paket)" class="p-2 rounded">
                 <EditIcon />
-              </EditButton>
+              </LightButton>
               <DangerButton @click="deleteData(paket.id)" class="p-2 rounded">
                 <DeleteIcon />
               </DangerButton>
