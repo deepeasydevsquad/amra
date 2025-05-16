@@ -15,6 +15,7 @@ import FormAddAgen from '@/components/User/Modules/Member/Particle/FormAddAgen.v
 
 import LightButton from "@/components/Button/LightButton.vue"
 import DangerButton from "@/components/Button/DangerButton.vue"
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
 //sas
 ////
@@ -174,10 +175,8 @@ const closeUpdateForm = () => {
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4" v-if="!showAddForm && !showUpdateForm">
-      <button
-        @click="toggleAddForm"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#2c3240] transition-colors duration-200 ease-in-out flex items-center gap-2"
-      >
+
+      <PrimaryButton  @click="toggleAddForm">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -187,7 +186,8 @@ const closeUpdateForm = () => {
           />
         </svg>
         Tambah Member
-      </button>
+      </PrimaryButton>
+
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
@@ -230,7 +230,7 @@ const closeUpdateForm = () => {
             </td>
             <td class="px-6 py-4 text-center">{{ member.whatsapp_number }}</td>
             <td class="px-6 py-4 text-center">
-              <div class="flex justify-center">
+              <div class="flex justify-center gap-2">
                 <LightButton @click="editMember(member.id)" class="p-2 "><EditIcon /></LightButton>
                 <LightButton  @click="addAgen(member.id)" class="p-2 "><AddAgenIcon /></LightButton>
                 <DangerButton @click="confirmDelete(member.id)" class="p-2 "><DeleteIcon /></DangerButton>

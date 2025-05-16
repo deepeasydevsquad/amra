@@ -27,12 +27,8 @@
           <tr>
             <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">No. Register</th>
             <th class="w-[20%] px-6 py-4 font-bold text-gray-900 text-center w-64">Info Jamaah</th>
-            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center w-64">
-              Info Pinjaman
-            </th>
-            <th class="w-[40%] px-6 py-4 font-bold text-gray-900 text-center w-[320px]">
-              Detail Peminjaman
-            </th>
+            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center w-64">Info Pinjaman</th>
+            <th class="w-[40%] px-6 py-4 font-bold text-gray-900 text-center w-[320px]">Detail Peminjaman</th>
             <th class="w-[5%] px-6 py-4 font-bold text-gray-900 text-center w-28">Aksi</th>
           </tr>
         </thead>
@@ -58,7 +54,7 @@
             class="hover:bg-gray-50 transition-colors"
           >
             <!-- Nomor Register -->
-            <td class="px-6 py-4 text-left align-top text-sm font-medium text-gray-700">
+            <td class="px-6 py-4 text-center align-top text-sm font-bold text-gray-700">
               {{ pinjaman.register_number }}
             </td>
 

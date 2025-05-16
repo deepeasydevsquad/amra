@@ -9,6 +9,10 @@ import EditButton from '@/components/User/Modules/DaftarTipePaket/Particle/EditB
 import Notification from '@/components/User/Modules/DaftarTipePaket/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/DaftarTipePaket/Particle/Confirmation.vue'
 
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
+import LightButton from "@/components/Button/LightButton.vue"
+
+
 // Import service API
 import { daftarTipePaket, addTipePaket, editTipePaket, deleteTipePaket } from '@/service/daftar_tipe_paket'; // Import function POST
 import { ref, onMounted, computed } from 'vue';
@@ -217,9 +221,12 @@ const deleteData = async (id: number) => {
               <td class="px-6 py-4 text-center">{{ tipe_paket.name }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
-                  <EditButton @click="openModal(tipe_paket)">
+                  <!-- <EditButton @click="openModal(tipe_paket)">
                     <EditIcon></EditIcon>
-                  </EditButton>
+                  </EditButton> -->
+                  <LightButton   @click="openModal(tipe_paket)">
+                    <EditIcon></EditIcon>
+                  </LightButton>
                   <DangerButton @click="deleteData(tipe_paket.id)">
                     <DeleteIcon></DeleteIcon>
                   </DangerButton>
@@ -310,18 +317,13 @@ const deleteData = async (id: number) => {
                 </div>
               </div>
             </div>
-            <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-              <button
-                @click="saveData"
-                class="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                {{ selectedTipePaket.id ? "Simpan Perubahan" : "Tambah" }}
-              </button>
+            <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-2">
+              <PrimaryButton @click="saveData">{{ selectedTipePaket.id ? "SIMPAN PERUBAHAN" : "TAMBAH" }}</PrimaryButton>
               <button
                 @click="isModalOpen = false"
                 class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
               >
-                Batal
+                BATAL
               </button>
             </div>
           </div>

@@ -1,21 +1,12 @@
 <template>
   <div class="container mx-auto p-4">
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
-      <!-- Button Tambah Deposit -->
-      <button
-        @click="openModal()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2 w-fit"
-      >
+      <PrimaryButton @click="openModal()">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 8c1.104 0 2 .672 2 1.5S13.104 11 12 11s-2 .672-2 1.5S10.896 14 12 14m0-6v1m0 6v1m9-5a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.104 0 2 .672 2 1.5S13.104 11 12 11s-2 .672-2 1.5S10.896 14 12 14m0-6v1m0 6v1m9-5a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         Tambah Deposit
-      </button>
+      </PrimaryButton>
 
       <!-- Search Input -->
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
@@ -247,6 +238,7 @@ import DeleteIcon from './Icon/DeleteIcon.vue'
 import DangerButton from './Particle/DangerButton.vue'
 import FormAdd from './Particle/FormAdd.vue'
 import LightButton from "@/components/Button/LightButton.vue"
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
 // Reactive State
 const deposits = ref([])

@@ -3,6 +3,7 @@ import Notification from '@/components/User/Modules/DaftarPaket/Particle/Notific
 import Confirmation from '@/components/User/Modules/DaftarPaket/Particle/Confirmation.vue'
 import SearchableSelect from '@/components/User/Modules/DaftarPaket/Particle/SearchableSelect.vue'
 import SearchableCheckboxList from '@/components/User/Modules/DaftarPaket/Particle/SearchableCheckboxList.vue'
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 import { onMounted, reactive, ref } from 'vue'
 import { addPaket } from '@/service/daftar_paket'
 import {
@@ -858,14 +859,9 @@ const onPriceInput = (event: Event, id: number) => {
           @click="$emit('close')"
           class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors duration-200 mr-3"
         >
-          Batal
+          BATAL
         </button>
-        <button
-          type="submit"
-          class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
-        >
-          Simpan
-        </button>
+        <PrimaryButton type="submit">TAMBAH PAKET</PrimaryButton>
       </div>
     </form>
   </div>

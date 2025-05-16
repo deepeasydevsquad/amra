@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import SearchableSelect from '@/components/User/Modules/TabunganUmrah/Particle/SearchableSelect.vue'
 import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue';
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
 import { onMounted, reactive, ref, watch } from 'vue'
 import { getJamaah, getPaket, getAgen, addTabunganUmrah } from '@/service/tabungan_umrah'
@@ -273,18 +274,13 @@ const unformatPrice = (formatted: string): number => { return parseInt(formatted
             </div>
           </div>
         </div>
-        <div class="bg-gray-50 pb-3 pt-6 sm:flex sm:flex-row-reverse sm:px-0">
-          <button
-            @click="saveData()"
-            class="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-          >
-           Mulai Tabung Umrah
-          </button>
+        <div class="bg-gray-50 pb-3 pt-6 sm:flex sm:flex-row-reverse sm:px-0 gap-2">
+          <PrimaryButton @click="saveData()">TAMBAH DEPOSIT</PrimaryButton>
           <button
             @click="$emit('close')"
-            class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-400 bg-gray-200 px-4 py-2 text-base font-medium text-gray-800 shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+            class="px-4 mt-3 inline-flex w-full justify-center rounded-md border border-gray-400 bg-gray-200 px-4 py-2 text-base font-medium text-gray-800 shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
           >
-            Batal
+            BATAL
           </button>
         </div>
       </div>
