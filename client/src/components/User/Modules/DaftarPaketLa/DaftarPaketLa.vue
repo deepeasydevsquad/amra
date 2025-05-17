@@ -5,7 +5,7 @@ import EditIcon from '@/components/User/Modules/DaftarPaketLa/Icon/EditIcon.vue'
 
 // import element
 // import DangerButton from "@/components/User/Modules/DaftarPaketLa/Particle/DangerButton.vue"
-import EditButton from "@/components/User/Modules/DaftarPaketLa/Particle/EditButton.vue"
+// import EditButton from "@/components/User/Modules/DaftarPaketLa/Particle/EditButton.vue"
 // import LightButton from "@/components/User/Modules/DaftarPaketLa/Particle/LightButton.vue"
 import Notification from "@/components/User/Modules/DaftarPaketLa/Particle/Notification.vue"
 import Confirmation from "@/components/User/Modules/DaftarPaketLa/Particle/Confirmation.vue"

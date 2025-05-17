@@ -5,10 +5,10 @@ import EditIcon from '@/components/User/Modules/DaftarPaket/Icon/EditIcon.vue'
 import DetailIcon from '@/components/User/Modules/DaftarPaket/Icon/DetailIcon.vue'
 
 // import element
-import DangerButton from '@/components/User/Modules/DaftarPaket/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/DaftarPaket/Particle/EditButton.vue'
+// import DangerButton from '@/components/User/Modules/DaftarPaket/Particle/DangerButton.vue'
+// import EditButton from '@/components/User/Modules/DaftarPaket/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/DaftarPaket/Particle/Notification.vue'
-import DetailButton from '@/components/User/Modules/DaftarPaket/Particle/DetailButton.vue'
+// import DetailButton from '@/components/User/Modules/DaftarPaket/Particle/DetailButton.vue'
 import Confirmation from '@/components/User/Modules/DaftarPaket/Particle/Confirmation.vue'
 
 // import widget
@@ -17,6 +17,10 @@ import FormEdit from '@/components/User/Modules/DaftarPaket/Widget/FormEdit.vue'
 
 // import component
 import FormTransaksi from '@/components/User/Modules/DaftarPaket/Widget/FormTransaksi.vue'
+
+
+import LightButton from "@/components/Button/LightButton.vue"
+import DangerButton from "@/components/Button/DangerButton.vue"
 
 // import API
 import { daftarPaket, deletePaket } from '@/service/daftar_paket'
@@ -304,12 +308,12 @@ const deleteData = async (id: number) => {
                 <td class="px-6 py-4 text-center">{{ paket.quota_jamaah }} Orang</td>
                 <td class="px-6 py-4 text-center">
                   <div class="flex justify-center gap-2">
-                    <DetailButton @click="openFormTransaksi(paket.id)">
+                    <LightButton  @click="openFormTransaksi(paket.id)">
                       <DetailIcon></DetailIcon>
-                    </DetailButton>
-                    <EditButton @click="openFormEdit(paket.id)">
+                    </LightButton>
+                    <LightButton @click="openFormEdit(paket.id)">
                       <EditIcon></EditIcon>
-                    </EditButton>
+                    </LightButton>
                     <DangerButton @click="deleteData(paket.id)">
                       <DeleteIcon></DeleteIcon>
                     </DangerButton>

@@ -9,6 +9,12 @@ module.exports = {
         name: 'Normal', 
         createdAt: new Date(), 
         updatedAt: new Date() 
+      },
+      { 
+        company_id: 1,
+        name: 'Premium', 
+        createdAt: new Date(), 
+        updatedAt: new Date() 
       }
     ], {});
   },

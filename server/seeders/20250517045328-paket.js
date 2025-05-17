@@ -1,0 +1,46 @@
+'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up (queryInterface, Sequelize) {
+    await queryInterface.bulkInsert('Pakets', [
+      { 
+        division_id: 1, 
+        jenis_kegiatan: 'umrah',
+        kode: 'OJP137',
+        photo: '/uploads/daftar_paket/1747458143122.png',
+        slug: 'Umrah-Keren',
+        name: 'Umrah Keren',
+        description: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 
+        departure_date: '2025-05-21', 
+        return_date: '2025-05-30',
+        departure_from: 2,
+        duration_trip: 7,
+        mahram_fee: 300000,
+        quota_jamaah: 40,
+        city_visited: '[{"id":"2"},{"id":"4"},{"id":"6"},{"id":"1"},{"id":"5"},{"id":"3"}]',
+        airlines: '[{"id":"2"},{"id":"1"}]',
+        hotel: '[{"id":"4"},{"id":"1"},{"id":"2"},{"id":"3"}]',
+        facilities: '[{"id":"5"},{"id":"2"},{"id":"1"},{"id":"3"},{"id":"4"}]',
+        show_homepage: 'tampilkan',
+        airport_departure: 1,
+        airport_destination: 4,
+        departure_time: '2025-05-17 05:02:00',
+        arrival_time: '2025-05-18 05:02:00',
+        tutup_paket: 'buka',
+        provider_visa_id: 1,
+        asuransi_id: 1, 
+        no_polis: 123456,
+        tgl_input_polis: '2025-05-17', 
+        tgl_awal_polis: '2025-05-01',
+        tgl_akhir_polis: '2025-06-07',
+        createdAt: new Date(), 
+        updatedAt: new Date() 
+      },
+    ], {});
+  },
+
+  async down (queryInterface, Sequelize) {
+    await queryInterface.bulkDelete('Pakets', null, {});
+  }
+};
