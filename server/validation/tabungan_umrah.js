@@ -24,7 +24,7 @@ validation.check_id_jamaah = async ( value,  { req } ) => {
 
 validation.check_id_target_paket = async (value, { req }) => {
     try {
-        if (!value) return true;
+        if (value === null) return true;
 
         const division_id = await getCabang(req);
         console.debug(`Division ID: ${division_id}`);

@@ -248,7 +248,38 @@ class Model_cud {
     }
   }
 
-  // Hapus paket
+  // ==== UPDATE TARGET PAKET ====
+  async updateTargetPaket() {
+    await this.initialize();
+    const body = this.req.body;
+    const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+
+    try {
+      console.log("===========BODY==========")
+      console.log("BODY:", body);
+      console.log("=========================")
+      const tabungan = await Tabungan.findOne({
+        where: { id: body.id },
+        transaction: this.t,
+      });
+
+      if (!tabungan) throw new Error(`Data tabungan id: ${body.id} tidak ditemukan.`);
+
+      await tabungan.update({
+        target_paket_id: body.target_id,
+        updatedAt: dateNow,
+      }, { transaction: this.t });
+
+    } catch (error) {
+      console.log("=========================")
+      console.log("Error:", error);
+      console.log("=========================")
+      this.state = false;
+      this.message = error.message || "Terjadi kesalahan saat mengupdate data tabungan.";
+    }
+  }
+
+  // ==== DELETE ====
   async delete() {
     await this.initialize();
     const body = this.req.body;

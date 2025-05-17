@@ -42,8 +42,8 @@ class Model_r {
   async header_kwitansi_invoice() {
     var data = {};
     await Division.findOne({
-      attributes: ["name", "pos_code", "address", "kota_id"], // ambil dari Division
-      where: { id: this.company_id }, // pastikan ini berdasarkan division_id
+      attributes: ["name", "pos_code", "address"], // ambil dari Division
+      where: { id: this.division_id }, // pastikan ini berdasarkan division_id
       include: [
         {
           required: true,
@@ -76,32 +76,15 @@ class Model_r {
           }
         }
         data["logo"] = exisFile ? e.Company.invoice_logo : "default.png";
-        data["company_name"] = e.Company.company_name;
-        data["city"] = e.Mst_kotum.name; // ambil nama kota dari mst_kota
-        data["address"] = e.address;
-        data["pos_code"] = e.pos_code;
-        data["email"] = e.Company.email;
-        data["whatsapp_company_number"] = e.Company.whatsapp_company_number;
+        data["company_name"] = e.Company.company_name || "-";
+        data["city"] = e.Mst_kota?.name || "-"; // ambil nama kota dari mst_kota
+        data["address"] = e.address || "-";
+        data["pos_code"] = e.pos_code || "-";
+        data["email"] = e.Company.email || "-";
+        data["whatsapp_company_number"] = e.Company.whatsapp_company_number || "-";
       }
     });
-
-  if (division) {
-    const invoiceLogo = division.Company?.invoice_logo;
-    const logoPath = invoiceLogo
-      ? path.resolve(__dirname, "../../../uploads", invoiceLogo)
-      : null;
-
-    const exists = invoiceLogo && fs.existsSync(logoPath);
-
-    data.logo = exists ? invoiceLogo : "default.png";
-    data.company_name = division.Company?.company_name ?? "-";
-    data.city = division.Mst_kota?.name ?? "-";
-    data.address = division.address ?? "-";
-    data.pos_code = division.pos_code ?? "-";
-    data.email = division.Company?.email ?? "-";
-    data.whatsapp_company_number = division.Company?.whatsapp_company_number ?? "-";
-  }
-
+    
   console.log(data);
   return data;
  }
@@ -286,8 +269,6 @@ class Model_r {
     try {
       var data = {...data,...await this.header_kwitansi_invoice() };
 
-      console.log("this.req.params.invoice", this.req.params.invoice);
-
       const adaInvoice = await Riwayat_tabungan.findOne({
         where: {
           invoice: this.req.params.invoice,
@@ -309,7 +290,6 @@ class Model_r {
         },
         include: {
             model: Tabungan,
-            attributes: ["createdAt"],
             include: [
               {
                 model: Jamaah,

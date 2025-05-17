@@ -1,6 +1,7 @@
 const {
   Op,
   Paket,
+  Paket_price,
   Tabungan,
   Jamaah,
   Riwayat_tabungan,
@@ -38,30 +39,25 @@ class Model_r {
     const offset = (pageNumber - 1) * perpage;
     const search = body.search || "";
     const filter = body.filter || "belum_beli_paket";
-    const today = moment().format('YYYY-MM-DD');
 
     var where = { division_id: this.division_id };
     
     if (filter === "belum_beli_paket") {
       where = {
         ...where,
-        transaksi_paket_id: {
-          [Op.is]: null,
-        },
+        transaksi_paket_id: null,
+        batal_berangkat: "tidak",
       };
     } else if (filter === "sudah_beli_paket") {
       where = {
         ...where,
-        transaksi_paket_id: {
-          [Op.not]: null,
-        },
+        transaksi_paket_id: {[Op.not]: null},
+        batal_berangkat: "tidak",
       };
     } else if (filter === "batal_berangkat") {
       where = {
         ...where,
-        batal_berangkat: {
-          [Op.eq]: "ya",
-        },
+        batal_berangkat: "ya",
       };
     }
 
@@ -70,14 +66,13 @@ class Model_r {
         attributes: ['id'],
         where: {
           [Op.or]: [
-            { "$member.fullname$": { [Op.like]: `%${searchTerm}%` } },
-            { "$member.identity_number$": { [Op.like]: `%${searchTerm}%` } },
+            { '$Member.fullname$': { [Op.like]: `%${searchTerm}%` } },
+            { '$Member.identity_number$': { [Op.like]: `%${searchTerm}%` } },
           ],
         },
         include: [
           {
             model: Member,
-            attributes: [],
           },
         ],
         raw: true,
@@ -156,10 +151,16 @@ class Model_r {
                     }
                   : { fullname: "-", identity_number: "-", birth_place: "-", birth_date: "-" },
                 target_paket_name: (await Paket.findOne({ where: { id: e.target_paket_id }, attributes: ["name"] }))?.name || "-",
+                target_paket_id: e.target_paket_id || null,
                 total_tabungan: e.total_tabungan,
                 status: e.status,
                 fee_agen_id: e.fee_agen_id || "-",
-                agen: (await getAgenById[e.fee_agen_id]) ? { fullname: (await getAgenById[e.fee_agen_id]).fullname, level: (await getAgenById[e.fee_agen_id]).Level_keagenan?.name || "-" } : { fullname: "-", level: "-" },
+                agen: e.fee_agen_id
+                  ? {
+                      fullname: (await getAgenById[e.fee_agen_id])?.fullname || "-",
+                      level: (await getAgenById[e.fee_agen_id])?.Level_keagenan?.name || "-",
+                    }
+                  : { fullname: "-", level: "-" },
                 batal_berangkat: e.batal_berangkat,
                 transaksi_paket_id: e.transaksi_paket_id,
                 sisa_pembelian: e.sisa_pembelian,
@@ -226,7 +227,6 @@ class Model_r {
       return {};
     }
   }
-
   async getPaketTabunganUmrah () {
     try {
       await this.initialize();
@@ -238,11 +238,31 @@ class Model_r {
             [Op.gte]: moment().format('YYYY-MM-DD'),
           },
         },
-        attributes: ["id", "name"],
+        attributes: ["id", "name", "departure_date"],
+      });
+
+      const paketPrices = await Paket_price.findAll({
+        where: {
+          paket_id: {
+            [Op.in]: paket.map(e => e.id),
+          },
+        },
+        attributes: ["paket_id", "price"],
       });
 
       if (paket) {
-        data["data"] = paket;
+        data["data"] = paket.map(e => {
+          const hargaSemua = paketPrices
+            .filter(p => p.paket_id === e.id)
+            .reduce((total, current) => total + Number(current.price), 0)
+
+          return {
+            id: e.id,
+            name: e.name,
+            price: hargaSemua,
+            hari_tersisa: moment(e.departure_date).diff(moment(), 'days'),
+          }
+        });
       }
 
       return data;

@@ -1,10 +1,10 @@
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
-const { handleValidationErrors, handleServerError } = require("../../../helper/handleError");
+const { handleValidationErrors, handleServerError, error_msg } = require("../../../helper/handleError");
 
 const controllers = {};
 
-// **Mendapatkan daftar tabungan**
+// Mendapatkan daftar tabungan
 controllers.get_daftar_tabungan_umrah = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -17,7 +17,7 @@ controllers.get_daftar_tabungan_umrah = async (req, res) => {
   }
 };
 
-// **Menambahkan tabungan baru**
+// Menambahkan tabungan baru
 controllers.add = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -42,7 +42,33 @@ controllers.add = async (req, res) => {
   }
 };
 
-// **Hapus tabungan**
+// Update tabungan
+controllers.updateTargetPaket = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    await model_cud.updateTargetPaket();
+
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Target Paket Tabungan Umrah berhasil diupdate',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Target Paket Tabungan Umrah gagal diupdate',
+      });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
+
+// Hapus tabungan
 controllers.delete = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -67,7 +93,7 @@ controllers.delete = async (req, res) => {
   }
 };
 
-// **Mengambil daftar Jamaah Tabungan Umrah**
+// Mengambil daftar Jamaah Tabungan Umrah
 controllers.getJamaahTabunganUmrah = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -80,7 +106,7 @@ controllers.getJamaahTabunganUmrah = async (req, res) => {
   }
 };
 
-// **Mengambil daftar Paket Tabungan Umrah**
+// Mengambil daftar Paket Tabungan Umrah
 controllers.getPaketTabunganUmrah = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -93,7 +119,7 @@ controllers.getPaketTabunganUmrah = async (req, res) => {
   }
 };
 
-// **Mengambil daftar Agen berdasarkan ID*/
+// Mengambil daftar Agen berdasarkan ID*/
 controllers.getAgenById = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
