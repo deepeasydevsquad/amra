@@ -1,4 +1,3 @@
-import { esbuildVersion } from "vite";
 import api from "./api";
 
 export const cekKwitansiTabunganUmrah = async (invoice: string) => {
