@@ -521,9 +521,9 @@ const onPriceInput = (event: Event, id: number) => {
                 <button
                   type="button"
                   class="px-3 py-2 bg-red-400 text-white border-red-300 rounded-r-lg cursor-pointer hover:bg-red-600 text-sm shrink-0 transition duration-150 ease-in-out ml-auto"
-                  @click="form.photo = null"
+                  @click="form.photo = null" for="file-upload"
                 >
-                  X
+                  <font-awesome-icon icon="fa-solid fa-image" class="mr-0" />
                 </button>
               </div>
               <small class="text-gray-400">Ukuran Maksimum 600KB (Tipe: .jpg, .jpeg, .png)</small>

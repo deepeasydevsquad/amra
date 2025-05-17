@@ -14,16 +14,16 @@ import router from './router'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-
+// fa-image
 // Import ikon yang dibutuhkan
 import { faUser, faHome, faHouseCrack, faCaretRight, faExchange, faBoxOpen, faUsers, faGlobe, faDatabase,
-  faChartArea, faCogs, faBackward, faForward, faBook, faArrowRight, faPlus, faMoneyBill, faPencil, faTimes, faBox, faMoneyBillAlt, faUndoAlt, faListAlt } from '@fortawesome/free-solid-svg-icons'
+  faChartArea, faCogs, faBackward, faForward, faBook, faArrowRight, faPlus, faMoneyBill, faPencil, faTimes, faBox, faMoneyBillAlt, faUndoAlt, faListAlt, faImage } from '@fortawesome/free-solid-svg-icons'
 import { faCircle } from '@fortawesome/free-regular-svg-icons'
 
 
 // Tambahkan ikon ke library
 library.add( faUser, faHome, faHouseCrack, faCaretRight, faCircle, faExchange, faBoxOpen, faUsers, faGlobe, faDatabase,
-  faChartArea, faCogs, faBackward, faForward, faBook, faArrowRight, faPlus, faMoneyBill, faPencil, faTimes, faBox, faMoneyBillAlt, faUndoAlt, faListAlt);
+  faChartArea, faCogs, faBackward, faForward, faBook, faArrowRight, faPlus, faMoneyBill, faPencil, faTimes, faBox, faMoneyBillAlt, faUndoAlt, faListAlt, faImage);
 
 const app = createApp(App)
 const head = createHead();

@@ -5,6 +5,9 @@ import SearchableSelect from '@/components/User/Modules/DaftarPaket/Particle/Sea
 import SearchableCheckboxList from '@/components/User/Modules/DaftarPaket/Particle/SearchableCheckboxList.vue'
 import { onMounted, reactive, ref } from 'vue'
 import { getPaket, editPaket } from '@/service/daftar_paket'
+
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
+
 import {
   daftarKota,
   daftarAirlines,
@@ -555,9 +558,9 @@ const onPriceInput = (event: Event, id: number) => {
                 <button
                   type="button"
                   class="px-3 py-2 bg-red-400 text-white border-red-300 rounded-r-lg cursor-pointer hover:bg-red-600 text-sm shrink-0 transition duration-150 ease-in-out ml-auto"
-                  @click="form.photo = null"
+                  @click="form.photo = null" for="file-upload"
                 >
-                  X
+                  <font-awesome-icon icon="fa-solid fa-image" class="mr-0" />
                 </button>
               </div>
               <small class="text-gray-400">Ukuran Maksimum 600KB (Tipe: .jpg, .jpeg, .png)</small>
@@ -894,12 +897,13 @@ const onPriceInput = (event: Event, id: number) => {
         >
           Batal
         </button>
-        <button
+        <!-- <button
           type="submit"
           class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
         >
           Simpan
-        </button>
+        </button> -->
+        <PrimaryButton type="submit">UPDATE PAKET</PrimaryButton>
       </div>
     </form>
   </div>

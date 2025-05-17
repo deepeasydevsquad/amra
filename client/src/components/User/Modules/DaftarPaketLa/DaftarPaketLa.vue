@@ -367,26 +367,36 @@ const cetakInvoice = async (invoice: string) => {
           <td class="p-3 border-gray-300 align-top font-bold text-center">
             #{{ paket.register_number }}
           </td>
-          <td class="p-3 border-gray-300 align-top">
-            <table class="w-full mt-2 text-center text-xs mb-3">
-              <tbody>
-                <tr>
-                  <td class="w-[35%] px-2 text-left font-bold ">NAMA KLIEN</td>
-                  <td class="w-[1%] px-1 text-center font-bold ">:</td>
-                  <td class="px-2 text-left">{{ paket.client_name }}</td>
-                </tr>
-                <tr>
-                  <td class="px-2 text-left font-bold ">NOMOR HP</td>
-                  <td class="px-1 text-center font-bold ">:</td>
-                  <td class="px-2 text-left">{{ paket.client_hp_number }}</td>
-                </tr>
-                <tr>
-                  <td class="px-2 text-left font-bold ">ALAMAT</td>
-                  <td class="px-1 text-center font-bold ">:</td>
-                  <td class="px-2 text-left">{{ paket.client_address }}</td>
-                </tr>
-              </tbody>
-            </table>
+          <td class="py-3 px-6 border-gray-300 align-top">
+              <table class="w-full">
+                <tbody>
+
+                    <tr v-for="(label, value) in {
+                        'Nama Klien': paket.client_name,
+                        'Nomor HP': paket.client_hp_number,
+                        'Alamat': paket.client_address,
+                        }" :key="label" class="border-gray-200 hover:bg-gray-200">
+                        <td class="py-1.5">{{ value }}</td>
+                        <td class="pl-8 pr-2">:</td>
+                        <td class="text-right space-y-2 text-sm py-1">{{ label }}</td>
+                      </tr>
+                  <!-- <tr>
+                    <td class="w-[30%]">Nama Klien</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">{{ paket.client_name }}</td>
+                  </tr>
+                  <tr>
+                    <td class="w-[40%]">Nomor HP</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">{{ paket.client_hp_number }}</td>
+                  </tr>
+                  <tr>
+                    <td class="w-[40%]">Alamat</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">{{ paket.client_address }}</td>
+                  </tr> -->
+                </tbody>
+              </table>
           </td>
           <td class="px-3 pt-0 border-gray-300 align-top text-center">
             <template v-if="fasilitaspaketla.length > 0">
@@ -450,31 +460,37 @@ const cetakInvoice = async (invoice: string) => {
               </div>
             </template>
           </td>
-          <td class="p-3  border-gray-300 align-top">
-            <table class="w-full mt-2 text-center text-xs mb-3">
-              <tbody>
-                <tr>
-                  <td class="w-[45%] px-2 text-left font-bold ">TOTAL HARGA</td>
-                  <td class="w-[1%] px-1 text-center font-bold ">:</td>
-                  <td class="px-2 text-left">Rp {{ paket.total_price.toLocaleString() }}</td>
-                </tr>
-                <tr>
-                  <td class="px-2 text-left font-bold ">DISKON</td>
-                  <td class="px-1 text-center font-bold ">:</td>
-                  <td class="px-2 text-left">Rp {{ paket.discount.toLocaleString() }}</td>
-                </tr>
-                <tr>
-                  <td class="px-2 text-left font-bold ">SUDAH DIBAYAR</td>
-                  <td class="px-1 text-center font-bold ">:</td>
-                  <td class="px-2 text-left">Coming Soon</td>
-                </tr>
-                <tr>
-                  <td class="px-2 text-left font-bold ">SISA</td>
-                  <td class="px-1 text-center font-bold ">:</td>
-                  <td class="px-2 text-left">Coming Soon</td>
-                </tr>
-              </tbody>
-            </table>
+          <td class="py-3 px-6 border-gray-300 align-top">
+            <table class="w-full">
+                <tbody>
+                  <tr>
+                    <td class="w-[40%]">Total Harga</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">Rp {{ paket.total_price.toLocaleString() }}</td>
+                  </tr>
+                  <tr>
+                    <td>Diskon</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">
+                      Rp {{ paket.discount.toLocaleString() }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Sudah Dibayar</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">
+                     -
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Sisa</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">
+                     -
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
           </td>
           <td class="p-3 border-gray-300 align-top gap-2">
             <div class="grid ">

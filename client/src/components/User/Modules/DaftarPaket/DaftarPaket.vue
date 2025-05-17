@@ -196,6 +196,11 @@ const deleteData = async (id: number) => {
     }
   );
 };
+
+const shortText = (teks:string, maxKarakter: number) => {
+  if (!teks) return '';
+  return teks.length > maxKarakter ? teks.slice(0, maxKarakter) + '...' : teks;
+}
 </script>
 
 <template>
@@ -284,13 +289,13 @@ const deleteData = async (id: number) => {
                   <br>{{ paket.name }}
                 </td>
                 <td class="px-6 py-4">
-                  <ul class="list-disc list-inside text-xs">
+                  <ul class="list-disc list-inside text-sm">
                     <li v-for="(price, index) in paket.prices" :key="index">
                       {{ price.paket_tipe }}: Rp {{ price.price.toLocaleString() }}
                     </li>
                   </ul>
                 </td>
-                <td class="px-6 py-4">{{ paket.description }}</td>
+                <td class="px-6 py-4">{{ shortText( paket.description, 200 ) }}</td>
                 <td class="px-6 py-4 text-center">
                   {{ paket.departure_date }}
                   <br>

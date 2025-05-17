@@ -60,54 +60,46 @@
             <td class="px-6 py-4 text-center">{{ deposit.invoice || '-' }}</td>
             <td class="px-6 py-4 text-center">{{ deposit.fullname || '-' }}</td>
             <td class="px-6 py-4 text-left">
-              <ul class="space-y-1 text-sm">
-                <li class="flex items-start">
-                  <span class="text-gray-600 mr-2">➤</span>
-                  <div>
-                    <span class="font-medium">Nominal Deposit:</span>
-                    {{
+              <table class="w-full">
+                <tbody>
+                  <tr>
+                    <td class="w-[30%]">Nominal Deposit</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">{{
                       deposit.nominal
                         ? 'Rp' + new Intl.NumberFormat('id-ID').format(deposit.nominal)
                         : '-'
-                    }}
-                  </div>
-                </li>
-                <li class="flex items-start">
-                  <span class="text-gray-600 mr-2">➤</span>
-                  <div>
-                    <span class="font-medium">Saldo Sebelum:</span>
-                    {{
+                    }}</td>
+                  </tr>
+                  <tr>
+                    <td class="w-[30%]">Saldo Sebelum:</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">{{
                       deposit.saldo_sebelum
                         ? 'Rp' + new Intl.NumberFormat('id-ID').format(deposit.saldo_sebelum)
                         : '-'
-                    }}
-                  </div>
-                </li>
-                <li class="flex items-start">
-                  <span class="text-gray-600 mr-2">➤</span>
-                  <div>
-                    <span class="font-medium">Saldo Sesudah:</span>
-                    {{
+                    }}</td>
+                  </tr>
+                  <tr>
+                    <td class="w-[30%]">Saldo Sesudah:</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">{{
                       deposit.saldo_sesudah
                         ? 'Rp' + new Intl.NumberFormat('id-ID').format(deposit.saldo_sesudah)
                         : '-'
-                    }}
-                  </div>
-                </li>
-                <li class="flex items-start">
-                  <span class="text-gray-600 mr-2">➤</span>
-                  <div>
-                    <span class="font-medium">Penerima:</span> {{ deposit.penerima || '-' }}
-                  </div>
-                </li>
-              </ul>
+                    }}</td>
+                  </tr>
+                  <tr>
+                    <td class="w-[30%]">Penerima:</td>
+                    <td>:</td>
+                    <td class="text-right space-y-2 text-sm py-1">{{ deposit.penerima || '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </td>
             <td class="px-6 py-4 text-center">{{ formatDate(deposit.createdAt) || '-' }}</td>
             <td class="px-6 py-4 text-center">
               <div class="flex justify-center gap-2">
-                <!-- <DangerButton @click="cetakKitansi(deposit.invoice)" title="Print Invoice">
-                  <DeleteIcon />
-                </DangerButton> -->
                 <LightButton @click="cetakKitansi(deposit.invoice)" title="Print Invoice"><DeleteIcon /></LightButton>
               </div>
             </td>

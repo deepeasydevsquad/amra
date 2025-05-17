@@ -237,17 +237,17 @@ const cetakKwitansi = async (invoice: string) => {
             <template v-if="dataTabunganUmrah && dataTabunganUmrah.length > 0">
               <tr v-for="tabungan in dataTabunganUmrah" :key="tabungan.id" class="hover:bg-gray-100">
                 <td class="px-6 align-top">
-                  <table class="text-sm text-gray-700 border-t border-b border-gray-200 w-full">
+                  <table class="w-full">
                     <tr v-for="(label, value) in {
                         'Nama Jamaah': tabungan.member.fullname,
                         'Nomor Identitas': tabungan.member.identity_number,
                         'Tempat / Tgl Lahir': `${tabungan.member.birth_place} / ${tabungan.member.birth_date}`,
                         'Nama Agen': tabungan.agen ? `${tabungan.agen.fullname} (Level : ${tabungan.agen.level})` : '-',
                         'Nama Target Paket': tabungan.target_paket_name || 'Target Paket Tidak Ditemukan'
-                        }" :key="label" class="border-t border-gray-200 hover:bg-gray-200">
-                      <td class="py-1.5"><strong>{{ value }}</strong></td>
+                        }" :key="label" class="border-gray-200 hover:bg-gray-200">
+                      <td class="py-1.5">{{ value }}</td>
                       <td class="pl-8 pr-2">:</td>
-                      <td>{{ label }}</td>
+                      <td class="text-right space-y-2 text-sm py-1">{{ label }}</td>
                     </tr>
                   </table>
                 </td>
@@ -267,16 +267,16 @@ const cetakKwitansi = async (invoice: string) => {
                       <table class="w-full mb-4 text-xs text-center text-gray-700 border">
                         <thead class="bg-gray-50 border-b">
                           <tr>
-                            <th class="p-2 border w-[7%]">#</th>
-                            <th class="p-2 border w-[13%]">Invoice</th>
-                            <th class="p-2 border w-[23%]">Biaya</th>
-                            <th class="p-2 border w-[26%]">Tanggal Transaksi</th>
-                            <th class="p-2 border w-[25%]">Penerima</th>
-                            <th class="p-2 border w-[5%]">Aksi</th>
+                            <th class="p-2 border w-[7%] text-sm">#</th>
+                            <th class="p-2 border w-[13%] text-sm">Invoice</th>
+                            <th class="p-2 border w-[23%] text-sm">Biaya</th>
+                            <th class="p-2 border w-[26%] text-sm">Tanggal Transaksi</th>
+                            <th class="p-2 border w-[25%] text-sm">Penerima</th>
+                            <th class="p-2 border w-[5%] text-sm">Aksi</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr v-for="(riwayat, index) in tabungan.riwayat_tabungan" :key="index" class="border-t hover:bg-gray-200">
+                          <tr v-for="(riwayat, index) in tabungan.riwayat_tabungan" :key="index" class="border-t hover:bg-gray-200 text-sm">
                             <td class="p-2 border">{{ index + 1 }}</td>
                             <td class="p-2 border">{{ riwayat.invoice }}</td>
                             <td class="p-2 border">Rp {{ riwayat.nominal_tabungan.toLocaleString() }},-</td>
