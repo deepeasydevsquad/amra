@@ -4,7 +4,8 @@ import CetakIcon from '@/components/User/Modules/TabunganUmrah/Icon/CetakIcon.vu
 
 // import element
 import LightButton from '@/components/Button/LightButton.vue'
-import DangerButton from '@/components/User/Modules/TabunganUmrah/Particle/DangerButton.vue'
+import DangerButton from "@/components/Button/DangerButton.vue"
+// import DangerButton from '@/components/User/Modules/TabunganUmrah/Particle/DangerButton.vue'
 import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confirmation.vue'
 
@@ -227,16 +228,16 @@ const cetakKwitansi = async (invoice: string) => {
         <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead class="bg-gray-50">
             <tr>
-              <th class="w-[35%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Jamaah</th>
-              <th class="w-[50%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Deposit</th>
-              <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+              <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Jamaah</th>
+              <th class="w-[70%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Deposit</th>
+              <th class="w-[5%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 border-t border-gray-100">
             <template v-if="dataTabunganUmrah && dataTabunganUmrah.length > 0">
               <tr v-for="tabungan in dataTabunganUmrah" :key="tabungan.id" class="hover:bg-gray-100">
                 <td class="px-6 align-top">
-                  <table class="text-sm text-gray-700 border-t border-b border-gray-200">
+                  <table class="text-sm text-gray-700 border-t border-b border-gray-200 w-full">
                     <tr v-for="(label, value) in {
                         'Nama Jamaah': tabungan.member.fullname,
                         'Nomor Identitas': tabungan.member.identity_number,
@@ -330,35 +331,26 @@ const cetakKwitansi = async (invoice: string) => {
                   </div>
                 </td>
                 <td class="px-6 py-4 text-center grid grid-cols-2 gap-2">
-                  <!-- Cetak -->
-                  <LightButton col-span-1 title="Cetak Kwitansi" @click.prevent="cetakKwitansi(tabungan.invoice_sisa_deposit)">
-                    <font-awesome-icon icon="fa-solid fa-print" />
-                  </LightButton>
-
-                  <!-- Lihat Paket -->
-                  <!-- <LightButton col-span-1 title="Lihat Paket" @click.prevent="lihatPaket(tabungan)">
-                    <font-awesome-icon icon="fa-solid fa-box" />
-                  </LightButton> -->
-
-                  <!-- Setor Tabungan -->
-                  <!-- <LightButton col-span-1 title="Setor Tabungan" @click.prevent="setorTabungan(tabungan)">
-                    <font-awesome-icon icon="fa-solid fa-hand-holding-usd" />
-                  </LightButton> -->
-
-                  <!-- Riwayat Tabungan -->
-                  <!-- <LightButton col-span-1 title="Riwayat Tabungan" @click.prevent="lihatRiwayat(tabungan)">
-                    <font-awesome-icon icon="fa-solid fa-money-bill-wave" />
-                  </LightButton> -->
-
-                  <!-- Info Agen -->
-                  <!-- <LightButton col-span-1 title="Info Agen" @click.prevent="lihatAgen(tabungan)">
-                    <font-awesome-icon icon="fa-solid fa-handshake" />
-                  </LightButton> -->
-
-                  <!-- Hapus -->
-                  <DangerButton col-span-1 title="Hapus Tabungan" @click="deleteData(tabungan.id)">
-                    <font-awesome-icon icon="fa-solid fa-times" />
-                  </DangerButton>
+                  <div class="grid ">
+                    <LightButton col-span-1 title="Cetak Data Jamaah" @click.prevent="cetakKwitansi(tabungan.invoice_sisa_deposit)">
+                      <CetakIcon class="h-6 w-6 text-gray-600" />
+                    </LightButton>
+                    <LightButton col-span-1 title="Update Target Paket" >
+                      <CetakIcon class="h-6 w-6 text-gray-600" />
+                    </LightButton>
+                    <LightButton col-span-1 title="Refund Tabungan" >
+                      <CetakIcon class="h-6 w-6 text-gray-600" />
+                    </LightButton>
+                    <LightButton col-span-1 title="Menabung" >
+                      <CetakIcon class="h-6 w-6 text-gray-600" />
+                    </LightButton>
+                    <LightButton col-span-1 title="Handover Fasilitas" >
+                      <CetakIcon class="h-6 w-6 text-gray-600" />
+                    </LightButton>
+                    <DangerButton title="Hapus Tabungan" @click="deleteData(tabungan.id)">
+                      <font-awesome-icon icon="fa-solid fa-times" />
+                    </DangerButton>
+                  </div>
                 </td>
               </tr>
             </template>
