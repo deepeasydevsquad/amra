@@ -1,6 +1,11 @@
 <script setup lang="ts">
 // Import Icon
 import CetakIcon from '@/components/User/Modules/TabunganUmrah/Icon/CetakIcon.vue'
+import EditIcon from '@/components/User/Modules/TabunganUmrah/Icon/EditIcon.vue'
+import RefundIcon from '@/components/User/Modules/TabunganUmrah/Icon/RefundIcon.vue'
+import NabungIcon from '@/components/User/Modules/TabunganUmrah/Icon/NabungIcon.vue'
+import HandoverIcon from '@/components/User/Modules/TabunganUmrah/Icon/HandoverIcon.vue'
+import DeleteIconX from '@/components/User/Modules/TabunganUmrah/Icon/DeleteIconX.vue'
 
 // import element
 import LightButton from '@/components/Button/LightButton.vue'
@@ -334,7 +339,7 @@ const cetakKwitansi = async (invoice: string) => {
                       <p class="text-gray-500 text-xs italic mt-2 text-center">Daftar Handover Fasilitas Tidak Ditemukan</p>
                     </template> -->
                     <div class="py-4 text-center font-bold">
-                        <span>Coming soon</span>
+                      <span>Coming soon</span>
                     </div>
                   </div>
                 </td>
@@ -344,19 +349,19 @@ const cetakKwitansi = async (invoice: string) => {
                       <CetakIcon class="h-6 w-6 text-gray-600" />
                     </LightButton>
                     <LightButton col-span-1 title="Update Target Paket" @click="openFormUpdate(tabungan)" >
-                      <CetakIcon class="h-6 w-6 text-gray-600" />
+                      <EditIcon class="h-6 w-6 text-gray-600" />
                     </LightButton>
                     <LightButton col-span-1 title="Refund Tabungan" >
-                      <CetakIcon class="h-6 w-6 text-gray-600" />
+                      <RefundIcon class="h-6 w-6 text-gray-600" />
                     </LightButton>
                     <LightButton col-span-1 title="Menabung" >
-                      <CetakIcon class="h-6 w-6 text-gray-600" />
+                      <NabungIcon class="h-6 w-6 text-gray-600" />
                     </LightButton>
                     <LightButton col-span-1 title="Handover Fasilitas" >
-                      <CetakIcon class="h-6 w-6 text-gray-600" />
+                      <HandoverIcon class="h-6 w-6 text-gray-600" />
                     </LightButton>
                     <DangerButton title="Hapus Tabungan" @click="deleteData(tabungan.id)">
-                      <font-awesome-icon icon="fa-solid fa-times" />
+                      <DeleteIconX class="h-6 w-6 text-gray-600" />
                     </DangerButton>
                   </div>
                 </td>
