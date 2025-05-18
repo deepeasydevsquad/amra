@@ -130,22 +130,22 @@
               <table class="w-full border border-gray-200 text-xs">
                 <thead>
                   <tr class="bg-gray-100">
-                    <th colspan="4" class="px-2 py-2 text-center">RIWAYAT PEMBAYARAN PEMINJAMAN</th>
+                    <th colspan="4" class="px-2 py-3 text-center">RIWAYAT PEMBAYARAN PEMINJAMAN</th>
                   </tr>
                   <tr>
-                    <th class="w-[25%] px-2 py-2 border font-bold text-center">#Invoice</th>
-                    <th class="w-[40%] px-2 py-2 border font-bold text-center">Biaya</th>
-                    <th class="w-[20%] px-2 py-2 border font-bold text-center">Status</th>
-                    <th class="w-[15%] px-2 py-2 border font-bold text-center">Aksi</th>
+                    <th class="w-[25%] px-2 py-2 border font-bold text-center text-sm">#Invoice</th>
+                    <th class="w-[40%] px-2 py-2 border font-bold text-center text-sm">Biaya</th>
+                    <th class="w-[20%] px-2 py-2 border font-bold text-center text-sm">Status</th>
+                    <th class="w-[15%] px-2 py-2 border font-bold text-center text-sm">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
                   <template v-if="pinjaman.riwayat_pembayaran.length > 0">
                     <tr v-for="detail in pinjaman.riwayat_pembayaran" :key="detail.id">
-                      <td class="px-2 py-2 text-center">{{ detail.invoice }}</td>
-                      <td class="px-2 py-2 text-center">{{ formatIDR(detail.nominal) }}</td>
-                      <td class="px-2 py-2 text-center">{{ detail.status }}</td>
-                      <td class="px-2 py-2"></td>
+                      <td class="px-2 py-2 text-center text-sm">{{ detail.invoice }}</td>
+                      <td class="px-2 py-2 text-center text-sm">{{ formatIDR(detail.nominal) }}</td>
+                      <td class="px-2 py-2 text-center text-sm">{{ detail.status }}</td>
+                      <td class="px-2 py-2 text-sm"></td>
                     </tr>
                   </template>
                   <tr v-else>
