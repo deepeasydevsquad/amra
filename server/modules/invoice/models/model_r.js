@@ -41,6 +41,7 @@ class Model_r {
 
   async header_kwitansi_invoice() {
     var data = {};
+    let division = null;
     await Division.findOne({
       attributes: ["name", "pos_code", "address", "kota_id"], // ambil dari Division
       where: { id: this.company_id }, // pastikan ini berdasarkan division_id
@@ -85,26 +86,27 @@ class Model_r {
       }
     });
 
-  if (division) {
-    const invoiceLogo = division.Company?.invoice_logo;
-    const logoPath = invoiceLogo
-      ? path.resolve(__dirname, "../../../uploads", invoiceLogo)
-      : null;
+    if (division) {
+      const invoiceLogo = division.Company?.invoice_logo;
+      const logoPath = invoiceLogo
+        ? path.resolve(__dirname, "../../../uploads", invoiceLogo)
+        : null;
 
-    const exists = invoiceLogo && fs.existsSync(logoPath);
+      const exists = invoiceLogo && fs.existsSync(logoPath);
 
-    data.logo = exists ? invoiceLogo : "default.png";
-    data.company_name = division.Company?.company_name ?? "-";
-    data.city = division.Mst_kota?.name ?? "-";
-    data.address = division.address ?? "-";
-    data.pos_code = division.pos_code ?? "-";
-    data.email = division.Company?.email ?? "-";
-    data.whatsapp_company_number = division.Company?.whatsapp_company_number ?? "-";
+      data.logo = exists ? invoiceLogo : "default.png";
+      data.company_name = division.Company?.company_name ?? "-";
+      data.city = division.Mst_kota?.name ?? "-";
+      data.address = division.address ?? "-";
+      data.pos_code = division.pos_code ?? "-";
+      data.email = division.Company?.email ?? "-";
+      data.whatsapp_company_number =
+        division.Company?.whatsapp_company_number ?? "-";
+    }
+
+    console.log(data);
+    return data;
   }
-
-  console.log(data);
-  return data;
- }
 
   async dataInvoiceDeposit() {
     await this.initialize();
@@ -282,9 +284,9 @@ class Model_r {
   async dataKwitansiTabunganUmrah() {
     await this.initialize();
     const myDate = moment(new Date()).format("DD MMMM YYYY");
-    
+
     try {
-      var data = {...data,...await this.header_kwitansi_invoice() };
+      var data = { ...data, ...(await this.header_kwitansi_invoice()) };
 
       console.log("this.req.params.invoice", this.req.params.invoice);
 
@@ -303,58 +305,70 @@ class Model_r {
       console.log("=================");
 
       const sql = {
-        attributes: ["invoice", "nominal_tabungan", "sumber_dana", "penerima", "saldo_tabungan_sebelum", "saldo_tabungan_sesudah", "info_tabungan", "createdAt"],
+        attributes: [
+          "invoice",
+          "nominal_tabungan",
+          "sumber_dana",
+          "penerima",
+          "saldo_tabungan_sebelum",
+          "saldo_tabungan_sesudah",
+          "info_tabungan",
+          "createdAt",
+        ],
         where: {
           invoice: this.req.params.invoice,
         },
         include: {
-            model: Tabungan,
-            attributes: ["createdAt"],
-            include: [
-              {
-                model: Jamaah,
-                include: [
-                  {
-                    model: Member,
-                    attributes: ["fullname", "whatsapp_number"],
-                  },
-                ],
-              },
-            ]
-          },
+          model: Tabungan,
+          attributes: ["createdAt"],
+          include: [
+            {
+              model: Jamaah,
+              include: [
+                {
+                  model: Member,
+                  attributes: ["fullname", "whatsapp_number"],
+                },
+              ],
+            },
+          ],
+        },
       };
-  
+
       await Riwayat_tabungan.findOne(sql).then(async (e) => {
         if (e) {
-          data["invoice"] = e.invoice,
-          data["fullname"] = e.Tabungan.Jamaah.Member.fullname,
-          data["whatsapp_number"] = e.Tabungan.Jamaah.Member.whatsapp_number,
-          data["nominal_tabungan"] = e.nominal_tabungan,
-          data["sumber_dana"] = e.sumber_dana,
-          data["penerima"] = e.penerima,
-          data["saldo_tabungan_sebelum"] = e.saldo_tabungan_sebelum,
-          data["saldo_tabungan_sesudah"] = e.saldo_tabungan_sesudah,
-          data["info_tabungan"] = e.info_tabungan,
-          data["createdAt"] = e.createdAt
+          (data["invoice"] = e.invoice),
+            (data["fullname"] = e.Tabungan.Jamaah.Member.fullname),
+            (data["whatsapp_number"] =
+              e.Tabungan.Jamaah.Member.whatsapp_number),
+            (data["nominal_tabungan"] = e.nominal_tabungan),
+            (data["sumber_dana"] = e.sumber_dana),
+            (data["penerima"] = e.penerima),
+            (data["saldo_tabungan_sebelum"] = e.saldo_tabungan_sebelum),
+            (data["saldo_tabungan_sesudah"] = e.saldo_tabungan_sesudah),
+            (data["info_tabungan"] = e.info_tabungan),
+            (data["createdAt"] = e.createdAt);
         }
-      })
+      });
 
-      console.log(data)
-    
+      console.log(data);
+
       return data;
     } catch (error) {
-      return {}
+      return {};
     }
   }
 
   async checkKwitansiTabunganUmrah() {
     try {
       const body = this.req.body;
-      const adaData = await Riwayat_tabungan.findOne({ where: { invoice: body.invoice } });
-      return adaData ? {data: true} : {data: null};
+      const adaData = await Riwayat_tabungan.findOne({
+        where: { invoice: body.invoice },
+      });
+      return adaData ? { data: true } : { data: null };
     } catch (error) {
-        console.error(error);
-        throw {};
+      console.error(error);
+      throw {};
     }
   }
 

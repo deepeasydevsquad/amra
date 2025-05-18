@@ -27,8 +27,12 @@
           <tr>
             <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">No. Register</th>
             <th class="w-[20%] px-6 py-4 font-bold text-gray-900 text-center w-64">Info Jamaah</th>
-            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center w-64">Info Pinjaman</th>
-            <th class="w-[40%] px-6 py-4 font-bold text-gray-900 text-center w-[320px]">Detail Peminjaman</th>
+            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center w-64">
+              Info Pinjaman
+            </th>
+            <th class="w-[40%] px-6 py-4 font-bold text-gray-900 text-center w-[320px]">
+              Detail Peminjaman
+            </th>
             <th class="w-[5%] px-6 py-4 font-bold text-gray-900 text-center w-28">Aksi</th>
           </tr>
         </thead>
@@ -142,10 +146,14 @@
                 <tbody>
                   <template v-if="pinjaman.riwayat_pembayaran.length > 0">
                     <tr v-for="detail in pinjaman.riwayat_pembayaran" :key="detail.id">
-                      <td class="px-2 py-2 text-center text-sm">{{ detail.invoice }}</td>
-                      <td class="px-2 py-2 text-center text-sm">{{ formatIDR(detail.nominal) }}</td>
-                      <td class="px-2 py-2 text-center text-sm">{{ detail.status }}</td>
-                      <td class="px-2 py-2 text-sm"></td>
+                     <td class="px-2 py-2 text-center">{{ detail.invoice }}</td>
+                      <td class="px-2 py-2 text-center">{{ formatIDR(detail.nominal) }}</td>
+                      <td class="px-2 py-2 text-center">{{ detail.status }}</td>
+                      <td class="px-2 py-2">
+                        <LightButton @click="cetakInvoice(detail.invoice)"
+                          ><CetakIcon class="w-4 h-4"
+                        /></LightButton>
+                      </td>
                     </tr>
                   </template>
                   <tr v-else>
@@ -386,6 +394,11 @@ const handleSuccessBayarPinjaman = () => {
 const handleUpdate = async () => {
   showFormUpdateModal.value = false
   displayNotification('Peminjaman berhasil diupdate', 'success')
+}
+
+const cetakInvoice = (invoice: string) => {
+  // contoh pemakaian: buka tab baru ke URL cetak
+  window.open(`/invoice-pembayaran/${invoice}`, '_blank')
 }
 
 const invoiceTerakhir = (pinjaman: Pinjaman): string | null => {
