@@ -59,7 +59,7 @@
               <!-- Tanggal Transaksi -->
               <td class="align-top w-[23%] p-2">
                 <p class="font-semibold mb-1 text-center uppercase">Tanggal Transaksi</p>
-                <p class="text-center">{{ company.data.tanggal_pembayaran }}</p>
+                <p class="text-center">{{ company.data.createdAt }}</p>
               </td>
             </tr>
           </tbody>
@@ -83,7 +83,7 @@
             <td class="border border-gray-400">{{ formatRupiah(company.data.nominal) }}</td>
             <td class="border border-gray-400">{{ company.data.status_pembayaran }}</td>
             <td class="border border-gray-400">{{ company.data.term }}</td>
-            <td class="border border-gray-400">{{ company.data.tanggal_pembayaran }}</td>
+            <td class="border border-gray-400">{{ company.data.createdAt }}</td>
           </tr>
         </tbody>
       </table>
