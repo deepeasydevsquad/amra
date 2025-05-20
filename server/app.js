@@ -13,13 +13,15 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 // CORS dinamis, izinkan semua origin yang datang
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // untuk Postman, curl, dll.
-    return callback(null, origin); // izinkan semua origin
-  },
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true); // untuk Postman, curl, dll.
+      return callback(null, origin); // izinkan semua origin
+    },
+    credentials: true,
+  })
+);
 
 app.use(cookieParser());
 app.use(express.json());
@@ -82,13 +84,16 @@ const arr_router = [
   "peminjaman",
   "jurnal",
   "tabungan_umrah",
+  "riwayat_peminjaman",
 ];
 
 const arr = {};
 arr_router.forEach((e) => {
   if (typeof e === "object" && Object.keys(e.list).length > 0) {
     for (let x in e.list) {
-      arr["router_" + e.list[x]] = require(`./router/${e.folder}/${e.list[x]}/index`);
+      arr[
+        "router_" + e.list[x]
+      ] = require(`./router/${e.folder}/${e.list[x]}/index`);
     }
   } else {
     arr["router_" + e] = require(`./router/router_${e}`);
