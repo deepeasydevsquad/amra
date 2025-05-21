@@ -1,7 +1,7 @@
 <template>
   <div class="container mx-auto p-4">
     <!-- Pencarian & Filter -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+    <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
       <div class="col-span-1 md:col-span-1 flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
@@ -21,6 +21,17 @@
         type="date"
         class="text-gray-700 px-3 py-2 border rounded-lg shadow-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
+    </div> -->
+    <div class="flex justify-between mb-4">
+      <div class="inline-flex rounded-md shadow-xs" role="group"></div>
+      <div class="flex items-center">
+        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
+        <div class="inline-flex rounded-md shadow-xs" role="group">
+          <input v-model="searchQuery" type="text" placeholder="Nama atau Invoice" class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 mr-5"/>
+          <input v-model="filters.tanggal_awal" type="date" class="text-gray-700 px-3 py-2 border shadow-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-s-lg"/>
+          <input v-model="filters.tanggal_akhir" type="date" class="text-gray-700 px-3 py-2 border rounded-e-lg shadow-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+        </div>
+      </div>
     </div>
 
     <!-- Loading State -->
@@ -36,14 +47,14 @@
     <!-- Tabel System Log -->
     <div v-else class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center">Ne Registrasi / Invoice</th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center">Info Jamaah</th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center">Biaya</th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center">Status Biaya</th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center">Penerima</th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center">Tanggal Transaksi</th>
+            <th class="w-[15%] px-6 py-4 font-bold text-gray-900 text-center">Ne Registrasi / Invoice</th>
+            <th class="w-[30%] px-6 py-4 font-bold text-gray-900 text-center">Info Jamaah</th>
+            <th class="w-[15%] px-6 py-4 font-bold text-gray-900 text-center">Biaya</th>
+            <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">Status Biaya</th>
+            <th class="w-[15%] px-6 py-4 font-bold text-gray-900 text-center">Penerima</th>
+            <th class="w-[15%] px-6 py-4 font-bold text-gray-900 text-center">Tanggal Transaksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -55,10 +66,10 @@
             :key="riwayat.invoice"
             class="hover:bg-gray-50 transition-colors"
           >
-            <td class="px-6 py-4 text-left">
-              {{ riwayat.register_number }} / {{ riwayat.invoice }}
+            <td class="px-6 py-4 text-center font-bold">
+              {{ riwayat.register_number }}/<br>{{ riwayat.invoice }}
             </td>
-            <td class="px-6 py-4 text-center">{{ riwayat.nama_jamaah }}</td>
+            <td class="px-6 py-4 text-center">{{ riwayat.nama_jamaah }}<br>(Identitas: {{ riwayat.nomor_identitas }})</td>
             <td class="px-6 py-4 text-center">{{ formatIDR(riwayat.nominal) }}</td>
             <td class="px-6 py-4 text-center">{{ riwayat.status }}</td>
             <td class="px-6 py-4 text-center">{{ riwayat.petugas }}</td>
@@ -67,8 +78,8 @@
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
           <tr>
-            <td class="px-4 py-4 text-center border" :colspan="6">
-              <nav class="flex mt-0 justify-center">
+            <td class="px-4 py-4 text-left border min-h-[200px]"  :colspan="6">
+              <nav class="flex mt-0">
                 <ul class="inline-flex items-center -space-x-px">
                   <!-- Tombol Previous -->
                   <li>
