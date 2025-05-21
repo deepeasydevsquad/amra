@@ -85,12 +85,12 @@ class Model_r {
         data["whatsapp_company_number"] = e.Company.whatsapp_company_number || "-";
       }
     });
-<<<<<<< HEAD
+// <<<<<<< HEAD
     
-  console.log(data);
-  return data;
- }
-=======
+//   console.log(data);
+//   return data;
+//  }
+// =======
 
     if (division) {
       const invoiceLogo = division.Company?.invoice_logo;
@@ -113,7 +113,7 @@ class Model_r {
     console.log(data);
     return data;
   }
->>>>>>> 20f6c903a0960ba0af7c4e17f0f806f02832138e
+// >>>>>>> 20f6c903a0960ba0af7c4e17f0f806f02832138e
 
   async dataInvoiceDeposit() {
     await this.initialize();
@@ -324,22 +324,7 @@ class Model_r {
           invoice: this.req.params.invoice,
         },
         include: {
-<<<<<<< HEAD
-            model: Tabungan,
-            include: [
-              {
-                model: Jamaah,
-                include: [
-                  {
-                    model: Member,
-                    attributes: ["fullname", "whatsapp_number"],
-                  },
-                ],
-              },
-            ]
-          },
-=======
-          model: Tabungan,
+           model: Tabungan,
           attributes: ["createdAt"],
           include: [
             {
@@ -353,7 +338,6 @@ class Model_r {
             },
           ],
         },
->>>>>>> 20f6c903a0960ba0af7c4e17f0f806f02832138e
       };
 
       await Riwayat_tabungan.findOne(sql).then(async (e) => {
