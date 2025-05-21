@@ -56,6 +56,25 @@ router.post(
 );
 
 router.post(
+  "/daftar_tabungan_umrah/update",
+  authenticateToken,
+  [
+    body("id")
+      .trim()
+      .notEmpty()
+      .withMessage("ID Tabungan Umrah tidak boleh kosong.")
+      .isInt()
+      .withMessage("ID Tabungan Umrah harus berupa angka."),
+    body("target_id")
+      .trim()
+      .optional({ checkFalsy: true, nullable: true })
+      .isInt().withMessage("Target ID harus berupa angka.")
+      .custom(validation.check_id_target_paket),
+  ],
+  controllers.updateTargetPaket
+)
+
+router.post(
   "/daftar_tabungan_umrah/delete",
   authenticateToken,
   [

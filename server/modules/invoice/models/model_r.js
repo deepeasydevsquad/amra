@@ -43,8 +43,8 @@ class Model_r {
     var data = {};
     let division = null;
     await Division.findOne({
-      attributes: ["name", "pos_code", "address", "kota_id"], // ambil dari Division
-      where: { id: this.company_id }, // pastikan ini berdasarkan division_id
+      attributes: ["name", "pos_code", "address"], // ambil dari Division
+      where: { id: this.division_id }, // pastikan ini berdasarkan division_id
       include: [
         {
           required: true,
@@ -77,14 +77,20 @@ class Model_r {
           }
         }
         data["logo"] = exisFile ? e.Company.invoice_logo : "default.png";
-        data["company_name"] = e.Company.company_name;
-        data["city"] = e.Mst_kotum.name; // ambil nama kota dari mst_kota
-        data["address"] = e.address;
-        data["pos_code"] = e.pos_code;
-        data["email"] = e.Company.email;
-        data["whatsapp_company_number"] = e.Company.whatsapp_company_number;
+        data["company_name"] = e.Company.company_name || "-";
+        data["city"] = e.Mst_kota?.name || "-"; // ambil nama kota dari mst_kota
+        data["address"] = e.address || "-";
+        data["pos_code"] = e.pos_code || "-";
+        data["email"] = e.Company.email || "-";
+        data["whatsapp_company_number"] = e.Company.whatsapp_company_number || "-";
       }
     });
+// <<<<<<< HEAD
+    
+//   console.log(data);
+//   return data;
+//  }
+// =======
 
     if (division) {
       const invoiceLogo = division.Company?.invoice_logo;
@@ -107,6 +113,7 @@ class Model_r {
     console.log(data);
     return data;
   }
+// >>>>>>> 20f6c903a0960ba0af7c4e17f0f806f02832138e
 
   async dataInvoiceDeposit() {
     await this.initialize();
@@ -288,8 +295,6 @@ class Model_r {
     try {
       var data = { ...data, ...(await this.header_kwitansi_invoice()) };
 
-      console.log("this.req.params.invoice", this.req.params.invoice);
-
       const adaInvoice = await Riwayat_tabungan.findOne({
         where: {
           invoice: this.req.params.invoice,
@@ -319,7 +324,7 @@ class Model_r {
           invoice: this.req.params.invoice,
         },
         include: {
-          model: Tabungan,
+           model: Tabungan,
           attributes: ["createdAt"],
           include: [
             {

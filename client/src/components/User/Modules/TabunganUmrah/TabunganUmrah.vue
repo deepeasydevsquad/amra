@@ -1,16 +1,21 @@
 <script setup lang="ts">
 // Import Icon
 import CetakIcon from '@/components/User/Modules/TabunganUmrah/Icon/CetakIcon.vue'
+import EditIcon from '@/components/User/Modules/TabunganUmrah/Icon/EditIcon.vue'
+import RefundIcon from '@/components/User/Modules/TabunganUmrah/Icon/RefundIcon.vue'
+import NabungIcon from '@/components/User/Modules/TabunganUmrah/Icon/NabungIcon.vue'
+import HandoverIcon from '@/components/User/Modules/TabunganUmrah/Icon/HandoverIcon.vue'
+import DeleteIconX from '@/components/User/Modules/TabunganUmrah/Icon/DeleteIconX.vue'
 
 // import element
 import LightButton from '@/components/Button/LightButton.vue'
 import DangerButton from "@/components/Button/DangerButton.vue"
-// import DangerButton from '@/components/User/Modules/TabunganUmrah/Particle/DangerButton.vue'
 import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confirmation.vue'
 
 // import widget
 import FormAdd from '@/components/User/Modules/TabunganUmrah/Widget/FormAdd.vue'
+import FormUpdate from '@/components/User/Modules/TabunganUmrah/Widget/FormUpdate.vue'
 
 // import API
 import { daftar_tabungan_umrah, deleteTabunganUmrah, cekKwitansiTabunganUmrah } from '@/service/tabungan_umrah'
@@ -55,6 +60,7 @@ interface TabunganUmrah {
     birth_date: string;
   };
   target_paket_name: string;
+  target_paket_id: number,
   total_tabungan: number;
   status: string;
   fee_agen_id: number;
@@ -79,7 +85,9 @@ interface TabunganUmrah {
 
 const timeoutId = ref<number | null>(null);
 const dataTabunganUmrah = ref<TabunganUmrah[]>([]);
-const isModalOpen = ref<boolean>(false);
+const selectTabunganUmrah = ref<TabunganUmrah | null>(null);
+const isFormOpen = ref<boolean>(false);
+const isFormUpdateOpen = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
@@ -139,8 +147,13 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
   showConfirmDialog.value = true;
 };
 
-const openModal = () => {
-  isModalOpen.value = true;
+const openFormAdd = () => {
+  isFormOpen.value = true;
+}
+
+const openFormUpdate = (tabungan: TabunganUmrah) => {
+  selectTabunganUmrah.value = tabungan;
+  isFormUpdateOpen.value = true;
 }
 
 const deleteData = async (id: number) => {
@@ -149,7 +162,7 @@ const deleteData = async (id: number) => {
     'Apakah Anda yakin ingin menghapus data ini?',
     async () => {
       try {
-        const response = await deleteTabunganUmrah(id);
+        await deleteTabunganUmrah(id);
         showConfirmDialog.value = false;
         displayNotification("Operasi berhasil!", "success");
         fetchData();
@@ -188,7 +201,7 @@ const cetakKwitansi = async (invoice: string) => {
     <div v-else-if="dataTabunganUmrah" class="container mx-auto">
       <div class="flex justify-between mb-4">
         <button
-          @click="openModal()"
+          @click="openFormAdd()"
           class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -326,7 +339,7 @@ const cetakKwitansi = async (invoice: string) => {
                       <p class="text-gray-500 text-xs italic mt-2 text-center">Daftar Handover Fasilitas Tidak Ditemukan</p>
                     </template> -->
                     <div class="py-4 text-center font-bold">
-                        <span>Coming soon</span>
+                      <span>Coming soon</span>
                     </div>
                   </div>
                 </td>
@@ -335,20 +348,20 @@ const cetakKwitansi = async (invoice: string) => {
                     <LightButton col-span-1 title="Cetak Data Jamaah" @click.prevent="cetakKwitansi(tabungan.invoice_sisa_deposit)">
                       <CetakIcon class="h-6 w-6 text-gray-600" />
                     </LightButton>
-                    <LightButton col-span-1 title="Update Target Paket" >
-                      <CetakIcon class="h-6 w-6 text-gray-600" />
+                    <LightButton col-span-1 title="Update Target Paket" @click="openFormUpdate(tabungan)" >
+                      <EditIcon class="h-6 w-6 text-gray-600" />
                     </LightButton>
                     <LightButton col-span-1 title="Refund Tabungan" >
-                      <CetakIcon class="h-6 w-6 text-gray-600" />
+                      <RefundIcon class="h-6 w-6 text-gray-600" />
                     </LightButton>
                     <LightButton col-span-1 title="Menabung" >
-                      <CetakIcon class="h-6 w-6 text-gray-600" />
+                      <NabungIcon class="h-6 w-6 text-gray-600" />
                     </LightButton>
                     <LightButton col-span-1 title="Handover Fasilitas" >
-                      <CetakIcon class="h-6 w-6 text-gray-600" />
+                      <HandoverIcon class="h-6 w-6 text-gray-600" />
                     </LightButton>
                     <DangerButton title="Hapus Tabungan" @click="deleteData(tabungan.id)">
-                      <font-awesome-icon icon="fa-solid fa-times" />
+                      <DeleteIconX class="h-6 w-6 text-gray-600" />
                     </DangerButton>
                   </div>
                 </td>
@@ -412,7 +425,7 @@ const cetakKwitansi = async (invoice: string) => {
   </div>
 
 
-    <!-- Modal -->
+  <!-- Form Add -->
   <transition
     enter-active-class="transition duration-200 ease-out"
     enter-from-class="transform scale-95 opacity-0"
@@ -422,9 +435,27 @@ const cetakKwitansi = async (invoice: string) => {
     leave-to-class="transform scale-95 opacity-0"
   >
     <FormAdd
-      v-if="isModalOpen"
-      :isModalOpen="isModalOpen"
-      @close="isModalOpen = false; fetchData()"
+      v-if="isFormOpen"
+      :isFormOpen="isFormOpen"
+      @close="isFormOpen = false; fetchData()"
+      />
+  </transition>
+
+  <!-- Form Update -->
+  <transition
+    enter-active-class="transition duration-200 ease-out"
+    enter-from-class="transform scale-95 opacity-0"
+    enter-to-class="transform scale-100 opacity-100"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="transform scale-100 opacity-100"
+    leave-to-class="transform scale-95 opacity-0"
+  >
+    <FormUpdate
+      v-if="isFormUpdateOpen"
+      :isFormUpdateOpen="isFormUpdateOpen"
+      :dataTabungan="selectTabunganUmrah"
+      @close="isFormUpdateOpen = false; fetchData()"
+      @success="displayNotification('Target Paket Tabungan Umrah berhasil diupdate', 'success')"
       />
   </transition>
 

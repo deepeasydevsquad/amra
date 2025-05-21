@@ -2,9 +2,6 @@ import api from "./api";
 
 export const cekKwitansiTabunganUmrah = async (invoice: string) => {
   try {
-    console.log("========================================")
-    console.log(`/invoice/cek-kwitansi-tabungan-umrah`)
-    console.log("========================================")
     const response = await api.post(`/invoice/cek-kwitansi-tabungan-umrah`, { invoice });
     return response.data;
   } catch (error) {
@@ -62,6 +59,16 @@ export const addTabunganUmrah = async (param : any) => {
     throw error;
   }
 };
+
+export const updateTabunganUmrah = async (param : any) => {
+  try {
+    const response = await api.post("/daftar_tabungan_umrah/update", param);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal update tabungan umrah:", error);
+    throw error;
+  }
+}
 
 export const deleteTabunganUmrah = async (id : number) => {
   try {
