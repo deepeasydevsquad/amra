@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 bg-white rounded-lg ">
+  <div class="p-6 pb-0 bg-white rounded-lg">
     <h2 class="text-gray-700 text-left text-2xl font-semibold mb-6">Update Member</h2>
 
     <!-- Input Cabang (Hanya untuk Administrator) -->
@@ -208,13 +208,14 @@
       >
         CANCEL
       </button>
-      <button
+      <!-- <button
         type="submit"
         @click="handleUpdate"
         class="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
       >
         SIMPAN
-      </button>
+      </button> -->
+      <PrimaryButton type="submit" @click="handleUpdate">UPDATE DATA MEMBER</PrimaryButton>
     </div>
   </div>
 </template>
@@ -223,6 +224,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { getMember, editMember } from '@/service/member'
 import { daftarCabang } from '@/service/cabang'
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
 interface Cabang {
   id: number

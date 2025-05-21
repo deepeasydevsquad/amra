@@ -346,10 +346,10 @@ const closeUpdateForm = () => {
   <!-- Modal Update Member -->
   <div
     v-if="showUpdateForm"
-    class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
+    class="fixed inset-0  flex justify-center items-center bg-black bg-opacity-50 p-4"
   >
     <div
-      class="bg-white p-6 shadow-lg w-11/12 md:w-4/5 lg:w-1/2 max-h-[85vh] h-auto overflow-y-auto relative mt-25 mb-5"
+      class="bg-white p-6 rounded-lg  shadow-lg w-11/12 md:w-4/5 lg:w-1/2 max-h-[85vh] h-auto overflow-y-auto relative mt-25"
     >
       <!-- Tombol Close -->
       <button

@@ -55,9 +55,7 @@
         <button @click="$emit('close')" class="px-4 py-2 text-gray-700 border rounded-lg">
           CANCEL
         </button>
-        <button @click="submitForm" class="px-4 py-2 rounded-lg text-white bg-blue-600">
-          SIMPAN
-        </button>
+        <PrimaryButton @click="submitForm">JADIKAN AGEN</PrimaryButton>
       </div>
     </div>
   </div>
@@ -67,6 +65,7 @@
 import { defineProps, defineEmits, ref, watch, toRaw, onMounted } from 'vue'
 import { daftarAgen as daftarAgenService, addAgen } from '@/service/agen'
 import { daftarAgen as daftarLevelService } from '@/service/level_agen'
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
 // ✅ List Agen & Level Agen dari API
 const listAgen = ref<Agen[]>([])

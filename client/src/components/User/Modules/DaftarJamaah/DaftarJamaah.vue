@@ -1,6 +1,5 @@
 <template>
   <div class="container mx-auto p-4">
-    <div class="container mx-auto p-4">
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
 
       <!-- Wrap tombol-tombol dalam satu flex container -->
@@ -51,7 +50,6 @@
         />
       </div>
     </div>
-  </div>
     <!-- Tes -->
     <!-- Deposit Table -->
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
