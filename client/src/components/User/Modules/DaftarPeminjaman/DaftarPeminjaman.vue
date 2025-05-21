@@ -23,11 +23,11 @@
     <!-- Tabel Peminjaman -->
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
             <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">No. Register</th>
-            <th class="w-[20%] px-6 py-4 font-bold text-gray-900 text-center w-64">Info Jamaah</th>
-            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center w-64">
+            <th class="w-[20%] px-6 py-4 font-bold text-gray-900 text-center">Info Jamaah</th>
+            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center">
               Info Pinjaman
             </th>
             <th class="w-[40%] px-6 py-4 font-bold text-gray-900 text-center w-[320px]">
