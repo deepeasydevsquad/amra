@@ -2,37 +2,26 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Ticket_transaction_details', {
+    await queryInterface.createTable('Handover_fasilitas_details', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      ticket_transaction_id: {
+      handover_fasilitas_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Ticket_transactions",
+          model: "Handover_fasilitas",
           key: "id",
         },
       },
-      pax: {
-        type: Sequelize.INTEGER
-      },
-      code_booking: {
-        type: Sequelize.STRING
-      },
-      airlines_id: {
-        type: Sequelize.INTEGER
-      },
-      departure_date: {
-        type: Sequelize.DATEONLY
-      },
-      travel_price: {
-        type: Sequelize.INTEGER
-      },
-      costumer_price: {
-        type: Sequelize.INTEGER
+      mst_fasilitas_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Mst_fasilitas",
+          key: "id",
+        },
       },
       createdAt: {
         allowNull: false,
@@ -45,6 +34,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Ticket_transaction_details');
+    await queryInterface.dropTable('Handover_fasilitas_details');
   }
 };
