@@ -1,7 +1,10 @@
 console.log("===> peminjamanController loaded");
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
-const { handleServerError, handleValidationErrors } = require("../../../helper/handleError");
+const {
+  handleServerError,
+  handleValidationErrors,
+} = require("../../../helper/handleError");
 
 exports.addPinjaman = async (req, res) => {
   // filter error
@@ -11,7 +14,7 @@ exports.addPinjaman = async (req, res) => {
     const model = new Model_cud(req);
     await model.createPeminjaman();
 
-    if ( await model.response() ) {
+    if (await model.response()) {
       res.status(200).json({
         message: model.message || "Peminjaman berhasil dibuat",
         status: "success",
@@ -60,7 +63,7 @@ exports.updateSkema = async (req, res) => {
     await model.updateSkema();
     // const success = ;
 
-    if ( await model.response() ) {
+    if (await model.response()) {
       res.status(200).json({
         message: model.message || "skema berhasil di update",
         status: "success",
@@ -100,5 +103,14 @@ exports.pembayaranPerbulan = async (req, res) => {
   } catch (error) {
     console.error("Terjadi error saat bayar pembayaran perbulan:", error);
     handleServerError(res, error);
+  }
+};
+
+exports.downloadDataPeminjaman = async (req, res) => {
+  try {
+    const model = new Model_r(req);
+    await model.downloadDataPeminjaman(req, res);
+  } catch (error) {
+    handleServerError(res, error.message);
   }
 };

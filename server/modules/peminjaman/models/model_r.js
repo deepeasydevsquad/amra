@@ -8,6 +8,7 @@ const {
 } = require("../../../models");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
 const { Op } = require("sequelize");
+const ExcelJS = require("exceljs");
 
 class Model_r {
   constructor(req) {
@@ -149,6 +150,114 @@ class Model_r {
       return { data: [], total: 0 };
     }
   }
-}
 
+  async downloadDataPeminjaman(req, res) {
+    await this.initialize();
+    const { body } = this.req;
+
+    const limit = parseInt(body.perpage, 10) || 10;
+    const page =
+      parseInt(body.pageNumber, 10) > 0 ? parseInt(body.pageNumber, 10) : 1;
+    const offset = (page - 1) * limit;
+
+    const search = body.search || "";
+
+    let where = {
+      company_id: this.company_id,
+    };
+
+    if (search) {
+      where = {
+        ...where,
+        [Op.or]: [
+          { register_number: { [Op.like]: `%${search}%` } },
+          { "$Jamaah.Member.fullname$": { [Op.like]: `%${search}%` } },
+          { "$Jamaah.Member.identity_number$": { [Op.like]: `%${search}%` } },
+        ],
+      };
+    }
+
+    try {
+      const peminjamans = await Peminjaman.findAll({
+        where,
+        limit,
+        offset,
+        include: [
+          {
+            model: Jamaah,
+            required: true,
+            attributes: ["member_id"],
+            include: [
+              {
+                model: Member,
+                required: true,
+                attributes: ["fullname", "identity_number"],
+              },
+            ],
+          },
+        ],
+        attributes: ["id", "nominal", "tenor"],
+      });
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Data Peminjaman");
+
+      worksheet.columns = [
+        { header: "No", key: "no", width: 5 },
+        { header: "Nama", key: "nama", width: 30 },
+        { header: "Nomor KTP", key: "ktp", width: 25 },
+        { header: "Jumlah Peminjaman", key: "jumlah", width: 20 },
+        { header: "Sudah Dibayar", key: "sudah_dibayar", width: 20 },
+        { header: "Sisa Hutang", key: "sisa_hutang", width: 20 },
+        { header: "Tenor", key: "tenor", width: 10 },
+      ];
+
+      let no = 1;
+
+      for (const pinjaman of peminjamans) {
+        const member = pinjaman?.Jamaah?.Member;
+
+        const totalDibayar = await Riwayat_pembayaran_peminjaman.sum(
+          "nominal",
+          {
+            where: { peminjaman_id: pinjaman.id },
+          }
+        );
+
+        const sudahDibayar = totalDibayar || 0;
+        const sisaHutang = pinjaman.nominal - sudahDibayar;
+
+        worksheet.addRow({
+          no: no++,
+          nama: member?.fullname || "-",
+          ktp: member?.identity_number || "-",
+          jumlah: pinjaman.nominal,
+          sudah_dibayar: sudahDibayar,
+          sisa_hutang: sisaHutang,
+          tenor: pinjaman.tenor,
+        });
+      }
+
+      let buffer;
+      try {
+        buffer = await workbook.xlsx.writeBuffer();
+      } catch (err) {
+        console.error("Gagal generate file Excel:", err);
+        return res.status(500).json({ message: "Gagal generate file Excel." });
+      }
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
+      res.setHeader(
+        "Content-Disposition",
+        "attachment; filename=Data_Peminjaman.xlsx"
+      );
+      res.send(buffer);
+    } catch (err) {
+      console.error("Gagal download data peminjaman:", err);
+      this.res.status(500).json({ message: "Gagal download data peminjaman." });
+    }
+  }
+}
 module.exports = Model_r;
