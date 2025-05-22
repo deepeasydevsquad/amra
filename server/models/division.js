@@ -41,8 +41,11 @@ module.exports = (sequelize, DataTypes) => {
       Division.belongsTo(models.Mst_kota, {
         foreignKey: "kota_id",
       });
-      Division.belongsTo(models.Tabungan, {
-        foreignKey: "tabungan_id",
+      Division.hasMany(models.Tabungan, {
+        foreignKey: "division_id",
+      });
+      Division.hasMany(models.Ticket_transaction, {
+        foreignKey: "division_id",
       });
     }
   }
