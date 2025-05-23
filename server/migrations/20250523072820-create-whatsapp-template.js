@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Whatsapp_settings', {
+    await queryInterface.createTable('Whatsapp_templates', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -16,14 +16,19 @@ module.exports = {
           key: "id",
         },
       },
-      device_key: {
+      name: {
         type: Sequelize.STRING
       },
-      api_key: {
+      type: {
+        type: Sequelize.ENUM,
+        values: ['pesan_biasa','semua_jamaah','staff','jamaah_paket','jamaah_tabungan_umrah','jamaah_utang_koperasi','agen'],
+        defaultValue : "pesan_biasa"
+      },
+      message: {
         type: Sequelize.TEXT
       },
-      whatsapp_number: {
-        type: Sequelize.STRING
+      variable: {
+        type: Sequelize.TEXT
       },
       createdAt: {
         allowNull: false,
@@ -36,6 +41,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Whatsapp_settings');
+    await queryInterface.dropTable('Whatsapp_templates');
   }
 };
