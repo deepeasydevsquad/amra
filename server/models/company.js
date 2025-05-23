@@ -75,6 +75,9 @@ module.exports = (sequelize, DataTypes) => {
       Company.hasMany(models.Riwayat_surat_menyurat, {
         foreignKey: "company_id",
       });
+      Company.hasMany(models.Whatsapp_setting, {
+        foreignKey: "company_id",
+      });
      }
   }
   Company.init(
