@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Whatsapp_template extends Model {
+  class Whatsapp_message extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,23 +11,24 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Whatsapp_template.belongsTo(models.Company, {
-        foreignKey: "company_id",
+      Whatsapp_message.belongsTo(models.Division, {
+        foreignKey: "division_id",
       });
-      Whatsapp_template.hasMany(models.Whatsapp_message, {
+      Whatsapp_message.belongsTo(models.Whatsapp_template, {
         foreignKey: "whatsapp_template_id",
       });
     }
   }
-  Whatsapp_template.init({
-    company_id: DataTypes.INTEGER,
-    name: DataTypes.STRING,
+  Whatsapp_message.init({
+    division_id: DataTypes.INTEGER,
     type: DataTypes.ENUM(['pesan_biasa','semua_jamaah','staff','jamaah_paket','jamaah_tabungan_umrah','jamaah_utang_koperasi','agen']),
-    message: DataTypes.TEXT,
-    variable: DataTypes.TEXT
+    nomor_asal: DataTypes.STRING,
+    pesan: DataTypes.TEXT,
+    whatsapp_template_id: DataTypes.INTEGER,
+    status: DataTypes.ENUM(['process','finish']),
   }, {
     sequelize,
-    modelName: 'Whatsapp_template',
+    modelName: 'Whatsapp_message',
   });
-  return Whatsapp_template;
+  return Whatsapp_message;
 };
