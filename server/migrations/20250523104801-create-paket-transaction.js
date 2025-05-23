@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Tabungans', {
+    await queryInterface.createTable('Paket_transactions', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -23,47 +23,46 @@ module.exports = {
           key: "id",
         },
       },
-      target_paket_id: {
-        allowNull: true,
-        type: Sequelize.INTEGER,
-        defaultValue : null,
-        references: {
-          model: "Pakets",
-          key: "id",
-        },
-      },
-      total_tabungan: {
-        type: Sequelize.INTEGER
-      },
-      status: {
-        type: Sequelize.ENUM,
-        values: ['active', 'non_active'],
-        defaultValue : "active"
-      },
       fee_agen_id: {
-        allowNull: true,
         type: Sequelize.INTEGER,
-        defaultValue : null,
         references: {
           model: "Fee_agens",
           key: "id",
         },
       },
-      batal_berangkat: {
-        type: Sequelize.ENUM,
-        values: ['ya', 'tidak'],
-        defaultValue : "tidak"
-      },
-      paket_transaction_id: {
-        allowNull: true,
+      paket_id: {
         type: Sequelize.INTEGER,
-        defaultValue : null,
+        references: {
+          model: "Pakets",
+          key: "id",
+        },
       },
-      sisa_pembelian: {
+      mst_paket_type_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Mst_paket_types",
+          key: "id",
+        },
+      },
+      price: {
         type: Sequelize.INTEGER
       },
-      invoice_sisa_deposit: {
-        type: Sequelize.STRING
+      nomor_visa: {
+        type: Sequelize.INTEGER
+      },
+      tanggal_berlaku_visa: {
+        type: Sequelize.DATEONLY
+      },
+      tanggal_berakhir_visa: {
+        type: Sequelize.DATEONLY
+      },
+      batal_berangkat: {
+        type: Sequelize.ENUM,
+        values: ['ya','tidak'],
+        defaultValue : "tidak"
+      },
+      biaya_mahram: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
@@ -76,6 +75,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Tabungans');
+    await queryInterface.dropTable('Paket_transactions');
   }
 };

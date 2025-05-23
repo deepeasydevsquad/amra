@@ -45,6 +45,12 @@ module.exports = (sequelize, DataTypes) => {
       Jamaah.hasMany(models.Handover_barang, {
         foreignKey: "jamaah_id",
       });
+      Jamaah.hasMany(models.Handover_barang_paket, {
+        foreignKey: "jamaah_id",
+      });
+      Jamaah.hasMany(models.Paket_transaction, {
+        foreignKey: "jamaah_id",
+      });
     }
   }
 

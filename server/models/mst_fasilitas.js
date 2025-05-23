@@ -14,6 +14,12 @@ module.exports = (sequelize, DataTypes) => {
       Mst_fasilitas.belongsTo(models.Company, {
         foreignKey: "company_id",
       });
+      Mst_fasilitas.hasMany(models.Handover_fasilitas_detail, {
+        foreignKey: "mst_fasilitas_id",
+      });
+      Mst_fasilitas.hasMany(models.Handover_fasilitas_detail_paket, {
+        foreignKey: "mst_fasilitas_id",
+      });
     }
   }
   Mst_fasilitas.init({

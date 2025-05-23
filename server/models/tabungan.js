@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
     status: DataTypes.ENUM(['active', 'non_active']),
     fee_agen_id: DataTypes.INTEGER,
     batal_berangkat: DataTypes.ENUM(['ya', 'tidak']),
-    transaksi_paket_id: DataTypes.INTEGER,
+    paket_transaction_id: DataTypes.INTEGER,
     sisa_pembelian: DataTypes.INTEGER,
     invoice_sisa_deposit: DataTypes.STRING
   }, {

@@ -50,6 +50,9 @@ module.exports = (sequelize, DataTypes) => {
       Division.hasMany(models.Whatsapp_message, {
         foreignKey: "division_id",
       });
+      Division.hasMany(models.Paket_transaction, {
+        foreignKey: "division_id",
+      });
     }
   }
   Division.init({
