@@ -107,7 +107,9 @@ class Model_r {
     offset: (page - 1) * limit,
     order: [["id", "ASC"]],
     where: where,
-    attributes: ["nomor_passport",// Menambahkan whatsapp_number dari Jamaah
+    attributes: [
+          "id", 
+          "nomor_passport",// Menambahkan whatsapp_number dari Jamaah
           "nama_ayah",
           "nama_passport",
           "tanggal_di_keluarkan_passport",
@@ -182,7 +184,7 @@ class Model_r {
         const agenMember = agen.Member || {}; // Ambil Member terkait Agen
 
         return {
-          id: member.id,
+          id: jamaah.id,
           nama_jamaah: member.fullname ,
           birth_place:member.birth_place,
           birth_date: member.birth_date, // Ambil fullname dari Member yang terkait dengan Jamaah

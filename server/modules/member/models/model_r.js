@@ -1,4 +1,4 @@
-const { Op, Member } = require("../../../models");
+const { Op, Member, Agen, Jamaah, User } = require("../../../models");
 const { tipe } = require("../../../helper/companyHelper");
 
 class Model_r {
@@ -9,7 +9,54 @@ class Model_r {
   async getTipe() {
     const type = await tipe(this.req);
     return type;
-    console.log(type);
+  }
+
+  async get_member_id_as_agen(){
+    var data = [];
+    const { rows } = await Agen.findAndCountAll({ 
+    include : { 
+      required : true, 
+      model : Member, 
+      attributes : ['id']
+    }});
+    await Promise.all(
+      await rows.map(async (e) => {
+        data.push(e.Member.id);
+      })
+    );
+    return data
+  }
+
+  async get_member_id_as_jamaah(){
+    var data = [];
+    const { rows } = await Jamaah.findAndCountAll({ 
+    include : { 
+      required : true, 
+      model : Member, 
+      attributes : ['id']
+    }});
+    await Promise.all(
+      await rows.map(async (e) => {
+        data.push(e.Member.id);
+      })
+    );
+    return data
+  }
+
+  async get_member_id_as_staff() {
+    var data = [];
+    const { rows } = await User.findAndCountAll({ 
+    include : { 
+      required : true, 
+      model : Member, 
+      attributes : ['id']
+    }});
+    await Promise.all(
+      await rows.map(async (e) => {
+        data.push(e.Member.id);
+      })
+    );
+    return data
   }
 
   // Fungsi untuk mengambil daftar member dengan filter dan pagination
@@ -20,6 +67,10 @@ class Model_r {
       body.pageNumber && body.pageNumber !== "0" ? body.pageNumber : 1;
 
     let where = {};
+
+    var agen_id = await this.get_member_id_as_agen();
+    var jamaah_id = await this.get_member_id_as_jamaah();
+    var staff_id = await this.get_member_id_as_staff();
 
     // Filter berdasarkan division_id jika ada
     if (body.division_id) {
@@ -78,6 +129,9 @@ class Model_r {
           birth_place: e.birth_place,
           birth_date: e.birth_date,
           whatsapp_number: e.whatsapp_number,
+          status_agen: agen_id.includes(e.id) ? true : false,
+          status_staff : staff_id.includes(e.id) ? true : false,
+          status_jamaah: jamaah_id.includes(e.id) ? true : false,
           tipe: type, // Sertakan tipe dalam respons
           createdAt: e.createdAt,
           updatedAt: e.updatedAt,

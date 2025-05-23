@@ -24,7 +24,10 @@ interface Members {
   fullname: string
   identity_number: string
   gender: string
-  whatsapp_number: string
+  whatsapp_number: string,
+  status_agen:boolean;
+  status_jamaah:boolean;
+  status_staff:boolean;
 }
 
 // State
@@ -125,7 +128,7 @@ const pageNow = (page: number) => {
 
 // Ambil jumlah kolom agar `colspan` dinamis
 const totalColumns = computed(() => {
-  return 5
+  return 6
 })
 
 // Fungsi untuk edit dan delete
@@ -205,10 +208,11 @@ const closeUpdateForm = () => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr class="bg-gray-100">
-            <th class="w-[30%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama</th>
-            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Identitas</th>
-            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Jenis Kelamin</th>
-            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">WhatsApp</th>
+            <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama</th>
+            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Identitas</th>
+            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Jenis Kelamin</th>
+            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">WhatsApp</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Status</th>
             <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
@@ -230,9 +234,25 @@ const closeUpdateForm = () => {
             </td>
             <td class="px-6 py-4 text-center">{{ member.whatsapp_number }}</td>
             <td class="px-6 py-4 text-center">
+              <ul class="text-center flex flex-col items-center space-y-2">
+                <li class="font-bold">
+                  <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Member</span>
+                </li>
+                <li v-if="member.status_staff === true" class="font-bold">
+                  <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Staff</span>
+                </li>
+                <li v-if="member.status_agen === true" class="font-bold">
+                  <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Agen</span>
+                </li>
+                <li v-if="member.status_jamaah === true" class="font-bold">
+                  <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Jamaah</span>
+                </li>
+              </ul>
+            </td>
+            <td class="px-6 py-4 text-center">
               <div class="flex justify-center gap-2">
                 <LightButton @click="editMember(member.id)" class="p-2 "><EditIcon /></LightButton>
-                <LightButton  @click="addAgen(member.id)" class="p-2 "><AddAgenIcon /></LightButton>
+                <LightButton v-if="member.status_agen === false"  @click="addAgen(member.id)" class="p-2 "><AddAgenIcon /></LightButton>
                 <DangerButton @click="confirmDelete(member.id)" class="p-2 "><DeleteIcon /></DangerButton>
               </div>
             </td>

@@ -26,6 +26,9 @@ exports.addPinjaman = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log("_____________________________");
+    console.log("_____________________________sss");
+    console.log("_____________________________");
     console.error("Terjadi error saat addPinjaman:", error);
     handleServerError(res, error);
   }
