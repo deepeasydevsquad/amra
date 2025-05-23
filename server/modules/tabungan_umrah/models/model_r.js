@@ -45,13 +45,13 @@ class Model_r {
     if (filter === "belum_beli_paket") {
       where = {
         ...where,
-        transaksi_paket_id: null,
+        paket_transaction_id: null,
         batal_berangkat: "tidak",
       };
     } else if (filter === "sudah_beli_paket") {
       where = {
         ...where,
-        transaksi_paket_id: {[Op.not]: null},
+        paket_transaction_id: {[Op.not]: null},
         batal_berangkat: "tidak",
       };
     } else if (filter === "batal_berangkat") {
@@ -98,7 +98,7 @@ class Model_r {
       "status",
       "fee_agen_id",
       "batal_berangkat",
-      "transaksi_paket_id",
+      "paket_transaction_id",
       "sisa_pembelian",
       "invoice_sisa_deposit",
       "createdAt",

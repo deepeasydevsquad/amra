@@ -1,11 +1,12 @@
 <script setup lang="ts">
 // Import Icon
-import CetakIcon from '@/components/User/Modules/TabunganUmrah/Icon/CetakIcon.vue'
+import CetakIcon from '@/components/Icons/CetakIcon.vue'
 import EditIcon from '@/components/User/Modules/TabunganUmrah/Icon/EditIcon.vue'
 import RefundIcon from '@/components/User/Modules/TabunganUmrah/Icon/RefundIcon.vue'
 import NabungIcon from '@/components/User/Modules/TabunganUmrah/Icon/NabungIcon.vue'
 import HandoverIcon from '@/components/User/Modules/TabunganUmrah/Icon/HandoverIcon.vue'
-import DeleteIconX from '@/components/User/Modules/TabunganUmrah/Icon/DeleteIconX.vue'
+import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
+import Pagination from '@/components/Pagination/Pagination.vue'
 
 // import element
 import LightButton from '@/components/Button/LightButton.vue'
@@ -297,7 +298,7 @@ const cetakKwitansi = async (invoice: string) => {
                             <td class="p-2 border">{{ riwayat.penerima }}</td>
                             <td class="p-2 border">
                               <button class="rounded bg-gray-200 p-2 hover:bg-gray-300" @click.prevent="cetakKwitansi(riwayat.invoice)">
-                                <CetakIcon class="h-6 w-6 text-gray-600" />
+                                <CetakIcon class="h-4 w-4 text-gray-600" />
                               </button>
                             </td>
                           </tr>
@@ -310,34 +311,6 @@ const cetakKwitansi = async (invoice: string) => {
                     <div class="rounded-t bg-gray-200 px-2 py-2 font-semibold text-center">
                       Riwayat Handover Fasilitas
                     </div>
-                    <!-- <template v-if="tabungan.handover.length">
-                      <table class="w-full mb-4 text-xs text-left text-gray-700 border">
-                        <thead class="bg-gray-50 border-b">
-                          <tr>
-                            <th class="p-2 border w-[15%] text-center">Invoice</th>
-                            <th class="p-2 border w-[75%] text-center">Fasilitas</th>
-                            <th class="p-2 border w-[5%] text-center">Aksi</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="(handover, index) in tabungan.handover" :key="index" class="border-t hover:bg-gray-200">
-                            <td class="p-2 border text-center">{{ handover.invoice }}</td>
-                            <td class="p-2 border">{{ handover.fasilitas }}</td>
-                            <td class="p-2 border">
-                              <a href="#" @click.prevent="printHandoverFasilitas(tabungan.id, handover.id)">
-                              <a href="#">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2-4h6a2 2 0 012 2v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4a2 2 0 012-2h2" />
-                                </svg>
-                              </a>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </template>
-                    <template v-else>
-                      <p class="text-gray-500 text-xs italic mt-2 text-center">Daftar Handover Fasilitas Tidak Ditemukan</p>
-                    </template> -->
                     <div class="py-4 text-center font-bold">
                       <span>Coming soon</span>
                     </div>
@@ -346,22 +319,22 @@ const cetakKwitansi = async (invoice: string) => {
                 <td class="px-6 py-4 text-center grid grid-cols-2 gap-2">
                   <div class="grid ">
                     <LightButton col-span-1 title="Cetak Data Jamaah" @click.prevent="cetakKwitansi(tabungan.invoice_sisa_deposit)">
-                      <CetakIcon class="h-6 w-6 text-gray-600" />
+                      <CetakIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
                     <LightButton col-span-1 title="Update Target Paket" @click="openFormUpdate(tabungan)" >
-                      <EditIcon class="h-6 w-6 text-gray-600" />
+                      <EditIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
                     <LightButton col-span-1 title="Refund Tabungan" >
-                      <RefundIcon class="h-6 w-6 text-gray-600" />
+                      <RefundIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
                     <LightButton col-span-1 title="Menabung" >
-                      <NabungIcon class="h-6 w-6 text-gray-600" />
+                      <NabungIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
                     <LightButton col-span-1 title="Handover Fasilitas" >
-                      <HandoverIcon class="h-6 w-6 text-gray-600" />
+                      <HandoverIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
                     <DangerButton title="Hapus Tabungan" @click="deleteData(tabungan.id)">
-                      <DeleteIconX class="h-6 w-6 text-gray-600" />
+                      <DeleteIcon></DeleteIcon>
                     </DangerButton>
                   </div>
                 </td>
@@ -374,56 +347,13 @@ const cetakKwitansi = async (invoice: string) => {
             </tr>
           </tbody>
           <tfoot class="bg-gray-100 font-bold">
-            <tr>
-              <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
-                <nav class="flex mt-0">
-                  <ul class="inline-flex items-center -space-x-px">
-                    <!-- Tombol Previous -->
-                    <li>
-                      <button
-                        @click="prevPage"
-                        :disabled="currentPage === 1"
-                        class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg
-                          hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Previous
-                      </button>
-                    </li>
-                    <!-- Nomor Halaman -->
-                    <li v-for="page in pages" :key="page">
-                      <button
-                        @click="pageNow(page)"
-                        class="px-3 py-2 leading-tight border"
-                        :class="currentPage === page
-                          ? 'text-white bg-[#3a477d] border-[#3a477d]'
-                          : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'"
-                      >
-                        {{ page }}
-                      </button>
-                    </li>
-
-                    <!-- Tombol Next -->
-                    <li>
-                      <button
-                        @click="nextPage"
-                        :disabled="currentPage === totalPages"
-                        class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg
-                          hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Next
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
-              </td>
-            </tr>
+            <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" />
           </tfoot>
         </table>
       </div>
 
     </div>
   </div>
-
 
   <!-- Form Add -->
   <transition
