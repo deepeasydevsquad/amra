@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { getMember, deleteMember as deleteMemberApi } from '@/service/member'
 import DeleteIcon from '@/components/User/Modules/Member/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/Member/Icon/EditIcon.vue'
+import Pagination from '@/components/Pagination/Pagination.vue'
 // import DangerButton from '@/components/User/Modules/Member/Particle/DangerButton.vue'
 import EditButton from '@/components/User/Modules/Member/Particle/EditButton.vue'
 import FormAdd from '@/components/User/Modules/Member/Particle/FormAdd.vue'
@@ -216,22 +217,11 @@ const closeUpdateForm = () => {
             <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
-        <tbody
-          v-if="paginatedMembers.length"
-          class="divide-y divide-gray-100 border-t border-gray-100"
-        >
+        <tbody v-if="paginatedMembers.length" class="divide-y divide-gray-100 border-t border-gray-100" >
           <tr v-for="member in paginatedMembers" :key="member.id" >
             <td class="px-6 py-4 text-center">{{ member.fullname }}</td>
             <td class="px-6 py-4 text-center">{{ member.identity_number }}</td>
-            <td class="px-6 py-4 text-center">
-              {{
-                member.gender === 'laki_laki'
-                  ? 'Laki - Laki'
-                  : member.gender === 'perempuan'
-                    ? 'Perempuan'
-                    : '-'
-              }}
-            </td>
+            <td class="px-6 py-4 text-center">{{ member.gender === 'laki_laki' ? 'Laki - Laki' : ( member.gender === 'perempuan' ? 'Perempuan' : '-' ) }} </td>
             <td class="px-6 py-4 text-center">{{ member.whatsapp_number }}</td>
             <td class="px-6 py-4 text-center">
               <ul class="text-center flex flex-col items-center space-y-2">
@@ -266,50 +256,7 @@ const closeUpdateForm = () => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <tr>
-            <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
-              <nav class="flex mt-0 justify-start">
-                <ul class="inline-flex items-center -space-x-px">
-                  <!-- Tombol Previous -->
-                  <li>
-                    <button
-                      @click="prevPage"
-                      :disabled="currentPage === 1"
-                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                  </li>
-
-                  <!-- Nomor Halaman -->
-                  <li v-for="page in pages" :key="page" v-if="paginatedMembers.length">
-                    <button
-                      @click="pageNow(page)"
-                      class="px-3 py-2 leading-tight border"
-                      :class="
-                        currentPage === page
-                          ? 'text-white bg-[#333a48] border-[#333a48]'
-                          : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'
-                      "
-                    >
-                      {{ page }}
-                    </button>
-                  </li>
-
-                  <!-- Tombol Next -->
-                  <li>
-                    <button
-                      @click="nextPage"
-                      :disabled="currentPage === totalPages"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </td>
-          </tr>
+          <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" />
         </tfoot>
       </table>
     </div>
