@@ -7,11 +7,11 @@ import { onMounted, reactive, ref, watch } from 'vue'
 import { getPaket, updateTabunganUmrah } from '@/service/tabungan_umrah'
 
 const props = defineProps<{
-  isFormUpdateOpen: boolean,
-  target_paket_id: number,
+  isFormUpdateOpen: boolean;
   dataTabungan: {
     id: number;
-    total_tabungan: number,
+    total_tabungan: number;
+    target_paket_id: number;
     member: {
       fullname: string;
       identity_number: string;
@@ -45,7 +45,7 @@ const errors = ref<ErrorFields>({
 
 const form = reactive({
   id: props.dataTabungan?.id ?? null,
-  target_paket_id: props.target_paket_id ?? null,
+  target_paket_id: props.dataTabungan?.target_paket_id ?? null,
 })
 
 // Function: Notification
@@ -66,7 +66,6 @@ const fetchData = async () => {
     const paketResponse = await getPaket();
     if (paketResponse.data) {
       PaketList.value = [{ id: null, name: 'Pilih Paket' }, ...paketResponse.data]
-      form.target_paket_id = props.dataTabungan?.target_paket_id ?? null
     }
 
   } catch (error) {
@@ -145,7 +144,7 @@ watch(
     try {
       isLoading.value = true
       const paketResponse = await getPaket();
-      const paket = paketResponse.data?.find((p) => p.id === newTargetPaketId);
+      const paket = paketResponse.data?.find((p : Paket) => p.id === newTargetPaketId);
 
       if (paket) {
         price_sisa.value = paket.price - (props.dataTabungan?.total_tabungan || 0);
@@ -202,8 +201,6 @@ watch(
                 </div>
               </div>
               <div class="mt-4 p-3 border border-yellow-200 bg-yellow-50 rounded-md text-sm text-yellow-800">
-                <strong>Perhatian:</strong>
-                <br />
                 Harga paket : <strong>{{ formatPrice(price_harga) }}</strong>
                 <br />
                 Sisa kekurangan : <strong>{{ formatPrice(price_sisa) }}</strong>

@@ -153,11 +153,12 @@ class Model_r {
                 fee_agen_id: e.fee_agen_id || "-",
                 agen: e.fee_agen_id
                   ? {
-                      fullname: (await getAgenById[e.fee_agen_id])?.fullname || "-",
-                      level: (await getAgenById[e.fee_agen_id])?.Level_keagenan?.name || "-",
+                      fullname: (await getAgenById(e.fee_agen_id))?.Member?.fullname || "-",
+                      level: (await getAgenById(e.fee_agen_id))?.Level_keagenan?.name || "-",
+                      default_fee: (await getAgenById(e.fee_agen_id))?.Level_keagenan?.default_fee || "-",
                     }
                   : { fullname: "-", level: "-" },
-                batal_berangkat: e.batal_berangkat,
+                batal_berangkat: e.batal_berangkat === "ya" ? true : false,
                 paket_transaction_id: e.paket_transaction_id,
                 sisa_pembelian: e.sisa_pembelian,
                 invoice_sisa_deposit: e.invoice_sisa_deposit,

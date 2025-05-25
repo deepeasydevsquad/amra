@@ -42,12 +42,12 @@ controllers.add = async (req, res) => {
   }
 };
 
-controllers.addMenabung = async (req, res) => {
+controllers.Menabung = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_cud = new Model_cud(req);
-    await model_cud.addMenabung();
+    await model_cud.Menabung();
 
     // get response
     if (await model_cud.response()) {
@@ -67,23 +67,23 @@ controllers.addMenabung = async (req, res) => {
 }
 
 
-controllers.addMenabung = async (req, res) => {
+controllers.Refund = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_cud = new Model_cud(req);
-    await model_cud.addMenabung();
+    await model_cud.Refund();
 
     // get response
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Menabung Tabungan Umrah berhasil ditambahkan.',
+        error_msg: 'Refund Tabungan Umrah berhasil ditambahkan.',
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Menabung Tabungan Umrah Gagal Ditambahkan.',
+        error_msg: 'Refund Tabungan Umrah Gagal Ditambahkan.',
       });
     }
   } catch (error) {
