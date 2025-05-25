@@ -43,7 +43,7 @@ api.interceptors.response.use(
     console.log('Status:', error.response?.status)
 
     if (error.response?.status === 404 || error.response?.status === 403 ) {
-      window.location.href = '/login' // Redirect ke halaman login jika refresh gagal
+      // window.location.href = '/Login' // Redirect ke halaman login jika refresh gagal
     } else if (
       (error.response?.status === 401 || error.response?.status === 403) &&
       !originalRequest._retry

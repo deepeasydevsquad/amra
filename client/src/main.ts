@@ -8,6 +8,8 @@ import { createApp } from 'vue'
 import { createHead } from '@vueuse/head';
 import App from './App.vue'
 import router from './router'
+// @ts-ignore
+// import rupiahPlugin from './plugins/rupiahPlugin'
 // import { createMetaManager } from 'vue-meta';
 
 // Import FontAwesome
@@ -33,6 +35,7 @@ app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(createPinia())
 app.use(router)
 app.use(VueApexCharts)
+// app.use(rupiahPlugin)
 app.use(head);
 // app.use(createMetaManager());
 

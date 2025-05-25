@@ -81,6 +81,9 @@ module.exports = (sequelize, DataTypes) => {
       Company.hasMany(models.Whatsapp_template, {
         foreignKey: "company_id",
       });
+      Company.hasMany(models.Investor, {
+        foreignKey: "company_id",
+      });
      }
   }
   Company.init(
