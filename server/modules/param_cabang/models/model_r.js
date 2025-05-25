@@ -1,4 +1,4 @@
-const { Op, Investor, Member, Division } = require("../../../models");
+const { Op, Periode, Akun_secondary, Division } = require("../../../models");
 const{ getCompanyIdByCode, tipe, username, getCabang } = require("../../../helper/companyHelper");
 const{ dbList } = require("../../../helper/dbHelper");
 const{ convertToRP } = require("../../../helper/currencyHelper");
@@ -36,6 +36,34 @@ class Model_r {
         })
       );
     }
+    return data;
+  }
+
+  async paramAkun() {
+    // initialize dependensi properties
+    await this.initialize();
+
+    var data = [];
+    const { rows } = await Akun_secondary.findAndCountAll({ where : { company_id : this.company_id} });
+      await Promise.all(
+        await rows.map(async (e) => {
+          data.push({id: e.id, name: "(" + e.nomor_akun + ") " + e.nama_akun });
+        })
+      );
+    return data;
+  }
+
+  async paramPeriode() {
+    // initialize dependensi properties
+    await this.initialize();
+    
+    var data = [{id: 0, name: 'Periode Sekarang' }];
+    const { rows } = await Periode.findAndCountAll({ where : { company_id : this.company_id} });
+      await Promise.all(
+        await rows.map(async (e) => {
+          data.push({id: e.id, name: e.name });
+        })
+      );
     return data;
   }
 }

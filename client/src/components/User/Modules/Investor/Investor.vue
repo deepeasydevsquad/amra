@@ -226,7 +226,7 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
             </tr>
           </template>
           <tr v-else>
-            <td colspan="4" class="px-6 py-4 text-center text-base text-gray-600">Daftar investor tidak ditemukan.</td>
+            <td colspan="5" class="px-6 py-4 text-center text-base text-gray-600">Daftar investor tidak ditemukan.</td>
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
