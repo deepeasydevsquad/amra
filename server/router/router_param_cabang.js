@@ -6,10 +6,8 @@ const { authenticateToken } = require("../middleware/authenticateToken");
 
 const router = express.Router();
 
-router.get(
-  "/Param-cabang",
-  authenticateToken,
-  controllers.paramCabang
-);
+router.get("/Param-cabang",authenticateToken,controllers.paramCabang);
+router.get("/Param-akun",authenticateToken,controllers.paramAkun);
+router.get("/Param-periode",authenticateToken,controllers.paramPeriode);
 
 module.exports = router;

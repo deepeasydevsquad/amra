@@ -88,6 +88,7 @@ const arr_router = [
   "investor", 
   "param_cabang",
   "daftar_konfigurasi_surat_menyurat",
+  "buku_besar"
 ];
 
 const arr = {};
