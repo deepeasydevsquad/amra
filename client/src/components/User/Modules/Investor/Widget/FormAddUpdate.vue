@@ -9,7 +9,7 @@
   const emit = defineEmits(['close'])
 
   interface ListCabang {
-    id: number,
+    id: number;
     name :string;
   }
 
@@ -152,10 +152,6 @@
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <h3 class="text-2xl flex justify-center font-bold leading-6 text-gray-900 mb-4">
                 {{ formData?.id ? "Edit Data Investor" : "Tambah Investor Baru" }}
-                <!-- <br>
-                {{ formData?.list_cabang }}
-                <br>
-                {{ localFormData }} -->
               </h3>
               <div class="space-y-4">
                  <div >
@@ -166,7 +162,7 @@
                       {{ cabang.name }}
                     </option>
                   </select>
-                  <p v-if="errors.cabang_error" class="mt-1 text-sm text-red-600">{{ errors.cabang_error }}</p>
+                  <p v-if="errors.cabang" class="mt-1 text-sm text-red-600">{{ errors.cabang }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">Nama Investor</label>
@@ -209,7 +205,7 @@
                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
                       placeholder="Jumlah Investasi"
                     />
-                    <p v-if="errors.invesment_error" class="mt-1 text-sm text-red-600">{{ errors.invesment_error }}</p>
+                    <p v-if="errors.invesment" class="mt-1 text-sm text-red-600">{{ errors.invesment }}</p>
                   </div>
                   <div class="w-1/2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Saham</label>
@@ -219,7 +215,7 @@
                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
                       placeholder="Persentasi Saham"
                     />
-                    <p v-if="errors.stock_error" class="mt-1 text-sm text-red-600">{{ errors.stock_error }}</p>
+                    <p v-if="errors.stock" class="mt-1 text-sm text-red-600">{{ errors.stock }}</p>
                   </div>
                 </div>
               </div>
