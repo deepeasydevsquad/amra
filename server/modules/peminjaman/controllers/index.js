@@ -1,10 +1,6 @@
-console.log("===> peminjamanController loaded");
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
-const {
-  handleServerError,
-  handleValidationErrors,
-} = require("../../../helper/handleError");
+const { handleServerError, handleValidationErrors } = require("../../../helper/handleError");
 
 exports.addPinjaman = async (req, res) => {
   // filter error
@@ -26,9 +22,6 @@ exports.addPinjaman = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("_____________________________");
-    console.log("_____________________________sss");
-    console.log("_____________________________");
     console.error("Terjadi error saat addPinjaman:", error);
     handleServerError(res, error);
   }

@@ -158,9 +158,6 @@ controllers.tutup_buku = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("Error");
-    console.log(error);
-    console.log("Error");
     handleServerError(res, error.message);
   }
 }

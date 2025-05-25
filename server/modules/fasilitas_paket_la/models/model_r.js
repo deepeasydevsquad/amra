@@ -24,15 +24,6 @@ class Model_r {
 
     if (body.pageNumber != undefined && body.pageNumber !== '0' ) page = body.pageNumber;
 
-    // var where = { paket_la_id : this.paket_la_id };
-        
-    // if (body.search != undefined && body.search != "") {
-    //   where = {...where,...{ 
-    //     [Op.or]: [{ description : { [Op.like]: "%" + body.search + "%" } },
-    //     ]
-    //   }};
-    // }
-
     var sql = {};
     sql["limit"] = limit * 1;
     sql["offset"] = (page - 1) * limit;
@@ -45,7 +36,7 @@ class Model_r {
       "createdAt",
       "updatedAt",
     ];
-    // sql["where"] = where;
+    
     sql["include"] = [
       {
         model: Detail_fasilitas_paket_la,
@@ -177,9 +168,6 @@ class Model_r {
       });
       return total_price;
     } catch (error) {
-      console.log("CCCCCCCCCCCCCCCCCC");
-      console.log(error);
-      console.log("CCCCCCCCCCCCCCCCCC");
       return 0;
     }
     

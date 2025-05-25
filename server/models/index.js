@@ -46,10 +46,6 @@ fs
     db[model.name] = model;
   });
 
-console.log("DB--------------------");
-console.log(db);
-console.log("DB--------------------");
-
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);

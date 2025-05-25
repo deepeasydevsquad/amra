@@ -104,9 +104,6 @@ controllers.delete = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("------B");
-    console.log(error);
-    console.log("------B");
     handleServerError(res, error.message);
   }
 };

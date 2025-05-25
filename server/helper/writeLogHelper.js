@@ -4,39 +4,6 @@ const { System_log, Member, Company } = require("../models");
 const jwt = require("jsonwebtoken");
 const helper = {};
 
-// helper.info_user = async (req) => {
-//   const jwt = await jwt_value(req);
-//   var list = {};
-//   await User.findOne({
-//     where: { kode: jwt.kode },
-//   }).then(async (val) => {
-//     if (val) {
-//       list["id"] = val.id;
-//       list["name"] = val.name;
-//     }
-//   });
-//   return list;
-// };
-
-// helper.info_surveyor = async (req) => {
-//   const token = req.query.token;
-//   var list = {};
-//   await Survey_kegiatan.findOne({
-//     include : {
-//       required : true,
-//       model : Surveyor,
-//       attributes: ['name']
-//     },
-//     where: { access_code: token },
-//   }).then(async (val) => {
-//     if (val) {
-//       list["surveyor_id"] = val.surveyor_id;
-//       list['nama_surveyor'] = val.Surveyor.name;
-//     }
-//   });
-//   return list;
-// }
-
 helper.writeLog = async (req, t, param) => {
     // get ip user
     const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
@@ -102,22 +69,6 @@ helper.writeLog = async (req, t, param) => {
         console.log(error);
         console.log("------ERERER");
     }
-
-    
 };
-
-// helper.write_log_survey = async (req, t, param) => {
-//   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
-//   const info = await helper.info_surveyor(req);
-//   await System_log_surveyor.create({
-//     ip: ip, 
-//     surveyor_id: info.surveyor_id,
-//     msg : info.nama_surveyor + " " + param.msg, 
-//   }, {
-//     transaction: t,
-//   });
-// }
-
-
 
 module.exports = helper;

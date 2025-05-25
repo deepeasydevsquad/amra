@@ -56,10 +56,8 @@ class Model_cud {
     const photo = this.req?.file?.path ?? null;
 
     try {
-      console.log("------>1");
       // Cek apakah MemberId dikirim atau tidak
       if (!MemberId) {
-        console.log("------>2");
         const salt = await bcrypt.genSalt(10);
         hashedPassword = await bcrypt.hash(body.password, salt);
 
@@ -83,11 +81,9 @@ class Model_cud {
 
         memberId = newMember.id;
       } else {
-        console.log("------>3");
         memberId = MemberId;
       }
 
-      console.log("------>4");
       const newJamaah = await Jamaah.create(
         {
           company_id: this.company_id,
@@ -155,9 +151,6 @@ class Model_cud {
       this.message = `Berhasil tambah jamaah dengan member_id ${memberId}`;
       this.state = true;
     } catch (error) {
-      console.error("---- ERROR:");
-      console.error(error);
-      console.error("---- ERROR:");
       this.state = false;
       this.message = `Gagal tambah jamaah: ${error.message}`;
     }

@@ -243,9 +243,6 @@ class Model_cud {
       this.message = `Data tabungan berhasil disimpan dengan invoice: ${invoiceTabungan}`;
       return invoiceTabungan;
     } catch (error) {
-      console.log("=========================")
-      console.log("Error:", error);
-      console.log("=========================")
       this.state = false;
     }
   }
@@ -337,9 +334,6 @@ class Model_cud {
       
       this.message = `Menambahkan tabungan umrah nama jamaah: ${infoTabungan.jamaah.fullname} dengan invoice: ${invoiceTabungan}`;
     } catch (error) {
-      console.log("==============ERROR Menabung============")
-      console.log("Error:", error);
-      console.log("========================================")
       this.state = false;
     }
   }
@@ -417,9 +411,6 @@ class Model_cud {
       
       this.message = `Refund tabungan umrah nama jamaah: ${infoTabungan.jamaah.fullname} dengan invoice: ${invoiceRefund}`;
     } catch (error) {
-      console.log("============ERROR Refund===========")
-      console.log("Error:", error);
-      console.log("========================================")
       this.state = false;
     }
   }
@@ -444,9 +435,6 @@ class Model_cud {
       }, { transaction: this.t });
 
     } catch (error) {
-      console.log("=========================")
-      console.log("Error:", error);
-      console.log("=========================")
       this.state = false;
       this.message = error.message || "Terjadi kesalahan saat mengupdate data tabungan.";
     }

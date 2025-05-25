@@ -49,8 +49,6 @@ exports.sendOtp = async ( req, res ) => {
       }
     );
 
-    console.log("-------------A");
-
     if (wapisenderResponse.data.status !== "ok") {
       return res.status(500).json({
         error: "Gagal mengirim OTP",
@@ -59,12 +57,6 @@ exports.sendOtp = async ( req, res ) => {
       });
     }else{
 
-
-      console.log("-------------B");
-      console.log(otpCode);
-      console.log(expiredTime);
-      console.log(whatsappNumber);
-      console.log("-------------B");
       const model_cud = new Model_cud(req);
       // insert
       await model_cud.savedOtp({

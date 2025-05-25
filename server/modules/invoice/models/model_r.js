@@ -85,12 +85,6 @@ class Model_r {
         data["whatsapp_company_number"] = e.Company.whatsapp_company_number || "-";
       }
     });
-// <<<<<<< HEAD
-    
-//   console.log(data);
-//   return data;
-//  }
-// =======
 
     if (division) {
       const invoiceLogo = division.Company?.invoice_logo;
@@ -113,7 +107,6 @@ class Model_r {
     console.log(data);
     return data;
   }
-// >>>>>>> 20f6c903a0960ba0af7c4e17f0f806f02832138e
 
   async dataInvoiceDeposit() {
     await this.initialize();
@@ -304,10 +297,6 @@ class Model_r {
       if (!adaInvoice) {
         return {};
       }
-
-      console.log("=================");
-      console.log(adaInvoice);
-      console.log("=================");
 
       const sql = {
         attributes: [

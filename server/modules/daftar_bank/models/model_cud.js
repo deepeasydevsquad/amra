@@ -110,9 +110,6 @@ class Model_cud {
       // write log message
       this.message = `Memperbaharui Data Bank dengan Kode Bank ${infoBank.kode}, Nama Bank ${infoBank.name} dan ID Bank : ${body.id} menjadi Kode Bank ${body.kode} dan Nama Bank ${body.name}`;
     } catch (error) {
-      console.log('XXXX');
-      console.log(error);
-      console.log('XXXX');
       this.state = false;
     }
   }
@@ -173,10 +170,6 @@ class Model_cud {
       // write log message
       this.message = `Menghapus Bank dengan Kode Bank : ${infoBank.kode} dan Nama Bank : ${infoBank.name} dan ID Bank  : ${infoBank.id}`;
     } catch (error) {
-
-      console.log("Error CCCCCC");
-      console.log(error);
-      console.log("Error CCCCCC");
       this.state = false;
     }
   }

@@ -1,11 +1,4 @@
-const {
-  Peminjaman,
-  Skema_peminjaman,
-  Riwayat_pembayaran_peminjaman,
-  Jamaah,
-  Member,
-  sequelize,
-} = require("../../../models");
+const { Peminjaman, Skema_peminjaman, Riwayat_pembayaran_peminjaman, Jamaah, Member } = require("../../../models");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
 const { Op } = require("sequelize");
 const ExcelJS = require("exceljs");

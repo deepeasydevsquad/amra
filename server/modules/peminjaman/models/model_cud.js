@@ -207,11 +207,6 @@ class Model_cud {
 
       this.message = "Peminjaman berhasil dibuat";
     } catch (err) {
-
-
-      console.log("___________________");
-      console.log(err);
-      console.log("___________________");
       this.state = false;
       this.message = "Gagal membuat peminjaman: " + err.message;
       console.error(err);
@@ -313,11 +308,6 @@ class Model_cud {
   }
 
   async response() {
-    console.log("~~~~~~~~~~~~~~~~~");
-    console.log(this.message);
-    console.log(this.state);
-    console.log("~~~~~~~~~~~~~~~~~");
-
     if (this.state) {
       await writeLog(this.req, this.t, { msg: this.message });
       await this.t.commit();

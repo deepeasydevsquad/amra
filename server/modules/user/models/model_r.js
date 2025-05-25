@@ -79,13 +79,6 @@ class Model_r {
         await Menu.findAll().then(async (value) => {
           await Promise.all(
             await value.map(async (e) => {
-
-              console.log("====================");
-              console.log(e.id);
-              console.log(e.tab);
-              console.log(e.path);
-              console.log("====================");
-
               menu[e.id] = { id : e.id, name : e.name, path : e.path, icon : e.icon, tab : e.path === '#' ? '' : JSON.parse(e.tab)};
             })
           );
@@ -120,10 +113,6 @@ class Model_r {
 
         return { menu_info : { menu , submenu, tab }, user_info : user_info };
     } catch (error) {
-
-      console.log("----------error")
-      console.log(error)
-      console.log("----------error")
         return {}    
     }
   }

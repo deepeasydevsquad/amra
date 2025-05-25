@@ -1,5 +1,5 @@
-const { Op, Investor, Jurnal, Akun_secondary, Akun_primary, Saldo_akun } = require("../../../models");
-const{ getCompanyIdByCode, tipe, username, getCabang } = require("../../../helper/companyHelper");
+const { Op, Jurnal, Akun_secondary, Akun_primary, Saldo_akun } = require("../../../models");
+const{ getCompanyIdByCode, tipe, getCabang } = require("../../../helper/companyHelper");
 const{ convertToRP } = require("../../../helper/currencyHelper");
 const moment = require("moment");
 
@@ -134,101 +134,6 @@ class Model_r {
       return {};
     }
   }
-
-  // async infoInvestor(id, company_id) {
-  //   try {
-  //     var data = {};
-  //     await Investor.findOne({
-  //         where: { id: id,  },
-  //         include: {
-  //           required : true, 
-  //           model : Division,
-  //           where : { company_id: company_id }
-  //         }
-  //     }).then(async (e) => {
-  //         if (e) {
-  //             data["id"] = e.id;
-  //             data["name"] = e.name;
-  //         }
-  //     });
-     
-  //     return data
-  //   } catch (error) {
-  //     console.log('xxxx');
-  //     console.log(error);
-  //     console.log('xxxx');
-  //     return {}      
-  //   }
-  // } 
-
-  // async getCabang() {
-  //   // initialize dependensi properties
-  //   await this.initialize();
-
-  //   try {
-  //     var data = [];
-  //     var type = await tipe(this.req);
-  //     if(type == 'administrator') {
-  //       // get list cabang
-  //       const { rows } = await Division.findAndCountAll({ where : { company_id : this.company_id} });
-  //       await Promise.all(
-  //         await rows.map(async (e) => {
-  //           data.push({id: e.id,name: e.name });
-  //         })
-  //       );
-  //     }else{
-  //       await Member.findOne({
-  //           where: { username: await username(this.req), company_id: this.company_id },
-  //           include: {
-  //             required : true,
-  //             model : Division
-  //           }
-  //       }).then(async (e) => {
-  //           if (e) {
-  //             data.push({id: e.Division.id, name: e.Division.name});
-  //           }
-  //       });
-  //     }
-  //     return data;
-  //   } catch (error) {
-  //     return {}
-  //   }
-  // }
-
-  // async getInvestor() {
-  //   // initialize dependensi properties
-  //   await this.initialize();
-
-  //   try {
-  //     var data = {};
-  //     await Investor.findOne({
-  //         where: { id: this.req.body.id},
-  //         include : {
-  //           required : true, 
-  //           model : Division, 
-  //           where : { company_id: this.company_id  }
-  //         }
-  //     }).then(async (e) => {
-  //         if (e) {
-  //           data['id'] = e.id;
-  //           data['name'] = e.name;
-  //           data['cabang_id'] = e.division_id;
-  //           data['identity_number'] = e.identity_number;
-  //           data['mobile_phone'] = e.mobile_phone;
-  //           data['address'] = e.address;
-  //           data['invesment'] = e.invesment;
-  //           data['stock'] = e.stock;
-  //         }
-  //     });
-  //     return data;
-  //   } catch (error) {
-
-  //     console.log("xxx");
-  //     console.log(error);
-  //     console.log("xxx");
-  //     return {}
-  //   }
-  // }
 }
 
 module.exports = Model_r;

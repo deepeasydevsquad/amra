@@ -374,10 +374,6 @@ class Model_r {
         };
       }
 
-      console.log("===========Info Tabungan=============")
-      console.log(data);
-      console.log("=====================================") 
-
       return data;
     } catch (error) {
       console.error("Error in infoTabungan:", error);

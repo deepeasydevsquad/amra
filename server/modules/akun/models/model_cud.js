@@ -259,9 +259,6 @@ class Model_cud {
       // write log message
       this.message = `Menutup Buku Akuntasi pada periode ${body.nama_periode}`;
     } catch (error) {
-      console.log("DDDDDDD");
-      console.log(error);
-      console.log("DDDDDDD");
       this.state = false;
     }
   }

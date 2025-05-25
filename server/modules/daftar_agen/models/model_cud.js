@@ -26,10 +26,6 @@ class Model_cud {
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
-    console.log("---------------------------------");
-    console.log("data dari body", body);
-    console.log("---------------------------------");
-
     try {
       const uplineId = body.upline_id || 0;
 

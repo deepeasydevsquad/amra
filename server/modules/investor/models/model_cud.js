@@ -161,9 +161,6 @@ class Model_cud {
       // write log message
       this.message = `Menghapus Investor dengan Nama Investor : ${infoInvestor.name} dan ID Investor : ${infoInvestor.id}`;
     } catch (error) {
-      console.log("---------------");
-      console.log(error);
-      console.log("---------------");
       this.state = false;
     }
   }

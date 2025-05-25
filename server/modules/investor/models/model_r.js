@@ -110,9 +110,6 @@ class Model_r {
      
       return data
     } catch (error) {
-      console.log('xxxx');
-      console.log(error);
-      console.log('xxxx');
       return {}      
     }
   } 
@@ -178,10 +175,6 @@ class Model_r {
       });
       return data;
     } catch (error) {
-
-      console.log("xxx");
-      console.log(error);
-      console.log("xxx");
       return {}
     }
   }

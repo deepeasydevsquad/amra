@@ -1,11 +1,4 @@
-const {
-  Jamaah,
-  Agen,
-  Member,
-  Level_keagenan,
-  Fee_agen,
-} = require ("../models");
-
+const { Jamaah, Agen, Member, Level_keagenan, Fee_agen } = require ("../models");
 const JamaahHelper = {};
 
 JamaahHelper.getJamaahInfo = async (id) => {

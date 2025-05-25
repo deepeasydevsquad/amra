@@ -81,7 +81,7 @@ const showConfirmDialog = ref<boolean>(false);
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
-const totalColumns = ref(3); // Default 3 kolom
+const totalColumns = ref(5); // Default 3 kolom
 const optionFilterCabang = ref<filterCabang[]>([]);
 const selectedOptionCabang = ref(0);
 
