@@ -17,6 +17,7 @@ import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confi
 // import widget
 import FormAdd from '@/components/User/Modules/TabunganUmrah/Widget/FormAdd.vue'
 import FormUpdate from '@/components/User/Modules/TabunganUmrah/Widget/FormUpdate.vue'
+import FormAddMenabung from '@/components/User/Modules/TabunganUmrah/Widget/FormAddMenabung.vue'
 
 // import API
 import { daftar_tabungan_umrah, deleteTabunganUmrah, cekKwitansiTabunganUmrah } from '@/service/tabungan_umrah'
@@ -89,6 +90,7 @@ const dataTabunganUmrah = ref<TabunganUmrah[]>([]);
 const selectTabunganUmrah = ref<TabunganUmrah | null>(null);
 const isFormOpen = ref<boolean>(false);
 const isFormUpdateOpen = ref<boolean>(false);
+const isFormAddMenabungOpen = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
@@ -155,6 +157,11 @@ const openFormAdd = () => {
 const openFormUpdate = (tabungan: TabunganUmrah) => {
   selectTabunganUmrah.value = tabungan;
   isFormUpdateOpen.value = true;
+}
+
+const openFormAddMenabung = (tabungan: TabunganUmrah) => {
+  selectTabunganUmrah.value = tabungan;
+  isFormAddMenabungOpen.value = true;
 }
 
 const deleteData = async (id: number) => {
@@ -327,7 +334,7 @@ const cetakKwitansi = async (invoice: string) => {
                     <LightButton col-span-1 title="Refund Tabungan" >
                       <RefundIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
-                    <LightButton col-span-1 title="Menabung" >
+                    <LightButton col-span-1 title="Menabung"  @click="openFormAddMenabung(tabungan)" >
                       <NabungIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
                     <LightButton col-span-1 title="Handover Fasilitas" >
@@ -351,7 +358,6 @@ const cetakKwitansi = async (invoice: string) => {
           </tfoot>
         </table>
       </div>
-
     </div>
   </div>
 
@@ -386,6 +392,24 @@ const cetakKwitansi = async (invoice: string) => {
       :dataTabungan="selectTabunganUmrah"
       @close="isFormUpdateOpen = false; fetchData()"
       @success="displayNotification('Target Paket Tabungan Umrah berhasil diupdate', 'success')"
+      />
+  </transition>
+
+  <!-- Form Add Menabung -->
+  <transition
+    enter-active-class="transition duration-200 ease-out"
+    enter-from-class="transform scale-95 opacity-0"
+    enter-to-class="transform scale-100 opacity-100"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="transform scale-100 opacity-100"
+    leave-to-class="transform scale-95 opacity-0"
+  >
+    <FormAddMenabung
+      v-if="isFormAddMenabungOpen"
+      :isFormAddMenabungOpen="isFormAddMenabungOpen"
+      :dataTabungan="selectTabunganUmrah"
+      @close="isFormAddMenabungOpen = false; fetchData()"
+      @success="displayNotification('Menabung Tabungan Umrah berhasil ditambahkan', 'success')"
       />
   </transition>
 

@@ -42,6 +42,56 @@ controllers.add = async (req, res) => {
   }
 };
 
+controllers.addMenabung = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    await model_cud.addMenabung();
+
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Menabung Tabungan Umrah berhasil ditambahkan.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Menabung Tabungan Umrah Gagal Ditambahkan.',
+      });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
+
+controllers.addMenabung = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    await model_cud.addMenabung();
+
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Menabung Tabungan Umrah berhasil ditambahkan.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Menabung Tabungan Umrah Gagal Ditambahkan.',
+      });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
+
 // Update tabungan
 controllers.updateTargetPaket = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
@@ -66,7 +116,6 @@ controllers.updateTargetPaket = async (req, res) => {
     handleServerError(res, error.message);
   }
 }
-
 
 // Hapus tabungan
 controllers.delete = async (req, res) => {

@@ -1,14 +1,40 @@
 const {
   Jamaah,
-  Fee_agen,
-  Level_keagenan,
   Agen,
-  Member
+  Member,
+  Level_keagenan,
+  Fee_agen,
 } = require ("../models");
 
-const AgenJamaahHelper = {};
+const JamaahHelper = {};
 
-AgenJamaahHelper.getAgenById = async (id) => {
+JamaahHelper.getJamaahInfo = async (id) => {
+    try {
+        const jamaah = await Jamaah.findOne({
+            where: { id },
+            include: [
+                {
+                    model: Agen,
+                    include: [
+                        {
+                            model: Level_keagenan,
+                        }
+                    ]
+                },
+                {
+                    model: Member,
+                }
+            ]
+        })
+        console.log(jamaah);
+        return jamaah;
+    } catch (error) {
+        console.error("Error fetching jamaah by id:", error.message);
+        throw error;
+    }
+};
+
+JamaahHelper.getAgenById = async (id) => {
     try {
         const jamaah = await Jamaah.findOne({
             where: { id },
@@ -36,4 +62,5 @@ AgenJamaahHelper.getAgenById = async (id) => {
     }
 };
 
-module.exports = AgenJamaahHelper;
+module.exports = JamaahHelper;
+
