@@ -1,0 +1,245 @@
+<template>
+  <div class="container mx-auto p-4">
+    <div class="flex justify-between mb-4">
+      <button
+        @click="showModalKonfigurasi()"
+        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M11.25 2.25c.414 0 .75.336.75.75v1.086a7.5 7.5 0 012.95 1.27l.769-.77a.75.75 0 011.06 0l1.06 1.06a.75.75 0 010 1.061l-.77.77a7.5 7.5 0 011.27 2.949h1.086a.75.75 0 01.75.75v1.5a.75.75 0 01-.75.75h-1.086a7.5 7.5 0 01-1.27 2.949l.77.77a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 01-1.061 0l-.77-.77a7.5 7.5 0 01-2.949 1.27v1.086a.75.75 0 01-.75.75h-1.5a.75.75 0 01-.75-.75v-1.086a7.5 7.5 0 01-2.949-1.27l-.77.77a.75.75 0 01-1.06 0l-1.061-1.06a.75.75 0 010-1.061l.77-.77a7.5 7.5 0 01-1.27-2.949H2.25a.75.75 0 01-.75-.75v-1.5c0-.414.336-.75.75-.75h1.086a7.5 7.5 0 011.27-2.949l-.77-.77a.75.75 0 010-1.061l1.061-1.06a.75.75 0 011.06 0l.77.77A7.5 7.5 0 0110.5 4.086V3c0-.414.336-.75.75-.75zM12 15a3 3 0 100-6 3 3 0 000 6z"
+          />
+        </svg>
+        Konfigurasi Surat
+      </button>
+
+      <div class="flex items-center">
+        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Cari Surat"
+          class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+        />
+      </div>
+    </div>
+
+    <div v-if="loading" class="text-center py-4 text-gray-500">Loading...</div>
+    <div v-else-if="error" class="text-center py-4 text-red-500">{{ error }}</div>
+
+    <div v-else class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
+      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-6 py-4 font-bold text-gray-900 text-center w-[15%]">Nomor Surat</th>
+            <th class="px-6 py-4 font-bold text-gray-900 text-center w-[15%]">Tipe Surat</th>
+            <th class="px-6 py-4 font-bold text-gray-900 text-center w-[40%]">Info</th>
+            <th class="px-6 py-4 font-bold text-gray-900 text-center w-[15%]">Tujuan</th>
+            <th class="px-6 py-4 font-bold text-gray-900 text-center w-[10%]">Petugas</th>
+            <th class="px-6 py-4 font-bold text-gray-900 text-center w-[20%]">Tanggal Surat</th>
+            <th class="px-6 py-4 font-bold text-gray-900 text-center w-[15%]">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          <tr v-if="!paginatedRiwayat || paginatedRiwayat.length === 0">
+            <td colspan="7" class="px-6 py-4 text-center text-gray-500">Data tidak ada</td>
+          </tr>
+          <tr
+            v-for="riwayatSurat in paginatedRiwayat"
+            :key="riwayatSurat.nomor_surat"
+            class="hover:bg-gray-50"
+          >
+            <td class="px-6 py-4 text-center font-bold">{{ riwayatSurat.nomor_surat }}</td>
+            <td class="px-6 py-4 text-center">
+              {{ formatTipeSurat(riwayatSurat.tipe_surat) }}
+            </td>
+            <td class="px-6 py-4 text-center">{{ riwayatSurat.info }}</td>
+            <td class="px-6 py-4 text-center">{{ riwayatSurat.tujuan }}</td>
+            <td class="px-6 py-4 text-center">{{ riwayatSurat.petugas }}</td>
+            <td class="px-6 py-4 text-center">{{ formatDate(riwayatSurat.tanggal_surat) }}</td>
+            <td class="px-6 py-4 text-center">aksi</td>
+          </tr>
+        </tbody>
+        <tfoot class="bg-gray-100">
+          <tr>
+            <td colspan="7" class="px-4 py-4 text-left">
+              <nav class="flex justify-left">
+                <ul class="inline-flex items-center -space-x-px">
+                  <li>
+                    <button
+                      @click="prevPage"
+                      :disabled="currentPage === 1"
+                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
+                    >
+                      Previous
+                    </button>
+                  </li>
+                  <li v-for="page in pages" :key="page">
+                    <button
+                      @click="pageNow(page)"
+                      :class="
+                        currentPage === page
+                          ? 'bg-[#333a48] text-white'
+                          : 'bg-white text-gray-500 hover:bg-gray-100'
+                      "
+                      class="px-3 py-2 border border-gray-300"
+                    >
+                      {{ page }}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      @click="nextPage"
+                      :disabled="currentPage === totalPages"
+                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <ModalKonfigurasi
+    :show="modalKonfigurasi"
+    @close="closeModalKonfigurasi"
+    @konfigurasi_success="handleKonfigurasi"
+  />
+  <!-- Notification Popup -->
+  <Notification
+    :showNotification="showNotification"
+    :notificationType="notificationType"
+    :notificationMessage="notificationMessage"
+    @close="showNotification = false"
+  ></Notification>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import Notification from '@/components/User/Modules/DaftarProviderVisa/Particle/Notification.vue'
+import { getRiwayatSurat } from '@/service/daftar_konfigurasi_surat'
+import ModalKonfigurasi from '@/components/User/Modules/DaftarSuratMenyurat/widgets/ModalKonfigurasi.vue'
+
+const riwayatSurat = ref<any[]>([])
+const loading = ref(true)
+const error = ref<string | null>(null)
+const searchQuery = ref('')
+const currentPage = ref(1)
+const itemsPerPage = 100
+const modalKonfigurasi = ref(false)
+
+const timeoutId = ref<number | null>(null)
+const dataProviderVisa = ref<ProviderVisa[]>([])
+const isModalOpen = ref<boolean>(false)
+const showNotification = ref<boolean>(false)
+const showConfirmDialog = ref<boolean>(false)
+const notificationMessage = ref<string>('')
+const notificationType = ref<'success' | 'error'>('success')
+const confirmMessage = ref<string>('')
+const confirmTitle = ref<string>('')
+const confirmAction = ref<(() => void) | null>(null)
+const totalColumns = ref(3) // Default 3 kolom
+
+const showModalKonfigurasi = () => {
+  modalKonfigurasi.value = true
+}
+
+const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
+  notificationMessage.value = message
+  notificationType.value = type
+  showNotification.value = true
+
+  if (timeoutId.value) clearTimeout(timeoutId.value)
+
+  timeoutId.value = window.setTimeout(() => {
+    showNotification.value = false
+  }, 3000)
+}
+
+const handleKonfigurasi = () => {
+  modalKonfigurasi.value = false
+  displayNotification('Konfugurasi berhasil', 'success')
+}
+
+const closeModalKonfigurasi = () => {
+  modalKonfigurasi.value = false
+}
+
+const fetchRiwayatSurat = async () => {
+  try {
+    loading.value = true
+    error.value = null
+    const data = await getRiwayatSurat()
+    riwayatSurat.value = data
+    console.log('Riwayat Surat:', riwayatSurat.value)
+  } catch (err) {
+    console.error(err)
+    error.value = 'Gagal mengambil data riwayat surat. Silakan coba lagi.'
+  } finally {
+    loading.value = false
+  }
+}
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('id-ID', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+const formatTipeSurat = (tipe: string) => {
+  return tipe
+    .replace(/_/g, ' ') // ganti underscore jadi spasi
+    .split(' ') // pisah tiap kata
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // kapital tiap awal kata
+    .join(' ') // gabung lagi pake spasi
+}
+
+const filteredRiwayat = computed(() => {
+  const search = searchQuery.value.toLowerCase()
+  return (riwayatSurat.value || []).filter(
+    (r) =>
+      r.nomor_surat?.toLowerCase().includes(search) ||
+      r.tipe_surat?.toLowerCase().includes(search) ||
+      r.info?.toLowerCase().includes(search) ||
+      r.tujuan?.toLowerCase().includes(search) ||
+      r.petugas?.toLowerCase().includes(search),
+  )
+})
+
+const totalPages = computed(() => Math.ceil(filteredRiwayat.value.length / itemsPerPage))
+const paginatedRiwayat = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return filteredRiwayat.value.slice(start, end)
+})
+
+const pages = computed(() => Array.from({ length: totalPages.value }, (_, i) => i + 1))
+const pageNow = (page: number) => (currentPage.value = page)
+const nextPage = () => currentPage.value < totalPages.value && currentPage.value++
+const prevPage = () => currentPage.value > 1 && currentPage.value--
+
+onMounted(() => {
+  fetchRiwayatSurat()
+})
+</script>
+
+<style scoped></style>
