@@ -16,6 +16,7 @@ const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
 const moment = require("moment");
+const { getJamaahInfo } = require("../../../helper/JamaahHelper");
 const fs = require('fs');
 const path = require('path');
 
@@ -24,7 +25,7 @@ class Model_cud {
     this.req = req;
     this.division_id;
     this.company_id;
-  }
+  } 
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
@@ -121,15 +122,16 @@ class Model_cud {
     await this.initialize();
     const body = this.req.body;
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
-
+    
     try {
       let invoiceTabungan, invoiceDeposit;
       do {
         invoiceTabungan = await this.generateInvoice();
         invoiceDeposit = await this.generateInvoice();
       } while (invoiceTabungan === invoiceDeposit); // pastikan invoice tabungan dan deposit tidak sama
-
+      
       const penerima = await this.penerima();
+      const jamaah = await getJamaahInfo(body.jamaah_id);
 
       console.log("Data Body:", body);
       console.log("Company ID:", this.company_id);
@@ -168,10 +170,6 @@ class Model_cud {
       }, { transaction: this.t });
 
       // === 3. Jika ada agen, insert ke FEE_KEAGENAN ===
-      const jamaah = await Jamaah.findOne({
-        where: { id: body.jamaah_id },
-        include: [{ model: Agen, include: [{ model: Level_keagenan }] }],
-      });
       if (jamaah?.Agen) {
         const invoiceAgen = await this.generateInvoiceAgen();
         const agen = await Fee_agen.create({
@@ -195,17 +193,10 @@ class Model_cud {
       }
 
       // === 4. Jika sumber dana adalah "Deposit", update data member dan insert ke DEPOSIT ===
-      const member = await Member.findOne({ where: { id: body.jamaah_id } });
-      if (!member) throw new Error("Data member tidak ditemukan.");
-
+      const member = jamaah?.Member;
       const sumberDana = body.sumber_dana.toLowerCase();
 
       if (sumberDana === "deposit") {
-        // === Validasi deposit cukup ===
-        if (member.total_deposit < Number(body.biaya_deposit)) {
-          throw new Error("Deposit tidak mencukupi.");
-        }
-
         // === Insert ke tabel DEPOSIT (log pengurangan) ===
         await Deposit.create({
           company_id: this.company_id,
@@ -244,7 +235,101 @@ class Model_cud {
       console.log("Error:", error);
       console.log("=========================")
       this.state = false;
-      this.message = error.message || "Terjadi kesalahan saat menyimpan data tabungan.";
+    }
+  }
+
+// === Menabung ===
+  async addMenabung() {
+    await this.initialize();
+    const body = this.req.body;
+    const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+    
+    try {
+      // call object
+      const model_r = new Model_r(this.req);
+      // get info tabungan
+      const infoTabungan = await model_r.infoTabungan(body.id, this.division_id);
+
+      let invoiceTabungan, invoiceDeposit;
+      do {
+        invoiceTabungan = await this.generateInvoice();
+        invoiceDeposit = await this.generateInvoice();
+      } while (invoiceTabungan === invoiceDeposit); // pastikan invoice tabungan dan deposit tidak sama
+
+      const penerima = await this.penerima();
+
+      console.log("Data Body:", body);
+      console.log("Company ID:", this.company_id);
+      console.log("Division ID:", this.division_id);
+      console.log("Invoice Tabungan:", invoiceTabungan);
+      console.log("Invoice Deposit:", invoiceDeposit);
+
+      const tabungan = await Tabungan.findOne({ where: { id: body.id, division_id: this.division_id } });
+
+      tabungan.update({
+        total_tabungan: (infoTabungan.total_tabungan || 0) + Number(body.biaya_deposit),
+        updatedAt: dateNow
+      }, { transaction: this.t })
+
+      // === Insert ke tabel RIWAYAT_TABUNGAN ===
+      await Riwayat_tabungan.create({
+        invoice: invoiceTabungan,
+        tabungan_id: tabungan.id,
+        nominal_tabungan: body.biaya_deposit,
+        penerima: penerima,
+        sumber_dana: body.sumber_dana,
+        saldo_tabungan_sebelum: infoTabungan.total_tabungan,
+        saldo_tabungan_sesudah: (infoTabungan.total_tabungan || 0) + Number(body.biaya_deposit),
+        info_tabungan: body.info_deposit || null,
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      }, { transaction: this.t });
+
+      const member = await Member.findOne({
+        where: { id: infoTabungan.jamaah.id },
+        transaction: this.t,
+      });
+      const sumberDana = body.sumber_dana.toLowerCase();
+      if (sumberDana === "deposit") {
+
+        // === Insert ke tabel DEPOSIT (log pengurangan) ===
+        await Deposit.create({
+          company_id: this.company_id,
+          member_id: member.id,
+          invoice: invoiceDeposit,
+          nominal: -Number(body.biaya_deposit),
+          saldo_sebelum: member.total_deposit,
+          saldo_sesudah: Number(member.total_deposit) - Number(body.biaya_deposit),
+          sumber_dana: body.sumber_dana,
+          penerima: penerima,
+          tipe_transaksi: "pindah_ke_tabungan",
+          info: `Digunakan untuk tabungan umrah (invoice: ${invoiceTabungan})`,
+          createdAt: dateNow,
+          updatedAt: dateNow,
+        }, { transaction: this.t });
+
+        // === Update total deposit dan total tabungan ===
+        await member.update({
+          total_deposit: member.total_deposit - Number(body.biaya_deposit),
+          total_tabungan: (member.total_tabungan || 0) + Number(body.biaya_deposit),
+          updatedAt: dateNow
+        }, { transaction: this.t });
+
+      } else if (sumberDana === "cash") {
+        // === Langsung tambahkan ke tabungan tanpa sentuh deposit ===
+        await member.update({
+          total_tabungan: Number(member.total_tabungan || 0) + Number(body.biaya_deposit),
+          updatedAt: dateNow
+        }, { transaction: this.t });
+      }
+      
+      this.message = `Data tabungan berhasil disimpan dengan invoice: ${invoiceTabungan}`;
+      return invoiceTabungan;
+    } catch (error) {
+      console.log("============ERROR AddMenabung===========")
+      console.log("Error:", error);
+      console.log("========================================")
+      this.state = false;
     }
   }
 
@@ -286,6 +371,11 @@ class Model_cud {
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
 
     try {
+      // call object
+      const model_r = new Model_r(this.req);
+      // get info tabungan
+      const infoTabungan = await model_r.infoTabungan(body.id, this.company_id);
+
       const tabungan = await Tabungan.findOne({
         where: { id: body.id },
         include: [
@@ -301,18 +391,10 @@ class Model_cud {
         transaction: this.t,
       });
 
-      if (!tabungan) {
-        throw new Error("Data tabungan tidak ditemukan.");
-      }
-
       const member = await Member.findOne({
-        where: { id: tabungan.jamaah_id },
+        where: { id: infoTabungan.jamaah.id },
         transaction: this.t,
       });
-
-      if (!member) {
-        throw new Error("Data member tidak ditemukan.");
-      }
 
       const nominalTerakhir = tabungan.total_tabungan;
       const saldoSebelum = member.total_deposit;
@@ -339,7 +421,7 @@ class Model_cud {
         sumber_dana: "deposit",
         penerima: penerima,
         tipe_transaksi: "deposit",
-        info: `Pengembalian dari pembatalan tabungan ID: ${tabungan.id}`,
+        info: `Pengembalian dari pembatalan tabungan umrah: ${infoTabungan.jamaah.fullname}`,
         createdAt: dateNow,
         updatedAt: dateNow,
       }, { transaction: this.t });
@@ -362,29 +444,27 @@ class Model_cud {
       });
 
       this.message = `Tabungan ID ${tabungan.id} berhasil dihapus. Dana sebesar ${nominalTerakhir} dikembalikan ke deposit.`;
-      this.state = true;
     } catch (error) {
       console.error("Error deleting tabungan:", error);
-      this.message = error.message || "Gagal menghapus tabungan.";
       this.state = false;
     }
   }
 
   // response
   async response() {
-    console.log("RESPONDING: state =", this.state);
     if (this.state) {
-      console.log("Committing transaction...");
-      await writeLog(this.req, this.t, { msg: this.message });
+      await writeLog(this.req, this.t, {
+        msg: this.message,
+      });
+      // commit
       await this.t.commit();
       return true;
     } else {
-      console.log("Rolling back transaction...");
+      // rollback
       await this.t.rollback();
       return false;
     }
   }
-  
 }
 
 module.exports = Model_cud;

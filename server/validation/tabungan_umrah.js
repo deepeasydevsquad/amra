@@ -1,15 +1,45 @@
-const { Op, Jamaah, Paket, Member } = require("../models");
+const {
+  Op,
+  Jamaah,
+  Paket,
+  Member,
+  Tabungan
+} = require("../models");
 
 const { getCabang } = require("../helper/companyHelper");
     
 const validation = {};
 
+validation.check_id_tabungan = async ( value, { req } ) => {
+    try {
+        const division_id = await getCabang(req);
+        var check = await Tabungan.findOne({where: { id : value, division_id : division_id }});
+        if (!check) {
+            console.debug(`ID Tabungan tidak terdaftar di pangkalan data`);
+            throw new Error("ID Tabungan tidak terdaftar di pangkalan data");
+        }
+        return true;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+validation.check_sumber_dana = async ( value, { req } ) => {
+    try {
+        if (value === 'deposit' || value === 'cash') {
+            return true;
+        }
+        throw new Error("Sumber dana hanya menerima deposit atau cash");
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
 validation.check_id_jamaah = async ( value,  { req } ) => {
     try {
-        console.debug(`Validating id_jamaah: ${value} for req: `, req.body);
-
         const division_id = await getCabang(req);
-        console.debug(`Division ID: ${division_id}`);
         var check = await Jamaah.findOne({where: { id : value, division_id : division_id }});
         if (!check) {
             console.debug(`ID Jamaah tidak terdaftar di pangkalan data`);
@@ -56,20 +86,38 @@ validation.check_saldo_deposit_dan_biaya = async (value, { req }) => {
 
         if (req.body.sumber_dana !== "deposit") {
             console.debug(`Skip validasi, sumber dana tidak deposit`);
-            return true; // jika bukan deposit, skip validasi
+            return true; // Skip validasi jika bukan dari deposit
         }
 
-        const deposit = await Jamaah.findOne({
-            where: { id: req.body.jamaah_id, division_id: division_id },
-            include: {
-                model: Member,
-                attributes: ['total_deposit']
-            }
-        });
+        let totalDeposit = 0;
 
-        const totalDeposit = deposit?.Member?.total_deposit || 0;
+        if (req.body.id) {
+            // Menabung ulang (pakai ID tabungan)
+            const tabungan = await Tabungan.findOne({
+                where: { id: req.body.id, division_id: division_id },
+                include: {
+                    model: Jamaah,
+                    include: {
+                        model: Member,
+                        attributes: ['total_deposit']
+                    }
+                }
+            });
 
-        console.debug(`Total deposit: ${totalDeposit}`);
+            totalDeposit = tabungan?.Jamaah?.Member?.total_deposit || 0;
+
+        } else {
+            // Menabung pertama kali (pakai ID jamaah)
+            const jamaah = await Jamaah.findOne({
+                where: { id: req.body.jamaah_id, division_id: division_id },
+                include: {
+                    model: Member,
+                    attributes: ['total_deposit']
+                }
+            });
+
+            totalDeposit = jamaah?.Member?.total_deposit || 0;
+        }
 
         if (totalDeposit <= 0) {
             console.debug(`Jamaah tidak memiliki dana deposit`);
@@ -86,8 +134,7 @@ validation.check_saldo_deposit_dan_biaya = async (value, { req }) => {
         console.error(error);
         throw error;
     }
-
-}
+};
 
 module.exports = validation;
 

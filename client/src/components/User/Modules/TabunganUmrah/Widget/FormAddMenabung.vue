@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import SearchableSelect from '@/components/User/Modules/TabunganUmrah/Particle/SearchableSelect.vue'
 import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue';
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
-import { onMounted, reactive, ref, watch } from 'vue'
-import { getPaket, updateTabunganUmrah } from '@/service/tabungan_umrah'
+import { reactive, ref } from 'vue'
+import { addMenabungTabunganUmrah } from '@/service/tabungan_umrah'
 
 const props = defineProps<{
-  isFormUpdateOpen: boolean,
+  isFormAddMenabungOpen: boolean,
   target_paket_id: number,
   dataTabungan: {
     id: number;
@@ -27,11 +26,12 @@ const emit = defineEmits<{
 }>()
 
 // Interfaces
-interface ErrorFields { id?: string; target_paket_id?: string }
-interface Paket { id: number; name: string; price: number; hari_tersisa: string }
-
-// State
-const PaketList = ref<Paket[]>([])
+interface ErrorFields {
+  id?: string;
+  sumber_dana: string;
+  biaya_deposit: string;
+  info_deposit: string;
+}
 
 const isLoading = ref(false)
 const showNotification = ref(false)
@@ -41,11 +41,16 @@ const timeoutId = ref<number | null>(null)
 
 const errors = ref<ErrorFields>({
   id: '',
+  sumber_dana: '',
+  biaya_deposit: '',
+  info_deposit: '',
 })
 
 const form = reactive({
   id: props.dataTabungan?.id ?? null,
-  target_paket_id: props.target_paket_id ?? null,
+  sumber_dana: 'cash',
+  biaya_deposit: 0,
+  info_deposit: '',
 })
 
 // Function: Notification
@@ -59,32 +64,33 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   }, 3000)
 }
 
-// Function: Ambil data awal
-const fetchData = async () => {
-  try {
-    isLoading.value = true
-    const paketResponse = await getPaket();
-    if (paketResponse.data) {
-      PaketList.value = [{ id: null, name: 'Pilih Paket' }, ...paketResponse.data]
-      form.target_paket_id = props.dataTabungan?.target_paket_id ?? null
-    }
-
-  } catch (error) {
-    displayNotification('Failed to fetch data', 'error')
-  } finally {
-    isLoading.value = false
-  }
-}
-
 // Function: Validasi form
 const validateForm = (): boolean => {
   let isValid = true
   errors.value = {
     id: '',
+    sumber_dana: '',
+    biaya_deposit: '',
+    info_deposit: '',
   }
 
   if (!form.id) {
     errors.value.id = 'ID Tabungan Umrah wajib diisi'
+    isValid = false
+  }
+
+  if (!form.sumber_dana) {
+    errors.value.sumber_dana = 'Sumber Dana wajib dipilih'
+    isValid = false
+  }
+
+  if (!form.biaya_deposit) {
+    errors.value.biaya_deposit = 'Nominal Deposit wajib diisi'
+    isValid = false
+  }
+
+  if (!form.info_deposit) {
+    errors.value.info_deposit = 'Informasi Deposit wajib diisi'
     isValid = false
   }
 
@@ -99,15 +105,19 @@ const saveData = async () => {
     isLoading.value = true
     const payload: {
       id: number;
-      target_id: number | null;
+      sumber_dana: string;
+      biaya_deposit: number;
+      info_deposit: string;
     } = {
       id: props.dataTabungan?.id || 0,
-      target_id: form.target_paket_id ?? null,
+      sumber_dana: form.sumber_dana,
+      biaya_deposit: form.biaya_deposit,
+      info_deposit: form.info_deposit
     }
 
     console.debug(payload)
 
-    await updateTabunganUmrah(payload)
+    await addMenabungTabunganUmrah(payload)
     emit('success')
     emit('close')
   } catch (error) {
@@ -117,8 +127,6 @@ const saveData = async () => {
     isLoading.value = false
   }
 }
-
-onMounted(() => { fetchData() })
 
 // Fungsi format harga (Rp, titik ribuan)
 const formatPrice = (value: number | string): string => {
@@ -133,40 +141,15 @@ const formatPrice = (value: number | string): string => {
   }).format(numericValue)
 }
 
-const price_sisa = ref<number>(0)
-const price_harga = ref<number>(0)
-const hari_tersisa = ref('')
-
-watch(
-  () => form.target_paket_id,
-  async (newTargetPaketId) => {
-    if (!newTargetPaketId) return;
-
-    try {
-      isLoading.value = true
-      const paketResponse = await getPaket();
-      const paket = paketResponse.data?.find((p) => p.id === newTargetPaketId);
-
-      if (paket) {
-        price_sisa.value = paket.price - (props.dataTabungan?.total_tabungan || 0);
-        price_harga.value = paket.price;
-        hari_tersisa.value = paket.hari_tersisa || '';
-      }
-    } catch (error) {
-      console.error('Failed to fetch paket:', error);
-    } finally {
-      isLoading.value = false
-    }
-  },
-  { immediate: true }
-)
+// Fungsi untuk ambil angka asli (unformat Rp)
+const unformatPrice = (formatted: string): number => { return parseInt(formatted.replace(/[^\d]/g, ''), 10) || 0 }
 </script>
 
 <template>
   <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
     <div class="animate-spin h-5 w-5 border-b-2 border-white rounded-full"></div>
   </div>
-  <div v-if="props.isFormUpdateOpen && !isLoading" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div v-if="props.isFormAddMenabungOpen && !isLoading" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="flex min-h-screen items-end justify-center px-6 pt-6 pb-20 text-center sm:block sm:p-0">
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="$emit('close')"></div>
       <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
@@ -175,17 +158,8 @@ watch(
           <h3 class="text-2xl flex font-bold leading-6 text-gray-900 mb-4">
             Form Target Paket Tabungan Umrah
           </h3>
-            <div class="space-y-4 text-gray-800">
-              <!-- Pilih Target Paket -->
-              <div class="mb-6">
-                <SearchableSelect
-                  v-model="form.target_paket_id"
-                  :options="PaketList"
-                  label="Target Paket"
-                  placeholder="Pilih Target Paket"
-                  :error="errors.target_paket_id"
-                />
-              </div>
+          <!-- Form Input -->
+          <div class="space-y-4 text-gray-800">
               <!-- Data Member -->
               <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Data Member</label>
@@ -201,19 +175,52 @@ watch(
                   </p>
                 </div>
               </div>
-              <div class="mt-4 p-3 border border-yellow-200 bg-yellow-50 rounded-md text-sm text-yellow-800">
-                <strong>Perhatian:</strong>
-                <br />
-                Harga paket : <strong>{{ formatPrice(price_harga) }}</strong>
-                <br />
-                Sisa kekurangan : <strong>{{ formatPrice(price_sisa) }}</strong>
-                <br />
-                Perkiraan keberangkatan : <strong>{{ hari_tersisa ? hari_tersisa + ' Hari lagi' : '-' }}</strong>
-              </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Sumber Dana
+                <span class="text-red-600">*</span>
+              </label>
+              <select
+                v-model="form.sumber_dana"
+                class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                :error="errors.sumber_dana"
+              >
+                <option value="" disabled>Pilih Sumber Dana</option>
+                <option value="cash" selected>Cash</option>
+                <option value="deposit">Deposit</option>
+              </select>
+              <p v-if="errors.sumber_dana" class="mt-1 text-sm text-red-600">{{ errors.sumber_dana }}</p>
             </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Biaya Deposit
+                <span class="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
+                placeholder="Biaya Deposit"
+                :value="form.biaya_deposit ? formatPrice(form.biaya_deposit) : ''"
+                @input="form.biaya_deposit = unformatPrice($event.target.value)"
+              />
+              <p v-if="errors.biaya_deposit" class="mt-1 text-sm text-red-600">{{ errors.biaya_deposit }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Informasi Deposit
+                <span class="text-red-600">*</span>
+              </label>
+              <textarea
+                v-model="form.info_deposit"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
+                placeholder="Informasi Deposit"
+              ></textarea>
+              <p v-if="errors.info_deposit" class="mt-1 text-sm text-red-600">{{ errors.info_deposit }}</p>
+            </div>
+          </div>
         </div>
         <div class="bg-gray-50 pb-3 pt-6 sm:flex sm:flex-row-reverse sm:px-0 gap-2">
-          <PrimaryButton @click="saveData()">UPDATE TARGET PAKET</PrimaryButton>
+          <PrimaryButton @click="saveData()">TAMBAH DEPOSIT</PrimaryButton>
           <button
             @click="$emit('close')"
             class=" mt-3 inline-flex w-full justify-center rounded-md border border-gray-400 bg-gray-200 px-4 py-2 text-base font-medium text-gray-800 shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"

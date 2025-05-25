@@ -87,6 +87,7 @@ const arr_router = [
   "riwayat_peminjaman",
   "investor", 
   "param_cabang"
+  "daftar_konfigurasi_surat_menyurat",
 ];
 
 const arr = {};
@@ -124,3 +125,5 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
   console.log("Server Running On Port " + port);
 });
+
+// module.exports = app;

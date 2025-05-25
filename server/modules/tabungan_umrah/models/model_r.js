@@ -13,7 +13,7 @@ const {
   Jurnal,
 } = require("../../../models");
 const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
-const { getAgenById } = require("../../../helper/AgenJamaahHelper");
+const { getAgenById } = require("../../../helper/JamaahHelper");
 const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
   
@@ -107,15 +107,11 @@ class Model_r {
     sql["include"] = [
       {
         model: Jamaah,
-        attributes: [
-          "id",
-        ],
         required: true,
         include: [
           {
             model: Member,
             attributes: [
-              "id",
               "fullname",
               "identity_number",
               "birth_place",
@@ -162,7 +158,7 @@ class Model_r {
                     }
                   : { fullname: "-", level: "-" },
                 batal_berangkat: e.batal_berangkat,
-                transaksi_paket_id: e.transaksi_paket_id,
+                paket_transaction_id: e.paket_transaction_id,
                 sisa_pembelian: e.sisa_pembelian,
                 invoice_sisa_deposit: e.invoice_sisa_deposit,
                 riwayat_tabungan: await Promise.all(
@@ -170,7 +166,7 @@ class Model_r {
                     where: {
                       tabungan_id: e.id,
                     },
-                    order: [["createdAt", "DESC"]], // Ambil riwayat tabungan terakhir (jika banyak)
+                    order: [["id", "ASC"]], // Ambil riwayat tabungan terakhir (jika banyak)
                   })).map(async (riwayat) => ({
                     id: riwayat.id,
                     invoice: riwayat.invoice,
@@ -311,36 +307,82 @@ class Model_r {
       return {};
     }
   }
+  async infoTabungan(id) {
+    try {
+      const tabungan = await Tabungan.findOne({
+        where: { id: id },
+        order: [["id", "ASC"]],
+        attributes: [
+          "id",
+          "total_tabungan",
+          "jamaah_id",
+          "status",
+          "fee_agen_id",
+          "paket_transaction_id",
+          "batal_berangkat",
+          "sisa_pembelian",
+          "invoice_sisa_deposit",
+          "createdAt",
+          "updatedAt",
+        ],
+        include: [
+          {
+            model: Jamaah,
+            required: true,
+            include: [
+              {
+                model: Member,
+                attributes: [
+                  "id",
+                  "fullname",
+                  "identity_number",
+                  "birth_place",
+                  "birth_date",
+                ],
+                required: false,
+              },
+            ],
+          },
+        ],
+      });
 
-  // async infoPaket(id, division_id) {
-  //   try {
-  //     var data = {};
-  //     const paket = await Paket.findOne({
-  //       where: { id: id, division_id: division_id },
-  //       include: [
-  //         {
-  //           model: Paket_price,
-  //           attributes: ["id", "mst_paket_type_id", "price"],
-  //           required: false,
-  //         },
-  //       ],
-  //     });
-  //     if (paket) {
-  //       data["id"] = paket.id;
-  //       data["kode"] = paket.kode;
-  //       data["photo"] = paket.photo;
-  //       data["name"] = paket.name;
-  //       data["paket_prices"] = paket.Paket_prices.reduce((acc, price) => {
-  //         acc[price.mst_paket_type_id] = price.price;
-  //         return acc;
-  //       }, {});
-  //     }
+      if (!tabungan) return {};
 
-  //     return data;  
-  //   } catch (error) {
-  //     return {};
-  //   }
-  // }
+      const data = {
+        id: tabungan.id,
+        status: tabungan.status,
+        total_tabungan: tabungan.total_tabungan,
+        jamaah_id: tabungan.jamaah_id,
+        fee_agen_id: tabungan.fee_agen_id,
+        batal_berangkat: tabungan.batal_berangkat,
+        paket_transaction_id: tabungan.paket_transaction_id,
+        sisa_pembelian: tabungan.sisa_pembelian,
+        invoice_sisa_deposit: tabungan.invoice_sisa_deposit,
+        createdAt: tabungan.createdAt,
+        updatedAt: tabungan.updatedAt,
+      };
+
+      if (tabungan.Jamaah && tabungan.Jamaah.Member) {
+        const member = tabungan.Jamaah.Member;
+        data.jamaah = {
+          id: member.id,
+          fullname: member.fullname,
+          identity_number: member.identity_number,
+          birth_place: member.birth_place,
+          birth_date: member.birth_date,
+        };
+      }
+
+      console.log("===========Info Tabungan=============")
+      console.log(data);
+      console.log("=====================================") 
+
+      return data;
+    } catch (error) {
+      console.error("Error in infoTabungan:", error);
+      return {};
+    }
+  }
 }
 
 module.exports = Model_r;
