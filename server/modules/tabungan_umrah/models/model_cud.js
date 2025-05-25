@@ -5,6 +5,7 @@ const {
   Tabungan,
   Jamaah,
   Riwayat_tabungan,
+  Refund_tabungan,
   Agen,
   Level_keagenan,
   Fee_agen,
@@ -74,8 +75,18 @@ class Model_cud {
 
     invoice = lettersPart + numbersPart;
 
-    const [inRiwayat, inDeposit] = await Promise.all([
+    const [inRiwayat, inRefund, inDeposit] = await Promise.all([
       Riwayat_tabungan.findOne({
+        where: { invoice },
+        include: [{
+          model: Tabungan,
+          include: [{
+            model: Division,
+            where: { company_id: this.company_id },
+          }],
+        }],
+      }),
+      Refund_tabungan.findOne({
         where: { invoice },
         include: [{
           model: Tabungan,
@@ -88,7 +99,8 @@ class Model_cud {
       Deposit.findOne({ where: { invoice, company_id: this.company_id } }),
     ]);
 
-    exists = inRiwayat || inDeposit;
+    // pastikan invoice tidak ada yang sama di riwayat, refund, atau deposit
+    exists = inRiwayat || inRefund || inDeposit;
 
   } while (exists);
     return invoice;
@@ -147,7 +159,7 @@ class Model_cud {
         total_tabungan: body.biaya_deposit,
         status: 'active',
         fee_agen_id: null,
-        batal_berangkat: body.batal_berangkat || 'tidak',
+        batal_berangkat: 'tidak',
         transaksi_paket_id: body.transaksi_paket_id || null,
         sisa_pembelian: body.sisa_pembelian || 0,
         invoice_sisa_deposit: null,
@@ -238,8 +250,8 @@ class Model_cud {
     }
   }
 
-// === Menabung ===
-  async addMenabung() {
+  // === Menabung ===
+  async Menabung() {
     await this.initialize();
     const body = this.req.body;
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
@@ -323,10 +335,89 @@ class Model_cud {
         }, { transaction: this.t });
       }
       
-      this.message = `Data tabungan berhasil disimpan dengan invoice: ${invoiceTabungan}`;
-      return invoiceTabungan;
+      this.message = `Menambahkan tabungan umrah nama jamaah: ${infoTabungan.jamaah.fullname} dengan invoice: ${invoiceTabungan}`;
     } catch (error) {
-      console.log("============ERROR AddMenabung===========")
+      console.log("==============ERROR Menabung============")
+      console.log("Error:", error);
+      console.log("========================================")
+      this.state = false;
+    }
+  }
+
+  // === Refund ===
+  async Refund() {
+    await this.initialize();
+    const body = this.req.body;
+    const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+    
+    try {
+      // call object
+      const model_r = new Model_r(this.req);
+      // get info tabungan
+      const infoTabungan = await model_r.infoTabungan(body.id, this.division_id);
+      const penerima = await this.penerima();
+
+      let invoiceTabungan, invoiceRefund;
+      do {
+        invoiceTabungan = await this.generateInvoice();
+        invoiceRefund = await this.generateInvoice();
+      } while (invoiceTabungan === invoiceRefund); // pastikan invoice tabungan dan deposit tidak sama
+
+      console.log("Data Body:", body);
+      console.log("Company ID:", this.company_id);
+      console.log("Division ID:", this.division_id);
+      console.log("Invoice Refund:", invoiceRefund);
+
+      const tabungan = await Tabungan.findOne({ where: { id: body.id, division_id: this.division_id } });
+
+      tabungan.update({
+        total_tabungan: (infoTabungan.total_tabungan || 0) - Number(body.refund_nominal),
+        batal_berangkat: Number(body.batal_berangkat) === 1 ? "ya" : "tidak",
+        updatedAt: dateNow
+      }, { transaction: this.t })
+
+      // === Insert ke tabel RIWAYAT_TABUNGAN ===
+      await Riwayat_tabungan.create({
+        invoice: invoiceTabungan,
+        tabungan_id: tabungan.id,
+        nominal_tabungan: -Number(body.refund_nominal),
+        penerima: penerima,
+        sumber_dana: "cash",
+        saldo_tabungan_sebelum: infoTabungan.total_tabungan,
+        saldo_tabungan_sesudah: (infoTabungan.total_tabungan || 0) - Number(body.refund_nominal),
+        info_tabungan: `Refund tabungan umrah (invoice: ${invoiceTabungan})`,
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      }, { transaction: this.t });
+
+      // === Insert ke tabel REFUND_TABUNGAN ===
+      await Refund_tabungan.create({
+        invoice: invoiceRefund,
+        tabungan_id: tabungan.id,
+        nominal_ditahan: null,
+        nominal_refund: Number(body.refund_nominal),
+        petugas_refund: penerima,
+        info: `Refund tabungan umrah (invoice: ${invoiceRefund})`,
+        saldo_tabungan_sebelum: infoTabungan.total_tabungan,
+        saldo_tabungan_sesudah: (infoTabungan.total_tabungan || 0) - Number(body.refund_nominal),
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      }, { transaction: this.t });
+
+      const member = await Member.findOne({
+        where: { id: infoTabungan.jamaah.id },
+        transaction: this.t,
+      });
+
+      // === Update total tabungan ===
+      await member.update({
+        total_tabungan: (member.total_tabungan || 0) - Number(body.refund_nominal),
+        updatedAt: dateNow
+      }, { transaction: this.t });
+      
+      this.message = `Refund tabungan umrah nama jamaah: ${infoTabungan.jamaah.fullname} dengan invoice: ${invoiceRefund}`;
+    } catch (error) {
+      console.log("============ERROR Refund===========")
       console.log("Error:", error);
       console.log("========================================")
       this.state = false;
@@ -340,9 +431,6 @@ class Model_cud {
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
 
     try {
-      console.log("===========BODY==========")
-      console.log("BODY:", body);
-      console.log("=========================")
       const tabungan = await Tabungan.findOne({
         where: { id: body.id },
         transaction: this.t,

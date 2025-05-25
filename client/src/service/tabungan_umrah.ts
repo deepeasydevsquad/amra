@@ -59,9 +59,18 @@ export const addTabunganUmrah = async (param : any) => {
     throw error;
   }
 };
-export const addMenabungTabunganUmrah = async (param : any) => {
+export const MenabungTabunganUmrah = async (param : any) => {
   try {
-    const response = await api.post("/daftar-tabungan-umrah/add-menabung-tabungan-umrah", param);
+    const response = await api.post("/daftar-tabungan-umrah/menabung-tabungan-umrah", param);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal menambahkan deposit tabungan umrah:", error);
+    throw error;
+  }
+}
+export const RefundTabunganUmrah = async (param : any) => {
+  try {
+    const response = await api.post("/daftar-tabungan-umrah/refund-tabungan-umrah", param);
     return response.data;
   } catch (error) {
     console.error("Gagal menambahkan deposit tabungan umrah:", error);

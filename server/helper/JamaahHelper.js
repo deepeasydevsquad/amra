@@ -26,7 +26,6 @@ JamaahHelper.getJamaahInfo = async (id) => {
                 }
             ]
         })
-        console.log(jamaah);
         return jamaah;
     } catch (error) {
         console.error("Error fetching jamaah by id:", error.message);
@@ -36,26 +35,20 @@ JamaahHelper.getJamaahInfo = async (id) => {
 
 JamaahHelper.getAgenById = async (id) => {
     try {
-        const jamaah = await Jamaah.findOne({
+        const agen = await Agen.findOne({
             where: { id },
             include: [
                 {
-                    model: Agen,
-                    include: [
-                        {
-                            model: Member,
-                            attributes: ['fullname'],
-                        },
-                        {
-                            model: Fee_agen,
-                            attributes: ['id', 'name'],
-                        }
-                    ]
-                }
+                    model: Member,
+                    attributes: ['fullname'],
+                },
+                {
+                    model: Level_keagenan,
+                    attributes: ['id', 'name', 'default_fee'],
+                },
             ]
         })
-        console.log(jamaah);
-        return jamaah;
+        return agen;
     } catch (error) {
         console.error("Error fetching agen jamaah by id:", error.message);
         throw error;

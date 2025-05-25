@@ -86,7 +86,7 @@ router.post(
 )
 
 router.post(
-  "/daftar-tabungan-umrah/add-menabung-tabungan-umrah",
+  "/daftar-tabungan-umrah/menabung-tabungan-umrah",
   authenticateToken,
   [
     body("id")
@@ -102,11 +102,40 @@ router.post(
       .trim()
       .notEmpty().withMessage("Biaya Deposit tidak boleh kosong.")
       .isNumeric().withMessage("Biaya Deposit harus berupa angka.")
+      .custom(v => {
+        if (Number(v) <= 0) throw new Error("Biaya deposit harus lebih dari 0.");
+        return true;
+      })
       .custom(validation.check_saldo_deposit_dan_biaya),
     body("info_deposit")
       .trim()
   ],
-  controllers.addMenabung
+  controllers.Menabung
+)
+
+router.post(
+  "/daftar-tabungan-umrah/refund-tabungan-umrah",
+  authenticateToken,
+  [
+    body("id")
+      .trim()
+      .notEmpty().withMessage("ID Tabungan Umrah tidak boleh kosong.")
+      .isInt().withMessage("ID Tabungan Umrah harus berupa angka.")
+      .custom(validation.check_id_tabungan),
+    body("refund_nominal")
+      .trim()
+      .notEmpty().withMessage("Refund tidak boleh kosong.")
+      .isNumeric().withMessage("Refund harus berupa angka.")
+      .custom(v => {
+        if (Number(v) <= 0) throw new Error("Nominal refund harus lebih dari 0.");
+        return true;
+      })
+      .custom(validation.check_refund_nominal),
+    body("batal_berangkat")
+      .trim()
+      .isBoolean().withMessage("Batal Berangkat harus berupa ya atau tidak."),
+  ],
+  controllers.Refund
 )
 
 router.post(

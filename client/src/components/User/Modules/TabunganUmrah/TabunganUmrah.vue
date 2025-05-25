@@ -17,7 +17,8 @@ import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confi
 // import widget
 import FormAdd from '@/components/User/Modules/TabunganUmrah/Widget/FormAdd.vue'
 import FormUpdate from '@/components/User/Modules/TabunganUmrah/Widget/FormUpdate.vue'
-import FormAddMenabung from '@/components/User/Modules/TabunganUmrah/Widget/FormAddMenabung.vue'
+import FormMenabung from '@/components/User/Modules/TabunganUmrah/Widget/FormMenabung.vue'
+import FormRefund from '@/components/User/Modules/TabunganUmrah/Widget/FormRefund.vue'
 
 // import API
 import { daftar_tabungan_umrah, deleteTabunganUmrah, cekKwitansiTabunganUmrah } from '@/service/tabungan_umrah'
@@ -69,8 +70,9 @@ interface TabunganUmrah {
   agen: {
     fullname: string;
     level: string;
+    default_fee: number;
   };
-  batal_berangkat: string;
+  batal_berangkat: number;
   transaksi_paket_id: number;
   sisa_pembelian: number;
   invoice_sisa_deposit: string;
@@ -90,7 +92,8 @@ const dataTabunganUmrah = ref<TabunganUmrah[]>([]);
 const selectTabunganUmrah = ref<TabunganUmrah | null>(null);
 const isFormOpen = ref<boolean>(false);
 const isFormUpdateOpen = ref<boolean>(false);
-const isFormAddMenabungOpen = ref<boolean>(false);
+const isFormMenabungOpen = ref<boolean>(false);
+const isFormRefundOpen = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
@@ -119,10 +122,13 @@ const fetchData = async () => {
     totalPages.value = Math.ceil(response.total / itemsPerPage);
     dataTabunganUmrah.value = response.data || []; // Ensure it assigns an array
 
-    isLoading.value = false;
+    console.log('Fetched data:', response.data);
+
   } catch (error) {
       console.error('Error fetching data:', error);
       displayNotification('Gagal mengambil data.', 'error');
+  } finally {
+    isLoading.value = false
   }
 };
 
@@ -159,9 +165,14 @@ const openFormUpdate = (tabungan: TabunganUmrah) => {
   isFormUpdateOpen.value = true;
 }
 
-const openFormAddMenabung = (tabungan: TabunganUmrah) => {
+const openFormMenabung = (tabungan: TabunganUmrah) => {
   selectTabunganUmrah.value = tabungan;
-  isFormAddMenabungOpen.value = true;
+  isFormMenabungOpen.value = true;
+}
+
+const openFormRefund = (tabungan: TabunganUmrah) => {
+  selectTabunganUmrah.value = tabungan;
+  isFormRefundOpen.value = true;
 }
 
 const deleteData = async (id: number) => {
@@ -284,33 +295,35 @@ const cetakKwitansi = async (invoice: string) => {
                     <div class="rounded-t bg-gray-200 px-2 py-2 font-semibold text-center">
                       Riwayat Tabungan Umrah
                     </div>
-                    <template v-if="tabungan.riwayat_tabungan.length">
-                      <table class="w-full mb-4 text-xs text-center text-gray-700 border">
-                        <thead class="bg-gray-50 border-b">
-                          <tr>
-                            <th class="p-2 border w-[7%] text-sm">#</th>
-                            <th class="p-2 border w-[13%] text-sm">Invoice</th>
-                            <th class="p-2 border w-[23%] text-sm">Biaya</th>
-                            <th class="p-2 border w-[26%] text-sm">Tanggal Transaksi</th>
-                            <th class="p-2 border w-[25%] text-sm">Penerima</th>
-                            <th class="p-2 border w-[5%] text-sm">Aksi</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="(riwayat, index) in tabungan.riwayat_tabungan" :key="index" class="border-t hover:bg-gray-200 text-sm">
-                            <td class="p-2 border">{{ index + 1 }}</td>
-                            <td class="p-2 border">{{ riwayat.invoice }}</td>
-                            <td class="p-2 border">Rp {{ riwayat.nominal_tabungan.toLocaleString() }},-</td>
-                            <td class="p-2 border">{{ riwayat.transaksi }}</td>
-                            <td class="p-2 border">{{ riwayat.penerima }}</td>
-                            <td class="p-2 border">
-                              <button class="rounded bg-gray-200 p-2 hover:bg-gray-300" @click.prevent="cetakKwitansi(riwayat.invoice)">
-                                <CetakIcon class="h-4 w-4 text-gray-600" />
-                              </button>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                    <template v-if="tabungan.riwayat_tabungan.length" >
+                      <div class="max-h-[340px] overflow-y-auto">
+                        <table class="w-full mb-4 text-xs text-center text-gray-700 border">
+                          <thead class="bg-gray-50 border-b">
+                            <tr>
+                              <th class="p-2 border w-[7%] text-sm">#</th>
+                              <th class="p-2 border w-[13%] text-sm">Invoice</th>
+                              <th class="p-2 border w-[23%] text-sm">Biaya</th>
+                              <th class="p-2 border w-[26%] text-sm">Tanggal Transaksi</th>
+                              <th class="p-2 border w-[25%] text-sm">Penerima</th>
+                              <th class="p-2 border w-[5%] text-sm">Aksi</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-for="(riwayat, index) in tabungan.riwayat_tabungan" :key="index" class="border-t hover:bg-gray-200 text-sm">
+                              <td class="p-2 border">{{ index + 1 }}</td>
+                              <td class="p-2 border">{{ riwayat.invoice }}</td>
+                              <td class="p-2 border">Rp {{ riwayat.nominal_tabungan.toLocaleString() }},-</td>
+                              <td class="p-2 border">{{ riwayat.transaksi }}</td>
+                              <td class="p-2 border">{{ riwayat.penerima }}</td>
+                              <td class="p-2 border">
+                                <button class="rounded bg-gray-200 p-2 hover:bg-gray-300" @click.prevent="cetakKwitansi(riwayat.invoice)">
+                                  <CetakIcon class="h-4 w-4 text-gray-600" />
+                                </button>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </template>
                     <template v-else>
                       <p class="text-gray-500 text-xs italic mt-2 text-center mb-2">Daftar Riwayat Tabungan Umrah Tidak Ditemukan</p>
@@ -328,13 +341,13 @@ const cetakKwitansi = async (invoice: string) => {
                     <LightButton col-span-1 title="Cetak Data Jamaah" @click.prevent="cetakKwitansi(tabungan.invoice_sisa_deposit)">
                       <CetakIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
-                    <LightButton col-span-1 title="Update Target Paket" @click="openFormUpdate(tabungan)" >
+                    <LightButton col-span-1 title="Update Target Paket" @click="openFormUpdate(tabungan)">
                       <EditIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
-                    <LightButton col-span-1 title="Refund Tabungan" >
+                    <LightButton col-span-1 title="Refund Tabungan" @click="openFormRefund(tabungan)">
                       <RefundIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
-                    <LightButton col-span-1 title="Menabung"  @click="openFormAddMenabung(tabungan)" >
+                    <LightButton col-span-1 title="Menabung"  @click="openFormMenabung(tabungan)">
                       <NabungIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
                     <LightButton col-span-1 title="Handover Fasilitas" >
@@ -349,7 +362,7 @@ const cetakKwitansi = async (invoice: string) => {
             </template>
             <tr v-else>
               <td colspan="7" class="px-6 py-4 text-center text-base text-gray-600">
-                Daftar Paket tidak ditemukan.
+                Daftar Tabungan Umrah tidak ditemukan.
               </td>
             </tr>
           </tbody>
@@ -389,6 +402,7 @@ const cetakKwitansi = async (invoice: string) => {
     <FormUpdate
       v-if="isFormUpdateOpen"
       :isFormUpdateOpen="isFormUpdateOpen"
+      :target_paket_id="target_paket_id"
       :dataTabungan="selectTabunganUmrah"
       @close="isFormUpdateOpen = false; fetchData()"
       @success="displayNotification('Target Paket Tabungan Umrah berhasil diupdate', 'success')"
@@ -404,12 +418,30 @@ const cetakKwitansi = async (invoice: string) => {
     leave-from-class="transform scale-100 opacity-100"
     leave-to-class="transform scale-95 opacity-0"
   >
-    <FormAddMenabung
-      v-if="isFormAddMenabungOpen"
-      :isFormAddMenabungOpen="isFormAddMenabungOpen"
+    <FormMenabung
+      v-if="isFormMenabungOpen"
+      :isFormMenabungOpen="isFormMenabungOpen"
       :dataTabungan="selectTabunganUmrah"
-      @close="isFormAddMenabungOpen = false; fetchData()"
+      @close="isFormMenabungOpen = false; fetchData()"
       @success="displayNotification('Menabung Tabungan Umrah berhasil ditambahkan', 'success')"
+      />
+  </transition>
+
+  <!-- Form Refund -->
+  <transition
+    enter-active-class="transition duration-200 ease-out"
+    enter-from-class="transform scale-95 opacity-0"
+    enter-to-class="transform scale-100 opacity-100"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="transform scale-100 opacity-100"
+    leave-to-class="transform scale-95 opacity-0"
+  >
+    <FormRefund
+      v-if="isFormRefundOpen"
+      :isFormRefundOpen="isFormRefundOpen"
+      :dataTabungan="selectTabunganUmrah"
+      @close="isFormRefundOpen = false; fetchData()"
+      @success="displayNotification('Tabungan Umrah berhasil direfund', 'success')"
       />
   </transition>
 

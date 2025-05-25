@@ -1,9 +1,11 @@
 const {
-  Op,
-  Jamaah,
-  Paket,
-  Member,
-  Tabungan
+    Op,
+    Jamaah,
+    Paket,
+    Member,
+    Tabungan,
+    Agen,
+    Level_keagenan,
 } = require("../models");
 
 const { getCabang } = require("../helper/companyHelper");
@@ -127,6 +129,47 @@ validation.check_saldo_deposit_dan_biaya = async (value, { req }) => {
         if (Number(value) > totalDeposit) {
             console.debug(`Biaya deposit melebihi saldo deposit yang tersedia`);
             throw new Error("Biaya deposit melebihi saldo deposit yang tersedia");
+        }
+
+        return true;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
+validation.check_refund_nominal = async (value, { req }) => {
+    try {
+        const division_id = await getCabang(req);
+        const tabungan = await Tabungan.findOne({
+            where: { id: req.body.id, division_id: division_id },
+            include: {
+                model: Jamaah,
+                include: {
+                    model: Agen,
+                    include: {
+                        model: Level_keagenan,
+                        attributes: ["default_fee"]
+                    }
+                }
+            }
+        });
+
+        if (!tabungan) {
+            console.debug("Data Tabungan tidak ditemukan");
+            throw new Error("Data Tabungan tidak ditemukan");
+        }
+
+        const agen = tabungan.Jamaah?.Agen;
+        if (!agen) {
+            console.debug("Data Agen tidak ditemukan");
+            throw new Error("Data Agen tidak ditemukan");
+        }
+
+        const maksimal_refund = tabungan.total_tabungan - agen.Level_keagenan.default_fee;
+        if (value > maksimal_refund) {
+            console.debug("Nominal refund melebihi batas maksimal yang dapat direfund");
+            throw new Error("Nominal refund melebihi batas maksimal yang dapat direfund");
         }
 
         return true;

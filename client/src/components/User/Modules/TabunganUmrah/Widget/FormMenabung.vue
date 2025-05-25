@@ -3,14 +3,13 @@ import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notif
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
 import { reactive, ref } from 'vue'
-import { addMenabungTabunganUmrah } from '@/service/tabungan_umrah'
+import { MenabungTabunganUmrah } from '@/service/tabungan_umrah'
 
 const props = defineProps<{
-  isFormAddMenabungOpen: boolean,
-  target_paket_id: number,
+  isFormMenabungOpen: boolean,
   dataTabungan: {
     id: number;
-    total_tabungan: number,
+    total_tabungan: number;
     member: {
       fullname: string;
       identity_number: string;
@@ -117,7 +116,7 @@ const saveData = async () => {
 
     console.debug(payload)
 
-    await addMenabungTabunganUmrah(payload)
+    await MenabungTabunganUmrah(payload)
     emit('success')
     emit('close')
   } catch (error) {
@@ -149,14 +148,14 @@ const unformatPrice = (formatted: string): number => { return parseInt(formatted
   <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
     <div class="animate-spin h-5 w-5 border-b-2 border-white rounded-full"></div>
   </div>
-  <div v-if="props.isFormAddMenabungOpen && !isLoading" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div v-if="props.isFormMenabungOpen && !isLoading" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="flex min-h-screen items-end justify-center px-6 pt-6 pb-20 text-center sm:block sm:p-0">
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="$emit('close')"></div>
       <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
       <div class="relative p-6 inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
         <div class="bg-white">
           <h3 class="text-2xl flex font-bold leading-6 text-gray-900 mb-4">
-            Form Target Paket Tabungan Umrah
+            Form Menabung Tabungan Umrah
           </h3>
           <!-- Form Input -->
           <div class="space-y-4 text-gray-800">
