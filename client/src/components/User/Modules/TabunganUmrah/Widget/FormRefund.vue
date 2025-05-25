@@ -178,7 +178,7 @@ const unformatPrice = (formatted: string): number => { return parseInt(formatted
             <!-- Data Member -->
             <div class="mb-6">
               <div class="mt-4 p-3 border border-yellow-200 bg-yellow-50 rounded-md text-sm text-yellow-800">
-                Total Tabungan : <strong>{{ formatPrice(total_tabungan) }}</strong>
+                Total tabungan yang dapat direfund : <strong>{{ formatPrice(total_tabungan) }}</strong>
               </div>
             </div>
             <div>
@@ -189,7 +189,7 @@ const unformatPrice = (formatted: string): number => { return parseInt(formatted
               <input
                 type="text"
                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
-                placeholder="Refund Tabungan Umrah"
+                placeholder="Masukkan nominal refund"
                 inputmode="numeric"
                 pattern="\d*"
                 :value="form.refund_nominal ? formatPrice(form.refund_nominal) : ''"
