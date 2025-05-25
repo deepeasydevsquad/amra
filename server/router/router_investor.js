@@ -6,6 +6,7 @@ const validation = require("../validation/investor");
 
 const router = express.Router();
 
+
 router.get(
   "/investor/info-add",
   authenticateToken,
@@ -61,11 +62,13 @@ router.post(
   controllers.update
 );
 
-// router.post(
-//   "/airlines/delete",
-//   authenticateToken,
-//   [body("id").trim().notEmpty().withMessage("ID Maskapai tidak boleh kosong.").isInt().withMessage("ID Maskapai harus berupa angka.").custom(validation.check_id_airlines)],
-//   controllers.delete
-// );
+router.post(
+  "/investor/delete",
+  authenticateToken,
+  [
+    body("id").trim().notEmpty().withMessage("ID Investor tidak boleh kosong.").custom(validation.check_id_investor),
+  ],
+  controllers.delete
+);
 
 module.exports = router;

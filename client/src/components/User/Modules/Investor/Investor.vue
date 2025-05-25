@@ -2,19 +2,19 @@
 // Import Icon
 import DeleteIcon from '@/components/User/Modules/Airlines/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/Airlines/Icon/EditIcon.vue'
-
 // import element
 import DangerButton from '@/components/User/Modules/Airlines/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/Airlines/Particle/EditButton.vue'
-//import Notification from '@/components/User/Modules/Airlines/Particle/Notification.vue'
-// import Confirmation from '@/components/User/Modules/Airlines/Particle/Confirmation.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 import LightButton from "@/components/Button/LightButton.vue"
 import FormAddUpdate from '@/components/User/Modules/Investor/Widget/FormAddUpdate.vue'
 import Confirmation from '@/components/Modal/Confirmation.vue'
+import Notification from '@/components/Modal/Notification.vue'
 
 // Import service API
-import { daftarInvestorAPI, deleteInvestorAPI, infoAdd, infoEdit  } from '@/service/investor'; // Import function POST
+import { daftarInvestorAPI, deleteInvestorAPI,  infoEdit  } from '@/service/investor'; // Import function POST
+import { paramCabang  } from '@/service/param_cabang'; // Import function POST
+
+// paramCabang
 import { ref, onMounted, computed } from 'vue';
 
 const itemsPerPage = 100; // Jumlah airlines per halaman
@@ -68,42 +68,26 @@ interface Errors {
 }
 
 interface filterCabang {
-    id: number;
-    name: string;
-  }
+  id: number;
+  name: string;
+}
 
 const timeoutId = ref<number | null>(null);
 const dataInvestor = ref<Investor[]>([]);
-// const isAddInvestor = ref<boolean>(false);
-
 const formData = ref<Partial<Investor>>({cabang_id:0});
 
 const isModalOpen = ref<boolean>(false);
-// const idInvestor = ref<number>();
-// const showNotification = ref<boolean>(false);
-
-// const notificationMessage = ref<string>('');
-// const notificationType = ref<'success' | 'error'>('success');
 const showConfirmDialog = ref<boolean>(false);
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
 const totalColumns = ref(3); // Default 3 kolom
-
-
-// const optionFilterCabang = ref<filterCabang[]>([]); // { id: 0, name: 'Pilih Semua Cabang' }
-// const selectedOptionCabang = ref(0);
-
-
-// const selectedInvestor = ref<Partial<Investor>>({});
-
-// const errors = ref<Errors>({
-//   name: '',
-// });
+const optionFilterCabang = ref<filterCabang[]>([]);
+const selectedOptionCabang = ref(0);
 
 // mengambil data daftar investor ke server
 const fetchData = async() => {
-  const response = await daftarInvestorAPI({search: search.value, perpage: itemsPerPage, pageNumber: currentPage.value});
+  const response = await daftarInvestorAPI({search: search.value, perpage: itemsPerPage, pageNumber: currentPage.value, cabang:selectedOptionCabang.value});
   totalPages.value = Math.ceil(response.total / itemsPerPage)
   dataInvestor.value = response.data;
 }
@@ -114,52 +98,40 @@ const removeFormData = async () => {
 }
 
 const  AddInvestor = async () => {
-  const response = await infoAdd();
+  const response = await paramCabang();
   formData.value.list_cabang = response.data;
-
-  console.log('ccccccccccccccccccc');
-  console.log(formData.value);
-  console.log('ccccccccccccccccccc');
+  formData.value.cabang_id = 0;
   isModalOpen.value = true;
 }
 
-const editInvestor = (data:Investor) => {
+const editInvestor = async (id:number) => {
   isModalOpen.value = true;
-  // idInvestor.value= id
-  formData.value = data;
+  const responseCabang = await paramCabang();
+  const e = await infoEdit({id});
+  formData.value = {
+    id : e.data.id,
+    list_cabang: responseCabang.data,
+    name: e.data.name,
+    cabang_id: e.data.cabang_id,
+    identity_number: e.data.identity_number,
+    mobile_phone: e.data.mobile_phone,
+    address: e.data.address,
+    invesment: e.data.invesment,
+    stock: e.data.stock
+  };
+}
 
-  // console.log("SSSSSSSSSS");
-  // console.log(idInvestor.value);
-  // console.log("SSSSSSSSSS");
+const fetchFilterData = async() => {
+  const response = await paramCabang();
+  optionFilterCabang.value = response.data;
+  selectedOptionCabang.value = response.data[0].id;
+  await fetchData();
 }
 
 onMounted(async () => {
-  await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-  totalColumns.value = 4
+  await fetchFilterData();
+  totalColumns.value = 5
 });
-
-// const validateForm = (): boolean => {
-//   errors.value = { name: '' };
-//   let isValid = true;
-
-//   // if (!selectedAirlines.value.name?.trim()) {
-//   //   errors.value.name = 'Nama Maskapai tidak boleh kosong';
-//   //   isValid = false;
-//   // }
-//   return isValid;
-// };
-
-// const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
-//   notificationMessage.value = message;
-//   notificationType.value = type;
-//   showNotification.value = true;
-
-//   if (timeoutId.value) clearTimeout(timeoutId.value);
-
-//   timeoutId.value = window.setTimeout(() => {
-//     showNotification.value = false;
-//   }, 3000);
-// };
 
 const showConfirmation = (title: string, message: string, action: () => void) => {
   confirmTitle.value = title;
@@ -167,36 +139,6 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
   confirmAction.value = action;
   showConfirmDialog.value = true;
 };
-
-// const saveData = async () => {
-//   if (!validateForm()) return;
-
-//   const isEdit = !!selectedAirlines.value.id;
-//   const action = async () => {
-//     try {
-//       if (isEdit) {
-//         const response = await editInvestor(selectedAirlines.value.id, selectedAirlines.value );
-//         showConfirmDialog.value = false;
-//         displayNotification(response.error_msg);
-//       } else {
-//         const response = await addInvestor(selectedAirlines.value);
-//         showConfirmDialog.value = false;
-//         displayNotification(response.error_msg);
-//       }
-//       isModalOpen.value = false;
-//       fetchData();
-//     } catch (error) {
-//       if (axios.isAxiosError(error)) {
-//         displayNotification(error.response?.data?.error_msg || 'Terjadi kesalahan saat menyimpan data.', 'error');
-//       } else {
-//         displayNotification('Terjadi kesalahan yang tidak terduga.', 'error');
-//       }
-//       showConfirmDialog.value = false;
-//     }
-//   };
-
-//   isEdit ? showConfirmation('Konfirmasi Perubahan', 'Apakah Anda yakin ingin mengubah data ini?', action) : action();
-// };
 
 const deleteInvestor = async (id: number) => {
   showConfirmation(
@@ -206,14 +148,24 @@ const deleteInvestor = async (id: number) => {
       try {
         const response = await deleteInvestorAPI(id);
         showConfirmDialog.value = false;
-        // displayNotification(response.error_msg);
+        displayNotification(response.error_msg);
         fetchData();
       } catch (error) {
         console.error('Error deleting data:', error);
-        // displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
+        displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
       }
     }
   );
+};
+
+const showNotification = ref<boolean>(false);
+const notificationMessage = ref<string>('');
+const notificationType = ref<'success' | 'error'>('success');
+
+const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
+  notificationMessage.value = message;
+  notificationType.value = type;
+  showNotification.value = true;
 };
 
 </script>
@@ -231,23 +183,15 @@ const deleteInvestor = async (id: number) => {
         Tambah Investor
       </button>
       <div class="flex items-center">
-        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input type="text" id="search" class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-          v-model="search"
-          @change="fetchData()"
-          placeholder="Cari data..."
-        />
+        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
         <div class="inline-flex rounded-md shadow-xs" role="group">
-          <!-- <select  v-model="selectedOptionAkun" style="width: 300px;"  @change="fetch()" class="bg-gray-50 border-t border-b border-s border-gray-300 text-gray-900 text-sm rounded-s-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-              <option v-for="optionA in optionFilterAkun" :key="optionA.id" :value="optionA.id">
-                {{ optionA.name }}
-              </option>
-          </select> -->
-          <!-- <select  v-model="selectedOptionCabang" style="width: 300px;" @change="fetchData()" class="bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg border-t border-b border-e focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+          <input type="text" id="search" class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            v-model="search" @change="fetchData()" placeholder="Cari data..." />
+          <select  v-model="selectedOptionCabang" style="width: 300px;" @change="fetchData()" class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
               <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
                 {{ optionC.name }}
               </option>
-          </select> -->
+          </select>
         </div>
       </div>
     </div>
@@ -257,9 +201,10 @@ const deleteInvestor = async (id: number) => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[30%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama & Nomor Identitas Investor</th>
-            <th class="w-[30%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Kontak & Alamat</th>
-            <th class="w-[30%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Investasi & Saham</th>
+            <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama & Nomor Identitas Investor</th>
+            <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Kontak & Alamat</th>
+            <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Investasi & Saham</th>
+            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Cabang</th>
             <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
@@ -269,12 +214,10 @@ const deleteInvestor = async (id: number) => {
               <td class="px-6 py-4 text-center">{{ investor.name }}<br> {{ investor.identity_number }}</td>
               <td class="px-6 py-4 text-center">{{ investor.mobile_phone }}<br> {{ investor.address }}</td>
               <td class="px-6 py-4 text-center">{{ investor.invesment }}<br> {{ investor.stock }}% Saham</td>
+              <td class="px-6 py-4 text-center">{{ investor.cabang }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
-                  <!-- <EditButton @click="openModal(airlines)">
-                    <EditIcon></EditIcon>
-                  </EditButton> -->
-                  <LightButton @click="editInvestor(investor)" class="p-2 "><EditIcon /></LightButton>
+                  <LightButton @click="editInvestor(investor.id)" class="p-2 "><EditIcon /></LightButton>
                   <DangerButton @click="deleteInvestor(investor.id)">
                     <DeleteIcon></DeleteIcon>
                   </DangerButton>
@@ -314,4 +257,6 @@ const deleteInvestor = async (id: number) => {
       </button>
     </Confirmation>
   </div>
+  <!-- Notification Popup -->
+  <Notification  :showNotification="showNotification"  :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false"  ></Notification>
 </template>

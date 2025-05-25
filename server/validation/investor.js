@@ -1,4 +1,4 @@
-const { Investor, Op } = require("../models");
+const { Investor, Division, Op } = require("../models");
 const { getCompanyIdByCode } = require("../helper/companyHelper");
     
 const validation = {};
@@ -6,12 +6,23 @@ const validation = {};
 validation.check_mobile_phone = async ( value, { req } ) => {
     const company_id = await getCompanyIdByCode(req);
     if(req.body.id) {
-        var check = await Investor.findOne({where: { company_id : company_id, mobile_phone : req.body.mobile_phone, id: {[Op.ne] : req.body.id } }});
+        var check = await Investor.findOne({
+            where: { 
+                mobile_phone : req.body.mobile_phone, 
+                id: {[Op.ne] : req.body.id } 
+            }, 
+            include: { required : true, model: Division, where : { company_id }}
+        });
         if (check) {
             throw new Error("Nomor HP ini sudah terdaftar dipangkalan data");
         }
     }else{
-        var check = await Investor.findOne({where: { company_id : company_id, mobile_phone : req.body.mobile_phone }});
+        var check = await Investor.findOne({
+            where: { 
+                mobile_phone : req.body.mobile_phone 
+            },
+            include: { required : true, model: Division, where : { company_id }}
+        });
         if (check) {
             throw new Error("Nomor HP ini sudah terdaftar dipangkalan data");
         }
@@ -21,7 +32,7 @@ validation.check_mobile_phone = async ( value, { req } ) => {
 
 validation.check_id_investor = async ( value,  { req } ) => {
     const company_id = await getCompanyIdByCode(req);
-     var check = await Investor.findOne({where: { company_id : company_id, id : req.body.id }});
+     var check = await Investor.findOne({where: { id : req.body.id }, include: { required : true, model: Division, where : { company_id }}});
     if (!check) {
         throw new Error("ID Investor ini tidak terdaftar dipangkalan data");
     }

@@ -1,16 +1,19 @@
 const { Op, Investor, Member, Division } = require("../../../models");
-const{ getCompanyIdByCode, tipe, username } = require("../../../helper/companyHelper");
-const{ dbList } = require("../../../helper/dbHelper");
+const{ getCompanyIdByCode, tipe, username, getCabang } = require("../../../helper/companyHelper");
 const{ convertToRP } = require("../../../helper/currencyHelper");
 
 class Model_r {
   constructor(req) {
     this.req = req;
     this.company_id;
+    this.type;
+    this.division;
   }
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
+    this.type = await tipe(this.req);
+    this.division = await getCabang(this.req);
   }
 
   async list() {
@@ -23,7 +26,11 @@ class Model_r {
 
     if (body.pageNumber != undefined && body.pageNumber !== '0' ) page = body.pageNumber;
 
-    var where = { company_id : this.company_id };
+    var where = {};
+    var where_division = { company_id : this.company_id };
+    if( body.cabang != undefined && body.cabang != '') {
+      where_division = {...where_division,...{ id: body.cabang } };
+    }
         
     if (body.search != undefined && body.search != "") {
       where = {...where,...{ 
@@ -46,6 +53,12 @@ class Model_r {
       "updatedAt",
     ];
     sql["where"] = where;
+    sql["include"] = {
+      required : true,
+      model : Division,
+      attributes : ['name'],
+      where : where_division
+    };
 
     try {
 
@@ -62,6 +75,7 @@ class Model_r {
             address: e.address,
             invesment: await convertToRP(e.invesment) ,
             stock: e.stock,
+            cabang: e.Division.name,
             createdAt: e.createdAt,
             updatedAt: e.updatedAt,
           });
@@ -72,7 +86,6 @@ class Model_r {
         data: data,
         total: total,
       };
-
     } catch (error) {
       return {};
     }
@@ -82,7 +95,12 @@ class Model_r {
     try {
       var data = {};
       await Investor.findOne({
-          where: { id: id, company_id: company_id },
+          where: { id: id,  },
+          include: {
+            required : true, 
+            model : Division,
+            where : { company_id: company_id }
+          }
       }).then(async (e) => {
           if (e) {
               data["id"] = e.id;
@@ -92,55 +110,80 @@ class Model_r {
      
       return data
     } catch (error) {
+      console.log('xxxx');
+      console.log(error);
+      console.log('xxxx');
       return {}      
     }
   } 
 
   async getCabang() {
+    // initialize dependensi properties
     await this.initialize();
 
-    var data = [];
-    var type = await tipe(this.req);
-    if(type == 'administrator') {
-      // get list cabang
-      const { rows } = await Division.findAndCountAll({ where : { company_id : this.company_id} });
-      await Promise.all(
-        await rows.map(async (e) => {
-          data.push({id: e.id,name: e.name });
-        })
-      );
-    }else{
-      await Member.findOne({
-          where: { username: await username(this.req), company_id: this.company_id },
-          include: {
-            required : true,
-            model : Division
-          }
-      }).then(async (e) => {
-          if (e) {
-            data.push({id: e.Division.id, name: e.Division.name});
-          }
-      });
+    try {
+      var data = [];
+      var type = await tipe(this.req);
+      if(type == 'administrator') {
+        // get list cabang
+        const { rows } = await Division.findAndCountAll({ where : { company_id : this.company_id} });
+        await Promise.all(
+          await rows.map(async (e) => {
+            data.push({id: e.id,name: e.name });
+          })
+        );
+      }else{
+        await Member.findOne({
+            where: { username: await username(this.req), company_id: this.company_id },
+            include: {
+              required : true,
+              model : Division
+            }
+        }).then(async (e) => {
+            if (e) {
+              data.push({id: e.Division.id, name: e.Division.name});
+            }
+        });
+      }
+      return data;
+    } catch (error) {
+      return {}
     }
-
-    return data;
   }
 
   async getInvestor() {
-    var data = {};
-    await Investor.findOne({
-        where: { id: this.req.body.id, company_id: this.company_id },
-    }).then(async (e) => {
-        if (e) {
-          data['name'] = e.name;
-          data['identity_number'] = e.identity_number;
-          data['mobile_phone'] = e.mobile_phone;
-          data['address'] = e.address;
-          data['invesment'] = e.invesment;
-          data['stock'] = e.stock;
-        }
-    });
-    return data;
+    // initialize dependensi properties
+    await this.initialize();
+
+    try {
+      var data = {};
+      await Investor.findOne({
+          where: { id: this.req.body.id},
+          include : {
+            required : true, 
+            model : Division, 
+            where : { company_id: this.company_id  }
+          }
+      }).then(async (e) => {
+          if (e) {
+            data['id'] = e.id;
+            data['name'] = e.name;
+            data['cabang_id'] = e.division_id;
+            data['identity_number'] = e.identity_number;
+            data['mobile_phone'] = e.mobile_phone;
+            data['address'] = e.address;
+            data['invesment'] = e.invesment;
+            data['stock'] = e.stock;
+          }
+      });
+      return data;
+    } catch (error) {
+
+      console.log("xxx");
+      console.log(error);
+      console.log("xxx");
+      return {}
+    }
   }
 }
 

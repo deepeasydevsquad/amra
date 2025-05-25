@@ -85,7 +85,8 @@ const arr_router = [
   "jurnal",
   "tabungan_umrah",
   "riwayat_peminjaman",
-  "investor"
+  "investor", 
+  "param_cabang"
 ];
 
 const arr = {};

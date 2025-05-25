@@ -4,23 +4,20 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 
 const controllers = {};
 
-// **Mendapatkan daftar airline**
+// **Mendapatkan daftar investor**
 controllers.list = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_r = new Model_r(req);
-    const feedBack = await model_r.list(); // Ambil daftar airline dari model
+    const feedBack = await model_r.list(); // Ambil daftar investor dari model
     res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
   } catch (error) {
-    console.log("______________");
-    console.log(error);
-    console.log("______________");
     handleServerError(res, error.message);
   }
 };
 
-// **Menambahkan airline baru**
+// **Menambahkan investor baru**
 controllers.add = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -40,11 +37,6 @@ controllers.add = async (req, res) => {
       });
     }
   } catch (error) {
-
-    console.log("----------------->>>>");
-    console.log(error);
-    console.log("----------------->>>>");
-
     handleServerError(res, error.message);
   }
 };
@@ -70,13 +62,9 @@ controllers.update = async (req, res) => {
     }
 
   } catch (error) {
-    console.log("----------------->>>>");
-    console.log(error);
-    console.log("----------------->>>>");
     handleServerError(res, error.message);
   }
 };
-
 
 controllers.infoAdd = async ( req, res ) => {
    try {
@@ -84,10 +72,6 @@ controllers.infoAdd = async ( req, res ) => {
       const feedBack = await model_r.getCabang(); // Ambil daftar airline dari model
       res.status(200).json({ error: false, data : feedBack });
    } catch (error) {
-
-    console.log("xxx");
-    console.log(error);
-    console.log("xxx");
       res.status(400).json({
         error: true,
         error_msg: 'Info tidak ditemukan.',
@@ -96,43 +80,42 @@ controllers.infoAdd = async ( req, res ) => {
 }
 
 controllers.infoEdit = async ( req, res ) => {
-   try {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
       const model_r = new Model_r(req);
-      const feedBack = await model_r.getCabang(); // Ambil daftar airline dari model
       const infoInvestor = await model_r.getInvestor();
-      res.status(200).json({ error: false, data : { cabang: feedBack, info_investor: infoInvestor } });
-   } catch (error) {
+      res.status(200).json({ error: false, data : infoInvestor });
+  } catch (error) {
       res.status(400).json({
         error: true,
         error_msg: 'Info tidak ditemukan.',
       });
-   }
+  }
 }
-// 
 
-// // **Hapus airline**
-// controllers.delete = async (req, res) => {
-//   if (!(await handleValidationErrors(req, res))) return;
+controllers.delete = async ( req, res ) => {
+  if (!(await handleValidationErrors(req, res))) return;
 
-//   try {
-//     const model_cud = new Model_cud(req);
-//     await model_cud.delete();
+  try {
+    const model_cud = new Model_cud(req);
+    await model_cud.delete();
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Investor berhasil dihapus.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Investor gagal dihapus.',
+      });
+    }
 
-//     // get response
-//     if (await model_cud.response()) {
-//       res.status(200).json({
-//         error: false,
-//         error_msg: 'Maskapai berhasil dihapus.',
-//       });
-//     } else {
-//       res.status(400).json({
-//         error: true,
-//         error_msg: 'Maskapai Gagal Dihapus.',
-//       });
-//     }
-//   } catch (error) {
-//     handleServerError(res, error.message);
-//   }
-// };
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
 
 module.exports = controllers;
