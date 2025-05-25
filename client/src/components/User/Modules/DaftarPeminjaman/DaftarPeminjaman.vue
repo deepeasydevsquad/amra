@@ -156,10 +156,12 @@
                       <td class="px-2 py-2 text-center">{{ detail.invoice }}</td>
                       <td class="px-2 py-2 text-center">{{ formatIDR(detail.nominal) }}</td>
                       <td class="px-2 py-2 text-center">{{ detail.status }}</td>
-                      <td class="px-2 py-2">
-                        <LightButton @click="cetakInvoice(detail.invoice)"
-                          ><CetakIcon class="w-4 h-4"
-                        /></LightButton>
+                      <td class="px-2 py-2 text-center">
+                        <center>
+                          <LightButton @click="cetakInvoice(detail.invoice)">
+                            <CetakIcon class="w-4 h-4" />
+                          </LightButton>
+                        </center>
                       </td>
                     </tr>
                   </template>
@@ -171,31 +173,16 @@
                 </tbody>
               </table>
             </td>
-
             <!-- Tombol Aksi -->
             <td class="px-2 py-2 text-center align-top">
               <div class="flex flex-wrap justify-center gap-1 max-w-[64px] mx-auto">
                 <LightButton @click="handleCetak(pinjaman)">
                   <CetakIcon class="w-4 h-4" />
                 </LightButton>
-
-                <LightButton
-                  @click="
-                    bukaModalBayar({
-                      id: pinjaman.id,
-                      riwayat_pembayaran: pinjaman.riwayat_pembayaran,
-                    })
-                  "
-                  title="Pembayaran Cicilan"
-                  class="p-1 w-6 h-6"
-                >
+                <LightButton @click="bukaModalBayar({id: pinjaman.id, riwayat_pembayaran: pinjaman.riwayat_pembayaran})" title="Pembayaran Cicilan" class="p-1 w-6 h-6" >
                   <BayarIcon class="w-4 h-4" />
                 </LightButton>
-                <LightButton
-                  @click="handleModalUpdate(pinjaman.id)"
-                  title="Edit Skema Cicilan"
-                  class="p-1 w-6 h-6"
-                >
+                <LightButton @click="handleModalUpdate(pinjaman.id)" title="Edit Skema Cicilan" class="p-1 w-6 h-6">
                   <EditIcon class="w-4 h-4" />
                 </LightButton>
                 <DangerButton @click="" title="Hapus Peminjaman" class="p-1 w-6 h-6">

@@ -3,12 +3,10 @@
 import DeleteIcon from '@/components/User/Modules/DaftarPaket/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/DaftarPaket/Icon/EditIcon.vue'
 import DetailIcon from '@/components/User/Modules/DaftarPaket/Icon/DetailIcon.vue'
+import Pagination from '@/components/Pagination/Pagination.vue'
 
 // import element
-// import DangerButton from '@/components/User/Modules/DaftarPaket/Particle/DangerButton.vue'
-// import EditButton from '@/components/User/Modules/DaftarPaket/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/DaftarPaket/Particle/Notification.vue'
-// import DetailButton from '@/components/User/Modules/DaftarPaket/Particle/DetailButton.vue'
 import Confirmation from '@/components/User/Modules/DaftarPaket/Particle/Confirmation.vue'
 
 // import widget
@@ -28,9 +26,10 @@ import { ref, onMounted, computed } from 'vue';
 
 const itemsPerPage = 100; // Jumlah paket_la per halaman
 const currentPage = ref(1);
+const totalPages = ref(0);
 const search = ref('');
 const filter = ref('');
-const totalPages = ref(0);
+
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
@@ -333,49 +332,15 @@ const shortText = (teks:string, maxKarakter: number) => {
             </tr>
           </tbody>
           <tfoot class="bg-gray-100 font-bold">
-            <tr>
-              <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
-                <nav class="flex mt-0">
-                  <ul class="inline-flex items-center -space-x-px">
-                    <!-- Tombol Previous -->
-                    <li>
-                      <button
-                        @click="prevPage"
-                        :disabled="currentPage === 1"
-                        class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg
-                          hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Previous
-                      </button>
-                    </li>
-                    <!-- Nomor Halaman -->
-                    <li v-for="page in pages" :key="page">
-                      <button
-                        @click="pageNow(page)"
-                        class="px-3 py-2 leading-tight border"
-                        :class="currentPage === page
-                          ? 'text-white bg-[#3a477d] border-[#3a477d]'
-                          : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'"
-                      >
-                        {{ page }}
-                      </button>
-                    </li>
-
-                    <!-- Tombol Next -->
-                    <li>
-                      <button
-                        @click="nextPage"
-                        :disabled="currentPage === totalPages"
-                        class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg
-                          hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Next
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
-              </td>
-            </tr>
+            <Pagination
+              :current-page="currentPage"
+              :total-pages="totalPages"
+              :pages="pages"
+              :total-columns="totalColumns"
+              @prev-page="prevPage"
+              @next-page="nextPage"
+              @page-now="pageNow"
+            />
           </tfoot>
         </table>
       </div>
