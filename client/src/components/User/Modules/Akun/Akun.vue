@@ -8,6 +8,8 @@
   import Confirmation from "../../../Modal/Confirmation.vue"
   import Notification from "../../../Modal/Notification.vue"
   import { getFilterAkun, getData, deleteAkun, kembalikanBuku } from "@/service/akun"; // Import function POST
+  import { paramCabang  } from '@/service/param_cabang'; // Import function POST
+
   import { ref, onMounted } from 'vue';
 
   interface secondaryAkun {
@@ -65,14 +67,10 @@
 
   const fetchFilterData = async() => {
     const response = await getFilterAkun();
+    const response2 = await paramCabang();
     optionFilterAkun.value = response.data.akun;
-    optionFilterCabang.value = response.data.cabang;
-    selectedOptionCabang.value = response.data.cabang[0].id;
-
-    console.log('_____xxxx____');
-    console.log(response.data.cabang[0].id);
-    console.log(selectedOptionCabang.value);
-    console.log('_____xxxx____');
+    optionFilterCabang.value = response2.data;
+    selectedOptionCabang.value = response2.data[0].id;
     await fetch();
   }
 

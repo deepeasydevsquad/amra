@@ -19,12 +19,12 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/login',
+      path: '/Login',
       name: 'login',
       component: LoginView,
     },
     {
-      path: '/register',
+      path: '/Register',
       name: 'register',
       component: RegisterView,
     },
@@ -72,7 +72,7 @@ const router = createRouter({
       name: 'invoice-pembayran',
       component: InvoicePembayranPerbulan,
     }
-  ],  
+  ],
 })
 
 export default router
