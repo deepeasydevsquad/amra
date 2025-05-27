@@ -161,8 +161,19 @@ const submitForm = async () => {
 
     const url = `${window.location.origin}/cetak_surat/${jenisSurat}?jamaah_id=${jamaahId}`
     window.open(url, '_blank')
+    form.value = {
+      nomor_surat: '',
+      tanggal_surat: '',
+      tujuan: '',
+      tipe_surat: '',
+      jamaah_id: '',
+      jabatan: '',
+      keberangkatan: '',
+      kepulangan: '',
+      bulan_tahun_berangkat: '',
+    }
   } catch (error) {
-    console.error('Gagal submit konfigurasi:', error)
+    console.error('Gagal submit surat:', error)
   }
 }
 </script>

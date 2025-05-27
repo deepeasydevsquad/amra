@@ -121,6 +121,18 @@ class Model_cud {
     // Ambil info petugas
     const petugasInfo = await this.petugas();
 
+    // Cek apakah ada konfigurasi surat utk company ini
+    const konfigurasi = await Konfigurasi_surat_menyurat.findOne({
+      where: { company_id: this.company_id },
+    });
+
+    if (!konfigurasi) {
+      this.state = false;
+      this.message = "Silahkan Buat Konfigurasi Terlebih Dahulu";
+      console.log("Silahkan Buat Konfigurasi Terlebih Dahulu");
+      return;
+    }
+
     // Format field info
     let info = {};
 
