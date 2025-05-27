@@ -77,7 +77,7 @@ api.interceptors.response.use(
         console.error('Refresh token gagal, harap login ulang')
         localStorage.removeItem('access_token')
         localStorage.removeItem('refresh_token')
-        window.location.href = '/login'
+        window.location.href = '/Login'
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false

@@ -122,6 +122,7 @@ controllers.downloadDataNeracaLajur = async (req, res) => {
     const headerRow1 = worksheet.getRow(no);
     headerRow1.height = 25; // ✅ Set tinggi baris
     headerRow1.eachCell((cell) => {
+      
       cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
       cell.fill = {
         type: 'pattern',
