@@ -15,15 +15,14 @@ router.post("/neraca_lajur/list",
   controllers.list
 );
 
-// router.post(
-//   "/daftar_buku_besar/download_data_buku_besar",
-//   authenticateToken,
-//   [
-//     body("akun").trim().notEmpty().withMessage("Akun tidak boleh kosong.").custom(validation.check_akun_id),
-//     body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(validation.check_cabang_id),
-//     body("periode").trim().notEmpty().withMessage("Periode tidak boleh kosong.").custom(validation.check_periode_id),
-//   ],
-//   controllers.downloadDataPeminjaman
-// );
+router.post(
+  "/neraca_lajur/download_data_neraca_lajur",
+  authenticateToken,
+  [
+    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(validation.check_cabang_id),
+    body("periode").trim().notEmpty().withMessage("Periode tidak boleh kosong.").custom(validation.check_periode_id),
+  ],
+  controllers.downloadDataNeracaLajur
+);
 
 module.exports = router;

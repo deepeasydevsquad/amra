@@ -12,33 +12,33 @@ export const dataNeracaLajurAPI = async (param : any) => {
   }
 };
 
-// export const downloadBukuBesar = async (param: any) => {
-//   try {
-//     const response = await api.post('/daftar_buku_besar/download_data_buku_besar', param, {
-//       responseType: 'blob', // << penting biar axios handle sebagai file
-//     })
+export const downloadNeracaLajurAPI = async (param: any) => {
+  try {
+    const response = await api.post('/neraca_lajur/download_data_neraca_lajur', param, {
+      responseType: 'blob', // << penting biar axios handle sebagai file
+    })
 
-//     // Bikin blob dari data response
-//     const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    // Bikin blob dari data response
+    const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
 
-//     // Buat URL dari blob
-//     const url = window.URL.createObjectURL(blob)
+    // Buat URL dari blob
+    const url = window.URL.createObjectURL(blob)
 
-//     // Buat element <a> buat trigger download
-//     const link = document.createElement('a')
-//     link.href = url
-//     link.setAttribute('download', 'data_buku_besar.xlsx') // Nama file
-//     document.body.appendChild(link)
-//     link.click()
+    // Buat element <a> buat trigger download
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'data_neraca_lajur.xlsx') // Nama file
+    document.body.appendChild(link)
+    link.click()
 
-//     // Cleanup
-//     link.remove()
-//     window.URL.revokeObjectURL(url)
-//   } catch (error) {
-//     console.error('Gagal download data buku besar:', error)
-//     throw error
-//   }
-// }
+    // Cleanup
+    link.remove()
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Gagal download data neraca lajur:', error)
+    throw error
+  }
+}
 
 // export const addKota = async (param : any) => {
 //   try {

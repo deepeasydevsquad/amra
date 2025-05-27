@@ -27,7 +27,7 @@ router.post(
     body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(validation.check_cabang_id),
     body("periode").trim().notEmpty().withMessage("Periode tidak boleh kosong.").custom(validation.check_periode_id),
   ],
-  controllers.downloadDataPeminjaman
+  controllers.downloadDataBukuBesar
 );
 
 module.exports = router;

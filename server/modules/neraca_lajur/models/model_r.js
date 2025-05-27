@@ -69,13 +69,13 @@ class Model_r {
         await q2.rows.map(async (e) => {
           // AKUN DEBET
           if(akun_debet[e.akun_debet]) {
-            akun_debet[e.akun_debet] = akun_debet[e.akun_debet] + saldo;
+            akun_debet[e.akun_debet] = akun_debet[e.akun_debet] + e.saldo;
           }else{
             akun_debet = {...akun_debet,...{[e.akun_debet] : e.saldo } }
           }
           // AKUN KREDIT
           if(akun_kredit[e.akun_kredit]) {
-            akun_kredit[e.akun_kredit] = akun_kredit[e.akun_kredit] + saldo;
+            akun_kredit[e.akun_kredit] = akun_kredit[e.akun_kredit] + e.saldo;
           }else{
             akun_kredit = {...akun_kredit,...{[e.akun_kredit] : e.saldo } }
           }
@@ -189,21 +189,21 @@ class Model_r {
             sn : e.sn, 
             akun: e.nomor_akun,
             nama_akun: e.nama_akun,
-            saldo_awal_debet: saldo_awal_debet,
-            saldo_awal_kredit: saldo_awal_kredit,
-            penyesuaian_akun_debet: penyesuaian_akun_debet,
-            penyesuaian_akun_kredit: penyesuaian_akun_kredit,
-            saldo_disesuaikan_debet: saldo_disesuaikan_debet,
-            saldo_disesuaikan_kredit: saldo_disesuaikan_kredit,
-            neraca_debet: neraca_debet,
-            neraca_kredit: neraca_kredit,
-            laba_debet: laba_debet,
-            laba_kredit: laba_kredit
+            debet_saldo_awal: await convertToRP(saldo_awal_debet) ,
+            kredit_saldo_awal: await convertToRP(saldo_awal_kredit),
+            debet_penyesuaian: await convertToRP(penyesuaian_akun_debet),
+            kredit_penyesuaian: await convertToRP(penyesuaian_akun_kredit),
+            debet_saldo_disesuaikan: await convertToRP(saldo_awal_debet + penyesuaian_akun_debet),
+            kredit_saldo_disesuaikan: await convertToRP(saldo_awal_kredit + penyesuaian_akun_kredit),
+            debet_neraca: await convertToRP(neraca_debet),
+            kredit_neraca: await convertToRP(neraca_kredit),
+            debet_laba_rugi: await convertToRP(laba_debet),
+            kredit_laba_rugi: await convertToRP(laba_kredit)
           })
         })
       );
 
-      return { list: list }
+      return { list: list, total: total }
     } catch (error) {
       console.log("-------->");
       console.log(error);
@@ -212,5 +212,18 @@ class Model_r {
     }
   }
 }
+
+//   {
+//     "saldo_awal_debet": 0,
+//     "saldo_awal_kredit": 0,
+//     "penyesuaian_akun_debet": 833000000,
+//     "penyesuaian_akun_kredit": 833000000,
+//     "saldo_disesuaikan_debet": 833000000,
+//     "saldo_disesuaikan_kredit": 833000000,
+//     "neraca_debet": 0,
+//     "neraca_kredit": 0,
+//     "laba_debet": 833000000,
+//     "laba_kredit": 833000000
+// }
 
 module.exports = Model_r;
