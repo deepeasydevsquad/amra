@@ -1,6 +1,12 @@
-const { sequelize, Konfigurasi_surat_menyurat } = require("../../../models");
+const {
+  sequelize,
+  Konfigurasi_surat_menyurat,
+  Riwayat_surat_menyurat,
+  Company,
+  Member,
+} = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
-const { getCompanyIdByCode } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
 const moment = require("moment");
 
 class Model_cud {
@@ -11,6 +17,36 @@ class Model_cud {
     this.message = "";
     this.t = null;
     this.state = true;
+  }
+
+  async petugas() {
+    const role = await tipe(this.req);
+
+    if (role === "administrator") {
+      const company = await Company.findOne({ where: { id: this.company_id } });
+      return {
+        role: "administrator",
+        name: company?.company_name ?? "Unknown Company",
+      };
+    }
+
+    if (role === "staff") {
+      const member = await Member.findOne({
+        where: { company_id: this.company_id, role: "staff" },
+        order: [["id", "DESC"]],
+      });
+
+      return {
+        role: "staff",
+        id: member?.id ?? null,
+        name: member?.fullname ?? "Unknown Staff",
+      };
+    }
+
+    return {
+      role: "unknown",
+      name: "Tipe user tidak diketahui",
+    };
   }
 
   async initialize() {
@@ -74,6 +110,67 @@ class Model_cud {
     } catch (error) {
       this.state = false;
       console.error("Error di addKonfigurasiSuratMenyurat:", error);
+    }
+  }
+
+  async addSurat() {
+    await this.initialize();
+    const body = this.req.body;
+    const mydate = moment().format("YYYY-MM-DD HH:mm:ss");
+
+    // Ambil info petugas
+    const petugasInfo = await this.petugas();
+
+    // Format field info
+    let info = {};
+
+    switch (body.tipe_surat) {
+      case "rekom_paspor":
+        info = {
+          jamaah_id: body.jamaah_id,
+          bulan_tahun_berangkat: body.bulan_tahun_berangkat,
+        };
+        break;
+
+      case "surat_cuti":
+        info = {
+          jamaah_id: body.jamaah_id,
+          jabatan: body.jabatan,
+          keberangkatan: body.keberangkatan,
+          kepulangan: body.kepulangan,
+        };
+        break;
+
+      default:
+        this.state = false;
+        this.message = "Tipe surat tidak dikenali.";
+        return;
+    }
+
+    try {
+      await Riwayat_surat_menyurat.create(
+        {
+          company_id: this.company_id,
+          nomor_surat: body.nomor_surat,
+          tipe_surat: body.tipe_surat,
+          tanggal_surat: body.tanggal_surat,
+          info: JSON.stringify(info),
+          tujuan: body.tujuan,
+          nama_petugas: petugasInfo.name,
+          petugas_id: petugasInfo.id || null,
+          createdAt: mydate,
+          updatedAt: mydate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
+      this.message = `Surat berhasil ditambahkan oleh ${petugasInfo.name}`;
+    } catch (error) {
+      this.state = false;
+      console.error("❌ Error di addSurat:", error);
+      this.message = "Gagal menambahkan surat.";
     }
   }
 

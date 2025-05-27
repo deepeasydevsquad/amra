@@ -30,3 +30,34 @@ export const addKonfigurasi = async (data : any) => {
     throw error
   }
 }
+
+export const get_jamaah = async () => {
+  try {
+    const response = await api.get('/get_jamaah_surat')
+    return response.data
+  } catch (error) {
+    console.error('Gagal Mengambil Data:', error)
+    throw error
+  }
+}
+
+export const add_surat = async (data : any) => {
+  try {
+    const response = await api.post('/add_surat', data)
+    return response.data
+  } catch (error) {
+    console.error('Gagal Mengirim Data:', error)
+    throw error
+  }
+}
+
+export const cetak_surat = async (jenis_surat: string, data: any) => {
+  try {
+    const response = await api.post(`/cetak_surat/${jenis_surat}`, data)
+    return response.data
+  } catch (error) {
+    console.error('Gagal Mengambil Data:', error)
+    throw error
+  }
+}
+
