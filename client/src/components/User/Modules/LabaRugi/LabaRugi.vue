@@ -16,17 +16,22 @@
     name: string;
   }
 
-  interface LabaRugi {
-    akun: string;
-    label: string;
-    value: string;
+  interface AkunLabaRugi {
+    nomor_akun: string;
+    nama_akun: string;
+    saldo: string;
+    real_saldo: number;
+  }
+
+  interface LabaRugiData {
+    [kategori: string]: AkunLabaRugi[];
   }
 
   const optionFilterCabang = ref<filterCabang[]>([]);
   const selectedOptionCabang = ref(0);
   const optionFilterPeriode = ref<filterPeriode[]>([]);
   const selectedOptionPeriode = ref(0);
-  const dataLabaRugi = ref<LabaRugi[]>([]);
+  const dataLabaRugi = ref<LabaRugiData>({});
   // const dataTotalNeracaLajur = ref<Partial<TotalNeracaLajur>>({});
 
   const fetchFilterData = async() => {
@@ -36,7 +41,7 @@
     selectedOptionCabang.value = responseCabang.data[0].id;
     optionFilterPeriode.value = responsePeriode.data;
     selectedOptionPeriode.value = responsePeriode.data[0].id;
-    // await fetchData();
+    await fetchData();
   }
 
   const fetchData = async() => {
@@ -48,11 +53,15 @@
   const download_laba_rugi = async () => {
     try {
       const response = await downloadLabaRugiAPI({ periode:selectedOptionPeriode.value, cabang:selectedOptionCabang.value })
-      console.log('Downloaded data:', response)
+      // console.log('Downloaded data:', response)
     } catch (error) {
       console.error('Error fetching Jamaah:', error)
     }
   }
+
+  const formatRupiah = (value: number): string => {
+    return 'RP ' + value.toLocaleString('id-ID');
+  };
 
   onMounted(async () => {
     await fetchFilterData();
@@ -84,107 +93,30 @@
     </div>
     <!-- Table data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
-      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="w-[100%] px-6 py-4  border font-bold text-gray-900 text-left align-bottom" colspan="3">PENDAPATAN</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-          <!-- <template v-if="dataNeracaLajur && dataNeracaLajur.length > 0">
-            <tr v-for="bb in dataNeracaLajur" :key="bb.id" class="hover:bg-gray-50">
-              <td class="px-0 py-4 border text-center text-xs font-bold">{{ bb.akun }}</td>
-              <td class="px-6 py-4 border text-left text-xs font-bold">{{ bb.nama_akun }}</td>
-              <td class="px-0 py-4 border text-center text-xs">{{ bb.debet_saldo_awal }}</td>
-              <td class="px-0 py-4 border text-center text-xs">{{ bb.kredit_saldo_awal }}</td>
-              <td class="px-0 py-4 border text-center text-xs">{{ bb.debet_penyesuaian }}</td>
-              <td class="px-0 py-4 border text-center text-xs">{{ bb.kredit_penyesuaian }}</td>
-              <td class="px-0 py-4 border text-center text-xs">{{ bb.debet_saldo_disesuaikan }}</td>
-              <td class="px-0 py-4 border text-center text-xs">{{ bb.kredit_saldo_disesuaikan }}</td>
-              <td class="px-0 py-4 border text-center text-xs">{{ bb.debet_neraca }}</td>
-              <td class="px-0 py-4 border text-center text-xs">{{ bb.kredit_neraca }}</td>
-              <td class="px-0 py-4 border text-center text-xs">{{ bb.debet_laba_rugi }}</td>
-              <td class="px-0 py-4 border text-center text-xs">{{ bb.kredit_laba_rugi }}</td>
-            </tr>
-          </template> -->
-          <template v-if="dataLabaRugi && dataLabaRugi.length > 0">
+      <template v-if="dataLabaRugi && Object.keys(dataLabaRugi).length  > 0">
+        <table class="w-full border-collapse bg-white text-left text-sm text-gray-500" v-for="(items, kategori) in dataLabaRugi" :key="kategori">
+          <thead class="bg-gray-50">
             <tr>
-              <td class="w-[10%] px-0 py-4 border text-center text-xs font-bold">11010</td>
-              <td class="w-[30%] px-6 py-4 border text-left text-xs font-bold">KAS</td>
-              <td class="px-6 py-4 border text-left text-xs font-bold">Rp 20.000.000,-</td>
+              <th class="w-[100%] px-6 py-4 border font-bold text-gray-900 text-left align-bottom" colspan="3">{{ kategori.toUpperCase() }}</th>
             </tr>
-          </template>
-          <tr v-else>
-            <td colspan="3" class="px-6 py-4 text-center text-base text-gray-600 text-xs">Data Laba Rugi tidak ditemukan.</td>
-          </tr>
-        </tbody>
-        <!-- <tfoot class="bg-gray-100 font-bold">
-          <tr>
-            <td colspan="2" class="px-6 py-4 text-right font-bold border text-xs">
-              TOTAL
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.saldo_awal_debet }}
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.saldo_awal_kredit }}
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.penyesuaian_akun_debet }}
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.penyesuaian_akun_kredit }}
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.saldo_disesuaikan_debet }}
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.saldo_disesuaikan_kredit }}
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.neraca_debet }}
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.neraca_kredit }}
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.laba_debet }}
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.laba_kredit }}
-            </td>
-          </tr>
-          <tr>
-            <td colspan="8" class="px-6 py-4 text-right font-bold border text-xs" v-html="dataTotalNeracaLajur.status == 'laba' ? '<b style=color:green>LABA</b>' : '<b style=color:red>RUGI</b>'">
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.a_debet }}
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.a_kredit }}
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.a_debet }}
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.a_kredit }}
-            </td>
-          </tr>
-           <tr>
-            <td colspan="8" class="px-6 py-4 text-right font-bold border text-xs" >
-              NRC
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.nrc_debet }}
-            </td>
-            <td class="px-0 py-4 text-center border text-xs">
-              {{ dataTotalNeracaLajur.nrc_kredit }}
-            </td>
-            <td class="px-0 py-4 text-center border text-xs"></td>
-            <td class="px-0 py-4 text-center border text-xs"></td>
-          </tr>
-        </tfoot> -->
-      </table>
+          </thead>
+          <tbody class="divide-y divide-gray-100 border-t border-gray-100">
+              <tr v-for="akun in items" :key="akun.nomor_akun">
+                <td class="w-[10%] px-6 py-4 border text-left text-xs ">{{ akun.nomor_akun}}</td>
+                <td class="w-[30%] px-6 py-4 border text-left text-xs ">{{ akun.nama_akun }}</td>
+                <td class="px-6 py-4 border text-left text-xs ">{{ akun.saldo }}</td>
+              </tr>
+          </tbody>
+          <tfoot>
+            <tr class="bg-gray-50">
+              <td class="px-6 py-4 border text-left text-xs font-bold" colspan="2">SUBTOTAL {{ kategori.toUpperCase() }}</td>
+              <td class="px-6 py-4 border text-left text-xs font-bold">
+                {{ formatRupiah(items.reduce((total, akun) => total + akun.real_saldo, 0)) }}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </template>
     </div>
   </div>
 </template>

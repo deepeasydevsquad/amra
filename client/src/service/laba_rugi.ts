@@ -4,7 +4,7 @@ import api from "./api"; // Import service API
 
 export const dataLabaRugiAPI = async (param : any) => {
   try {
-    const response = await api.post("/neraca_lajur/list", param); // Kirim data ke backend
+    const response = await api.post("/laba_rugi/list", param); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request
   } catch (error) {
     console.error("Gagal mengambil kota:", error);
@@ -14,7 +14,7 @@ export const dataLabaRugiAPI = async (param : any) => {
 
 export const downloadLabaRugiAPI = async (param: any) => {
   try {
-    const response = await api.post('/neraca_lajur/download_data_neraca_lajur', param, {
+    const response = await api.post('/laba_rugi/download_data_laba_rugi', param, {
       responseType: 'blob', // << penting biar axios handle sebagai file
     })
 
@@ -27,7 +27,7 @@ export const downloadLabaRugiAPI = async (param: any) => {
     // Buat element <a> buat trigger download
     const link = document.createElement('a')
     link.href = url
-    link.setAttribute('download', 'data_neraca_lajur.xlsx') // Nama file
+    link.setAttribute('download', 'data_laba_rugi.xlsx') // Nama file
     document.body.appendChild(link)
     link.click()
 
@@ -35,7 +35,7 @@ export const downloadLabaRugiAPI = async (param: any) => {
     link.remove()
     window.URL.revokeObjectURL(url)
   } catch (error) {
-    console.error('Gagal download data neraca lajur:', error)
+    console.error('Gagal download data laba rugi:', error)
     throw error
   }
 }

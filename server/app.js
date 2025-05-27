@@ -89,7 +89,8 @@ const arr_router = [
   "param_cabang",
   "daftar_konfigurasi_surat_menyurat",
   "buku_besar",
-  "neraca_lajur"
+  "neraca_lajur",
+  "laba_rugi"
 ];
 
 const arr = {};
