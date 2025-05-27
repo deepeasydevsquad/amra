@@ -43,6 +43,7 @@ import RiwayatPeminjaman from '../../Modules/RiwayatPeminjaman/RiwayatPeminjaman
 import DaftarSuratMenyurat from '../../Modules/DaftarSuratMenyurat/DaftarSuratMenyurat.vue'
 import BukuBesar from '../../Modules/BukuBesar/BukuBesar.vue'
 import NeracaLajur from '../../Modules/NeracaLajur/NeracaLajur.vue'
+import LabaRugi from '../../Modules/LabaRugi/LabaRugi.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -80,6 +81,7 @@ const tabComponents = {
   buku_besar: BukuBesar,
   daftar_surat_menyurat: DaftarSuratMenyurat,
   neraca_lajur: NeracaLajur,
+  laba_rugi: LabaRugi
 }
 
 
