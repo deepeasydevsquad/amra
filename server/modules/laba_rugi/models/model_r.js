@@ -65,11 +65,9 @@ class Model_r {
           }
         })
       );
-
       var akun_primary = [ 4, 5, 6 ];
       var list = {};
       for( var x in akun_primary ) {
-
         const { rows } = await Akun_secondary.findAndCountAll({ 
           where : {
             company_id: this.company_id
@@ -83,21 +81,20 @@ class Model_r {
           },  
           order : [["nomor_akun", "asc"]]
         });
-
         await Promise.all(
           await rows.map(async (e) => {
             var saldo = 0;
             if(saldo_awal[e.id]) {
               saldo = saldo + saldo_awal[e.id];
             }
-            if( e.sn == 'D') {
+            if( e.Akun_primary.sn == 'D') {
               if( akun_debet[e.nomor_akun] ) {
                 saldo = saldo + akun_debet[e.nomor_akun];
               }
               if( akun_kredit[e.nomor_akun] ) {
                 saldo = saldo - akun_kredit[e.nomor_akun];
               }
-            } else if (e.sn == 'K' ) {
+            } else if (e.Akun_primary.sn == 'K' ) {
               if( akun_debet[e.nomor_akun] ) {
                 saldo = saldo - akun_debet[e.nomor_akun];
               }
@@ -105,24 +102,17 @@ class Model_r {
                 saldo = saldo + akun_kredit[e.nomor_akun];
               }
             }
-
             var newSaldo = await convertToRP(saldo);
-
             if( list[e.Akun_primary.nama_akun] ) {
               list[e.Akun_primary.nama_akun].push({ nomor_akun : e.nomor_akun, nama_akun: e.nama_akun, saldo: newSaldo, real_saldo: saldo });
             }else{
               list = {...list,...{[e.Akun_primary.nama_akun] : [{ nomor_akun : e.nomor_akun, nama_akun: e.nama_akun, saldo: newSaldo, real_saldo: saldo}] } };
             }
-
           })
         );
       }
       return { list : list };
     } catch (error) {
-
-      console.log('---------------SSS');
-      console.log(error);
-      console.log('---------------SSS');
       return {};
     }
   }

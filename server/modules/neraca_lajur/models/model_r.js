@@ -98,8 +98,8 @@ class Model_r {
       await Promise.all(
         await q3.rows.map(async (e) => {
 
-          var saldo_awal_debet = (e.sn == 'D' ? ( !saldo_awal[e.id] ? 0 : saldo_awal[e.id] ) : 0 )
-          var saldo_awal_kredit = (e.sn == 'K' ? ( !saldo_awal[e.id] ? 0 : saldo_awal[e.id] ) : 0 )
+          var saldo_awal_debet = (e.Akun_primary.sn == 'D' ? ( !saldo_awal[e.id] ? 0 : saldo_awal[e.id] ) : 0 )
+          var saldo_awal_kredit = (e.Akun_primary.sn == 'K' ? ( !saldo_awal[e.id] ? 0 : saldo_awal[e.id] ) : 0 )
           var penyesuaian_akun_debet = ( akun_debet[e.nomor_akun] ? akun_debet[e.nomor_akun] : 0 )
           var penyesuaian_akun_kredit = ( akun_kredit[e.nomor_akun] ? akun_kredit[e.nomor_akun] : 0 )
 
@@ -186,7 +186,7 @@ class Model_r {
           }
 
           list.push({
-            sn : e.sn, 
+            sn : e.Akun_primary.sn, 
             akun: e.nomor_akun,
             nama_akun: e.nama_akun,
             debet_saldo_awal: await convertToRP(saldo_awal_debet) ,
