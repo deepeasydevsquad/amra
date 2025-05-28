@@ -89,25 +89,25 @@ router.post(
 router.post(
   "/get-bandara",
   authenticateToken,
-  controller.getAirport
+  controller.getBandara
 );
 
 router.post(
   "/get-tipe-paket",
   authenticateToken,
-  controller.getPaketType
+  controller.getTipePaket
 );
 
 router.post(
   "/get-fasilitas",
   authenticateToken,
-  controller.getFacilities
+  controller.getFasilitas
 );
 
 router.post(
   "/get-provider-visa",
   authenticateToken,
-  controller.getProvider
+  controller.getProviderVisa
 );
 
 module.exports = router;

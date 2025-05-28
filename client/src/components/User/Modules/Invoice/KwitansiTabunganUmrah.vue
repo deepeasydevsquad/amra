@@ -5,7 +5,7 @@ import { getKwitansiTabunganUmrah } from '@/service/invoice.ts'
 import Header from '@/components/User/Modules/Invoice/Particle/Header.vue'
 
 const route = useRoute()
-const invoice = route.params.id
+const invoice = route.params.invoice
 const data = ref<any>(null)
 const isLoading = ref(true)
 
@@ -54,7 +54,7 @@ onMounted(async () => {
     <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
   </div>
   <div class="bg-white p-8 text-sm text-gray-900 min-h-screen">
-    <div v-if="!isLoading">
+    <div v-if="!isLoading && data">
       <!-- Header Kwitansi -->
       <Header :data="data"></Header>
 

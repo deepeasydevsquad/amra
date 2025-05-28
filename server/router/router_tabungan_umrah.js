@@ -19,10 +19,36 @@ router.get(
 );
 
 router.post(
+  "/daftar-tabungan-umrah/get-mst-fasilitas/list",
+  authenticateToken,
+  [
+    body("id")
+      .trim()
+      .notEmpty().withMessage("ID Tabungan Umrah tidak boleh kosong.")
+      .isInt().withMessage("ID Tabungan Umrah harus berupa angka.")
+      .custom(validation.check_id_tabungan),
+  ],
+  controllers.getMstFasilitas
+);
+
+router.post(
   "/daftar-tabungan-umrah/get-agen-tabungan-umrah",
   authenticateToken,
   [body("id").trim().notEmpty().withMessage("ID tidak boleh kosong.")],
   controllers.getAgenById
+);
+
+router.post(
+  "/daftar-tabungan-umrah/get-handover-fasilitas",
+  [
+    body("id")
+      .trim()
+      .notEmpty().withMessage("ID Tabungan Umrah tidak boleh kosong.")
+      .isInt().withMessage("ID Tabungan Umrah harus berupa angka.")
+      .custom(validation.check_id_tabungan),
+  ],
+  authenticateToken,
+  controllers.getHandoverFasilitasById
 );
 
 router.post(
@@ -137,6 +163,31 @@ router.post(
   ],
   controllers.Refund
 )
+
+router.post(
+  "/daftar-tabungan-umrah/add-handover-fasilitas",
+  authenticateToken,
+  [
+    body("id")
+      .trim()
+      .notEmpty().withMessage("ID Tabungan Umrah tidak boleh kosong.")
+      .isInt().withMessage("ID Tabungan Umrah harus berupa angka.")
+      .custom(validation.check_id_tabungan),
+    body("penerima")
+      .trim()
+      .notEmpty().withMessage("Nama Penerima tidak boleh kosong.")
+      .toUpperCase(),
+    body("nomor_identitas_penerima")
+      .trim()
+      .notEmpty().withMessage("Nomor Identitas Penerima tidak boleh kosong.")
+      .isNumeric().withMessage("Nomor Identitas Penerima harus berupa angka."),
+    body("detail_fasilitas")
+      .isArray({ min: 1 })
+      .withMessage("Fasilitas paket tidak boleh kosong.")
+      .custom(validation.check_mst_paket)
+  ],
+  controllers.addHandoverFasilitas
+);
 
 router.post(
   "/daftar-tabungan-umrah/delete-tabungan-umrah",

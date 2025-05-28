@@ -16,6 +16,7 @@ import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confi
 
 // import widget
 import FormAdd from '@/components/User/Modules/TabunganUmrah/Widget/FormAdd.vue'
+import FormAddHandover from '@/components/User/Modules/TabunganUmrah/Widget/FormAddHandover.vue'
 import FormUpdate from '@/components/User/Modules/TabunganUmrah/Widget/FormUpdate.vue'
 import FormMenabung from '@/components/User/Modules/TabunganUmrah/Widget/FormMenabung.vue'
 import FormRefund from '@/components/User/Modules/TabunganUmrah/Widget/FormRefund.vue'
@@ -83,6 +84,10 @@ interface TabunganUmrah {
     transaksi: string;
     penerima: string;
   }[];
+  riwayat_handover_fasilitas: {
+    id: number;
+    name: string;
+  }[];
   createdAt: string;
   updatedAt: string;
 }
@@ -92,6 +97,7 @@ const dataTabunganUmrah = ref<TabunganUmrah[]>([]);
 const selectTabunganUmrah = ref<TabunganUmrah | null>(null);
 const isFormOpen = ref<boolean>(false);
 const isFormUpdateOpen = ref<boolean>(false);
+const isFormAddHandoverOpen = ref<boolean>(false);
 const isFormMenabungOpen = ref<boolean>(false);
 const isFormRefundOpen = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
@@ -102,7 +108,7 @@ const notificationType = ref<'success' | 'error'>('success');
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
-const totalColumns = ref(3); // Default 3 kolom
+const totalColumns = ref(7); // Default 3 kolom
 
 const fetchData = async () => {
   try {
@@ -173,6 +179,11 @@ const openFormMenabung = (tabungan: TabunganUmrah) => {
 const openFormRefund = (tabungan: TabunganUmrah) => {
   selectTabunganUmrah.value = tabungan;
   isFormRefundOpen.value = true;
+}
+
+const openFormAddHandover = (tabungan: TabunganUmrah) => {
+  selectTabunganUmrah.value = tabungan;
+  isFormAddHandoverOpen.value = true;
 }
 
 const deleteData = async (id: number) => {
@@ -331,9 +342,23 @@ const cetakKwitansi = async (invoice: string) => {
                     <div class="rounded-t bg-gray-200 px-2 py-2 font-semibold text-center">
                       Riwayat Handover Fasilitas
                     </div>
-                    <div class="py-4 text-center font-bold">
-                      <span>Coming soon</span>
-                    </div>
+                    <template v-if="tabungan.riwayat_handover_fasilitas.length" >
+                      <!-- Detail Fasilitas -->
+                      <div>
+                        <div class="border border-gray-200 p-4 rounded flex flex-wrap gap-3">
+                          <span
+                            v-for="(item, index) in tabungan.riwayat_handover_fasilitas || []"
+                            :key="index"
+                            class="border border-black px-4 py-2 rounded hover:bg-gray-100 transition"
+                          >
+                            {{ (index + 1) + '# ' + item.name }}
+                          </span>
+                        </div>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <p class="text-gray-500 text-md italic mt-2 text-center mb-2">Daftar Handover Fasilitas Tidak Ditemukan</p>
+                    </template>
                   </div>
                 </td>
                 <td class="px-6 py-4 text-center grid grid-cols-2 gap-2">
@@ -350,7 +375,7 @@ const cetakKwitansi = async (invoice: string) => {
                     <LightButton col-span-1 title="Menabung"  @click="openFormMenabung(tabungan)">
                       <NabungIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
-                    <LightButton col-span-1 title="Handover Fasilitas" >
+                    <LightButton col-span-1 title="Handover Fasilitas" @click="openFormAddHandover(tabungan)">
                       <HandoverIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
                     <DangerButton title="Hapus Tabungan" @click="deleteData(tabungan.id)">
@@ -361,7 +386,7 @@ const cetakKwitansi = async (invoice: string) => {
               </tr>
             </template>
             <tr v-else>
-              <td colspan="7" class="px-6 py-4 text-center text-base text-gray-600">
+              <td colspan="3" class="px-6 py-4 text-center text-base text-gray-600">
                 Daftar Tabungan Umrah tidak ditemukan.
               </td>
             </tr>
@@ -402,7 +427,6 @@ const cetakKwitansi = async (invoice: string) => {
     <FormUpdate
       v-if="isFormUpdateOpen"
       :isFormUpdateOpen="isFormUpdateOpen"
-      :target_paket_id="target_paket_id"
       :dataTabungan="selectTabunganUmrah"
       @close="isFormUpdateOpen = false; fetchData()"
       @success="displayNotification('Target Paket Tabungan Umrah berhasil diupdate', 'success')"
@@ -445,6 +469,24 @@ const cetakKwitansi = async (invoice: string) => {
       />
   </transition>
 
+  <!-- Form Add Handover Fasilitas -->
+  <transition
+    enter-active-class="transition duration-200 ease-out"
+    enter-from-class="transform scale-95 opacity-0"
+    enter-to-class="transform scale-100 opacity-100"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="transform scale-100 opacity-100"
+    leave-to-class="transform scale-95 opacity-0"
+  >
+    <FormAddHandover
+      v-if="isFormAddHandoverOpen"
+      :isFormAddHandoverOpen="isFormAddHandoverOpen"
+      :dataTabungan="selectTabunganUmrah"
+      @close="isFormAddHandoverOpen = false; fetchData()"
+      @success="displayNotification('Handover Fasilitas berhasil ditambahkan', 'success')"
+      />
+  </transition>
+
   <!-- Confirmation Dialog -->
   <Confirmation
     :showConfirmDialog="showConfirmDialog"
@@ -467,4 +509,3 @@ const cetakKwitansi = async (invoice: string) => {
     @close="showNotification = false"
   />
 </template>
-

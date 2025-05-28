@@ -19,6 +19,9 @@ const {
   Mst_kota,
   Riwayat_pembayaran_peminjaman,
   Peminjaman,
+  Handover_fasilitas,
+  Handover_fasilitas_detail,
+  Mst_fasilitas,
 } = require("../../../models");
 const { Op, where } = require("sequelize");
 const {
@@ -313,7 +316,7 @@ class Model_r {
           invoice: this.req.params.invoice,
         },
         include: {
-           model: Tabungan,
+          model: Tabungan,
           attributes: ["createdAt"],
           include: [
             {
@@ -363,6 +366,99 @@ class Model_r {
     } catch (error) {
       console.error(error);
       throw {};
+    }
+  }
+
+  async dataKwitansiHandoverFasilitas() {
+    await this.initialize();
+    const myDate = moment(new Date()).format("DD MMMM YYYY");
+
+    try {
+      let data = { ...(await this.header_kwitansi_invoice()) };
+
+      const adaInvoice = await Handover_fasilitas.findOne({
+        where: { invoice: this.req.params.invoice },
+      });
+
+      if (!adaInvoice) {
+        return {};
+      }
+
+      const hasil = await Handover_fasilitas.findOne({
+        attributes: [
+          "id",
+          "invoice",
+          "petugas",
+          "penerima",
+          "nomor_identitas_penerima",
+          "createdAt",
+        ],
+        where: { invoice: this.req.params.invoice },
+        include: [
+          {
+            model: Tabungan,
+            include: [
+              {
+                model: Jamaah,
+                include: [
+                  {
+                    model: Member,
+                    attributes: ["fullname", "whatsapp_number"],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+
+      if (!hasil) return {};
+
+      // Basic info
+      data.invoice = hasil.invoice;
+      data.petugas = hasil.petugas;
+      data.penerima = hasil.penerima;
+      data.nomor_identitas_penerima = hasil.nomor_identitas_penerima;
+      data.tanggal_transaksi = moment(hasil.createdAt).format("YYYY-MM-DD HH:mm:ss");
+
+      // Detail fasilitas
+      const details = await Handover_fasilitas_detail.findAll({
+        where: { handover_fasilitas_id: hasil.id },
+        raw: true,
+      });
+
+      if (!details || details.length === 0) {
+        data.detail = [];
+      } else {
+        const fasilitasIds = details.map((d) => d.mst_fasilitas_id);
+
+        const fasilitasList = await Mst_fasilitas.findAll({
+          where: { id: { [Op.in]: fasilitasIds } },
+          attributes: ["id", "name"],
+          raw: true,
+        });
+
+        const fasilitasMap = fasilitasList.reduce((acc, f) => {
+          acc[f.id] = f.name;
+          return acc;
+        }, {});
+
+        data.detail = details.map((detail) => ({
+          name: fasilitasMap[detail.mst_fasilitas_id] || "Tidak diketahui",
+        }));
+      }
+
+      // Info jamaah
+      const member = hasil?.Tabungan?.Jamaah?.Member;
+      if (member) {
+        data.fullname = member.fullname;
+        data.whatsapp_number = member.whatsapp_number;
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Error in dataKwitansiHandoverFasilitas:", error);
+      throw error;
     }
   }
 

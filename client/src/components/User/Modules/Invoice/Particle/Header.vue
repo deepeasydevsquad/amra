@@ -3,7 +3,7 @@
   const BASE_URL = import.meta.env.VITE_APP_API_BASE_URL
 </script>
 <template>
-   <div class="flex justify-between items-start border-b pb-4 mb-4">
+    <div class="flex justify-between items-start border-b pb-4 mb-4">
       <div class="w-1/3">
         <img
           :src="data.logo ? `${BASE_URL}/uploads/pengaturan/${data?.logo}` : 'default.png'"

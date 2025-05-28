@@ -355,7 +355,7 @@ class Model_r {
     }
   }
 
-  async getProvider() {
+  async getProviderVisa() {
     await this.initialize();
     const sql = {
       where: { company_id: this.company_id },
@@ -372,7 +372,7 @@ class Model_r {
         name: e.name,
       }));
       // Return data dan total
-      console.log("getProvider: ", data);
+      console.log("getProviderVisa: ", data);
       return { 
         data: data, 
         total: total
@@ -383,7 +383,7 @@ class Model_r {
     }
   }
 
-  async getPaketType() {
+  async getTipePaket() {
     await this.initialize();
     const sql = {
       where: { company_id: this.company_id },
@@ -476,7 +476,7 @@ class Model_r {
     }
   }
 
-  async getAirport() {
+  async getBandara() {
     await this.initialize();
     const sql = {
       where: { company_id: this.company_id },
@@ -538,7 +538,7 @@ class Model_r {
     }
   }
 
-  async getFacilities() {
+  async getFasilitas() {
     await this.initialize();
     const sql = {
       where: { company_id: this.company_id },
@@ -558,7 +558,7 @@ class Model_r {
         id: e.id,
         name: e.name,
       }));
-      console.log("getFacilities: ", data);
+      console.log("getFasilitas: ", data);
       // Return data dan total
       return { 
         data: data, 

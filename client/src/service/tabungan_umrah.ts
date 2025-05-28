@@ -30,6 +30,16 @@ export const getPaket = async () => {
   }
 }
 
+export const getMstFasilitas = async (id: number) => {
+  try {
+    const response = await api.post("/daftar-tabungan-umrah/get-mst-fasilitas/list", { id });
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil daftar fasilitas handover:", error);
+    throw error;
+  }
+}
+
 export const getAgen = async (id: number) => {
   try {
     const response = await api.post("/daftar-tabungan-umrah/get-agen-tabungan-umrah", { id });
@@ -39,6 +49,16 @@ export const getAgen = async (id: number) => {
     throw error;
   }
 }
+
+export const getHandoverFasilitas = async (id: number) => {
+  try {
+    const response = await api.post("/daftar-tabungan-umrah/get-handover-fasilitas", { id });
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil daftar handover fasilitas:", error);
+    throw error;
+  }
+};
 
 export const daftar_tabungan_umrah = async (param : any) => {
   try {
@@ -84,6 +104,16 @@ export const updateTabunganUmrah = async (param : any) => {
     return response.data;
   } catch (error) {
     console.error("Gagal update tabungan umrah:", error);
+    throw error;
+  }
+}
+
+export const addHandoverFasilitas = async (param : any) => {
+  try {
+    const response = await api.post("/daftar-tabungan-umrah/add-handover-fasilitas", param);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal menambahkan handover fasilitas:", error);
     throw error;
   }
 }

@@ -2,6 +2,7 @@
 import SearchableSelect from '@/components/User/Modules/TabunganUmrah/Particle/SearchableSelect.vue'
 import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue';
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
+import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confirmation.vue';
 
 import { onMounted, reactive, ref, watch } from 'vue'
 import { getPaket, updateTabunganUmrah } from '@/service/tabungan_umrah'
@@ -38,6 +39,10 @@ const showNotification = ref(false)
 const notificationMessage = ref('')
 const notificationType = ref('')
 const timeoutId = ref<number | null>(null)
+const showConfirmDialog = ref<boolean>(false);
+const confirmMessage = ref<string>('');
+const confirmTitle = ref<string>('');
+const confirmAction = ref<(() => void) | null>(null);
 
 const errors = ref<ErrorFields>({
   id: '',
@@ -58,6 +63,14 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
     showNotification.value = false
   }, 3000)
 }
+
+// Function: Confirmation
+const showConfirmation = (title: string, message: string, action: () => void) => {
+  confirmTitle.value = title;
+  confirmMessage.value = message;
+  confirmAction.value = action;
+  showConfirmDialog.value = true;
+};
 
 // Function: Ambil data awal
 const fetchData = async () => {
@@ -94,27 +107,33 @@ const validateForm = (): boolean => {
 const saveData = async () => {
   if (!validateForm()) return
 
-  try {
-    isLoading.value = true
-    const payload: {
-      id: number;
-      target_id: number | null;
-    } = {
-      id: props.dataTabungan?.id || 0,
-      target_id: form.target_paket_id ?? null,
+  showConfirmation(
+    'Konfirmasi Simpan',
+    'Anda yakin ingin menyimpan perubahan?',
+    async () => {
+      try {
+        isLoading.value = true
+        const payload: {
+          id: number;
+          target_id: number | null;
+        } = {
+          id: props.dataTabungan?.id || 0,
+          target_id: form.target_paket_id ?? null,
+        }
+
+        console.debug(payload)
+
+        await updateTabunganUmrah(payload)
+        emit('success')
+        emit('close')
+      } catch (error) {
+        console.error(error)
+        displayNotification(error?.response?.data?.error_msg, 'error')
+      } finally {
+        isLoading.value = false
+      }
     }
-
-    console.debug(payload)
-
-    await updateTabunganUmrah(payload)
-    emit('success')
-    emit('close')
-  } catch (error) {
-    console.error(error)
-    displayNotification(error?.response?.data?.error_msg, 'error')
-  } finally {
-    isLoading.value = false
-  }
+  )
 }
 
 onMounted(() => { fetchData() })
@@ -223,5 +242,18 @@ watch(
   </div>
     <!-- Notification -->
   <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" />
+
+  <Confirmation
+    :showConfirmDialog="showConfirmDialog"
+    :confirmTitle="confirmTitle"
+    :confirmMessage="confirmMessage"
+  >
+    <button @click="confirmAction && confirmAction()" class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">
+      Ya
+    </button>
+    <button @click="showConfirmDialog = false" class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+      Tidak
+    </button>
+  </Confirmation>
 </template>
 
