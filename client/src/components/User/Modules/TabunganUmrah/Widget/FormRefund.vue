@@ -127,9 +127,6 @@ const saveData = async () => {
         }
 
         console.debug(payload)
-
-        showConfirmDialog.value = false;
-
         await RefundTabunganUmrah(payload)
       } catch (error) {
         console.error(error)

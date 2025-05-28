@@ -5,7 +5,7 @@ import { useRoute } from 'vue-router'
 import Header from '@/components/User/Modules/Invoice/Particle/Header.vue'
 
 const route = useRoute()
-const regnum = route.params.id
+const regnum = route.params.invoice
 const kwitansiData = ref<any>({});
 
 const fetchData = async () => {

@@ -207,7 +207,6 @@ const unformatPrice = (formatted: string): number => { return parseInt(formatted
             <div>
               <label class="block text-sm font-medium text-gray-700">
                 Informasi Deposit
-                <span class="text-red-600">*</span>
               </label>
               <textarea
                 v-model="form.info_deposit"

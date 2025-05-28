@@ -1,5 +1,6 @@
 const { 
   sequelize,
+  Sequelize,
   Company,
   Division,
   Tabungan,
@@ -11,15 +12,15 @@ const {
   Fee_agen,
   Member,
   Deposit,
+  Handover_fasilitas,
+  Handover_fasilitas_detail,
   Jurnal,
- } = require("../../../models");
+  } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
 const moment = require("moment");
 const { getJamaahInfo } = require("../../../helper/JamaahHelper");
-const fs = require('fs');
-const path = require('path');
 
 class Model_cud {
   constructor(req) {
@@ -125,6 +126,38 @@ class Model_cud {
       
       const inDeposit = await Fee_agen.findOne({ where: { invoice, company_id: this.company_id } });
       exists = inDeposit;
+    } while (exists);
+    return invoice;
+  }
+
+  async generateInvoiceHandover() {
+    const possibleLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const possibleNumbers = "0123456789";
+    let invoice;
+    let exists;
+    
+    do {
+      const lettersPart = Array.from({ length: 3 }, () =>
+        possibleLetters.charAt(Math.floor(Math.random() * possibleLetters.length))
+      ).join("");
+      
+      const numbersPart = Array.from({ length: 3 }, () =>
+        possibleNumbers.charAt(Math.floor(Math.random() * possibleNumbers.length))
+      ).join("");
+      
+      invoice = lettersPart + numbersPart;
+      
+      const inHandover = await Handover_fasilitas.findOne({
+        where: { invoice },
+        include: [{
+          model: Tabungan,
+          include: [{
+            model: Division,
+            where: { company_id: this.company_id },
+          }],
+        }],
+      });
+      exists = inHandover;
     } while (exists);
     return invoice;
   }
@@ -437,6 +470,53 @@ class Model_cud {
     } catch (error) {
       this.state = false;
       this.message = error.message || "Terjadi kesalahan saat mengupdate data tabungan.";
+    }
+  }
+
+  // ==== ADD HANDOVER FASILITAS ====
+  async addHandoverFasilitas() {
+    await this.initialize();
+    const body = this.req.body;
+    const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+    
+    try {
+      // call object
+      const model_r = new Model_r(this.req);
+      // get info tabungan
+      const infoTabungan = await model_r.infoTabungan(body.id, this.division_id);
+      const invoiceHandover = await this.generateInvoiceHandover();
+      const penerima = await this.penerima();
+
+      console.log("Data Body:", body);
+      console.log("Company ID:", this.company_id);
+
+      const handoverFasilitas = await Handover_fasilitas.create({
+        tabungan_id: body.id,
+        invoice: invoiceHandover,
+        petugas: penerima,
+        penerima: body.penerima,
+        nomor_identitas_penerima: body.nomor_identitas_penerima || null,  
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      }, { transaction: this.t });
+
+      console.log("Handover Fasilitas:", handoverFasilitas);
+
+      // Insert detail handover fasilitas
+      for (const fasilitas_id of body.detail_fasilitas) {
+        await Handover_fasilitas_detail.create({  
+          handover_fasilitas_id: handoverFasilitas.id,
+          mst_fasilitas_id: fasilitas_id,
+          createdAt: dateNow,
+          updatedAt: dateNow,
+        }, { transaction: this.t });
+      }
+
+      this.message = `Handover fasilitas berhasil ditambahkan untuk tabungan ID ${body.id} dengan invoice: ${invoiceHandover}`;
+      return invoiceHandover;
+    } catch (error) {
+      this.state = false;
+      this.message = error.message || "Terjadi kesalahan saat menambahkan handover fasilitas.";
     }
   }
 

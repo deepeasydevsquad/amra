@@ -9,12 +9,13 @@ import InvoiceDeposit from '@/components/User/Modules/Invoice/InvoiceDeposit.vue
 import InvoiceKwitansiTerakhir from '@/components/User/Modules/Invoice/InvoiceKwitansiTerakhir.vue'
 import InvoicePembayranPerbulan from '../components/User/Modules/Invoice/InvoicePembayranPerbulan.vue'
 import KwitansiTabunganUmrah from '@/components/User/Modules/Invoice/KwitansiTabunganUmrah.vue'
+import KwitansiHandoverFasilitas from '../components/User/Modules/Invoice/KwitansiHandoverFasilitas.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-       path: '/',
+      path: '/',
       name: 'home',
       component: HomeView,
     },
@@ -58,12 +59,12 @@ const router = createRouter({
       component: InvoiceDeposit,
     },
     {
-      path: '/kwitansi-terakhir/:id',
+      path: '/kwitansi-terakhir/:invoice',
       name: 'kwitansi-terakhir',
       component: InvoiceKwitansiTerakhir,
     },
     {
-      path: '/kwitansi-tabungan-umrah/:id',
+      path: '/kwitansi-tabungan-umrah/:invoice',
       name: 'kwitansi-tabungan-umrah',
       component: KwitansiTabunganUmrah,
     },
@@ -71,7 +72,12 @@ const router = createRouter({
       path: '/invoice-pembayaran/:invoice',
       name: 'invoice-pembayran',
       component: InvoicePembayranPerbulan,
-    }
+    },
+    {
+      path: '/kwitansi-handover-fasilitas/:invoice',
+      name: 'kwitansi-handover-fasilitas',
+      component: KwitansiHandoverFasilitas,
+    },
   ],
 })
 
