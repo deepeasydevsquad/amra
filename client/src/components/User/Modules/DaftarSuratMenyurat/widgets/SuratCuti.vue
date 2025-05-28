@@ -63,7 +63,7 @@
     <!-- Isi -->
     <div class="mb-6">
       <p>
-        Adalah calon Jamaah Umroh {{ data_pimpinan.nama_perusahaan }} IZIN PPIU NO :
+        Adalah calon Jamaah Umroh {{ data_surat.nama_petugas }} IZIN PPIU NO :
         {{ data_pimpinan.izin_perusahaan }} yang akan berangkat pada bulan
         {{ extractTanggal(data_surat.info).awal }} hingga kepulangan pada tanggal
         {{ extractTanggal(data_surat.info).akhir }}.
@@ -79,7 +79,7 @@
     <!-- Footer -->
     <div class="text-right mt-16">
       <div class="mb-2">{{ formatTanggal(data_surat.tanggal_surat) }}</div>
-      <div class="mb-2">{{ data_pimpinan.nama_perusahaan }}</div>
+      <div class="mb-2">{{ data_surat.nama_petugas }}</div>
       <div class="h-16"></div>
       <div class="font-semibold underline">{{ data_pimpinan.nama_tanda_tangan }}</div>
     </div>
@@ -104,16 +104,20 @@ onMounted(() => {
 
 function formatTanggal(tgl: string): string {
   const date = new Date(tgl)
-  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+  return date.toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
 }
 
-function extractJabatan(info: string): string {
-  const match = info.match(/Jabatan:\s*([^,]+)/i)
-  return match ? match[1] : '-'
+function extractJabatan(info: { text: string }): string {
+  const match = info?.text?.match(/Jabatan:\s*([^,]+)/i)
+  return match ? match[1].trim() : '-'
 }
 
-function extractTanggal(info: string): { awal: string; akhir: string } {
-  const match = info.match(/Cuti:\s*(\d{4}-\d{2}-\d{2})\s*s\/d\s*(\d{4}-\d{2}-\d{2})/)
+function extractTanggal(info: { text: string }): { awal: string; akhir: string } {
+  const match = info?.text?.match(/Cuti:\s*(\d{4}-\d{2}-\d{2})\s*s\/d\s*(\d{4}-\d{2}-\d{2})/)
   if (match) {
     const awal = new Date(match[1]).toLocaleDateString('id-ID', {
       day: 'numeric',

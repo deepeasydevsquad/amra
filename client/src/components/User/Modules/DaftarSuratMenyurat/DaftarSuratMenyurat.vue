@@ -91,14 +91,14 @@
             <td class="px-6 py-4 text-center">
               <div v-if="riwayatSurat.tipe_surat === 'surat_cuti'">
                 <!-- Misahin info surat_cuti -->
-                <div v-for="(line, index) in riwayatSurat.info.split(',')" :key="index">
+                <div v-for="(line, index) in riwayatSurat.info.text.split(',')" :key="index">
                   {{ line.trim() }}
                 </div>
               </div>
 
               <div v-else-if="riwayatSurat.tipe_surat === 'rekom_paspor'">
                 <!-- Misahin info rekom_paspor -->
-                <div v-for="(line, index) in riwayatSurat.info.split(',')" :key="index">
+                <div v-for="(line, index) in riwayatSurat.info.text.split(',')" :key="index">
                   {{ line.trim() }}
                 </div>
               </div>
@@ -112,7 +112,11 @@
             <td class="px-6 py-4 text-center">{{ riwayatSurat.nama_petugas }}</td>
             <td class="px-6 py-4 text-center">{{ formatDate(riwayatSurat.tanggal_surat) }}</td>
             <td class="px-6 py-4 text-center">
-              <LightButton @click="" title="Cetak Surat" class="p-1 w-6 h-6">
+              <LightButton
+                @click="handleDownload(riwayatSurat.info.jamaah_id, riwayatSurat.tipe_surat)"
+                title="Cetak Surat"
+                class="p-1 w-6 h-6"
+              >
                 <CetakIcon class="w-4 h-4" />
               </LightButton>
               <DangerButton @click="" title="Hapus Surat" class="p-1 w-6 h-6">
@@ -183,11 +187,31 @@
     @close="closeModalTambahSurat"
     @handletambahsurat="handleTambahSurat"
   />
+
+  <Confirmation
+    :showConfirmDialog="showConfirmDialog"
+    :confirmTitle="confirmTitle"
+    :confirmMessage="confirmMessage"
+  >
+    <button
+      @click="confirmAction && confirmAction()"
+      class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+    >
+      Ya
+    </button>
+    <button
+      @click="showConfirmDialog = false"
+      class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+    >
+      Tidak
+    </button>
+  </Confirmation>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import DeleteIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/DeleteIcon.vue'
+import Confirmation from '@/components/User/Modules/DaftarPaketLa/Particle/Confirmation.vue'
 import CetakIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/CetakIcon.vue'
 import DangerButton from '@/components/Button/DangerButton.vue'
 import LightButton from '@/components/Button/LightButton.vue'
@@ -244,6 +268,29 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   timeoutId.value = window.setTimeout(() => {
     showNotification.value = false
   }, 3000)
+}
+
+const showConfirmation = (title: string, message: string, action: () => void) => {
+  confirmTitle.value = title
+  confirmMessage.value = message
+  confirmAction.value = action
+  showConfirmDialog.value = true
+}
+
+const handleDownload = async (jamaah_id: number, tipe_surat: string) => {
+  showConfirmation('Konfirmasi Cetak', 'Apakah Anda yakin ingin mencetak surat ini?', async () => {
+    try {
+      const jenisSurat = tipe_surat
+      const jamaahId = jamaah_id
+
+      const url = `${window.location.origin}/cetak_surat/${jenisSurat}?jamaah_id=${jamaahId}`
+      window.open(url, '_blank')
+      showConfirmDialog.value = false
+    } catch (error) {
+      console.error('Error deleting data:', error)
+      displayNotification('Terjadi kesalahan saat Mencetak Surat.', 'error')
+    }
+  })
 }
 
 const handleKonfigurasi = () => {
