@@ -93,34 +93,42 @@ class Model_r {
     try {
       parsedInfo = JSON.parse(infoRaw);
     } catch {
-      return "Info tidak valid (bukan JSON)";
+      return {
+        text: "Info tidak valid (bukan JSON)",
+        jamaah_id: null,
+      };
     }
 
-    // Kalo ada jamaah_id, cari nama jamaah
     let nama_jamaah = null;
-    if (parsedInfo.jamaah_id) {
+    let jamaah_id = parsedInfo.jamaah_id ?? null;
+
+    if (jamaah_id) {
       const jamaah = await Jamaah.findOne({
-        where: { id: parsedInfo.jamaah_id },
+        where: { id: jamaah_id },
         include: [{ model: Member, attributes: ["fullname"] }],
       });
 
       nama_jamaah = jamaah?.Member?.fullname ?? "(Jamaah tidak ditemukan)";
     }
 
-    // Nyesuaikan output tergantung tipe info
-    if (parsedInfo.bulan_tahun_berangkat) {
-      return `Jamaah: ${nama_jamaah}, Berangkat: ${parsedInfo.bulan_tahun_berangkat}`;
-    }
+    let text;
 
-    if (
+    if (parsedInfo.bulan_tahun_berangkat) {
+      text = `Jamaah: ${nama_jamaah}, Berangkat: ${parsedInfo.bulan_tahun_berangkat}`;
+    } else if (
       parsedInfo.jabatan &&
       parsedInfo.keberangkatan &&
       parsedInfo.kepulangan
     ) {
-      return `Jamaah: ${nama_jamaah}, Jabatan: ${parsedInfo.jabatan}, Cuti: ${parsedInfo.keberangkatan} s/d ${parsedInfo.kepulangan}`;
+      text = `Jamaah: ${nama_jamaah}, Jabatan: ${parsedInfo.jabatan}, Cuti: ${parsedInfo.keberangkatan} s/d ${parsedInfo.kepulangan}`;
+    } else {
+      text = JSON.stringify(parsedInfo, null, 2); // fallback
     }
 
-    return JSON.stringify(parsedInfo, null, 2); // fallback
+    return {
+      text,
+      jamaah_id,
+    };
   }
 
   async get_konfigurasi_surat() {
