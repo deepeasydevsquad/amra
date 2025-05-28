@@ -44,6 +44,7 @@ import DaftarSuratMenyurat from '../../Modules/DaftarSuratMenyurat/DaftarSuratMe
 import BukuBesar from '../../Modules/BukuBesar/BukuBesar.vue'
 import NeracaLajur from '../../Modules/NeracaLajur/NeracaLajur.vue'
 import LabaRugi from '../../Modules/LabaRugi/LabaRugi.vue'
+import Neraca from '../../Modules/Neraca/Neraca.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -81,7 +82,8 @@ const tabComponents = {
   buku_besar: BukuBesar,
   daftar_surat_menyurat: DaftarSuratMenyurat,
   neraca_lajur: NeracaLajur,
-  laba_rugi: LabaRugi
+  laba_rugi: LabaRugi,
+  neraca: Neraca
 }
 
 
