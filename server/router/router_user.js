@@ -20,6 +20,10 @@ router.post('/auth/login',
   controllers.login_process
 );
 
+router.post('/auth/refresh', 
+   controllers.refreshToken
+);
+
 router.get('/user', authenticateToken, controllers.user);
 
 //   (req, res) => {

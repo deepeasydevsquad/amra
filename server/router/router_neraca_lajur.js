@@ -1,18 +1,14 @@
 const express = require("express");
 const { body } = require("express-validator");
-const controllers = require("../modules/buku_besar/controllers/index");
+const controllers = require("../modules/neraca_lajur/controllers/index");
 const { authenticateToken } = require("../middleware/authenticateToken");
-const validation = require("../validation/buku_besar");
+const validation = require("../validation/neraca_lajur");
 
 const router = express.Router();
 
-router.post("/daftar_buku_besar/list",
+router.post("/neraca_lajur/list",
   authenticateToken,
   [
-    body("pageNumber").trim().notEmpty().withMessage("Page Number tidak boleh kosong."),
-    body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
-    body("search").trim(),
-    body("akun").trim().notEmpty().withMessage("Akun tidak boleh kosong.").custom(validation.check_akun_id),
     body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(validation.check_cabang_id),
     body("periode").trim().notEmpty().withMessage("Periode tidak boleh kosong.").custom(validation.check_periode_id),
   ],
@@ -20,14 +16,13 @@ router.post("/daftar_buku_besar/list",
 );
 
 router.post(
-  "/daftar_buku_besar/download_data_buku_besar",
+  "/neraca_lajur/download_data_neraca_lajur",
   authenticateToken,
   [
-    body("akun").trim().notEmpty().withMessage("Akun tidak boleh kosong.").custom(validation.check_akun_id),
     body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(validation.check_cabang_id),
     body("periode").trim().notEmpty().withMessage("Periode tidak boleh kosong.").custom(validation.check_periode_id),
   ],
-  controllers.downloadDataBukuBesar
+  controllers.downloadDataNeracaLajur
 );
 
 module.exports = router;

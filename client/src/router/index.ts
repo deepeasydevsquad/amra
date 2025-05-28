@@ -9,6 +9,7 @@ import InvoiceDeposit from '@/components/User/Modules/Invoice/InvoiceDeposit.vue
 import InvoiceKwitansiTerakhir from '@/components/User/Modules/Invoice/InvoiceKwitansiTerakhir.vue'
 import InvoicePembayranPerbulan from '../components/User/Modules/Invoice/InvoicePembayranPerbulan.vue'
 import KwitansiTabunganUmrah from '@/components/User/Modules/Invoice/KwitansiTabunganUmrah.vue'
+import CetakSurat from '@/components/User/Modules/DaftarSuratMenyurat/widgets/CetakSurat.vue'
 import KwitansiHandoverFasilitas from '../components/User/Modules/Invoice/KwitansiHandoverFasilitas.vue'
 
 const router = createRouter({
@@ -78,6 +79,11 @@ const router = createRouter({
       name: 'kwitansi-handover-fasilitas',
       component: KwitansiHandoverFasilitas,
     },
+    {
+      path: '/cetak_surat/:jenis_surat',
+      name: 'invoice-pembayran',
+      component: CetakSurat,
+    }
   ],
 })
 

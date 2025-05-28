@@ -17,7 +17,7 @@ controllers.list = async (req, res) => {
   }
 };
 
-controllers.downloadDataPeminjaman = async (req, res) => {
+controllers.downloadDataBukuBesar = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
