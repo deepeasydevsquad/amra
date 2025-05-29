@@ -94,10 +94,12 @@
           </transition>
 
           <div class="flex justify-end gap-2 mt-4">
-            <button type="button" class="px-4 py-2 bg-gray-300 rounded" @click="emit('close')">
+            <button type="button" @click="emit('close')" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition" >
               Batal
             </button>
-            <button type="submit" class="bg-[#455494] px-4 py-2 text-white rounded">Simpan</button>
+            <button type="submit" class="px-6 py-2 rounded-lg bg-[#455494] hover:bg-[#3a477d] text-white transition">
+              Buat Surat
+            </button>
           </div>
         </form>
       </div>

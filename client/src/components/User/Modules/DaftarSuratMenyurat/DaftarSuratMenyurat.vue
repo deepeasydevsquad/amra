@@ -68,11 +68,11 @@
           <tr>
             <th class="px-6 py-4 font-bold text-gray-900 text-center w-[15%]">Nomor Surat</th>
             <th class="px-6 py-4 font-bold text-gray-900 text-center w-[15%]">Tipe Surat</th>
-            <th class="px-6 py-4 font-bold text-gray-900 text-center w-[40%]">Info</th>
+            <th class="px-6 py-4 font-bold text-gray-900 text-center w-[30%]">Info</th>
             <th class="px-6 py-4 font-bold text-gray-900 text-center w-[15%]">Tujuan</th>
             <th class="px-6 py-4 font-bold text-gray-900 text-center w-[10%]">Petugas</th>
-            <th class="px-6 py-4 font-bold text-gray-900 text-center w-[20%]">Tanggal Surat</th>
-            <th class="px-6 py-4 font-bold text-gray-900 text-center w-[15%]">Aksi</th>
+            <th class="px-6 py-4 font-bold text-gray-900 text-center w-[10%]">Tanggal Surat</th>
+            <th class="px-6 py-4 font-bold text-gray-900 text-center w-[5%]">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -107,12 +107,12 @@
                 {{ riwayatSurat.info }}
               </div>
             </td>
-
             <td class="px-6 py-4 text-center">{{ riwayatSurat.tujuan }}</td>
             <td class="px-6 py-4 text-center">{{ riwayatSurat.nama_petugas }}</td>
             <td class="px-6 py-4 text-center">{{ formatDate(riwayatSurat.tanggal_surat) }}</td>
-            <td class="px-6 py-4 text-center">
-              <LightButton
+            <td class="px-6 py-4 text-center grid grid-cols-2 gap-2">
+              <div class="grid ">
+                <LightButton
                 @click="handleDownload(riwayatSurat.info.jamaah_id, riwayatSurat.tipe_surat)"
                 title="Cetak Surat"
                 class="p-1 w-6 h-6"
@@ -126,6 +126,8 @@
               >
                 <DeleteIcon class="w-4 h-4" />
               </DangerButton>
+              </div>
+
             </td>
           </tr>
         </tbody>
