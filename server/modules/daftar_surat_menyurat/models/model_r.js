@@ -179,6 +179,7 @@ class Model_r {
           const infoFormatted = await this.formatInfoSurat(item.info);
 
           return {
+            id: item.id,
             nomor_surat: item.nomor_surat,
             tipe_surat: item.tipe_surat,
             tanggal_surat: moment(item.tanggal_surat).format("YYYY-MM-DD"),
