@@ -55,6 +55,30 @@ exports.addSurat = async (req, res) => {
   }
 };
 
+exports.deleteSurat = async (req, res) => {
+  console.log("addKonfigurasi");
+  if (!(await handleValidationErrors(req, res))) return;
+  try {
+    const model = new Model_cud(req);
+    await model.deleteSurat();
+
+    if (await model.response()) {
+      res.status(200).json({
+        message: model.message || "Delete berhasil dibuat",
+        status: "success",
+      });
+    } else {
+      res.status(400).json({
+        message: model.message || "Gagal delete Konfigurasi",
+        status: "failed",
+      });
+    }
+  } catch (error) {
+    console.error("Terjadi error saat addPinjaman:", error);
+    handleServerError(res, error);
+  }
+};
+
 exports.get_konfigurasi = async (req, res) => {
   try {
     const data = await new Model_r(req).get_konfigurasi_surat();

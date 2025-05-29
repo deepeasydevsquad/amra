@@ -12,6 +12,8 @@ function debugBody(req, res, next) {
   next();
 }
 
+router.post("/delete_surat", authenticateToken, controllers.deleteSurat);
+
 router.post(
   "/add_surat",
   authenticateToken,

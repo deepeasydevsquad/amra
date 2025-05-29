@@ -61,3 +61,12 @@ export const cetak_surat = async (jenis_surat: string, data: any) => {
   }
 }
 
+export const deleteSurat = async ( data: any) => {
+  try {
+    const response = await api.post('/delete_surat', data)
+    return response.data
+  } catch (error) {
+    console.error('Gagal Mengambil Data:', error)
+    throw error
+  }
+}

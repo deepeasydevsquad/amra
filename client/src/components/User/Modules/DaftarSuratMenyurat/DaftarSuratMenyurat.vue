@@ -119,7 +119,11 @@
               >
                 <CetakIcon class="w-4 h-4" />
               </LightButton>
-              <DangerButton @click="" title="Hapus Surat" class="p-1 w-6 h-6">
+              <DangerButton
+                @click="handleDelete(riwayatSurat.id)"
+                title="Hapus Surat"
+                class="p-1 w-6 h-6"
+              >
                 <DeleteIcon class="w-4 h-4" />
               </DangerButton>
             </td>
@@ -219,6 +223,7 @@ import Notification from '@/components/User/Modules/DaftarProviderVisa/Particle/
 import { getRiwayatSurat } from '@/service/daftar_konfigurasi_surat'
 import ModalTambahSurat from '@/components/User/Modules/DaftarSuratMenyurat/widgets/ModalTambahSurat.vue'
 import ModalKonfigurasi from '@/components/User/Modules/DaftarSuratMenyurat/widgets/ModalKonfigurasi.vue'
+import { deleteSurat } from '../../../../service/daftar_konfigurasi_surat'
 
 const riwayatSurat = ref<any[]>([])
 const loading = ref(true)
@@ -289,6 +294,20 @@ const handleDownload = async (jamaah_id: number, tipe_surat: string) => {
     } catch (error) {
       console.error('Error deleting data:', error)
       displayNotification('Terjadi kesalahan saat Mencetak Surat.', 'error')
+    }
+  })
+}
+
+const handleDelete = async (id: number) => {
+  showConfirmation('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus data ini?', async () => {
+    try {
+      const response = await deleteSurat({ id: id })
+      showConfirmDialog.value = false
+      displayNotification(response.error_msg)
+      fetchRiwayatSurat()
+    } catch (error) {
+      console.error('Error deleting data:', error)
+      displayNotification('Terjadi kesalahan saat menghapus data.', 'error')
     }
   })
 }

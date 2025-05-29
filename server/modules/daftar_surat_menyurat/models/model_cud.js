@@ -186,6 +186,23 @@ class Model_cud {
     }
   }
 
+  async deleteSurat() {
+    await this.initialize();
+    const body = this.req.body;
+
+    try {
+      await Riwayat_surat_menyurat.destroy({
+        where: { id: body.id, company_id: this.company_id },
+        transaction: this.t,
+      });
+      this.message = "Surat berhasil dihapus.";
+    } catch (error) {
+      this.state = false;
+      console.error("❌ Error di deleteSurat:", error);
+      this.message = "Gagal menghapus surat.";
+    }
+  }
+
   async response() {
     if (this.state) {
       await writeLog(this.req, this.t, {
