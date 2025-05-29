@@ -52,3 +52,17 @@ exports.delete = async (req, res) => {
     handleServerError(res, error.message);
   }
 };
+
+exports.getDaftarCabang = async (req, res) => {
+  try {
+    const model = new Model_r(req);
+    const data = await model.getDaftarCabang();
+    if( Object.keys(data).length > 0 ) {
+      res.status(200).json({ error : false, error_msg : 'Sukses', data: data });
+    }else{
+      res.status(200).json({ error : true, error_msg : 'Error' });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}

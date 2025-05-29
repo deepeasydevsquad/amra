@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { getMember, deleteMember as deleteMemberApi } from '@/service/member'
+import { daftarCabang, getInfoMember } from "@/service/member"
+import { userTypes } from "@/service/param_cabang"
 import DeleteIcon from '@/components/User/Modules/Member/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/Member/Icon/EditIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 // import DangerButton from '@/components/User/Modules/Member/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/Member/Particle/EditButton.vue'
-import FormAdd from '@/components/User/Modules/Member/Particle/FormAdd.vue'
-import FormUpdate from '@/components/User/Modules/Member/Particle/FormUpdate.vue'
+// import EditButton from '@/components/User/Modules/Member/Particle/EditButton.vue'
+import FormAddUpdate from '@/components/User/Modules/Member/Particle/FormAddUpdate.vue'
+// import FormUpdate from '@/components/User/Modules/Member/Particle/FormUpdate.vue'
 import Notification from '@/components/User/Modules/Member/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/Member/Particle/Confirmation.vue'
-import AddAgenButton from '@/components/User/Modules/Member/Particle/AddAgenButton.vue'
+// import AddAgenButton from '@/components/User/Modules/Member/Particle/AddAgenButton.vue'
 import AddAgenIcon from '@/components/User/Modules/Member/Icon/AddAgenIcon.vue'
 import FormAddAgen from '@/components/User/Modules/Member/Particle/FormAddAgen.vue'
 
@@ -31,6 +33,11 @@ interface Members {
   status_staff:boolean;
 }
 
+interface Cabang {
+  id: number
+  name: string
+}
+
 // State
 const members = ref<Members[]>([])
 const searchQuery = ref('')
@@ -46,7 +53,9 @@ const confirmAction = ref(() => {})
 const showNotification = ref(false)
 const notificationType = ref('')
 const notificationMessage = ref('')
+const cabangs = ref<Cabang[]>([])
 const AddAgenForm = ref(false)
+const UserType = ref('');
 
 const addAgen = async (id: number) => {
   const member = members.value.find((m) => m.id === id)
@@ -132,15 +141,7 @@ const totalColumns = computed(() => {
   return 6
 })
 
-// Fungsi untuk edit dan delete
-const editMember = (id: number) => {
-  const member = members.value.find((m) => m.id === id)
-  if (member) {
-    selectedMember.value = { ...member }
-    console.log(selectedMember.value)
-    showUpdateForm.value = true
-  }
-}
+
 
 const confirmDelete = (id: number) => {
   confirmTitle.value = 'Hapus Member'
@@ -163,9 +164,62 @@ const confirmDelete = (id: number) => {
   showConfirmDialog.value = true
 }
 
+// Fungsi untuk mengambil data cabang
+const fetchCabang = async (): Promise<void> => {
+  try {
+    const response = await daftarCabang()
+    cabangs.value = response.data
+    console.log('Data cabang:', response.data)
+  } catch (error) {
+    console.error('Gagal fetch data cabang:', error)
+  }
+}
+
+const fetchUserType = async (): Promise<void> => {
+  try {
+    const response = await userTypes()
+    UserType.value = response.data
+    console.log('Data cabang:', response.data)
+  } catch (error) {
+    console.error('Gagal fetch data cabang:', error)
+  }
+}
+
+const fetchMemberInfo = async (id: number): Promise<void> => {
+  try {
+    const response = await getInfoMember(id)
+    // cabangs.value = response.data
+    console.log('Data member:', response.data)
+  } catch (error) {
+    console.error('Gagal fetch data member:', error)
+  }
+}
+
 // Fungsi untuk menampilkan form add
-const toggleAddForm = () => {
-  showAddForm.value = !showAddForm.value
+const AddForm = () => {
+  fetchUserType();
+  fetchCabang();
+  // get cabang
+  showAddForm.value = true
+}
+
+// Fungsi untuk edit dan delete
+const editMember = (id: number) => {
+   fetchCabang();
+
+  fetchMemberInfo(id)
+
+  showAddForm.value = true
+  // const member = members.value.find((m) => m.id === id)
+  // if (member) {
+  //   selectedMember.value = { ...member }
+  //   console.log(selectedMember.value)
+  //   showUpdateForm.value = true
+  // }
+}
+
+const closeAddForm = () => {
+  showAddForm.value = false
 }
 
 // Fungsi untuk menutup form update
@@ -178,9 +232,9 @@ const closeUpdateForm = () => {
 <template>
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
-    <div class="flex justify-between mb-4" v-if="!showAddForm && !showUpdateForm">
+    <div class="flex justify-between mb-4" >
 
-      <PrimaryButton  @click="toggleAddForm">
+      <PrimaryButton @click="AddForm">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -224,20 +278,10 @@ const closeUpdateForm = () => {
             <td class="px-6 py-4 text-center">{{ member.gender === 'laki_laki' ? 'Laki - Laki' : ( member.gender === 'perempuan' ? 'Perempuan' : '-' ) }} </td>
             <td class="px-6 py-4 text-center">{{ member.whatsapp_number }}</td>
             <td class="px-6 py-4 text-center">
-              <ul class="text-center flex flex-col items-center space-y-2">
-                <li class="font-bold">
-                  <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Member</span>
-                </li>
-                <li v-if="member.status_staff === true" class="font-bold">
-                  <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Staff</span>
-                </li>
-                <li v-if="member.status_agen === true" class="font-bold">
-                  <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Agen</span>
-                </li>
-                <li v-if="member.status_jamaah === true" class="font-bold">
-                  <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">Jamaah</span>
-                </li>
-              </ul>
+              <span class="bg-blue-100 text-blue-800 text-xs font-bold me-2 px-3 py-1.5 rounded-lg dark:bg-blue-900 dark:text-blue-300">Member</span>
+              <span v-if="member.status_staff === true" class="bg-blue-100 text-blue-800 text-xs font-bold me-2 px-3 py-1.5 rounded-lg dark:bg-blue-900 dark:text-blue-300">Staff</span>
+              <span v-if="member.status_agen === true" class="bg-blue-100 text-blue-800 text-xs font-bold me-2 px-3 py-1.5 rounded-lg dark:bg-blue-900 dark:text-blue-300">Agen</span>
+              <span v-if="member.status_jamaah === true" class="bg-blue-100 text-blue-800 text-xs font-bold me-2 px-3 py-1.5 rounded-lg dark:bg-blue-900 dark:text-blue-300">Jamaah</span>
             </td>
             <td class="px-6 py-4 text-center">
               <div class="flex justify-center gap-2">
@@ -262,76 +306,26 @@ const closeUpdateForm = () => {
     </div>
   </div>
 
-  <Confirmation
-    :showConfirmDialog="showConfirmDialog"
-    :confirmTitle="confirmTitle"
-    :confirmMessage="confirmMessage"
-  >
-    <button
-      @click="confirmAction"
-      class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+  <Confirmation :showConfirmDialog="showConfirmDialog" :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
+    <button @click="confirmAction" class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
     >
       Ya
     </button>
-    <button
-      @click="showConfirmDialog = false"
-      class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+    <button @click="showConfirmDialog = false" class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
     >
       Tidak
     </button>
   </Confirmation>
 
   <!-- Notification Popup -->
-  <Notification
-    :showNotification="showNotification"
-    :notificationType="'success'"
-    :notificationMessage="'Data berhasil disimpan!'"
-    @closeNotification="showNotification = false"
-  />
+  <Notification :showNotification="showNotification" :notificationType="'success'" :notificationMessage="'Data berhasil disimpan!'" @closeNotification="showNotification = false" />
 
-  <!-- Modal Tambah Member -->
-  <div
-    v-if="showAddForm"
-    class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
-  >
-    <div
-      class="bg-white p-6 rounded-lg shadow-lg w-11/12 md:w-4/5 lg:w-1/2 max-h-[85vh] h-auto overflow-y-auto relative mt-25 mb-5"
-    >
-      <!-- Tombol Close -->
-      <button
-        @click="toggleAddForm"
-        class="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-      >
-        ✖
-      </button>
-
-      <!-- Form Tambah -->
-      <FormAdd @save="refreshTable" @cancel="toggleAddForm" />
-    </div>
-  </div>
+  <FormAddUpdate :showForm="showAddForm" @save="refreshTable" @cancel="closeAddForm" :cabangs="cabangs" />
 
   <!-- Modal Update Member -->
-  <div
-    v-if="showUpdateForm"
-    class="fixed inset-0  flex justify-center items-center bg-black bg-opacity-50 p-4"
-  >
-    <div
-      class="bg-white p-6 rounded-lg  shadow-lg w-11/12 md:w-4/5 lg:w-1/2 max-h-[85vh] h-auto overflow-y-auto relative mt-25"
-    >
-      <!-- Tombol Close -->
-      <button
-        @click="closeUpdateForm"
-        class="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-      >
-        ✖
-      </button>
 
-      <!-- Form Update -->
-      <FormUpdate :member="selectedMember" @save="editMember" @cancel="closeUpdateForm" />
 
-      />
-    </div>
-  </div>
+  <!-- <FormUpdate :showUpdateForm="showUpdateForm" :member="selectedMember" @save="editMember" @cancel="closeUpdateForm" /> -->
 
   <FormAddAgen
     v-if="AddAgenForm"

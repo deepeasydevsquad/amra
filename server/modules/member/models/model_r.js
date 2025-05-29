@@ -1,9 +1,40 @@
-const { Op, Member, Agen, Jamaah, User } = require("../../../models");
-const { tipe } = require("../../../helper/companyHelper");
+const { Op, Member, Agen, Jamaah, User, Division } = require("../../../models");
+const { tipe, getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
 
 class Model_r {
   constructor(req) {
     this.req = req;
+    this.company_id;
+    this.type;
+    this.division;
+  }
+
+  async initialize() {
+    this.company_id = await getCompanyIdByCode(this.req);
+    this.type = await tipe(this.req);
+    this.division = await getCabang(this.req);
+  }
+
+  async getDaftarCabang() {
+    // initialize dependensi properties
+    await this.initialize();
+    var data = [{id : 0, name: 'Pilih Cabang'}];
+    if( this.type === 'administrator' ) {
+      const { rows } = await Division.findAndCountAll({ where : { company_id : this.company_id} });
+      await Promise.all(
+        await rows.map(async (e) => {
+          data.push({id: e.id,name: e.name });
+        })
+      );
+    }else{
+      const { rows } = await Division.findAndCountAll({ where : { id: this.division, company_id : this.company_id} });
+      await Promise.all(
+        await rows.map(async (e) => {
+          data.push({id: e.id,name: e.name });
+        })
+      );
+    }
+    return data;
   }
 
   async getTipe() {

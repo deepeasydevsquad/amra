@@ -1,14 +1,24 @@
 import api from './api'
 
-export const getMember = async () => {
+// export const getInfoMember = async (id:number) => {
+//   try {
+//     const response = await api.post('/member/get-member')
+//     return response.data
+//   } catch (error) {
+//     console.error('Gagal Mengambil Data:', error)
+//     throw error
+//   }
+// }
+
+export const getInfoMember = async (id:number) => {
   try {
-    const response = await api.get('/get-member')
-    return response.data
+    const response = await api.post("/member/get-member", { id });
+    return response.data;
   } catch (error) {
-    console.error('Gagal Mengambil Data:', error)
-    throw error
+    console.error("Gagal mengambil asuransi:", error);
+    throw error;
   }
-}
+};
 
 export const addMember = async (param: any) => {
   try {
@@ -58,3 +68,14 @@ export const getType = async () => {
     throw error
   }
 }
+
+export const daftarCabang = async () => {
+  try {
+    const { data } = await api.get('/member/get-daftar-cabang')
+    return data
+  } catch (error) {
+    console.log('gagal mengambiltype:', error)
+    throw error
+  }
+}
+

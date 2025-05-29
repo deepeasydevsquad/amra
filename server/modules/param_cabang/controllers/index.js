@@ -1,4 +1,5 @@
 const Model_r = require("../models/model_r");
+const{ getCompanyIdByCode, tipe, username, getCabang } = require("../../../helper/companyHelper");
 // const Model_cud = require("../models/model_cud");
 // const { handleValidationErrors, handleServerError } = require("../../../helper/handleError");
 
@@ -42,5 +43,19 @@ controllers.paramPeriode = async ( req, res ) => {
       });
    }
 }
+
+controllers.GetUserType = async ( req, res ) => {
+  try {
+      const types = await tipe(req);
+      res.status(200).json({ error: false, data : types });
+   } catch (error) {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Type tidak ditemukan.',
+      });
+   }
+}
+
+
 
 module.exports = controllers;

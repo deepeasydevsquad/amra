@@ -26,4 +26,7 @@ router.put(
 
 router.post("/delete-member", authenticateToken, controllers.delete);
 
+// 
+router.get("/member/get-daftar-cabang", authenticateToken, controllers.getDaftarCabang);
+
 module.exports = router;
