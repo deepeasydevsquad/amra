@@ -92,9 +92,9 @@
       </div>
     </div>
     <!-- Table data -->
-    <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
+    <div class="overflow-hidden rounded-lg ">
       <template v-if="dataLabaRugi && Object.keys(dataLabaRugi).length  > 0">
-        <table class="w-full border-collapse bg-white text-left text-sm text-gray-500" v-for="(items, kategori) in dataLabaRugi" :key="kategori">
+        <table class="w-full border-collapse bg-white text-left text-sm text-gray-500 mb-10" v-for="(items, kategori) in dataLabaRugi" :key="kategori">
           <thead class="bg-gray-50">
             <tr>
               <th class="w-[100%] px-6 py-4 border font-bold text-gray-900 text-left align-bottom" colspan="3">{{ kategori.toUpperCase() }}</th>
