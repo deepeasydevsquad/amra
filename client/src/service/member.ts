@@ -1,16 +1,36 @@
 import api from './api'
 
-// export const getInfoMember = async (id:number) => {
+// export const getMember = async (param: any) => {
 //   try {
-//     const response = await api.post('/member/get-member')
-//     return response.data
+//     const { data } = await api.post('/member/list', param )
+//     return data
 //   } catch (error) {
-//     console.error('Gagal Mengambil Data:', error)
+//     console.log('gagal menambahkan data:', error)
 //     throw error
 //   }
 // }
 
-export const getInfoMember = async (id:number) => {
+export const getInfoEditMember = async ( param : any ) => {
+  try {
+    const { data } = await api.post('/member/infoEditMember', param )
+    return data
+  } catch (error) {
+    console.log('gagal mengambil info edit membe:', error)
+    throw error
+  }
+}
+
+export const daftarMember = async (param: any) => {
+  try {
+    const { data } = await api.post('/member/daftarMember', param )
+    return data
+  } catch (error) {
+    console.log('gagal menambahkan data:', error)
+    throw error
+  }
+}
+
+export const getMember = async (id:number) => {
   try {
     const response = await api.post("/member/get-member", { id });
     return response.data;
@@ -50,7 +70,7 @@ export const editMember = async (param: any) => {
 
 export const deleteMember = async (id: number) => {
   try {
-    const { data } = await api.post('/delete-member', { id: id })
+    const { data } = await api.post('/member/delete-member', { id: id })
     console.log('Tipe data ID:', typeof id) // Debug tipe data
     return data
   } catch (error) {

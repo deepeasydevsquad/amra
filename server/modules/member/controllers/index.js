@@ -1,16 +1,35 @@
 const Model_cud = require("../models/model_cud");
-const { handleServerError } = require("../../../helper/handleError");
+// const { handleServerError } = require("../../../helper/handleError");
 const Model_r = require("../models/model_r");
+const { handleValidationErrors, handleServerError } = require("../../../helper/handleError");
 
-exports.get = async (req, res) => {
+exports.list = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
   try {
     const model = new Model_r(req);
-    const data = await model.daftar_member();
+    const data = await model.list();
     res.status(200).json(data);
   } catch (error) {
     handleServerError(res, error.message);
   }
 };
+
+exports.infoEditMember = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.infoEditMember();  
+    if( Object.keys(data).length > 0 ) {
+      res.status(200).json({ error: false, error_message: 'Data berhasil ditemukan', data : data });
+    }else{
+       res.status(400).json({ error: true, error_message: 'Data Gagal ditemukan'});
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
 
 exports.getType = async (req, res) => {
   try {
@@ -35,8 +54,15 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const model = new Model_cud(req);
-    const data = await model.update();
-    res.status(200).json(data);
+    // update process
+    await model.update();
+     // get response
+    if (await model.response()) {
+      res.status(200).json({ error: false, error_msg: 'Data Member Berhasil Diperbaharui.' });
+    } else {
+      res.status(400).json({ error: true, error_msg: 'Data Member Gagal Diperbaharui.' });
+    }
+    // res.status(200).json(data);
   } catch (error) {
     handleServerError(res, error.message);
   }
@@ -45,9 +71,14 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
   try {
     const model = new Model_cud(req);
-
-    const data = await model.delete();
-    res.status(200).json(data);
+    // delete process
+    await model.delete();
+     // get response
+    if (await model.response()) {
+      res.status(200).json({ error: false, error_msg: 'Data Member Berhasil Dihapus.' });
+    } else {
+      res.status(400).json({ error: true, error_msg: 'Data Member Gagal Dihapus.' });
+    }
   } catch (error) {
     handleServerError(res, error.message);
   }

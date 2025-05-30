@@ -211,13 +211,7 @@ const handleSubmit = async (): Promise<void> => {
       memberData.append('photo', form.value.photo)
     }
 
-    console.log('📌 Data yang dikirim ke server:')
-    for (const pair of memberData.entries()) {
-      console.log(pair[0], pair[1])
-    }
-
     await editMember(memberData)
-    console.log('Member berhasil diupdate')
 
     emit('save', form.value)
 
@@ -232,8 +226,4 @@ const handleCancel = (): void => {
   emit('cancel')
 }
 
-// onMounted(() => {
-//   fetchCabang()
-//   fetchMember()
-// })
 </script>
