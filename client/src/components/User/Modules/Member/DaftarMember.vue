@@ -39,7 +39,23 @@ interface Cabang {
 
 // State
 const data = ref<Partial<Members[]>>([])
-const formData = ref<Partial<Members>>()
+const formData = ref<Partial<Members>>({
+    id: 0,
+    cabang_id: 0,
+    fullname: '',
+    identity_number: '',
+    identity_type: '0',
+    gender: '0',
+    photo: '',
+    birth_date: '',
+    birth_place: '',
+    whatsapp_number: '',
+    status_agen: false,
+    status_jamaah: false,
+    status_staff: false,
+    cabang: ''
+});
+
 const searchQuery = ref('')
 const showForm = ref(false)
 // const showUpdateForm = ref(false)
@@ -87,7 +103,7 @@ const fetchCabang = async () => {
   try {
     const response = await daftarCabang()
     cabangs.value = response.data
-    console.log('Data cabang:', response.data)
+    // console.log('Data cabang:', response.data)
   } catch (error) {
     console.error('Gagal fetch data cabang:', error)
   }
@@ -160,8 +176,26 @@ const confirmDelete = (id: number) => {
 }
 
 const closeAddForm = () => {
+
   showForm.value = false
-  formData.value= { cabang_id:0, gender:'0', identity_type: '0' }
+
+  formData.value = {
+    id: 0,
+    cabang_id: 0,
+    fullname: '',
+    identity_number: '',
+    identity_type: '0',
+    gender: '0',
+    photo: '',
+    birth_date: '',
+    birth_place: '',
+    whatsapp_number: '',
+    status_agen: false,
+    status_jamaah: false,
+    status_staff: false,
+    cabang: ''
+  };
+
   fetchData()
 }
 

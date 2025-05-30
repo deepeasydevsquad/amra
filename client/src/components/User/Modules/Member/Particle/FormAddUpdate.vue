@@ -1,5 +1,5 @@
 <template>
-  <Form :form-status="showForm" :label="Object.keys(form).length == 0 ? 'Tambah Member' : 'Edit Member'" @close="handleCancel" @cancel="handleCancel" @submit="handleSubmit" width="sm:w-full sm:max-w-2xl" :submitLabel="Object.keys(form).length == 0 ? 'TAMBAH MEMBER' : 'PERBAHARUI MEMBER'">
+  <Form :form-status="showForm" :label="form.id === 0 ? 'Tambah Member' : 'Edit Member'" @close="handleCancel" @cancel="handleCancel" @submit="handleSubmit" width="sm:w-full sm:max-w-2xl" :submitLabel="form.id === 0 ? 'TAMBAH MEMBER' : 'PERBAHARUI MEMBER'">
     <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
       <SelectField v-model="form.cabang_id" id="cabang" label="Cabang" placeholder="Pilih Cabang" :error="errors.cabang_id" :options="cabangs" />
     </div>
@@ -26,7 +26,7 @@
     <!-- Email and WhatsApp -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
       <!-- Jenis Identitas -->
-      <SelectField v-model="form.identityType" id="bank-list" label="Jenis Identitas" placeholder="Pilih Jenis Identitas" :error="errors.identityType"
+      <SelectField v-model="form.identityType" id="tipe-identitas" label="Jenis Identitas" placeholder="Pilih Jenis Identitas" :error="errors.identityType"
         :options="[{ id: '0', name: 'Identitas' }, { id: 'ktp', name: 'KTP' },{ id: 'passport', name: 'PASSPORT' }]" />
         <!-- Nomor Whatsapp -->
       <InputText v-model="form.whatsapp" label="Nomor Whatsapp" id="whatsapp" :error="errors.whatsapp" placeholder="Nomor Whatsapp" note="Pastikan nomor yang terdaftar adalah nomor Whatsapp yang aktif. Nomor ini akan digunakan untuk menerima OTP."/>
@@ -170,9 +170,26 @@
       isValid = false
     }
 
+    console.log("+++++++++++++");
+    console.log(form.value.identityType);
+    console.log(typeof form.value.identityType);
+    console.log("+++++++++++++");
+
+
+    if (form.value.cabang_id == 0) {
+      errors.value.cabang_id = 'Silahkan pilih salah satu cabang'
+      isValid = false
+    }
+
+    // Validasi tipe identitas
+    if (form.value.identityType == '0') {
+      errors.value.identityType = 'Silahkan pilih salah satu jenis identitas'
+      isValid = false
+    }
+
     // Validasi jenis kelamin
-    if (!form.value.gender) {
-      errors.value.gender = 'Silakan pilih jenis kelamin'
+    if (form.value.gender == '0') {
+      errors.value.gender = 'Silakan pilih salah satu jenis kelamin'
       isValid = false
     }
 
@@ -284,7 +301,11 @@
   watch(() => props.formData,
     (e) => {
       if (e) {
-        if( e.id != 0 ) {
+        // if( e.id != 0 ) {
+        console.log("---e.cabang_id")
+        console.log(e)
+        console.log(props.formData)
+        console.log("---e.cabang_id")
           form.value.id = e.id
           form.value.name = e.fullname
           form.value.cabang_id = e.cabang_id
@@ -294,9 +315,9 @@
           form.value.whatsapp = e.whatsapp_number
           form.value.birthdate = e.birth_date
           form.value.birthplace = e.birth_place
-        }else{
-          form.value.cabang_id = 0
-        }
+        // }else{
+        //   form.value.cabang_id = 0
+        // }
       }
     },
     { immediate: true }
