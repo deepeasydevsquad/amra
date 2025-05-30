@@ -15,6 +15,7 @@ module.exports = {
           model: "Companies",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       name: {
         type: Sequelize.STRING
@@ -25,6 +26,7 @@ module.exports = {
           model: "Mst_kota",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       pos_code: {
         type: Sequelize.STRING

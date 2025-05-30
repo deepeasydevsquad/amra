@@ -15,6 +15,7 @@ module.exports = {
           model: "Divisions",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       jenis_kegiatan: {
         type: Sequelize.ENUM,
@@ -93,6 +94,7 @@ module.exports = {
           model: "Mst_providers",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       asuransi_id: {
         type: Sequelize.INTEGER,
@@ -100,6 +102,7 @@ module.exports = {
           model: "Mst_asuransis",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       no_polis: {
         type: Sequelize.STRING

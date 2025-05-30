@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Mst_asuransi.hasMany(models.Paket, {
         foreignKey: "asuransi_id",
+        onDelete: 'CASCADE',
       });
     }
   }

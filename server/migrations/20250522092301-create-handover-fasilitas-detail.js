@@ -15,6 +15,7 @@ module.exports = {
           model: "Handover_fasilitas",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       mst_fasilitas_id: {
         type: Sequelize.INTEGER,

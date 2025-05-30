@@ -15,6 +15,7 @@ module.exports = {
           model: "Tabungans",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       invoice: {
         type: Sequelize.STRING

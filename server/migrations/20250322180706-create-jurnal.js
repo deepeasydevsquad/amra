@@ -15,6 +15,7 @@ module.exports = {
           model: "Divisions",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       source: {
         type: Sequelize.TEXT

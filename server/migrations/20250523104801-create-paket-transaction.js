@@ -15,6 +15,7 @@ module.exports = {
           model: "Divisions",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       jamaah_id: {
         type: Sequelize.INTEGER,
@@ -22,6 +23,7 @@ module.exports = {
           model: "Jamaahs",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       fee_agen_id: {
         type: Sequelize.INTEGER,
@@ -29,6 +31,7 @@ module.exports = {
           model: "Fee_agens",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       paket_id: {
         type: Sequelize.INTEGER,
@@ -36,6 +39,7 @@ module.exports = {
           model: "Pakets",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       mst_paket_type_id: {
         type: Sequelize.INTEGER,
@@ -43,6 +47,7 @@ module.exports = {
           model: "Mst_paket_types",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       price: {
         type: Sequelize.INTEGER

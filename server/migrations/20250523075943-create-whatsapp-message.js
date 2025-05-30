@@ -15,6 +15,7 @@ module.exports = {
           model: "Divisions",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       type: {
         type: Sequelize.ENUM,
@@ -33,6 +34,7 @@ module.exports = {
           model: "Whatsapp_templates",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       status: {
         type: Sequelize.ENUM,

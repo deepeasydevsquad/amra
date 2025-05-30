@@ -15,6 +15,7 @@ module.exports = {
           model: "Ticket_transactions",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       pax: {
         type: Sequelize.INTEGER
@@ -23,7 +24,12 @@ module.exports = {
         type: Sequelize.STRING
       },
       airlines_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Mst_airlines",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
       },
       departure_date: {
         type: Sequelize.DATEONLY

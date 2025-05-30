@@ -15,6 +15,7 @@ module.exports = {
           model: "Tabungans",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       invoice_handover: {
         type: Sequelize.STRING
@@ -28,6 +29,7 @@ module.exports = {
           model: "Jamaahs",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       nama_barang: {
         type: Sequelize.STRING

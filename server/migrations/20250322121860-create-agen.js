@@ -15,6 +15,7 @@ module.exports = {
           model: "Members",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       level_keagenan_id: {
         type: Sequelize.INTEGER,
@@ -22,6 +23,7 @@ module.exports = {
           model: "Level_keagenans",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       upline_id: {
         type: Sequelize.INTEGER

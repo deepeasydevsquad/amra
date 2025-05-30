@@ -169,41 +169,26 @@ onMounted(() => {
   fetchData()
 })
 
-
-
-
-
-
-
-
 const addAgen = async (id: number) => {
-  const member = members.value.find((m) => m.id === id)
-  if (member) {
-    selectedMember.value = { ...member }
-    console.log('data yang di kirim ke add Agen Form', selectedMember.value)
-    AddAgenForm.value = true
-  }
+  // const member = members.value.find((m) => m.id === id)
+  // if (member) {
+  //   selectedMember.value = { ...member }
+  //   console.log('data yang di kirim ke add Agen Form', selectedMember.value)
+  //   AddAgenForm.value = true
+  // }
 }
-
-
 </script>
+
 <template>
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4" >
-
       <PrimaryButton @click="tambahMember">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
         Tambah Member
       </PrimaryButton>
-
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
@@ -215,7 +200,6 @@ const addAgen = async (id: number) => {
         />
       </div>
     </div>
-
     <!-- Tabel Data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
@@ -231,18 +215,18 @@ const addAgen = async (id: number) => {
           </tr>
         </thead>
         <tbody v-if="data.length" class="divide-y divide-gray-100 border-t border-gray-100" >
-          <tr v-for="member in data" :key="member.id" >
-            <td class="px-6 py-4 text-center">{{ member.fullname }}</td>
-            <td class="px-6 py-4 text-center">{{ member.identity_number }}</td>
-            <td class="px-6 py-4 text-center">{{ member.gender === 'laki_laki' ? 'Laki - Laki' : ( member.gender === 'perempuan' ? 'Perempuan' : '-' ) }} </td>
-            <td class="px-6 py-4 text-center">{{ member.whatsapp_number }}</td>
+          <tr v-for="member in data" :key="member?.id" >
+            <td class="px-6 py-4 text-center">{{ member?.fullname }}</td>
+            <td class="px-6 py-4 text-center">{{ member?.identity_number }}</td>
+            <td class="px-6 py-4 text-center">{{ member?.gender === 'laki_laki' ? 'Laki - Laki' : ( member?.gender === 'perempuan' ? 'Perempuan' : '-' ) }} </td>
+            <td class="px-6 py-4 text-center">{{ member?.whatsapp_number }}</td>
             <td class="px-6 py-4 text-center">
               <span class="bg-blue-100 text-blue-800 text-xs font-bold me-2 px-3 py-1.5 rounded-lg dark:bg-blue-900 dark:text-blue-300">Member</span>
-              <span v-if="member.status_staff === true" class="bg-blue-100 text-blue-800 text-xs font-bold me-2 px-3 py-1.5 rounded-lg dark:bg-blue-900 dark:text-blue-300">Staff</span>
-              <span v-if="member.status_agen === true" class="bg-blue-100 text-blue-800 text-xs font-bold me-2 px-3 py-1.5 rounded-lg dark:bg-blue-900 dark:text-blue-300">Agen</span>
-              <span v-if="member.status_jamaah === true" class="bg-blue-100 text-blue-800 text-xs font-bold me-2 px-3 py-1.5 rounded-lg dark:bg-blue-900 dark:text-blue-300">Jamaah</span>
+              <span v-if="member?.status_staff === true" class="bg-blue-100 text-blue-800 text-xs font-bold me-2 px-3 py-1.5 rounded-lg dark:bg-blue-900 dark:text-blue-300">Staff</span>
+              <span v-if="member?.status_agen === true" class="bg-blue-100 text-blue-800 text-xs font-bold me-2 px-3 py-1.5 rounded-lg dark:bg-blue-900 dark:text-blue-300">Agen</span>
+              <span v-if="member?.status_jamaah === true" class="bg-blue-100 text-blue-800 text-xs font-bold me-2 px-3 py-1.5 rounded-lg dark:bg-blue-900 dark:text-blue-300">Jamaah</span>
             </td>
-            <td class="px-6 py-4 text-center">{{ member.cabang }}</td>
+            <td class="px-6 py-4 text-center">{{ member?.cabang }}</td>
             <td class="px-6 py-4 text-center">
               <div class="flex justify-center gap-2">
                 <LightButton @click="editMember(member.id)" class="p-2 "><EditIcon /></LightButton>
@@ -265,33 +249,18 @@ const addAgen = async (id: number) => {
       </table>
     </div>
   </div>
-
   <Confirmation :showConfirmDialog="showConfirmDialog" :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
-    <button @click="confirmAction" class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-    >
+    <button @click="confirmAction" class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">
       Ya
     </button>
-    <button @click="showConfirmDialog = false" class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-    >
+    <button @click="showConfirmDialog = false" class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
       Tidak
     </button>
   </Confirmation>
-
   <!-- Notification Popup -->
   <Notification :showNotification="showNotification" :notificationType="'success'" :notificationMessage="'Data berhasil disimpan!'" @closeNotification="showNotification = false" />
-
+  <!-- Form Add Update -->
   <FormAddUpdate :showForm="showForm"  @cancel="closeAddForm" :cabangs="cabangs" :formData="formData" />
-
-  <!-- @save="refreshTable" -->
-  <!-- Modal Update Member -->
-
-
-  <!-- <FormUpdate :showUpdateForm="showUpdateForm" :member="selectedMember" @save="editMember" @cancel="closeUpdateForm" /> -->
-
-  <FormAddAgen
-    v-if="AddAgenForm"
-    :member="selectedMember"
-    @close="AddAgenForm = false"
-    :isOpen="AddAgenForm"
-  />
+  <!-- Form Add Agen -->
+  <FormAddAgen v-if="AddAgenForm" :member="selectedMember" @close="AddAgenForm = false" :isOpen="AddAgenForm"/>
 </template>

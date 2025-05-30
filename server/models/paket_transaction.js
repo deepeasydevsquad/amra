@@ -28,12 +28,15 @@ module.exports = (sequelize, DataTypes) => {
       });
       Paket_transaction.hasMany(models.Paket_transaction_payment_history, {
         foreignKey: "paket_transaction_id",
+        onDelete: 'CASCADE',
       });
       Paket_transaction.hasMany(models.Handover_fasilitas_paket, {
         foreignKey: "paket_transaction_id",
+        onDelete: 'CASCADE',
       });
       Paket_transaction.hasMany(models.Handover_barang_paket, {
         foreignKey: "paket_transaction_id",
+        onDelete: 'CASCADE',
       });
     }
   }

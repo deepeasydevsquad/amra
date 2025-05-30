@@ -1,7 +1,7 @@
-const { sequelize, Member, Division } = require("../../../models");
+const { sequelize, Member, Division, Jamaah, Agen, User, Deposit } = require("../../../models");
 const Model_r = require("./model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
-const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, tipe, getCabang } = require("../../../helper/companyHelper");
 const moment = require("moment");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -10,17 +10,14 @@ const { data } = require("jquery");
 class Model_cud {
   constructor(req) {
     this.req = req;
-    this.company_id = null;
-    this.t = null;
-    this.state = true;
-    this.message = "";
+    this.company_id;
   }
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
-    if (!this.company_id) throw new Error("company_id tidak ditemukan");
-
+    this.division_id = await getCabang(this.req);
     this.t = await sequelize.transaction();
+    this.state = true;
   }
 
   async getDivisionId() {
@@ -38,7 +35,9 @@ class Model_cud {
   }
 
   async add() {
+    // initialize dependensi properties
     await this.initialize();
+
     const body = this.req.body;
     const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
 
@@ -85,6 +84,7 @@ class Model_cud {
   async update() {
     // initialize dependensi properties
     await this.initialize();
+
     const body = this.req.body;
     const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
 
@@ -94,74 +94,56 @@ class Model_cud {
       // Cari member berdasarkan ID
       const member = await model.infoMember(body.id); // Teruskan transaksi
 
-      // const model_r = new Model_r(this.req);
+      // Ambil file foto dari request, jika ada
+      const photo = this.req.file ? this.req.file.path : member.photo;
 
-      // // Cari member berdasarkan ID
-      // const member = await model_r.infoMember(body.id, this.t); // Teruskan transaksi
-      // if (!member) throw new Error("Member tidak ditemukan");
+      // Jika password diupdate, enkripsi password baru
+      let hashedPassword = member.password; // Default: gunakan password lama
+      
 
-      // // Ambil division_id dari getDivisionId() jika tidak disediakan di req.body
-      // const division_id = body.division_id || (await this.getDivisionId());
-      // if (!division_id) throw new Error("division_id tidak ditemukan");
+      // Siapkan data untuk diupdate
+      const updateData = {
+        fullname: body.fullname,
+        identity_number: body.identity_number,
+        identity_type: body.identity_type,
+        gender: body.gender,
+        birth_place: body.birth_place,
+        birth_date: body.birth_date,
+        whatsapp_number: body.whatsapp_number,
+        updatedAt: myDate,
+      };
 
-      // // Ambil file foto dari request, jika ada
-      // const photo = this.req.file ? this.req.file.path : member.photo;
+      // check password
+      if (body.password) {
+        const salt = await bcrypt.genSalt(10); // Generate salt
+        hashedPassword = await bcrypt.hash(body.password, salt); // Hash password baru
+        updateData['password'] = hashedPassword;
+      }
 
-      // // Jika password diupdate, enkripsi password baru
-      // let hashedPassword = member.password; // Default: gunakan password lama
-      // if (body.password) {
-      //   const salt = await bcrypt.genSalt(10); // Generate salt
-      //   hashedPassword = await bcrypt.hash(body.password, salt); // Hash password baru
-      // }
+      // Hanya update foto jika ada file yang diupload
+      if (this.req.file) {
+        updateData.photo = photo;
+      }
 
-      // // Pastikan data yang diperlukan ada
-      // if (!body.fullname || !body.identity_number) {
-      //   throw new Error("Data yang diperlukan tidak lengkap");
-      // }
-
-      // // Siapkan data untuk diupdate
-      // const updateData = {
-      //   fullname: body.fullname,
-      //   identity_number: body.identity_number,
-      //   identity_type: body.identity_type,
-      //   gender: body.gender,
-      //   birth_place: body.birth_place,
-      //   birth_date: body.birth_date,
-      //   whatsapp_number: body.whatsapp_number,
-      //   password: hashedPassword, // Update password yang sudah dienkripsi
-      //   updatedAt: myDate,
-      // };
-
-      // // Hanya update foto jika ada file yang diupload
-      // if (this.req.file) {
-      //   updateData.photo = photo;
-      // }
-
-      // // Update data berdasarkan id dan division_id
-      // const [updatedRows] = await Member.update(updateData, {
-      //   where: { id: body.id, division_id: division_id },
-      //   transaction: this.t,
-      // });
-
-      // // Cek apakah ada baris yang diupdate
-      // if (updatedRows === 0) {
-      //   throw new Error(
-      //     "Tidak ada data yang diupdate. Periksa ID atau division_id."
-      //   );
-      // }
-
-      // // Log pesan update
-      // this.message = `Memperbarui Member ID ${body.id} (${member.fullname}) menjadi ${body.fullname}`;
-      // await writeLog(this.req, this.t, { msg: this.message });
-
-      // // Commit transaksi
-      // await this.t.commit();
-      // return { success: true, message: this.message };
+      // Update data berdasarkan id dan division_id
+      await Member.update(
+        updateData, 
+        {
+          where: { 
+            id: body.id 
+          },
+        },
+        {
+          transaction: this.t,
+        }
+      );
+      // Log pesan update
+      this.message = `Memperbarui Member ID ${body.id} (${member.fullname}) menjadi ${body.fullname}`;
     } catch (error) {
+      console.log("---------->");
+      console.log(error);
+      console.log("---------->");
       this.state = false;
-      // console.error("❌ Gagal mengupdate member:", error);
-      // await this.t.rollback();
-      // return { success: false, message: error.message };
     }
   }
 
@@ -174,7 +156,47 @@ class Model_cud {
       // call model
       const model_r = new Model_r(this.req);
       const member = await model_r.infoMember(body.id);
-      // destroy
+
+      // // agen
+      // await Agen.destroy(
+      //   {
+      //     where: { member_id: body.id },
+      //   }, 
+      //   {
+      //     transaction: this.t,
+      //   }
+      // );
+
+      // // user
+      // await User.destroy(
+      //   {
+      //     where: { member_id: body.id },
+      //   }, 
+      //   {
+      //     transaction: this.t,
+      //   }
+      // );
+
+      // // deposit
+      // await Deposit.destroy(
+      //   {
+      //     where: { member_id: body.id },
+      //   }, 
+      //   {
+      //     transaction: this.t,
+      //   }
+      // );
+
+      // // destroy Jamaah
+      // await Jamaah.destroy(
+      //   {
+      //     where: { member_id: body.id },
+      //   }, 
+      //   {
+      //     transaction: this.t,
+      //   }
+      // );
+      // destroy Member
       await Member.destroy(
         {
           where: { id: body.id },
@@ -192,19 +214,25 @@ class Model_cud {
       );
       this.message = `Menghapus Member ${member.fullname} (ID: ${member.id})`;
     } catch (error) {
+      console.log("XXXXXXXXXXXXX");
+      console.log(error);
+      console.log("XXXXXXXXXXXXX");
+      // this.message = `Menghapus Member ${member.fullname} (ID: ${member.id})`;
       this.state = false;
     }
   }
 
   // response
-  async response() {
+ async response() {
     if (this.state) {
-      await writeLog(this.req, this.t, { msg: this.message });
+      await writeLog(this.req, this.t, { msg: this.message, });
+      // commit
       await this.t.commit();
-      return { success: true, message: this.message };
+      return true;
     } else {
+      // rollback
       await this.t.rollback();
-      return { success: false, message: this.message };
+      return false;
     }
   }
 }

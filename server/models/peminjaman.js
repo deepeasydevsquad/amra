@@ -19,9 +19,11 @@ module.exports = (sequelize, DataTypes) => {
       });
       Peminjaman.hasMany(models.Riwayat_pembayaran_peminjaman, {
         foreignKey: "peminjaman_id",
+        onDelete: 'CASCADE',
       });
       Peminjaman.hasMany(models.Skema_peminjaman, {
         foreignKey: "peminjaman_id",
+        onDelete: 'CASCADE',
       });
     }
   }

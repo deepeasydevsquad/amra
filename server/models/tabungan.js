@@ -22,18 +22,22 @@ module.exports = (sequelize, DataTypes) => {
       });
       Tabungan.hasMany(models.Riwayat_tabungan, {
         foreignKey: "tabungan_id",
+        onDelete: 'CASCADE',
       });
       Tabungan.hasMany(models.Refund_tabungan, {
         foreignKey: "tabungan_id",
+        onDelete: 'CASCADE',
       });
       Tabungan.belongsTo(models.Fee_agen, {
         foreignKey: "fee_agen_id",
       });
       Tabungan.hasMany(models.Handover_fasilitas, {
         foreignKey: "tabungan_id",
+        onDelete: 'CASCADE',
       });
       Tabungan.hasMany(models.Handover_barang, {
         foreignKey: "tabungan_id",
+        onDelete: 'CASCADE',
       });
     }
   }

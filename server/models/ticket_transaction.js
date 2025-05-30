@@ -16,9 +16,11 @@ module.exports = (sequelize, DataTypes) => {
       });
       Ticket_transaction.hasMany(models.Ticket_payment_history, {
         foreignKey: "ticket_transaction_id",
+        onDelete: 'CASCADE',
       });
       Ticket_transaction.hasMany(models.Ticket_transaction_detail, {
         foreignKey: "ticket_transaction_id",
+        onDelete: 'CASCADE',
       });
     }
   }

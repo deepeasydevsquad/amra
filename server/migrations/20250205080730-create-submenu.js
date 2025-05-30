@@ -10,7 +10,12 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       menu_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Menus",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
       },
       name: {
         type: Sequelize.STRING

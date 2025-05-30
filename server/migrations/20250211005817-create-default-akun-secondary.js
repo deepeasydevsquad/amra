@@ -15,6 +15,7 @@ module.exports = {
           model: "Akun_primaries",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       nomor_akun: {
         type: Sequelize.INTEGER

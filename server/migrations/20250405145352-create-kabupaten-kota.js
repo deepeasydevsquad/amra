@@ -15,6 +15,7 @@ module.exports = {
           model: "Provinsis",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       name: {
         type: Sequelize.STRING

@@ -18,6 +18,7 @@ module.exports = {
           model: "Tabungans",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       nominal_ditahan: {
         type: Sequelize.INTEGER

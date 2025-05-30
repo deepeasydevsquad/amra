@@ -15,6 +15,7 @@ module.exports = {
           model: "Companies",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       nomor_surat: {
         type: Sequelize.STRING
