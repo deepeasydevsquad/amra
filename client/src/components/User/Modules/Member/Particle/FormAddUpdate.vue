@@ -1,5 +1,5 @@
 <template>
-  <Form :form-status="showForm" :label="form.id === 0 ? 'Tambah Member' : 'Edit Member'" @close="handleCancel" @cancel="handleCancel" @submit="handleSubmit" width="sm:w-full sm:max-w-2xl" :submitLabel="form.id === 0 ? 'TAMBAH MEMBER' : 'PERBAHARUI MEMBER'">
+  <Form :form-status="showForm" :label="form.id === 0 ? 'Tambah Member' : 'Edit Member'" @close="handleCancel" @cancel="handleCancel" @submit="handleSubmit" width="sm:w-full sm:max-w-xl" :submitLabel="form.id === 0 ? 'TAMBAH MEMBER' : 'PERBAHARUI MEMBER'">
     <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
       <SelectField v-model="form.cabang_id" id="cabang" label="Cabang" placeholder="Pilih Cabang" :error="errors.cabang_id" :options="cabangs" />
     </div>
@@ -110,7 +110,20 @@
   }>()
 
   const fileName = ref<string>('')
-  const errors = ref<ErrorFields>({})
+  const errors = ref<ErrorFields>({
+    name: '',
+    identityNumber: '',
+    identityType: '',
+    gender: '',
+    birthplace: '',
+    birthdate: '',
+    whatsapp: '',
+    password: '',
+    confirmPassword: '',
+    cabang_id:'',
+    photo: '',
+    bank:''
+  })
 
   // Data form dengan semua field yang digunakan di template
   const form = ref<FormData>({

@@ -58,6 +58,7 @@ const formData = ref<Partial<Members>>({
 
 const searchQuery = ref('')
 const showForm = ref(false)
+const showAgenForm = ref(false)
 // const showUpdateForm = ref(false)
 const selectedMember = ref(null)
 // Konfirmasi Variable
@@ -71,7 +72,7 @@ const notificationType = ref('')
 const notificationMessage = ref('')
 // General Variable
 const cabangs = ref<Cabang[]>([])
-const AddAgenForm = ref(false)
+// const AddAgenForm = ref(false)
 // Pagination Variable
 const itemsPerPage = 100; // Jumlah paket_la per halaman
 const currentPage = ref(1);
@@ -296,5 +297,5 @@ const addAgen = async (id: number) => {
   <!-- Form Add Update -->
   <FormAddUpdate :showForm="showForm"  @cancel="closeAddForm" :cabangs="cabangs" :formData="formData" />
   <!-- Form Add Agen -->
-  <FormAddAgen v-if="AddAgenForm" :member="selectedMember" @close="AddAgenForm = false" :isOpen="AddAgenForm"/>
+  <FormAddAgen showAgenForm="showAgenForm" :member="selectedMember" @close="AddAgenForm = false" :isOpen="AddAgenForm"/>
 </template>

@@ -8,7 +8,7 @@
         <!-- Modal Content -->
         <div class="relative inline-block rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8   sm:align-middle px-6 py-6" :class="width">
           <h3 class="text-2xl font-bold leading-6 text-gray-900 mb-4 px-3">{{ label }}</h3>
-          <div class="max-h-[65vh] overflow-y-auto py-6 ps-3 pe-0">
+          <div class="max-h-[55vh] overflow-y-auto py-6 ps-3 pe-0">
             <slot></slot>
           </div>
           <div class="flex justify-end gap-4 pt-6">
