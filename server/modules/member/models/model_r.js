@@ -1,4 +1,4 @@
-const { Op, Member, Agen, Jamaah, User, Division } = require("../../../models");
+const { Op, Member, Agen, Jamaah, User, Division, Level_keagenan } = require("../../../models");
 const { tipe, getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
 const moment = require("moment");
 
@@ -12,6 +12,11 @@ class Model_r {
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
+
+    console.log("-----------------------------Aa");
+    // console.log(this.req);
+    console.log(this.company_id);
+    console.log("-----------------------------Aa");
     this.type = await tipe(this.req);
     this.division = await getCabang(this.req);
   }
@@ -221,7 +226,7 @@ class Model_r {
     // Fungsi untuk mengambil informasi detail member berdasarkan ID
   async infoMember(id) {
     // initialize dependensi properties
-    this.initialize()
+    await this.initialize()
     try {
       // Cari member di database
       const member = await Member.findOne({
@@ -275,6 +280,44 @@ class Model_r {
     } catch (error) {
       console.error("ERROR: isIdentityNumberExists()", error);
       return false;
+    }
+  }
+
+
+  async get_level_agen() {
+    // initialize dependensi properties
+    await this.initialize()
+
+    console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    console.log(this.company_id);
+    console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+    try {
+      var data = [{id: 0, name: 'Pilih Level', level: '-'}];
+      const { rows } = await Level_keagenan.findAndCountAll({ 
+        where : { 
+          company_id : this.company_id 
+        },
+        order: [["level", "ASC"]],
+      });
+      await Promise.all(
+        await rows.map(async (e) => {
+          data.push({ id: e.id, name: e.name, level: e.level });
+        })
+      );
+
+      console.log("xxxxxxxxxxxxxxxxxxxxx");
+      console.log(this.company_id);
+      console.log(data);
+      console.log("xxxxxxxxxxxxxxxxxxxxx");
+      return data
+    } catch (error) {
+
+      console.log("__________________");
+      console.log(this.company_id);
+      console.log(error);
+      console.log("__________________");
+      return []     
     }
   }
 }

@@ -40,6 +40,8 @@ router.post(
 
 router.get("/get-type", authenticateToken, controllers.getType);
 
+router.get("/member/level-agen", authenticateToken, controllers.level_agen);
+
 router.put(
   "/update-member",
   authenticateToken,

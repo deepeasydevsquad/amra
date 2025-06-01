@@ -168,7 +168,22 @@
 
   // Validasi form
   const validateForm = (): boolean => {
-    errors.value = {}
+
+    errors.value = {
+      name: '',
+      identityNumber: '',
+      identityType: '',
+      gender: '',
+      birthplace: '',
+      birthdate: '',
+      whatsapp: '',
+      password: '',
+      confirmPassword: '',
+      cabang_id:'',
+      photo: '',
+      bank:''
+    }
+
     let isValid = true
 
     // Validasi nama
@@ -308,7 +323,20 @@
   // Fungsi untuk membatalkan dan menutup form
   const handleCancel = (): void => {
     emit('cancel')
-    errors.value = {};
+    errors.value = {
+      name: '',
+      identityNumber: '',
+      identityType: '',
+      gender: '',
+      birthplace: '',
+      birthdate: '',
+      whatsapp: '',
+      password: '',
+      confirmPassword: '',
+      cabang_id:'',
+      photo: '',
+      bank:''
+    };
   }
 
   watch(() => props.formData,

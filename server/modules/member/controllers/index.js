@@ -97,3 +97,24 @@ exports.getDaftarCabang = async (req, res) => {
     handleServerError(res, error.message);
   }
 }
+
+exports.level_agen = async ( req, res ) => {
+
+   try {
+    
+    const model = new Model_r(req);
+    const data = await model.get_level_agen();
+
+    console.log('xxxx');
+    console.log(data);
+    console.log('xxxx');
+
+    if( data.length > 0 ) {
+      res.status(200).json({ error : false, error_msg : 'Sukses', data: data });
+    }else{
+      res.status(200).json({ error : true, error_msg : 'Error' });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}

@@ -1,14 +1,14 @@
 import api from './api'
 
-// export const getMember = async (param: any) => {
-//   try {
-//     const { data } = await api.post('/member/list', param )
-//     return data
-//   } catch (error) {
-//     console.log('gagal menambahkan data:', error)
-//     throw error
-//   }
-// }
+export const daftarLevelAgen = async () => {
+   try {
+    const { data } = await api.get('/member/level-agen')
+    return data
+  } catch (error) {
+    console.log('gagal mengambil info level agen:', error)
+    throw error
+  }
+}
 
 export const getInfoEditMember = async ( param : any ) => {
   try {

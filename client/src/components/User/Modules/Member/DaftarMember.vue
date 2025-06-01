@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { daftarMember, daftarCabang, getInfoEditMember, deleteMember as deleteMemberApi } from "@/service/member"
+import { daftarMember, daftarCabang, getInfoEditMember, deleteMember as deleteMemberApi, daftarLevelAgen } from "@/service/member"
 import DeleteIcon from '@/components/User/Modules/Member/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/Member/Icon/EditIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
@@ -26,6 +26,7 @@ interface Members {
   birth_date:string;
   birth_place:string;
   whatsapp_number: string;
+  level_id: number;
   status_agen:boolean;
   status_jamaah:boolean;
   status_staff:boolean;
@@ -50,11 +51,26 @@ const formData = ref<Partial<Members>>({
     birth_date: '',
     birth_place: '',
     whatsapp_number: '',
+    level_id: 0,
     status_agen: false,
     status_jamaah: false,
     status_staff: false,
     cabang: ''
 });
+
+const memberAgenData = ref<Partial<Members>>({
+  id:0,
+  fullname: '',
+  identity_number: '',
+  level_id: 0,
+});
+
+interface Option {
+  id: number
+  name: string
+}
+
+const levelAgen = ref<Option[]>([]);
 
 const searchQuery = ref('')
 const showForm = ref(false)
@@ -107,6 +123,20 @@ const fetchCabang = async () => {
     // console.log('Data cabang:', response.data)
   } catch (error) {
     console.error('Gagal fetch data cabang:', error)
+  }
+}
+
+const fetchLevelAgen = async () => {
+  try {
+    const response = await daftarLevelAgen()
+
+    console.log("~~~~~~~~~~~~~~");
+    console.log(response);
+    console.log("~~~~~~~~~~~~~~");
+    levelAgen.value = response.data
+    // console.log('Data cabang:', response.data)
+  } catch (error) {
+    console.error('Gagal fetch data level agen:', error)
   }
 }
 
@@ -200,11 +230,21 @@ const closeAddForm = () => {
   fetchData()
 }
 
+const closeAgenFrom = () => {
+  showAgenForm.value = false
+}
+
 onMounted(() => {
   fetchData()
 })
 
-const addAgen = async (id: number) => {
+
+const addAgen = async (id: number, name: string, identity_number: string) => {
+  await fetchLevelAgen()
+  showAgenForm.value = true
+  memberAgenData.value.id = 1;
+  memberAgenData.value.fullname = name;
+  memberAgenData.value.identity_number = identity_number
   // const member = members.value.find((m) => m.id === id)
   // if (member) {
   //   selectedMember.value = { ...member }
@@ -265,7 +305,7 @@ const addAgen = async (id: number) => {
             <td class="px-6 py-4 text-center">
               <div class="flex justify-center gap-2">
                 <LightButton @click="editMember(member.id)" class="p-2 "><EditIcon /></LightButton>
-                <LightButton v-if="member.status_agen === false"  @click="addAgen(member.id)" class="p-2 "><AddAgenIcon /></LightButton>
+                <LightButton v-if="member.status_agen === false"  @click="addAgen(member.id, member?.fullname, member.identity_number )" class="p-2 "><AddAgenIcon /></LightButton>
                 <DangerButton @click="confirmDelete(member.id)" class="p-2 "><DeleteIcon /></DangerButton>
               </div>
             </td>
@@ -297,5 +337,5 @@ const addAgen = async (id: number) => {
   <!-- Form Add Update -->
   <FormAddUpdate :showForm="showForm"  @cancel="closeAddForm" :cabangs="cabangs" :formData="formData" />
   <!-- Form Add Agen -->
-  <FormAddAgen showAgenForm="showAgenForm" :member="selectedMember" @close="AddAgenForm = false" :isOpen="AddAgenForm"/>
+  <FormAddAgen :showForm="showAgenForm" :formData="memberAgenData" :levelAgen="levelAgen" @cancel="closeAgenFrom"/>
 </template>

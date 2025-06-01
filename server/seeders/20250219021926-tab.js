@@ -60,6 +60,7 @@ module.exports = {
       { name: 'Daftar Cabang', icon : 'fas fa-users-cog', path: 'daftar_cabang', desc:'Fitur daftar cabang merupakan fitur untuk menampilkan daftar cabang pada perusahaan yang terdapat didalam aplikasi.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Riwayat Transaksi Peminjaman', icon : 'fas fa-money-bill-wave', path: 'riwayat_transaksi_peminjaman', desc:'Fitur ini menampilkan daftar riwayat transaksi peminjaman.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Daftar Transaksi PPOB', icon : 'fas fa-exchange', path: 'daftar_transaksi_ppob', desc:'Fitur ini menampilkan daftar dari ppob para jamaah.',  createdAt: new Date(), updatedAt: new Date() },
+      { name: 'Pembayaran Fee Agen', icon : 'fas fa-money-check-alt', path: 'pembayaran_fee_agen', desc:'Fitur ini menampilkan daftar riwayat pembayaran fee agen dan fitur pembayaran fee agen.',  createdAt: new Date(), updatedAt: new Date() },
     ], {});
   },
 

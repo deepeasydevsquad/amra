@@ -30,7 +30,7 @@ module.exports = {
       { menu_id : menus[3].id, name: 'Daftar Member', path: 'daftar_member', tab:`[{"id":"${tabs[23].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[3].id, name: 'Deposit & Tabungan', path: 'deposit_tabungan', tab:`[{"id":"${tabs[3].id}"},{"id":"${tabs[43].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[3].id, name: 'Daftar Jamaah', path: 'daftar_jamaah', tab:`[{"id":"${tabs[24].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
-      { menu_id : menus[3].id, name: 'Daftar Agen', path: 'daftar_agen', tab:`[{"id":"${tabs[26].id}"},{"id":"${tabs[55].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
+      { menu_id : menus[3].id, name: 'Daftar Agen', path: 'daftar_agen', tab:`[{"id":"${tabs[26].id}"},{"id":"${tabs[56].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[3].id, name: 'Daftar Muthawif', path: 'daftar_muthawif', tab: `[{"id":"${tabs[25].id}"}]` ,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[3].id, name: 'Pinjaman', path: 'pinjaman', tab:`[{"id":"${tabs[47].id}"},{"id":"${tabs[54].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[3].id, name: 'Whatsapp', path: 'whatsapp', tab:`[{"id":"${tabs[48].id}"},{"id":"${tabs[49].id}"},{"id":"${tabs[50].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
