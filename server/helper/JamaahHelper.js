@@ -33,7 +33,7 @@ JamaahHelper.getAgenById = async (id) => {
             include: [
                 {
                     model: Member,
-                    attributes: ['fullname'],
+                    attributes: ['id', 'fullname'],
                 },
                 {
                     model: Level_keagenan,
