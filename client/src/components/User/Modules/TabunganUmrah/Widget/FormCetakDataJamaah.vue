@@ -116,11 +116,11 @@ const cetakDataJamaah = async () => {
         isLoading.value = true
         const url = `/daftar-tabungan-umrah/cetak-data-jamaah/${props.tabunganId}/cetak?petugasId=${form.petugas_id}`;
         window.open(url, '_blank');
+        showConfirmDialog.value = false
       } catch (error) {
         console.error(error)
         displayNotification(error?.response?.data?.error_msg, 'error')
       } finally {
-        showConfirmDialog.value = false
         isLoading.value = false
       }
     }
