@@ -491,8 +491,9 @@ const cetakKwitansi = async (invoice: string) => {
       :tabunganId="tabunganId"
       @close="isFormAddHandoverOpen = false; fetchData()"
       @success="displayNotification('Handover Fasilitas berhasil ditambahkan', 'success')"
+      @status="(payload) => displayNotification(payload.err_msg || 'Handover Fasilitas gagal ditambahkan', payload.error ? 'error' : 'success')"
       />
-  </transition>
+    </transition>
 
   <!-- Form Cetak Data Jamaah -->
   <transition

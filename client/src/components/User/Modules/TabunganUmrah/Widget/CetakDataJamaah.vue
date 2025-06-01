@@ -37,6 +37,9 @@ watch(data, () => {
       window.scrollTo(0, 0);
       window.print();
       setTimeout(() => {
+        if (window.opener) {
+          window.opener.postMessage({ event: 'sukses', message: 'Data jamaah berhasil dicetak' }, '*');
+        }
         window.close();
       }, 500);
     }, 500);
@@ -45,16 +48,26 @@ watch(data, () => {
 
 onMounted(async () => {
   await fetchData();
-  if (!data.value) {
-    window.close();
+  if (!data.value || data.value.length === 0) {
+    if (window.opener) {
+      window.opener.postMessage({ event: 'gagal', message: 'Data jamaah tidak ditemukan' }, '*');
+      window.close();
+    } else {
+      window.close();
+    }
   }
 });
 
 const groupTanggalKotak = (tanggal: string) => {
-  const [tahun, bulan, hari] = tanggal.split('-');
+  const parts = tanggal.split('-');
+  if (parts.length !== 3 || parts.some(part => part.length === 0)) {
+    return ['-', '-', '-', '-', '|', '-', '-', '|', '-', '-'];
+  }
+
+  const [tahun, bulan, hari] = parts;
   return [
     ...tahun.split(''),
-    '|', // pemisah
+    '|',
     ...bulan.split(''),
     '|',
     ...hari.split('')
@@ -62,7 +75,10 @@ const groupTanggalKotak = (tanggal: string) => {
 };
 
 function formatDateToBoxes(dateStr: string): string[] {
-  return dateStr?.split('') || [];
+  if (!dateStr || dateStr.trim().length !== 10) {
+    return Array(10).fill('-');
+  }
+  return dateStr.split('');
 }
 </script>
 
@@ -154,8 +170,8 @@ function formatDateToBoxes(dateStr: string): string[] {
           <div>
             <div class="border border-gray-900">
               <p class=" font-semibold text-center border-b border-gray-900">NOMOR PASSPORT</p>
-              <div class="flex">
-                <template v-for="(char, index) in data.nomor_passport.split('')" :key="index">
+              <div class="flex justify-center">
+                <template v-for="(char, index) in Array(9).fill('-').map((_, i) => data.nomor_passport?.[i] || '-')" :key="index">
                   <div class="w-6 h-8 border border-gray-900 flex items-center justify-center ">{{ char }}</div>
                 </template>
               </div>
@@ -356,6 +372,7 @@ function formatDateToBoxes(dateStr: string): string[] {
           </div>
           <p class="ml-2">1. Menikah</p>
           <p class="ml-2">2. Belum Menikah</p>
+          <p class="ml-2">3. Janda Duda</p>
         </div>
         <p class="w-28 font-medium">Tahun Nikah</p>
         <div class="min-w-[120px] border border-gray-900 px-3 flex-grow">

@@ -115,25 +115,29 @@ const cetakDataJamaah = async () => {
       try {
         isLoading.value = true
         const url = `/daftar-tabungan-umrah/cetak-data-jamaah/${props.tabunganId}/cetak?petugasId=${form.petugas_id}`;
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('target', '_blank');
-        link.setAttribute('rel', 'noopener noreferrer');
-        link.click();
+        window.open(url, '_blank');
       } catch (error) {
         console.error(error)
         displayNotification(error?.response?.data?.error_msg, 'error')
       } finally {
         showConfirmDialog.value = false
-        emit('success')
-        emit('close')
         isLoading.value = false
       }
     }
   )
 }
 
-onMounted(() => { fetchData() })
+onMounted(() => {
+  fetchData()
+  window.addEventListener('message', (event) => {
+    console.log('Pesan dari child:', event.data); // debug
+    if (event.data?.event === 'sukses') {
+      displayNotification(event.data.message, 'success');
+    } else if (event.data?.event === 'gagal') {
+      displayNotification(event.data.message, 'error');
+    }
+  });
+})
 
 
 </script>

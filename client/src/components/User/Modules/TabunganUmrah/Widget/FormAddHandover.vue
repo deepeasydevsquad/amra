@@ -10,7 +10,10 @@ const props = defineProps<{
   isFormAddHandoverOpen: boolean;
   tabunganId: number | null;
 }>()
-const emit = defineEmits<{ (e: 'close'): void }>()
+const emit = defineEmits<{
+  (e: 'close'): void
+  (e: 'status', payload: {error: boolean, err_msg?: string}): void
+}>()
 
 // Interfaces
 interface ErrorFields {
@@ -72,7 +75,7 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   if (timeoutId.value) clearTimeout(timeoutId.value)
   timeoutId.value = window.setTimeout(() => {
     showNotification.value = false
-  }, 4000)
+  }, 1500)
 }
 
 // Function: Confirmation
@@ -95,7 +98,9 @@ const fetchData = async () => {
     Mst_paket.value = Mst_paketResponse.data || []
     handoverFasilitas.value = handoverFasilitasResponse.data || []
     if (Mst_paket.value.error === true) {
-      displayNotification('Tidak ada data handover fasilitas ditemukan. Silakan ambil paket terlebih dahulu pada update target paket.', 'error')
+      emit('status', { error: true, err_msg: 'Tidak ada data handover fasilitas ditemukan. Silakan ambil paket terlebih dahulu pada update target paket.' })
+      emit('close')
+      return
     }
   } catch (error) {
     displayNotification('Failed to fetch data', 'error')

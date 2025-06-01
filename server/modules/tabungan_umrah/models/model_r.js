@@ -163,15 +163,10 @@ class Model_r {
           : "-",
       },
       target_paket_name: await this.getPaketNameById(e.target_paket_id),
-      target_paket_id: e.target_paket_id || null,
       total_tabungan: e.total_tabungan,
-      status: e.status,
-      fee_agen_id: e.fee_agen_id || "-",
       agen: await this.getAgenDetailById(e.fee_agen_id),
-      batal_berangkat: e.batal_berangkat === "ya",
       paket_transaction_id: e.paket_transaction_id,
       sisa_pembelian: e.sisa_pembelian,
-      invoice_sisa_deposit: e.invoice_sisa_deposit,
       riwayat_tabungan: await this.getRiwayatTabungan(e.id),
       riwayat_handover_fasilitas: await this.getRiwayatHandover(e.id),
       createdAt: moment(e.createdAt).format('YYYY-MM-DD HH:mm:ss'),
@@ -207,9 +202,8 @@ class Model_r {
     const sql = {
       where,
       attributes: [
-        "id", "target_paket_id", "total_tabungan", "status", "fee_agen_id",
-        "batal_berangkat", "paket_transaction_id", "sisa_pembelian", 
-        "invoice_sisa_deposit", "createdAt", "updatedAt"
+        "id", "target_paket_id", "total_tabungan", "paket_transaction_id", 
+        "sisa_pembelian", "createdAt", "updatedAt"
       ],
       include: [{
         model: Jamaah,
@@ -675,66 +669,72 @@ class Model_r {
               {
                 model: Mst_pendidikan,
                 attributes: ["id", "name"], 
-                required: true,
+                required: false,
               },
               {
                 model: Mst_pekerjaan,
                 attributes: ["id", "name"],
-                required: true,
+                required: false,
               },
             ],
           },
           {
             model: Paket,
             attributes: ["id", "name", "departure_date", "departure_from"],
-            required: true,
+            required: false,
           },
         ],
       });
-      const mstKota = await Mst_kota.findByPk(tabungan.Paket.departure_from);
-      const alamatInfo = await getAlamatInfo(tabungan.Jamaah.kelurahan_id);
+      const mstKota = tabungan.Paket?.departure_from 
+        ? await Mst_kota.findByPk(tabungan.Paket.departure_from) 
+        : null;
+      const alamatInfo = tabungan.Jamaah.kelurahan_id 
+        ? await getAlamatInfo(tabungan.Jamaah.kelurahan_id) 
+        : null;
 
       // console.log("Tabungan Data:", tabungan);
-      data["nama_paket"] = tabungan.Paket.name || "-";
-      data["nomor_register"] = tabungan.nomor_register || "-";
-      data["departure_date"] = moment(tabungan.Paket.departure_date).format("YYYY-MM-DD");
-      data["departure_from"] = mstKota?.name || "-";
-      data["fullname_jamaah"] = tabungan.Jamaah.Member.fullname || "-";
-      data["photo"] = tabungan.Jamaah.Member.photo || "-";
-      data["nama_ayah"] = tabungan.Jamaah.nama_ayah || "-";
-      data["birth_place"] = tabungan.Jamaah.Member.birth_place || "-";
-      data["birth_date"] = moment(tabungan.Jamaah.Member.birth_date).format("YYYY-MM-DD") || "-";
-      data["gender"] = tabungan.Jamaah.Member.gender === "laki_laki" ? 1 : 2;
-      data["umur"] = moment().diff(moment(tabungan.Jamaah.Member.birth_date), 'years') || "-";
-      data["blood_type"] = tabungan.Jamaah.blood_type || "-";
-      data["nomor_passport"] = tabungan.Jamaah.nomor_passport || "-";
-      data["tanggal_di_keluarkan_passport"] = moment(tabungan.Jamaah.tanggal_di_keluarkan_passport).format("YYYY-MM-DD") || "-";
-      data["masa_berlaku_passport"] = moment(tabungan.Jamaah.masa_berlaku_passport).format("YYYY-MM-DD") || "-";
-      data["tempat_di_keluarkan_passport"] = tabungan.Jamaah.tempat_di_keluarkan_passport || "-";
-      data["alamat"] = tabungan.Jamaah.alamat || "-";
-      data["kelurahan"] = alamatInfo.kelurahan_name || "-";
-      data["kecamatan"] = alamatInfo.kecamatan_name || "-";
-      data["kabupaten"] = alamatInfo.kabupaten_kota_name || "-";
-      data["provinsi"] = alamatInfo.provinsi_name || "-";
-      data["kode_pos"] = tabungan.Jamaah.kode_pos || "-"; 
-      data["nomor_telephone"] = tabungan.Jamaah.nomor_telephone || "-";
-      data["whatsapp_number"] = tabungan.Jamaah.Member.whatsapp_number || "-";
-      data["email_jamaah"] = tabungan.Jamaah.email || "-";
-      data["pengalaman_haji"] = tabungan.Jamaah.pengalaman_haji === 1 ? "B" : "A" || "-";
-      data["tahun_haji"] = tabungan.Jamaah.tahun_umrah ? moment(tabungan.Jamaah.tahun_haji).format("YYYY-MM-DD") : "-";
-      data["pengalaman_umrah"] = tabungan.Jamaah.pengalaman_umrah === 1 ? "B" : "A" || "-";
-      data["tahun_umrah"] = tabungan.Jamaah.tahun_umrah ? moment(tabungan.Jamaah.tahun_umrah).format("YYYY-MM-DD") : "-";
-      data["desease"] = tabungan.Jamaah.desease || "-";
-      data["pendidikan"] = tabungan.Jamaah.Mst_pendidikan?.id || "-";
-      data["pekerjaan"] = tabungan.Jamaah.Mst_pekerjaan?.name || "-";
-      data["profession_instantion_name"] = tabungan.Jamaah.profession_instantion_name || "-";
-      data["profession_instantion_address"] = tabungan.Jamaah.profession_instantion_address || "-";
-      data["profession_instantion_telephone"] = tabungan.Jamaah.profession_instantion_telephone || "";
-      data["status_nikah"] = tabungan.Jamaah.status_nikah === "menikah" ? 1 : 2 || "-";
-      data["tanggal_nikah"] = tabungan.Jamaah.tanggal_nikah ? moment(tabungan.Jamaah.tanggal_nikah).format("YYYY-MM-DD") : "-";
-      data["nama_keluarga"] = tabungan.Jamaah.nama_keluarga || "-";
-      data["alamat_keluarga"] = tabungan.Jamaah.alamat_keluarga || "-";
-      data["telephone_keluarga"] = tabungan.Jamaah.telephone_keluarga || "-";
+      data["nama_paket"] = tabungan.Paket?.name ?? "-";
+      data["nomor_register"] = tabungan.nomor_register ?? "-";
+      data["departure_date"] = tabungan.Paket?.departure_date ? moment(tabungan.Paket.departure_date).format("YYYY-MM-DD") : "-";
+      data["departure_from"] = mstKota?.name ?? "-";
+      data["fullname_jamaah"] = tabungan.Jamaah.Member?.fullname ?? "-";
+      data["photo"] = tabungan.Jamaah.Member?.photo ?? "-";
+      data["nama_ayah"] = tabungan.Jamaah?.nama_ayah ?? "-";
+      data["birth_place"] = tabungan.Jamaah.Member?.birth_place ?? "-";
+      data["birth_date"] = tabungan.Jamaah.Member?.birth_date ? moment(tabungan.Jamaah.Member.birth_date).format("YYYY-MM-DD") : "-";
+      data["gender"] = tabungan.Jamaah.Member?.gender === "laki_laki" ? 1 : 2;
+      data["umur"] = tabungan.Jamaah.Member?.birth_date ? moment().diff(moment(tabungan.Jamaah.Member.birth_date), 'years') : "-";
+      data["blood_type"] = tabungan.Jamaah?.blood_type ?? "-";
+      data["nomor_passport"] = tabungan.Jamaah?.nomor_passport ?? "-";
+      data["tanggal_di_keluarkan_passport"] = tabungan.Jamaah?.tanggal_di_keluarkan_passport ? moment(tabungan.Jamaah.tanggal_di_keluarkan_passport).format("YYYY-MM-DD") : "-";
+      data["masa_berlaku_passport"] = tabungan.Jamaah?.masa_berlaku_passport ? moment(tabungan.Jamaah.masa_berlaku_passport).format("YYYY-MM-DD") : "-";
+      data["tempat_di_keluarkan_passport"] = tabungan.Jamaah?.tempat_di_keluarkan_passport ?? "-";
+      data["alamat"] = tabungan.Jamaah?.alamat ?? "-";
+      data["kelurahan"] = alamatInfo?.kelurahan_name ?? "-";
+      data["kecamatan"] = alamatInfo?.kecamatan_name ?? "-";
+      data["kabupaten"] = alamatInfo?.kabupaten_kota_name ?? "-";
+      data["provinsi"] = alamatInfo?.provinsi_name ?? "-";
+      data["kode_pos"] = tabungan.Jamaah?.kode_pos ?? "-"; 
+      data["nomor_telephone"] = tabungan.Jamaah?.nomor_telephone ?? "-";
+      data["whatsapp_number"] = tabungan.Jamaah.Member?.whatsapp_number ?? "-";
+      data["email_jamaah"] = tabungan.Jamaah?.email ?? "-";
+      data["pengalaman_haji"] = tabungan.Jamaah?.pengalaman_haji === 1 ? "B" : "A" ?? "-";
+      data["tahun_haji"] = tabungan.Jamaah?.tahun_haji ? moment(tabungan.Jamaah.tahun_haji).format("YYYY-MM-DD") : "-";
+      data["pengalaman_umrah"] = tabungan.Jamaah?.pengalaman_umrah === 1 ? "B" : "A" ?? "-";
+      data["tahun_umrah"] = tabungan.Jamaah?.tahun_umrah ? moment(tabungan.Jamaah.tahun_umrah).format("YYYY-MM-DD") : "-";
+      data["desease"] = tabungan.Jamaah?.desease ?? "-";
+      data["pendidikan"] = tabungan.Jamaah?.Mst_pendidikan?.id ?? "-";
+      data["pekerjaan"] = tabungan.Jamaah?.Mst_pekerjaan?.name ?? "-";
+      data["profession_instantion_name"] = tabungan.Jamaah?.profession_instantion_name ?? "-";
+      data["profession_instantion_address"] = tabungan.Jamaah?.profession_instantion_address ?? "-";
+      data["profession_instantion_telephone"] = tabungan.Jamaah?.profession_instantion_telephone ?? "";
+      data["status_nikah"] = 
+        tabungan.Jamaah?.status_nikah === "menikah" ? 1 :
+        tabungan.Jamaah?.status_nikah === "belum_menikah" ? 2 : 3 ?? "-";
+      data["tanggal_nikah"] = tabungan.Jamaah?.tanggal_nikah ? moment(tabungan.Jamaah.tanggal_nikah).format("YYYY-MM-DD") : "-";
+      data["nama_keluarga"] = tabungan.Jamaah?.nama_keluarga ?? "-";
+      data["alamat_keluarga"] = tabungan.Jamaah?.alamat_keluarga ?? "-";
+      data["telephone_keluarga"] = tabungan.Jamaah?.telephone_keluarga ?? "-";
 
       console.log("===== data Jamaah =====");
       console.log(data)
