@@ -457,35 +457,14 @@ class Model_r {
   async getPetugasTabunganUmrah() {
     try {
       await this.initialize();
-      const body = this.req.body;
-
-      const tabungan = await Tabungan.findByPk(body.id, {
-        include: [{
-          model: Jamaah,
-          attributes: ["id", "agen_id"],
-        }],
-      });
+      const body = this.req.body; // Buat jaga jaga seandai dibutuhkan 
 
       const data = [];      
-      let agenId = null;
       data.push({
         id: `admin-${this.company_id}`,
         label: `Administrator ${await this.penerima()} (Administrator)`,
         type: "admin",
       });
-
-      // Tambahkan petugas dari relasi agen → member (kalau ada)
-      if (tabungan?.Jamaah) {
-        const agenMember = await getAgenById(tabungan.Jamaah.agen_id);
-        if (agenMember?.Member?.fullname) {
-          agenId = agenMember.id;
-          data.push({
-            id: `agen-${agenMember.id}`,
-            label: `${agenMember.Member.fullname} (Agen)`,
-            type: "agent",
-          });
-        } 
-      }
 
       console.log("Tabungan ID:", data);
       
@@ -504,11 +483,13 @@ class Model_r {
       });
       
       users.forEach(user => {
-        // if (user.id === agenId) {
-        //   // Skip jika user adalah agen
-        //   return;
-        // }
-
+        if (user.Grup.name === "admin") {
+          data.push({
+            id: `admin-${user.id}`,
+            label: `${user.Member.fullname} (${user.Grup.name})`,
+            type: "admin",
+          });
+        }
         data.push({
           id: `petugas-${user.id}`,
           label: `${user.Member.fullname} (${user.Grup.name})`,
@@ -615,7 +596,6 @@ class Model_r {
 
       const petugasId = petugasIdQuery.split("-")[1];
       const isPetugasAdmin = petugasIdQuery.startsWith("admin-");
-      const isPetugasAgen = petugasIdQuery.startsWith("agen-");
       const isPetugasStaff = petugasIdQuery.startsWith("petugas-");
 
       if (isPetugasAdmin) {
@@ -623,14 +603,6 @@ class Model_r {
           data["petugas"] = "Administrator " + penerima;
           data["jabatan"] = "Administrator";
         });
-      } else if (isPetugasAgen) {
-        const agen = await getAgenById(petugasId);
-        if (agen && agen.Member) {
-          data["petugas"] = agen.Member.fullname || "-";
-          data["jabatan"] = "Agen";
-        } else {
-          data["petugas"] = "Agen tidak ditemukan";
-        }
       } else if (isPetugasStaff) {
         const user = await User.findByPk(petugasId, {
           include: [

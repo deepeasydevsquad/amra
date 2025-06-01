@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Header from '@/components/User/Modules/TabunganUmrah/Particle/Header.vue';
 import Footer from '@/components/User/Modules/TabunganUmrah/Particle/Footer.vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { cetakDataJamaahTabunganUmrah } from '@/service/tabungan_umrah';
 
@@ -31,20 +31,24 @@ const fetchData = async () => {
   }
 };
 
-onMounted(async () => {
-  await fetchData()
-  if (!data.value) {
-    window.close()
-  } if (!isLoading.value && data.value) {
+watch(data, () => {
+  if (data.value) {
     setTimeout(() => {
-      window.scrollTo(0, 0)
-      window.print()
+      window.scrollTo(0, 0);
+      window.print();
       setTimeout(() => {
-        window.close()
-      }, 1000)
-    }, 1500)
+        window.close();
+      }, 500);
+    }, 500);
   }
-})
+});
+
+onMounted(async () => {
+  await fetchData();
+  if (!data.value) {
+    window.close();
+  }
+});
 
 const groupTanggalKotak = (tanggal: string) => {
   const [tahun, bulan, hari] = tanggal.split('-');
