@@ -1,14 +1,8 @@
 import api from './api'
 
-// export const getInfoMember = async (id:number) => {
-//   try {
-//     const response = await api.post('/member/get-member')
-//     return response.data
-//   } catch (error) {
-//     console.error('Gagal Mengambil Data:', error)
-//     throw error
-//   }
-// }
+export const getMember = async (id:number) => {
+  // Kosong
+}
 
 export const getInfoMember = async (id:number) => {
   try {
