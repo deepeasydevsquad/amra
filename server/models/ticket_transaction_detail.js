@@ -14,6 +14,9 @@ module.exports = (sequelize, DataTypes) => {
       Ticket_transaction_detail.belongsTo(models.Ticket_transaction, {
         foreignKey: "ticket_transaction_id",
       });
+      Ticket_transaction_detail.belongsTo(models.Mst_airline, {
+        foreignKey: 'airlines_id',
+      });
     }
   }
   Ticket_transaction_detail.init({

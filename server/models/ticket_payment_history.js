@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Ticket_payment_history.init({
     ticket_transaction_id: DataTypes.INTEGER,
+    nominal: DataTypes.INTEGER,
     invoice: DataTypes.STRING,
     costumer_name: DataTypes.STRING,
     costumer_identity: DataTypes.STRING,

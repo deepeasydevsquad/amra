@@ -21,8 +21,8 @@ module.exports = {
     if (tabs.length === 0) return;
 
     await queryInterface.bulkInsert('Submenus', [
-      { menu_id : menus[1].id, name: 'Transaksi Tiket', path: 'transaksi_tiket', tab:`[{"id":"${tabs[0].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
-      { menu_id : menus[1].id, name: 'Transaksi Paket', path: 'transaksi_paket', tab:`[{"id":"${tabs[1].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
+      { menu_id : menus[1].id, name: 'Transaksi Tiket', path: 'transaksi_tiket', tab:`[{"id":"${tabs[1].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
+      { menu_id : menus[1].id, name: 'Transaksi Paket', path: 'transaksi_paket', tab:`[{"id":"${tabs[0].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[1].id, name: 'Transaksi Umum', path: 'transaksi_umum', tab:`[{"id":"${tabs[16].id}"},{"id":"${tabs[17].id}"},{"id":"${tabs[18].id}"},{"id":"${tabs[19].id}"},{"id":"${tabs[20].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[1].id, name: 'Rekapitulasi', path: 'rekapitulasi', tab:`[{"id":"${tabs[21].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[2].id, name: 'Daftar Paket', path: 'daftar_paket', tab:`[{"id":"${tabs[4].id}"},{"id":"${tabs[5].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },

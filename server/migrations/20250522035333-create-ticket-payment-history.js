@@ -16,6 +16,9 @@ module.exports = {
           key: "id",
         },
       },
+      nominal: {
+         type: Sequelize.STRING
+      },
       invoice: {
         type: Sequelize.STRING
       },

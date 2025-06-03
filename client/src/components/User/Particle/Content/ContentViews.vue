@@ -40,10 +40,12 @@ import Investor from '../../Modules/Investor/Investor.vue'
 import DaftarPaket from '../../Modules/DaftarPaket/DaftarPaket.vue'
 import TabunganUmrah from '../../Modules/TabunganUmrah/TabunganUmrah.vue'
 import RiwayatPeminjaman from '../../Modules/RiwayatPeminjaman/RiwayatPeminjaman.vue'
+import TransTiket from '../../Modules/TransTiket/TransTiket.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
   trans_paket: TransPaket,
+  trans_tiket: TransTiket,
   daftar_kota: DaftarKota,
   daftar_fasilitas: DaftarFasilitas,
   daftar_mobil: JenisMobil,
