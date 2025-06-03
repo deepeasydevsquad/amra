@@ -1,6 +1,7 @@
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
 const { handleServerError, handleValidationErrors } = require("../../../helper/handleError");
+const { menghasilkan_invoice_deposit } = require("../../../helper/randomHelper");
 
 exports.getDeposit = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
@@ -30,15 +31,15 @@ exports.addDeposit = async (req, res) => {
 
   try {
     const model_r = new Model_r(req);
-    const generated_invoice = await model_r.generateInvoice();
+    const invoice = await menghasilkan_invoice_deposit();
     const model_cud = new Model_cud(req);
-    await model_cud.tambahDeposit( generated_invoice );
+    await model_cud.tambahDeposit( invoice );
     // get response
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
         error_msg: 'Proses Deposit Saldo Berhasil Dilakukan.',
-        data : { invoice : generated_invoice }
+        data : { invoice : invoice }
       });
     } else {
       res.status(400).json({

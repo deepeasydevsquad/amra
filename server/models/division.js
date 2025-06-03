@@ -13,39 +13,61 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Division.hasMany(models.Saldo_akun, {
         foreignKey: "division_id",
+        onDelete: 'CASCADE',
       });
       Division.hasMany(models.Member, {
         foreignKey: "division_id",
+        onDelete: 'CASCADE',
       });
       Division.hasMany(models.Grup, {
         foreignKey: "division_id",
+        onDelete: 'CASCADE',
       });
       Division.belongsTo(models.Company, {
         foreignKey: "company_id",
       });
       Division.hasMany(models.User, {
         foreignKey: "division_id",
+        onDelete: 'CASCADE',
       });
       Division.hasMany(models.Paket_la, {
         foreignKey: "division_id",
+        onDelete: 'CASCADE',
       });
       Division.hasMany(models.Paket, {
         foreignKey: "division_id",
+        onDelete: 'CASCADE',
       });
       Division.hasMany(models.Jurnal, {
         foreignKey: "division_id",
+        onDelete: 'CASCADE',
       });
       Division.hasMany(models.Jamaah, {
         foreignKey: "division_id",
+        onDelete: 'CASCADE',
       });
       Division.belongsTo(models.Mst_kota, {
         foreignKey: "kota_id",
       });
       Division.hasMany(models.Tabungan, {
         foreignKey: "division_id",
+        onDelete: 'CASCADE',
       });
       Division.hasMany(models.Ticket_transaction, {
         foreignKey: "division_id",
+        onDelete: 'CASCADE',
+      });
+      Division.hasMany(models.Whatsapp_message, {
+        foreignKey: "division_id",
+        onDelete: 'CASCADE',
+      });
+      Division.hasMany(models.Paket_transaction, {
+        foreignKey: "division_id",
+        onDelete: 'CASCADE',
+      });
+      Division.hasMany(models.Investor, {
+        foreignKey: "division_id",
+        onDelete: 'CASCADE',
       });
     }
   }

@@ -18,6 +18,7 @@ module.exports = {
           model: "Divisions",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       agen_id: {
         type: Sequelize.INTEGER,
@@ -25,6 +26,7 @@ module.exports = {
           model: "Agens",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       member_id: {
         type: Sequelize.INTEGER,
@@ -32,6 +34,7 @@ module.exports = {
           model: "Members",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       kelurahan_id: {
         type: Sequelize.BIGINT,
@@ -39,6 +42,7 @@ module.exports = {
           model: "Kelurahans",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       title: {
         type: Sequelize.ENUM,
@@ -89,6 +93,7 @@ module.exports = {
           model: "Mst_pendidikans",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       blood_type: {
         type: Sequelize.STRING
@@ -114,6 +119,7 @@ module.exports = {
           model: "Mst_pekerjaans",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       profession_instantion_name: {
         type: Sequelize.STRING

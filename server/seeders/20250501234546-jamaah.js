@@ -6,8 +6,8 @@ module.exports = {
     await queryInterface.bulkInsert('Jamaahs', [
       { 
         division_id: 1, 
-        agen_id: null, 
-        member_id: 1, 
+        agen_id: 1, 
+        member_id: 2, 
         kelurahan_id: 1101012001,
         title: 'tuan',
         nama_ayah: 'Ahmad Zaki',

@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Handover_fasilitas.hasMany(models.Handover_fasilitas_detail, {
         foreignKey: "handover_fasilitas_id",
+        onDelete: 'CASCADE',
       });
     }
   }

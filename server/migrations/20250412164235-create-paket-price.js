@@ -10,10 +10,20 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       paket_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Pakets",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
       },
       mst_paket_type_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Mst_paket_types",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
       },
       price: {
         type: Sequelize.INTEGER

@@ -42,6 +42,56 @@ controllers.add = async (req, res) => {
   }
 };
 
+controllers.Menabung = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    await model_cud.Menabung();
+
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Menabung Tabungan Umrah berhasil ditambahkan.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Menabung Tabungan Umrah Gagal Ditambahkan.',
+      });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
+
+controllers.Refund = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    await model_cud.Refund();
+
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Refund Tabungan Umrah berhasil ditambahkan.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Refund Tabungan Umrah Gagal Ditambahkan.',
+      });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
+
 // Update tabungan
 controllers.updateTargetPaket = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
@@ -67,6 +117,30 @@ controllers.updateTargetPaket = async (req, res) => {
   }
 }
 
+controllers.addHandoverFasilitas = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    const invoice = await model_cud.addHandoverFasilitas();
+
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Handover Fasilitas Tabungan Umrah berhasil ditambahkan.',
+        data: { invoice: invoice },
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Handover Fasilitas Tabungan Umrah Gagal Ditambahkan.',
+      });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
 
 // Hapus tabungan
 controllers.delete = async (req, res) => {
@@ -105,6 +179,30 @@ controllers.getJamaahTabunganUmrah = async (req, res) => {
     handleServerError(res, error.message);
   }
 };
+
+controllers.getMstFasilitas = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_r = new Model_r(req);
+    const feedBack = await model_r.getMstFasilitas();
+    res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
+controllers.getHandoverFasilitasById = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_r = new Model_r(req);
+    const feedBack = await model_r.getHandoverFasilitasById();
+    res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
 
 // Mengambil daftar Paket Tabungan Umrah
 controllers.getPaketTabunganUmrah = async (req, res) => {

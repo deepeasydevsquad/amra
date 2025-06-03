@@ -15,6 +15,7 @@ module.exports = {
           model: "Companies",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       peminjaman_id: {
         type: Sequelize.INTEGER,
@@ -22,6 +23,7 @@ module.exports = {
           model: "Peminjamans",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       term: {
         type: Sequelize.INTEGER

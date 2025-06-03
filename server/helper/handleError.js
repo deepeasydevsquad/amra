@@ -27,13 +27,7 @@ helper.error_msg2 = async (errors) => {
 helper.error_msg = async (errors) => {
   let num = 0;
   let err_msg = "";
-
-  console.log("+++++++++++++error_msg");
-  console.log("error_msg");
-  console.log(errors);
-  console.log(typeof errors);
-  console.log("+++++++++++++error_msg");
-  
+ 
   errors.array().forEach((error) => {
     if (num != 0) err_msg += "<br>";
     err_msg += error.msg;
@@ -87,9 +81,5 @@ helper.handleValidationErrorsFiles = async (req, res, files) => {
 helper.handleServerError = (res, message = MESSAGES.INTERNAL_ERROR) => {
   res.status(500).json({ error: true, error_msg: message });
 };
-
-// helper.messageError = () => {
-//   return MESSAGES;
-// };
 
 module.exports = helper;

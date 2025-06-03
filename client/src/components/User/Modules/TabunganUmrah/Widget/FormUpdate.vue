@@ -2,16 +2,17 @@
 import SearchableSelect from '@/components/User/Modules/TabunganUmrah/Particle/SearchableSelect.vue'
 import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue';
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
+import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confirmation.vue';
 
 import { onMounted, reactive, ref, watch } from 'vue'
 import { getPaket, updateTabunganUmrah } from '@/service/tabungan_umrah'
 
 const props = defineProps<{
-  isFormUpdateOpen: boolean,
-  target_paket_id: number,
+  isFormUpdateOpen: boolean;
   dataTabungan: {
     id: number;
-    total_tabungan: number,
+    total_tabungan: number;
+    target_paket_id: number;
     member: {
       fullname: string;
       identity_number: string;
@@ -38,6 +39,10 @@ const showNotification = ref(false)
 const notificationMessage = ref('')
 const notificationType = ref('')
 const timeoutId = ref<number | null>(null)
+const showConfirmDialog = ref<boolean>(false);
+const confirmMessage = ref<string>('');
+const confirmTitle = ref<string>('');
+const confirmAction = ref<(() => void) | null>(null);
 
 const errors = ref<ErrorFields>({
   id: '',
@@ -45,7 +50,7 @@ const errors = ref<ErrorFields>({
 
 const form = reactive({
   id: props.dataTabungan?.id ?? null,
-  target_paket_id: props.target_paket_id ?? null,
+  target_paket_id: props.dataTabungan?.target_paket_id ?? null,
 })
 
 // Function: Notification
@@ -59,6 +64,14 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   }, 3000)
 }
 
+// Function: Confirmation
+const showConfirmation = (title: string, message: string, action: () => void) => {
+  confirmTitle.value = title;
+  confirmMessage.value = message;
+  confirmAction.value = action;
+  showConfirmDialog.value = true;
+};
+
 // Function: Ambil data awal
 const fetchData = async () => {
   try {
@@ -66,7 +79,6 @@ const fetchData = async () => {
     const paketResponse = await getPaket();
     if (paketResponse.data) {
       PaketList.value = [{ id: null, name: 'Pilih Paket' }, ...paketResponse.data]
-      form.target_paket_id = props.dataTabungan?.target_paket_id ?? null
     }
 
   } catch (error) {
@@ -95,27 +107,33 @@ const validateForm = (): boolean => {
 const saveData = async () => {
   if (!validateForm()) return
 
-  try {
-    isLoading.value = true
-    const payload: {
-      id: number;
-      target_id: number | null;
-    } = {
-      id: props.dataTabungan?.id || 0,
-      target_id: form.target_paket_id ?? null,
+  showConfirmation(
+    'Konfirmasi Simpan',
+    'Anda yakin ingin menyimpan perubahan?',
+    async () => {
+      try {
+        isLoading.value = true
+        const payload: {
+          id: number;
+          target_id: number | null;
+        } = {
+          id: props.dataTabungan?.id || 0,
+          target_id: form.target_paket_id ?? null,
+        }
+
+        console.debug(payload)
+
+        await updateTabunganUmrah(payload)
+        emit('success')
+        emit('close')
+      } catch (error) {
+        console.error(error)
+        displayNotification(error?.response?.data?.error_msg, 'error')
+      } finally {
+        isLoading.value = false
+      }
     }
-
-    console.debug(payload)
-
-    await updateTabunganUmrah(payload)
-    emit('success')
-    emit('close')
-  } catch (error) {
-    console.error(error)
-    displayNotification(error?.response?.data?.error_msg, 'error')
-  } finally {
-    isLoading.value = false
-  }
+  )
 }
 
 onMounted(() => { fetchData() })
@@ -133,7 +151,8 @@ const formatPrice = (value: number | string): string => {
   }).format(numericValue)
 }
 
-const price = ref<number>(0)
+const price_sisa = ref<number>(0)
+const price_harga = ref<number>(0)
 const hari_tersisa = ref('')
 
 watch(
@@ -142,15 +161,19 @@ watch(
     if (!newTargetPaketId) return;
 
     try {
+      isLoading.value = true
       const paketResponse = await getPaket();
-      const paket = paketResponse.data?.find((p) => p.id === newTargetPaketId);
+      const paket = paketResponse.data?.find((p : Paket) => p.id === newTargetPaketId);
 
       if (paket) {
-        price.value = paket.price - (props.dataTabungan?.total_tabungan || 0);
+        price_sisa.value = paket.price - (props.dataTabungan?.total_tabungan || 0);
+        price_harga.value = paket.price;
         hari_tersisa.value = paket.hari_tersisa || '';
       }
     } catch (error) {
       console.error('Failed to fetch paket:', error);
+    } finally {
+      isLoading.value = false
     }
   },
   { immediate: true }
@@ -197,9 +220,11 @@ watch(
                 </div>
               </div>
               <div class="mt-4 p-3 border border-yellow-200 bg-yellow-50 rounded-md text-sm text-yellow-800">
-                Sisa kekurangan: <strong>{{ formatPrice(price) }}</strong>
+                Harga paket : <strong>{{ formatPrice(price_harga) }}</strong>
                 <br />
-                Perkiraan keberangkatan: <strong>{{ hari_tersisa ? hari_tersisa + ' Hari lagi' : '-' }}</strong>
+                Sisa kekurangan : <strong>{{ formatPrice(price_sisa) }}</strong>
+                <br />
+                Perkiraan keberangkatan : <strong>{{ hari_tersisa ? hari_tersisa + ' Hari lagi' : '-' }}</strong>
               </div>
             </div>
         </div>
@@ -217,5 +242,18 @@ watch(
   </div>
     <!-- Notification -->
   <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" />
+
+  <Confirmation
+    :showConfirmDialog="showConfirmDialog"
+    :confirmTitle="confirmTitle"
+    :confirmMessage="confirmMessage"
+  >
+    <button @click="confirmAction && confirmAction()" class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">
+      Ya
+    </button>
+    <button @click="showConfirmDialog = false" class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+      Tidak
+    </button>
+  </Confirmation>
 </template>
 

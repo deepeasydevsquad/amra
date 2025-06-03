@@ -1,11 +1,12 @@
 <script setup lang="ts">
 // Import Icon
-import CetakIcon from '@/components/User/Modules/TabunganUmrah/Icon/CetakIcon.vue'
+import CetakIcon from '@/components/Icons/CetakIcon.vue'
 import EditIcon from '@/components/User/Modules/TabunganUmrah/Icon/EditIcon.vue'
 import RefundIcon from '@/components/User/Modules/TabunganUmrah/Icon/RefundIcon.vue'
 import NabungIcon from '@/components/User/Modules/TabunganUmrah/Icon/NabungIcon.vue'
 import HandoverIcon from '@/components/User/Modules/TabunganUmrah/Icon/HandoverIcon.vue'
-import DeleteIconX from '@/components/User/Modules/TabunganUmrah/Icon/DeleteIconX.vue'
+import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
+import Pagination from '@/components/Pagination/Pagination.vue'
 
 // import element
 import LightButton from '@/components/Button/LightButton.vue'
@@ -15,7 +16,10 @@ import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confi
 
 // import widget
 import FormAdd from '@/components/User/Modules/TabunganUmrah/Widget/FormAdd.vue'
+import FormAddHandover from '@/components/User/Modules/TabunganUmrah/Widget/FormAddHandover.vue'
 import FormUpdate from '@/components/User/Modules/TabunganUmrah/Widget/FormUpdate.vue'
+import FormMenabung from '@/components/User/Modules/TabunganUmrah/Widget/FormMenabung.vue'
+import FormRefund from '@/components/User/Modules/TabunganUmrah/Widget/FormRefund.vue'
 
 // import API
 import { daftar_tabungan_umrah, deleteTabunganUmrah, cekKwitansiTabunganUmrah } from '@/service/tabungan_umrah'
@@ -67,8 +71,9 @@ interface TabunganUmrah {
   agen: {
     fullname: string;
     level: string;
+    default_fee: number;
   };
-  batal_berangkat: string;
+  batal_berangkat: number;
   transaksi_paket_id: number;
   sisa_pembelian: number;
   invoice_sisa_deposit: string;
@@ -79,6 +84,10 @@ interface TabunganUmrah {
     transaksi: string;
     penerima: string;
   }[];
+  riwayat_handover_fasilitas: {
+    id: number;
+    name: string;
+  }[];
   createdAt: string;
   updatedAt: string;
 }
@@ -88,6 +97,9 @@ const dataTabunganUmrah = ref<TabunganUmrah[]>([]);
 const selectTabunganUmrah = ref<TabunganUmrah | null>(null);
 const isFormOpen = ref<boolean>(false);
 const isFormUpdateOpen = ref<boolean>(false);
+const isFormAddHandoverOpen = ref<boolean>(false);
+const isFormMenabungOpen = ref<boolean>(false);
+const isFormRefundOpen = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
@@ -96,7 +108,7 @@ const notificationType = ref<'success' | 'error'>('success');
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
-const totalColumns = ref(3); // Default 3 kolom
+const totalColumns = ref(7); // Default 3 kolom
 
 const fetchData = async () => {
   try {
@@ -116,10 +128,13 @@ const fetchData = async () => {
     totalPages.value = Math.ceil(response.total / itemsPerPage);
     dataTabunganUmrah.value = response.data || []; // Ensure it assigns an array
 
-    isLoading.value = false;
+    console.log('Fetched data:', response.data);
+
   } catch (error) {
       console.error('Error fetching data:', error);
       displayNotification('Gagal mengambil data.', 'error');
+  } finally {
+    isLoading.value = false
   }
 };
 
@@ -154,6 +169,21 @@ const openFormAdd = () => {
 const openFormUpdate = (tabungan: TabunganUmrah) => {
   selectTabunganUmrah.value = tabungan;
   isFormUpdateOpen.value = true;
+}
+
+const openFormMenabung = (tabungan: TabunganUmrah) => {
+  selectTabunganUmrah.value = tabungan;
+  isFormMenabungOpen.value = true;
+}
+
+const openFormRefund = (tabungan: TabunganUmrah) => {
+  selectTabunganUmrah.value = tabungan;
+  isFormRefundOpen.value = true;
+}
+
+const openFormAddHandover = (tabungan: TabunganUmrah) => {
+  selectTabunganUmrah.value = tabungan;
+  isFormAddHandoverOpen.value = true;
 }
 
 const deleteData = async (id: number) => {
@@ -276,33 +306,35 @@ const cetakKwitansi = async (invoice: string) => {
                     <div class="rounded-t bg-gray-200 px-2 py-2 font-semibold text-center">
                       Riwayat Tabungan Umrah
                     </div>
-                    <template v-if="tabungan.riwayat_tabungan.length">
-                      <table class="w-full mb-4 text-xs text-center text-gray-700 border">
-                        <thead class="bg-gray-50 border-b">
-                          <tr>
-                            <th class="p-2 border w-[7%] text-sm">#</th>
-                            <th class="p-2 border w-[13%] text-sm">Invoice</th>
-                            <th class="p-2 border w-[23%] text-sm">Biaya</th>
-                            <th class="p-2 border w-[26%] text-sm">Tanggal Transaksi</th>
-                            <th class="p-2 border w-[25%] text-sm">Penerima</th>
-                            <th class="p-2 border w-[5%] text-sm">Aksi</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="(riwayat, index) in tabungan.riwayat_tabungan" :key="index" class="border-t hover:bg-gray-200 text-sm">
-                            <td class="p-2 border">{{ index + 1 }}</td>
-                            <td class="p-2 border">{{ riwayat.invoice }}</td>
-                            <td class="p-2 border">Rp {{ riwayat.nominal_tabungan.toLocaleString() }},-</td>
-                            <td class="p-2 border">{{ riwayat.transaksi }}</td>
-                            <td class="p-2 border">{{ riwayat.penerima }}</td>
-                            <td class="p-2 border">
-                              <button class="rounded bg-gray-200 p-2 hover:bg-gray-300" @click.prevent="cetakKwitansi(riwayat.invoice)">
-                                <CetakIcon class="h-6 w-6 text-gray-600" />
-                              </button>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                    <template v-if="tabungan.riwayat_tabungan.length" >
+                      <div class="max-h-[340px] overflow-y-auto">
+                        <table class="w-full mb-4 text-xs text-center text-gray-700 border">
+                          <thead class="bg-gray-50 border-b">
+                            <tr>
+                              <th class="p-2 border w-[7%] text-sm">#</th>
+                              <th class="p-2 border w-[13%] text-sm">Invoice</th>
+                              <th class="p-2 border w-[23%] text-sm">Biaya</th>
+                              <th class="p-2 border w-[26%] text-sm">Tanggal Transaksi</th>
+                              <th class="p-2 border w-[25%] text-sm">Penerima</th>
+                              <th class="p-2 border w-[5%] text-sm">Aksi</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-for="(riwayat, index) in tabungan.riwayat_tabungan" :key="index" class="border-t hover:bg-gray-200 text-sm">
+                              <td class="p-2 border">{{ index + 1 }}</td>
+                              <td class="p-2 border">{{ riwayat.invoice }}</td>
+                              <td class="p-2 border">Rp {{ riwayat.nominal_tabungan.toLocaleString() }},-</td>
+                              <td class="p-2 border">{{ riwayat.transaksi }}</td>
+                              <td class="p-2 border">{{ riwayat.penerima }}</td>
+                              <td class="p-2 border">
+                                <button class="rounded bg-gray-200 p-2 hover:bg-gray-300" @click.prevent="cetakKwitansi(riwayat.invoice)">
+                                  <CetakIcon class="h-4 w-4 text-gray-600" />
+                                </button>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </template>
                     <template v-else>
                       <p class="text-gray-500 text-xs italic mt-2 text-center mb-2">Daftar Riwayat Tabungan Umrah Tidak Ditemukan</p>
@@ -310,120 +342,62 @@ const cetakKwitansi = async (invoice: string) => {
                     <div class="rounded-t bg-gray-200 px-2 py-2 font-semibold text-center">
                       Riwayat Handover Fasilitas
                     </div>
-                    <!-- <template v-if="tabungan.handover.length">
-                      <table class="w-full mb-4 text-xs text-left text-gray-700 border">
-                        <thead class="bg-gray-50 border-b">
-                          <tr>
-                            <th class="p-2 border w-[15%] text-center">Invoice</th>
-                            <th class="p-2 border w-[75%] text-center">Fasilitas</th>
-                            <th class="p-2 border w-[5%] text-center">Aksi</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="(handover, index) in tabungan.handover" :key="index" class="border-t hover:bg-gray-200">
-                            <td class="p-2 border text-center">{{ handover.invoice }}</td>
-                            <td class="p-2 border">{{ handover.fasilitas }}</td>
-                            <td class="p-2 border">
-                              <a href="#" @click.prevent="printHandoverFasilitas(tabungan.id, handover.id)">
-                              <a href="#">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2-4h6a2 2 0 012 2v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4a2 2 0 012-2h2" />
-                                </svg>
-                              </a>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                    <template v-if="tabungan.riwayat_handover_fasilitas.length" >
+                      <!-- Detail Fasilitas -->
+                      <div>
+                        <div class="border border-gray-200 p-4 rounded flex flex-wrap gap-3">
+                          <span
+                            v-for="(item, index) in tabungan.riwayat_handover_fasilitas || []"
+                            :key="index"
+                            class="border border-black px-4 py-2 rounded hover:bg-gray-100 transition"
+                          >
+                            {{ (index + 1) + '# ' + item.name }}
+                          </span>
+                        </div>
+                      </div>
                     </template>
                     <template v-else>
-                      <p class="text-gray-500 text-xs italic mt-2 text-center">Daftar Handover Fasilitas Tidak Ditemukan</p>
-                    </template> -->
-                    <div class="py-4 text-center font-bold">
-                      <span>Coming soon</span>
-                    </div>
+                      <p class="text-gray-500 text-md italic mt-2 text-center mb-2">Daftar Handover Fasilitas Tidak Ditemukan</p>
+                    </template>
                   </div>
                 </td>
                 <td class="px-6 py-4 text-center grid grid-cols-2 gap-2">
                   <div class="grid ">
                     <LightButton col-span-1 title="Cetak Data Jamaah" @click.prevent="cetakKwitansi(tabungan.invoice_sisa_deposit)">
-                      <CetakIcon class="h-6 w-6 text-gray-600" />
+                      <CetakIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
-                    <LightButton col-span-1 title="Update Target Paket" @click="openFormUpdate(tabungan)" >
-                      <EditIcon class="h-6 w-6 text-gray-600" />
+                    <LightButton col-span-1 title="Update Target Paket" @click="openFormUpdate(tabungan)">
+                      <EditIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
-                    <LightButton col-span-1 title="Refund Tabungan" >
-                      <RefundIcon class="h-6 w-6 text-gray-600" />
+                    <LightButton col-span-1 title="Refund Tabungan" @click="openFormRefund(tabungan)">
+                      <RefundIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
-                    <LightButton col-span-1 title="Menabung" >
-                      <NabungIcon class="h-6 w-6 text-gray-600" />
+                    <LightButton col-span-1 title="Menabung"  @click="openFormMenabung(tabungan)">
+                      <NabungIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
-                    <LightButton col-span-1 title="Handover Fasilitas" >
-                      <HandoverIcon class="h-6 w-6 text-gray-600" />
+                    <LightButton col-span-1 title="Handover Fasilitas" @click="openFormAddHandover(tabungan)">
+                      <HandoverIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
                     <DangerButton title="Hapus Tabungan" @click="deleteData(tabungan.id)">
-                      <DeleteIconX class="h-6 w-6 text-gray-600" />
+                      <DeleteIcon></DeleteIcon>
                     </DangerButton>
                   </div>
                 </td>
               </tr>
             </template>
             <tr v-else>
-              <td colspan="7" class="px-6 py-4 text-center text-base text-gray-600">
-                Daftar Paket tidak ditemukan.
+              <td colspan="3" class="px-6 py-4 text-center text-base text-gray-600">
+                Daftar Tabungan Umrah tidak ditemukan.
               </td>
             </tr>
           </tbody>
           <tfoot class="bg-gray-100 font-bold">
-            <tr>
-              <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
-                <nav class="flex mt-0">
-                  <ul class="inline-flex items-center -space-x-px">
-                    <!-- Tombol Previous -->
-                    <li>
-                      <button
-                        @click="prevPage"
-                        :disabled="currentPage === 1"
-                        class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg
-                          hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Previous
-                      </button>
-                    </li>
-                    <!-- Nomor Halaman -->
-                    <li v-for="page in pages" :key="page">
-                      <button
-                        @click="pageNow(page)"
-                        class="px-3 py-2 leading-tight border"
-                        :class="currentPage === page
-                          ? 'text-white bg-[#3a477d] border-[#3a477d]'
-                          : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'"
-                      >
-                        {{ page }}
-                      </button>
-                    </li>
-
-                    <!-- Tombol Next -->
-                    <li>
-                      <button
-                        @click="nextPage"
-                        :disabled="currentPage === totalPages"
-                        class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg
-                          hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Next
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
-              </td>
-            </tr>
+            <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" />
           </tfoot>
         </table>
       </div>
-
     </div>
   </div>
-
 
   <!-- Form Add -->
   <transition
@@ -459,6 +433,60 @@ const cetakKwitansi = async (invoice: string) => {
       />
   </transition>
 
+  <!-- Form Add Menabung -->
+  <transition
+    enter-active-class="transition duration-200 ease-out"
+    enter-from-class="transform scale-95 opacity-0"
+    enter-to-class="transform scale-100 opacity-100"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="transform scale-100 opacity-100"
+    leave-to-class="transform scale-95 opacity-0"
+  >
+    <FormMenabung
+      v-if="isFormMenabungOpen"
+      :isFormMenabungOpen="isFormMenabungOpen"
+      :dataTabungan="selectTabunganUmrah"
+      @close="isFormMenabungOpen = false; fetchData()"
+      @success="displayNotification('Menabung Tabungan Umrah berhasil ditambahkan', 'success')"
+      />
+  </transition>
+
+  <!-- Form Refund -->
+  <transition
+    enter-active-class="transition duration-200 ease-out"
+    enter-from-class="transform scale-95 opacity-0"
+    enter-to-class="transform scale-100 opacity-100"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="transform scale-100 opacity-100"
+    leave-to-class="transform scale-95 opacity-0"
+  >
+    <FormRefund
+      v-if="isFormRefundOpen"
+      :isFormRefundOpen="isFormRefundOpen"
+      :dataTabungan="selectTabunganUmrah"
+      @close="isFormRefundOpen = false; fetchData()"
+      @success="displayNotification('Tabungan Umrah berhasil direfund', 'success')"
+      />
+  </transition>
+
+  <!-- Form Add Handover Fasilitas -->
+  <transition
+    enter-active-class="transition duration-200 ease-out"
+    enter-from-class="transform scale-95 opacity-0"
+    enter-to-class="transform scale-100 opacity-100"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="transform scale-100 opacity-100"
+    leave-to-class="transform scale-95 opacity-0"
+  >
+    <FormAddHandover
+      v-if="isFormAddHandoverOpen"
+      :isFormAddHandoverOpen="isFormAddHandoverOpen"
+      :dataTabungan="selectTabunganUmrah"
+      @close="isFormAddHandoverOpen = false; fetchData()"
+      @success="displayNotification('Handover Fasilitas berhasil ditambahkan', 'success')"
+      />
+  </transition>
+
   <!-- Confirmation Dialog -->
   <Confirmation
     :showConfirmDialog="showConfirmDialog"
@@ -481,4 +509,3 @@ const cetakKwitansi = async (invoice: string) => {
     @close="showNotification = false"
   />
 </template>
-

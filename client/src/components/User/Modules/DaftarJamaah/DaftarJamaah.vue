@@ -59,8 +59,8 @@
             <th class="w-[15%] px-6 py-4 font-bold text-gray-900 text-center">Nomor Identitas</th>
             <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center">Nama Jamaah</th>
             <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center">Nomor Passport</th>
-            <th class="w-[20%] px-6 py-4 font-bold text-gray-900 text-center">Tempat / Tanggal Lahir</th>
-            <th class="w-[15%] px-6 py-4 font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center">Tempat / Tanggal Lahir</th>
+            <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">

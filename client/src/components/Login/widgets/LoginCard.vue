@@ -90,15 +90,13 @@ setTimeout(() => {
                 <option class="text-gray-700" value="administrator">Administrator</option>
                 <option class="text-gray-700" value="staff">Staff</option>
             </select>
-            <input
-              v-model="inputLogin.company_code"
-              type="text"
-              placeholder="Kode Perusahaan"
-              class="w-full p-2 border border-gray-300 rounded-lg input-field"
-            />
-            <p class="text-gray-500 text-xs mt-0 mb-10 italic">
-              Kode Perusahaan wajib diisi jika anda masuk sebagai Staff.
-            </p>
+            <p class="text-gray-500 text-xs mt-0 mb-10 italic">Pilih Salah Satu Tipe Akun Anda</p>
+            <template v-if="inputLogin.type === 'staff'">
+              <input v-model="inputLogin.company_code" type="text" placeholder="Kode Perusahaan" class="w-full p-2 border border-gray-300 rounded-lg input-field"/>
+              <p class="text-gray-500 text-xs mt-0 mb-10 italic">
+                Kode Perusahaan wajib diisi jika anda masuk sebagai Staff.
+              </p>
+            </template>
             <input
               v-model="inputLogin.username"
               type="text"

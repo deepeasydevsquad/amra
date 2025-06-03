@@ -86,6 +86,13 @@ const arr_router = [
   "tabungan_umrah",
   "riwayat_peminjaman",
   "trans_tiket",
+  "investor", 
+  "param_cabang",
+  "daftar_konfigurasi_surat_menyurat",
+  "buku_besar",
+  "neraca_lajur",
+  "laba_rugi",
+  "neraca"
 ];
 
 const arr = {};
@@ -123,3 +130,5 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
   console.log("Server Running On Port " + port);
 });
+
+// module.exports = app;

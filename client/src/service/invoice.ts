@@ -38,7 +38,7 @@ export const getKwitansiTabunganUmrah = async (param : string) => {
   } catch (error) {
     console.error("Gagal mengambil kwitansi terakhir tabungan umrah:", error);
   }
-}; 
+};
 
 export const getInvoicePembayaranPerbulan = async (param : string) => {
   try {
@@ -49,3 +49,15 @@ export const getInvoicePembayaranPerbulan = async (param : string) => {
     throw error; // Bisa ditangani di bagian pemanggilan
   }
 }
+
+export const getKwitansiHandoverFasilitas = async (param : string) => {
+  try {
+    console.log("Param:", param);
+    const response = await api.get(`/invoice/kwitansi-handover-fasilitas/${param}`); // Kirim data melewait URL
+    console.log("Response data:", response.data); // Debugging log
+    return response.data; // Kembalikan data hasil request
+  } catch (error) {
+    console.error("Gagal mengambil invoice paket umrah:", error);
+    throw error; // Bisa ditangani di bagian pemanggilan
+  }
+};

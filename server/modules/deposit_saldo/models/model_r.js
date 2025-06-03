@@ -54,16 +54,6 @@ class Model_r {
       }
     });
 
-    // await Mst_bank.findOne({
-    //     where: { id: id },
-    // }).then(async (e) => {
-    //     if (e) {
-    //         data["id"] = e.id;
-    //         data["kode"] = e.kode;
-    //         data["name"] = e.name;
-    //     }
-    // });
-
     if (!company) {
       console.log("Company dengan ID ini gak ditemukan:", this.company_id);
       throw new Error("Data company tidak ditemukan");

@@ -13,9 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Mst_mahram_type.hasMany(models.Mahram, {
         foreignKey: "mst_mahram_type_id",
-      });
-      Mst_mahram_type.hasMany(models.Paket_price, {
-        foreignKey: "mst_paket_type_id",
+        onDelete: 'CASCADE',
       });
     }
   }

@@ -11,9 +11,6 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      console.log("~~~~~~~~~~~~~~~~~~~~~");
-      console.log("🔥 Associating Jamaah with:", Object.keys(models));
-      console.log("~~~~~~~~~~~~~~~~~~~~~");
       // define association here
       Jamaah.belongsTo(models.Division, {
         foreignKey: "division_id",
@@ -33,17 +30,30 @@ module.exports = (sequelize, DataTypes) => {
       Jamaah.belongsTo(models.Mst_pekerjaan, {
         foreignKey: "mst_pekerjaan_id",
       });
+
       Jamaah.hasMany(models.Mahram, {
         foreignKey: "jamaah_id",
+        onDelete: 'CASCADE',
       });
       Jamaah.hasMany(models.Peminjaman, {
         foreignKey: "jamaah_id",
+        onDelete: 'CASCADE',
       });
       Jamaah.hasMany(models.Tabungan, {
         foreignKey: "jamaah_id",
+        onDelete: 'CASCADE',
       });
       Jamaah.hasMany(models.Handover_barang, {
         foreignKey: "jamaah_id",
+        onDelete: 'CASCADE',
+      });
+      Jamaah.hasMany(models.Handover_barang_paket, {
+        foreignKey: "jamaah_id",
+        onDelete: 'CASCADE',
+      });
+      Jamaah.hasMany(models.Paket_transaction, {
+        foreignKey: "jamaah_id",
+        onDelete: 'CASCADE',
       });
     }
   }

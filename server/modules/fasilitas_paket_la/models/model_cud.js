@@ -85,12 +85,6 @@ class Model_cud {
             { where: { id: fasilitasId }, transaction: this.t }
         );
 
-        console.log("_________________XXXX");
-        console.log(totalPrice);
-        console.log(total_price);
-        console.log(totalPrice + total_price);
-        console.log("_________________XXXX");
-
         await Paket_la.update(
           { total_price: totalPrice + total_price, updatedAt: myDate },
           { where: { id: body.paketlaId }, transaction: this.t }
@@ -166,10 +160,6 @@ class Model_cud {
       );
 
     } catch (error) {
-
-        console.log("------A");
-        console.log(error);
-        console.log("------A");
         console.error("Error saat menghapus item fasilitas paket LA:", error);
         this.state = false;
         this.message = error.message;

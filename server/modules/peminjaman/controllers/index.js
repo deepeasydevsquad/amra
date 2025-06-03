@@ -1,10 +1,6 @@
-console.log("===> peminjamanController loaded");
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
-const {
-  handleServerError,
-  handleValidationErrors,
-} = require("../../../helper/handleError");
+const { handleServerError, handleValidationErrors } = require("../../../helper/handleError");
 
 exports.addPinjaman = async (req, res) => {
   // filter error

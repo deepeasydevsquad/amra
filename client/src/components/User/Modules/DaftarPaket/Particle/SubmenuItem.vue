@@ -1,11 +1,6 @@
 <template>
-  <button
-    class="flex items-center gap-2 px-3 py-2 text-sm font-medium transition"
-    :class="[
-      active ? 'bg-gray-200 text-black font-semibold' : 'text-gray-700 hover:bg-gray-100'
-    ]"
-    @click="$emit('click')"
-  >
+  <button class="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium transition w-[120px] text-center" :class="[ active ? 'bg-gray-200 text-black font-semibold' : 'text-gray-700 hover:bg-gray-100']"
+  @click="$emit('click')" >
     <span v-html="iconSvg" class="w-4 h-4 inline-block" />
     <span>{{ label }}</span>
   </button>

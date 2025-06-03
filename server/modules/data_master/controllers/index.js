@@ -102,23 +102,23 @@ exports.getKota = async (req, res) => {
     handleServerError(res, error.message);
   }
 };
-exports.getProvider = async (req, res) => {
+exports.getProviderVisa = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model = new Model_r(req);
-    const data = await model.getProvider();
+    const data = await model.getProviderVisa();
     res.status(200).json(data);
   } catch (error) {
     handleServerError(res, error.message);
   }
 };
-exports.getPaketType = async (req, res) => {
+exports.getTipePaket = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model = new Model_r(req);
-    const data = await model.getPaketType();
+    const data = await model.getTipePaket();
     res.status(200).json(data);
   } catch (error) {
     handleServerError(res, error.message);
@@ -146,12 +146,12 @@ exports.getAirlines = async (req, res) => {
     handleServerError(res, error.message);
   }
 };
-exports.getAirport = async (req, res) => {
+exports.getBandara = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model = new Model_r(req);
-    const data = await model.getAirport();
+    const data = await model.getBandara();
     res.status(200).json(data);
   } catch (error) {
     handleServerError(res, error.message);
@@ -168,12 +168,12 @@ exports.getHotel = async (req, res) => {
     handleServerError(res, error.message);
   }
 };
-exports.getFacilities = async (req, res) => {
+exports.getFasilitas = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model = new Model_r(req);
-    const data = await model.getFacilities();
+    const data = await model.getFasilitas();
     res.status(200).json(data);
   } catch (error) {
     handleServerError(res, error.message);

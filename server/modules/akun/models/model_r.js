@@ -302,7 +302,6 @@ class Model_r {
         for( let x in akun_secondary_id ) {
           console.log(cabang);
           console.log(typeof x);
-          // console.log(typeof x);
           list_saldo_jurnal[akun_secondary_id[x]] = saldo_jurnal[cabang][x] !== undefined ? saldo_jurnal[cabang][x] : 0 ;
           var primary_id = x.toString().charAt(0);
           if(total_akun_primary[primary_id] === undefined ) {

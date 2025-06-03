@@ -61,7 +61,6 @@ companyHelper.getCabang = async (req) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   const decoded = jwt.decode(token);
-  // return decoded.type;
   if (decoded.type === "administrator") {
     const company = await Company.findOne({
       where: { code: decoded.company_code },

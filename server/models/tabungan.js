@@ -22,18 +22,22 @@ module.exports = (sequelize, DataTypes) => {
       });
       Tabungan.hasMany(models.Riwayat_tabungan, {
         foreignKey: "tabungan_id",
+        onDelete: 'CASCADE',
       });
       Tabungan.hasMany(models.Refund_tabungan, {
         foreignKey: "tabungan_id",
+        onDelete: 'CASCADE',
       });
       Tabungan.belongsTo(models.Fee_agen, {
         foreignKey: "fee_agen_id",
       });
       Tabungan.hasMany(models.Handover_fasilitas, {
         foreignKey: "tabungan_id",
+        onDelete: 'CASCADE',
       });
       Tabungan.hasMany(models.Handover_barang, {
         foreignKey: "tabungan_id",
+        onDelete: 'CASCADE',
       });
     }
   }
@@ -45,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
     status: DataTypes.ENUM(['active', 'non_active']),
     fee_agen_id: DataTypes.INTEGER,
     batal_berangkat: DataTypes.ENUM(['ya', 'tidak']),
-    transaksi_paket_id: DataTypes.INTEGER,
+    paket_transaction_id: DataTypes.INTEGER,
     sisa_pembelian: DataTypes.INTEGER,
     invoice_sisa_deposit: DataTypes.STRING
   }, {

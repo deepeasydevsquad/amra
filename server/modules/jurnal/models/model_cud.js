@@ -45,9 +45,6 @@ class Model_cud {
       // write log message
       this.message = `Menghapus Data Jurnal dengan ID Jurnal : ${body.id}`;
     } catch (error) {
-      console.log("______________________");
-      console.log(error);
-      console.log("______________________");
       this.state = false;
     }
   }

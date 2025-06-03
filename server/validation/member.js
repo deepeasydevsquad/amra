@@ -1,6 +1,7 @@
 const moment = require("moment");
 const { Op } = require("sequelize");
-const { Member, Company } = require("../models");
+const { Member, Company, Division } = require("../models");
+const{ getCompanyIdByCode, tipe, getCabang, getSeluruhCabangId } = require("../helper/companyHelper");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -94,4 +95,21 @@ const validateMember = async (req) => {
   return errors;
 };
 
-module.exports = { validateMember, upload };
+const check_member_id = async ( id, { req } ) => {
+  const company_id = await getCompanyIdByCode(req);
+  var check = await Member.findOne({ 
+    where: { id : id },
+    include: { 
+      required : true, 
+      model : Division,
+      where : { company_id : company_id }
+    }
+  });
+  if (!check) {
+      throw new Error("ID Member Tidak Ditemukan Dipangkalan Data");
+  }
+  
+  return true;
+}
+
+module.exports = { validateMember, upload, check_member_id };

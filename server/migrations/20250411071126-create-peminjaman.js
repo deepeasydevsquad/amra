@@ -15,6 +15,7 @@ module.exports = {
           model: "Companies",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       jamaah_id: {
         type: Sequelize.INTEGER,
@@ -22,6 +23,7 @@ module.exports = {
           model: "Jamaahs",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       register_number: {
         type: Sequelize.STRING

@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Mst_pendidikan.hasMany(models.Jamaah, {
         foreignKey: "last_education",
+        onDelete: 'CASCADE',
       });
     }
   }

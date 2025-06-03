@@ -22,9 +22,15 @@ module.exports = (sequelize, DataTypes) => {
       });
       Paket.hasMany(models.Paket_price, {
         foreignKey: "paket_id",
+        onDelete: 'CASCADE',
       });
       Paket.hasMany(models.Tabungan, {
         foreignKey: "target_paket_id",
+        onDelete: 'CASCADE',
+      });
+      Paket.hasMany(models.Paket_transaction, {
+        foreignKey: "paket_id",
+        onDelete: 'CASCADE',
       });
     }
   }

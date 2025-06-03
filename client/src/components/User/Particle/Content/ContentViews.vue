@@ -41,6 +41,11 @@ import DaftarPaket from '../../Modules/DaftarPaket/DaftarPaket.vue'
 import TabunganUmrah from '../../Modules/TabunganUmrah/TabunganUmrah.vue'
 import RiwayatPeminjaman from '../../Modules/RiwayatPeminjaman/RiwayatPeminjaman.vue'
 import TransTiket from '../../Modules/TransTiket/TransTiket.vue'
+import DaftarSuratMenyurat from '../../Modules/DaftarSuratMenyurat/DaftarSuratMenyurat.vue'
+import BukuBesar from '../../Modules/BukuBesar/BukuBesar.vue'
+import NeracaLajur from '../../Modules/NeracaLajur/NeracaLajur.vue'
+import LabaRugi from '../../Modules/LabaRugi/LabaRugi.vue'
+import Neraca from '../../Modules/Neraca/Neraca.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -76,7 +81,13 @@ const tabComponents = {
   daftar_paket: DaftarPaket,
   tabungan_umrah: TabunganUmrah,
   riwayat_transaksi_peminjaman: RiwayatPeminjaman,
+  buku_besar: BukuBesar,
+  daftar_surat_menyurat: DaftarSuratMenyurat,
+  neraca_lajur: NeracaLajur,
+  laba_rugi: LabaRugi,
+  neraca: Neraca
 }
+
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click
 const tab = useGlobalTab()

@@ -15,6 +15,7 @@ module.exports = {
           model: "Divisions",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       akun_secondary_id: {
         type: Sequelize.INTEGER,
@@ -22,6 +23,7 @@ module.exports = {
           model: "Akun_secondaries",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       saldo: {
         type: Sequelize.INTEGER

@@ -72,11 +72,6 @@ class Model_r {
         });
       }
 
-      // console.log("==================");
-      // console.log(data);
-      // console.log('Total ' + total);
-      // console.log("==================");
-
       return {
         data: data,
         total: total,

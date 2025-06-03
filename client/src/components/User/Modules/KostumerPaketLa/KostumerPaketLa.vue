@@ -2,7 +2,7 @@
 // Import Icon
 import DeleteIcon from '@/components/User/Modules/KostumerPaketLa/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/KostumerPaketLa/Icon/EditIcon.vue'
-
+import Pagination from '@/components/Pagination/Pagination.vue'
 // import element
 import DangerButton from '@/components/User/Modules/KostumerPaketLa/Particle/DangerButton.vue'
 import EditButton from '@/components/User/Modules/KostumerPaketLa/Particle/EditButton.vue'
@@ -254,49 +254,15 @@ const deleteData = async (id: number) => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <tr>
-            <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
-              <nav class="flex mt-0">
-                <ul class="inline-flex items-center -space-x-px">
-                  <!-- Tombol Previous -->
-                  <li>
-                    <button
-                      @click="prevPage"
-                      :disabled="currentPage === 1"
-                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg
-                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                  </li>
-                  <!-- Nomor Halaman -->
-                  <li v-for="page in pages" :key="page">
-                    <button
-                      @click="pageNow(page)"
-                      class="px-3 py-2 leading-tight border"
-                      :class="currentPage === page
-                        ? 'text-white bg-[#3a477d] border-[#3a477d]'
-                        : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'"
-                    >
-                      {{ page }}
-                    </button>
-                  </li>
-
-                  <!-- Tombol Next -->
-                  <li>
-                    <button
-                      @click="nextPage"
-                      :disabled="currentPage === totalPages"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg
-                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </td>
-          </tr>
+          <Pagination
+              :current-page="currentPage"
+              :total-pages="totalPages"
+              :pages="pages"
+              :total-columns="totalColumns"
+              @prev-page="prevPage"
+              @next-page="nextPage"
+              @page-now="pageNow"
+            />
         </tfoot>
       </table>
     </div>

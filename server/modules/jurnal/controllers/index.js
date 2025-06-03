@@ -53,9 +53,6 @@ controllers.delete = async ( req, res) => {
       res.status(400).json({ error: true, error_msg: 'Akun gagal dihapus.', });
     }
   } catch (error) {
-    console.log("DDDDDD");
-    console.log(error);
-    console.log("DDDDDD");
     handleServerError(res, error.message);
   }
 }

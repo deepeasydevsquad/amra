@@ -15,6 +15,7 @@ module.exports = {
           model: "Fasilitas_paket_las",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       description: {
         type: Sequelize.TEXT

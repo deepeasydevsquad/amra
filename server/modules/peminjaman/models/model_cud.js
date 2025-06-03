@@ -12,6 +12,7 @@ const {
 } = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
+const { menghasilkan_invoice_riwayat_pembayaran_peminjaman, menghasilkan_nomor_registrasi_peminjaman, menghasilkan_invoice_fee_agen } = require("../../../helper/randomHelper");
 const moment = require("moment");
 const { sequelize } = require("../../../models");
 
@@ -30,22 +31,20 @@ class Model_cud {
     this.t = await sequelize.transaction();
   }
 
-  async saldo() {
+  async mengambil_info_jamaah() {
     try {
       const jamaah = await Jamaah.findOne({
+        attribute : ['member_id', 'agen_id'], 
         where: { id: this.req.body.jamaah_id },
+        include: {
+          required : true, 
+          model : Member, 
+          attribute : ['total_deposit']
+        }
       });
-      if (!jamaah || !jamaah.member_id) return 0;
-
-      const member = await Member.findOne({
-        attributes: ["total_deposit"],
-        where: { id: jamaah.member_id },
-      });
-
-      return member?.total_deposit ?? 0;
-    } catch (err) {
-      console.error("Gagal ambil saldo:", err);
-      return 0;
+      return { member_id : jamaah.member_id, agen_id: jamaah.agen_id, total_deposit: jamaah.Member.total_deposit};
+    } catch (error) {
+      return {};
     }
   }
 
@@ -68,28 +67,6 @@ class Model_cud {
     return "Tipe user tidak diketahui";
   }
 
-  async register_number() {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const digits = () => Math.floor(Math.random() * 10);
-    const randomChar = () => chars[Math.floor(Math.random() * chars.length)];
-    return `${randomChar()}${randomChar()}${Array.from(
-      { length: 8 },
-      digits
-    ).join("")}`;
-  }
-
-  async generateInvoice() {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const nums = "0123456789";
-    let huruf = "",
-      angka = "";
-    for (let i = 0; i < 3; i++) {
-      huruf += chars[Math.floor(Math.random() * chars.length)];
-      angka += nums[Math.floor(Math.random() * nums.length)];
-    }
-    return huruf + angka;
-  }
-
   async defaultFee() {
     try {
       const jamaah = await Jamaah.findOne({
@@ -99,44 +76,14 @@ class Model_cud {
           include: { model: Level_keagenan },
         },
       });
-
       const default_fee = jamaah?.Agen?.Level_keagenan?.default_fee ?? 0;
       const agen_id = jamaah?.Agen?.id ?? null;
-
       return { default_fee, agen_id };
     } catch (err) {
-      console.error("Gagal ambil defaultFee:", err);
       return { default_fee: 0, agen_id: null };
     }
   }
 
-  async Fee_agen() {
-    try {
-      const { default_fee, agen_id } = await this.defaultFee();
-      const invoice = await this.generateInvoice();
-      const now = moment().format("YYYY-MM-DD HH:mm:ss");
-
-      return await Fee_agen.create(
-        {
-          company_id: this.company_id,
-          agen_id,
-          invoice,
-          nominal: default_fee,
-          status_bayar: "belum_lunas",
-          info: "dari pinjaman jamaah",
-          pembayaran_fee_agen_id: agen_id,
-          createdAt: now,
-          updatedAt: now,
-        },
-        { transaction: this.t }
-      );
-    } catch (err) {
-      this.state = false;
-      this.message = "Gagal membuat Fee_agen: " + err.message;
-      console.error(err);
-      return null;
-    }
-  }
 
   async Skema_peminjaman(peminjaman_id) {
     const { nominal, tenor, dp, mulai_bayar } = this.req.body;
@@ -168,22 +115,26 @@ class Model_cud {
     await this.initialize();
 
     const now = moment().format("YYYY-MM-DD HH:mm:ss");
-    const body = this.req.body;
-    const petugas = await this.petugas();
-    const register_number = await this.register_number();
-    const invoice = await this.generateInvoice();
+    const { jamaah_id, nominal, tenor, dp, sudah_berangkat = false } = this.req.body;
 
-    const { jamaah_id, nominal, tenor, dp, sudah_berangkat = false } = body;
-    const peminjam_id = jamaah_id;
+    const petugas = await this.petugas();
+    const register_number = await menghasilkan_nomor_registrasi_peminjaman();
+    const invoice = await menghasilkan_invoice_riwayat_pembayaran_peminjaman();
+    const invoice_fee_agen = await menghasilkan_invoice_fee_agen();
+    const info_jamaah = await this.mengambil_info_jamaah();
+    const saldoSebelum = info_jamaah.total_deposit;
+    const saldoSesudah = saldoSebelum + nominal;
+    const member_id = info_jamaah.member_id;
 
     try {
-      const peminjamanBaru = await Peminjaman.create(
+      // Insert data Peminjaman baru
+      const IP = await Peminjaman.create(
         {
           company_id: this.company_id,
-          jamaah_id: peminjam_id,
+          jamaah_id,
           register_number,
           nominal,
-          tenor: body.tenor,
+          tenor,
           dp,
           petugas,
           status_peminjaman: "belum_lunas",
@@ -193,17 +144,17 @@ class Model_cud {
         { transaction: this.t }
       );
 
-      const peminjaman_id = peminjamanBaru.id;
-
       if (tenor && nominal) {
-        await this.Skema_peminjaman(peminjaman_id);
+        //membuat skema peminjaman
+        await this.Skema_peminjaman(IP.id);
       }
 
       if (dp > 0) {
+        // menginput riwayat pembayara jika ada DP
         await Riwayat_pembayaran_peminjaman.create(
           {
             company_id: this.company_id,
-            peminjaman_id,
+            peminjaman_id : IP.id,
             invoice,
             nominal: dp,
             status: "dp",
@@ -215,13 +166,7 @@ class Model_cud {
         );
       }
 
-      const saldoSebelum = await this.saldo();
-      const saldoSesudah = saldoSebelum + nominal;
-
-      const jamaahData = await Jamaah.findOne({ where: { id: peminjam_id } });
-      const member_id = jamaahData?.member_id;
-
-      if (!sudah_berangkat && member_id) {
+      if (!sudah_berangkat) {
         await Deposit.create(
           {
             company_id: this.company_id,
@@ -241,8 +186,23 @@ class Model_cud {
         );
       }
 
-      if (jamaahData?.agen_id) {
-        await this.Fee_agen();
+      // tambah fee agen jika ada
+      if (info_jamaah.agen_id) {
+        const { default_fee } = await this.defaultFee();
+
+        return await Fee_agen.create(
+          {
+            company_id: this.company_id,
+            agen_id:info_jamaah.agen_id,
+            invoice: invoice_fee_agen,
+            nominal: default_fee,
+            status_bayar: "belum_lunas",
+            info: "dari pinjaman jamaah",
+            createdAt: now,
+            updatedAt: now,
+          },
+          { transaction: this.t }
+        );
       }
 
       this.message = "Peminjaman berhasil dibuat";

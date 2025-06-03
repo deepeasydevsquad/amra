@@ -25,8 +25,7 @@ controllers.get_daftar_akun = async (req, res) => {
     const model_r = new Model_r(req);
     const feedBack = await model_r.get_daftar_akun();
     res.status(200).json({ error: false, data : feedBack.data });
-  } catch (error) {
-    
+  } catch (error) {  
     handleServerError(res, error.message);
   }
 }
@@ -158,9 +157,6 @@ controllers.tutup_buku = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("Error");
-    console.log(error);
-    console.log("Error");
     handleServerError(res, error.message);
   }
 }

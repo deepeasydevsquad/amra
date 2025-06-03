@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Kostumer_paket_la.hasMany(models.Paket_la, {
         foreignKey: "kostumer_paket_la_id",
+        onDelete: 'CASCADE',
       });
     }
   }
