@@ -1,22 +1,14 @@
 <script setup lang="ts">
 import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue';
+import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confirmation.vue'
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
-import { reactive, ref } from 'vue'
-import { MenabungTabunganUmrah } from '@/service/tabungan_umrah'
+import { onMounted, reactive, ref } from 'vue'
+import { MenabungTabunganUmrah, getInfoMenabungTabunganUmrah } from '@/service/tabungan_umrah'
 
 const props = defineProps<{
   isFormMenabungOpen: boolean,
-  dataTabungan: {
-    id: number;
-    total_tabungan: number;
-    member: {
-      fullname: string;
-      identity_number: string;
-      birth_place: string;
-      birth_date: string;
-    };
-  } | null
+  tabunganId: number | null,
 }>()
 
 const emit = defineEmits<{
@@ -31,12 +23,27 @@ interface ErrorFields {
   biaya_deposit: string;
   info_deposit: string;
 }
+interface dataTabungan {
+  id: number;
+  member: {
+    fullname: string;
+    identity_number: string;
+    birth_place: string;
+    birth_date: string;
+  };
+}
 
+const dataTabungan = ref<dataTabungan>()
 const isLoading = ref(false)
 const showNotification = ref(false)
 const notificationMessage = ref('')
 const notificationType = ref('')
 const timeoutId = ref<number | null>(null)
+
+const showConfirmDialog = ref<boolean>(false);
+const confirmMessage = ref<string>('');
+const confirmTitle = ref<string>('Konfirmasi');
+const confirmAction = ref<(() => void) | null>(null);
 
 const errors = ref<ErrorFields>({
   id: '',
@@ -46,7 +53,7 @@ const errors = ref<ErrorFields>({
 })
 
 const form = reactive({
-  id: props.dataTabungan?.id ?? null,
+  id: props.tabunganId ?? null,
   sumber_dana: 'cash',
   biaya_deposit: 0,
   info_deposit: '',
@@ -63,6 +70,30 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   }, 3000)
 }
 
+// Function: Confirmation
+const showConfirmation = (title: string, message: string, action: () => void) => {
+  confirmTitle.value = title;
+  confirmMessage.value = message;
+  confirmAction.value = action;
+  showConfirmDialog.value = true;
+};
+
+// Function: Fetch Data
+const fetchData = async () => {
+  if (!props.tabunganId) return
+  isLoading.value = true
+  try {
+    const response = await getInfoMenabungTabunganUmrah(props.tabunganId)
+    dataTabungan.value = response.data
+    console.debug('Data Tabungan:', dataTabungan.value)
+  } catch (error) {
+    console.error(error)
+    displayNotification(error?.response?.data?.error_msg, 'error')
+  } finally {
+    isLoading.value = false
+  }
+}
+
 // Function: Validasi form
 const validateForm = (): boolean => {
   let isValid = true
@@ -71,11 +102,6 @@ const validateForm = (): boolean => {
     sumber_dana: '',
     biaya_deposit: '',
     info_deposit: '',
-  }
-
-  if (!form.id) {
-    errors.value.id = 'ID Tabungan Umrah wajib diisi'
-    isValid = false
   }
 
   if (!form.sumber_dana) {
@@ -96,36 +122,45 @@ const validateForm = (): boolean => {
   return isValid
 }
 
-// Save Data (contoh)
+// Save Data
 const saveData = async () => {
   if (!validateForm()) return
+  isLoading.value = true
+  showConfirmation(
+    'Konfirmasi Menabung Tabungan Umrah',
+    `Apakah Anda yakin ingin menabung sebesar ${formatPrice(form.biaya_deposit)}?`,
+    async () => {
+      if (!confirmAction.value) return
+      try {
+        console.debug('Saving data with payload:', form)
+        const payload: {
+          id: number;
+          sumber_dana: string;
+          biaya_deposit: number;
+          info_deposit: string;
+        } = {
+          id: props.tabunganId || 0,
+          sumber_dana: form.sumber_dana,
+          biaya_deposit: form.biaya_deposit,
+          info_deposit: form.info_deposit
+        }
 
-  try {
-    isLoading.value = true
-    const payload: {
-      id: number;
-      sumber_dana: string;
-      biaya_deposit: number;
-      info_deposit: string;
-    } = {
-      id: props.dataTabungan?.id || 0,
-      sumber_dana: form.sumber_dana,
-      biaya_deposit: form.biaya_deposit,
-      info_deposit: form.info_deposit
+        console.debug(payload)
+
+        await MenabungTabunganUmrah(payload)
+        emit('success')
+        emit('close')
+      } catch (error) {
+        console.error(error)
+        displayNotification(error?.response?.data?.error_msg, 'error')
+      } finally {
+        isLoading.value = false
+      }
     }
-
-    console.debug(payload)
-
-    await MenabungTabunganUmrah(payload)
-    emit('success')
-    emit('close')
-  } catch (error) {
-    console.error(error)
-    displayNotification(error?.response?.data?.error_msg, 'error')
-  } finally {
-    isLoading.value = false
-  }
+  )
 }
+
+onMounted(() => { fetchData() })
 
 // Fungsi format harga (Rp, titik ribuan)
 const formatPrice = (value: number | string): string => {
@@ -164,13 +199,13 @@ const unformatPrice = (formatted: string): number => { return parseInt(formatted
                 <label class="block text-sm font-medium text-gray-700 mb-1">Data Member</label>
                 <div class="p-3 border border-gray-200 rounded-md bg-gray-50">
                   <p class="text-sm font-semibold text-gray-800">
-                    {{ props.dataTabungan?.member.fullname || '-' }}
+                    {{ dataTabungan?.member.fullname || '-' }}
                   </p>
                   <p class="text-sm text-gray-600">
-                    Nomor Identitas: {{ props.dataTabungan?.member.identity_number || '-' }}
+                    Nomor Identitas: {{ dataTabungan?.member.identity_number || '-' }}
                   </p>
                   <p class="text-sm text-gray-600">
-                    Tempat / Tgl Lahir: {{ `${props.dataTabungan?.member.birth_place || '-'} / ${props.dataTabungan?.member.birth_date || '-'}` }}
+                    Tempat / Tgl Lahir: {{ `${dataTabungan?.member.birth_place || '-'} / ${dataTabungan?.member.birth_date || '-'}` }}
                   </p>
                 </div>
               </div>
@@ -229,6 +264,20 @@ const unformatPrice = (formatted: string): number => { return parseInt(formatted
       </div>
     </div>
   </div>
+
+  <!-- Confirmation Dialog -->
+  <Confirmation
+    :showConfirmDialog="showConfirmDialog"
+    :confirmTitle="confirmTitle"
+    :confirmMessage="confirmMessage"
+  >
+    <button @click="confirmAction && confirmAction()" class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">
+      Ya
+    </button>
+    <button @click="showConfirmDialog = false" class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+      Tidak
+    </button>
+  </Confirmation>
     <!-- Notification -->
   <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" />
 </template>

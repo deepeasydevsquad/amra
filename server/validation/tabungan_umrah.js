@@ -73,8 +73,7 @@ validation.check_id_target_paket = async (value, { req }) => {
             throw new Error(`Paket sudah pernah dihandover, update target ditolak`);
         }
 
-        // Kalau belum ada handover, lanjut cek value
-        if (value === null) {
+        if (value === null || value === undefined) {
             return true;
         }
 
@@ -102,7 +101,6 @@ validation.check_id_target_paket = async (value, { req }) => {
         throw error;
     }
 }
-
 
 validation.check_saldo_deposit_dan_biaya = async (value, { req }) => {
     try {

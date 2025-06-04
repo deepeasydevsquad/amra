@@ -45,6 +45,7 @@ import BukuBesar from '../../Modules/BukuBesar/BukuBesar.vue'
 import NeracaLajur from '../../Modules/NeracaLajur/NeracaLajur.vue'
 import LabaRugi from '../../Modules/LabaRugi/LabaRugi.vue'
 import Neraca from '../../Modules/Neraca/Neraca.vue'
+import PengaturanPerangkanWhatsap from '../../Modules/PengaturanPerangkatWhatsapp/PengaturanPerangkanWhatsap.vue'
 import TemplatePesanWhatsapp from '../../Modules/TemplatePesanWhatsapp/TemplatePesanWhatsapp.vue'
 
 const tabComponents = {
@@ -85,6 +86,7 @@ const tabComponents = {
   neraca_lajur: NeracaLajur,
   laba_rugi: LabaRugi,
   neraca: Neraca,
+  pengaturan_perangkat_whatsapp: PengaturanPerangkanWhatsap,
   template_pesan_whatsapp: TemplatePesanWhatsapp,
 }
 
