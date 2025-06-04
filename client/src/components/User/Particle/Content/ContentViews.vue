@@ -45,6 +45,7 @@ import BukuBesar from '../../Modules/BukuBesar/BukuBesar.vue'
 import NeracaLajur from '../../Modules/NeracaLajur/NeracaLajur.vue'
 import LabaRugi from '../../Modules/LabaRugi/LabaRugi.vue'
 import Neraca from '../../Modules/Neraca/Neraca.vue'
+import PengaturanPerangkanWhatsap from '../../Modules/PengaturanPerangkatWhatsapp/PengaturanPerangkanWhatsap.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -83,9 +84,9 @@ const tabComponents = {
   daftar_surat_menyurat: DaftarSuratMenyurat,
   neraca_lajur: NeracaLajur,
   laba_rugi: LabaRugi,
-  neraca: Neraca
+  neraca: Neraca,
+  pengaturan_perangkat_whatsapp: PengaturanPerangkanWhatsap,
 }
-
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click
 const tab = useGlobalTab()
