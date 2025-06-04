@@ -114,15 +114,15 @@
   // })
 
   // ✅ Definisi interface untuk tipe data
-  interface Agen {
-    id: number
-    fullname: string
-  }
+  // interface Agen {
+  //   id: number
+  //   fullname: string
+  // }
 
-  interface LevelAgen {
-    id: number
-    name: string
-  }
+  // interface LevelAgen {
+  //   id: number
+  //   name: string
+  // }
 
   // const emit = defineEmits<{
   //   (event: 'close'): void
