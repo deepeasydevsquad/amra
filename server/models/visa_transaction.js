@@ -11,6 +11,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Visa_transaction.belongsTo(models.Company, {
+        foreignKey: "company_id",
+      });
+      Visa_transaction.hasMany(models.Visa_transaction_detail, {
+        foreignKey: "visa_transaction_id",
+        onDelete: "CASCADE",
+      });
     }
   }
   Visa_transaction.init({

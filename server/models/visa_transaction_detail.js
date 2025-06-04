@@ -11,20 +11,26 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Visa_transaction_detail.belongsTo(models.Visa_transaction, {
+        foreignKey: "visa_transaction_id",
+      });
+      Visa_transaction_detail.belongsTo(models.Mst_kota, {
+        foreignKey: "profession_city",
+      });
     }
   }
   Visa_transaction_detail.init({
     visa_transaction_id: DataTypes.INTEGER,
     name: DataTypes.STRING,
     identity_number: DataTypes.STRING,
-    gender: DataTypes.ENUM,
+    gender: DataTypes.ENUM(['laki_laki', 'perempuan']),
     birth_place: DataTypes.STRING,
-    birth_date: DataTypes.DATE,
+    birth_date: DataTypes.DATEONLY,
     citizenship: DataTypes.STRING,
     passport_number: DataTypes.STRING,
-    date_issued: DataTypes.DATE,
+    date_issued: DataTypes.DATEONLY,
     place_of_release: DataTypes.STRING,
-    valid_until: DataTypes.DATE,
+    valid_until: DataTypes.DATEONLY,
     profession_idn: DataTypes.TEXT,
     profession_foreign: DataTypes.TEXT,
     profession_address: DataTypes.TEXT,
