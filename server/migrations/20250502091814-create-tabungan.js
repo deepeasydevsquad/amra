@@ -15,6 +15,7 @@ module.exports = {
           model: "Divisions",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       jamaah_id: {
         type: Sequelize.INTEGER,
@@ -22,6 +23,7 @@ module.exports = {
           model: "Jamaahs",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       target_paket_id: {
         allowNull: true,
@@ -48,6 +50,7 @@ module.exports = {
           model: "Fee_agens",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       batal_berangkat: {
         type: Sequelize.ENUM,

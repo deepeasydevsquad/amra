@@ -15,6 +15,7 @@ module.exports = {
           model: "Divisions",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       register_number: {
         type: Sequelize.STRING
@@ -25,6 +26,7 @@ module.exports = {
           model: "Kostumer_paket_las",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       client_name: {
         type: Sequelize.STRING

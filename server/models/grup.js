@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Grup.hasMany(models.User, {
         foreignKey: "grup_id",
+        onDelete: 'CASCADE',
       });
     }
   }

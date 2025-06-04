@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Whatsapp_template.hasMany(models.Whatsapp_message, {
         foreignKey: "whatsapp_template_id",
+        onDelete: 'CASCADE',
       });
     }
   }

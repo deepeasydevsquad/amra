@@ -16,15 +16,19 @@ module.exports = (sequelize, DataTypes) => {
       });
       Member.hasMany(models.User, {
         foreignKey: "member_id",
+        onDelete: 'CASCADE',
       });
       Member.hasMany(models.Agen, {
         foreignKey: "member_id",
+        onDelete: 'CASCADE',
       });
       Member.hasMany(models.Deposit, {
         foreignKey: "member_id",
+        onDelete: 'CASCADE',
       });
       Member.hasMany(models.Jamaah, {
         foreignKey: "member_id",
+        onDelete: 'CASCADE',
       });
     }
   }

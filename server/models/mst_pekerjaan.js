@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Mst_pekerjaan.hasMany(models.Jamaah, {
         foreignKey: "mst_pekerjaan_id",
+        onDelete: 'CASCADE',
       });
     }
   }

@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Mst_provider.hasMany(models.Paket, {
         foreignKey: "provider_visa_id",
+        onDelete: 'CASCADE',
       });
     }
   }

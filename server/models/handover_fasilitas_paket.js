@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Handover_fasilitas_paket.hasMany(models.Handover_fasilitas_detail_paket, {
         foreignKey: "handover_fasilitas_paket_id",
+        onDelete: 'CASCADE',
       });
       Handover_fasilitas_paket.belongsTo(models.Paket_transaction, {
         foreignKey: "paket_transaction_id",

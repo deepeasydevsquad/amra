@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Kecamatan.hasMany(models.Kelurahan, {
         foreignKey: "kecamatan_id",
+        onDelete: 'CASCADE',
       });
     }
   }

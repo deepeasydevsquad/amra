@@ -15,6 +15,7 @@ module.exports = {
           model: "Companies",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       jamaah_id: {
         type: Sequelize.INTEGER,
@@ -22,8 +23,7 @@ module.exports = {
           model: "Jamaahs",
           key: "id",
         },
-        // onDelete: 'CASCADE',
-        // onUpdate: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       mahram_id: {
         type: Sequelize.INTEGER
@@ -34,8 +34,7 @@ module.exports = {
           model: "Mst_mahram_types",
           key: "id",
         },
-        // onDelete: 'CASCADE',
-        // onUpdate: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       createdAt: {
         allowNull: false,

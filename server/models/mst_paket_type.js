@@ -16,9 +16,11 @@ module.exports = (sequelize, DataTypes) => {
       });
       Mst_paket_type.hasMany(models.Paket_transaction, {
         foreignKey: "mst_paket_type_id",
+        onDelete: 'CASCADE',
       });
       Mst_paket_type.hasMany(models.Paket_price, {
         foreignKey: "mst_paket_type_id",
+        onDelete: 'CASCADE',
       });
     }
   }

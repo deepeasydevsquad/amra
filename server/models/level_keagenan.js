@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Level_keagenan.hasMany(models.Agen, {
         foreignKey: "level_keagenan_id",
+        onDelete: 'CASCADE',
       });
     }
   }

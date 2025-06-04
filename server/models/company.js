@@ -5,81 +5,107 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Company.hasMany(models.Division, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Subscribtion_payment_history, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Mst_bank, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Mst_fasilitas, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Mst_hotel, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Mst_kota, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Mst_airline, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Mst_airport, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Mst_asuransi, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Mst_provider, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Supplier, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Akun_secondary, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.System_log, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Level_keagenan, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Periode, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Deposit, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Mahram, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Peminjaman, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Skema_peminjaman, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Riwayat_pembayaran_peminjaman, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Fee_agen, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Pembayaran_fee_agen, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Konfigurasi_surat_menyurat, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Riwayat_surat_menyurat, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Whatsapp_setting, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
       Company.hasMany(models.Whatsapp_template, {
         foreignKey: "company_id",
+        onDelete: 'CASCADE',
       });
      }
   }

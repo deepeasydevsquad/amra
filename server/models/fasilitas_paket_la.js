@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Fasilitas_paket_la.hasMany(models.Detail_fasilitas_paket_la, {
         foreignKey: "fasilitas_paket_la_id",
+        onDelete: 'CASCADE',
       });
     }
   }

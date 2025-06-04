@@ -15,6 +15,7 @@ module.exports = {
           model: "Companies",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       name: {
         type: Sequelize.STRING
@@ -28,6 +29,7 @@ module.exports = {
           model: "Mst_banks",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       nomor_rekening: {
         type: Sequelize.STRING

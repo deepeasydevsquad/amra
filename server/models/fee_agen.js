@@ -22,9 +22,11 @@ module.exports = (sequelize, DataTypes) => {
       });
       Fee_agen.hasMany(models.Tabungan, {
         foreignKey: "fee_agen_id",
+        onDelete: 'CASCADE',
       });
       Fee_agen.hasMany(models.Paket_transaction, {
         foreignKey: "fee_agen_id",
+        onDelete: 'CASCADE',
       });
     }
   }

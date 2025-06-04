@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Akun_secondary.hasMany(models.Saldo_akun, {
         foreignKey: "akun_secondary_id",
+        onDelete: 'CASCADE',
       });
     }
   }

@@ -15,6 +15,7 @@ module.exports = {
           model: "Companies",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       kota_id: {
         type: Sequelize.INTEGER,
@@ -22,6 +23,7 @@ module.exports = {
           model: "Mst_kota",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       name: {
         type: Sequelize.STRING

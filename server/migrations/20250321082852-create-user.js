@@ -15,6 +15,7 @@ module.exports = {
           model: "Divisions",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       member_id: {
         type: Sequelize.INTEGER,
@@ -22,6 +23,7 @@ module.exports = {
           model: "Members",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       grup_id: {
         type: Sequelize.INTEGER,
@@ -29,6 +31,7 @@ module.exports = {
           model: "Grups",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       createdAt: {
         allowNull: false,

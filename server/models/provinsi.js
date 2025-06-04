@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Provinsi.hasMany(models.Kabupaten_kota, {
         foreignKey: "provinsi_id",
+        onDelete: 'CASCADE',
       });
     }
   }

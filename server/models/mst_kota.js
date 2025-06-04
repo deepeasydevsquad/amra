@@ -16,9 +16,11 @@ module.exports = (sequelize, DataTypes) => {
       });
       Mst_kota.hasMany(models.Mst_hotel, {
         foreignKey: "kota_id",
+        onDelete: 'CASCADE',
       });
       Mst_kota.hasMany(models.Division, {
         foreignKey: "kota_id",
+        onDelete: 'CASCADE',
       });
     }
   }
