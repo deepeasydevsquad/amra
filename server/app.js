@@ -92,6 +92,7 @@ const arr_router = [
   "neraca_lajur",
   "laba_rugi",
   "neraca",
+  "template_whatsapp",
   "pengaturan_pesan_whatsapp",
 ];
 
