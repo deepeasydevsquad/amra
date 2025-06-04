@@ -1,5 +1,5 @@
 const express = require("express");
-const { body } = require("express-validator");
+const { body, param, query } = require("express-validator");
 const controllers = require("../modules/tabungan_umrah/controllers/index");
 const { authenticateToken } = require("../middleware/authenticateToken");
 const validation = require("../validation/tabungan_umrah");
@@ -60,7 +60,35 @@ router.post(
     body("search").trim(),
     body("filter").trim(),
   ],
-  controllers.get_daftar_tabungan_umrah
+  controllers.getDaftarTabunganUmrah
+);
+
+router.post(
+  "/daftar-tabungan-umrah/get-petugas-tabungan-umrah",
+  authenticateToken,
+  [
+    body("id")
+      .trim()
+      .notEmpty().withMessage("ID Tabungan Umrah tidak boleh kosong.")
+      .isInt().withMessage("ID Tabungan Umrah harus berupa angka.")
+      .custom(validation.check_id_tabungan)
+  ],
+  controllers.getPetugasTabunganUmrah
+);
+router.get(
+  "/daftar-tabungan-umrah/cetak-data-jamaah/:id/cetak",
+  authenticateToken,
+  [
+    param("id")
+      .trim()
+      .notEmpty().withMessage("ID Tabungan umrah tidak boleh kosong.")
+      .isInt().withMessage("ID Tabungan umrah harus berupa angka.")
+      .custom(validation.check_id_tabungan),
+    query("petugasId")
+      .trim()
+      .notEmpty().withMessage("ID Petugas tidak boleh kosong."),
+    ],
+  controllers.getCetakDataJamaahTabunganUmrah
 );
 
 router.post(
@@ -101,14 +129,26 @@ router.post(
       .notEmpty()
       .withMessage("ID Tabungan Umrah tidak boleh kosong.")
       .isInt()
-      .withMessage("ID Tabungan Umrah harus berupa angka."),
+      .withMessage("ID Tabungan Umrah harus berupa angka.")
+      .custom(validation.check_id_tabungan),
     body("target_id")
       .trim()
-      .optional({ checkFalsy: true, nullable: true })
-      .isInt().withMessage("Target ID harus berupa angka.")
       .custom(validation.check_id_target_paket),
   ],
   controllers.updateTargetPaket
+)
+
+router.post(
+  "/daftar-tabungan-umrah/get-info-update-tabungan-umrah",
+  authenticateToken,
+  [
+    body("id")
+      .trim()
+      .notEmpty().withMessage("ID Tabungan Umrah tidak boleh kosong.")
+      .isInt().withMessage("ID Tabungan Umrah harus berupa angka.")
+      .custom(validation.check_id_tabungan),
+  ],
+  controllers.getInfoUpdateTabunganUmrah
 )
 
 router.post(
@@ -140,6 +180,19 @@ router.post(
 )
 
 router.post(
+  "/daftar-tabungan-umrah/get-info-menabung-tabungan-umrah",
+  authenticateToken,
+  [
+    body("id")
+      .trim()
+      .notEmpty().withMessage("ID Tabungan Umrah tidak boleh kosong.")
+      .isInt().withMessage("ID Tabungan Umrah harus berupa angka.")
+      .custom(validation.check_id_tabungan),
+  ],
+  controllers.getInfoMenabungTabunganUmrah
+)
+
+router.post(
   "/daftar-tabungan-umrah/refund-tabungan-umrah",
   authenticateToken,
   [
@@ -163,6 +216,19 @@ router.post(
   ],
   controllers.Refund
 )
+
+router.post(
+  "/daftar-tabungan-umrah/get-info-refund-tabungan-umrah",
+  authenticateToken,
+  [
+    body("id")
+      .trim()
+      .notEmpty().withMessage("ID Tabungan Umrah tidak boleh kosong.")
+      .isInt().withMessage("ID Tabungan Umrah harus berupa angka.")
+      .custom(validation.check_id_tabungan),
+  ],
+  controllers.getInfoRefundTabunganUmrah
+);
 
 router.post(
   "/daftar-tabungan-umrah/add-handover-fasilitas",

@@ -3,21 +3,12 @@ import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notif
 import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confirmation.vue';
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
-import { reactive, ref } from 'vue'
-import { RefundTabunganUmrah } from '@/service/tabungan_umrah'
+import { onMounted, reactive, ref } from 'vue'
+import { RefundTabunganUmrah, getInfoRefundTabunganUmrah } from '@/service/tabungan_umrah'
 
 const props = defineProps<{
   isFormRefundOpen: boolean;
-  dataTabungan: {
-    id: number;
-    total_tabungan: number;
-    batal_berangkat: number;
-    agen: {
-      fullname: string;
-      level: string;
-      default_fee: number;
-    };
-  } | null
+  tabunganId: number | null;
 }>()
 
 const emit = defineEmits<{
@@ -31,9 +22,15 @@ interface ErrorFields {
   refund_nominal?: string;
   batal_berangkat?: string;
 }
+interface dataTabungan {
+  id: number;
+  total_tabungan: number;
+  batal_berangkat: boolean;
+}
 
 const isLoading = ref(false)
 const showConfirmDialog = ref<boolean>(false);
+const dataTabungan = ref<dataTabungan>();
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
@@ -41,7 +38,6 @@ const showNotification = ref(false)
 const notificationMessage = ref('')
 const notificationType = ref('')
 const timeoutId = ref<number | null>(null)
-const total_tabungan = (props.dataTabungan?.total_tabungan || 0) - (props.dataTabungan?.agen.default_fee || 0);
 
 const errors = ref<ErrorFields>({
   id: '',
@@ -55,11 +51,10 @@ interface RefundForm {
 }
 
 const form = reactive<RefundForm>({
-  id: props.dataTabungan?.id ?? null,
+  id: props.tabunganId ?? null,
   refund_nominal: 0,
-  batal_berangkat: props.dataTabungan?.batal_berangkat,
+  batal_berangkat: false,
 })
-
 
 // Function: Notification
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
@@ -68,9 +63,26 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   showNotification.value = true
   if (timeoutId.value) clearTimeout(timeoutId.value)
   timeoutId.value = window.setTimeout(() => {
-    showNotification.value = false
-  }, 3000)
+showNotification.value = false
+}, 3000)
 }
+
+const fetchData = async () => {
+  if (!props.tabunganId) return
+  isLoading.value = true
+  try {
+    const response = await getInfoRefundTabunganUmrah(props.tabunganId)
+    dataTabungan.value = response.data
+    form.batal_berangkat = dataTabungan.value?.batal_berangkat;
+  } catch (error) {
+    console.error(error)
+    displayNotification(error?.response?.data?.error_msg || 'Gagal mengambil data tabungan', 'error')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(() => { fetchData() })
 
 // Function: Confirmation
 const showConfirmation = (title: string, message: string, action: () => void) => {
@@ -99,7 +111,7 @@ const validateForm = (): boolean => {
     isValid = false
   }
 
-  if (form.refund_nominal > total_tabungan) {
+  if (form.refund_nominal > dataTabungan.value?.total_tabungan) {
     displayNotification('Nominal Refund tidak boleh lebih besar dari total tabungan', 'error')
     isValid = false
   }
@@ -121,12 +133,12 @@ const saveData = async () => {
           refund_nominal: number
           batal_berangkat: number
         } = {
-          id: props.dataTabungan?.id || 0,
+          id: props.tabunganId || 0,
           refund_nominal: form.refund_nominal,
           batal_berangkat: form.batal_berangkat ? 1 : 0,
         }
 
-        console.debug(payload)
+        console.debug("Payload:", payload)
         await RefundTabunganUmrah(payload)
       } catch (error) {
         console.error(error)
@@ -175,7 +187,7 @@ const unformatPrice = (formatted: string): number => { return parseInt(formatted
             <!-- Data Member -->
             <div class="mb-6">
               <div class="mt-4 p-3 border border-yellow-200 bg-yellow-50 rounded-md text-sm text-yellow-800">
-                Total tabungan yang dapat direfund : <strong>{{ formatPrice(total_tabungan) }}</strong>
+                Total tabungan yang dapat direfund : <strong>{{ formatPrice(dataTabungan?.total_tabungan) }}</strong>
               </div>
             </div>
             <div>

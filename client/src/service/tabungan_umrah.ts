@@ -60,6 +60,26 @@ export const getHandoverFasilitas = async (id: number) => {
   }
 };
 
+export const getPetugasTabunganUmrah = async (id: number) => {
+  try {
+    const response = await api.post("/daftar-tabungan-umrah/get-petugas-tabungan-umrah", { id });
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil daftar petugas:", error);
+    throw error;
+  }
+};
+
+export const cetakDataJamaahTabunganUmrah = async (id: number, petugasId: string) => {
+  try {
+    const response = await api.get(`/daftar-tabungan-umrah/cetak-data-jamaah/${id}/cetak?petugasId=${petugasId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil cetak data jamaah:", error);
+    throw error;
+  }
+};
+
 export const daftar_tabungan_umrah = async (param : any) => {
   try {
     const response = await api.post("/daftar-tabungan-umrah/get-tabungan-umrah/list", param);
@@ -79,6 +99,7 @@ export const addTabunganUmrah = async (param : any) => {
     throw error;
   }
 };
+
 export const MenabungTabunganUmrah = async (param : any) => {
   try {
     const response = await api.post("/daftar-tabungan-umrah/menabung-tabungan-umrah", param);
@@ -88,12 +109,33 @@ export const MenabungTabunganUmrah = async (param : any) => {
     throw error;
   }
 }
+
+export const getInfoMenabungTabunganUmrah = async (id: number) => {
+  try {
+    const response = await api.post("/daftar-tabungan-umrah/get-info-menabung-tabungan-umrah", { id });
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil info menabung tabungan umrah:", error);
+    throw error;
+  }
+}
+
 export const RefundTabunganUmrah = async (param : any) => {
   try {
     const response = await api.post("/daftar-tabungan-umrah/refund-tabungan-umrah", param);
     return response.data;
   } catch (error) {
     console.error("Gagal menambahkan deposit tabungan umrah:", error);
+    throw error;
+  }
+}
+
+export const getInfoRefundTabunganUmrah = async (id: number) => {
+  try {
+    const response = await api.post("/daftar-tabungan-umrah/get-info-refund-tabungan-umrah", { id });
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil info refund tabungan umrah:", error);
     throw error;
   }
 }
@@ -107,6 +149,16 @@ export const updateTabunganUmrah = async (param : any) => {
     throw error;
   }
 }
+
+export const getInfoUpdateTabunganUmrah = async (id: number) => {
+  try {
+    const response = await api.post("/daftar-tabungan-umrah/get-info-update-tabungan-umrah", { id });
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil info update tabungan umrah:", error);
+    throw error;
+  }
+};
 
 export const addHandoverFasilitas = async (param : any) => {
   try {

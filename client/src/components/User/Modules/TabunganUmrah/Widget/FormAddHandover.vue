@@ -3,23 +3,17 @@ import SearchableCheckboxList from '@/components/User/Modules/TabunganUmrah/Part
 import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confirmation.vue'
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
-import { onMounted, reactive, ref, watch } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { getHandoverFasilitas, getMstFasilitas, addHandoverFasilitas  } from '@/service/tabungan_umrah'
 
 const props = defineProps<{
   isFormAddHandoverOpen: boolean;
-  dataTabungan: {
-    id: number;
-    item_handover: Array<{
-      id: number;
-      invoice: string;
-      nama_item: string;
-      penerima: string;
-      tgl_penerima: string;
-    }>;
-  } | null
+  tabunganId: number | null;
 }>()
-const emit = defineEmits<{ (e: 'close'): void }>()
+const emit = defineEmits<{
+  (e: 'close'): void
+  (e: 'status', payload: {error: boolean, err_msg?: string}): void
+}>()
 
 // Interfaces
 interface ErrorFields {
@@ -81,7 +75,7 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   if (timeoutId.value) clearTimeout(timeoutId.value)
   timeoutId.value = window.setTimeout(() => {
     showNotification.value = false
-  }, 4000)
+  }, 1500)
 }
 
 // Function: Confirmation
@@ -97,14 +91,16 @@ const fetchData = async () => {
   try {
     isLoading.value = true
     const [Mst_paketResponse, handoverFasilitasResponse] = await Promise.all([
-      getMstFasilitas(props.dataTabungan?.id || 0),
-      getHandoverFasilitas(props.dataTabungan?.id || 0),
+      getMstFasilitas(props.tabunganId || 0),
+      getHandoverFasilitas(props.tabunganId || 0),
     ])
 
     Mst_paket.value = Mst_paketResponse.data || []
     handoverFasilitas.value = handoverFasilitasResponse.data || []
     if (Mst_paket.value.error === true) {
-      displayNotification('Tidak ada data handover fasilitas ditemukan. Silakan ambil paket terlebih dahulu pada update target paket.', 'error')
+      emit('status', { error: true, err_msg: 'Tidak ada data handover fasilitas ditemukan. Silakan ambil paket terlebih dahulu pada update target paket.' })
+      emit('close')
+      return
     }
   } catch (error) {
     displayNotification('Failed to fetch data', 'error')
@@ -146,7 +142,7 @@ const validateForm = () => {
   return isValid
 }
 
-// Save Data (contoh)
+// Save Data
 const saveData = async () => {
   if (Mst_paket.value.error === true) {
     displayNotification('Paket belum dipilih atau tidak memiliki fasilitas', 'error')
@@ -162,7 +158,7 @@ const saveData = async () => {
       try {
         isLoading.value = true
         const payload = {
-          id: props.dataTabungan?.id,
+          id: props.tabunganId,
           penerima: form.nama_penerima,
           nomor_identitas_penerima: form.nomor_identitas_penerima,
           detail_fasilitas: form.detail_fasilitas,
