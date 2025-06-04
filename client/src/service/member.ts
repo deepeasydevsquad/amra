@@ -28,6 +28,7 @@ export const daftarMember = async (param: any) => {
     console.log('gagal menambahkan data:', error)
     throw error
   }
+}
 
 export const getMember = async (id:number) => {
   try {
