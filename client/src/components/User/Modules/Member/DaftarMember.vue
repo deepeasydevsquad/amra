@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { daftarMember, daftarCabang, getInfoEditMember, deleteMember as deleteMemberApi, daftarLevelAgen } from "@/service/member"
+import { daftarMember, daftarCabang, getInfoEditMember, deleteMember as deleteMemberApi  } from "@/service/member"
 import DeleteIcon from '@/components/User/Modules/Member/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/Member/Icon/EditIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
@@ -58,25 +58,9 @@ const formData = ref<Partial<Members>>({
     cabang: ''
 });
 
-const memberAgenData = ref<Partial<Members>>({
-  id:0,
-  fullname: '',
-  identity_number: '',
-  level_id: 0,
-});
-
-interface Option {
-  id: number
-  name: string
-}
-
-const levelAgen = ref<Option[]>([]);
-
 const searchQuery = ref('')
 const showForm = ref(false)
 const showAgenForm = ref(false)
-// const showUpdateForm = ref(false)
-const selectedMember = ref(null)
 // Konfirmasi Variable
 const showConfirmDialog = ref(false)
 const confirmTitle = ref('')
@@ -88,7 +72,6 @@ const notificationType = ref('')
 const notificationMessage = ref('')
 // General Variable
 const cabangs = ref<Cabang[]>([])
-// const AddAgenForm = ref(false)
 // Pagination Variable
 const itemsPerPage = 100; // Jumlah paket_la per halaman
 const currentPage = ref(1);
@@ -96,6 +79,9 @@ const totalPages = ref(0);
 const totalColumns = ref(7);
 const search = ref('');
 const filter = ref('');
+const memberId = ref(0);
+const memberName = ref('');
+const memberIdentitas = ref('');
 
 // Fetch data member
 const fetchData = async () => {
@@ -120,23 +106,8 @@ const fetchCabang = async () => {
   try {
     const response = await daftarCabang()
     cabangs.value = response.data
-    // console.log('Data cabang:', response.data)
   } catch (error) {
     console.error('Gagal fetch data cabang:', error)
-  }
-}
-
-const fetchLevelAgen = async () => {
-  try {
-    const response = await daftarLevelAgen()
-
-    console.log("~~~~~~~~~~~~~~");
-    console.log(response);
-    console.log("~~~~~~~~~~~~~~");
-    levelAgen.value = response.data
-    // console.log('Data cabang:', response.data)
-  } catch (error) {
-    console.error('Gagal fetch data level agen:', error)
   }
 }
 
@@ -207,9 +178,7 @@ const confirmDelete = (id: number) => {
 }
 
 const closeAddForm = () => {
-
   showForm.value = false
-
   formData.value = {
     id: 0,
     cabang_id: 0,
@@ -238,20 +207,13 @@ onMounted(() => {
   fetchData()
 })
 
-
 const addAgen = async (id: number, name: string, identity_number: string) => {
-  await fetchLevelAgen()
   showAgenForm.value = true
-  memberAgenData.value.id = 1;
-  memberAgenData.value.fullname = name;
-  memberAgenData.value.identity_number = identity_number
-  // const member = members.value.find((m) => m.id === id)
-  // if (member) {
-  //   selectedMember.value = { ...member }
-  //   console.log('data yang di kirim ke add Agen Form', selectedMember.value)
-  //   AddAgenForm.value = true
-  // }
+  memberId.value = id;
+  memberName.value = name;
+  memberIdentitas.value = identity_number
 }
+
 </script>
 
 <template>
@@ -337,5 +299,5 @@ const addAgen = async (id: number, name: string, identity_number: string) => {
   <!-- Form Add Update -->
   <FormAddUpdate :showForm="showForm"  @cancel="closeAddForm" :cabangs="cabangs" :formData="formData" />
   <!-- Form Add Agen -->
-  <FormAddAgen :showForm="showAgenForm" :formData="memberAgenData" :levelAgen="levelAgen" @cancel="closeAgenFrom"/>
+  <FormAddAgen :showForm="showAgenForm" :memberId="memberId" :memberName="memberName" :memberIdentitas="memberIdentitas" @cancel="closeAgenFrom"/>
 </template>

@@ -1,5 +1,5 @@
 <template>
-  <Form :form-status="showForm" :label="'Ubah Status Agen'" width="sm:w-full sm:max-w-md" @close="handleCancel" @cancel="handleCancel" :submitLabel="'JADIKAN AGEN'">
+  <Form :form-status="showForm" :label="'Ubah Status Agen'" width="sm:w-full sm:max-w-md" @close="handleCancel" @cancel="handleCancel"  @submit="handleSubmit" :submitLabel="'JADIKAN AGEN'">
     <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-0 ">
       <div class="mb-3">
         <label class="block text-sm font-medium text-gray-700">Nama Member</label>
@@ -15,24 +15,14 @@
 </template>
 
 <script setup lang="ts">
-  import { defineProps, defineEmits, ref, watch, toRaw, onMounted } from 'vue'
-  // import { daftarAgen as daftarAgenService, addAgen } from '@/service/agen'
-  // import { daftarAgen as daftarLevelService } from '@/service/level_agen'
+  import { defineProps, defineEmits, ref, watch } from 'vue'
+  import { daftarLevelAgen } from "@/service/member"
   import Form from "@/components/Modal/Form.vue"
   import SelectField from "@/components/Form/SelectField.vue"
 
   interface Option {
     id: number
     name: string
-  }
-
-  interface Member {
-    id: number
-    cabang_id: number
-    fullname: string
-    identity_number: string
-    identity_type: string
-    level_id: number
   }
 
   interface ErrorFields {
@@ -44,8 +34,18 @@
     level_id: string
   }
 
+
+  interface Option {
+    id: number
+    name: string
+  }
+
+  const levelAgen = ref<Option[]>([]);
+
+
+
   // ✅ Props dari parent
-  const props = defineProps<{ showForm: boolean; formData: Member, levelAgen: Option }>()
+  const props = defineProps<{ showForm: boolean; memberId:number, memberName:string, memberIdentitas:string }>()
 
   const emit = defineEmits<{
     (e: 'save', data: FormData): void;
@@ -69,32 +69,6 @@
     level_id: ''
   })
 
-  // ✅ List Agen & Level Agen dari API
-  // const listAgen = ref<Agen[]>([])
-  // const listLevel = ref<LevelAgen[]>([])
-
-  // ✅ Fetch data Agen dari API
-  // const fetchAgen = async () => {
-  //   try {
-  //     const response = await daftarAgenService()
-  //     console.log('Response Agen:', response)
-  //     listAgen.value = Array.isArray(response.data) ? response.data : []
-  //   } catch (error) {
-  //     console.error('Gagal fetch data Agen:', error)
-  //   }
-  // }
-
-  // ✅ Fetch data Level Agen dari API
-  // const fetchLevel = async () => {
-  //   try {
-  //     const response = await daftarLevelService()
-  //     console.log('Response Level Agen:', response)
-  //     listLevel.value = Array.isArray(response.data) ? response.data : []
-  //   } catch (error) {
-  //     console.error('Gagal fetch data Level Agen:', error)
-  //   }
-  // }
-
   const handleCancel = (): void => {
     emit('cancel')
     errors.value = {
@@ -107,36 +81,93 @@
     };
   }
 
-  // ✅ Panggil fungsi fetch saat komponen dimuat
-  // onMounted(() => {
-  //   fetchAgen()
-  //   fetchLevel()
-  // })
-
-  // ✅ Definisi interface untuk tipe data
-  interface Agen {
-    id: number
-    fullname: string
+  const fetchLevelAgen = async () => {
+    try {
+      const response = await daftarLevelAgen()
+      levelAgen.value = response.data
+      form.value.id = props.memberId
+      form.value.level_id= 0
+      form.value.name= props.memberName
+      form.value.identityNumber = props.memberIdentitas
+    } catch (error) {
+      console.error('Gagal fetch data level agen:', error)
+    }
   }
 
-  interface LevelAgen {
-    id: number
-    name: string
+    const validateForm = (): boolean => {
+
+    errors.value = {
+      id: '',
+      cabang_id: '',
+      fullname: '',
+      identity_number: '',
+      identity_type: '',
+      level_id: ''
+    }
+
+    let isValid = true
+
+    if (form.value.level_id == 0) {
+      errors.value.level_id = 'Silahkan pilih salah satu level agen'
+      isValid = false
+    }
+
+    return isValid
   }
 
-  // const emit = defineEmits<{
-  //   (event: 'close'): void
-  //   (event: 'submit', payload: any): void
-  // }>()
+
+  const handleSubmit = async (): Promise<void> => {
+    if (!validateForm()) {
+      return
+    }
+
+    // try {
+    //   // const memberData = new FormData()
+    //   // if( form.value.id ) {
+    //   //   memberData.append('id', form.value.id.toString())
+    //   // }
+    //   // memberData.append('fullname', form.value.name)
+    //   // memberData.append('identity_number', form.value.identityNumber)
+    //   // memberData.append('identity_type', form.value.identityType)
+    //   // memberData.append('gender', form.value.gender)
+    //   // memberData.append('birth_place', form.value.birthplace)
+    //   // memberData.append('birth_date', form.value.birthdate)
+    //   // memberData.append('whatsapp_number', form.value.whatsapp)
+    //   // memberData.append('password', form.value.password)
+    //   // if (form.value.cabang_id) {
+    //   //   memberData.append('division_id', form.value.cabang_id.toString())
+    //   // }
+    //   // if (form.value.photo) {
+    //   //   memberData.append('photo', form.value.photo)
+    //   // }
+
+    //   // console.log("-----------------1");
+    //   // console.log(form.value.id);
+    //   // console.log("-----------------1");
+    //   // if( form.value.id ) {
+
+    //   //   await editMember(memberData)
+    //   // }else{
+    //   //   await addMember(memberData)
+    //   // }
+
+
+    //   // emit('save', form.value)
+
+    //   // Emit event biar form tertutup
+    //   emit('cancel')
+    // } catch (error) {
+    //   console.error('Gagal menyimpan data member:', error)
+    // }
+  }
 
   watch(
-    () => props.formData,
+    () => props.showForm,
     (e) => {
-      form.value.id = e.id
-      form.value.level_id= e.level_id
-      form.value.name= e.fullname
-      form.value.identityNumber = e.identity_number
+      if(e == true ) {
+        fetchLevelAgen();
+      }
     },
-    { immediate: true },
+    { immediate: false },
   )
 </script>
