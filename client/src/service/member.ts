@@ -10,6 +10,17 @@ export const daftarLevelAgen = async () => {
   }
 }
 
+export const daftarUpline = async (param: any) => {
+   try {
+    const { data } = await api.post('/member/daftar-upline', param)
+    return data
+  } catch (error) {
+    console.log('gagal mengambil info daftar upline:', error)
+    throw error
+  }
+}
+//
+
 export const getInfoEditMember = async ( param : any ) => {
   try {
     const { data } = await api.post('/member/infoEditMember', param )

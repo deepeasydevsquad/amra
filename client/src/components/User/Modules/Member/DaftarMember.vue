@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { daftarMember, daftarCabang, getInfoEditMember, deleteMember as deleteMemberApi  } from "@/service/member"
+import { paramCabang  } from '@/service/param_cabang'; // Import function POST
 import DeleteIcon from '@/components/User/Modules/Member/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/Member/Icon/EditIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
@@ -35,6 +36,11 @@ interface Members {
 interface Cabang {
   id: number
   name: string
+}
+
+interface filterCabang {
+  id: number;
+  name: string;
 }
 
 // State
@@ -81,6 +87,8 @@ const filter = ref('');
 const memberId = ref(0);
 const memberName = ref('');
 const memberIdentitas = ref('');
+const selectedOptionCabang = ref(0);
+const optionFilterCabang = ref<filterCabang[]>([]);
 
 // Fetch data member
 const fetchData = async () => {
@@ -89,7 +97,8 @@ const fetchData = async () => {
       search: search.value,
       filter: filter.value,
       perpage: itemsPerPage,
-      pageNumber: currentPage.value
+      pageNumber: currentPage.value,
+      cabang: selectedOptionCabang.value
     })
     data.value = response.data
     totalPages.value = Math.ceil(response.total / itemsPerPage);
@@ -99,6 +108,13 @@ const fetchData = async () => {
     notificationType.value = 'error'
     notificationMessage.value = 'Gagal fetch data member'
   }
+}
+
+const fetchFilterData = async() => {
+  const response = await paramCabang();
+  optionFilterCabang.value = response.data;
+  selectedOptionCabang.value = response.data[0].id;
+  await fetchData();
 }
 
 const fetchCabang = async () => {
@@ -200,10 +216,11 @@ const closeAddForm = () => {
 
 const closeAgenFrom = () => {
   showAgenForm.value = false
+  fetchData()
 }
 
 onMounted(() => {
-  fetchData()
+  fetchFilterData()
 })
 
 const addAgen = async (id: number, name: string, identity_number: string) => {
@@ -218,23 +235,23 @@ const addAgen = async (id: number, name: string, identity_number: string) => {
 <template>
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
-    <div class="flex justify-between mb-4" >
+    <div class="flex justify-between items-center mb-4">
       <PrimaryButton @click="tambahMember">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
         Tambah Member
       </PrimaryButton>
-      <div class="flex items-center">
-        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input
-          type="text"
-          v-model="searchQuery"
-          id="search"
-          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-          placeholder="Cari data..."
-        />
-      </div>
+      <div class="inline-flex rounded-md shadow-xs" role="group">
+        <label for="search" class="block text-sm font-medium text-gray-700 mr-2 mt-3">Filter</label>
+          <input type="text" id="search" class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            v-model="search" @change="fetchData()" placeholder="Cari data..." />
+          <select  v-model="selectedOptionCabang" style="width: 300px;" @change="fetchData()" class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+              <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+                {{ optionC.name }}
+              </option>
+          </select>
+        </div>
     </div>
     <!-- Tabel Data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
@@ -275,7 +292,7 @@ const addAgen = async (id: number, name: string, identity_number: string) => {
         <tbody v-else class="divide-y divide-gray-100 border-t border-gray-100">
           <tr>
             <td :colspan="totalColumns" class="px-6 py-4 text-center text-gray-500">
-              Daftar Member Tidak di Temukan {{ totalColumns }}
+              Daftar Member Tidak di Temukan
             </td>
           </tr>
         </tbody>

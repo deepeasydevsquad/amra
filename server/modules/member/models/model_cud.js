@@ -175,12 +175,41 @@ class Model_cud {
     }
   }
 
-
   async makeAnAgen() {
      // initialize dependensi properties
     await this.initialize();
     const body = this.req.body;
+    const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
 
+    try {
+      // call model
+      const model_r = new Model_r(this.req);
+      const member = await model_r.infoMember(body.id);
+
+      console.log("************************");
+      console.log("************************");
+      console.log(this.req.body.upline);
+      console.log("************************");
+      console.log("************************");
+
+      await Agen.create(
+        {
+          member_id: this.req.body.id,
+          level_keagenan_id: this.req.body.level, 
+          upline_id: this.req.body.upline != '0' ? this.req.body.upline : null,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        { transaction: this.t }
+      );
+
+      this.message = `Menjadikan Member ${member.fullname} (ID: ${member.id}) Menjadi Agen`;
+    } catch (error) {
+      console.log("-----xx-----");
+      console.log(error);
+      console.log("-----xx-----");
+      this.state = false;
+    }
   }
 
   // response
