@@ -12,7 +12,7 @@ class Model_r {
     this.company_id = await getCompanyIdByCode(this.req);
   }
 
-  async daftar_Agen() {
+  async list() {
   
       const body = this.req.body;
       const limit = body.perpage || 10;
