@@ -1,186 +1,173 @@
 <script setup lang="ts">
-// Import Icon
-import DeleteIcon from '@/components/User/Modules/DaftarFasilitas/Icon/DeleteIcon.vue'
-import EditIcon from '@/components/User/Modules/DaftarFasilitas/Icon/EditIcon.vue'
+  // Import Icon
+  import DeleteIcon from '@/components/User/Modules/DaftarFasilitas/Icon/DeleteIcon.vue'
+  import EditIcon from '@/components/User/Modules/DaftarFasilitas/Icon/EditIcon.vue'
 
-// import element
-import DangerButton from '@/components/User/Modules/DaftarFasilitas/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/DaftarFasilitas/Particle/EditButton.vue'
-import Notification from '@/components/User/Modules/DaftarFasilitas/Particle/Notification.vue'
-import Confirmation from '@/components/User/Modules/DaftarFasilitas/Particle/Confirmation.vue'
+  // import element
+  import DangerButton from '@/components/User/Modules/DaftarFasilitas/Particle/DangerButton.vue'
+  import Notification from '@/components/User/Modules/DaftarFasilitas/Particle/Notification.vue'
+  import Confirmation from '@/components/User/Modules/DaftarFasilitas/Particle/Confirmation.vue'
 
-import LightButton from "@/components/Button/LightButton.vue"
-import Pagination from '@/components/Pagination/Pagination.vue'
+  import LightButton from "@/components/Button/LightButton.vue"
+  import Pagination from '@/components/Pagination/Pagination.vue'
 
-// Import service API
-import { daftarFasilitas, addFasilitas, editFasilitas, deleteFasilitas } from '@/service/daftar_fasilitas'; // Import function POST
-import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
+  // Import service API
+  import { daftarFasilitas, addFasilitas, editFasilitas, deleteFasilitas } from '@/service/daftar_fasilitas'; // Import function POST
+  import { ref, onMounted, computed } from 'vue';
+  import axios from 'axios';
 
-const itemsPerPage = 100; // Jumlah fasilitas per halaman
-const currentPage = ref(1);
-const search = ref("");
-const totalPages = ref(0);
+  const itemsPerPage = 100; // Jumlah fasilitas per halaman
+  const currentPage = ref(1);
+  const search = ref("");
+  const totalPages = ref(0);
 
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-    fetchData()
-  }
-};
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-    fetchData()
-  }
-};
-
-const pageNow = (page : number) => {
-  currentPage.value = page
-  fetchData()
-}
-
-// Generate array angka halaman
-const pages = computed(() => {
-  return Array.from({ length: totalPages.value }, (_, i) => i + 1);
-});
-
-// // Hitung total halaman
-//const totalPages = computed(() => Math.ceil(searchFasilitas.value.length / itemsPerPage));
-// const apiUrl = 'http://localhost:3001/daftar_fasilitas';
-// const accessToken = localStorage.getItem('access_token');
-// const headers = accessToken ? { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
-// const apiClient = axios.create({
-//   baseURL: apiUrl,
-//   headers,
-// });
-
-interface Fasilitas {
-  id: number;
-  name: string;
-}
-
-interface Errors {
-  name: string;
-}
-
-const timeoutId = ref<number | null>(null);
-const dataFasilitas = ref<Fasilitas[]>([]);
-const isModalOpen = ref<boolean>(false);
-const showNotification = ref<boolean>(false);
-const showConfirmDialog = ref<boolean>(false);
-const notificationMessage = ref<string>('');
-const notificationType = ref<'success' | 'error'>('success');
-const confirmMessage = ref<string>('');
-const confirmTitle = ref<string>('');
-const confirmAction = ref<(() => void) | null>(null);
-const totalColumns = ref(3); // Default 3 kolom
-
-const selectedFasilitas = ref<Partial<Fasilitas>>({
-  name: '',
-});
-
-const errors = ref<Errors>({
-  name: '',
-});
-
-const fetchData = async() => {
-  const response = await daftarFasilitas({search: search.value, perpage: itemsPerPage, pageNumber: currentPage.value});
-  totalPages.value = Math.ceil(response.total / itemsPerPage)
-  dataFasilitas.value = response.data;
-}
-
-const openModal = (fasilitas?: Fasilitas) => {
-  selectedFasilitas.value = fasilitas ? { ...fasilitas } : { name: '' };
-  isModalOpen.value = true;
-};
-
-onMounted(async () => {
-  await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-  totalColumns.value = document.querySelectorAll("thead th").length;
-});
-
-const validateForm = (): boolean => {
-  errors.value = { name: '' };
-  let isValid = true;
-
-  if (!selectedFasilitas.value.name?.trim()) {
-    errors.value.name = 'Nama tidak boleh kosong';
-    isValid = false;
-  }
-  return isValid;
-};
-
-const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
-  notificationMessage.value = message;
-  notificationType.value = type;
-  showNotification.value = true;
-
-  if (timeoutId.value) clearTimeout(timeoutId.value);
-
-  timeoutId.value = window.setTimeout(() => {
-    showNotification.value = false;
-  }, 3000);
-};
-
-const showConfirmation = (title: string, message: string, action: () => void) => {
-  confirmTitle.value = title;
-  confirmMessage.value = message;
-  confirmAction.value = action;
-  showConfirmDialog.value = true;
-};
-
-const saveData = async () => {
-  if (!validateForm()) return;
-
-  const isEdit = !!selectedFasilitas.value.id;
-  const action = async () => {
-    try {
-      if (isEdit) {
-        const response = await editFasilitas(selectedFasilitas.value.id, selectedFasilitas.value );
-        showConfirmDialog.value = false;
-        displayNotification(response.error_msg);
-      } else {
-        const response = await addFasilitas(selectedFasilitas.value);
-        showConfirmDialog.value = false;
-        displayNotification(response.error_msg);
-      }
-      isModalOpen.value = false;
-      fetchData();
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        displayNotification(error.response?.data?.error_msg || 'Terjadi kesalahan saat menyimpan data.', 'error');
-      } else {
-        displayNotification('Terjadi kesalahan yang tidak terduga.', 'error');
-      }
-      showConfirmDialog.value = false;
+  const nextPage = () => {
+    if (currentPage.value < totalPages.value) {
+      currentPage.value++;
+      fetchData()
     }
   };
 
-  isEdit ? showConfirmation('Konfirmasi Perubahan', 'Apakah Anda yakin ingin mengubah data ini?', action) : action();
-};
+  const prevPage = () => {
+    if (currentPage.value > 1) {
+      currentPage.value--;
+      fetchData()
+    }
+  };
 
-const deleteData = async (id: number) => {
-  showConfirmation(
-    'Konfirmasi Hapus',
-    'Apakah Anda yakin ingin menghapus data ini?',
-    async () => {
+  const pageNow = (page : number) => {
+    currentPage.value = page
+    fetchData()
+  }
+
+  // Generate array angka halaman
+  const pages = computed(() => {
+    return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+  });
+
+  interface Fasilitas {
+    id: number;
+    name: string;
+  }
+
+  interface Errors {
+    name: string;
+  }
+
+  const timeoutId = ref<number | null>(null);
+  const dataFasilitas = ref<Fasilitas[]>([]);
+  const isModalOpen = ref<boolean>(false);
+  const showNotification = ref<boolean>(false);
+  const showConfirmDialog = ref<boolean>(false);
+  const notificationMessage = ref<string>('');
+  const notificationType = ref<'success' | 'error'>('success');
+  const confirmMessage = ref<string>('');
+  const confirmTitle = ref<string>('');
+  const confirmAction = ref<(() => void) | null>(null);
+  const totalColumns = ref(3); // Default 3 kolom
+
+  const selectedFasilitas = ref<Partial<Fasilitas>>({
+    name: '',
+  });
+
+  const errors = ref<Errors>({
+    name: '',
+  });
+
+  const fetchData = async() => {
+    const response = await daftarFasilitas({search: search.value, perpage: itemsPerPage, pageNumber: currentPage.value});
+    totalPages.value = Math.ceil(response.total / itemsPerPage)
+    dataFasilitas.value = response.data;
+  }
+
+  const openModal = (fasilitas?: Fasilitas) => {
+    selectedFasilitas.value = fasilitas ? { ...fasilitas } : { name: '' };
+    isModalOpen.value = true;
+  };
+
+  onMounted(async () => {
+    await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
+    totalColumns.value = document.querySelectorAll("thead th").length;
+  });
+
+  const validateForm = (): boolean => {
+    errors.value = { name: '' };
+    let isValid = true;
+
+    if (!selectedFasilitas.value.name?.trim()) {
+      errors.value.name = 'Nama tidak boleh kosong';
+      isValid = false;
+    }
+    return isValid;
+  };
+
+  const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
+    notificationMessage.value = message;
+    notificationType.value = type;
+    showNotification.value = true;
+
+    if (timeoutId.value) clearTimeout(timeoutId.value);
+
+    timeoutId.value = window.setTimeout(() => {
+      showNotification.value = false;
+    }, 3000);
+  };
+
+  const showConfirmation = (title: string, message: string, action: () => void) => {
+    confirmTitle.value = title;
+    confirmMessage.value = message;
+    confirmAction.value = action;
+    showConfirmDialog.value = true;
+  };
+
+  const saveData = async () => {
+    if (!validateForm()) return;
+
+    const isEdit = !!selectedFasilitas.value.id;
+    const action = async () => {
       try {
-        const response = await deleteFasilitas(id);
-        showConfirmDialog.value = false;
-        displayNotification(response.error_msg);
+        if (isEdit) {
+          const response = await editFasilitas(selectedFasilitas.value.id, selectedFasilitas.value );
+          showConfirmDialog.value = false;
+          displayNotification(response.error_msg);
+        } else {
+          const response = await addFasilitas(selectedFasilitas.value);
+          showConfirmDialog.value = false;
+          displayNotification(response.error_msg);
+        }
+        isModalOpen.value = false;
         fetchData();
       } catch (error) {
-        console.error('Error deleting data:', error);
-        displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
+        if (axios.isAxiosError(error)) {
+          displayNotification(error.response?.data?.error_msg || 'Terjadi kesalahan saat menyimpan data.', 'error');
+        } else {
+          displayNotification('Terjadi kesalahan yang tidak terduga.', 'error');
+        }
+        showConfirmDialog.value = false;
       }
-    }
-  );
-};
+    };
 
+    isEdit ? showConfirmation('Konfirmasi Perubahan', 'Apakah Anda yakin ingin mengubah data ini?', action) : action();
+  };
+
+  const deleteData = async (id: number) => {
+    showConfirmation(
+      'Konfirmasi Hapus',
+      'Apakah Anda yakin ingin menghapus data ini?',
+      async () => {
+        try {
+          const response = await deleteFasilitas(id);
+          showConfirmDialog.value = false;
+          displayNotification(response.error_msg);
+          fetchData();
+        } catch (error) {
+          console.error('Error deleting data:', error);
+          displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
+        }
+      }
+    );
+  };
 </script>
-
 <template>
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
@@ -236,49 +223,15 @@ const deleteData = async (id: number) => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <tr>
-            <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
-              <nav class="flex mt-0">
-                <ul class="inline-flex items-center -space-x-px">
-                  <!-- Tombol Previous -->
-                  <li>
-                    <button
-                      @click="prevPage"
-                      :disabled="currentPage === 1"
-                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg
-                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                  </li>
-                  <!-- Nomor Halaman -->
-                  <li v-for="page in pages" :key="page">
-                    <button
-                      @click="pageNow(page)"
-                      class="px-3 py-2 leading-tight border"
-                      :class="currentPage === page
-                        ? 'text-white bg-[#3a477d] border-[#3a477d]'
-                        : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'"
-                    >
-                      {{ page }}
-                    </button>
-                  </li>
-
-                  <!-- Tombol Next -->
-                  <li>
-                    <button
-                      @click="nextPage"
-                      :disabled="currentPage === totalPages"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg
-                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </td>
-          </tr>
+          <Pagination
+              :current-page="currentPage"
+              :total-pages="totalPages"
+              :pages="pages"
+              :total-columns="totalColumns"
+              @prev-page="prevPage"
+              @next-page="nextPage"
+              @page-now="pageNow"
+            />
         </tfoot>
       </table>
     </div>

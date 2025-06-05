@@ -5,7 +5,6 @@ import EditIcon from '@/components/User/Modules/DaftarKota/Icon/EditIcon.vue'
 
 // import element
 import DangerButton from '@/components/User/Modules/DaftarKota/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/DaftarKota/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/DaftarKota/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/DaftarKota/Particle/Confirmation.vue'
 
@@ -46,16 +45,6 @@ const pageNow = (page : number) => {
 const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
 });
-
-// // Hitung total halaman
-//const totalPages = computed(() => Math.ceil(searchKota.value.length / itemsPerPage));
-// const apiUrl = 'http://localhost:3001/daftar_kota';
-// const accessToken = localStorage.getItem('access_token');
-// const headers = accessToken ? { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
-// const apiClient = axios.create({
-//   baseURL: apiUrl,
-//   headers,
-// });
 
 interface Kota {
   id: number;

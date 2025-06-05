@@ -5,7 +5,6 @@ import EditIcon from '@/components/User/Modules/DaftarHotel/Icon/EditIcon.vue'
 
 // import element
 import DangerButton from '@/components/User/Modules/DaftarHotel/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/DaftarHotel/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/DaftarHotel/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/DaftarHotel/Particle/Confirmation.vue'
 

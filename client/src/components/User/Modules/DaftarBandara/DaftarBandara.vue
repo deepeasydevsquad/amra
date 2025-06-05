@@ -5,7 +5,6 @@ import EditIcon from '@/components/User/Modules/Airlines/Icon/EditIcon.vue'
 
 // import element
 import DangerButton from '@/components/User/Modules/Airlines/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/Airlines/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/Airlines/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/Airlines/Particle/Confirmation.vue'
 
@@ -238,10 +237,6 @@ const deleteData = async (id: number) => {
         </tfoot>
       </table>
     </div>
-
-
-
-
     <!-- Modal Form -->
     <Transition
       enter-active-class="transition duration-200 ease-out"

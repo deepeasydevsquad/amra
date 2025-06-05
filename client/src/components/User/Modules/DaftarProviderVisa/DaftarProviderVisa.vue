@@ -5,7 +5,6 @@ import EditIcon from '@/components/User/Modules/DaftarProviderVisa/Icon/EditIcon
 
 // import element
 import DangerButton from '@/components/User/Modules/DaftarProviderVisa/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/DaftarProviderVisa/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/DaftarProviderVisa/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/DaftarProviderVisa/Particle/Confirmation.vue'
 
@@ -45,16 +44,6 @@ const pageNow = (page : number) => {
 const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
 });
-
-// // Hitung total halaman
-//const totalPages = computed(() => Math.ceil(searchProviderVisa.value.length / itemsPerPage));
-// const apiUrl = 'http://localhost:3001/daftar_provider_visa';
-// const accessToken = localStorage.getItem('access_token');
-// const headers = accessToken ? { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
-// const apiClient = axios.create({
-//   baseURL: apiUrl,
-//   headers,
-// });
 
 interface ProviderVisa {
   id: number;
@@ -248,10 +237,6 @@ const deleteData = async (id: number) => {
         </tfoot>
       </table>
     </div>
-
-
-
-
     <!-- Modal Form -->
     <Transition
       enter-active-class="transition duration-200 ease-out"
