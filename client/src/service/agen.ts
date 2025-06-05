@@ -2,7 +2,7 @@ import api from './api' // Import service API
 
 export const daftarAgen = async (param: any) => {
   try {
-    const response = await api.get('/getAgen', param)
+    const response = await api.post('/agen/getAgen', param)
     return response.data // Kembalikan data hasil request
   } catch (error) {
     console.error('Gagal ambil Agen:', error)
