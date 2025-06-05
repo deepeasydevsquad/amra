@@ -29,5 +29,3 @@ export const deleteAgen = async (id: number) => {
     throw error // Bisa ditangani di bagian pemanggilan
   }
 }
-
-// deleteHotel

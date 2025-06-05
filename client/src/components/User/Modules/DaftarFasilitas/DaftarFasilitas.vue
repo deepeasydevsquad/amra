@@ -9,6 +9,9 @@ import EditButton from '@/components/User/Modules/DaftarFasilitas/Particle/EditB
 import Notification from '@/components/User/Modules/DaftarFasilitas/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/DaftarFasilitas/Particle/Confirmation.vue'
 
+import LightButton from "@/components/Button/LightButton.vue"
+import Pagination from '@/components/Pagination/Pagination.vue'
+
 // Import service API
 import { daftarFasilitas, addFasilitas, editFasilitas, deleteFasilitas } from '@/service/daftar_fasilitas'; // Import function POST
 import { ref, onMounted, computed } from 'vue';
@@ -218,9 +221,9 @@ const deleteData = async (id: number) => {
               <td class="px-6 py-4 text-center">{{ fasilitas.name }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
-                  <EditButton @click="openModal(fasilitas)">
+                  <LightButton @click="openModal(fasilitas)">
                     <EditIcon></EditIcon>
-                  </EditButton>
+                  </LightButton>
                   <DangerButton @click="deleteData(fasilitas.id)">
                     <DeleteIcon></DeleteIcon>
                   </DangerButton>
