@@ -42,14 +42,18 @@ router.get("/get-type", authenticateToken, controllers.getType);
 
 router.get("/member/level-agen", authenticateToken, controllers.level_agen);
 
-router.put(
-  "/update-member",
-  authenticateToken,
-  // validateMember,
-  upload.single("photo"),
-  controllers.update
+router.put("/update-member",authenticateToken, upload.single("photo"), controllers.update
 );
 
 router.get("/member/get-daftar-cabang", authenticateToken, controllers.getDaftarCabang);
+
+router.post("/member/make-an-agen",
+  authenticateToken,
+  [
+    body("id").trim().notEmpty().withMessage("ID Member tidak boleh kosong.").custom( check_member_id ),
+    body("level").trim().notEmpty().withMessage("Level Agen tidak boleh kosong.").custom( check_level_agen ),
+  ],
+  controllers.makeAnAgen
+);
 
 module.exports = router;

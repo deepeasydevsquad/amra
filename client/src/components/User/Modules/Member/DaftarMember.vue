@@ -9,7 +9,6 @@ import Notification from '@/components/User/Modules/Member/Particle/Notification
 import Confirmation from '@/components/User/Modules/Member/Particle/Confirmation.vue'
 import AddAgenIcon from '@/components/User/Modules/Member/Icon/AddAgenIcon.vue'
 import FormAddAgen from '@/components/User/Modules/Member/Particle/FormAddAgen.vue'
-// Button
 import LightButton from "@/components/Button/LightButton.vue"
 import DangerButton from "@/components/Button/DangerButton.vue"
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"

@@ -1,6 +1,6 @@
 const moment = require("moment");
 const { Op } = require("sequelize");
-const { Member, Company, Division } = require("../models");
+const { Member, Company, Division, Level_keagenan } = require("../models");
 const{ getCompanyIdByCode, tipe, getCabang, getSeluruhCabangId } = require("../helper/companyHelper");
 const multer = require("multer");
 const path = require("path");
@@ -112,4 +112,19 @@ const check_member_id = async ( id, { req } ) => {
   return true;
 }
 
-module.exports = { validateMember, upload, check_member_id };
+const check_level_agen = async( level,  { req } ) => {
+  const company_id = await getCompanyIdByCode(req);
+  if(level !== '0') {
+    var check = await Level_keagenan.findOne({ 
+      where: { id : level, company_id: company_id },
+    });
+    if (!check) {
+        throw new Error("Level Ini Tidak Ditemukan Dipangkalan Data");
+    }
+  }else{
+    throw new Error("Anda wajib memilih salah satu level keagenan");
+  }
+  return true
+}
+
+module.exports = { validateMember, upload, check_member_id, check_level_agen };

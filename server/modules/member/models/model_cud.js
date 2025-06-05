@@ -140,9 +140,6 @@ class Model_cud {
       // Log pesan update
       this.message = `Memperbarui Member ID ${body.id} (${member.fullname}) menjadi ${body.fullname}`;
     } catch (error) {
-      console.log("---------->");
-      console.log(error);
-      console.log("---------->");
       this.state = false;
     }
   }
@@ -156,46 +153,6 @@ class Model_cud {
       // call model
       const model_r = new Model_r(this.req);
       const member = await model_r.infoMember(body.id);
-
-      // // agen
-      // await Agen.destroy(
-      //   {
-      //     where: { member_id: body.id },
-      //   }, 
-      //   {
-      //     transaction: this.t,
-      //   }
-      // );
-
-      // // user
-      // await User.destroy(
-      //   {
-      //     where: { member_id: body.id },
-      //   }, 
-      //   {
-      //     transaction: this.t,
-      //   }
-      // );
-
-      // // deposit
-      // await Deposit.destroy(
-      //   {
-      //     where: { member_id: body.id },
-      //   }, 
-      //   {
-      //     transaction: this.t,
-      //   }
-      // );
-
-      // // destroy Jamaah
-      // await Jamaah.destroy(
-      //   {
-      //     where: { member_id: body.id },
-      //   }, 
-      //   {
-      //     transaction: this.t,
-      //   }
-      // );
       // destroy Member
       await Member.destroy(
         {
@@ -214,12 +171,16 @@ class Model_cud {
       );
       this.message = `Menghapus Member ${member.fullname} (ID: ${member.id})`;
     } catch (error) {
-      console.log("XXXXXXXXXXXXX");
-      console.log(error);
-      console.log("XXXXXXXXXXXXX");
-      // this.message = `Menghapus Member ${member.fullname} (ID: ${member.id})`;
       this.state = false;
     }
+  }
+
+
+  async makeAnAgen() {
+     // initialize dependensi properties
+    await this.initialize();
+    const body = this.req.body;
+
   }
 
   // response

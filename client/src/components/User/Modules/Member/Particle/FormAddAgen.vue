@@ -16,8 +16,9 @@
 
 <script setup lang="ts">
   import { defineProps, defineEmits, ref, watch } from 'vue'
-  import { daftarLevelAgen } from "@/service/member"
+  import { daftarLevelAgen, makeAnAgen } from "@/service/member"
   import Form from "@/components/Modal/Form.vue"
+  import Notification from "@/components/Modal/Notification.vue"
   import SelectField from "@/components/Form/SelectField.vue"
 
   interface Option {
@@ -34,7 +35,6 @@
     level_id: string
   }
 
-
   interface Option {
     id: number
     name: string
@@ -42,7 +42,15 @@
 
   const levelAgen = ref<Option[]>([]);
 
-
+  // notification
+  const showNotification = ref<boolean>(false);
+  const notificationMessage = ref<string>('');
+  const notificationType = ref<'success' | 'error'>('success');
+  const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
+    notificationMessage.value = message;
+    notificationType.value = type;
+    showNotification.value = true;
+  };
 
   // ✅ Props dari parent
   const props = defineProps<{ showForm: boolean; memberId:number, memberName:string, memberIdentitas:string }>()
@@ -94,7 +102,7 @@
     }
   }
 
-    const validateForm = (): boolean => {
+  const validateForm = (): boolean => {
 
     errors.value = {
       id: '',
@@ -121,6 +129,13 @@
       return
     }
 
+    const response = await makeAnAgen({ id : form.value.id, level: form.value.level_id } );
+
+
+    console.log("resss------------>");
+    console.log(response);
+    console.log("resss------------>");
+    // displayNotification(response.error_msg);
     // try {
     //   // const memberData = new FormData()
     //   // if( form.value.id ) {

@@ -99,3 +99,13 @@ export const daftarCabang = async () => {
   }
 }
 
+export const makeAnAgen = async (param: any) => {
+  try {
+    const { data } = await api.post('/member/make-an-agen', param )
+    return data
+  } catch (error) {
+    console.log('gagal menambahkan data:', error)
+    throw error
+  }
+}
+
