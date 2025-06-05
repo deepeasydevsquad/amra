@@ -40,6 +40,7 @@ interface Cabang {
 
 // State
 const data = ref<Partial<Members[]>>([])
+
 const formData = ref<Partial<Members>>({
     id: 0,
     cabang_id: 0,
@@ -238,7 +239,6 @@ onMounted(() => {
   fetchData()
 })
 
-
 const addAgen = async (id: number, name: string, identity_number: string) => {
   await fetchLevelAgen()
   showAgenForm.value = true
@@ -252,6 +252,7 @@ const addAgen = async (id: number, name: string, identity_number: string) => {
   //   AddAgenForm.value = true
   // }
 }
+
 </script>
 
 <template>

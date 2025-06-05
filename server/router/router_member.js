@@ -31,12 +31,7 @@ router.post("/member/delete-member",
   controllers.delete
 );
 
-router.post(
-  "/add-member",
-  authenticateToken,
-  upload.single("photo"),
-  controllers.create
-);
+router.post("/add-member",authenticateToken,upload.single("photo"),controllers.create);
 
 router.get("/get-type", authenticateToken, controllers.getType);
 
