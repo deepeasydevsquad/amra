@@ -138,8 +138,6 @@ onMounted(() => {
     }
   });
 })
-
-
 </script>
 
 <template>

@@ -116,3 +116,35 @@ exports.kwitansi_handover_fasilitas = async (req, res) => {
     handleServerError(res, error.message);
   }
 };
+
+exports.kwitansi_handover_barang = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.dataKwitansiHandoverBarang();
+    if (Object.keys(data).length > 0) {
+      res.status(200).json({ error: false, err_msg: "Data ditemukan", data });
+    } else {
+      res.status(400).json({ error: true, err_msg: "Data tidak ditemukan" });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
+exports.kwitansi_pengembalian_handover_barang = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.dataKwitansiPengembalianHandoverBarang();
+    if (Object.keys(data).length > 0) {
+      res.status(200).json({ error: false, err_msg: "Data ditemukan", data });
+    } else {
+      res.status(400).json({ error: true, err_msg: "Data tidak ditemukan" });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}

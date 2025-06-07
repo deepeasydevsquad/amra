@@ -42,6 +42,54 @@ controllers.add = async (req, res) => {
   }
 };
 
+controllers.addHandoverBarang = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    const invoice = await model_cud.addHandoverBarang();
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Handover Barang berhasil ditambahkan.',
+        data: { invoice: invoice },
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Handover Barang Gagal Ditambahkan.',
+      });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
+controllers.pengembalianHandoverBarang = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    const invoice = await model_cud.pengembalianHandoverBarang();
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Pengembalian Handover Barang berhasil ditambahkan.',
+        data: { invoice: invoice },
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Pengembalian Handover Barang Gagal Ditambahkan.',
+      });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
 controllers.Menabung = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -76,6 +124,18 @@ controllers.getInfoMenabungTabunganUmrah = async (req, res) => {
     handleServerError(res, error.message);
   }
 };
+
+controllers.getInfoPengembalianHandoverBarang = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_r = new Model_r(req);
+    const feedBack = await model_r.getInfoPengembalianHandoverBarang();
+    res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
 
 controllers.Refund = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
