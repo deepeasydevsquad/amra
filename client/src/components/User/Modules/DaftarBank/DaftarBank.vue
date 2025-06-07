@@ -35,7 +35,6 @@ const prevPage = () => {
   }
 };
 
-
 const pageNow = (page : number) => {
   currentPage.value = page
   fetchData()
