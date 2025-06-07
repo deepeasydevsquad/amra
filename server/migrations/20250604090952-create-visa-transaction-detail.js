@@ -17,6 +17,14 @@ module.exports = {
         },
         onDelete: 'CASCADE',
       },
+      mst_visa_request_type_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Mst_visa_request_types",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
+      },
       name: {
         type: Sequelize.STRING
       },

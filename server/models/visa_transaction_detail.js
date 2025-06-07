@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Visa_transaction_detail.belongsTo(models.Mst_visa_request_type, {
+        foreignKey: "mst_visa_request_type_id",
+      });
       Visa_transaction_detail.belongsTo(models.Visa_transaction, {
         foreignKey: "visa_transaction_id",
       });
@@ -21,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Visa_transaction_detail.init({
     visa_transaction_id: DataTypes.INTEGER,
+    mst_visa_request_type_id: DataTypes.INTEGER,
     name: DataTypes.STRING,
     identity_number: DataTypes.STRING,
     gender: DataTypes.ENUM(['laki_laki', 'perempuan']),
