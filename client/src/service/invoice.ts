@@ -61,3 +61,27 @@ export const getKwitansiHandoverFasilitas = async (param : string) => {
     throw error; // Bisa ditangani di bagian pemanggilan
   }
 };
+
+export const getKwitansiHandoverBarang = async (param: string) => {
+  try {
+    console.log("Param:", param);
+    const response = await api.get(`/invoice/kwitansi-handover-barang/${param}`); // Kirim data melewait URL
+    console.log("Response data:", response.data); // Debugging log
+    return response.data; // Kembalikan data hasil request
+  } catch (error) {
+    console.log("Gagal mengambil kwitansi handover barang:", error);
+    throw error;
+  }
+}
+
+export const getKwitansiPengembalianBarang = async (param: string) => {
+  try {
+    console.log("Param:", param);
+    const response = await api.get(`/invoice/kwitansi-pengembalian-handover-barang/${param}`); // Kirim data melewait URL
+    console.log("Response data:", response.data); // Debugging log
+    return response.data; // Kembalikan data hasil request
+  } catch (error) {
+    console.log("Gagal mengambil kwitansi pengembalian barang:", error);
+    throw error;
+  }
+}

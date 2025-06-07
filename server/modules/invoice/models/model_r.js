@@ -21,9 +21,10 @@ const {
   Peminjaman,
   Handover_fasilitas,
   Handover_fasilitas_detail,
+  Handover_barang,
   Mst_fasilitas,
 } = require("../../../models");
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
 const {
   getCompanyIdByCode,
   tipe,
@@ -458,6 +459,97 @@ class Model_r {
       return data;
     } catch (error) {
       console.error("Error in dataKwitansiHandoverFasilitas:", error);
+      throw error;
+    }
+  }
+
+  async dataKwitansiHandoverBarang() {
+    await this.initialize();
+
+    try {
+      let data = { ...(await this.header_kwitansi_invoice()) };
+
+      const adaInvoice = await Handover_barang.findOne({
+        where: { invoice_handover: this.req.params.invoice },
+      });
+
+      if (!adaInvoice) {
+        return {};
+      }
+
+      const handoverBarang =  await Handover_barang.findAll({
+        where: { invoice_handover: this.req.params.invoice },
+        attributes: [
+          "invoice_handover",
+          "nama_barang",
+          "giver_handover",
+          "giver_handover_identity",
+          "giver_handover_hp",
+          "giver_handover_address",
+          "receiver_handover",
+          "date_taken",
+        ],
+        raw: true
+      })
+      data.invoice_handover = handoverBarang[0].invoice_handover;
+      data.handover_barang = handoverBarang.map(item => item.nama_barang)
+      data.giver_handover = handoverBarang[0].giver_handover;
+      data.giver_handover_identity = handoverBarang[0].giver_handover_identity;
+      data.giver_handover_hp = handoverBarang[0].giver_handover_hp;
+      data.giver_handover_address = handoverBarang[0].giver_handover_address;
+      data.receiver_handover = handoverBarang[0].receiver_handover;
+      data.receiver_jabatan = (await tipe(this.req)).toUpperCase();
+      data.date_taken = moment(handoverBarang[0].date_taken).format("YYYY-MM-DD HH:mm:ss");
+
+      return data;
+    } catch (error) {
+      console.log("Error in dataKwitansiHandoverBarang", error);
+      throw error;
+    }
+  }
+
+  async dataKwitansiPengembalianHandoverBarang() {
+    await this.initialize();
+
+    try {
+      let data = { ...(await this.header_kwitansi_invoice()) };
+
+      const adaInvoice = await Handover_barang.findOne({
+        where: { invoice_returned: this.req.params.invoice },
+      });
+
+      if (!adaInvoice) {
+        return {};
+      }
+
+      const handoverBarang =  await Handover_barang.findAll({
+        where: { invoice_returned: this.req.params.invoice },
+        attributes: [
+          "invoice_returned",
+          "nama_barang",
+          "giver_returned",
+          "receiver_returned",
+          "receiver_returned_identity",
+          "receiver_returned_hp",
+          "receiver_returned_address",
+          "date_returned",
+        ],
+        raw: true
+      })
+      data.invoice_returned = handoverBarang[0].invoice_returned;
+      data.handover_barang = handoverBarang.map(item => item.nama_barang)
+      data.giver_returned = handoverBarang[0].giver_returned;
+      data.giver_jabatan = (await tipe(this.req)).toUpperCase();
+      data.receiver_returned = handoverBarang[0].receiver_returned;
+      data.receiver_returned_identity = handoverBarang[0].receiver_returned_identity;
+      data.receiver_returned_hp = handoverBarang[0].receiver_returned_hp;
+      data.receiver_returned_address = handoverBarang[0].receiver_returned_address;
+      data.date_returned = moment(handoverBarang[0].date_returned).format("YYYY-MM-DD HH:mm:ss");
+
+      console.log(data);
+      return data;
+    } catch (error) {
+      console.log("Error in dataKwitansiPengembalianHandoverBarang", error);
       throw error;
     }
   }

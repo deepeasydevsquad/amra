@@ -34,7 +34,12 @@ router.post(
 router.post(
   "/daftar-tabungan-umrah/get-agen-tabungan-umrah",
   authenticateToken,
-  [body("id").trim().notEmpty().withMessage("ID tidak boleh kosong.")],
+  [
+    body("id")
+      .trim()
+      .notEmpty().withMessage("ID tidak boleh kosong.")
+      .isInt().withMessage("ID harus berupa angka."),
+  ],
   controllers.getAgenById
 );
 
@@ -75,6 +80,7 @@ router.post(
   ],
   controllers.getPetugasTabunganUmrah
 );
+
 router.get(
   "/daftar-tabungan-umrah/cetak-data-jamaah/:id/cetak",
   authenticateToken,
@@ -254,6 +260,85 @@ router.post(
   ],
   controllers.addHandoverFasilitas
 );
+
+router.post(
+  "/daftar-tabungan-umrah/get-info-pengembalian-handover-barang",
+  authenticateToken,
+  [
+    body("id")
+      .trim()
+      .notEmpty().withMessage("ID Tabungan Umrah tidak boleh kosong.")
+      .isInt().withMessage("ID Tabungan Umrah harus berupa angka.")
+      .custom(validation.check_id_tabungan),
+  ],
+  controllers.getInfoPengembalianHandoverBarang
+)
+
+router.post(
+  "/daftar-tabungan-umrah/add-handover-barang",
+  authenticateToken,
+  [
+    body("id")
+      .trim()
+      .notEmpty().withMessage("ID Tabungan Umrah tidak boleh kosong.")
+      .isInt().withMessage("ID Tabungan Umrah harus berupa angka.")
+      .custom(validation.check_id_tabungan),
+    body("barangList")
+      .isArray({ min: 1 }).withMessage("Barang tidak boleh kosong.")
+      .customSanitizer((value) => {
+        return value.map((v) => v.trim().toUpperCase());
+      }),
+    body("giver_handover")
+      .trim()
+      .notEmpty().withMessage("Pemberi Handover tidak boleh kosong.")
+      .toUpperCase(),
+    body("giver_handover_identity")
+      .trim()
+      .notEmpty().withMessage("Nomor Identitas Pemberi Handover tidak boleh kosong.")
+      .isNumeric().withMessage("Nomor Identitas Pemberi Handover harus berupa angka."),
+    body("giver_handover_hp")
+      .trim()
+      .notEmpty().withMessage("Nomor HP Pemberi Handover tidak boleh kosong.")
+      .isNumeric().withMessage("Nomor HP Pemberi Handover harus berupa angka."),
+    body("giver_handover_address")
+      .trim()
+      .notEmpty().withMessage("Alamat Pemberi Handover tidak boleh kosong.")
+      .toUpperCase(),
+  ],
+  controllers.addHandoverBarang
+)
+
+router.post(
+  "/daftar-tabungan-umrah/pengembalian-handover-barang",
+  authenticateToken,
+  [
+    body("id")
+      .trim()
+      .notEmpty().withMessage("ID Tabungan Umrah tidak boleh kosong.")
+      .isInt().withMessage("ID Tabungan Umrah harus berupa angka.")
+      .custom(validation.check_id_tabungan),
+    body("selectedItems")
+      .isArray({ min: 1 }).withMessage("ID items tidak boleh kosong.")
+      .custom(validation.check_id_handover_barang),
+    body("receiver_returned")
+      .trim()
+      .notEmpty().withMessage("Nama Penerima Barang tidak boleh kosong.")
+      .toUpperCase(),
+    body("receiver_returned_identity")
+      .trim()
+      .notEmpty().withMessage("Nomor Identitas Penerima Barang tidak boleh kosong.")
+      .isNumeric().withMessage("Nomor Identitas Penerima Barang harus berupa angka."),
+    body("receiver_returned_hp")
+      .trim()
+      .notEmpty().withMessage("Nomor HP Penerima Barang tidak boleh kosong.")
+      .isNumeric().withMessage("Nomor HP Penerima Barang harus berupa angka."),
+    body("receiver_returned_address")
+      .trim()
+      .notEmpty().withMessage("Alamat Penerima Barang tidak boleh kosong.")
+      .toUpperCase(),
+  ],
+  controllers.pengembalianHandoverBarang
+)
 
 router.post(
   "/daftar-tabungan-umrah/delete-tabungan-umrah",

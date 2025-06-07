@@ -49,7 +49,7 @@ export const getMember = async (id:number) => {
     console.error("Gagal mengambil asuransi:", error);
     throw error;
   }
-};
+}
 
 export const addMember = async (param: any) => {
   try {

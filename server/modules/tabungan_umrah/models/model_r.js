@@ -16,6 +16,7 @@ const {
   Handover_fasilitas_detail,
   Deposit,
   Jurnal,
+  Handover_barang,
   Mst_fasilitas,
   Mst_kota,
   Mst_pendidikan,
@@ -203,7 +204,7 @@ class Model_r {
       where,
       attributes: [
         "id", "target_paket_id", "total_tabungan", "paket_transaction_id", 
-        "sisa_pembelian", "createdAt", "updatedAt"
+        "fee_agen_id", "sisa_pembelian", "createdAt", "updatedAt"
       ],
       include: [{
         model: Jamaah,
@@ -229,7 +230,7 @@ class Model_r {
         total: totalData,
       };
     } catch (error) {
-      console.error("Error in daftar_tabungan_umrah:", error);
+      console.log("Error in daftar_tabungan_umrah:", error);
       return {};
     }
   }
@@ -260,7 +261,7 @@ class Model_r {
       };
 
     } catch (error) {
-      console.error("Error in getJamaahTabunganUmrah:", error);
+      console.log("Error in getJamaahTabunganUmrah:", error);
       return {};
     }
   }
@@ -305,7 +306,7 @@ class Model_r {
       return data;
 
     } catch (error) {
-      console.error("Error in getPaketTabunganUmrah:", error);
+      console.log("Error in getPaketTabunganUmrah:", error);
       return {};
     }
   }
@@ -314,7 +315,6 @@ class Model_r {
     try {
       await this.initialize();
       const body = this.req.body;
-      console.log(body);
       var data = {};
       const agen = await Agen.findOne({
         where: {
@@ -344,7 +344,7 @@ class Model_r {
       return data;
 
     } catch (error) {
-      console.error("Error in getAgenById:", error);
+      console.log("Error in getAgenById:", error);
       return {};
     }
   }
@@ -392,7 +392,7 @@ class Model_r {
       }
       
     } catch (error) {
-      console.error("Error in get_handover_fasilitas_by_tabungan_id:", error);
+      console.log("Error in get_handover_fasilitas_by_tabungan_id:", error);
       return {};
     }
   }
@@ -443,7 +443,7 @@ class Model_r {
       };
       
     } catch (error) {
-      console.error("Error in getMstFasilitas:", error);
+      console.log("Error in getMstFasilitas:", error);
       return {};
     }
   }
@@ -459,8 +459,6 @@ class Model_r {
         label: `Administrator ${await this.penerima()} (Administrator)`,
         type: "admin",
       });
-
-      console.log("Tabungan ID:", data);
       
       // Tambahkan user Staff dan pegawai
       const users = await User.findAll({
@@ -501,7 +499,7 @@ class Model_r {
         total: data.length,
       };
     } catch (error) {
-      console.error("Error in getPetugasbyTabunganId:", error);
+      console.log("Error in getPetugasbyTabunganId:", error);
       return { data: [], total: 0 };
     }
   }
@@ -571,7 +569,6 @@ class Model_r {
         division.Company?.whatsapp_company_number ?? "-";
     }
 
-    console.log(data);
     return data;
   }
 
@@ -580,13 +577,7 @@ class Model_r {
       await this.initialize();
       const id = this.req.params.id;
       const petugasIdQuery = this.req.query.petugasId;
-
       var data = { ...data, ...(await this.header()) };
-
-      console.log("===== getCetakDataJamaahTabunganUmrah =====");
-      console.log("ID Tabungan:", id);
-      console.log("ID Petugas:", petugasIdQuery);
-      console.log("===== getCetakDataJamaahTabunganUmrah =====");
 
       const petugasId = petugasIdQuery.split("-")[1];
       const isPetugasAdmin = petugasIdQuery.startsWith("admin-");
@@ -692,7 +683,6 @@ class Model_r {
         ? await getAlamatInfo(tabungan.Jamaah.kelurahan_id) 
         : null;
 
-      // console.log("Tabungan Data:", tabungan);
       data["nama_paket"] = tabungan.Paket?.name ? tabungan.Paket.name : "-";
       data["nomor_register"] = tabungan.nomor_register ? tabungan.nomor_register : "-";
       data["departure_date"] = tabungan.Paket?.departure_date ? moment(tabungan.Paket.departure_date).format("YYYY-MM-DD") : "-";
@@ -737,15 +727,11 @@ class Model_r {
       data["alamat_keluarga"] = tabungan.Jamaah?.alamat_keluarga ? tabungan.Jamaah.alamat_keluarga : "-";
       data["telephone_keluarga"] = tabungan.Jamaah?.telephone_keluarga ? tabungan.Jamaah.telephone_keluarga : "-";
 
-
-      console.log("===== data Jamaah =====");
-      console.log(data)
-      console.log("===== data Jamaah =====");
       return {
         data
       };
     } catch (error) {
-      console.error("Error in getCetakDataJamaahTabunganUmrah:", error);
+      console.log("Error in getCetakDataJamaahTabunganUmrah:", error);
       return { data: [], total: 0 };
     }
   }
@@ -759,10 +745,6 @@ class Model_r {
       // call object
       var data = {};
       const infoTabungan = await this.infoTabungan(body.id);
-
-      if (!infoTabungan) {
-        throw new Error(`Data tabungan ID ${body.id} tidak ditemukan.`);
-      }
 
       data.id = infoTabungan.id;  
       data.total_tabungan = infoTabungan.total_tabungan;
@@ -778,8 +760,8 @@ class Model_r {
 
       return {data};
     } catch (error) {
-      this.state = false;
-      this.message = error.message || "Terjadi kesalahan saat mengambil informasi tabungan.";
+        console.log("error in getInfoUpdateTabunganUmrah", error);
+        return {};
     }
   }
 
@@ -793,24 +775,19 @@ class Model_r {
       var data = {};
       const infoTabungan = await this.infoTabungan(body.id);
 
-      if (!infoTabungan) {
-        throw new Error(`Data tabungan ID ${body.id} tidak ditemukan.`);
-      }
-
       const agen = await getAgenById(infoTabungan.fee_agen_id);
       
       const dataTabungan = {
         id: infoTabungan.id,
         total_tabungan: Number(infoTabungan.total_tabungan) - Number(agen.Level_keagenan.default_fee),
-        total_tabungan: infoTabungan.total_tabungan - agen.Level_keagenan.default_fee,
         batal_berangkat: infoTabungan.batal_berangkat === "ya" ? true : false,
       };
       data = dataTabungan;
 
       return {data};
     } catch (error) {
-      this.state = false;
-      this.message = error.message || "Terjadi kesalahan saat mengambil informasi tabungan.";
+        console.log("error in getInfoRefundTabunganUmrah", error);
+        return {};
     }
   }
 
@@ -823,12 +800,6 @@ class Model_r {
       // call object
       var data = {};
       const infoTabungan = await this.infoTabungan(body.id);
-
-      if (!infoTabungan) {
-        throw new Error(`Data tabungan ID ${body.id} tidak ditemukan.`);
-      }
-
-      const agen = await getAgenById(infoTabungan.fee_agen_id);
       
       const dataTabungan = {
         id: infoTabungan.id,
@@ -843,10 +814,58 @@ class Model_r {
 
       return {data};
     } catch (error) {
-      this.state = false;
-      this.message = error.message || "Terjadi kesalahan saat mengambil informasi tabungan.";
+        console.log("Error in getInfoMenabungTabunganUmrah:", error);
+        return {};
     }
   }    
+
+  // === GET INFO PENGEMBALIAN HANDOVER BARANG ===
+  async getInfoPengembalianHandoverBarang() {
+    await this.initialize();
+    const body = this.req.body;
+
+    try {
+      var data = []
+      const handoverBarang = await Handover_barang.findAll({
+        where: { tabungan_id: body.id },
+        order: [["id", "ASC"]],
+        attributes: [
+          "id",
+          "tabungan_id",
+          "jamaah_id",
+          "invoice_handover",
+          "invoice_returned",
+          "nama_barang",
+          "status",
+          "giver_handover",
+          "receiver_handover",
+          "giver_returned",
+          "receiver_returned",
+          "date_taken",
+          "date_returned",
+          "createdAt",
+          "updatedAt",
+        ],
+      })
+
+      data = handoverBarang.map(item => ({
+        id: item.id,
+        nama_barang: item.nama_barang,
+        giver_handover: item.giver_handover ? item.giver_handover : "-",
+        receiver_handover: item.receiver_handover ? item.receiver_handover : "-",
+        giver_returned: item.giver_returned ? item.giver_returned : "-",
+        receiver_returned: item.receiver_returned ? item.receiver_returned : "-",
+        date_taken: item.date_taken ? moment(item.date_taken).format('YYYY-MM-DD HH:mm:ss') : '-',
+        date_returned: item.date_returned ? moment(item.date_returned).format('YYYY-MM-DD HH:mm:ss') : '-',
+        status: item.status,
+      }));
+
+      return {data};
+    } catch (error) {
+      console.log("Error in getInfoPengembalianHandoverBarang:", error);
+      return {};
+    }
+  }
 
   async infoTabungan(id) {
     try {
@@ -870,6 +889,7 @@ class Model_r {
         include: [
           {
             model: Jamaah,
+            attributes: ["id"],
             required: true,
             include: [
               {
@@ -906,19 +926,20 @@ class Model_r {
       };
 
       if (tabungan.Jamaah && tabungan.Jamaah.Member) {
-        const member = tabungan.Jamaah.Member;
+        const jamaah = tabungan.Jamaah;
         data.jamaah = {
-          id: member.id,
-          fullname: member.fullname,
-          identity_number: member.identity_number,
-          birth_place: member.birth_place,
-          birth_date: member.birth_date,
+          id: jamaah.id,
+          member_id: jamaah.Member.id,
+          fullname: jamaah.Member.fullname,
+          identity_number: jamaah.Member.identity_number,
+          birth_place: jamaah.Member.birth_place,
+          birth_date: jamaah.Member.birth_date,
         };
       }
 
       return data;
     } catch (error) {
-      console.error("Error in infoTabungan:", error);
+      console.log("Error in infoTabungan:", error);
       return {};
     }
   }

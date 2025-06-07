@@ -12,6 +12,8 @@ import KwitansiTabunganUmrah from '@/components/User/Modules/Invoice/KwitansiTab
 import CetakSurat from '@/components/User/Modules/DaftarSuratMenyurat/widgets/CetakSurat.vue'
 import KwitansiHandoverFasilitas from '@/components/User/Modules/Invoice/KwitansiHandoverFasilitas.vue'
 import CetakDataJamaah from '@/components/User/Modules/TabunganUmrah/Widget/CetakDataJamaah.vue'
+import KwitansiHandoverBarang from '@/components/User/Modules/Invoice/KwitansiHandoverBarang.vue'
+import KwitansiPengembalianBarang from '@/components/User/Modules/Invoice/KwitansiPengembalianBarang.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -90,6 +92,16 @@ const router = createRouter({
       name: 'cetak-jamaah',
       component: CetakDataJamaah,
     },
+    {
+      path: '/kwitansi-handover-barang/:invoice',
+      name: 'kwitansi-handover-barang',
+      component: KwitansiHandoverBarang,
+    },
+    {
+      path: '/kwitansi-pengembalian-handover-barang/:invoice',
+      name: 'kwitansi-pengembalian-handover-barang',
+      component: KwitansiPengembalianBarang,
+    }
   ],
 })
 

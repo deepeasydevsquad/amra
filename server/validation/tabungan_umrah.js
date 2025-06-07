@@ -7,6 +7,7 @@ const {
     Tabungan,
     Handover_fasilitas,
     Handover_fasilitas_detail,
+    Handover_barang,
     Agen,
     Level_keagenan,
 } = require("../models");
@@ -25,7 +26,7 @@ validation.check_id_tabungan = async ( value, { req } ) => {
         }
         return true;
     } catch (error) {
-        console.error(error);
+        console.log(error);
         throw error;
     }
 }
@@ -37,7 +38,7 @@ validation.check_sumber_dana = async ( value, { req } ) => {
         }
         throw new Error("Sumber dana hanya menerima deposit atau cash");
     } catch (error) {
-        console.error(error);
+        console.log(error);
         throw error;
     }
 }
@@ -52,7 +53,7 @@ validation.check_id_jamaah = async ( value,  { req } ) => {
         }
         return true;
     } catch (error) {
-        console.error(error);
+        console.log(error);
         throw error;
     }
 }
@@ -97,7 +98,7 @@ validation.check_id_target_paket = async (value, { req }) => {
 
         return true;
     } catch (error) {
-        console.error(error);
+        console.log(error);
         throw error;
     }
 }
@@ -153,7 +154,7 @@ validation.check_saldo_deposit_dan_biaya = async (value, { req }) => {
 
         return true;
     } catch (error) {
-        console.error(error);
+        console.log(error);
         throw error;
     }
 };
@@ -186,7 +187,7 @@ validation.check_refund_nominal = async (value, { req }) => {
             throw new Error("Data Agen tidak ditemukan");
         }
 
-        const maksimal_refund = tabungan.total_tabungan - agen.Level_keagenan.default_fee;
+        const maksimal_refund = tabungan.total_tabungan - agen.Level_keagenan.default_fee || 0;
         if (value > maksimal_refund) {
             console.debug("Nominal refund melebihi batas maksimal yang dapat direfund");
             throw new Error("Nominal refund melebihi batas maksimal yang dapat direfund");
@@ -194,7 +195,7 @@ validation.check_refund_nominal = async (value, { req }) => {
 
         return true;
     } catch (error) {
-        console.error(error);
+        console.log(error);
         throw error;
     }
 };
@@ -264,7 +265,37 @@ validation.check_mst_paket = async (value, { req }) => {
 
         return true;
     } catch (error) {
-        console.error('[check_mst_paket]', error);
+        console.log('[check_mst_paket]', error);
+        throw error;
+    }
+};
+
+validation.check_id_handover_barang = async (value, { req }) => {
+    try {
+        // Validasi: apakah semua ID ada di Handover_barang?
+        const handoverBarang = await Handover_barang.findAll({
+            where: {
+                id: {
+                    [Op.in]: value,
+                },
+                tabungan_id: req.body.id,
+            },
+        });
+
+        if (handoverBarang.length !== value.length) {
+            const missingIds = value.filter(id => !handoverBarang.map(hb => hb.id).includes(id));
+            throw new Error(`ID Handover Barang ${missingIds.join(', ')} tidak ditemukan`);
+        }
+
+        // Validasi: apakah status belum dikembalikan?
+        const dikembalikan = handoverBarang.find(hb => hb.status.toLowerCase() === 'dikembalikan');
+        if (dikembalikan) {
+            throw new Error(`Handover Barang dengan ID ${dikembalikan.id} sudah dikembalikan`);
+        }
+
+        return true;
+    } catch (error) {
+        console.log('[check_id_handover_barang]', error);
         throw error;
     }
 };

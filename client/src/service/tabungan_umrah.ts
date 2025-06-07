@@ -60,6 +60,16 @@ export const getHandoverFasilitas = async (id: number) => {
   }
 };
 
+export const getInfoPengembalianBarang = async (id: number) => {
+  try {
+    const response = await api.post("/daftar-tabungan-umrah/get-info-pengembalian-handover-barang", { id });
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil daftar handover barang:", error);
+    throw error;
+  }
+}
+
 export const getPetugasTabunganUmrah = async (id: number) => {
   try {
     const response = await api.post("/daftar-tabungan-umrah/get-petugas-tabungan-umrah", { id });
@@ -166,6 +176,26 @@ export const addHandoverFasilitas = async (param : any) => {
     return response.data;
   } catch (error) {
     console.error("Gagal menambahkan handover fasilitas:", error);
+    throw error;
+  }
+}
+
+export const addHandoverBarang = async (param: any) => {
+  try {
+    const response = await api.post("/daftar-tabungan-umrah/add-handover-barang", param);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal menambahkan handover barang:", error);
+    throw error;
+  }
+}
+
+export const pengembalianHandoverBarang = async (param: any) => {
+  try {
+    const response = await api.post("/daftar-tabungan-umrah/pengembalian-handover-barang", param);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal menambahkan pengembalian handover barang:", error);
     throw error;
   }
 }
