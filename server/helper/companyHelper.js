@@ -37,6 +37,7 @@ companyHelper.tipe = async (req) => {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     const decoded = jwt.decode(token);
+
     return decoded.type;
   } catch (error) {
     console.log("sssss");
@@ -45,6 +46,9 @@ companyHelper.tipe = async (req) => {
     return "";
   }
 };
+
+
+
 
 companyHelper.username = async (req) => {
   try {
