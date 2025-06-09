@@ -9,10 +9,15 @@ const {
   Level_keagenan,
   Jamaah,
   Agen,
+  Users,
 } = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
-const { menghasilkan_invoice_riwayat_pembayaran_peminjaman, menghasilkan_nomor_registrasi_peminjaman, menghasilkan_invoice_fee_agen } = require("../../../helper/randomHelper");
+const {
+  menghasilkan_invoice_riwayat_pembayaran_peminjaman,
+  menghasilkan_nomor_registrasi_peminjaman,
+  menghasilkan_invoice_fee_agen,
+} = require("../../../helper/randomHelper");
 const moment = require("moment");
 const { sequelize } = require("../../../models");
 
@@ -34,15 +39,19 @@ class Model_cud {
   async mengambil_info_jamaah() {
     try {
       const jamaah = await Jamaah.findOne({
-        attribute : ['member_id', 'agen_id'], 
+        attribute: ["member_id", "agen_id"],
         where: { id: this.req.body.jamaah_id },
         include: {
-          required : true, 
-          model : Member, 
-          attribute : ['total_deposit']
-        }
+          required: true,
+          model: Member,
+          attribute: ["total_deposit"],
+        },
       });
-      return { member_id : jamaah.member_id, agen_id: jamaah.agen_id, total_deposit: jamaah.Member.total_deposit};
+      return {
+        member_id: jamaah.member_id,
+        agen_id: jamaah.agen_id,
+        total_deposit: jamaah.Member.total_deposit,
+      };
     } catch (error) {
       return {};
     }
@@ -84,7 +93,6 @@ class Model_cud {
     }
   }
 
-
   async Skema_peminjaman(peminjaman_id) {
     const { nominal, tenor, dp, mulai_bayar } = this.req.body;
     const utang = nominal - dp;
@@ -95,14 +103,16 @@ class Model_cud {
     const skema = [];
     for (let i = 0; i < tenor; i++) {
       const jumlah = i === tenor - 1 ? sisaUtang : biaya_perbulan;
-      const tanggalJatuhTempo = moment(mulai_bayar).add(i, 'months').format('YYYY-MM-DD');
+      const tanggalJatuhTempo = moment(mulai_bayar)
+        .add(i, "months")
+        .format("YYYY-MM-DD");
 
       skema.push({
         company_id: this.company_id,
         peminjaman_id,
         term: i + 1,
         nominal: jumlah,
-        duedate: tanggalJatuhTempo , 
+        duedate: tanggalJatuhTempo,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -115,7 +125,13 @@ class Model_cud {
     await this.initialize();
 
     const now = moment().format("YYYY-MM-DD HH:mm:ss");
-    const { jamaah_id, nominal, tenor, dp, sudah_berangkat = false } = this.req.body;
+    const {
+      jamaah_id,
+      nominal,
+      tenor,
+      dp,
+      sudah_berangkat = false,
+    } = this.req.body;
 
     const petugas = await this.petugas();
     const register_number = await menghasilkan_nomor_registrasi_peminjaman();
@@ -154,7 +170,7 @@ class Model_cud {
         await Riwayat_pembayaran_peminjaman.create(
           {
             company_id: this.company_id,
-            peminjaman_id : IP.id,
+            peminjaman_id: IP.id,
             invoice,
             nominal: dp,
             status: "dp",
@@ -193,7 +209,7 @@ class Model_cud {
         return await Fee_agen.create(
           {
             company_id: this.company_id,
-            agen_id:info_jamaah.agen_id,
+            agen_id: info_jamaah.agen_id,
             invoice: invoice_fee_agen,
             nominal: default_fee,
             status_bayar: "belum_lunas",
@@ -214,7 +230,6 @@ class Model_cud {
   }
 
   async updateSkema() {
-
     await this.initialize(); // bikin this.t
 
     const now = moment().format("YYYY-MM-DD HH:mm:ss");
@@ -226,7 +241,7 @@ class Model_cud {
         {
           where: {
             peminjaman_id: peminjaman_id,
-            company_id : this.company_id
+            company_id: this.company_id,
           },
         },
         {
@@ -234,23 +249,22 @@ class Model_cud {
         }
       );
       // create new skema peminjaman
-      for( let x in updatedSkema) {
+      for (let x in updatedSkema) {
         await Skema_peminjaman.create(
-            {
-              company_id: this.company_id,
-              peminjaman_id: peminjaman_id,
-              term : updatedSkema[x].term, 
-              nominal: updatedSkema[x].nominal, 
-              duedate : updatedSkema[x].duedate,  
-              createdAt: now,
-              updatedAt: now,
-            },
-            { transaction: this.t }
-          );
+          {
+            company_id: this.company_id,
+            peminjaman_id: peminjaman_id,
+            term: updatedSkema[x].term,
+            nominal: updatedSkema[x].nominal,
+            duedate: updatedSkema[x].duedate,
+            createdAt: now,
+            updatedAt: now,
+          },
+          { transaction: this.t }
+        );
       }
-     
-      this.message = "Skema berhasil diperbarui";
 
+      this.message = "Skema berhasil diperbarui";
     } catch (err) {
       this.state = false;
       this.message = "Gagal memperbarui skema: " + err.message;

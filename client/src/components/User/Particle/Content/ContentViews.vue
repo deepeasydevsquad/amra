@@ -47,6 +47,7 @@ import LabaRugi from '../../Modules/LabaRugi/LabaRugi.vue'
 import Neraca from '../../Modules/Neraca/Neraca.vue'
 import PengaturanPerangkanWhatsap from '../../Modules/PengaturanPerangkatWhatsapp/PengaturanPerangkanWhatsap.vue'
 import TemplatePesanWhatsapp from '../../Modules/TemplatePesanWhatsapp/TemplatePesanWhatsapp.vue'
+import PesanWhatsapp from '../../Modules/PesanWhatsapp/PesanWhatsapp.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -88,6 +89,7 @@ const tabComponents = {
   neraca: Neraca,
   pengaturan_perangkat_whatsapp: PengaturanPerangkanWhatsap,
   template_pesan_whatsapp: TemplatePesanWhatsapp,
+  pesan_whatsapp: PesanWhatsapp,
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click
