@@ -18,11 +18,13 @@ const {
   Company,
   Paket_la,
   sequelize,
+  Division,
 } = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const {
   getCompanyIdByCode,
   getCabang,
+  tipe,
 } = require("../../../helper/companyHelper");
 
 // Helper buat replace variable di template pesan
@@ -76,7 +78,7 @@ class Model_cud {
           attributes: ["fullname", "whatsapp_number", "identity_number"],
         },
         {
-          required: true,
+          required: false,
           model: Peminjaman,
           attributes: ["id", "tenor"],
           include: [
