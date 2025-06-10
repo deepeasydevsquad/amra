@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Hotel_transaction extends Model {
+  class Passport_transaction extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,16 +11,16 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Hotel_transaction.belongsTo(models.Company, {
+      Passport_transaction.belongsTo(models.Company, {
         foreignKey: "company_id",
       });
-      Hotel_transaction.hasMany(models.Hotel_transaction_detail, {
-        foreignKey: "hotel_transaction_id",
+      Passport_transaction.hasMany(models.Passport_transaction_detail, {
+        foreignKey: "passport_transaction_id",
         onDelete: 'CASCADE',
       });
     }
   }
-  Hotel_transaction.init({
+  Passport_transaction.init({
     company_id: DataTypes.INTEGER,
     invoice: DataTypes.STRING,
     petugas: DataTypes.STRING,
@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     payer_identity: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'Hotel_transaction',
+    modelName: 'Passport_transaction',
   });
-  return Hotel_transaction;
+  return Passport_transaction;
 };
