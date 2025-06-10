@@ -47,6 +47,7 @@ import LabaRugi from '../../Modules/LabaRugi/LabaRugi.vue'
 import Neraca from '../../Modules/Neraca/Neraca.vue'
 import PengaturanPerangkanWhatsap from '../../Modules/PengaturanPerangkatWhatsapp/PengaturanPerangkanWhatsap.vue'
 import TemplatePesanWhatsapp from '../../Modules/TemplatePesanWhatsapp/TemplatePesanWhatsapp.vue'
+import TransaksiVisa from '../../Modules/TransaksiVisa/TransaksiVisa.vue'
 import PesanWhatsapp from '../../Modules/PesanWhatsapp/PesanWhatsapp.vue'
 
 const tabComponents = {
@@ -89,6 +90,7 @@ const tabComponents = {
   neraca: Neraca,
   pengaturan_perangkat_whatsapp: PengaturanPerangkanWhatsap,
   template_pesan_whatsapp: TemplatePesanWhatsapp,
+  trans_visa: TransaksiVisa,
   pesan_whatsapp: PesanWhatsapp,
 }
 
