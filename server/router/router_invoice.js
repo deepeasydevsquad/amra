@@ -57,6 +57,12 @@ router.get(
   "/invoice/kwitansi-pengembalian-handover-barang/:invoice",
   authenticateToken,
   controller.kwitansi_pengembalian_handover_barang
-)
+);
+
+router.get(
+  "/invoice/kwitansi-visa/:invoice",
+  authenticateToken,
+  controller.kwitansi_visa
+);
 
 module.exports = router;

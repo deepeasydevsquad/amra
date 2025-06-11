@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue';
-
-// Diasumsikan komponen ini diimpor dari path proyek Anda
 import PrimaryButton from "@/components/Button/PrimaryButton.vue";
 import { addTransaksiVisa, getCityList, getVisaTypesList } from '@/service/transaksi_visa';
 import FormInput from '@/components/User/Modules/TransaksiVisa/Particle/BaseInput.vue';
@@ -123,7 +121,6 @@ const removeEntry = (index: number) => {
     Object.assign(form, formEntries.value[currentEntryIndex.value]);
 };
 
-// Fungsi untuk memformat error message dengan line breaks yang benar
 const formatErrorMessage = (message: string): string => {
   if (!message) return '';
   
@@ -189,12 +186,39 @@ const validateStep = (step: number): boolean => {
   return isValid;
 };
 
-const validateCompleteEntry = (entry: FormState): boolean => {
-    const requiredFields: (keyof FormState)[] = ['payer', 'payer_identity', 'gender', 'birth_place', 'birth_date', 'nationality', 'jenis_visa', 'passport_number', 'passport_issued_place', 'passport_issued_date', 'passport_expire_date', 'indonesia_job', 'abroad_job', 'work_address', 'postal_code', 'city', 'origin_country', 'phone', 'valid_until', 'price'];
-    return requiredFields.every(field => {
-        const value = entry[field];
-        return !(value === null || value === undefined || (typeof value === 'string' && value.trim() === '') || (typeof value === 'number' && value <= 0));
+const validateCompleteEntry = (entry: FormState): string[] => {
+    const errors: string[] = [];
+    const requiredFields: { key: keyof FormState; label: string }[] = [
+        { key: 'payer', label: 'Nama Pelanggan' },
+        { key: 'payer_identity', label: 'Nomor Identitas' },
+        { key: 'gender', label: 'Jenis Kelamin' },
+        { key: 'birth_place', label: 'Tempat Lahir' },
+        { key: 'birth_date', label: 'Tanggal Lahir' },
+        { key: 'nationality', label: 'Kewarganegaraan' },
+        { key: 'jenis_visa', label: 'Jenis Visa' },
+        { key: 'passport_number', label: 'Nomor Passport' },
+        { key: 'passport_issued_place', label: 'Tempat Dikeluarkan Passport' },
+        { key: 'passport_issued_date', label: 'Tanggal Dikeluarkan Passport' },
+        { key: 'passport_expire_date', label: 'Tanggal Berakhir Passport' },
+        { key: 'indonesia_job', label: 'Pekerjaan di Indonesia' },
+        { key: 'abroad_job', label: 'Pekerjaan di Luar Negeri' },
+        { key: 'work_address', label: 'Alamat Pekerjaan' },
+        { key: 'postal_code', label: 'Kode Pos' },
+        { key: 'city', label: 'Kota Alamat' },
+        { key: 'origin_country', label: 'Negara Asal' },
+        { key: 'phone', label: 'Nomor Telepon' },
+        { key: 'valid_until', label: 'Tanggal Permohonan' },
+        { key: 'price', label: 'Harga' },
+    ];
+
+    requiredFields.forEach(field => {
+        const value = entry[field.key];
+        if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '') || (typeof value === 'number' && value <= 0)) {
+            errors.push(`${field.label} wajib diisi`);
+        }
     });
+
+    return errors;
 };
 
 const saveCurrentEntry = async () => {
@@ -246,19 +270,22 @@ const saveAllEntries = async () => {
     let duplicateCount = 0;
     let errorCount = 0;
     let preSavedCount = 0;
+    
+    const allErrorDetails: string[] = [];
 
-    for (const entry of formEntries.value) {
+    for (const [index, entry] of formEntries.value.entries()) {
         if (entry.status === 'success') {
             preSavedCount++;
-            continue; 
-        }
-
-        if (!validateCompleteEntry(entry)) {
-            entry.status = 'error';
-            errorCount++;
             continue;
         }
 
+        const validationErrors = validateCompleteEntry(entry);
+        if (validationErrors.length > 0) {
+            entry.status = 'error';
+            errorCount++;
+            allErrorDetails.push(` Entri ${index + 1} (Data Tidak Lengkap): \n ${validationErrors.join(', ')}.`);
+            continue; 
+        }
         try {
             entry.name = entry.payer;
             entry.identity_number = entry.payer_identity;
@@ -269,16 +296,19 @@ const saveAllEntries = async () => {
             } else {
                 entry.status = 'error';
                 errorCount++;
+                allErrorDetails.push(` Entri ${index + 1} (Gagal): \n ${response.error_msg || 'Terjadi kesalahan'}.`);
             }
         } catch (error: any) {
-            const errorMessage = error?.response?.data?.message || error?.response?.data?.error_msg || '';
+            const errorMessage = error?.response?.data?.message || error?.response?.data?.error_msg || 'Terjadi kesalahan pada server.';
+            
             if (errorMessage.includes('sudah terdaftar') || errorMessage.includes('sudah digunakan')) {
                 entry.status = 'duplicate';
                 duplicateCount++;
             } else {
                 entry.status = 'error';
                 errorCount++;
-                console.error(`Gagal menyimpan entri:`, errorMessage || error);
+                const formattedApiError = formatErrorMessage(errorMessage);
+                allErrorDetails.push(`Entri ${index + 1} (Gagal): \n ${formattedApiError}`);
             }
         }
     }
@@ -299,11 +329,16 @@ const saveAllEntries = async () => {
         if (preSavedCount > 0) finalMessage += `\n- ${preSavedCount} data sudah tersimpan sebelumnya.`;
         if (duplicateCount > 0) {
             finalMessage += `\n ${duplicateCount} data terdeteksi duplikat.`;
-            messageType = 'warning';
+            if (errorCount === 0) messageType = 'warning'; // jadi warning jika hanya ada duplikat
         }
         if (errorCount > 0) {
-            finalMessage += `\n ${errorCount} data gagal disimpan karena kesalahan.`;
+            finalMessage += `\n ${errorCount} data gagal diproses.`;
             messageType = 'error';
+            
+            // Menambahkan semua detail error yang sudah terkumpul ke notifikasi
+            if (allErrorDetails.length > 0) {
+                finalMessage += `\n\nDetail Kesalahan:\n${allErrorDetails.join('\n')}`;
+            }
         }
         displayNotification(finalMessage, messageType);
     }

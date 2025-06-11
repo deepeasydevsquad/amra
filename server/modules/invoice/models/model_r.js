@@ -23,6 +23,9 @@ const {
   Handover_fasilitas_detail,
   Handover_barang,
   Mst_fasilitas,
+  Visa_transaction,
+  Visa_transaction_detail,
+  Mst_visa_request_type,
 } = require("../../../models");
 const { Op } = require("sequelize");
 const {
@@ -650,6 +653,70 @@ class Model_r {
       return data;
     } catch (error) {
       console.error("KWITANSI ERROR:", error);
+      return {};
+    }
+  }
+
+  async KwitansiVisa() {
+    await this.initialize();
+  
+    try {
+      let data = { ...(await this.header_kwitansi_invoice()) };
+  
+      const transaksi = await Visa_transaction.findOne({
+        where: {
+          invoice: this.req.params.invoice,
+          company_id: this.company_id,
+        },
+        include: [{ // Include Level 1
+          model: Visa_transaction_detail,
+          required: true,
+          include: [{ 
+            model: Mst_visa_request_type,
+            attributes: ['name'], 
+            required: false 
+          }],
+        }],
+      });
+  
+      if (!transaksi) {
+        return {};
+      }
+  
+      const detailsArray = transaksi.Visa_transaction_details;
+      if (!detailsArray || detailsArray.length === 0) {
+        console.error(`[ERROR] Transaksi ${transaksi.invoice} ditemukan tetapi tidak memiliki detail.`);
+        return {};
+      }
+  
+      const detail = detailsArray[0];
+      const jenisVisaName = detail.Mst_visa_request_type ? detail.Mst_visa_request_type.name : "Jenis Tidak Diketahui";
+  
+      data = {
+        ...data,
+        invoice: transaksi.invoice,
+        petugas: transaksi.petugas,
+        payer: transaksi.payer,
+        payer_identity: transaksi.payer_identity,
+        createdAt: transaksi.createdAt,
+        
+        name: detail.name,
+        identity_number: detail.identity_number,
+        birth_place: detail.birth_place,
+        birth_date: detail.birth_date,
+        passport_number: detail.passport_number,
+        valid_until: detail.valid_until,
+        price: detail.price,
+        
+        jenis_visa: jenisVisaName,
+        
+        profession_telephone: detail.profession_telephone
+      };
+  
+      return data;
+  
+    } catch (error) {
+      console.error("Error in dataKwitansiVisa (with Jenis Visa):", error);
       return {};
     }
   }
