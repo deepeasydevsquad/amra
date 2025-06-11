@@ -5,6 +5,30 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 
 const controllers = {};
 
+// Generate Unique Nomor Invoice
+controllers.generateNomorInvoice = async(req, res) => {
+   try {
+       const model_cud = new Model_cud(req);
+       const response = await model_cud.generateNomorInvoice();
+       return res.status(200).json(response);
+   }
+   catch(error) {
+      handleServerError(res, error.message);
+   }
+};
+
+// Generate Unique Nomor Register
+controllers.generateNomorRegister = async(req, res) => {
+     try {
+         const model_cud = new Model_cud(req);
+         const response = await model_cud.generateNomorRegister();
+         return res.status(200).json(response);
+     }
+     catch(error) {
+        handleServerError(res, error.message);
+     }
+};
+
 // Menambahkan tiket baru
 controllers.addTiket = async (req, res) => {
    if (!(await handleValidationErrors(req, res))) return;

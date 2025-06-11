@@ -23,6 +23,35 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE',
       });
     }
+    // 🔽 Static method to generate unique nomor_register
+    static async generateUniqueNomorRegister() {
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const randomLetters = () =>
+        letters.charAt(Math.floor(Math.random() * 26)) +
+        letters.charAt(Math.floor(Math.random() * 26));
+
+      const randomNumber = () =>
+        String(Math.floor(100000 + Math.random() * 900000)); // 6-digit
+
+      let nomorRegister = '';
+      let isUnique = false;
+      let attempts = 0;
+
+      while (!isUnique && attempts < 1000) {
+        nomorRegister = `${randomLetters()}${randomNumber()}`;
+        const exists = await Ticket_transaction.findOne({
+          where: { nomor_register: nomorRegister },
+        });
+        if (!exists) isUnique = true;
+        attempts++;
+      }
+
+      if (!isUnique) {
+        throw new Error('Failed to generate unique nomor_register after 1000 attempts');
+      }
+
+      return nomorRegister;
+    }
   }
   Ticket_transaction.init({
     division_id: DataTypes.INTEGER,

@@ -6,6 +6,8 @@ const { authenticateToken } = require("../middleware/authenticateToken");
 const router = express.Router();
 
 router.post("/add_tiket", authenticateToken, controllers.addTiket);
+router.get("/generate_nomor_register", authenticateToken, controllers.generateNomorRegister);
+router.get("/generate_nomor_invoice", authenticateToken, controllers.generateNomorInvoice);
 router.get("/ticket_transactions", authenticateToken, controllers.getTicketTransactions);
 
 module.exports = router;

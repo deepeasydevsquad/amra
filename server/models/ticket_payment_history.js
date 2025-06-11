@@ -15,6 +15,35 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "ticket_transaction_id",
       });
     }
+    // 🔽 Static method to generate unique nomor_invoice
+    static async generateUniqueNomorInvoice() {
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const randomLetters = () =>
+        letters.charAt(Math.floor(Math.random() * 26)) +
+        letters.charAt(Math.floor(Math.random() * 26));
+
+      const randomNumber = () =>
+        String(Math.floor(100000 + Math.random() * 900000)); // 6-digit
+
+      let nomorInvoice = '';
+      let isUnique = false;
+      let attempts = 0;
+
+      while (!isUnique && attempts < 1000) {
+        nomorInvoice = `${randomLetters()}${randomNumber()}`;
+        const exists = await Ticket_payment_history.findOne({
+          where: { invoice: nomorInvoice },
+        });
+        if (!exists) isUnique = true;
+        attempts++;
+      }
+
+      if (!isUnique) {
+        throw new Error('Failed to generate unique nomor_invoice after 1000 attempts');
+      }
+
+      return nomorInvoice;
+    }
   }
   Ticket_payment_history.init({
     ticket_transaction_id: DataTypes.INTEGER,

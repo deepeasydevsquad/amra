@@ -19,16 +19,39 @@ class Model_cud {
         this.division_id = await getCabang(this.req);
         this.state = true;
     }
+    // === GENERATE UNIQUE NOMOR INVOICE
+    async generateNomorInvoice() {
+        try {
+           const nomorInvoice = await Ticket_payment_history.generateUniqueNomorInvoice();
+           return { status : 200, message : "Nomor Invoice Berhasil Digenerate", data : {invoice: nomorInvoice}};
+         } catch (error) {
+           return { status : 200, message : "Nomor Invoice Gagal digenerate", data : {}};
+           
+       }
+    }
+    // === GENERATE UNIQUE NOMOR REGISTER
+    async generateNomorRegister() {
+         try {
+            const nomorRegister = await Ticket_transaction.generateUniqueNomorRegister();
+            return { status : 200, message : "Nomor Register Berhasil Digenerate", data : {nomor_register: nomorRegister}};
+           // res.status(200).json({ nomor_register: nomorRegister });
+          } catch (error) {
+            return { status : 200, message : "Nomor Register Gagal digenerate", data : {}};
+            //res.status(500).json({ message: 'Failed to generate nomor_register', error: error.message });
+        }
+    }
     // === CREATE ===
     async add() {
         await this.initialize();
         const body = this.req.body;
-        const customer = this.req.body.customer;
+        const tickets = JSON.parse(body.tickets);
+        const customer = JSON.parse(body.customer);
+       // const customer = this.req.body.customer;
         const type = await tipe(this.req);
 
         try {
             // Validate input
-            if (!body.tickets || !Array.isArray(body.tickets) || body.tickets.length === 0) {
+            if (!tickets || !Array.isArray(tickets) || tickets.length === 0) {
                 return { status: 400, message: 'No tickets provided.' };
             }
 
@@ -37,7 +60,7 @@ class Model_cud {
             }
             // Calculate total transaction
             let totalTransaksi = 0;
-            for (const ticket of body.tickets) {
+            for (const ticket of tickets) {
                 totalTransaksi += Number(ticket.pax) * Number(ticket.customer_price);
             }
             // insert ke table Ticket_transactions
@@ -53,7 +76,7 @@ class Model_cud {
                 console.log('Inserted Ticket Transaction:', tiketTransactions.toJSON());
 
             // insert all tickets to tabel Ticket_transaction_details
-            for (const ticket of body.tickets) {
+            for (const ticket of tickets) {
                 try {
                     const tiketTansactionDetail = await Ticket_transaction_detail.create({
                         ticket_transaction_id : tiketTransactions.id,

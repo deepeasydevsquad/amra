@@ -1,530 +1,257 @@
 <template>
-  <div class="p-4">
-      <!-- Button to open the dialog -->
-    <Button class="!bg-[#455494] !text-white px-4 py-2 rounded-lg hover:!bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2 w-full md:w-auto justify-center"  size="small" label="Memulai Transaksi Tiket" icon="pi pi-plus" @click="showTicketTransactionDialog = true" />
+  <div class="container mx-auto p-4">
+     <!-- Tambah data dan Search -->
+     <div class="flex justify-between mb-4" >
+    <PrimaryButton @click="startTicketTransaction">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Mulai Transaksi Tiket
+    </PrimaryButton>
+    <div class="flex items-center">
+        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
+        <input
+          type="text"
+          v-model="searchQuery"
+          id="search"
+          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+          placeholder="Cari data..."
+        />
+    </div>
+    </div>
+    <!-- Tabel Data -->
+    <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
+      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
+        <thead class="bg-gray-50">
+          <tr class="bg-gray-100">
+            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Register</th>
+            <th class="w-[35%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Tiket</th>
+            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Pembayaran</th>
+            <th class="w-[5%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody v-if="data.length" class="divide-y divide-gray-100 border-t border-gray-100" >
+          <tr v-for="transaction in data" :key="transaction?.id">
+              <!-- No Register -->
+              <td class="px-4 py-2 align-top text-sm text-gray-800 whitespace-nowrap">
+                <div class="font-bold text-sm">{{ transaction.nomor_register }}</div>
+                <div class="text-xs text-gray-500">{{ new Date(transaction.updatedAt).toLocaleString() }}</div>
+              </td>
 
-    <div class="card mt-4">
-    <DataTable
-      :value="ticketsPaginated"
-      :paginator="true"
-      :rows="1"
-      @page="onPage"
-      :rowsPerPageOptions="[1, 2, 3]"
-      responsiveLayout="scroll"
-      stripedRows
-    >
-      <Column bodyStyle="text-align: center;" field="register" headerClass="text-xs text-center">
-          <template #header>
-               <div class="flex-1 text-center"><strong>No Register</strong></div>
-          </template>
-          <template #body="{ data }">
-          <div class="font-bold text-xs">{{ data.nomor_register }}</div>
-          <div class="text-xs text-gray-500">{{ dayjs(data.updatedAt).format('YYYY-MM-DD HH:mm:ss') }}</div>
-          </template>
-      </Column>
-      <Column bodyStyle="text-align: center;" headerClass="text-xs">
-        <template #header>
-               <div class="flex-1 text-center"><strong>Info Tiket</strong></div>
-          </template>
-        <template #body="{ data }">
-          <div class="flex flex-wrap gap-2">
-            <div v-for="(detail, index) in data.ticket_details" :key="index" class="border p-2 rounded">
-              <div class="grid grid-cols-2 gap-x-4 text-xs">
+              <!-- Info Tiket -->
+              <td class="px-4 py-2 text-sm text-gray-700 align-top w-[480px]">
+                <div v-for="ticket in transaction.ticket_details" :key="ticket.id" class="mb-4">
+                  <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-xs leading-snug">
+                    <div>PAX: {{ ticket.pax }}</div>
+                    <div>NAMA AIRLINES: {{ ticket.airlines_name || 'N/A' }}</div>
+
+                    <div class="text-red-500">KODE BOOKING: {{ ticket.code_booking }}</div>
+                    <div>TANGGAL BERANGKAT: {{ new Date(ticket.departure_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) }}</div>
+
+                    <div>HARGA TRAVEL: Rp {{ ticket.travel_price.toLocaleString() }}</div>
+                    <div>HARGA KOSTUMER: Rp {{ ticket.costumer_price.toLocaleString() }}</div>
+                  </div>
+                </div>
+
+                <!-- Subtotal -->
+                <div class="bg-red-100 mt-2 px-4 py-1 text-sm font-bold flex justify-between items-center w-full">
+                  <span>SUBTOTAL</span>
+                  <span class="text-red-500">: Rp {{ transaction.total_transaksi.toLocaleString() }}</span>
+                </div>
+              </td>
+
+              <!-- Info Pembayaran -->
+              <td class="px-4 py-2 text-sm text-gray-700 align-top">
                 <div class="space-y-1">
-                  <p class="flex items-center space-x-1">
-                    <span class="min-w-[90px]">PAX</span>
-                    <span>:</span>
-                    <span>{{ detail.pax }}</span>
-                  </p>
-                  <p class="flex items-center space-x-1">
-                    <span class="min-w-[90px]">Kode Booking</span>
-                    <span>:</span>
-                    <span>{{ detail.code_booking }}</span>
-                  </p>
-                  <p class="flex items-center space-x-1">
-                    <span class="min-w-[90px]">Airlines</span>
-                    <span>:</span>
-                    <span>{{ detail.airlines_name }}</span>
-                  </p>
+                  <div><strong>TOTAL TRANSAKSI TIKET</strong> : Rp {{ transaction.total_transaksi.toLocaleString() }}</div>
+                  <div><strong>TOTAL PEMBAYARAN</strong> : Rp {{ calculateTotalPayment(transaction).toLocaleString() }}</div>
+                  <div><strong>SISA PEMBAYARAN</strong> : Rp {{ (transaction.total_transaksi - calculateTotalPayment(transaction)).toLocaleString() }}</div>
                 </div>
-                <div class="space-y-1">
-                  <p class="flex items-center space-x-1">
-                    <span class="min-w-[90px]">Tgl Berangkat</span>
-                    <span>:</span>
-                    <span>{{ detail.departure_date }}</span>
-                  </p>
-                  <p class="flex items-center space-x-1">
-                    <span class="min-w-[90px]">Harga Travel</span>
-                    <span>:</span>
-                    <span>Rp {{ detail.travel_price }}</span>
-                  </p>
-                  <p class="flex items-center space-x-1">
-                    <span class="min-w-[90px]">Harga Kostumer</span>
-                    <span>:</span>
-                    <span>Rp {{ detail.costumer_price }}</span>
-                  </p>
+
+                <div v-if="transaction.payment_histories.length" class="mt-2 text-xs text-gray-600 border-t pt-2">
+                  <div class="text-red-500 italic font-medium">RIWAYAT PEMBAYARAN (Tiga transaksi terakhir)</div>
+                  <ul class="list-disc list-inside mt-1 space-y-1">
+                    <li v-for="payment in transaction.payment_histories.slice(0, 3)" :key="payment.id">
+                      Tanggal Transaksi: {{ new Date(payment.createdAt).toLocaleString() }} |
+                      No Invoice: <span class="text-red-600 font-semibold">{{ payment.invoice }}</span> |
+                      Biaya: Rp {{ payment.nominal }} |
+                      Nama Petugas: {{ payment.petugas }} |
+                      Nama Pelanggan: {{ payment.costumer_name }} |
+                      Nomor Identitas: {{ payment.costumer_identity }}
+                    </li>
+                  </ul>
                 </div>
-              </div>
-            </div>
-          </div>
-        
-        </template>
-      </Column>
-      <Column headerClass="text-xs">
-        <template #header>
-               <div class="flex-1 text-center"><strong>Info Pembayaran</strong></div>
-          </template>
-        <template #body="{ data }">
-          <p class="flex items-center space-x-1 text-xs">
-                    <span class="min-w-[90px]">TOTAL TRANSAKSI TIKET</span>
-                    <span>:</span>
-                    <span>{{ calculateTotalTransaksiTiket(data.ticket_details) }}</span>
-          </p>
-          <p class="flex items-center space-x-1 text-xs">
-                    <span class="min-w-[90px]">TOTAL PEMBAYARAN</span>
-                    <span>:</span>
-                    <span>{{ calculateTotalPayment(data.payment_histories) }}</span>
-          </p>
-          
-          <p class="text-xs"><span>SISA PEMBAYARAN:</span> Rp {{ calculateSisaPembayaran(data.ticket_details, data.payment_histories) }}</p>
-          <p class="mt-2 text-xs font-semibold text-gray-800">
-            Riwayat Pembayaran <span class="text-red-600">(Tiga Transaksi Terakhir)</span>
-          </p>
-        
-          <div v-for="(payment, index) in data.payment_histories.slice(0,3)" :key="index" class="mb-2 border p-2 rounded">
-          <ul class="text-xs text-gray-600 list-disc ml-5">
-            <li>
-              Tanggal Transaksi {{ dayjs(payment.updatedAt).format('YYYY-MM-DD HH:mm:ss') }} | No Invoice: 
-              <span class="text-red-600 font-bold text-xs">{{ payment.invoice }}</span><br />
-              Nama Petugas: {{ payment.petugas }} | Nama Pelanggan: {{ payment.costumer_name }} | Nomor Identitas : {{ payment.costumer_identity }}
-            </li>
-          </ul>
-        </div>
-      </template>
-      </Column>
-      <Column bodyStyle="text-align: center;" headerClass="text-xs" >
-        <template #header>
-               <div class="flex-1 text-center"><strong>Aksi</strong></div>
-        </template>
-        <template #body>
-        <div class="flex flex-col gap-2">
-          <Button class="!bg-[#455494] !text-white px-4 py-2 rounded-lg hover:!bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2 w-full md:w-auto justify-center" size="small" icon="pi pi-refresh" rounded/>
-          <Button class="!bg-[#455494] !text-white px-4 py-2 rounded-lg hover:!bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2 w-full md:w-auto justify-center" size="small" icon="pi pi-calendar" rounded />
-          <Button class="!bg-[#455494] !text-white px-4 py-2 rounded-lg hover:!bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2 w-full md:w-auto justify-center" size="small" icon="pi pi-list" rounded />
-          <Button size="small" icon="pi pi-times" rounded severity="danger" />
-        </div>
-      </template>
-      </Column>
-    </DataTable>
+              </td>
+
+              <!-- Aksi -->
+              <td class="px-4 py-2 text-center align-top">
+                <div class="flex flex-col items-center space-y-2">
+                  <button class="text-gray-600 hover:text-blue-500"><i class="pi pi-refresh"></i></button>
+                  <button class="text-gray-600 hover:text-green-500"><i class="pi pi-calendar"></i></button>
+                  <button class="text-gray-600 hover:text-indigo-500"><i class="pi pi-list"></i></button>
+                  <button class="text-gray-600 hover:text-red-500"><i class="pi pi-times"></i></button>
+                </div>
+              </td>
+          </tr>
+
+        </tbody>
+        <tbody v-else class="divide-y divide-gray-100 border-t border-gray-100">
+          <tr>
+            <td :colspan="totalColumns" class="px-6 py-4 text-center text-gray-500">
+              Daftar Transaksi Tiket Tidak di Temukan {{ totalColumns }}
+            </td>
+          </tr>
+        </tbody>
+        <tfoot class="bg-gray-100 font-bold">
+          <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" />
+        </tfoot>
+      </table>
+    </div>
+
   </div>
-      
-      <Dialog @hide="onDialogHide" position="topright" :draggable="false" v-model:visible="showTicketTransactionDialog" :modal="true" header="Form Transaksi Tiket" :style="{ width: '80vw' }" :breakpoints="{ '960px': '95vw' }">
-            <div class="p-6 max-w-6xl mx-auto bg-white rounded shadow">
-              <div class="mb-2 text-right text-red-600 font-semibold">
-                NO REGISTER : #{{ registerNumber }}
-              </div>
-          
-              <!-- DataTable for Ticket Rows -->
-              <DataTable :value="tickets" class="mb-1" responsiveLayout="scroll">
-                <Column headerClass="text-xs" bodyClass="text-center align-middle">
-                  <template #header>
-                        <div class="flex-1 text-center"><strong>Aksi</strong></div>
-                  </template>
-                  
-                  <template #body="slotProps">
-                    <Button outlined size="small" icon="pi pi-times" severity="danger" @click="removeTicket(slotProps.index)" />
-                  </template>
-                </Column>
-          
-                <Column field="pax" headerClass="text-xs" bodyClass="text-center align-middle">
-                  <template #header>
-                        <div class="flex-1 text-center"><strong>Pax</strong></div>
-                  </template>
-                  <template #body="slotProps">
-                    <InputNumber size="small" v-model="slotProps.data.pax" inputClass="w-12" />
-                  </template>
-                  
-                </Column>
-          
-                <Column field="maskapai" headerClass="text-xs" bodyClass="text-center align-middle">
-                  <template #header>
-                        <div class="flex-1 text-center"><strong>Maskapai</strong></div>
-                  </template>
-                  <template #body="slotProps">
-                    <Dropdown
-                      size="small"
-                      v-model="slotProps.data.maskapai.id"
-                      :options="airlinesList"
-                      optionLabel="name"
-                      optionValue="id"
-                      placeholder="Pilih Maskapai"
-                      class="w-32"
-                    />
-                  </template>
-                </Column>
-          
-                <Column field="code_booking" headerClass="text-xs" bodyClass="text-center align-middle">
-                  <template #header>
-                        <div class="flex-1 text-center"><strong>Kode Booking</strong></div>
-                  </template>
-                  <template #body="slotProps">
-                    <InputText size="small" v-model="slotProps.data.code_booking" class="w-20" />
-                  </template>
-                </Column>
-          
-                <Column field="departure_date" headerClass="text-xs" bodyClass="text-center align-middle">
-                  <template #header>
-                        <div class="flex-1 text-center"><strong>Tanggal Berangkat</strong></div>
-                  </template>
-                  <template #body="slotProps">
-                    <Calendar showIcon class="w-34" size="small" v-model="slotProps.data.departure_date" dateFormat="yy-mm-dd" />
-                  </template>
-                </Column>
-          
-                <Column field="travel_price" headerClass="text-xs" bodyClass="text-center align-middle">
-                  <template #header>
-                        <div class="flex-1 text-center"><strong>Harga Travel</strong></div>
-                  </template>
-                  <template #body="slotProps">
-                    <InputNumber placeholder="Rp 0" :minFractionDigits="0" :maxFractionDigits="0" class="w-32" size="small" v-model="slotProps.data.travel_price" mode="currency" currency="IDR" locale="id-ID" />
-                  </template>
-                </Column>
-          
-                <Column field="customer_price" headerClass="text-xs" bodyClass="text-center align-middle">
-                  <template #header>
-                        <div class="flex-1 text-center"><strong>Harga Kostumer</strong></div>
-                  </template>
-                  <template #body="slotProps">
-                    <InputNumber placeholder="Rp 0" :minFractionDigits="0" :maxFractionDigits="0" class="w-32" size="small" v-model="slotProps.data.customer_price" mode="currency" currency="IDR" locale="id-ID" />
-                  </template>
-                </Column>
-          
-                <Column headerClass="text-xs" bodyClass="text-center align-middle">
-                  <template #header>
-                        <div class="flex-1 text-center"><strong>Total</strong></div>
-                  </template>
-                  <template #body="slotProps">
-                    <span class="text-sm">
-                      Rp {{ formatRupiah(slotProps.data.pax * slotProps.data.customer_price) }}
-                    </span>
-                  </template>
-                </Column>
-              </DataTable>
-          
-              <Button class="!bg-[#455494] !text-white px-4 py-2 rounded-lg hover:!bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2 w-full md:w-auto justify-center" size="small" label="Tambah Row" icon="pi pi-plus" outlined @click="addTicket" />
-          
-              <div class="text-right text-sm font-semibold mb-6">
-                TOTAL: Rp {{ formatRupiah(grandTotal) }}
-              </div>
-          
-              <div class="mb-2 text-right text-red-600 font-semibold">
-                NO INVOICE : #{{ invoiceNumber }}
-              </div>
-          
-              <!-- Customer Info -->
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="col-span-1">
-                  <label class="block text-sm text-gray-700 font-medium mb-1">Nama Pelanggan</label>
-                  <InputText size="small" v-model="customer.costumer_name" class="w-64" />
-                </div>
-                <div class="col-span-1">
-                  <label class="block text-sm text-gray-700 font-medium mb-1">Nomor Identitas Pelanggan</label>
-                  <InputText size="small" v-model="customer.costumer_identity" class="w-64" />
-                </div>
-                <div class="col-span-1 col-start-3">
-                  <label class="block text-sm text-gray-700 font-medium mb-1">Dibayar</label>
-                  <InputNumber placeholder="Rp 0" :minFractionDigits="0" :maxFractionDigits="0" size="small" v-model="customer.dibayar" mode="currency" currency="IDR" locale="id-ID" class="w-32" />
-                </div>
-                <div class="col-span-1">
-                  <label class="block text-sm text-gray-700 font-medium mb-1">Sisa</label>
-                  <InputNumber disabled placeholder="Rp 0" :minFractionDigits="0" :maxFractionDigits="0" size="small" v-model="sisaBayar" mode="currency" currency="IDR" locale="id-ID" class="w-32" />
-                </div>
-              </div>
-          
-              <!-- Buttons -->
-              <div class="flex justify-end space-x-2">
-                <Button @click="showTicketTransactionDialog=false" size="small" label="CANCEL" severity="secondary" outlined />
-                <Button 
-                :disabled="!isFormValid"
-                class="!bg-[#455494] !text-white px-4 py-2 rounded-lg hover:!bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2 w-full md:w-auto justify-center" size="small" label="BAYAR" @click="submitBayar" outlined/>
-              </div>
-            </div>
-      </Dialog>
-  </div>
+  <!-- Form Ticket Transaction -->
+  <FormTicketTransaction :showForm="showTicketTransactionDialog" :maskapaiList="maskapaiList" :formData="ticketTransactionData"  @cancel="closeTicketTransactionForm" />
   </template>
   
   <script setup lang="ts">
-  import dayjs from 'dayjs'
+  import PrimaryButton from "@/components/Button/PrimaryButton.vue"
+  import Pagination from '@/components/Pagination/Pagination.vue'
   import { reactive, computed, ref, onMounted, watchEffect } from 'vue'
-  import DataTable from 'primevue/datatable'
-  import Column from 'primevue/column'
-  import InputText  from 'primevue/inputtext'
-  import InputNumber from 'primevue/inputnumber'
-  import Calendar from 'primevue/calendar'
-  import Dropdown from 'primevue/dropdown'
-  import Button from 'primevue/button'
-  import Dialog from 'primevue/dialog'
-  import Swal from 'sweetalert2';
-  // Import API
-  import {daftarAirlines} from '@/service/data_master'
-  import { add_tiket, get_transactions } from '@/service/trans_tiket'
+  import { daftarAirlines } from "@/service/data_master"
+  import { get_transactions } from "@/service/trans_tiket"
+  import FormTicketTransaction from './Particle/FormTicketTransaction.vue'
+  import { Maskapai } from "./Particle/FormTicketTransaction.vue"
+  import { TicketTransactionForm } from "./Particle/FormTicketTransaction.vue"
 
-  const ticketsPaginated = ref([]);
-  const loading = ref(false);
-  const error = ref<string | null>(null);
+  const data = ref<TicketTransaction[]>([])
+  const maskapaiList = ref<Maskapai[]>([])
+  const currentPage = ref(1);
+  const totalPages = ref(0);
+  const totalColumns = ref(4);
+  const searchQuery = ref('');
+  const itemsPerPage = 2; 
+  const search = ref('');
+  const filter = ref('');
 
-  async function loadTickets(page = 1, perPage = 10) {
-        loading.value = true;
-        error.value = null;
+  const pages = computed(() => {
+    return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+  });
 
-        try {
-          const response = await get_transactions();
-          ticketsPaginated.value = response.data;  // adjust depending on your API response shape
-          console.log('paginated ticket data:', ticketsPaginated.value);
-        } catch (err) {
-          console.log('error tiket:', err);
-          //error.value = err.toString();
-        } finally {
-          loading.value = false;
-        }
+  
+  interface TicketTransaction {
+      id: number;
+      division_id: number;
+      nomor_register: string;
+      total_transaksi: number;
+      status: string;
+      createdAt: string;
+      updatedAt: string;
+      ticket_details: TicketDetail[];
+      payment_histories: PaymentHistory[];
   }
+
+  interface TicketDetail {
+      id: number;
+      pax: number;
+      code_booking: string;
+      ticket_transaction_id: number;
+      airlines_id: number | null;
+      airlines_name: string | null;
+      departure_date: string;
+      travel_price: number;
+      costumer_price: number;
+      createdAt: string;
+      updatedAt: string;
+  }
+
+  interface PaymentHistory {
+      id: number;
+      invoice: string;
+      costumer_name: string;
+      costumer_identity: string;
+      petugas: string;
+      nominal: string;
+      status: string;
+      createdAt: string;
+      updatedAt: string;
+  }
+
+
+  // Fetch data ticket transaction
+  const fetchData = async () => {
+    try {
+      const response = await get_transactions({
+        search: search.value,
+        filter: filter.value,
+        perpage: itemsPerPage,
+        pageNumber: currentPage.value
+      })
+      data.value = response.data
+      console.log("data transaction -->");
+      console.log(JSON.stringify(data.value));
+      totalPages.value = Math.ceil(response.total / itemsPerPage);
+    } catch (error) {
+      console.error('Gagal fetch data member:', error)
+     // showNotification.value = true
+     // notificationType.value = 'error'
+      //notificationMessage.value = 'Gagal fetch data member'
+    }
+  }
+  const nextPage = () => {
+    if (currentPage.value < totalPages.value) {
+      currentPage.value++;
+      fetchData()
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage.value > 1) {
+      currentPage.value--;
+      fetchData()
+    }
+  };
+  const pageNow = (page : number) => {
+    currentPage.value = page
+    fetchData()
+  }
+  onMounted(() => {
+    fetchData()
+  })
+
+  const calculateTotalPayment = (transaction: TicketTransaction): number => {
+  return transaction.payment_histories.reduce((sum, p) => sum + parseInt(p.nominal || '0'), 0)
+  }
+
 
   const showTicketTransactionDialog = ref(false)
 
-  const registerNumber = ref('')
-  const invoiceNumber = ref('')
+  const ticketTransactionData = ref<TicketTransactionForm>({
+      id: 0,
+      tickets: [],
+      customer: {
+        costumer_name: '',
+        costumer_identity: '',
+        dibayar: 0,
+      },
+      nomor_register: '',
+      invoice: '',
+  });
 
-  function generateRegisterNumber() {
-      // Generate 2 random uppercase letters (A-Z)
-      const letters = Array.from({ length: 2 }, () =>
-          String.fromCharCode(65 + Math.floor(Math.random() * 26))
-      ).join('');
-
-      // Generate 8-digit random number, padded with zeros
-      const number = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
-
-      return `${letters}${number}`; // e.g., AB12345678
+  const startTicketTransaction = () => {
+      fetchMaskapai();
+      showTicketTransactionDialog.value = true
   }
-
-  const airlinesList = ref<Airline[]>([])
- 
-  interface Airline {
-       id: number;
-       company_id: number;
-       name: string;
-  }
-  const fetchAirlines = async () => {
+  const closeTicketTransactionForm = () => {
+      showTicketTransactionDialog.value = false
+  };
+  const fetchMaskapai = async () => {
       try {
         const response = await daftarAirlines()
-        airlinesList.value = response.data
-        
+        maskapaiList.value = response.data
       } catch (error) {
-        console.error('Error fetching airlines:', error)
-      }
-  }
-  // initialize data
-  onMounted(() => {
-     registerNumber.value = generateRegisterNumber()
-     invoiceNumber.value = generateRegisterNumber()
-     fetchAirlines()
-     loadTickets();
-  })
-  function onPage(event : any) {
-      // event.page is zero-based page index
-      const page = event.page + 1;
-      const perPage = event.rows;
-      loadTickets(page, perPage);
-}
-
-
-  interface TicketTransaction {
-    tickets: Ticket[];
-    customer: Customer;
-    nomor_register: string;
-    invoice: string;
-  }
-  interface Ticket {
-      pax: number;
-      maskapai: {id: number; name: string; company_id: number};
-      airlines_id: number;
-      code_booking: string;
-      departure_date: Date;
-      travel_price: number;
-      customer_price: number;
-  }
-  interface Customer {
-      costumer_name: string;
-      costumer_identity: string;
-      dibayar: number;
-  }
-  const tickets = reactive<Ticket[]>([
-      {
-        pax: 0,
-        maskapai: { id: 0, name: 'Garuda', company_id: 0 },
-        airlines_id: 0,
-        code_booking: '',
-        departure_date: new Date(),
-        travel_price: 0,
-        customer_price: 0
-      }
-  ])
-  const resetTickets = () => {
-      tickets.splice(0, tickets.length); // clear the array
-      tickets.push({
-        pax: 0,
-        maskapai: { id: 0, name: 'Garuda', company_id: 0 },
-        airlines_id: 0,
-        code_booking: '',
-        departure_date: new Date(),
-        travel_price: 0,
-        customer_price: 0
-      });
-  };
-  
-  const bayar = async(ticketTransaction : TicketTransaction) => {
-      try {
-        const response = await add_tiket(ticketTransaction);
-        if (response?.status === 200) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Transaksi Berhasil',
-            text: response.message || 'Data berhasil disimpan.',
-            confirmButtonText: 'OK'
-          });
-        } else {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Transaksi Gagal',
-            text: response?.message || 'Terjadi kesalahan saat menyimpan data.',
-            confirmButtonText: 'OK'
-          });
-        }
-      }
-      catch(error : any) {
-          Swal.fire({
-          icon: 'error',
-          title: 'Kesalahan Server',
-          text: error.message || 'Gagal menyimpan transaksi.',
-          confirmButtonText: 'Tutup'
-    });
+        console.error('Gagal fetch data cabang:', error)
       }
   };
-
-  function submitBayar() {
-      const tiketTransaksi: TicketTransaction = {
-        invoice: invoiceNumber.value,
-        nomor_register: registerNumber.value,
-
-        tickets: tickets.map(t => ({
-          pax: t.pax,
-          maskapai: t.maskapai,
-          airlines_id: t.maskapai.id,
-          code_booking: t.code_booking,
-          departure_date: t.departure_date,
-          travel_price: t.travel_price,
-          customer_price: t.customer_price
-        })),
-        customer: {
-          costumer_name: customer.costumer_name,
-          costumer_identity: customer.costumer_identity,
-          dibayar: customer.dibayar
-        }
-      }
-      bayar(tiketTransaksi)
-      showTicketTransactionDialog.value = false
-      loadTickets() // refresh
-  }
-  watchEffect(() => {
-    tickets.forEach(ticket => {
-      if (typeof ticket.maskapai.id === 'number') {
-        const match = airlinesList.value.find(a => a.id === ticket.maskapai.id)
-        if (match) ticket.maskapai = match
-      }
-    })
-  })
-  
-  function addTicket() {
-    tickets.push({
-      pax: 0,
-      maskapai: {id : 0, name: '', company_id: 0},
-      airlines_id: 0,
-      code_booking: '',
-      departure_date: new Date(),
-      travel_price: 0,
-      customer_price: 0
-    })
-  }
-  
-  function removeTicket(index: any) {
-    tickets.splice(index, 1)
-  }
-  
-  const customer = reactive({
-    costumer_name: '',
-    costumer_identity: '',
-    dibayar: 0
-  })
-  
-  const grandTotal = computed(() =>
-    tickets.reduce((sum, t) => sum + (t.pax * t.customer_price), 0)
-  )
-  
-  const sisaBayar = computed(() => Math.max(0, grandTotal.value - customer.dibayar))
-  
-  function formatRupiah(amount : any) {
-    return amount.toLocaleString('id-ID')
-  }
-  function calculateTotalTransaksiTiket(ticketDetails: any) {
-    return ticketDetails.reduce((total : number, detail : any) => {
-      const pax = Number(detail.pax) || 0;
-      const price = Number(detail.costumer_price) || 0;
-      return total + (pax * price);
-    }, 0);
-  }
-  function calculateTotalPayment(paymentHistory: any) {
-    console.log(paymentHistory);
-    return paymentHistory.reduce((total : number, payment : any) => {
-      const nominal = Number(payment.nominal) || 0;
-      return total + nominal;
-    }, 0);
-  }
-  function calculateSisaPembayaran(ticketDetails: any[], paymentHistory: any[]): number {
-      const totalTransaksi = calculateTotalTransaksiTiket(ticketDetails);
-      const totalPayment = calculateTotalPayment(paymentHistory);
-      return totalTransaksi - totalPayment;
-  }
-  
-  const isFormValid = computed(() => {
-  if (!customer.costumer_name || !customer.costumer_identity || customer.dibayar === null) {
-    return false;
-  }
-
-  for (const ticket of tickets) {
-    if (
-      ticket.pax <= 0 ||
-      !ticket.maskapai.id ||
-      !ticket.code_booking ||
-      !ticket.departure_date ||
-      !ticket.travel_price ||
-      !ticket.customer_price
-    ) {
-      return false;
-    }
-  }
-
-  return true;
-});
-const resetDialogState = () => {
-  resetTickets();
-  customer.costumer_name = '';
-  customer.costumer_identity = '';
-  customer.dibayar = 0;
-  // reset other reactive states as needed
-}
-const onDialogHide = () => {
-  resetDialogState();
-}
-
   
 </script>
 
