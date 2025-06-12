@@ -207,7 +207,7 @@ const handleConfirm = () => {
 const openCetakKwitansi = (invoice: string) => {
   console.log('Invoice to print:', invoice); // TAMBAHKAN INI
   const url = `/cetak-kwitansi-visa/${invoice}`;
-  window.open(url, '_blank', 'width=800,height=600');
+  window.open(url, '_blank');
 };
 
 const handleCancelConfirm = () => {

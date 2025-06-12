@@ -97,7 +97,7 @@ async findOrCreateVisaType(visaType) {
           petugas: namaPetugas,
           payer: body.payer,
           payer_identity: body.payer_identity,
-          createdAt: myDate,
+          createdAt: body.valid_until,
           updatedAt: myDate,
         }, { transaction: this.t });
 
@@ -117,7 +117,7 @@ async findOrCreateVisaType(visaType) {
           passport_number: body.passport_number,
           date_issued: body.passport_issued_date,
           place_of_release: body.passport_issued_place,
-          valid_until: body.valid_until,
+          valid_until: body.passport_expire_date,
           profession_idn: body.indonesia_job,
           profession_foreign: body.abroad_job,
           profession_address: body.work_address,
@@ -126,7 +126,7 @@ async findOrCreateVisaType(visaType) {
           profession_country: body.origin_country,
           profession_telephone: body.phone,
           price: body.price,
-          createdAt: myDate,
+          createdAt: body.valid_until,
           updatedAt: myDate,
         }, { transaction: this.t });
 
