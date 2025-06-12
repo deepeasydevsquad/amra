@@ -3,7 +3,7 @@ import api from "./api";
 export const add_tiket = async (param : any) => {
     console.log(param);
     try {
-        const response = await api.post("/add_tiket", param);
+        const response = await api.post("/trans_tiket/add_tiket", param);
         console.log("Response add tiket");
         console.log(response.data);
         return response.data;
@@ -12,20 +12,26 @@ export const add_tiket = async (param : any) => {
         throw error;
     }
 }
-
-export const get_transactions = async (param : any) => {
+export const get_transactions = async (param: any) => {
     try {
-        const response = await api.get("/ticket_transactions", param);
-        return response.data;
+      const response = await api.get("/trans_tiket/ticket_transactions", {
+        params: {
+          pageNumber: param.pageNumber,
+          perpage: param.perpage,
+          search: param.search || '',
+          filter: param.filter || '',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Gagal mengambil tiket transactions:", error);
+      throw error;
     }
-    catch(error) {
-        console.error("Gagal mengambil tiket transactions:", error);
-        throw error;
-    }
-}
+};
+
 export const generate_nomor_register = async (param : any) => {
     try {
-        const response = await api.get("/generate_nomor_register", param);
+        const response = await api.get("/trans_tiket/generate_nomor_register", param);
         return response.data;
     }
     catch(error) {
@@ -35,7 +41,7 @@ export const generate_nomor_register = async (param : any) => {
 }
 export const generate_nomor_invoice = async (param : any) => {
     try {
-        const response = await api.get("/generate_nomor_invoice", param);
+        const response = await api.get("/trans_tiket/generate_nomor_invoice", param);
         return response.data;
     }
     catch(error) {

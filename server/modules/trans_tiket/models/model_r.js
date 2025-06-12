@@ -1,4 +1,4 @@
-const { Ticket_transaction, Ticket_payment_history, Ticket_transaction_detail, Mst_airline  } = require("../../../models");
+const { Op, Ticket_transaction, Ticket_payment_history, Ticket_transaction_detail, Mst_airline  } = require("../../../models");
 //const { tipe } = require("../../../helper/companyHelper");
 //const { getCabang } = require("../../../helper/companyHelper");
 
@@ -9,25 +9,25 @@ class Model_r {
     }
     async ticket_transactions() {
 
-        const body = this.req.body;
-        const limit = body.perpage || 10;
+        const query = this.req.query;
+        const limit = query.perpage || 10;
         const page =
-            body.pageNumber && body.pageNumber !== "0" ? body.pageNumber : 1;
+            query.pageNumber && query.pageNumber !== "0" ? query.pageNumber : 1;
     
         let where = {};
     
         // Filter berdasarkan division_id jika ada
-        if (body.division_id) {
-            where.division_id = body.division_id;
+        if (query.division_id) {
+            where.division_id = query.division_id;
         }
     
         // Filter berdasarkan pencarian (search)
-        if (body.search) {
+        if (query.search) {
             where = {
             ...where,
             [Op.or]: [
-                { nomor_register: { [Op.like]: `%${body.search}%` } },
-                { status: { [Op.like]: `%${body.search}%` } },
+                { nomor_register: { [Op.like]: `%${query.search}%` } },
+                { status: { [Op.like]: `%${query.search}%` } },
             ],
             };
         }
@@ -115,10 +115,10 @@ class Model_r {
             }
     
             return {
-            data: data,
-            total: total,
-            pageNumber: page,
-            perpage: limit,
+                data: data,
+                total: total,
+                pageNumber: page,
+                perpage: limit,
             };
         } catch (error) {
             console.error("ERROR: ticket_transactions()", error);

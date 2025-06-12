@@ -110,7 +110,7 @@
 
   </div>
   <!-- Form Ticket Transaction -->
-  <FormTicketTransaction :showForm="showTicketTransactionDialog" :maskapaiList="maskapaiList" :formData="ticketTransactionData"  @cancel="closeTicketTransactionForm" />
+  <FormTicketTransaction :showForm="showTicketTransactionDialog" :maskapaiList="maskapaiList" :formData="ticketTransactionData"  @cancel="closeTicketTransactionForm" @submitted="onTicketTransactionSubmitted" />
   </template>
   
   <script setup lang="ts">
@@ -183,15 +183,15 @@
       const response = await get_transactions({
         search: search.value,
         filter: filter.value,
-        perpage: itemsPerPage,
-        pageNumber: currentPage.value
+        perpage: itemsPerPage || 10,
+        pageNumber: currentPage.value || 1
       })
       data.value = response.data
       console.log("data transaction -->");
       console.log(JSON.stringify(data.value));
       totalPages.value = Math.ceil(response.total / itemsPerPage);
     } catch (error) {
-      console.error('Gagal fetch data member:', error)
+      console.error('Gagal fetch data ticket transactions:', error)
      // showNotification.value = true
      // notificationType.value = 'error'
       //notificationMessage.value = 'Gagal fetch data member'
@@ -252,6 +252,10 @@
         console.error('Gagal fetch data cabang:', error)
       }
   };
+  const onTicketTransactionSubmitted = () => {
+      showTicketTransactionDialog.value = false;
+      fetchData(); // refresh only after successful form submission
+};
   
 </script>
 

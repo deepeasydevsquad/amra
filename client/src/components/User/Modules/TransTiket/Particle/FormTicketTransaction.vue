@@ -1,5 +1,5 @@
 <template>
-    <Form :form-status="showForm" :label="'Form Transaksi Tiket'"  width="w-full max-w-4xl px-4 sm:px-6 lg:px-8" @close="handleCancel" @cancel="handleCancel" @submit="handleSubmit" :submitLabel="'BAYAR'">
+    <Form :form-status="showForm" :label="'Form Transaksi Tiket'"  width="w-full max-w-6xl px-4 sm:px-6 lg:px-8" @close="handleCancel" @cancel="handleCancel" @submit="handleSubmit" :submitLabel="'BAYAR'">
       <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 text-right">
         <div class="text-red-600 font-bold text-lg">
           NO REGISTER: #{{ form.nomor_register }}
@@ -37,17 +37,12 @@
                   <!-- Customer Price -->
                   <InputText v-model.number="ticket.customer_price" label="Harga Customer" id="customer_price" placeholder="Harga Customer" :error="errors.tickets?.[index]?.customer_price" />
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
-                  <!-- Total (Customer Price * Pax) -->
-                  <InputText
-                  :model-value="ticket.customer_price * ticket.pax"
-                  label="Total"
-                  id="total"
-                  placeholder="Total"
-                  readonly
-                  />
-                  
-                </div>
+                <div class="flex flex-col">
+  <label for="total" class="text-sm font-medium text-gray-700 mb-1">Total</label>
+  <div id="total" class="bg-gray-100 text-gray-800 px-3 py-2 rounded border border-gray-300">
+    {{ formatRupiah(ticket.customer_price * ticket.pax) }}
+  </div>
+</div>
                 
             </div>
 
@@ -93,14 +88,11 @@
                     placeholder="Dibayar"
                   />
                 </div>
-                <div>
-                  <InputText
-                    id="sisa"
-                    label="Sisa"
-                    placeholder="Sisa"
-                    :model-value="calculateSisa"
-                    readonly
-                  />
+                <div class="flex flex-col">
+                  <label for="sisa" class="text-sm font-medium text-gray-700 mb-1">Sisa</label>
+                  <div id="sisa" class="bg-gray-100 text-gray-800 px-3 py-2 rounded border border-gray-300">
+                    {{ formatRupiah(calculateSisa) }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -139,10 +131,10 @@ export interface Maskapai {
   }
 interface TicketForm {
       pax: number;
-      maskapai: Maskapai;
+      maskapai: Maskapai | null;
       airlines_id: number;
       code_booking: string;
-      departure_date: Date;
+      departure_date: Date | null;
       travel_price: number;
       customer_price: number;
 }
@@ -185,6 +177,7 @@ interface FormData {
 const emit = defineEmits<{
     (e: 'save', data: FormData): void
     (e: 'cancel'): void
+    (e: 'submitted'): void
   }>()
 // ✅ Data form yang akan ditampilkan
 const form = ref<FormData>({
@@ -218,10 +211,10 @@ function handleCancel() {
 function createEmptyTicket(): TicketForm {
   return {
     pax: 1,
-    maskapai: { id: 0, name: '', company_id: 0 },
+    maskapai: null,
     airlines_id: 0,
     code_booking: '',
-    departure_date: new Date(),
+    departure_date: null,
     travel_price: 0,
     customer_price: 0,
   }
@@ -233,7 +226,7 @@ function initializeForm(data: TicketTransactionForm) {
         maskapai: ticket.maskapai,
         airlines_id: ticket.airlines_id,
         code_booking: ticket.code_booking ?? '',
-        departure_date: new Date(ticket.departure_date),
+        departure_date: null,
         travel_price: ticket.travel_price,
         customer_price: ticket.customer_price,
       }))
@@ -314,10 +307,14 @@ const validateForm = (): boolean => {
       isValid = false
     }
 
-    if (!ticket.maskapai || !ticket.maskapai.id) {
-      ticketErrors.maskapai = 'Maskapai wajib dipilih'
-      isValid = false
+    const maskapaiId = typeof ticket.maskapai === 'object' && ticket.maskapai !== null
+      ? ticket.maskapai.id : ticket.maskapai;
+
+    if (!maskapaiId || Number(maskapaiId) === 0) {
+      ticketErrors.maskapai = 'Maskapai wajib dipilih';
+      isValid = false;
     }
+
 
     if (!ticket.code_booking.trim()) {
       ticketErrors.code_booking = 'Kode booking wajib diisi'
@@ -370,19 +367,9 @@ const handleSubmit = async (): Promise<void> => {
         console.log(pair[0]+ ': ' + pair[1]);
       }
      
-      await add_tiket(transactionData)
-      if( form.value.id ) {
-
-       // await editMember(memberData)
-      }else{
-       // await add_tiket(transactionData)
-      }
-
-
-      emit('save', form.value)
-
-      // Emit event biar form tertutup
-      emit('cancel')
+      const response = await add_tiket(transactionData)
+      emit('submitted')
+      
     } catch (error) {
       console.error('Gagal menyimpan data member:', error)
     }
@@ -401,6 +388,13 @@ watch(
   },
   { deep: true }
 )
+const formatRupiah = (value: number): string => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 2,
+  }).format(value);
+};
 
 
 </script>

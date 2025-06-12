@@ -46,7 +46,6 @@ class Model_cud {
         const body = this.req.body;
         const tickets = JSON.parse(body.tickets);
         const customer = JSON.parse(body.customer);
-       // const customer = this.req.body.customer;
         const type = await tipe(this.req);
 
         try {
