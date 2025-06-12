@@ -30,7 +30,7 @@ interface dataTabungan {
 
 const isLoading = ref(false)
 const showConfirmDialog = ref<boolean>(false);
-const dataTabungan = ref<dataTabungan>();
+const dataTabungan = ref<dataTabungan | null>(null);
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);

@@ -177,11 +177,10 @@ async function saveData() {
     <div class="flex min-h-screen items-end justify-center px-6 pt-6 pb-20 text-center sm:block sm:p-0">
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="$emit('close')"></div>
         <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
-
         <div class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-3xl sm:align-middle p-6">
-          <div class="overflow-y-auto max-h-[70vh] no-scrollbar">
-            <!-- Title -->
-            <h3 class="text-2xl font-bold text-gray-900 mb-4">Form Handover Barang Jamaah</h3>
+          <!-- Title -->
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">Form Handover Barang Jamaah</h3>
+          <div class="overflow-y-auto max-h-[64vh] no-scrollbar px-1">
 
             <!-- Input Data -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-gray-600">

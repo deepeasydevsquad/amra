@@ -22,6 +22,7 @@ interface ErrorFields { id?: string; target_paket_id?: string }
 interface Paket { id: number; name: string; price: number; hari_tersisa: string }
 interface dataTabungan {
   id: number;
+  kuota_jamaah_tersisa: number;
   total_tabungan: number;
   target_paket_id: number;
   member: {
@@ -167,6 +168,7 @@ const formatPrice = (value: number | string): string => {
 const price_sisa = ref<number>(0)
 const price_harga = ref<number>(0)
 const hari_tersisa = ref('')
+const kuota_jamaah_tersisa = ref<number>(0)
 
 watch(
   () => form.target_paket_id,
@@ -179,6 +181,7 @@ watch(
       const paket = paketResponse.data?.find((p : Paket) => p.id === newTargetPaketId);
 
       if (paket) {
+        kuota_jamaah_tersisa.value = paket.kuota_jamaah_tersisa;
         price_sisa.value = paket.price - (dataTabungan.value?.total_tabungan || 0);
         price_harga.value = paket.price;
         hari_tersisa.value = paket.hari_tersisa || '';
@@ -232,12 +235,14 @@ watch(
                   </p>
                 </div>
               </div>
-              <div class="mt-4 p-3 border border-yellow-200 bg-yellow-50 rounded-md text-sm text-yellow-800">
-                Harga paket : <strong>{{ formatPrice(price_harga) }}</strong>
-                <br />
-                Sisa kekurangan : <strong>{{ formatPrice(price_sisa) }}</strong>
-                <br />
-                Perkiraan keberangkatan : <strong>{{ hari_tersisa ? hari_tersisa + ' Hari lagi' : '-' }}</strong>
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Data Paket</label>
+                <div class="p-3 border border-yellow-200 bg-yellow-50 rounded-md text-sm text-yellow-800">
+                  <p>Kuota jamaah tersisa : <strong>{{ kuota_jamaah_tersisa || '-' }} orang</strong></p>
+                  <p>Harga paket : <strong>{{ formatPrice(price_harga) }}</strong></p>
+                  <p>Sisa kekurangan : <strong>{{ formatPrice(price_sisa) }}</strong></p>
+                  <p>Perkiraan keberangkatan : <strong>{{ hari_tersisa ? hari_tersisa + ' Hari lagi' : '-' }}</strong></p>
+                </div>
               </div>
             </div>
         </div>

@@ -175,6 +175,7 @@ const saveData = async () => {
         emit('close')
       } catch (error) {
         const errorMessage = error?.response?.data?.error_msg ? error.response.data.error_msg : 'Terjadi kesalahan saat menyimpan data'
+        showConfirmDialog.value = false
         displayNotification(errorMessage, error?.response?.data?.error ? 'error' : 'success')
       } finally {
         isLoading.value = false

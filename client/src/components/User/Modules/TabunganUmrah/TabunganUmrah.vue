@@ -6,6 +6,7 @@ import RefundIcon from '@/components/User/Modules/TabunganUmrah/Icon/RefundIcon.
 import NabungIcon from '@/components/User/Modules/TabunganUmrah/Icon/NabungIcon.vue'
 import HandoverIcon from '@/components/User/Modules/TabunganUmrah/Icon/HandoverIcon.vue'
 import HandoverBarangIcon from '@/components/User/Modules/TabunganUmrah/Icon/HandoverBarangIcon.vue'
+import BeliPaketIcon from '@/components/User/Modules/TabunganUmrah/Icon/BeliPaketIcon.vue'
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 
@@ -25,6 +26,7 @@ import FormCetakDataJamaah from '@/components/User/Modules/TabunganUmrah/Widget/
 import FormOpsiHandoverBarang from '@/components/User/Modules/TabunganUmrah/Widget/FormOpsiHandoverBarang.vue'
 import FormTerimaBarang from '@/components/User/Modules/TabunganUmrah/Widget/FormTerimaBarang.vue'
 import FormPengembalianBarang from '@/components/User/Modules/TabunganUmrah/Widget/FormPengembalianBarang.vue'
+import FormBeliPaket from '@/components/User/Modules/TabunganUmrah/Widget/FormBeliPaket.vue'
 
 // import API
 import { daftar_tabungan_umrah, deleteTabunganUmrah, cekKwitansiTabunganUmrah } from '@/service/tabungan_umrah'
@@ -71,7 +73,7 @@ interface TabunganUmrah {
   target_paket_name: string;
   target_paket_id: number,
   total_tabungan: number;
-  status: string;
+  status_paket: boolean;
   fee_agen_id: number;
   agen: {
     fullname: string;
@@ -79,9 +81,7 @@ interface TabunganUmrah {
     default_fee: number;
   };
   batal_berangkat: number;
-  transaksi_paket_id: number;
   sisa_pembelian: number;
-  invoice_sisa_deposit: string;
   riwayat_tabungan: {
     id: number;
     invoice: string;
@@ -93,8 +93,6 @@ interface TabunganUmrah {
     id: number;
     name: string;
   }[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 const timeoutId = ref<number | null>(null);
@@ -109,6 +107,7 @@ const isFormCetakDataJamaahOpen = ref<boolean>(false);
 const isFormOpsiHandoverBarangOpen = ref<boolean>(false);
 const isFormTerimaBarangOpen = ref<boolean>(false);
 const isFormPengembalianBarangOpen = ref<boolean>(false);
+const isFormBeliPaketUmrahOpen = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
@@ -213,6 +212,11 @@ const openTerimaBarangHandover = (tabungan_id: number ) => {
 const openPengembalianBarangHandover = (tabungan_id: number ) => {
   tabunganId.value = tabungan_id;
   isFormPengembalianBarangOpen.value = true;
+}
+
+const openFormBeliPaketUmrah = (tabungan: TabunganUmrah) => {
+  tabunganId.value = tabungan.id;
+  isFormBeliPaketUmrahOpen.value = true;
 }
 
 const deleteData = async (id: number) => {
@@ -401,7 +405,7 @@ const cetakKwitansi = async (invoice: string) => {
                     <LightButton col-span-1 title="Refund Tabungan" @click="openFormRefund(tabungan)">
                       <RefundIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
-                    <LightButton col-span-1 title="Menabung"  @click="openFormMenabung(tabungan)">
+                    <LightButton col-span-1 title="Menabung" @click="openFormMenabung(tabungan)">
                       <NabungIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
                     <LightButton col-span-1 title="Handover Fasilitas" @click="openFormAddHandover(tabungan)">
@@ -410,6 +414,11 @@ const cetakKwitansi = async (invoice: string) => {
                     <LightButton col-span-1 title="Handover Barang" @click="openFormOpsiHandoverBarang(tabungan)">
                       <HandoverBarangIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
+                    <template v-if="tabungan.status_paket">
+                      <LightButton col-span-1 title="Beli Paket Umrah" @click="openFormBeliPaketUmrah(tabungan)">
+                        <BeliPaketIcon class="h-4 w-4 text-gray-600" />
+                      </LightButton>
+                    </template>
                     <DangerButton title="Hapus Tabungan" @click="deleteData(tabungan.id)">
                       <DeleteIcon></DeleteIcon>
                     </DangerButton>
@@ -589,6 +598,24 @@ const cetakKwitansi = async (invoice: string) => {
       :tabunganId="tabunganId"
       @close="isFormPengembalianBarangOpen= false; fetchData()"
       @status="(payload) => displayNotification(payload.err_msg || 'Pengembalian Barang gagal ditambahkan', payload.error ? 'error' : 'success')"
+      />
+  </transition>
+
+  <!-- Form Beli Paket -->
+  <transition
+    enter-active-class="transition duration-200 ease-out"
+    enter-from-class="transform scale-95 opacity-0"
+    enter-to-class="transform scale-100 opacity-100"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="transform scale-100 opacity-100"
+    leave-to-class="transform scale-95 opacity-0"
+  >
+    <FormBeliPaket
+      v-if="isFormBeliPaketUmrahOpen"
+      :isFormBeliPaketUmrahOpen="isFormBeliPaketUmrahOpen"
+      :tabunganId="tabunganId"
+      @close="isFormBeliPaketUmrahOpen = false; fetchData()"
+      @status="(payload) => displayNotification(payload.err_msg || 'Paket Umrah gagal dibeli', payload.error ? 'error' : 'success')"
       />
   </transition>
 

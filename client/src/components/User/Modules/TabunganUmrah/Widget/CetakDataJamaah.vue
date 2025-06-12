@@ -88,7 +88,7 @@ function formatDateToBoxes(dateStr: string): string[] {
     <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
   </div>
   <div v-if="!isLoading && data">
-    <div class="bg-white p-8 text-sm print:text-[12px] text-gray-800 min-h-screen space-y-2">
+    <div class="bg-white text-gray-800 max-w-[216mm] mx-auto min-h-[356mm] p-8 font-serif text-sm print:text-xs print:shadow-none space-y-[10px] print:bg-white print:text-black print:max-w-full">
       <!-- Header Kwitansi -->
       <Header :data="data"></Header>
 
@@ -422,8 +422,8 @@ function formatDateToBoxes(dateStr: string): string[] {
 <style scoped>
 @media print {
   @page {
-    size: Legal;
-    margin: 10mm;
+    size: 8.5in 14in; /* Legal Size */
+    margin: 0;
     -webkit-print-color-adjust: exact;
   }
 }

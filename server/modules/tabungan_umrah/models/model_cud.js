@@ -4,6 +4,10 @@ const {
   Sequelize,
   Company,
   Division,
+  Paket,
+  Paket_price,
+  Paket_transaction,
+  Paket_transaction_payment_history,
   Tabungan,
   Jamaah,
   Riwayat_tabungan,
@@ -15,7 +19,10 @@ const {
   Deposit,
   Handover_fasilitas,
   Handover_fasilitas_detail,
+  Handover_fasilitas_detail_paket,
+  Handover_fasilitas_paket,
   Handover_barang,
+  Handover_barang_paket,
   Jurnal,
   } = require("../../../models");
 const Model_r = require("../models/model_r");
@@ -23,6 +30,7 @@ const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
 const moment = require("moment");
 const { getJamaahInfo } = require("../../../helper/JamaahHelper");
+const { where } = require("sequelize");
 
 class Model_cud {
   constructor(req) {
@@ -78,7 +86,7 @@ class Model_cud {
 
     invoice = lettersPart + numbersPart;
 
-    const [inRiwayat, inRefund, inDeposit] = await Promise.all([
+    const [inRiwayat, inRefund, inDeposit, inPaketPaymentHistory] = await Promise.all([
       Riwayat_tabungan.findOne({
         where: { invoice },
         include: [{
@@ -100,10 +108,17 @@ class Model_cud {
         }],
       }),
       Deposit.findOne({ where: { invoice, company_id: this.company_id } }),
+      Paket_transaction_payment_history.findOne({ 
+        where: { invoice },
+        include: [{
+          model: Paket_transaction,
+          where: { division_id: this.division_id },
+        }],
+      }),
     ]);
 
-    // pastikan invoice tidak ada yang sama di riwayat, refund, atau deposit
-    exists = inRiwayat || inRefund || inDeposit;
+    // pastikan invoice tidak ada yang sama di riwayat, refund, deposit, atau PaketPaymentHistory
+    exists = inRiwayat || inRefund || inDeposit || inPaketPaymentHistory;
 
   } while (exists);
     return invoice;
@@ -347,7 +362,7 @@ class Model_cud {
       }, { transaction: this.t });
 
       const member = await Member.findOne({
-        where: { id: infoTabungan.jamaah.id },
+        where: { id: infoTabungan.jamaah.member_id },
         transaction: this.t,
       });
       const sumberDana = body.sumber_dana.toLowerCase();
@@ -450,19 +465,21 @@ class Model_cud {
         updatedAt: dateNow,
       }, { transaction: this.t });
 
-      const member = await Member.findOne({
-        where: { id: infoTabungan.jamaah.id },
-        transaction: this.t,
-      });
-
       // === Update total tabungan ===
-      await member.update({
-        total_tabungan: (member.total_tabungan || 0) - Number(body.refund_nominal),
+      await Member.update({
+        total_tabungan: Sequelize.literal(`total_tabungan - ${Number(body.refund_nominal)}`),
         updatedAt: dateNow
-      }, { transaction: this.t });
+      }, {
+        where: { id: infoTabungan.jamaah.member_id },
+        transaction: this.t
+      });
       
       this.message = `Refund tabungan umrah nama jamaah: ${infoTabungan.jamaah.fullname} dengan invoice: ${invoiceRefund}`;
     } catch (error) {
+      console.log("================ Refund ================");
+      console.log(error)
+      console.log("================ Refund ================");
+      this.message = error.message || "Terjadi kesalahan saat refund tabungan.";
       this.state = false;
     }
   }
@@ -477,7 +494,7 @@ class Model_cud {
       const tabungan = await Tabungan.findOne({ where: { id: body.id, division_id: this.division_id } });
 
       await tabungan.update({
-        target_paket_id: body.target_id,
+        target_paket_id: body.target_id || null,
         updatedAt: dateNow,
       }, { transaction: this.t });
 
@@ -628,7 +645,279 @@ class Model_cud {
       console.log("================ PengembalianHandoverBarang ================");
     }
   }
+  
 
+  // // ==== PEMBELIAN PAKET ====
+  async pembelianPaketTabunganUmrah() {
+    await this.initialize();
+    const body = this.req.body;
+    const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+
+    try {
+      const model_r = new Model_r(this.req);
+      const infoTabungan = await model_r.infoTabungan(body.id, this.division_id);
+      const totalTabungan = parseInt(infoTabungan.total_tabungan);
+      const penerima = await this.penerima();
+      let invoiceSet = new Set();
+
+      let invoiceDeposit, invoiceRiwayatTabungan, invoicePaketTransactionPaymentHistory;
+
+      do {
+        invoiceDeposit = await this.generateInvoice();
+        invoiceSet.add(invoiceDeposit);
+
+        invoiceRiwayatTabungan = body.id ? await this.generateInvoice() : null;
+        if (invoiceRiwayatTabungan && invoiceSet.has(invoiceRiwayatTabungan)) continue;
+        if (invoiceRiwayatTabungan) invoiceSet.add(invoiceRiwayatTabungan);
+
+        invoicePaketTransactionPaymentHistory = await this.generateInvoice();
+        if (invoiceSet.has(invoicePaketTransactionPaymentHistory)) continue;
+        invoiceSet.add(invoicePaketTransactionPaymentHistory);
+
+        // selesai jika semua unik
+        break;
+      } while (true);
+
+      console.groupCollapsed("========== GEN1 Pembelian Paket Tabungan Umrah ==========");
+      console.log("Body:", body);
+      console.log("Company ID:", this.company_id);
+      console.log("Division ID:", this.division_id);
+      console.log("Invoice Deposit:", invoiceDeposit);
+      console.log("Invoice Riwayat Tabungan:", invoiceRiwayatTabungan);
+      console.log("Invoice Paket Transaction Payment History:", invoicePaketTransactionPaymentHistory);
+      console.log("Info Tabungan:", infoTabungan);
+      console.log("Penerima:", penerima);
+      console.log("Total Tabungan:", totalTabungan);
+      console.log("========== END Pembelian Paket Tabungan Umrah ==========");
+      console.groupEnd();
+
+      const hargaPaket = await Paket_price.findOne({
+        where: {
+          Mst_paket_type_id: body.tipe_paket_id,
+          paket_id: infoTabungan.target_paket_id,
+        }
+      });
+
+      const harga = parseInt(hargaPaket.price);
+      const sisaPembelian = totalTabungan - harga;
+
+      console.groupCollapsed("========== 1 Pembelian Paket Tabungan Umrah ==========");
+      console.log("Harga Paket:", harga);
+      console.log("Sisa Pembelian:", sisaPembelian);
+      console.log("========== END Pembelian Paket Tabungan Umrah ==========");
+      console.groupEnd();
+
+      // === 1. Update Member ===
+      await Member.update({
+        total_tabungan: Sequelize.literal(`total_tabungan - ${totalTabungan}`),
+        ...(sisaPembelian > 0 && {
+          total_deposit: Sequelize.literal(`COALESCE(total_deposit, 0) + ${sisaPembelian}`)
+        }),
+        updated_at: dateNow
+      }, {
+        where: { id: infoTabungan.jamaah.member_id, division_id: this.division_id },
+        transaction: this.t
+      });
+
+      const deposit = await Deposit.findOne({
+        where: { member_id: infoTabungan.jamaah.member_id },
+        order: [["createdAt", "DESC"]],
+        limit: 1,
+        transaction: this.t
+      });
+
+      // === 2. Insert Deposit ===
+      let depositTabungan = null;
+      if (sisaPembelian > 0) {        
+        const depositTabungan = await Deposit.create({
+          company_id: this.company_id,
+          member_id: infoTabungan.jamaah.member_id,
+          invoice: invoiceDeposit,
+          nominal: sisaPembelian,
+          saldo_sebelum: deposit?.saldo_sesudah || 0,
+          saldo_sesudah: (deposit?.saldo_sesudah || 0) + sisaPembelian,
+          sumber_dana: "deposit",
+          penerima: penerima,
+          tipe_transaksi: "sisa_pembelian_paket",
+          info: `Sisa pembelian paket (Invoice: ${invoiceDeposit})`,
+          createdAt: dateNow,
+          updated_at: dateNow,
+        }, { transaction: this.t });
+      }
+
+      console.groupCollapsed("========== 2 Pembelian Paket Tabungan Umrah ==========");
+      console.log("Deposit Tabungan:", depositTabungan);
+      console.log("Deposit:", deposit);
+      console.log("========== END Pembelian Paket Tabungan Umrah ==========");
+      console.groupEnd();
+
+      // === 3. Insert Paket Transaction ===
+      const paketTransaction = await Paket_transaction.create({
+        division_id: this.division_id,
+        jamaah_id: infoTabungan.jamaah.id,
+        fee_agen_id: infoTabungan.fee_agen_id,
+        paket_id: body.target_paket_id,
+        mst_paket_type_id: body.tipe_paket_id,
+        price: harga,
+        nomor_visa: 0,
+        tanggal_berlaku_visa: dateNow,
+        tanggal_berakhir_visa: dateNow,
+        batal_berangkat: "tidak",
+        biaya_mahram: infoTabungan.paket.mahram_fee,
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      }, { transaction: this.t });
+
+      // === 4. Insert Payment History ===
+      await Paket_transaction_payment_history.create({
+        paket_transaction_id: paketTransaction.id,
+        invoice: invoicePaketTransactionPaymentHistory,
+        nominal: harga,
+        penerima: penerima,
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      }, { transaction: this.t });
+
+      // === 5. Update Tabungan ===
+      await Tabungan.update({
+        total_tabungan: 0,
+        status: "non_active",
+        paket_transaction_id: paketTransaction.id,
+        sisa_pembelian: sisaPembelian,
+        invoice_sisa_deposit: sisaPembelian > 0 ? invoiceDeposit : null,
+        updated_at: dateNow
+      }, {
+        where: { id: body.id, division_id: this.division_id },
+        transaction: this.t,
+      });
+
+      // === 6. Riwayat Tabungan ===
+      const riwayatTabungan = await Riwayat_tabungan.findOne({
+        where: { tabungan_id: body.id },
+        order: [["createdAt", "DESC"]],
+        limit: 1,
+        transaction: this.t
+      });
+
+      await Riwayat_tabungan.create({
+        invoice: invoiceRiwayatTabungan,
+        tabungan_id: body.id,
+        nominal_tabungan: -harga,
+        penerima: penerima,
+        sumber_dana: "deposit",
+        saldo_tabungan_sebelum: riwayatTabungan.saldo_tabungan_sesudah,
+        saldo_tabungan_sesudah: riwayatTabungan.saldo_tabungan_sesudah - harga,
+        info_tabungan: `Pembelian paket pada tabungan (invoice: ${invoiceRiwayatTabungan})`,
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      }, { transaction: this.t });
+
+      if (sisaPembelian > 0) {
+        await Riwayat_tabungan.create({
+          invoice: invoiceRiwayatTabungan,
+          tabungan_id: body.id,
+          nominal_tabungan: -sisaPembelian,
+          penerima: penerima,
+          sumber_dana: "deposit",
+          saldo_tabungan_sebelum: riwayatTabungan.saldo_tabungan_sesudah - harga,
+          saldo_tabungan_sesudah: 0,
+          info_tabungan: `Sisa pembelian paket pada tabungan (invoice: ${invoiceRiwayatTabungan})`,
+          createdAt: dateNow,
+          updatedAt: dateNow,
+        }, { transaction: this.t });
+      }
+
+      // === 7. Insert Handover Barang ===
+      const handoverBarang = await Handover_barang.findAll({ where: { tabungan_id: infoTabungan.id } });
+      if (handoverBarang.length > 0) {
+        const dataBarangList = handoverBarang.map(item => ({
+          paket_transaction_id: paketTransaction.id,
+          invoice_handover: item.invoice_handover,
+          invoice_returned: item.invoice_returned,
+          jamaah_id: item.jamaah_id,
+          nama_barang: item.nama_barang,
+          status: item.status,
+          giver_handover: item.giver_handover,
+          giver_handover_identity: item.giver_handover_identity,
+          giver_handover_hp: item.giver_handover_hp,
+          giver_handover_address: item.giver_handover_address,
+          receiver_handover: item.receiver_handover,
+          giver_returned: item.giver_returned,
+          receiver_returned: item.receiver_returned,
+          receiver_returned_identity: item.receiver_returned_identity,
+          receiver_returned_hp: item.receiver_returned_hp,
+          receiver_returned_address: item.receiver_returned_address,
+          date_taken: item.date_taken,
+          date_returned: item.date_returned,
+          createdAt: dateNow,
+          updatedAt: dateNow,
+        }));
+        console.log("========== Handover Barang ==========");
+        console.log('dataBarangList', dataBarangList);
+        console.log("========== Handover Barang ==========");
+        await Handover_barang_paket.bulkCreate(dataBarangList, { transaction: this.t });
+      }
+
+      // === 8. Insert Handover Fasilitas & Detail ===
+      const handoverFasilitas = await Handover_fasilitas.findAll({ where: { tabungan_id: infoTabungan.id } });
+      if (handoverFasilitas.length > 0) {
+        const dataFasilitasList = handoverFasilitas.map(item => ({
+          paket_transaction_id: paketTransaction.id,
+          invoice: item.invoice,
+          petugas: item.petugas,
+          nomor_identitas_penerima: item.nomor_identitas_penerima,
+          createdAt: dateNow,
+          updatedAt: dateNow,
+        }));
+
+        const fasilitasPaket = await Handover_fasilitas_paket.bulkCreate(dataFasilitasList, {
+          transaction: this.t,
+          returning: true,
+        });
+        
+        // Buat mapping dari ID lama → ID baru
+        const idMap = {};
+        handoverFasilitas.forEach((item, index) => {
+          idMap[item.id] = fasilitasPaket[index].id;
+        });
+
+        // Ambil semua detail berdasarkan ID handover_fasilitas yang lama
+        const fasilitasIdMap = handoverFasilitas.map(f => f.id);
+        const detailList = await Handover_fasilitas_detail.findAll({
+          where: { handover_fasilitas_id: { [Op.in]: fasilitasIdMap } }
+        });
+        
+        console.log("========== Fasilitas Paket ==========");
+        console.log("fasilitasPaket", fasilitasPaket);
+        console.log("fasilitasIdMap", fasilitasIdMap);
+        console.log("idMap", idMap);
+        console.log("detailList", detailList);
+        console.log("========== Fasilitas Paket ==========");
+
+        if (detailList.length > 0) {
+          const dataFasilitasDetailList = detailList.map(detail => ({
+            handover_fasilitas_paket_id: idMap[detail.handover_fasilitas_id],
+            mst_fasilitas_id: detail.mst_fasilitas_id,
+            createdAt: dateNow,
+            updatedAt: dateNow,
+          }));
+          await Handover_fasilitas_detail_paket.bulkCreate(dataFasilitasDetailList, { transaction: this.t });
+        }
+      }
+
+      console.log("================ 3 pembelianPaketTabunganUmrah ================");
+      console.log("paketTransaction", paketTransaction);
+      console.log("infoTabungan", infoTabungan);
+      console.log("================ pembelianPaketTabunganUmrah ================");
+      this.message = "Pembelian paket tabungan umrah berhasil.";
+    } catch (error) {
+      this.state = false;
+      this.message = error.message || "Terjadi kesalahan saat pembelian paket.";
+      console.log("================ pembelianPaketTabunganUmrah ================");
+      console.log(error)
+      console.log("================ pembelianPaketTabunganUmrah ================");
+    }
+  }
 
   // ==== DELETE ====
   async delete() {
@@ -673,7 +962,7 @@ class Model_cud {
         updatedAt: dateNow,
       }, { transaction: this.t });
 
-      // 2. Buat catatan log deposit (pengembalian)
+      // 2. Buat catatan log deposit (pengembalian) //dihapus aja
       const invoiceDeposit = await this.generateInvoice();
       const penerima = await this.penerima();
 

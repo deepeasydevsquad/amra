@@ -63,6 +63,8 @@ interface PaketLA {
   total_jamaah: number;
   departure_date: string;
   arrival_date: string;
+  terbayar: number;
+  sisa: number
 }
 
 interface Errors {
@@ -476,14 +478,14 @@ const cetakInvoice = async (invoice: string) => {
                     <td>Sudah Dibayar</td>
                     <td>:</td>
                     <td class="text-right space-y-2 text-sm py-1">
-                     -
+                      Rp {{ paket.terbayar.toLocaleString() }}
                     </td>
                   </tr>
                   <tr>
                     <td>Sisa</td>
                     <td>:</td>
                     <td class="text-right space-y-2 text-sm py-1">
-                     -
+                      Rp {{ paket.sisa.toLocaleString() }}
                     </td>
                   </tr>
                 </tbody>

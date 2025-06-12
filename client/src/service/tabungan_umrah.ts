@@ -8,7 +8,7 @@ export const cekKwitansiTabunganUmrah = async (invoice: string) => {
     console.error("Gagal mengambil kwitansi terakhir tabungan umrah:", error);
     throw error;
   }
-}
+};
 
 export const getJamaah = async () => {
   try {
@@ -28,7 +28,7 @@ export const getPaket = async () => {
     console.error("Gagal mengambil daftar paket:", error);
     throw error;
   }
-}
+};
 
 export const getMstFasilitas = async (id: number) => {
   try {
@@ -38,7 +38,7 @@ export const getMstFasilitas = async (id: number) => {
     console.error("Gagal mengambil daftar fasilitas handover:", error);
     throw error;
   }
-}
+};
 
 export const getAgen = async (id: number) => {
   try {
@@ -48,7 +48,7 @@ export const getAgen = async (id: number) => {
     console.error("Gagal mengambil daftar agen:", error);
     throw error;
   }
-}
+};
 
 export const getHandoverFasilitas = async (id: number) => {
   try {
@@ -68,7 +68,7 @@ export const getInfoPengembalianBarang = async (id: number) => {
     console.error("Gagal mengambil daftar handover barang:", error);
     throw error;
   }
-}
+};
 
 export const getPetugasTabunganUmrah = async (id: number) => {
   try {
@@ -79,6 +79,26 @@ export const getPetugasTabunganUmrah = async (id: number) => {
     throw error;
   }
 };
+
+export const getInfoPaketPembelian = async (id: number) => {
+  try {
+    const response = await api.post("/daftar-tabungan-umrah/get-info-paket-pembelian", { id });
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil info paket pembelian:", error);
+    throw error;
+  }
+}
+
+export const pembelianPaketTabunganUmrah = async (param : any) => {
+  try {
+    const response = await api.post("/daftar-tabungan-umrah/pembelian-paket-tabungan-umrah", param);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal menambahkan deposit tabungan umrah:", error);
+    throw error;
+  }
+}
 
 export const cetakDataJamaahTabunganUmrah = async (id: number, petugasId: string) => {
   try {
