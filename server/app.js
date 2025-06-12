@@ -85,6 +85,7 @@ const arr_router = [
   "jurnal",
   "tabungan_umrah",
   "riwayat_peminjaman",
+  "trans_tiket",
   "investor",
   "param_cabang",
   "daftar_konfigurasi_surat_menyurat",

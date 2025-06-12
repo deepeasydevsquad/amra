@@ -152,3 +152,6 @@ package-lock.json
 package.json
 resetdb.ps1
 
+#vscode
+.vscode/
+
