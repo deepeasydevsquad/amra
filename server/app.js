@@ -86,13 +86,17 @@ const arr_router = [
   "tabungan_umrah",
   "riwayat_peminjaman",
   "trans_tiket",
-  "investor", 
+  "investor",
   "param_cabang",
   "daftar_konfigurasi_surat_menyurat",
   "buku_besar",
   "neraca_lajur",
   "laba_rugi",
-  "neraca"
+  "neraca",
+  "template_whatsapp",
+  "pengaturan_pesan_whatsapp",
+  "transaksi_visa",
+  "pesan_whatsapp",
 ];
 
 const arr = {};

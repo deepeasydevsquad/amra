@@ -10,7 +10,11 @@ import InvoiceKwitansiTerakhir from '@/components/User/Modules/Invoice/InvoiceKw
 import InvoicePembayranPerbulan from '../components/User/Modules/Invoice/InvoicePembayranPerbulan.vue'
 import KwitansiTabunganUmrah from '@/components/User/Modules/Invoice/KwitansiTabunganUmrah.vue'
 import CetakSurat from '@/components/User/Modules/DaftarSuratMenyurat/widgets/CetakSurat.vue'
-import KwitansiHandoverFasilitas from '../components/User/Modules/Invoice/KwitansiHandoverFasilitas.vue'
+import KwitansiHandoverFasilitas from '@/components/User/Modules/Invoice/KwitansiHandoverFasilitas.vue'
+import CetakDataJamaah from '@/components/User/Modules/TabunganUmrah/Widget/CetakDataJamaah.vue'
+import KwitansiHandoverBarang from '@/components/User/Modules/Invoice/KwitansiHandoverBarang.vue'
+import KwitansiPengembalianBarang from '@/components/User/Modules/Invoice/KwitansiPengembalianBarang.vue'
+import TransaksiVisa from '@/components/User/Modules/TransaksiVisa/TransaksiVisa.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -83,6 +87,26 @@ const router = createRouter({
       path: '/cetak_surat/:jenis_surat',
       name: 'invoice-pembayran',
       component: CetakSurat,
+    },
+    {
+      path: '/daftar-tabungan-umrah/cetak-data-jamaah/:id/cetak',
+      name: 'cetak-jamaah',
+      component: CetakDataJamaah,
+    },
+    {
+      path: '/kwitansi-handover-barang/:invoice',
+      name: 'kwitansi-handover-barang',
+      component: KwitansiHandoverBarang,
+    },
+    {
+      path: '/kwitansi-pengembalian-handover-barang/:invoice',
+      name: 'kwitansi-pengembalian-handover-barang',
+      component: KwitansiPengembalianBarang,
+    },
+    {
+      path: '/transaksi-visa',
+      name: 'transaksi-visa',
+      component: TransaksiVisa,
     }
   ],
 })

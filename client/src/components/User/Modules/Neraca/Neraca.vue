@@ -129,7 +129,7 @@
               </tr>
           </tbody>
           <tfoot>
-            <tr class="bg-gray-50">
+            <tr class="bg-red-50">
               <td class="px-6 py-4 border text-left text-xs font-bold" colspan="2">SUBTOTAL ASSET</td>
               <td class="px-6 py-4 border text-left text-xs font-bold">
                 {{ formatRupiah(dataAsset.reduce((total, akun) => total + akun.saldo, 0)) }}
@@ -158,7 +158,7 @@
               </tr>
           </tbody>
           <tfoot>
-            <tr class="bg-gray-50">
+            <tr class="bg-red-50">
               <td class="px-6 py-4 border text-left text-xs font-bold" colspan="2">SUBTOTAL KEWAJIBAN</td>
               <td class="px-6 py-4 border text-left text-xs font-bold">
                 {{ formatRupiah(dataKewajiban.reduce((total, akun) => total + akun.saldo, 0)) }}
@@ -180,7 +180,7 @@
               </tr>
           </tbody>
           <tfoot>
-            <tr class="bg-gray-50">
+            <tr class="bg-red-50">
               <td class="px-6 py-4 border text-left text-xs font-bold" colspan="2">SUBTOTAL EKUITAS</td>
               <td class="px-6 py-4 border text-left text-xs font-bold">
                {{ formatRupiah(dataEkuitas.reduce((total, akun) => total + akun.saldo, 0)) }}

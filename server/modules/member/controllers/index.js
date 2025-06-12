@@ -118,3 +118,37 @@ exports.level_agen = async ( req, res ) => {
     handleServerError(res, error.message);
   }
 }
+
+exports.makeAnAgen = async ( req, res ) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_cud(req);
+    await model.makeAnAgen();
+     // get response
+    if (await model.response()) {
+      res.status(200).json({ error: false, error_msg: 'Data Member Berhasil Dihapus.' });
+    } else {
+      res.status(400).json({ error: true, error_msg: 'Data Member Gagal Dihapus.' });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
+exports.listUpline = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.listUpline();
+    // feedBack
+    if( data.length > 0 ) {
+      res.status(200).json({ error : false, error_msg : 'Sukses', data: data });
+    }else{
+      res.status(200).json({ error : true, error_msg : 'Error' });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}

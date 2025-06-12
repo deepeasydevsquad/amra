@@ -30,8 +30,8 @@ class Model_r {
     let where = {};
 
     // Filter berdasarkan division_id jika ada
-    if (body.division_id) {
-      where.division_id = body.division_id;
+    if (body.cabang) {
+      where.division_id = body.cabang;
     }
 
     // Filter berdasarkan pencarian (search)
@@ -288,10 +288,6 @@ class Model_r {
     // initialize dependensi properties
     await this.initialize()
 
-    console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    console.log(this.company_id);
-    console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-
     try {
       var data = [{id: 0, name: 'Pilih Level', level: '-'}];
       const { rows } = await Level_keagenan.findAndCountAll({ 
@@ -305,21 +301,48 @@ class Model_r {
           data.push({ id: e.id, name: e.name, level: e.level });
         })
       );
-
-      console.log("xxxxxxxxxxxxxxxxxxxxx");
-      console.log(this.company_id);
-      console.log(data);
-      console.log("xxxxxxxxxxxxxxxxxxxxx");
       return data
     } catch (error) {
-
-      console.log("__________________");
-      console.log(this.company_id);
-      console.log(error);
-      console.log("__________________");
       return []     
     }
   }
+
+  async listUpline() {
+    // initialize dependensi properties
+    await this.initialize()
+
+    try {
+      var data = [{id: 0, name: 'Pilih Upline'}];
+      const { rows } = await Agen.findAndCountAll({ 
+        where: {
+            member_id: {
+              [Op.ne] : this.req.body.id
+            }
+        },
+        include: {
+          required : true,
+          model: Member, 
+          include: {
+            required: true, 
+            model: Division,
+            where : {
+              company_id : this.company_id,
+            }
+          }
+        },
+        order: [["id", "ASC"]],
+      });
+      await Promise.all(
+        await rows.map(async (e) => {
+          data.push({ id: e.id, name: e.Member.fullname  });
+        })
+      );
+      return data
+    } catch (error) {
+      return []     
+    }
+  }
+
 }
 
 module.exports = Model_r;

@@ -1,6 +1,6 @@
 const moment = require("moment");
 const { Op } = require("sequelize");
-const { Member, Company, Division } = require("../models");
+const { Member, Company, Division, Level_keagenan, Agen } = require("../models");
 const{ getCompanyIdByCode, tipe, getCabang, getSeluruhCabangId } = require("../helper/companyHelper");
 const multer = require("multer");
 const path = require("path");
@@ -112,4 +112,48 @@ const check_member_id = async ( id, { req } ) => {
   return true;
 }
 
-module.exports = { validateMember, upload, check_member_id };
+const check_level_agen = async( level,  { req } ) => {
+  const company_id = await getCompanyIdByCode(req);
+  if(level !== '0') {
+    var check = await Level_keagenan.findOne({ 
+      where: { id : level, company_id: company_id },
+    });
+    if (!check) {
+        throw new Error("Level Ini Tidak Ditemukan Dipangkalan Data");
+    }
+  }else{
+    throw new Error("Anda wajib memilih salah satu level keagenan");
+  }
+  return true
+}
+
+const check_upline = async ( upline_id, { req } ) => {
+  const id = req.body.id;
+  const company_id = await getCompanyIdByCode(req);
+  if( upline_id != '0'){
+    var check = await Agen.findOne({ 
+      where: { id : upline_id },
+      include: {
+        required : true, 
+        model : Member, 
+        include: {
+          required : true,
+          model : Division, 
+          where : { 
+            company_id: company_id
+          }
+        },
+        where : { 
+          id : { [Op.ne] : id }
+        }
+      }
+    });
+    if (!check) {
+        throw new Error("Upline Ini Tidak Ditemukan Dipangkalan Data");
+    }
+  }
+ 
+  return true;
+}
+
+module.exports = { validateMember, upload, check_member_id, check_level_agen, check_upline };

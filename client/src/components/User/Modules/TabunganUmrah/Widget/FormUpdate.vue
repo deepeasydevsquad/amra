@@ -5,21 +5,11 @@ import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confirmation.vue';
 
 import { onMounted, reactive, ref, watch } from 'vue'
-import { getPaket, updateTabunganUmrah } from '@/service/tabungan_umrah'
+import { getPaket, updateTabunganUmrah, getInfoUpdateTabunganUmrah } from '@/service/tabungan_umrah'
 
 const props = defineProps<{
   isFormUpdateOpen: boolean;
-  dataTabungan: {
-    id: number;
-    total_tabungan: number;
-    target_paket_id: number;
-    member: {
-      fullname: string;
-      identity_number: string;
-      birth_place: string;
-      birth_date: string;
-    };
-  } | null
+  tabunganId: number | null;
 }>()
 
 const emit = defineEmits<{
@@ -30,10 +20,22 @@ const emit = defineEmits<{
 // Interfaces
 interface ErrorFields { id?: string; target_paket_id?: string }
 interface Paket { id: number; name: string; price: number; hari_tersisa: string }
+interface dataTabungan {
+  id: number;
+  total_tabungan: number;
+  target_paket_id: number;
+  member: {
+    fullname: string;
+    identity_number: string;
+    birth_place: string;
+    birth_date: string;
+  };
+}
+
 
 // State
 const PaketList = ref<Paket[]>([])
-
+const dataTabungan = ref<dataTabungan>()
 const isLoading = ref(false)
 const showNotification = ref(false)
 const notificationMessage = ref('')
@@ -49,12 +51,13 @@ const errors = ref<ErrorFields>({
 })
 
 const form = reactive({
-  id: props.dataTabungan?.id ?? null,
-  target_paket_id: props.dataTabungan?.target_paket_id ?? null,
+  id: props.tabunganId ?? null,
+  target_paket_id: null,
 })
 
 // Function: Notification
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
+  showConfirmDialog.value = false;
   notificationMessage.value = message
   notificationType.value = type
   showNotification.value = true
@@ -76,10 +79,20 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 const fetchData = async () => {
   try {
     isLoading.value = true
-    const paketResponse = await getPaket();
+    const [paketResponse, dataTabunganResponse] = await Promise.all([
+      getPaket(),
+      getInfoUpdateTabunganUmrah(props.tabunganId ?? 0),
+    ]);
     if (paketResponse.data) {
       PaketList.value = [{ id: null, name: 'Pilih Paket' }, ...paketResponse.data]
     }
+    if (dataTabunganResponse.data) {
+      dataTabungan.value = dataTabunganResponse.data
+      form.target_paket_id = dataTabungan.value?.target_paket_id ?? null;
+    }
+
+    console.debug('Paket List:', PaketList.value)
+    console.debug('Data Tabungan:', dataTabungan.value)
 
   } catch (error) {
     displayNotification('Failed to fetch data', 'error')
@@ -117,7 +130,7 @@ const saveData = async () => {
           id: number;
           target_id: number | null;
         } = {
-          id: props.dataTabungan?.id || 0,
+          id: props.tabunganId || 0,
           target_id: form.target_paket_id ?? null,
         }
 
@@ -166,7 +179,7 @@ watch(
       const paket = paketResponse.data?.find((p : Paket) => p.id === newTargetPaketId);
 
       if (paket) {
-        price_sisa.value = paket.price - (props.dataTabungan?.total_tabungan || 0);
+        price_sisa.value = paket.price - (dataTabungan.value?.total_tabungan || 0);
         price_harga.value = paket.price;
         hari_tersisa.value = paket.hari_tersisa || '';
       }
@@ -209,13 +222,13 @@ watch(
                 <label class="block text-sm font-medium text-gray-700 mb-1">Data Member</label>
                 <div class="p-3 border border-gray-200 rounded-md bg-gray-50">
                   <p class="text-sm font-semibold text-gray-800">
-                    {{ props.dataTabungan?.member.fullname || '-' }}
+                    {{dataTabungan?.member.fullname || '-' }}
                   </p>
                   <p class="text-sm text-gray-600">
-                    Nomor Identitas: {{ props.dataTabungan?.member.identity_number || '-' }}
+                    Nomor Identitas: {{dataTabungan?.member.identity_number || '-' }}
                   </p>
                   <p class="text-sm text-gray-600">
-                    Tempat / Tgl Lahir: {{ `${props.dataTabungan?.member.birth_place || '-'} / ${props.dataTabungan?.member.birth_date || '-'}` }}
+                    Tempat / Tgl Lahir: {{ `${dataTabungan?.member.birth_place || '-'} / ${dataTabungan?.member.birth_date || '-'}` }}
                   </p>
                 </div>
               </div>

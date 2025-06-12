@@ -5,9 +5,11 @@ import EditIcon from '@/components/User/Modules/Supplier/Icon/EditIcon.vue'
 
 // import element
 import DangerButton from '@/components/User/Modules/Supplier/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/Supplier/Particle/EditButton.vue'
+import LightButton from "@/components/Button/LightButton.vue"
 import Notification from '@/components/User/Modules/Supplier/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/Supplier/Particle/Confirmation.vue'
+
+import Pagination from '@/components/Pagination/Pagination.vue'
 
 // Import service API
 import { daftarSupplier, daftarBank, addSupplier, editSupplier, deleteSupplier } from '@/service/supplier'; // Import function POST
@@ -150,11 +152,6 @@ const validateForm = (): boolean => {
   errors.value = { name: '', address: '', bank: '', nomor_rekening: '' };
   let isValid = true;
 
-  console.log('______Validasi_________');
-  console.log(selectedSupplier.value);
-  console.log(selectedSupplier.value.bank_id);
-  console.log('______Validasi_________');
-
   if (!selectedSupplier.value.name?.trim()) {
     errors.value.name = 'Nama tidak boleh kosong';
     isValid = false;
@@ -289,9 +286,9 @@ const deleteData = async (id: number) => {
               <td class="px-6 py-4 text-center">{{ supplier.nomor_rekening }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
-                  <EditButton @click="openModal(supplier)">
+                  <LightButton @click="openModal(supplier)">
                     <EditIcon></EditIcon>
-                  </EditButton>
+                  </LightButton>
                   <DangerButton @click="deleteData(supplier.id)">
                     <DeleteIcon></DeleteIcon>
                   </DangerButton>
@@ -304,11 +301,19 @@ const deleteData = async (id: number) => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <tr>
+          <Pagination
+              :current-page="currentPage"
+              :total-pages="totalPages"
+              :pages="pages"
+              :total-columns="totalColumns"
+              @prev-page="prevPage"
+              @next-page="nextPage"
+              @page-now="pageNow"
+            />
+          <!-- <tr>
             <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
               <nav class="flex mt-0">
                 <ul class="inline-flex items-center -space-x-px">
-                  <!-- Tombol Previous -->
                   <li>
                     <button
                       @click="prevPage"
@@ -319,7 +324,6 @@ const deleteData = async (id: number) => {
                       Previous
                     </button>
                   </li>
-                  <!-- Nomor Halaman -->
                   <li v-for="page in pages" :key="page">
                     <button
                       @click="pageNow(page)"
@@ -332,7 +336,6 @@ const deleteData = async (id: number) => {
                     </button>
                   </li>
 
-                  <!-- Tombol Next -->
                   <li>
                     <button
                       @click="nextPage"
@@ -346,7 +349,7 @@ const deleteData = async (id: number) => {
                 </ul>
               </nav>
             </td>
-          </tr>
+          </tr> -->
         </tfoot>
       </table>
     </div>

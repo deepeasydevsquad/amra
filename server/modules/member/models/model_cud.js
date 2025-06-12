@@ -140,9 +140,6 @@ class Model_cud {
       // Log pesan update
       this.message = `Memperbarui Member ID ${body.id} (${member.fullname}) menjadi ${body.fullname}`;
     } catch (error) {
-      console.log("---------->");
-      console.log(error);
-      console.log("---------->");
       this.state = false;
     }
   }
@@ -156,46 +153,6 @@ class Model_cud {
       // call model
       const model_r = new Model_r(this.req);
       const member = await model_r.infoMember(body.id);
-
-      // // agen
-      // await Agen.destroy(
-      //   {
-      //     where: { member_id: body.id },
-      //   }, 
-      //   {
-      //     transaction: this.t,
-      //   }
-      // );
-
-      // // user
-      // await User.destroy(
-      //   {
-      //     where: { member_id: body.id },
-      //   }, 
-      //   {
-      //     transaction: this.t,
-      //   }
-      // );
-
-      // // deposit
-      // await Deposit.destroy(
-      //   {
-      //     where: { member_id: body.id },
-      //   }, 
-      //   {
-      //     transaction: this.t,
-      //   }
-      // );
-
-      // // destroy Jamaah
-      // await Jamaah.destroy(
-      //   {
-      //     where: { member_id: body.id },
-      //   }, 
-      //   {
-      //     transaction: this.t,
-      //   }
-      // );
       // destroy Member
       await Member.destroy(
         {
@@ -214,10 +171,43 @@ class Model_cud {
       );
       this.message = `Menghapus Member ${member.fullname} (ID: ${member.id})`;
     } catch (error) {
-      console.log("XXXXXXXXXXXXX");
+      this.state = false;
+    }
+  }
+
+  async makeAnAgen() {
+     // initialize dependensi properties
+    await this.initialize();
+    const body = this.req.body;
+    const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
+
+    try {
+      // call model
+      const model_r = new Model_r(this.req);
+      const member = await model_r.infoMember(body.id);
+
+      console.log("************************");
+      console.log("************************");
+      console.log(this.req.body.upline);
+      console.log("************************");
+      console.log("************************");
+
+      await Agen.create(
+        {
+          member_id: this.req.body.id,
+          level_keagenan_id: this.req.body.level, 
+          upline_id: this.req.body.upline != '0' ? this.req.body.upline : null,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        { transaction: this.t }
+      );
+
+      this.message = `Menjadikan Member ${member.fullname} (ID: ${member.id}) Menjadi Agen`;
+    } catch (error) {
+      console.log("-----xx-----");
       console.log(error);
-      console.log("XXXXXXXXXXXXX");
-      // this.message = `Menghapus Member ${member.fullname} (ID: ${member.id})`;
+      console.log("-----xx-----");
       this.state = false;
     }
   }

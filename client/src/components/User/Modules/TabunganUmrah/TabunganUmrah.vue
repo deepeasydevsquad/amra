@@ -5,6 +5,7 @@ import EditIcon from '@/components/User/Modules/TabunganUmrah/Icon/EditIcon.vue'
 import RefundIcon from '@/components/User/Modules/TabunganUmrah/Icon/RefundIcon.vue'
 import NabungIcon from '@/components/User/Modules/TabunganUmrah/Icon/NabungIcon.vue'
 import HandoverIcon from '@/components/User/Modules/TabunganUmrah/Icon/HandoverIcon.vue'
+import HandoverBarangIcon from '@/components/User/Modules/TabunganUmrah/Icon/HandoverBarangIcon.vue'
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 
@@ -20,6 +21,10 @@ import FormAddHandover from '@/components/User/Modules/TabunganUmrah/Widget/Form
 import FormUpdate from '@/components/User/Modules/TabunganUmrah/Widget/FormUpdate.vue'
 import FormMenabung from '@/components/User/Modules/TabunganUmrah/Widget/FormMenabung.vue'
 import FormRefund from '@/components/User/Modules/TabunganUmrah/Widget/FormRefund.vue'
+import FormCetakDataJamaah from '@/components/User/Modules/TabunganUmrah/Widget/FormCetakDataJamaah.vue'
+import FormOpsiHandoverBarang from '@/components/User/Modules/TabunganUmrah/Widget/FormOpsiHandoverBarang.vue'
+import FormTerimaBarang from '@/components/User/Modules/TabunganUmrah/Widget/FormTerimaBarang.vue'
+import FormPengembalianBarang from '@/components/User/Modules/TabunganUmrah/Widget/FormPengembalianBarang.vue'
 
 // import API
 import { daftar_tabungan_umrah, deleteTabunganUmrah, cekKwitansiTabunganUmrah } from '@/service/tabungan_umrah'
@@ -94,12 +99,16 @@ interface TabunganUmrah {
 
 const timeoutId = ref<number | null>(null);
 const dataTabunganUmrah = ref<TabunganUmrah[]>([]);
-const selectTabunganUmrah = ref<TabunganUmrah | null>(null);
+const tabunganId = ref<number>(0);
 const isFormOpen = ref<boolean>(false);
 const isFormUpdateOpen = ref<boolean>(false);
 const isFormAddHandoverOpen = ref<boolean>(false);
 const isFormMenabungOpen = ref<boolean>(false);
 const isFormRefundOpen = ref<boolean>(false);
+const isFormCetakDataJamaahOpen = ref<boolean>(false);
+const isFormOpsiHandoverBarangOpen = ref<boolean>(false);
+const isFormTerimaBarangOpen = ref<boolean>(false);
+const isFormPengembalianBarangOpen = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
@@ -167,23 +176,43 @@ const openFormAdd = () => {
 }
 
 const openFormUpdate = (tabungan: TabunganUmrah) => {
-  selectTabunganUmrah.value = tabungan;
+  tabunganId.value = tabungan.id;
   isFormUpdateOpen.value = true;
 }
 
 const openFormMenabung = (tabungan: TabunganUmrah) => {
-  selectTabunganUmrah.value = tabungan;
+  tabunganId.value = tabungan.id;
   isFormMenabungOpen.value = true;
 }
 
 const openFormRefund = (tabungan: TabunganUmrah) => {
-  selectTabunganUmrah.value = tabungan;
+  tabunganId.value = tabungan.id;
   isFormRefundOpen.value = true;
 }
 
 const openFormAddHandover = (tabungan: TabunganUmrah) => {
-  selectTabunganUmrah.value = tabungan;
+  tabunganId.value = tabungan.id;
   isFormAddHandoverOpen.value = true;
+}
+
+const openFormCetakDataJamaah = (tabungan: TabunganUmrah ) => {
+  tabunganId.value = tabungan.id;
+  isFormCetakDataJamaahOpen.value = true;
+}
+
+const openFormOpsiHandoverBarang = (tabungan: TabunganUmrah ) => {
+  tabunganId.value = tabungan.id;
+  isFormOpsiHandoverBarangOpen.value = true;
+}
+
+const openTerimaBarangHandover = (tabungan_id: number ) => {
+  tabunganId.value = tabungan_id;
+  isFormTerimaBarangOpen.value = true;
+}
+
+const openPengembalianBarangHandover = (tabungan_id: number ) => {
+  tabunganId.value = tabungan_id;
+  isFormPengembalianBarangOpen.value = true;
 }
 
 const deleteData = async (id: number) => {
@@ -271,9 +300,9 @@ const cetakKwitansi = async (invoice: string) => {
         <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead class="bg-gray-50">
             <tr>
-              <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Jamaah</th>
-              <th class="w-[70%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Deposit</th>
-              <th class="w-[5%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+              <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center">Info Jamaah</th>
+              <th class="w-[70%] px-6 py-4 font-bold text-gray-900 text-center">Info Deposit</th>
+              <th class="w-[5%] px-6 py-4 font-bold text-gray-900 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -363,7 +392,7 @@ const cetakKwitansi = async (invoice: string) => {
                 </td>
                 <td class="px-6 py-4 text-center grid grid-cols-2 gap-2">
                   <div class="grid ">
-                    <LightButton col-span-1 title="Cetak Data Jamaah" @click.prevent="cetakKwitansi(tabungan.invoice_sisa_deposit)">
+                    <LightButton col-span-1 title="Cetak Data Jamaah" @click="openFormCetakDataJamaah(tabungan)">
                       <CetakIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
                     <LightButton col-span-1 title="Update Target Paket" @click="openFormUpdate(tabungan)">
@@ -377,6 +406,9 @@ const cetakKwitansi = async (invoice: string) => {
                     </LightButton>
                     <LightButton col-span-1 title="Handover Fasilitas" @click="openFormAddHandover(tabungan)">
                       <HandoverIcon class="h-4 w-4 text-gray-600" />
+                    </LightButton>
+                    <LightButton col-span-1 title="Handover Barang" @click="openFormOpsiHandoverBarang(tabungan)">
+                      <HandoverBarangIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
                     <DangerButton title="Hapus Tabungan" @click="deleteData(tabungan.id)">
                       <DeleteIcon></DeleteIcon>
@@ -427,7 +459,7 @@ const cetakKwitansi = async (invoice: string) => {
     <FormUpdate
       v-if="isFormUpdateOpen"
       :isFormUpdateOpen="isFormUpdateOpen"
-      :dataTabungan="selectTabunganUmrah"
+      :tabunganId="tabunganId"
       @close="isFormUpdateOpen = false; fetchData()"
       @success="displayNotification('Target Paket Tabungan Umrah berhasil diupdate', 'success')"
       />
@@ -445,7 +477,7 @@ const cetakKwitansi = async (invoice: string) => {
     <FormMenabung
       v-if="isFormMenabungOpen"
       :isFormMenabungOpen="isFormMenabungOpen"
-      :dataTabungan="selectTabunganUmrah"
+      :tabunganId="tabunganId"
       @close="isFormMenabungOpen = false; fetchData()"
       @success="displayNotification('Menabung Tabungan Umrah berhasil ditambahkan', 'success')"
       />
@@ -463,7 +495,7 @@ const cetakKwitansi = async (invoice: string) => {
     <FormRefund
       v-if="isFormRefundOpen"
       :isFormRefundOpen="isFormRefundOpen"
-      :dataTabungan="selectTabunganUmrah"
+      :tabunganId="tabunganId"
       @close="isFormRefundOpen = false; fetchData()"
       @success="displayNotification('Tabungan Umrah berhasil direfund', 'success')"
       />
@@ -481,9 +513,82 @@ const cetakKwitansi = async (invoice: string) => {
     <FormAddHandover
       v-if="isFormAddHandoverOpen"
       :isFormAddHandoverOpen="isFormAddHandoverOpen"
-      :dataTabungan="selectTabunganUmrah"
+      :tabunganId="tabunganId"
       @close="isFormAddHandoverOpen = false; fetchData()"
-      @success="displayNotification('Handover Fasilitas berhasil ditambahkan', 'success')"
+      @status="(payload) => displayNotification(payload.err_msg || 'Handover Fasilitas gagal ditambahkan', payload.error ? 'error' : 'success')"
+      />
+    </transition>
+
+  <!-- Form Cetak Data Jamaah -->
+  <transition
+    enter-active-class="transition duration-200 ease-out"
+    enter-from-class="transform scale-95 opacity-0"
+    enter-to-class="transform scale-100 opacity-100"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="transform scale-100 opacity-100"
+    leave-to-class="transform scale-95 opacity-0"
+  >
+    <FormCetakDataJamaah
+      v-if="isFormCetakDataJamaahOpen"
+      :isFormCetakDataJamaahOpen="isFormCetakDataJamaahOpen"
+      :tabunganId="tabunganId"
+      @close="isFormCetakDataJamaahOpen = false; fetchData()"
+      @success="displayNotification('Jamaah berhasil dicetak', 'success')"
+      />
+  </transition>
+
+  <!-- Form Opsi Handover Barang -->
+  <transition
+    enter-active-class="transition duration-200 ease-out"
+    enter-from-class="transform scale-95 opacity-0"
+    enter-to-class="transform scale-100 opacity-100"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="transform scale-100 opacity-100"
+    leave-to-class="transform scale-95 opacity-0"
+  >
+    <FormOpsiHandoverBarang
+      v-if="isFormOpsiHandoverBarangOpen"
+      :isFormOpsiHandoverBarangOpen="isFormOpsiHandoverBarangOpen"
+      :tabunganId="tabunganId"
+      @close="isFormOpsiHandoverBarangOpen = false; fetchData()"
+      @terima-barang="isFormOpsiHandoverBarangOpen = false; openTerimaBarangHandover(tabunganId)"
+      @pengembalian-barang="isFormOpsiHandoverBarangOpen = false; openPengembalianBarangHandover(tabunganId)"
+      />
+  </transition>
+
+  <!-- Form Terima Barang Handover -->
+  <transition
+    enter-active-class="transition duration-200 ease-out"
+    enter-from-class="transform scale-95 opacity-0"
+    enter-to-class="transform scale-100 opacity-100"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="transform scale-100 opacity-100"
+    leave-to-class="transform scale-95 opacity-0"
+  >
+    <FormTerimaBarang
+      v-if="isFormTerimaBarangOpen"
+      :isFormTerimaBarangOpen="isFormTerimaBarangOpen"
+      :tabunganId="tabunganId"
+      @close="isFormTerimaBarangOpen = false; fetchData()"
+      @status="(payload) => displayNotification(payload.err_msg || 'Handover Barang gagal ditambahkan', payload.error ? 'error' : 'success')"
+      />
+  </transition>
+
+  <!-- Form Pengembalian Barang Handover -->
+  <transition
+    enter-active-class="transition duration-200 ease-out"
+    enter-from-class="transform scale-95 opacity-0"
+    enter-to-class="transform scale-100 opacity-100"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="transform scale-100 opacity-100"
+    leave-to-class="transform scale-95 opacity-0"
+  >
+    <FormPengembalianBarang
+      v-if="isFormPengembalianBarangOpen"
+      :isFormPengembalianBarangOpen="isFormPengembalianBarangOpen"
+      :tabunganId="tabunganId"
+      @close="isFormPengembalianBarangOpen= false; fetchData()"
+      @status="(payload) => displayNotification(payload.err_msg || 'Pengembalian Barang gagal ditambahkan', payload.error ? 'error' : 'success')"
       />
   </transition>
 

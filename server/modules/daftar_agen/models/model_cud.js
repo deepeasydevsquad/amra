@@ -52,34 +52,59 @@ class Model_cud {
   }
 
   // Hapus Pengguna
-  async hapusAgen() {
+  async delete() {
+    // initialize dependensi properties
     await this.initialize();
+
     const { id } = this.req.body;
+
     try {
       const model_r = new Model_r(this.req);
       const infoAgen = await model_r.infoAgen(id);
-      if (!infoAgen) throw new Error("Pengguna tidak ditemukan");
-      await Agen.destroy({ where: { id }, transaction: this.t });
+      await Agen.destroy({ 
+        where: { 
+          id : id 
+        }
+      },  
+      { 
+        transaction: this.t
+      });
+
       this.message = `Menghapus Pengguna dengan Username: ${infoAgen.Member.fullname} dan ID: ${id}`;
-      return await this.response();
     } catch (error) {
+
+      console.log("xxxxx");
+      console.log(error);
+      console.log("xxxxx");
+      
       this.state = false;
-      this.message = error.message;
-      return await this.response();
+    }
+  }
+
+  async response() {
+    if (this.state) {
+      await writeLog(this.req, this.t, { msg: this.message, });
+      // commit
+      await this.t.commit();
+      return true;
+    } else {
+      // rollback
+      await this.t.rollback();
+      return false;
     }
   }
 
   // Response handler
-  async response() {
-    if (this.state) {
-      await writeLog(this.req, this.t, { msg: this.message });
-      await this.t.commit();
-      return { success: true, message: this.message };
-    } else {
-      await this.t.rollback();
-      return { success: false, message: this.message };
-    }
-  }
+  // async response() {
+  //   if (this.state) {
+  //     await writeLog(this.req, this.t, { msg: this.message });
+  //     await this.t.commit();
+  //     return { success: true, message: this.message };
+  //   } else {
+  //     await this.t.rollback();
+  //     return { success: false, message: this.message };
+  //   }
+  // }
 }
 
 module.exports = Model_cud;

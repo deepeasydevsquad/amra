@@ -5,9 +5,11 @@ import EditIcon from '@/components/User/Modules/JenisMobil/Icon/EditIcon.vue'
 
 // import element
 import DangerButton from '@/components/User/Modules/JenisMobil/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/JenisMobil/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/JenisMobil/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/JenisMobil/Particle/Confirmation.vue'
+
+import LightButton from "@/components/Button/LightButton.vue"
+import Pagination from '@/components/Pagination/Pagination.vue'
 
 // Import service API
 import { daftarJenisMobil, addJenisMobil, editJenisMobil, deleteJenisMobil } from "../../../../service/jenis_mobil"; // Import function POST
@@ -42,16 +44,6 @@ const pageNow = (page : number) => {
 const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
 });
-
-// // Hitung total halaman
-//const totalPages = computed(() => Math.ceil(searchJenisMobil.value.length / itemsPerPage));
-// const apiUrl = 'http://localhost:3001/daftar_mobil';
-// const accessToken = localStorage.getItem('access_token');
-// const headers = accessToken ? { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
-// const apiClient = axios.create({
-//   baseURL: apiUrl,
-//   headers,
-// });
 
 interface JenisMobil {
   id: number;
@@ -218,9 +210,9 @@ const deleteData = async (id: number) => {
               <td class="px-6 py-4 text-center">{{ mobil.name }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
-                  <EditButton @click="openModal(mobil)">
+                  <LightButton @click="openModal(mobil)">
                     <EditIcon></EditIcon>
-                  </EditButton>
+                  </LightButton>
                   <DangerButton @click="deleteData(mobil.id)">
                     <DeleteIcon></DeleteIcon>
                   </DangerButton>
@@ -233,49 +225,15 @@ const deleteData = async (id: number) => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <tr>
-            <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
-              <nav class="flex mt-0">
-                <ul class="inline-flex items-center -space-x-px">
-                  <!-- Tombol Previous -->
-                  <li>
-                    <button
-                      @click="prevPage"
-                      :disabled="currentPage === 1"
-                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg
-                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                  </li>
-                  <!-- Nomor Halaman -->
-                  <li v-for="page in pages" :key="page">
-                    <button
-                      @click="pageNow(page)"
-                      class="px-3 py-2 leading-tight border"
-                      :class="currentPage === page
-                        ? 'text-white bg-[#3a477d] border-[#3a477d]'
-                        : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'"
-                    >
-                      {{ page }}
-                    </button>
-                  </li>
-
-                  <!-- Tombol Next -->
-                  <li>
-                    <button
-                      @click="nextPage"
-                      :disabled="currentPage === totalPages"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg
-                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </td>
-          </tr>
+          <Pagination
+              :current-page="currentPage"
+              :total-pages="totalPages"
+              :pages="pages"
+              :total-columns="totalColumns"
+              @prev-page="prevPage"
+              @next-page="nextPage"
+              @page-now="pageNow"
+            />
         </tfoot>
       </table>
     </div>

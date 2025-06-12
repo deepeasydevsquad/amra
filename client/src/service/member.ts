@@ -10,6 +10,17 @@ export const daftarLevelAgen = async () => {
   }
 }
 
+export const daftarUpline = async (param: any) => {
+   try {
+    const { data } = await api.post('/member/daftar-upline', param)
+    return data
+  } catch (error) {
+    console.log('gagal mengambil info daftar upline:', error)
+    throw error
+  }
+}
+//
+
 export const getInfoEditMember = async ( param : any ) => {
   try {
     const { data } = await api.post('/member/infoEditMember', param )
@@ -38,7 +49,7 @@ export const getMember = async (id:number) => {
     console.error("Gagal mengambil asuransi:", error);
     throw error;
   }
-};
+}
 
 export const addMember = async (param: any) => {
   try {
@@ -95,6 +106,16 @@ export const daftarCabang = async () => {
     return data
   } catch (error) {
     console.log('gagal mengambiltype:', error)
+    throw error
+  }
+}
+
+export const makeAnAgen = async (param: any) => {
+  try {
+    const { data } = await api.post('/member/make-an-agen', param )
+    return data
+  } catch (error) {
+    console.log('gagal menambahkan data:', error)
     throw error
   }
 }

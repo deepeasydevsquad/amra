@@ -5,9 +5,11 @@ import EditIcon from '@/components/User/Modules/Airlines/Icon/EditIcon.vue'
 
 // import element
 import DangerButton from '@/components/User/Modules/Airlines/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/Airlines/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/Airlines/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/Airlines/Particle/Confirmation.vue'
+
+import LightButton from "@/components/Button/LightButton.vue"
+import Pagination from '@/components/Pagination/Pagination.vue'
 
 // Import service API
 import { daftarBandara, addBandara, editBandara, deleteBandara } from '@/service/daftar_bandara'; // Import function POST
@@ -208,9 +210,9 @@ const deleteData = async (id: number) => {
               <td class="px-6 py-4 text-center">{{ bandara.name }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
-                  <EditButton @click="openModal(bandara)">
+                  <LightButton @click="openModal(bandara)">
                     <EditIcon></EditIcon>
-                  </EditButton>
+                  </LightButton>
                   <DangerButton @click="deleteData(bandara.id)">
                     <DeleteIcon></DeleteIcon>
                   </DangerButton>
@@ -223,56 +225,18 @@ const deleteData = async (id: number) => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <tr>
-            <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
-              <nav class="flex mt-0">
-                <ul class="inline-flex items-center -space-x-px">
-                  <!-- Tombol Previous -->
-                  <li>
-                    <button
-                      @click="prevPage"
-                      :disabled="currentPage === 1"
-                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg
-                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                  </li>
-                  <!-- Nomor Halaman -->
-                  <li v-for="page in pages" :key="page">
-                    <button
-                      @click="pageNow(page)"
-                      class="px-3 py-2 leading-tight border"
-                      :class="currentPage === page
-                        ? 'text-white bg-[#3a477d] border-[#3a477d]'
-                        : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'"
-                    >
-                      {{ page }}
-                    </button>
-                  </li>
-
-                  <!-- Tombol Next -->
-                  <li>
-                    <button
-                      @click="nextPage"
-                      :disabled="currentPage === totalPages"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg
-                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </td>
-          </tr>
+          <Pagination
+              :current-page="currentPage"
+              :total-pages="totalPages"
+              :pages="pages"
+              :total-columns="totalColumns"
+              @prev-page="prevPage"
+              @next-page="nextPage"
+              @page-now="pageNow"
+            />
         </tfoot>
       </table>
     </div>
-
-
-
-
     <!-- Modal Form -->
     <Transition
       enter-active-class="transition duration-200 ease-out"

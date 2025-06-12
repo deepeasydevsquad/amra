@@ -1,5 +1,6 @@
 const { 
   sequelize,
+  Op,
   Sequelize,
   Company,
   Division,
@@ -14,6 +15,7 @@ const {
   Deposit,
   Handover_fasilitas,
   Handover_fasilitas_detail,
+  Handover_barang,
   Jurnal,
   } = require("../../../models");
 const Model_r = require("../models/model_r");
@@ -147,7 +149,7 @@ class Model_cud {
       
       invoice = lettersPart + numbersPart;
       
-      const inHandover = await Handover_fasilitas.findOne({
+      const inHandoverFasilitas = await Handover_fasilitas.findOne({
         where: { invoice },
         include: [{
           model: Tabungan,
@@ -157,7 +159,24 @@ class Model_cud {
           }],
         }],
       });
-      exists = inHandover;
+
+      const inHandoverBarang = await Handover_barang.findOne({
+        where: {
+          [Op.or]: [
+            { invoice_handover: invoice },
+            { invoice_returned: invoice },
+          ],
+        },
+        include: [{
+          model: Tabungan,
+          include: [{
+            model: Division,
+            where: { company_id: this.company_id },
+          }],
+        }],
+      });
+
+      exists = inHandoverFasilitas || inHandoverBarang;
     } while (exists);
     return invoice;
   }
@@ -455,25 +474,21 @@ class Model_cud {
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
 
     try {
-      const tabungan = await Tabungan.findOne({
-        where: { id: body.id },
-        transaction: this.t,
-      });
-
-      if (!tabungan) throw new Error(`Data tabungan id: ${body.id} tidak ditemukan.`);
+      const tabungan = await Tabungan.findOne({ where: { id: body.id, division_id: this.division_id } });
 
       await tabungan.update({
         target_paket_id: body.target_id,
         updatedAt: dateNow,
       }, { transaction: this.t });
 
+      this.message = `Mengupdate target paket tabungan id: ${body.id} dengan target paket id: ${body.target_id}`;
     } catch (error) {
       this.state = false;
       this.message = error.message || "Terjadi kesalahan saat mengupdate data tabungan.";
     }
   }
 
-  // ==== ADD HANDOVER FASILITAS ====
+  // ==== SERAH TERIMA FASILITAS ====
   async addHandoverFasilitas() {
     await this.initialize();
     const body = this.req.body;
@@ -519,6 +534,101 @@ class Model_cud {
       this.message = error.message || "Terjadi kesalahan saat menambahkan handover fasilitas.";
     }
   }
+
+  // === SERAH TERIMA BARANG ===
+  async addHandoverBarang() {
+    await this.initialize();
+    const body = this.req.body;
+    const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+
+    try {
+      // call object
+      const model_r = new Model_r(this.req);
+      // get info tabungan
+      const infoTabungan = await model_r.infoTabungan(body.id, this.division_id);
+      const penerima = await this.penerima();
+      const invoice_handover = await this.generateInvoiceHandover();
+
+      const dataBarangList = body.barangList.map(barang => ({
+        tabungan_id: body.id,
+        invoice_handover: invoice_handover,
+        jamaah_id: infoTabungan.jamaah.id,
+        nama_barang: barang,
+        status: 'diambil',  
+        giver_handover: body.giver_handover,
+        giver_handover_identity: body.giver_handover_identity,
+        giver_handover_hp: body.giver_handover_hp,
+        giver_handover_address: body.giver_handover_address,
+        receiver_handover: penerima,
+        date_taken: dateNow,
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      }));
+      await Handover_barang.bulkCreate(dataBarangList, { transaction: this.t });
+
+      this.message = `Handover barang berhasil ditambahkan untuk tabungan dengan nama jamaah ${infoTabungan.jamaah.fullname} dan invoice: ${invoice_handover}`;
+      return invoice_handover;
+    } catch (error) {
+      this.state = false;
+      this.message = error.message || "Terjadi kesalahan saat menambahkan handover barang.";
+      console.log("================ Add Handover Barang ================");
+      console.log(error)
+      console.log("================ Add Handover Barang ================");
+    }
+  }
+
+  // === PENGEMBALIAN BARANG ===
+  async pengembalianHandoverBarang() {
+    await this.initialize();
+    const body = this.req.body;
+    const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+
+    try {
+      // call object
+      const model_r = new Model_r(this.req);
+      // get info tabungan
+      const infoTabungan = await model_r.infoTabungan(body.id, this.division_id);
+      const penerima = await this.penerima();
+      const invoice_returned = await this.generateInvoiceHandover();
+
+      const dataBarangList = body.selectedItems.map(barangId => ({
+        where: {
+          id: barangId,
+          tabungan_id: body.id,
+        },
+        updates: {
+          invoice_returned: invoice_returned,
+          giver_returned: penerima,
+          receiver_returned: body.receiver_returned,
+          receiver_returned_identity: body.receiver_returned_identity,
+          receiver_returned_hp: body.receiver_returned_hp,
+          receiver_returned_address: body.receiver_returned_address,
+          status: 'dikembalikan',
+          date_returned: dateNow,
+          updatedAt: dateNow,
+        },
+      }));
+      for (const barang of dataBarangList) {
+        await Handover_barang.update(
+          barang.updates,
+          {
+            where: barang.where,
+            transaction: this.t,
+          }
+        );
+      }
+
+      this.message = `Pengembalian barang berhasil ditambahkan untuk tabungan dengan nama jamaah ${infoTabungan.jamaah.fullname} dan invoice: ${invoice_returned}`;
+      return invoice_returned;      
+    } catch (error) {
+      this.state = false;
+      this.message = error.message || "Terjadi kesalahan saat menambahkan PengembalianHandoverBarang.";
+      console.log("================ PengembalianHandoverBarang ================");
+      console.log(error)
+      console.log("================ PengembalianHandoverBarang ================");
+    }
+  }
+
 
   // ==== DELETE ====
   async delete() {
