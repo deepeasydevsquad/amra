@@ -43,9 +43,11 @@
             >
               CANCEL
             </button>
-            <PrimaryButton type="submit" @click="handleSubmit"
-              ><IconPlus></IconPlus>{{ submitLabel }}</PrimaryButton
-            >
+            <!-- Tambahkan pengecekan submitLabel -->
+            <PrimaryButton v-if="submitLabel" type="submit" @click="handleSubmit">
+              <IconPlus></IconPlus>
+              {{ submitLabel }}
+            </PrimaryButton>
           </div>
         </div>
       </div>

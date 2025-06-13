@@ -96,6 +96,7 @@ const arr_router = [
   "pengaturan_pesan_whatsapp",
   "transaksi_visa",
   "pesan_whatsapp",
+  "pembayaran_fee_agen",
 ];
 
 const arr = {};
