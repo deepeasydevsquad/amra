@@ -209,7 +209,7 @@ class Model_r {
     const search = body.search || "";
     const filter = body.filter || "belum_beli_paket";
 
-    let where = { division_id: this.division_id, status: "active" };
+    let where = { division_id: this.division_id };
 
     if (filter === "belum_beli_paket") {
       where = { ...where, paket_transaction_id: null, batal_berangkat: "tidak" };
