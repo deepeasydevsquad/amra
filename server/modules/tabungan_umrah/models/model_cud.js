@@ -660,21 +660,28 @@ class Model_cud {
       const penerima = await this.penerima();
       let invoiceSet = new Set();
 
-      let invoiceDeposit, invoiceRiwayatTabungan, invoicePaketTransactionPaymentHistory;
+      let invoiceDepositReturned, invoiceDeposit, invoiceRiwayatTabungan, invoicePaketTransactionPaymentHistory;
 
       do {
         invoiceDeposit = await this.generateInvoice();
+        if (invoiceSet.has(invoiceDeposit)) continue;
         invoiceSet.add(invoiceDeposit);
 
         invoiceRiwayatTabungan = body.id ? await this.generateInvoice() : null;
-        if (invoiceRiwayatTabungan && invoiceSet.has(invoiceRiwayatTabungan)) continue;
-        if (invoiceRiwayatTabungan) invoiceSet.add(invoiceRiwayatTabungan);
+        if (invoiceRiwayatTabungan) {
+          if (invoiceSet.has(invoiceRiwayatTabungan)) continue;
+          invoiceSet.add(invoiceRiwayatTabungan);
+        }
 
         invoicePaketTransactionPaymentHistory = await this.generateInvoice();
         if (invoiceSet.has(invoicePaketTransactionPaymentHistory)) continue;
         invoiceSet.add(invoicePaketTransactionPaymentHistory);
 
-        // selesai jika semua unik
+        invoiceDepositReturned = await this.generateInvoice();
+        if (invoiceSet.has(invoiceDepositReturned)) continue;
+        invoiceSet.add(invoiceDepositReturned);
+
+        // Jika semua invoice unik, keluar dari loop
         break;
       } while (true);
 
@@ -814,14 +821,14 @@ class Model_cud {
 
       if (sisaPembelian > 0) {
         await Riwayat_tabungan.create({
-          invoice: invoiceRiwayatTabungan,
+          invoice: invoiceDepositReturned,
           tabungan_id: body.id,
           nominal_tabungan: -sisaPembelian,
           penerima: penerima,
           sumber_dana: "deposit",
           saldo_tabungan_sebelum: riwayatTabungan.saldo_tabungan_sesudah - harga,
           saldo_tabungan_sesudah: 0,
-          info_tabungan: `Sisa pembelian paket pada tabungan (invoice: ${invoiceRiwayatTabungan})`,
+          info_tabungan: `Sisa pembelian paket pada tabungan (invoice: ${invoiceDepositReturned})`,
           createdAt: dateNow,
           updatedAt: dateNow,
         }, { transaction: this.t });
