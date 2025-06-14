@@ -8,97 +8,96 @@
       <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-0 ">
             <!-- Ticket Rows -->
             <div class="space-y-4">
-            <div v-for="(ticket, index) in form.tickets" :key="index" class="grid grid-cols-1 md:grid-cols-6 gap-2 border p-4 rounded-md shadow-sm">
-                <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
-                   <!-- Aksi -->
-                  <DangerButton @click="removeTicket(index)" class="p-2 "><DeleteIcon /></DangerButton>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
-                  <!-- Pax -->
-                  <InputText v-model.number="ticket.pax" label="Pax" id="pax" placeholder="Pax" :error="errors.tickets?.[index]?.pax" />
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
-                   <!-- Maskapai -->
-                  <SelectField v-model="ticket.maskapai" id="maskapai" label="Maskapai" placeholder="Pilih Maskapai" :options="maskapaiList" :error="errors.tickets?.[index]?.maskapai" />
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
-                  <!-- Code Booking -->
-                  <InputText v-model="ticket.code_booking" label="Kode Booking" id="code_booking" placeholder="Kode Booking" :error="errors.tickets?.[index]?.code_booking" />
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
-                <!-- Departure Date -->
-                  <InputDate v-model="ticket.departure_date" id="departure_date" label="Tanggal Berangkat" :error="errors.tickets?.[index]?.departure_date" />
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
-                  <!-- Travel Price -->
-                  <InputText v-model.number="ticket.travel_price" label="Harga Travel" id="travel_price" placeholder="Harga Travel" :error="errors.tickets?.[index]?.travel_price" />
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
-                  <!-- Customer Price -->
-                  <InputText v-model.number="ticket.customer_price" label="Harga Customer" id="customer_price" placeholder="Harga Customer" :error="errors.tickets?.[index]?.customer_price" />
-                </div>
-                <div class="flex flex-col">
-  <label for="total" class="text-sm font-medium text-gray-700 mb-1">Total</label>
-  <div id="total" class="bg-gray-100 text-gray-800 px-3 py-2 rounded border border-gray-300">
-    {{ formatRupiah(ticket.customer_price * ticket.pax) }}
-  </div>
-</div>
-                
-            </div>
-
-            <!-- Add Ticket Button -->
-            <div class="flex justify-end">
-                <button type="button" @click="addTicket" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                + Tambah Tiket
-                </button>
-            </div>
-            <!-- Nomor Invoice -->
-            <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 text-right">
-              <div class="text-red-600 font-bold text-lg">
-                NO INVOICE: #{{ form.invoice }}
+              <div v-for="(ticket, index) in form.tickets" :key="index" class="grid grid-cols-1 md:grid-cols-8 gap-2 border p-4 rounded-md shadow-sm">
+                  <!-- <span class="text-black">{{ ticket.maskapai }}</span> -->
+                  <div class="grid grid-cols-1 md:grid-cols-1 gap-1 mb-6 ">
+                    <!-- Aksi -->
+                    <DangerButton @click="removeTicket(index)" class="p-2 "><DeleteIcon /></DangerButton>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
+                    <!-- Pax -->
+                    <InputText v-model.number="ticket.pax" label="Pax" id="pax" placeholder="Pax" :error="errors.tickets?.[index]?.pax" />
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
+                    <!-- Maskapai -->
+                    <SelectField v-model="ticket.maskapai" id="maskapai" label="Maskapai" placeholder="Pilih Maskapai" :options="maskapaiList" :error="errors.tickets?.[index]?.maskapai" />
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
+                    <!-- Code Booking -->
+                    <InputText v-model="ticket.code_booking" label="Kode Booking" id="code_booking" placeholder="Kode Booking" :error="errors.tickets?.[index]?.code_booking" />
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
+                  <!-- Departure Date -->
+                    <InputDate v-model="ticket.departure_date" id="departure_date" label="Tanggal Berangkat" :error="errors.tickets?.[index]?.departure_date" />
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
+                    <!-- Travel Price -->
+                    <InputText v-model.number="ticket.travel_price" label="Harga Travel" id="travel_price" placeholder="Harga Travel" :error="errors.tickets?.[index]?.travel_price" />
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
+                    <!-- Customer Price -->
+                    <InputText v-model.number="ticket.customer_price" label="Harga Customer" id="customer_price" placeholder="Harga Customer" :error="errors.tickets?.[index]?.customer_price" />
+                  </div>
+                  <div class="flex flex-col">
+                    <label for="total" class="text-sm font-medium text-gray-700 mb-1">Total</label>
+                    <div id="total" class="bg-gray-100 text-gray-800 px-3 py-2 rounded border border-gray-300">
+                      {{ formatRupiah(ticket.customer_price * ticket.pax) }}
+                    </div>
+                  </div>
               </div>
-            </div>
-            <!-- Customer Data -->
-            <div class="mt-6 border-t pt-4">
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <InputText
-                    v-model="form.customer.costumer_name"
-                    :error="errors.costumer_name"
-                    id="costumer_name"
-                    label="Nama Pelanggan"
-                    placeholder="Nama Pelanggan"
-                  />
+              <!-- Add Ticket Button -->
+              <div class="flex justify-end">
+                  <button type="button" @click="addTicket" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                  + Tambah Tiket
+                  </button>
+              </div>
+              <!-- Nomor Invoice -->
+              <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 text-right">
+                <div class="text-red-600 font-bold text-lg">
+                  NO INVOICE: #{{ form.invoice }}
                 </div>
-                <div>
-                  <InputText
-                    v-model="form.customer.costumer_identity"
-                    :error="errors.costumer_identity"
-                    id="costumer_identity"
-                    label="Nomor Identitas Pelanggan"
-                    placeholder="Nomor Identitas Pelanggan"
-                  />
-                </div>
-                <div>
-                  <InputText
-                    v-model.number="form.customer.dibayar"
-                    :error="errors.dibayar"
-                    id="dibayar"
-                    label="Dibayar"
-                    placeholder="Dibayar"
-                  />
-                </div>
-                <div class="flex flex-col">
-                  <label for="sisa" class="text-sm font-medium text-gray-700 mb-1">Sisa</label>
-                  <div id="sisa" class="bg-gray-100 text-gray-800 px-3 py-2 rounded border border-gray-300">
-                    {{ formatRupiah(calculateSisa) }}
+              </div>
+              <!-- Customer Data -->
+              <div class="mt-6 border-t pt-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <InputText
+                      v-model="form.customer.costumer_name"
+                      :error="errors.costumer_name"
+                      id="costumer_name"
+                      label="Nama Pelanggan"
+                      placeholder="Nama Pelanggan"
+                    />
+                  </div>
+                  <div>
+                    <InputText
+                      v-model="form.customer.costumer_identity"
+                      :error="errors.costumer_identity"
+                      id="costumer_identity"
+                      label="Nomor Identitas Pelanggan"
+                      placeholder="Nomor Identitas Pelanggan"
+                    />
+                  </div>
+                  <div>
+                    <InputText
+                      v-model.number="form.customer.dibayar"
+                      :error="errors.dibayar"
+                      id="dibayar"
+                      label="Dibayar"
+                      placeholder="Dibayar"
+                    />
+                  </div>
+                  <div class="flex flex-col">
+                    <label for="sisa" class="text-sm font-medium text-gray-700 mb-1">Sisa</label>
+                    <div id="sisa" class="bg-gray-100 text-gray-800 px-3 py-2 rounded border border-gray-300">
+                      {{ formatRupiah(calculateSisa) }}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            </div>
       </div>
-      
+
     </Form>
 </template>
 
@@ -143,7 +142,7 @@ interface CustomerForm {
       costumer_identity: string;
       dibayar: number;
 }
- 
+
 interface ErrorFields {
   costumer_name?: string;
   costumer_identity?: string;
@@ -172,7 +171,7 @@ interface FormData {
     customer: CustomerForm;
     nomor_register: string;
     invoice: string;
-    
+
 }
 const emit = defineEmits<{
     (e: 'save', data: FormData): void
@@ -204,7 +203,7 @@ function handleCancel() {
   emit('cancel')
     errors.value = {
       costumer_name: '',
-      
+
     };
 }
 // Function to create a blank ticket row
@@ -366,10 +365,10 @@ const handleSubmit = async (): Promise<void> => {
       for (let pair of transactionData.entries()) {
         console.log(pair[0]+ ': ' + pair[1]);
       }
-     
+
       const response = await add_tiket(transactionData)
       emit('submitted')
-      
+
     } catch (error) {
       console.error('Gagal menyimpan data member:', error)
     }
