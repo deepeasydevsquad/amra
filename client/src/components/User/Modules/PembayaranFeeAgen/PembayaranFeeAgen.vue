@@ -419,7 +419,13 @@ const cetak_invoice = (invoice: string) => {
           <p class="font-medium text-gray-700">{{ fee.info }}</p>
           <p class="text-sm text-gray-500">{{ fee.nominal }}</p>
         </div>
-        <input type="checkbox" :value="fee.id" v-model="selectedFees" class="w-4 h-4" />
+
+        <input
+          type="checkbox"
+          class="w-5 h-5 border-gray-300 text-gray-600 rounded focus:ring-gray-500"
+          v-model="selectedFees"
+          :value="fee.id"
+        />
       </div>
 
       <div class="mt-4 text-right font-bold text-lg text-gray-700">
