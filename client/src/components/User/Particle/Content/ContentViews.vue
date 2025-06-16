@@ -40,6 +40,7 @@ import Investor from '../../Modules/Investor/Investor.vue'
 import DaftarPaket from '../../Modules/DaftarPaket/DaftarPaket.vue'
 import TabunganUmrah from '../../Modules/TabunganUmrah/TabunganUmrah.vue'
 import RiwayatPeminjaman from '../../Modules/RiwayatPeminjaman/RiwayatPeminjaman.vue'
+import TransTiket from '../../Modules/TransTiket/TransTiket.vue'
 import DaftarSuratMenyurat from '../../Modules/DaftarSuratMenyurat/DaftarSuratMenyurat.vue'
 import BukuBesar from '../../Modules/BukuBesar/BukuBesar.vue'
 import NeracaLajur from '../../Modules/NeracaLajur/NeracaLajur.vue'
@@ -48,10 +49,13 @@ import Neraca from '../../Modules/Neraca/Neraca.vue'
 import PengaturanPerangkanWhatsap from '../../Modules/PengaturanPerangkatWhatsapp/PengaturanPerangkanWhatsap.vue'
 import TemplatePesanWhatsapp from '../../Modules/TemplatePesanWhatsapp/TemplatePesanWhatsapp.vue'
 import TransaksiVisa from '../../Modules/TransaksiVisa/TransaksiVisa.vue'
+import PesanWhatsapp from '../../Modules/PesanWhatsapp/PesanWhatsapp.vue'
+import PembayaranFeeAgen from '../../Modules/PembayaranFeeAgen/PembayaranFeeAgen.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
   trans_paket: TransPaket,
+  trans_tiket: TransTiket,
   daftar_kota: DaftarKota,
   daftar_fasilitas: DaftarFasilitas,
   daftar_mobil: JenisMobil,
@@ -89,7 +93,9 @@ const tabComponents = {
   neraca: Neraca,
   pengaturan_perangkat_whatsapp: PengaturanPerangkanWhatsap,
   template_pesan_whatsapp: TemplatePesanWhatsapp,
-  trans_visa: TransaksiVisa
+  trans_visa: TransaksiVisa,
+  pesan_whatsapp: PesanWhatsapp,
+  pembayaran_fee_agen: PembayaranFeeAgen,
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click

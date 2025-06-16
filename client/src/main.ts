@@ -2,6 +2,9 @@ import './assets/css/satoshi.css'
 import './assets/css/style.css'
 import 'flowbite'
 
+import PrimeVue from 'primevue/config'
+import 'primeicons/primeicons.css'
+import Aura from '@primeuix/themes/aura';
 import { createPinia } from 'pinia'
 import VueApexCharts from 'vue3-apexcharts'
 import { createApp } from 'vue'
@@ -38,5 +41,10 @@ app.use(VueApexCharts)
 // app.use(rupiahPlugin)
 app.use(head);
 // app.use(createMetaManager());
+app.use(PrimeVue, {
+  theme: {
+      preset: Aura
+  }
+});
 
 app.mount('#app')

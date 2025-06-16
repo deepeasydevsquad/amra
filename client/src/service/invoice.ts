@@ -101,3 +101,15 @@ export const cetakKwitansiVisa = async (invoice: string) => {
     throw error;
   }
 };
+
+export const kwitansi_pembayaran_fee_agen = async (param: string) => {
+  try {
+    console.log("Param:", param);
+    const response = await api.get(`/invoice/pembayaran-fee-agen/${param}`); // Kirim data melewait URL
+    console.log("Response data:", response.data); // Debugging log
+    return response.data; // Kembalikan data hasil request
+  } catch (error) {
+    console.log("Gagal mengambil kwitansi pengembalian barang:", error);
+    throw error;
+  }
+}

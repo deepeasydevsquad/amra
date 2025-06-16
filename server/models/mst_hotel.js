@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
       Mst_hotel.belongsTo(models.Mst_kota, {
         foreignKey: "kota_id",
       });
+      Mst_hotel.hasMany(models.Hotel_transaction_detail, {
+        foreignKey: "mst_hotel_id",
+        onDelete: 'CASCADE',
+      });
     }
   }
   Mst_hotel.init({

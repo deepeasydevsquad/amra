@@ -17,6 +17,9 @@ module.exports = {
         },
         onDelete: 'CASCADE',
       },
+      nominal: {
+         type: Sequelize.STRING
+      },
       invoice: {
         type: Sequelize.STRING
       },

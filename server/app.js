@@ -85,6 +85,7 @@ const arr_router = [
   "jurnal",
   "tabungan_umrah",
   "riwayat_peminjaman",
+  "trans_tiket",
   "investor",
   "param_cabang",
   "daftar_konfigurasi_surat_menyurat",
@@ -95,6 +96,8 @@ const arr_router = [
   "template_whatsapp",
   "pengaturan_pesan_whatsapp",
   "transaksi_visa",
+  "pesan_whatsapp",
+  "pembayaran_fee_agen",
 ];
 
 const arr = {};
