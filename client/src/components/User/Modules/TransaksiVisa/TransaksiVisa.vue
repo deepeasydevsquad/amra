@@ -204,6 +204,12 @@ const handleConfirm = () => {
   showConfirmDialog.value = false;
 };
 
+const openCetakKwitansi = (invoice: string) => {
+  console.log('Invoice to print:', invoice); // TAMBAHKAN INI
+  const url = `/cetak-kwitansi-visa/${invoice}`;
+  window.open(url, '_blank');
+};
+
 const handleCancelConfirm = () => {
   showConfirmDialog.value = false;
 };
@@ -282,7 +288,7 @@ const openFormCetakDataJamaah = (item: any) => {
             <td class="px-6 py-4 text-center">Rp. {{ item.price.toLocaleString() }}</td>
             <td class="px-6 py-2 text-xs text-center">{{ new Date(item.createdAt).toLocaleDateString('id-ID') }}</td>
             <td class="px-6 py-4 flex items-center justify-center gap-2">
-              <LightButton title="Cetak Data Jamaah" @click="openFormCetakDataJamaah(item)">
+              <LightButton title="Cetak Kwitansi" @click="openCetakKwitansi(item.invoice)">
                 <CetakIcon class="h-4 w-4 text-gray-600" />
               </LightButton>
 

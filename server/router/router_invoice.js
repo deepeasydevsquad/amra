@@ -67,6 +67,12 @@ router.get(
 );
 
 router.get(
+  "/invoice/kwitansi-visa/:invoice",
+  authenticateToken,
+  controller.kwitansi_visa
+);
+
+router.get(
   "/invoice/pembayaran-fee-agen/:invoice",
   authenticateToken,
   controller.kwitansi_pembayaran_fee_agen

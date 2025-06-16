@@ -86,6 +86,21 @@ export const getKwitansiPengembalianBarang = async (param: string) => {
   }
 }
 
+export const cetakKwitansiVisa = async (invoice: string) => {
+  try {
+    if (!invoice || invoice === 'undefined' || invoice === 'null') {
+      throw new Error('Invoice tidak valid atau kosong.');
+    }
+    const encodedInvoice = encodeURIComponent(invoice);
+    const url = `/invoice/kwitansi-visa/${encodedInvoice}`;
+    const response = await api.get(url);
+  
+    return response.data;
+  } catch (error) {
+    console.error('[SERVICE ERROR] Gagal saat mencetak kwitansi visa:', error);
+    throw error;
+  }
+};
 
 export const kwitansi_pembayaran_fee_agen = async (param: string) => {
   try {

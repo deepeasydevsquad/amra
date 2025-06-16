@@ -15,6 +15,7 @@ import CetakDataJamaah from '@/components/User/Modules/TabunganUmrah/Widget/Ceta
 import KwitansiHandoverBarang from '@/components/User/Modules/Invoice/KwitansiHandoverBarang.vue'
 import KwitansiPengembalianBarang from '@/components/User/Modules/Invoice/KwitansiPengembalianBarang.vue'
 import TransaksiVisa from '@/components/User/Modules/TransaksiVisa/TransaksiVisa.vue'
+import CetakKwitansiVisa from '@/components/User/Modules/Invoice/InvoiceTransaksiVisa.vue'
 import InvoicePembayaranFeeAgen from '@/components/User/Modules/Invoice/InvoicePembayaranFeeAgen.vue'
 
 const router = createRouter({
@@ -108,6 +109,11 @@ const router = createRouter({
       path: '/transaksi-visa',
       name: 'transaksi-visa',
       component: TransaksiVisa,
+    },
+    {
+      path: '/cetak-kwitansi-visa/:invoice',
+      name: 'cetak-kwitansi-visa',
+      component: CetakKwitansiVisa,
     },
     {
       path: '/kwitansi-pembayaran-fee-agen/:invoice',
