@@ -2,6 +2,8 @@ const {
     Op,
     Jamaah,
     Paket,
+    Paket_price,
+    Mst_paket_type,
     Mst_fasilitas,
     Member,
     Tabungan,
@@ -43,13 +45,64 @@ validation.check_sumber_dana = async ( value, { req } ) => {
     }
 }
 
-validation.check_id_jamaah = async ( value,  { req } ) => {
+validation.check_id_jamaah = async (value, { req }) => {
     try {
         const division_id = await getCabang(req);
-        var check = await Jamaah.findOne({where: { id : value, division_id : division_id }});
-        if (!check) {
+        const jamaah = await Jamaah.findOne({ where: { id: value, division_id }, attributes: ["id"] });
+        if (!jamaah) {
             console.debug(`ID Jamaah tidak terdaftar di pangkalan data`);
             throw new Error("ID Jamaah tidak terdaftar di pangkalan data");
+        }
+
+        const tabunganAktif = await Tabungan.findOne({
+            where: {
+                status: "active",
+                division_id,
+                jamaah_id: value,
+            },
+            attributes: ["id"],
+            raw: true,
+        });
+
+        if (tabunganAktif) {
+            throw new Error("Jamaah ini memiliki tabungan yang aktif");
+        }
+
+        return true;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+};
+
+validation.check_id_target_paket = async (value, { req }) => {
+    try {
+        const division_id = await getCabang(req);
+        console.log(value);
+
+        const paket = await Paket.findOne({ where: { id: value, division_id }, attributes: ["id"] });
+        if (!paket) {
+            console.debug(`ID Target Paket tidak terdaftar di pangkalan data`);
+            throw new Error("ID Target Paket tidak terdaftar di pangkalan data");
+        }
+
+        // Hitung jumlah jamaah yang sudah mengambil paket ini
+        const jumlahJamaah = await Tabungan.count({
+            where: { target_paket_id: value },
+        });
+
+        if (paket.quota_jamaah - jumlahJamaah <= 0) {
+            console.debug("Kuota jamaah paket sudah penuh");
+            throw new Error("Kuota jamaah paket sudah penuh");
+        }
+
+        // Cek apakah paket sudah diberangkatkan
+        const today = new Date().setHours(0, 0, 0, 0);
+        const departureDate = new Date(paket.departure_date).setHours(0, 0, 0, 0);
+
+        if (departureDate <= today) {
+            console.debug("Paket sudah diberangkatkan");
+            throw new Error("Paket sudah diberangkatkan");
         }
         return true;
     } catch (error) {
@@ -58,41 +111,55 @@ validation.check_id_jamaah = async ( value,  { req } ) => {
     }
 }
 
-validation.check_id_target_paket = async (value, { req }) => {
+validation.check_id_paket = async (value, { req }) => {
     try {
         const body = req.body;
+        const division_id = await getCabang(req);
+        const isUpdate = !!body.id; // TRUE kalau update, FALSE kalau add
 
-        // Cek dulu apakah sudah ada handover berdasarkan tabungan_id
-        const sudahHandover = await Handover_fasilitas.findOne({
-            where: {
-                tabungan_id: body.id,
-            },
-        });
+        // Jika proses update, cek apakah sudah pernah handover
+        if (isUpdate) {
+            const sudahHandover = await Handover_fasilitas.findOne({
+                where: { tabungan_id: body.id },
+            });
 
-        if (sudahHandover) {
-            console.debug(`Paket sudah pernah dihandover, update target ditolak`);
-            throw new Error(`Paket sudah pernah dihandover, update target ditolak`);
+            if (sudahHandover) {
+                console.debug("Paket sudah pernah dihandover, update target ditolak");
+                throw new Error("Paket sudah pernah dihandover, update target ditolak");
+            }
         }
 
-        if (value === null || value === undefined) {
+        // Jika tidak memilih paket (null), valid
+        if (value === null || value === '') {
             return true;
         }
 
-        const division_id = await getCabang(req);
-        console.debug(`Division ID: ${division_id}`);
+        // Cek apakah paket tersedia dan milik cabang/divisi yang sama
+        const paket = await Paket.findOne({
+            where: { id: value, division_id },
+        });
 
-        // Cek Paket ada dan sesuai division
-        const check = await Paket.findOne({ where: { id: value, division_id } });
-        if (!check) {
-            console.debug(`ID Target Paket tidak terdaftar di pangkalan data`);
+        if (!paket) {
+            console.debug("ID Target Paket tidak terdaftar di pangkalan data");
             throw new Error("ID Target Paket tidak terdaftar di pangkalan data");
         }
 
+        // Hitung jumlah jamaah yang sudah mengambil paket ini
+        const jumlahJamaah = await Tabungan.count({
+            where: { target_paket_id: value },
+        });
+
+        if (paket.quota_jamaah - jumlahJamaah <= 0) {
+            console.debug("Kuota jamaah paket sudah penuh");
+            throw new Error("Kuota jamaah paket sudah penuh");
+        }
+
+        // Cek apakah paket sudah diberangkatkan
         const today = new Date().setHours(0, 0, 0, 0);
-        const departureDate = new Date(check.departure_date).setHours(0, 0, 0, 0);
+        const departureDate = new Date(paket.departure_date).setHours(0, 0, 0, 0);
 
         if (departureDate <= today) {
-            console.debug(`Paket sudah diberangkatkan`);
+            console.debug("Paket sudah diberangkatkan");
             throw new Error("Paket sudah diberangkatkan");
         }
 
@@ -101,7 +168,7 @@ validation.check_id_target_paket = async (value, { req }) => {
         console.log(error);
         throw error;
     }
-}
+};
 
 validation.check_saldo_deposit_dan_biaya = async (value, { req }) => {
     try {
@@ -300,5 +367,29 @@ validation.check_id_handover_barang = async (value, { req }) => {
     }
 };
 
-module.exports = validation;
+validation.check_id_tipe_paket = async (value, { req }) => {
+    try {
+        const body = req.body;
+        const tipe_paket = await Paket_price.findAll({
+            where: {
+                paket_id: body.target_paket_id,
+            },
+            include: [{
+                model: Mst_paket_type,
+                attributes: ['id']
+            }]
+        });
 
+        const tipe_paket_ids = tipe_paket.map(tp => tp.Mst_paket_type.id);
+        if (!tipe_paket_ids.includes(parseInt(value))) {
+            throw new Error(`ID Tipe Paket ${value} tidak terdaftar`);
+        }
+        
+        return true;
+    } catch (error) {
+        console.log('[check_tipe_paket]', error);
+        throw error;
+    }
+};
+
+module.exports = validation;

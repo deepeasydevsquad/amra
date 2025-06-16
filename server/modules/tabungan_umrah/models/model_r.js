@@ -6,6 +6,8 @@ const {
   Division,
   Paket,
   Paket_price,
+  Mst_paket_type,
+  Fee_agen,
   Tabungan,
   Jamaah,
   Riwayat_tabungan,
@@ -88,7 +90,13 @@ class Model_r {
   async getAgenDetailById(fee_agen_id) {
     if (!fee_agen_id) return { fullname: "-", level: "-", default_fee: "-" };
 
-    const agen = await getAgenById(fee_agen_id);
+    const feeAgen = await Fee_agen.findOne({
+      where: { id: fee_agen_id },
+      include: [{ model: Agen, attributes: ["id"] }],
+    });
+    const agenId = feeAgen?.Agen?.id;
+
+    const agen = await getAgenById(agenId);
     return {
       fullname: agen?.Member?.fullname || "-",
       level: agen?.Level_keagenan?.name || "-",
@@ -150,6 +158,23 @@ class Model_r {
     return namaFasilitas;
   }
 
+  // Check apakah totalTabungan melebihi price paket
+  async isTabunganCukupUntukPaket(totalTabungan, targetPaketId) {
+    if (!targetPaketId) return false;
+
+    const paket = await Paket.findByPk(targetPaketId, {
+      include: [{
+        model: Paket_price,
+        attributes: ["price"],
+        required: true,
+      }],
+    });
+
+    if (!paket || !paket.Paket_prices || paket.Paket_prices.length === 0) return false;
+    const minHarga = paket.Paket_prices.reduce((min, item) => Math.min(min, item.price), Infinity);
+    return totalTabungan >= minHarga;
+  }
+
   // Fungsi utama
   async transformTabunganItem(e) {
     const member = e.Jamaah?.Member || {};
@@ -165,13 +190,12 @@ class Model_r {
       },
       target_paket_name: await this.getPaketNameById(e.target_paket_id),
       total_tabungan: e.total_tabungan,
+      status_paket: await this.isTabunganCukupUntukPaket(e.total_tabungan, e.target_paket_id),
+      fee_agen_id: e.fee_agen_id || "-",
       agen: await this.getAgenDetailById(e.fee_agen_id),
-      paket_transaction_id: e.paket_transaction_id,
       sisa_pembelian: e.sisa_pembelian,
       riwayat_tabungan: await this.getRiwayatTabungan(e.id),
       riwayat_handover_fasilitas: await this.getRiwayatHandover(e.id),
-      createdAt: moment(e.createdAt).format('YYYY-MM-DD HH:mm:ss'),
-      updatedAt: moment(e.updatedAt).format('YYYY-MM-DD HH:mm:ss'),
     };
   }
 
@@ -235,8 +259,7 @@ class Model_r {
     }
   }
 
-
-  async getJamaahTabunganUmrah () {
+  async getJamaahTabunganUmrah() {
     try {
       await this.initialize();
 
@@ -251,20 +274,36 @@ class Model_r {
         }],
       });
 
+      const tabunganAktif = await Tabungan.findAll({
+        where: {
+          status: "active",
+          division_id: this.division_id,
+        },
+        attributes: ["jamaah_id"],
+        raw: true,
+      });
+
+      const jamaahAktifTabunganIds = new Set(tabunganAktif.map(t => t.jamaah_id));
+      const filtered = jamaah.filter(j => !jamaahAktifTabunganIds.has(j.id));
+
       return {
-        data: jamaah.map(e => ({
+        data: filtered.map(e => ({
           id: e.id,
           agen_id: e.agen_id,
-          name: e.Member.fullname
+          name: e.Member?.fullname || "-",
         })),
-        total: jamaah.length,
+        total: filtered.length,
       };
-
     } catch (error) {
-      console.log("Error in getJamaahTabunganUmrah:", error);
-      return {};
+      console.error("Error in getJamaahTabunganUmrah:", error);
+      return {
+        data: [],
+        total: 0,
+        error: error.message,
+      };
     }
   }
+  
   async getPaketTabunganUmrah () {
     try {
       await this.initialize();
@@ -276,7 +315,7 @@ class Model_r {
             [Op.gte]: moment().format('YYYY-MM-DD'),
           },
         },
-        attributes: ["id", "name", "departure_date"],
+        attributes: ["id", "name", "departure_date", "quota_jamaah"],
       });
 
       const paketPrices = await Paket_price.findAll({
@@ -289,18 +328,25 @@ class Model_r {
       });
 
       if (paket) {
-        data["data"] = paket.map(e => {
+        data["data"] = await Promise.all(paket.map(async e => {
           const hargaSemua = paketPrices
             .filter(p => p.paket_id === e.id)
-            .reduce((total, current) => total + Number(current.price), 0)
+            .reduce((total, current) => total + Number(current.price), 0);
+
+          const countJamaahPaket = await Tabungan.count({
+            where: {
+              target_paket_id: e.id,
+            }
+          });
 
           return {
             id: e.id,
+            kuota_jamaah_tersisa: e.quota_jamaah - (countJamaahPaket || 0),
             name: e.name,
             price: hargaSemua,
             hari_tersisa: moment(e.departure_date).diff(moment(), 'days'),
-          }
-        });
+          };
+        }));
       }
 
       return data;
@@ -745,8 +791,22 @@ class Model_r {
       // call object
       var data = {};
       const infoTabungan = await this.infoTabungan(body.id);
+      const infoPaket = infoTabungan.target_paket_id
+        ? await Paket.findByPk(infoTabungan.target_paket_id, {
+            attributes: ["quota_jamaah"],
+          })
+        : { quota_jamaah: "-" };
 
-      data.id = infoTabungan.id;  
+      const countJamaahPaket = infoTabungan.target_paket_id
+        ? await Tabungan.count({
+            where: {
+              target_paket_id: infoTabungan.target_paket_id,
+            },
+          })
+        : "-";
+
+      data.id = infoTabungan.id;
+      data.kuota_jamaah_tersisa = (infoPaket.quota_jamaah - countJamaahPaket) || "-";
       data.total_tabungan = infoTabungan.total_tabungan;
       data.target_paket_id = infoTabungan.target_paket_id;
       data.member = infoTabungan.jamaah ? {
@@ -757,6 +817,8 @@ class Model_r {
           ? moment(infoTabungan.jamaah.birth_date).format('YYYY-MM-DD')
           : "-"
       } : {};
+
+      console.log(data);
 
       return {data};
     } catch (error) {
@@ -774,12 +836,11 @@ class Model_r {
       // call object
       var data = {};
       const infoTabungan = await this.infoTabungan(body.id);
-
-      const agen = await getAgenById(infoTabungan.fee_agen_id);
+      const agen = await this.getAgenDetailById(infoTabungan.fee_agen_id);
       
       const dataTabungan = {
         id: infoTabungan.id,
-        total_tabungan: Number(infoTabungan.total_tabungan) - Number(agen.Level_keagenan.default_fee),
+        total_tabungan: Number(infoTabungan.total_tabungan) - Number(agen.default_fee),
         batal_berangkat: infoTabungan.batal_berangkat === "ya" ? true : false,
       };
       data = dataTabungan;
@@ -867,6 +928,41 @@ class Model_r {
     }
   }
 
+  // === GET INFO PAKET PEMBELIAN ===
+    async getInfoPaketPembelian() {
+    await this.initialize();
+    const body = this.req.body;
+
+    try {
+      var data = {};
+      const infoTabungan = await this.infoTabungan(body.id);
+      const paket = await Paket.findByPk(infoTabungan.target_paket_id);
+      const tipe_paket = await Paket_price.findAll({
+        where: { paket_id: infoTabungan.target_paket_id },
+        attributes: ['price'],
+        include: [{
+          model: Mst_paket_type,
+          attributes: ['id', 'name']
+        }]
+      });
+
+      data.target_paket_id = infoTabungan.target_paket_id ? infoTabungan.target_paket_id : null;
+      data.kode_paket = paket ? paket.kode : '-';
+      data.nama_paket = paket ? paket.name : '-';
+      data.total_tabungan = Number(infoTabungan.total_tabungan) || 0;
+      data.tipe_paket = tipe_paket.map(item => ({
+        id: item.Mst_paket_type.id,
+        name: item.Mst_paket_type.name,
+        price: item.price,
+      }));
+
+      return { data };
+    } catch (error) {
+      console.log("Error in getInfoPengembalianHandoverBarang:", error);
+      return {};
+    }
+  }
+
   async infoTabungan(id) {
     try {
       const tabungan = await Tabungan.findOne({
@@ -889,7 +985,9 @@ class Model_r {
         include: [
           {
             model: Jamaah,
-            attributes: ["id"],
+            attributes: [
+              "id",
+            ],
             required: true,
             include: [
               {
@@ -904,6 +1002,14 @@ class Model_r {
                 required: false,
               },
             ],
+          },
+          {
+            model: Paket,
+            attributes: [
+              "id",
+              "mahram_fee",
+            ],
+            required: false,
           },
         ],
       });
@@ -934,6 +1040,14 @@ class Model_r {
           identity_number: jamaah.Member.identity_number,
           birth_place: jamaah.Member.birth_place,
           birth_date: jamaah.Member.birth_date,
+        };
+      }
+
+      if (tabungan.Paket) {
+        const paket = tabungan.Paket;
+        data.paket = {
+          id: paket.id,
+          mahram_fee: paket.mahram_fee,
         };
       }
 

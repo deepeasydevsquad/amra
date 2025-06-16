@@ -349,5 +349,43 @@ controllers.getCetakDataJamaahTabunganUmrah = async (req, res) => {
   }
 };
 
+// Mengambil daftar Tipe Paket Pembelian
+controllers.getInfoPaketPembelian = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_r = new Model_r(req);
+    const feedBack = await model_r.getInfoPaketPembelian();
+    res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
+// Pembelian Paket Tabungan Umrah
+controllers.pembelianPaketTabunganUmrah = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    await model_cud.pembelianPaketTabunganUmrah();
+
+    // get response
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Pembelian Paket Tabungan Umrah berhasil dibeli',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Pembelian Paket Tabungan Umrah gagal dibeli',
+      });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
 module.exports = controllers;
 

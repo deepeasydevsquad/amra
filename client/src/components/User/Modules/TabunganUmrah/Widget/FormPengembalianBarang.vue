@@ -227,9 +227,9 @@ onMounted(async () => {
         <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
 
         <div class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-5xl sm:align-middle p-6">
-          <div class="overflow-y-auto max-h-[70vh] no-scrollbar">
-            <!-- Title -->
-            <h3 class="text-2xl font-bold text-gray-900 mb-4">Form Pengembalian Barang Jamaah</h3>
+          <!-- Title -->
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">Form Pengembalian Barang Jamaah</h3>
+          <div class="overflow-y-auto max-h-[64vh] no-scrollbar px-1">
 
             <div class="overflow-auto">
               <h3 class="font-bold text-gray-800 mb-2">History Penerimaan Barang</h3>

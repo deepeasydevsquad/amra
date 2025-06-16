@@ -1,4 +1,4 @@
-const { Op, Paket_la } = require("../../../models");
+const { Op, Paket_la, Paket_la_transaction } = require("../../../models");
 const { getCabang } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
@@ -57,6 +57,12 @@ class Model_r {
       "createdAt",
       "updatedAt"
     ];
+    sql["include"] = [
+      {
+        model: Paket_la_transaction,
+        attributes: ['paid', 'status']
+      },
+    ];
     sql["where"] = where;
     
     try {
@@ -66,28 +72,36 @@ class Model_r {
       const total = await q.count;
       var data = [];
       if (total > 0) {
-        await Paket_la.findAll(query.sql).then(async (value) => {
-          await Promise.all(
-            await value.map(async (e) => {
-              data.push({ 
-                id : e.id,
-                register_number : e.register_number,
-                kostumer_paket_la_id: e.kostumer_paket_la_id,
-                client_name : e.client_name,
-                client_hp_number : e.client_hp_number,
-                client_address : e.client_address,
-                status : e.status,
-                discount : e.discount,
-                total_price : e.total_price,
-                total_jamaah : e.total_jamaah,
-                departure_date: moment(e.departure_date).format("YYYY-MM-DD"),
-                arrival_date: moment(e.arrival_date).format("YYYY-MM-DD"),
-                createdAt: e.createdAt,
-                updatedAt: e.updatedAt
-              });
-            })
-          );
-        });
+        const paketList = await Paket_la.findAll(query.sql);
+
+        await Promise.all(
+          paketList.map(async (e) => {
+            const payments = e.Paket_la_transactions.filter(trx => trx.status === "payment");
+            const refunds = e.Paket_la_transactions.filter(trx => trx.status === "refund");
+
+            const totalTerbayar = payments.reduce((sum, trx) => sum + Number(trx.paid), 0);
+            const totalRefund = refunds.reduce((sum, trx) => sum + Number(trx.paid), 0);
+
+            data.push({
+              id: e.id,
+              register_number: e.register_number,
+              kostumer_paket_la_id: e.kostumer_paket_la_id,
+              client_name: e.client_name,
+              client_hp_number: e.client_hp_number,
+              client_address: e.client_address,
+              status: e.status,
+              discount: e.discount,
+              total_price: e.total_price,
+              total_jamaah: e.total_jamaah,
+              departure_date: moment(e.departure_date).format("YYYY-MM-DD"),
+              arrival_date: moment(e.arrival_date).format("YYYY-MM-DD"),
+              terbayar: totalTerbayar - totalRefund,
+              sisa: e.total_price - (totalTerbayar - totalRefund),
+              createdAt: e.createdAt,
+              updatedAt: e.updatedAt
+            });
+          })
+        );
       }
 
       return {

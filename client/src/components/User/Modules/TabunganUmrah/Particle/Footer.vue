@@ -19,12 +19,12 @@
       </template>
     </div>
     <div class="flex-1">
-      <p class="font-semibold text-gray-500">CALON JAMAAH</p>
+      <p class="font-semibold text-gray-600">CALON JAMAAH</p>
       <p class="mt-12">({{ data.fullname_jamaah }})</p>
     </div>
     <div class="flex-1">
-      <p class="font-semibold text-gray-500">PETUGAS</p>
-      <p class="mt-12">
+      <p class="font-semibold text-gray-600">PETUGAS</p>
+      <p class="mt-10">
         ({{ data.petugas }}) <br />
         {{ data.jabatan }}
       </p>
