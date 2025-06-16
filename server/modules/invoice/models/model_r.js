@@ -23,6 +23,9 @@ const {
   Handover_fasilitas_detail,
   Handover_barang,
   Mst_fasilitas,
+  Fee_agen,
+  Pembayaran_fee_agen,
+  Agen,
 } = require("../../../models");
 const { Op } = require("sequelize");
 const {
@@ -86,7 +89,8 @@ class Model_r {
         data["address"] = e.address || "-";
         data["pos_code"] = e.pos_code || "-";
         data["email"] = e.Company.email || "-";
-        data["whatsapp_company_number"] = e.Company.whatsapp_company_number || "-";
+        data["whatsapp_company_number"] =
+          e.Company.whatsapp_company_number || "-";
       }
     });
 
@@ -420,7 +424,9 @@ class Model_r {
       data.petugas = hasil.petugas;
       data.penerima = hasil.penerima;
       data.nomor_identitas_penerima = hasil.nomor_identitas_penerima;
-      data.tanggal_transaksi = moment(hasil.createdAt).format("YYYY-MM-DD HH:mm:ss");
+      data.tanggal_transaksi = moment(hasil.createdAt).format(
+        "YYYY-MM-DD HH:mm:ss"
+      );
 
       // Detail fasilitas
       const details = await Handover_fasilitas_detail.findAll({
@@ -477,7 +483,7 @@ class Model_r {
         return {};
       }
 
-      const handoverBarang =  await Handover_barang.findAll({
+      const handoverBarang = await Handover_barang.findAll({
         where: { invoice_handover: this.req.params.invoice },
         attributes: [
           "invoice_handover",
@@ -489,17 +495,19 @@ class Model_r {
           "receiver_handover",
           "date_taken",
         ],
-        raw: true
-      })
+        raw: true,
+      });
       data.invoice_handover = handoverBarang[0].invoice_handover;
-      data.handover_barang = handoverBarang.map(item => item.nama_barang)
+      data.handover_barang = handoverBarang.map((item) => item.nama_barang);
       data.giver_handover = handoverBarang[0].giver_handover;
       data.giver_handover_identity = handoverBarang[0].giver_handover_identity;
       data.giver_handover_hp = handoverBarang[0].giver_handover_hp;
       data.giver_handover_address = handoverBarang[0].giver_handover_address;
       data.receiver_handover = handoverBarang[0].receiver_handover;
       data.receiver_jabatan = (await tipe(this.req)).toUpperCase();
-      data.date_taken = moment(handoverBarang[0].date_taken).format("YYYY-MM-DD HH:mm:ss");
+      data.date_taken = moment(handoverBarang[0].date_taken).format(
+        "YYYY-MM-DD HH:mm:ss"
+      );
 
       return data;
     } catch (error) {
@@ -522,7 +530,7 @@ class Model_r {
         return {};
       }
 
-      const handoverBarang =  await Handover_barang.findAll({
+      const handoverBarang = await Handover_barang.findAll({
         where: { invoice_returned: this.req.params.invoice },
         attributes: [
           "invoice_returned",
@@ -534,17 +542,21 @@ class Model_r {
           "receiver_returned_address",
           "date_returned",
         ],
-        raw: true
-      })
+        raw: true,
+      });
       data.invoice_returned = handoverBarang[0].invoice_returned;
-      data.handover_barang = handoverBarang.map(item => item.nama_barang)
+      data.handover_barang = handoverBarang.map((item) => item.nama_barang);
       data.giver_returned = handoverBarang[0].giver_returned;
       data.giver_jabatan = (await tipe(this.req)).toUpperCase();
       data.receiver_returned = handoverBarang[0].receiver_returned;
-      data.receiver_returned_identity = handoverBarang[0].receiver_returned_identity;
+      data.receiver_returned_identity =
+        handoverBarang[0].receiver_returned_identity;
       data.receiver_returned_hp = handoverBarang[0].receiver_returned_hp;
-      data.receiver_returned_address = handoverBarang[0].receiver_returned_address;
-      data.date_returned = moment(handoverBarang[0].date_returned).format("YYYY-MM-DD HH:mm:ss");
+      data.receiver_returned_address =
+        handoverBarang[0].receiver_returned_address;
+      data.date_returned = moment(handoverBarang[0].date_returned).format(
+        "YYYY-MM-DD HH:mm:ss"
+      );
 
       console.log(data);
       return data;
@@ -651,6 +663,64 @@ class Model_r {
     } catch (error) {
       console.error("KWITANSI ERROR:", error);
       return {};
+    }
+  }
+
+  async invoice_pembayaran_fee_agen() {
+    await this.initialize();
+    try {
+      const data = await this.header_kwitansi_invoice();
+
+      const feeAgens = await Fee_agen.findAll({
+        where: {
+          invoice: this.req.params.invoice,
+        },
+        include: [
+          {
+            model: Pembayaran_fee_agen,
+            required: true,
+          },
+          {
+            model: Agen,
+            required: true,
+            include: {
+              model: Member,
+              required: true,
+              attributes: ["fullname", "identity_number"],
+            },
+          },
+        ],
+      });
+
+      if (!feeAgens || feeAgens.length === 0) {
+        throw new Error("Data fee agen tidak ditemukan");
+      }
+
+      // Ambil info pembayaran dari fee pertama (karena 1 pembayaran aja)
+      const pembayaran = feeAgens[0].Pembayaran_fee_agen;
+
+      const data_invoice = feeAgens.map((item) => ({
+        agen_name: item.Agen.Member.fullname,
+        agen_identity: item.Agen.Member.identity_number,
+        nominal_fee: item.nominal,
+        info: item.info || "-",
+      }));
+
+      return {
+        data_header: data,
+        data_invoice,
+        pembayaran: {
+          invoice: pembayaran.invoice,
+          tanggal_pembayaran: pembayaran.createdAt,
+          penerima: pembayaran.penerima,
+          nama_pemohon: pembayaran.applicant_name,
+          identitas_pemohon: pembayaran.applicant_identity,
+          nominal_pembayaran: pembayaran.nominal,
+        },
+      };
+    } catch (error) {
+      console.error("Gagal generate invoice pembayaran fee agen:", error);
+      throw error;
     }
   }
 }

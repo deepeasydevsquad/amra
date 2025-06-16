@@ -6,17 +6,23 @@ const { authenticateToken } = require("../middleware/authenticateToken");
 
 const router = express.Router();
 
-router.post("/invoice/cek-kwitansi-tabungan-umrah",
-    authenticateToken,
-    [
-        body("invoice").trim().notEmpty().withMessage("Invoice tidak boleh kosong."),
-    ],
-    controller.cek_kwitansi_tabungan_umrah
+router.post(
+  "/invoice/cek-kwitansi-tabungan-umrah",
+  authenticateToken,
+  [
+    body("invoice")
+      .trim()
+      .notEmpty()
+      .withMessage("Invoice tidak boleh kosong."),
+  ],
+  controller.cek_kwitansi_tabungan_umrah
 );
 
-router.get("/invoice/invoice-deposit/:invoice", 
-    authenticateToken,
-    controller.invoice_deposit);
+router.get(
+  "/invoice/invoice-deposit/:invoice",
+  authenticateToken,
+  controller.invoice_deposit
+);
 
 router.get(
   "/invoice/invoice-paket-la/:invoice",
@@ -36,10 +42,11 @@ router.get(
   controller.invoice_pembayaran_perbulan
 );
 
-router.get("/invoice/kwitansi-tabungan-umrah/:invoice",
-    authenticateToken,
-    controller.kwitansi_tabungan_umrah
-)
+router.get(
+  "/invoice/kwitansi-tabungan-umrah/:invoice",
+  authenticateToken,
+  controller.kwitansi_tabungan_umrah
+);
 
 router.get(
   "/invoice/kwitansi-handover-fasilitas/:invoice",
@@ -57,6 +64,12 @@ router.get(
   "/invoice/kwitansi-pengembalian-handover-barang/:invoice",
   authenticateToken,
   controller.kwitansi_pengembalian_handover_barang
-)
+);
+
+router.get(
+  "/invoice/pembayaran-fee-agen/:invoice",
+  authenticateToken,
+  controller.kwitansi_pembayaran_fee_agen
+);
 
 module.exports = router;
