@@ -305,8 +305,8 @@ const cetakKwitansi = async (invoice: string) => {
           <thead class="bg-gray-50">
             <tr>
               <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center">Info Jamaah</th>
-              <th class="w-[70%] px-6 py-4 font-bold text-gray-900 text-center">Info Deposit</th>
-              <th class="w-[5%] px-6 py-4 font-bold text-gray-900 text-center">Aksi</th>
+              <th :class="filter === 'sudah_beli_paket' ? 'w-[75%]' : 'w-[70%]'" class="px-6 py-4 font-bold text-gray-900 text-center">Info Deposit</th>
+              <th class="w-[5%] px-6 py-4 font-bold text-gray-900 text-center" v-if="filter === 'belum_beli_paket'">Aksi</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -394,7 +394,7 @@ const cetakKwitansi = async (invoice: string) => {
                     </template>
                   </div>
                 </td>
-                <td class="px-6 py-4 text-center grid grid-cols-2 gap-2">
+                <td v-if="tabungan.status_paket" class="px-6 py-4 text-center grid grid-cols-2 gap-2">
                   <div class="grid ">
                     <LightButton col-span-1 title="Cetak Data Jamaah" @click="openFormCetakDataJamaah(tabungan)">
                       <CetakIcon class="h-4 w-4 text-gray-600" />
@@ -427,7 +427,7 @@ const cetakKwitansi = async (invoice: string) => {
               </tr>
             </template>
             <tr v-else>
-              <td colspan="3" class="px-6 py-4 text-center text-base text-gray-600">
+              <td :colspan="filter === 'sudah_beli_paket' ? 2 : 3" class="px-6 py-4 text-center text-base text-gray-600">
                 Daftar Tabungan Umrah tidak ditemukan.
               </td>
             </tr>
