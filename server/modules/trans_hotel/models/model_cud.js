@@ -108,6 +108,7 @@ class Model_cud {
         transaction: this.t,
       });
 
+      this.invoice = invoice;
       this.message = "Transaksi hotel berhasil disimpan.";
     } catch (error) {
       this.message = "Gagal simpan transaksi hotel: " + error.message;

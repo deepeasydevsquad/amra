@@ -78,4 +78,10 @@ router.get(
   controller.kwitansi_pembayaran_fee_agen
 );
 
+router.get(
+  "/invoice/kwitansi-trans-hotel/:invoice",
+  authenticateToken,
+  controller.kwitansi_trans_hotel
+);
+
 module.exports = router;

@@ -29,6 +29,9 @@ const {
   Fee_agen,
   Pembayaran_fee_agen,
   Agen,
+  Hotel_transaction,
+  Hotel_transaction_detail,
+  Mst_hotel,
 } = require("../../../models");
 const { Op } = require("sequelize");
 const {
@@ -668,42 +671,51 @@ class Model_r {
       return {};
     }
   }
-  
+
   async KwitansiVisa() {
     await this.initialize();
-  
+
     try {
       let data = { ...(await this.header_kwitansi_invoice()) };
-  
+
       const transaksi = await Visa_transaction.findOne({
         where: {
           invoice: this.req.params.invoice,
           company_id: this.company_id,
         },
-        include: [{ // Include Level 1
-          model: Visa_transaction_detail,
-          required: true,
-          include: [{ 
-            model: Mst_visa_request_type,
-            attributes: ['name'], 
-            required: false 
-          }],
-        }],
+        include: [
+          {
+            // Include Level 1
+            model: Visa_transaction_detail,
+            required: true,
+            include: [
+              {
+                model: Mst_visa_request_type,
+                attributes: ["name"],
+                required: false,
+              },
+            ],
+          },
+        ],
       });
-  
+
       if (!transaksi) {
         return {};
       }
-  
+
       const detailsArray = transaksi.Visa_transaction_details;
       if (!detailsArray || detailsArray.length === 0) {
-        console.error(`[ERROR] Transaksi ${transaksi.invoice} ditemukan tetapi tidak memiliki detail.`);
+        console.error(
+          `[ERROR] Transaksi ${transaksi.invoice} ditemukan tetapi tidak memiliki detail.`
+        );
         return {};
       }
-  
+
       const detail = detailsArray[0];
-      const jenisVisaName = detail.Mst_visa_request_type ? detail.Mst_visa_request_type.name : "Jenis Tidak Diketahui";
-  
+      const jenisVisaName = detail.Mst_visa_request_type
+        ? detail.Mst_visa_request_type.name
+        : "Jenis Tidak Diketahui";
+
       data = {
         ...data,
         invoice: transaksi.invoice,
@@ -711,7 +723,7 @@ class Model_r {
         payer: transaksi.payer,
         payer_identity: transaksi.payer_identity,
         createdAt: transaksi.createdAt,
-        
+
         name: detail.name,
         identity_number: detail.identity_number,
         birth_place: detail.birth_place,
@@ -719,10 +731,10 @@ class Model_r {
         passport_number: detail.passport_number,
         valid_until: detail.valid_until,
         price: detail.price,
-        
+
         jenis_visa: jenisVisaName,
-        
-        profession_telephone: detail.profession_telephone
+
+        profession_telephone: detail.profession_telephone,
       };
       return data;
     } catch (error) {
@@ -788,6 +800,84 @@ class Model_r {
       throw error;
     }
   }
+
+  async invoice_trans_hotel() {
+    await this.initialize();
+
+    try {
+      const invoice = this.req.params.invoice; // ⬅️ ambil dari params
+      const header = await this.header_kwitansi_invoice();
+
+      const transaksiList = await Hotel_transaction.findAll({
+        where: {
+          company_id: this.company_id,
+          invoice: invoice,
+        },
+        include: [
+          {
+            model: Hotel_transaction_detail,
+            required: true,
+            attributes: [
+              "name",
+              "birth_date",
+              "birth_place",
+              "identity_number",
+              "price",
+              "check_in",
+              "check_out",
+            ],
+            include: [
+              {
+                model: Mst_hotel,
+                required: true,
+                attributes: ["name"],
+              },
+            ],
+          },
+        ],
+      });
+
+      // Kalau invoice nggak ditemukan
+      if (transaksiList.length === 0) {
+        throw new Error(`Transaksi dengan invoice ${invoice} tidak ditemukan.`);
+      }
+
+      const data = transaksiList.map((trx) => {
+        const detailList = trx.Hotel_transaction_details || [];
+
+        const total_harga = detailList.reduce((sum, detail) => {
+          return sum + Number(detail.price || 0);
+        }, 0);
+
+        return {
+          id: trx.id,
+          invoice: trx.invoice,
+          payer: trx.payer,
+          payer_identity: trx.payer_identity,
+          petugas: trx.petugas,
+          total_harga: total_harga,
+          details: detailList.map((d) => ({
+            name: d.name,
+            birth_place: d.birth_place,
+            birth_date: d.birth_date,
+            identity_number: d.identity_number,
+            price: d.price,
+            check_in: d.check_in,
+            check_out: d.check_out,
+            hotel_name: d.Mst_hotel?.name ?? "-",
+          })),
+        };
+      });
+
+      return {
+        header,
+        data,
+      };
+    } catch (error) {
+      console.error("❌ Gagal generate invoice hotel:", error.message);
+      throw error;
+    }
+  }
 }
-   
+
 module.exports = Model_r;
