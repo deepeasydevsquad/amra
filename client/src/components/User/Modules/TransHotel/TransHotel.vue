@@ -210,14 +210,28 @@ const submitTransaksi = async () => {
 
     console.log('payload', payload)
 
-    await add_transaksi(payload)
+    // ⬇️ ambil response dari add_transaksi
+    const response = await add_transaksi(payload)
+    const invoice = response?.invoice
+
+    if (!invoice) throw new Error('Invoice tidak ditemukan di response')
+
     showModal.value = false
     resetForm()
-    displayNotification('Transaksi berhasil disimpan!', 'success')
+
+    displayNotification(`Transaksi berhasil! Invoice: ${invoice}`, 'success')
+
+    // 🧾 Open tab baru buat print kwitansi
+    const printUrl = `/kwitansi-trans-hotel/${invoice}`
+    window.open(printUrl, '_blank')
+
     await fetchDataTransaksi()
   } catch (error: any) {
     console.error(error)
-    displayNotification(error?.response?.data?.error_msg || 'Gagal simpan transaksi', 'error')
+    displayNotification(
+      error?.response?.data?.error_msg || error.message || 'Gagal simpan transaksi',
+      'error',
+    )
   }
 }
 
@@ -236,6 +250,11 @@ const resetForm = () => {
       payer: false,
     },
   ]
+}
+
+const cetak_invoice = (invoice: string) => {
+  const printUrl = `/kwitansi-trans-hotel/${invoice}`
+  window.open(printUrl, '_blank')
 }
 </script>
 
@@ -324,7 +343,7 @@ const resetForm = () => {
                 <DangerButton @click="deleteData(transaksi.id)">
                   <DeleteIcon />
                 </DangerButton>
-                <LightButton @click="">
+                <LightButton @click="cetak_invoice(transaksi.invoice)">
                   <CetakIcon />
                 </LightButton>
               </div>
