@@ -66,6 +66,10 @@ module.exports = {
         values: ['ya','tidak'],
         defaultValue : "tidak"
       },
+      from: {
+        type: Sequelize.ENUM,
+        values: ['transaksi_paket','tabungan']
+      },
       biaya_mahram: {
         type: Sequelize.INTEGER
       },

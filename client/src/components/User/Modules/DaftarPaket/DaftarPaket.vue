@@ -14,8 +14,7 @@ import FormAdd from '@/components/User/Modules/DaftarPaket/Widget/FormAdd.vue'
 import FormEdit from '@/components/User/Modules/DaftarPaket/Widget/FormEdit.vue'
 
 // import component
-import FormTransaksi from '@/components/User/Modules/DaftarPaket/Widget/FormTransaksi.vue'
-
+import FormTransaksi from '@/components/User/Modules/DaftarTransaksiPaket/DaftarTransaksiPaket.vue'
 
 import LightButton from "@/components/Button/LightButton.vue"
 import DangerButton from "@/components/Button/DangerButton.vue"
@@ -29,7 +28,6 @@ const currentPage = ref(1);
 const totalPages = ref(0);
 const search = ref('');
 const filter = ref('');
-
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
@@ -204,7 +202,9 @@ const shortText = (teks:string, maxKarakter: number) => {
 
 <template>
   <div class="p-4 bg-white min-h-screen">
-    <div v-if="isLoading" class="text-center text-gray-600">Loading...</div>
+    <div v-if="isLoading" class="flex items-center justify-center">
+      <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+    </div>
     <div v-else-if="isFormOpen">
       <FormAdd
         :isFormOpen="isFormOpen"

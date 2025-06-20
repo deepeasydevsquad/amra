@@ -94,7 +94,7 @@ export const cetakKwitansiVisa = async (invoice: string) => {
     const encodedInvoice = encodeURIComponent(invoice);
     const url = `/invoice/kwitansi-visa/${encodedInvoice}`;
     const response = await api.get(url);
-  
+
     return response.data;
   } catch (error) {
     console.error('[SERVICE ERROR] Gagal saat mencetak kwitansi visa:', error);
@@ -114,6 +114,18 @@ export const kwitansi_pembayaran_fee_agen = async (param: string) => {
   }
 }
 
+export const getKwitansiPembayaranTransaksiPaketUmrah = async (param: string) => {
+  try {
+    console.log("Param:", param);
+    const response = await api.get(`/invoice/kwitansi-pembayaran-transaksi-paket-umrah/${param}`); // Kirim data melewait URL
+    console.log("Response data:", response.data); // Debugging log
+    return response.data; // Kembalikan data hasil request
+  } catch (error) {
+    console.log("Gagal mengambil kwitansi handover barang:", error);
+    throw error;
+  }
+}
+    
 export const kwitansi_trans_hotel = async (param: string) => {
   try {
     console.log("Param:", param);
