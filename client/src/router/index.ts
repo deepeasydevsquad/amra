@@ -17,6 +17,7 @@ import KwitansiPengembalianBarang from '@/components/User/Modules/Invoice/Kwitan
 import TransaksiVisa from '@/components/User/Modules/TransaksiVisa/TransaksiVisa.vue'
 import CetakKwitansiVisa from '@/components/User/Modules/Invoice/InvoiceTransaksiVisa.vue'
 import InvoicePembayaranFeeAgen from '@/components/User/Modules/Invoice/InvoicePembayaranFeeAgen.vue'
+import TransaksiPassport from '@/components/User/Modules/TransaksiPassport/TransaksiPassport.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -119,7 +120,12 @@ const router = createRouter({
       path: '/kwitansi-pembayaran-fee-agen/:invoice',
       name: 'kwitansi-pembayaran-fee-agen',
       component: InvoicePembayaranFeeAgen,
-    }
+    },
+    {
+      path: '/transaksi-passport',
+      name: 'transaksi-passport',
+      component: TransaksiPassport,
+    },
   ],
 })
 
