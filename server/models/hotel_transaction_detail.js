@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Hotel_transaction_detail extends Model {
     /**
@@ -22,20 +20,23 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
-  Hotel_transaction_detail.init({
-    hotel_transaction_id: DataTypes.INTEGER,
-    name: DataTypes.STRING,
-    birth_date: DataTypes.DATEONLY,
-    birth_place: DataTypes.STRING,
-    identity_number: DataTypes.STRING,
-    mst_hotel_id: DataTypes.INTEGER,
-    mst_kota_id: DataTypes.INTEGER,
-    price: DataTypes.INTEGER,
-    check_in: DataTypes.DATEONLY,
-    check_out: DataTypes.DATEONLY
-  }, {
-    sequelize,
-    modelName: 'Hotel_transaction_detail',
-  });
+  Hotel_transaction_detail.init(
+    {
+      hotel_transaction_id: DataTypes.INTEGER,
+      name: DataTypes.STRING,
+      birth_date: DataTypes.DATEONLY,
+      birth_place: DataTypes.STRING,
+      identity_number: DataTypes.STRING,
+      mst_hotel_id: DataTypes.INTEGER,
+      mst_kota_id: DataTypes.INTEGER,
+      price: DataTypes.INTEGER,
+      check_in: DataTypes.DATEONLY,
+      check_out: DataTypes.DATEONLY,
+    },
+    {
+      sequelize,
+      modelName: "Hotel_transaction_detail",
+    }
+  );
   return Hotel_transaction_detail;
 };
