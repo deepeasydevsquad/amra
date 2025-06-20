@@ -17,6 +17,7 @@ const {
   Tabungan,
   Riwayat_tabungan,
   Mst_kota,
+  Mst_paket_type,
   Riwayat_pembayaran_peminjaman,
   Peminjaman,
   Handover_fasilitas,
@@ -29,6 +30,8 @@ const {
   Fee_agen,
   Pembayaran_fee_agen,
   Agen,
+  Paket_transaction,
+  Paket_transaction_payment_history,
 } = require("../../../models");
 const { Op } = require("sequelize");
 const {
@@ -788,6 +791,58 @@ class Model_r {
       throw error;
     }
   }
+
+  async dataKwitansiPembayaranTransaksiPaketUmrah() {
+    await this.initialize();
+    try {
+      let data = await this.header_kwitansi_invoice();
+
+      const paketTransactionHistory = await Paket_transaction_payment_history.findOne({
+        order: [["createdAt", "DESC"]],
+        where: {
+          invoice: this.req.params.invoice,
+        },
+        include: [
+          {
+            model: Paket_transaction,
+            required: true,
+            include: [
+              {
+                model: Mst_paket_type,
+                required: true,
+                attributes: ["name"],
+              },
+              {
+                model: Jamaah,
+                required: true,
+                include: {
+                  model: Member,
+                  required: true,
+                  attributes: ["fullname", "whatsapp_number"],
+                },
+              },
+            ],
+          },
+        ],
+      });
+
+      data = {
+        ...data,
+        invoice: paketTransactionHistory.invoice,
+        fullname: paketTransactionHistory.Paket_transaction.Jamaah.Member.fullname,
+        whatsapp_number: paketTransactionHistory.Paket_transaction.Jamaah.Member.whatsapp_number,
+        penerima: paketTransactionHistory.penerima,
+        nominal: paketTransactionHistory.nominal,
+        info_paket: 'Pembelian Paket Tipe ' + paketTransactionHistory.Paket_transaction.Mst_paket_type.name,
+        createdAt: moment(paketTransactionHistory.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+      };
+
+      return data;
+    } catch (error) {
+      console.error("Error in dataKwitansiPembayaranTransaksiPaketUmrah:", error);
+      return {};
+    }
+  }
 }
-   
+
 module.exports = Model_r;

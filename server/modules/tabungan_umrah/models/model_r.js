@@ -188,6 +188,7 @@ class Model_r {
           ? moment(member.birth_date).format('DD MMMM YYYY')
           : "-",
       },
+      target_paket_id: e.target_paket_id,
       target_paket_name: await this.getPaketNameById(e.target_paket_id),
       total_tabungan: e.total_tabungan,
       status_paket: await this.isTabunganCukupUntukPaket(e.total_tabungan, e.target_paket_id),
@@ -239,7 +240,7 @@ class Model_r {
           required: false
         }]
       }],
-      order: [["id", "ASC"]],
+      order: [["createdAt", "DESC"]],
       offset,
       limit: perpage,
     };
@@ -260,8 +261,8 @@ class Model_r {
   }
 
   async getJamaahTabunganUmrah() {
+    await this.initialize();
     try {
-      await this.initialize();
 
       const jamaah = await Jamaah.findAll({
         where: {

@@ -70,7 +70,7 @@ const fetchData = async () => {
     PaketList.value = [{ id: null, name: 'Pilih Paket' }, ...paketResponse.data]
     checkAndFetchAgen(form.jamaah_id) // kalau sudah ada isi default
   } catch (error) {
-    displayNotification('Failed to fetch data', 'error')
+    displayNotification('Gagal mengambil data', 'error')
   } finally {
     isLoading.value = false
   }

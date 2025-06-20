@@ -78,4 +78,10 @@ router.get(
   controller.kwitansi_pembayaran_fee_agen
 );
 
+router.get(
+  "/invoice/kwitansi-pembayaran-transaksi-paket-umrah/:invoice",
+  authenticateToken,
+  controller.kwitansi_pembayaran_transaksi_paket_umrah
+)
+
 module.exports = router;

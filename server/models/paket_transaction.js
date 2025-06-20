@@ -51,6 +51,7 @@ module.exports = (sequelize, DataTypes) => {
     tanggal_berlaku_visa: DataTypes.DATEONLY,
     tanggal_berakhir_visa: DataTypes.DATEONLY,
     batal_berangkat: DataTypes.ENUM(['ya','tidak']),
+    from: DataTypes.ENUM(['transaksi_paket','tabungan']),
     biaya_mahram: DataTypes.INTEGER
   }, {
     sequelize,

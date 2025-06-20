@@ -27,6 +27,7 @@ import FormOpsiHandoverBarang from '@/components/User/Modules/TabunganUmrah/Widg
 import FormTerimaBarang from '@/components/User/Modules/TabunganUmrah/Widget/FormTerimaBarang.vue'
 import FormPengembalianBarang from '@/components/User/Modules/TabunganUmrah/Widget/FormPengembalianBarang.vue'
 import FormBeliPaket from '@/components/User/Modules/TabunganUmrah/Widget/FormBeliPaket.vue'
+import DaftarTransaksiPaket from '@/components/User/Modules/DaftarTransaksiPaket/DaftarTransaksiPaket.vue'
 
 // import API
 import { daftar_tabungan_umrah, deleteTabunganUmrah, cekKwitansiTabunganUmrah } from '@/service/tabungan_umrah'
@@ -98,6 +99,9 @@ interface TabunganUmrah {
 const timeoutId = ref<number | null>(null);
 const dataTabunganUmrah = ref<TabunganUmrah[]>([]);
 const tabunganId = ref<number>(0);
+const paketId = ref<number>(0);
+const dataSearch = ref<string | null>(null);
+const isDaftarTransaksiPaketOpen = ref<boolean>(false);
 const isFormOpen = ref<boolean>(false);
 const isFormUpdateOpen = ref<boolean>(false);
 const isFormAddHandoverOpen = ref<boolean>(false);
@@ -128,7 +132,7 @@ const fetchData = async () => {
         pageNumber: currentPage.value,
     });
 
-    if (response.error) {
+    if (response.data.error || response.error) {
         displayNotification(response.error_msg, "error");
         return;
     }
@@ -216,6 +220,8 @@ const openPengembalianBarangHandover = (tabungan_id: number ) => {
 
 const openFormBeliPaketUmrah = (tabungan: TabunganUmrah) => {
   tabunganId.value = tabungan.id;
+  paketId.value = tabungan.target_paket_id;
+  dataSearch.value = tabungan.member.identity_number;
   isFormBeliPaketUmrahOpen.value = true;
 }
 
@@ -257,7 +263,7 @@ const cetakKwitansi = async (invoice: string) => {
 </script>
 
 <template>
-  <div class="p-4 bg-white min-h-screen">
+  <div v-if="isDaftarTransaksiPaketOpen === false" class="p-4 bg-white min-h-screen">
     <div v-if="isLoading" class="flex items-center justify-center">
       <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
     </div>
@@ -394,7 +400,7 @@ const cetakKwitansi = async (invoice: string) => {
                     </template>
                   </div>
                 </td>
-                <td v-if="tabungan.status_paket" class="px-6 py-4 text-center grid grid-cols-2 gap-2">
+                <td v-if="filter !== 'sudah_beli_paket' && filter !== 'batal_berangkat'" class="px-6 py-4 text-center grid grid-cols-2 gap-2">
                   <div class="grid ">
                     <LightButton col-span-1 title="Cetak Data Jamaah" @click="openFormCetakDataJamaah(tabungan)">
                       <CetakIcon class="h-4 w-4 text-gray-600" />
@@ -615,10 +621,25 @@ const cetakKwitansi = async (invoice: string) => {
       :isFormBeliPaketUmrahOpen="isFormBeliPaketUmrahOpen"
       :tabunganId="tabunganId"
       @close="isFormBeliPaketUmrahOpen = false; fetchData()"
-      @status="(payload) => displayNotification(payload.err_msg || 'Paket Umrah gagal dibeli', payload.error ? 'error' : 'success')"
+      @status="(payload) => {
+        displayNotification(payload.err_msg || 'Paket Umrah gagal dibeli', payload.error ? 'error' : 'success')
+        if (!payload.error) {
+          filter = 'sudah_beli_paket';
+          isDaftarTransaksiPaketOpen = true;
+          fetchData();
+        }
+      }"
       />
   </transition>
 
+  <!-- Form Transaksi Paket -->
+  <DaftarTransaksiPaket
+    v-if="isDaftarTransaksiPaketOpen"
+    :paketId="paketId"
+    :search="dataSearch"
+    :isDaftarTransaksiPaketOpen="isDaftarTransaksiPaketOpen"
+    @close="isDaftarTransaksiPaketOpen = false; fetchData()"
+  />
   <!-- Confirmation Dialog -->
   <Confirmation
     :showConfirmDialog="showConfirmDialog"
