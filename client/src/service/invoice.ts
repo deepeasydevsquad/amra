@@ -125,3 +125,15 @@ export const getKwitansiPembayaranTransaksiPaketUmrah = async (param: string) =>
     throw error;
   }
 }
+    
+export const kwitansi_trans_hotel = async (param: string) => {
+  try {
+    console.log("Param:", param);
+    const response = await api.get(`/invoice/kwitansi-trans-hotel/${param}`); // Kirim data melewait URL
+    console.log("Response data:", response.data); // Debugging log
+    return response.data; // Kembalikan data hasil request
+  } catch (error) {
+    console.log("Gagal mengambil kwitansi pengembalian barang:", error);
+    throw error;
+  }
+}

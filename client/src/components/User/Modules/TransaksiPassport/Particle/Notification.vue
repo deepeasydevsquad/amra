@@ -1,11 +1,17 @@
 <script setup lang="ts">
+import { defineProps, defineEmits } from 'vue'
+
 const props = defineProps<{
   showNotification: boolean
   notificationType: string
   notificationMessage: string
 }>()
 
-const emit = defineEmits(['closeNotification'])
+const emit = defineEmits(['close'])
+
+const closeNotification = () => {
+  emit('close')
+}
 </script>
 
 <template>
@@ -22,8 +28,8 @@ const emit = defineEmits(['closeNotification'])
       class="fixed inset-0 flex items-center justify-center z-50 backdrop-filter backdrop-blur-sm"
     >
       <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 relative">
-        <div class="flex items-center space-x-4">
-          <div class="flex-shrink-0">
+        <div class="flex items-start space-x-4">
+          <div class="flex-shrink-0 mt-1">
             <div v-if="notificationType === 'success'" class="bg-green-100 rounded-full p-2">
               <svg
                 class="h-8 w-8 text-green-600"
@@ -62,11 +68,15 @@ const emit = defineEmits(['closeNotification'])
             >
               {{ notificationType === 'success' ? 'Berhasil' : 'Gagal' }}
             </h3>
-            <p class="mt-1 text-lg text-gray-500">{{ notificationMessage }}</p>
+            <div class="mt-1 text-lg text-gray-500">
+              <pre class="whitespace-pre-wrap font-sans text-base leading-relaxed">{{
+                notificationMessage
+              }}</pre>
+            </div>
           </div>
         </div>
         <button
-          @click="$emit('closeNotification')"
+          @click="closeNotification"
           class="absolute top-2 right-2 text-gray-400 hover:text-gray-500"
         >
           <span class="sr-only">Close</span>

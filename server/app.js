@@ -99,6 +99,8 @@ const arr_router = [
   "pesan_whatsapp",
   "pembayaran_fee_agen",
   "daftar_transaksi_paket",
+  "transaksi_passport",
+  "transaksi_hotel",
 ];
 
 const arr = {};

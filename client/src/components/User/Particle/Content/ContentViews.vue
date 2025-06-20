@@ -51,6 +51,8 @@ import TemplatePesanWhatsapp from '../../Modules/TemplatePesanWhatsapp/TemplateP
 import TransaksiVisa from '../../Modules/TransaksiVisa/TransaksiVisa.vue'
 import PesanWhatsapp from '../../Modules/PesanWhatsapp/PesanWhatsapp.vue'
 import PembayaranFeeAgen from '../../Modules/PembayaranFeeAgen/PembayaranFeeAgen.vue'
+import TransaksiPassport from '../../Modules/TransaksiPassport/TransaksiPassport.vue'
+import TransHotel from '../../Modules/TransHotel/TransHotel.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -96,6 +98,8 @@ const tabComponents = {
   trans_visa: TransaksiVisa,
   pesan_whatsapp: PesanWhatsapp,
   pembayaran_fee_agen: PembayaranFeeAgen,
+  trans_passport: TransaksiPassport,
+  trans_hotel: TransHotel,
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click
