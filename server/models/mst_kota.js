@@ -34,6 +34,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "mst_kota_id",
         onDelete: 'CASCADE',
       });
+      Mst_kota.hasMany(models.Bus, {
+        foreignKey: "city_id",
+        onDelete: 'CASCADE',
+      });
     }
   }
   Mst_kota.init({
