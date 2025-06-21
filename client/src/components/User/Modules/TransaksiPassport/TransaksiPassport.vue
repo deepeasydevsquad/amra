@@ -57,7 +57,7 @@ const confirmTitle = ref<string>('')
 const confirmAction = ref<(() => void) | null>(null)
 
 const TransaksiPassport = ref<TransaksiPassport[]>([])
-const isFormOpen = ref<boolean>(false) 
+const isFormOpen = ref<boolean>(false)
 const isLoading = ref<boolean>(false)
 
 interface TransaksiPassport {
@@ -185,7 +185,8 @@ const handleDelete = (id: number) => {
 
 const openCetakKwitansi = (invoice: string) => {
   console.log(`Mencetak kwitansi untuk invoice: ${invoice}`)
-  displayNotification('Fitur cetak kwitansi belum diimplementasikan.', 'warning')
+  const url = `/cetak-kwitansi-passport/${invoice}`
+  window.open(url, '_blank')
 }
 
 const handleConfirm = () => {
@@ -358,10 +359,7 @@ onMounted(async () => {
       <FormAdd
         v-if="isFormOpen"
         :isFormOpen="isFormOpen"
-        @close="
-          isFormOpen = false;
-          fetchData()
-        "
+        @close="((isFormOpen = false), fetchData())"
         @save-success="handleSaveSuccess"
       />
     </transition>

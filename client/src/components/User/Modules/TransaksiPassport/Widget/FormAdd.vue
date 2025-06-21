@@ -446,14 +446,15 @@ const unformatPrice = (formatted: string) => parseInt(formatted.replace(/[^\d]/g
                           :error="errors[`birth_place_${index}`]"
                           class="text-base"
                         />
-                        <InputDate
+                        <InputText
                           v-model="row.birth_date"
                           label="Tanggal Lahir"
                           type="date"
                           :required="true"
                           :error="errors[`birth_date_${index}`]"
-                          class="text-base col-span-2"
+                          class="text-base"
                         />
+
                       </div>
                     </td>
 

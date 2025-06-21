@@ -137,3 +137,19 @@ export const kwitansi_trans_hotel = async (param: string) => {
     throw error;
   }
 }
+
+export const cetakKwitansiPassport = async (invoice: string) => {
+  try {
+    if (!invoice || invoice === 'undefined' || invoice === 'null') {
+      throw new Error('Invoice tidak valid atau kosong.');
+    }
+    const encodedInvoice = encodeURIComponent(invoice);
+    const url = `/invoice/kwitansi-passport/${encodedInvoice}`;
+    const response = await api.get(url);
+
+    return response.data;
+  } catch (error) {
+    console.error('[SERVICE ERROR] Gagal saat mencetak kwitansi passport:', error);
+    throw error;
+  }
+};

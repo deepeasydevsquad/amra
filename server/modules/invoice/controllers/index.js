@@ -219,3 +219,25 @@ exports.kwitansi_pembayaran_transaksi_paket_umrah = async (req, res) => {
     handleServerError(res, error.message);
   }
 }
+
+exports.kwitansi_passport = async (req, res) => {
+  if (!req.params.invoice || req.params.invoice === "undefined") {
+    return res
+      .status(400)
+      .json({ error: true, err_msg: "Parameter invoice tidak valid." });
+  }
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.KwitansiPassport();
+    if (Object.keys(data).length > 0) {
+      res.status(200).json({ error: false, err_msg: "Data ditemukan", data });
+    } else {
+      res
+        .status(400)
+        .json({ error: true, err_msg: "Data kwitansi passport tidak ditemukan" });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
