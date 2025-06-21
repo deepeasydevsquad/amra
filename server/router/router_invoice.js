@@ -90,4 +90,10 @@ router.get(
   controller.kwitansi_trans_hotel
 );
 
+router.get(
+  "/invoice/kwitansi-passport/:invoice",
+  authenticateToken,
+  controller.kwitansi_passport
+);
+
 module.exports = router;

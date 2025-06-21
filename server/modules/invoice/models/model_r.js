@@ -35,6 +35,8 @@ const {
   Hotel_transaction,
   Hotel_transaction_detail,
   Mst_hotel,
+  Passport_transaction,
+  Passport_transaction_detail,
 } = require("../../../models");
 const { Op } = require("sequelize");
 const {
@@ -933,7 +935,82 @@ class Model_r {
       throw error;
     }
   }
+
+  async KwitansiPassport() {
+    await this.initialize();
+
+    try {
+      let data = { ...(await this.header_kwitansi_invoice()) };
+
+      const transaksi = await Passport_transaction.findOne({
+        where: {
+          invoice: this.req.params.invoice,
+          company_id: this.company_id,
+        },
+        include: [
+          {
+            model: Passport_transaction_detail,
+            required: true,
+            include: [
+              {
+                model: Mst_kota,
+                as: 'Mst_kotum',
+                attributes: ["name"],
+                required: false,
+              },
+            ],
+          },
+        ],
+      });
+
+      if (!transaksi) {
+        return {};
+      }
+
+      const detailsArray = transaksi.Passport_transaction_details;
+      if (!detailsArray || detailsArray.length === 0) {
+        console.error(
+          `[ERROR] Transaksi ${transaksi.invoice} ditemukan tetapi tidak memiliki detail.`
+        );
+        return {};
+      }
+
+      // Memproses SEMUA detail, bukan hanya yang pertama
+      const invoiceDetails = detailsArray.map(detail => {
+        return {
+          name: detail.name,
+          identity_number: detail.identity_number,
+          birth_place: detail.birth_place,
+          birth_date: detail.birth_date,
+          kk_number: detail.kk_number,
+          address: detail.address,
+          price: detail.price,
+          city: detail.Mst_kotum ? detail.Mst_kotum.name : "Kota Tidak Diketahui",
+        };
+      });
+
+      // Menghitung total harga dari semua detail
+      const totalPrice = detailsArray.reduce((sum, detail) => {
+          return sum + Number(detail.price || 0);
+      }, 0);
+
+      data = {
+        ...data,
+        invoice: transaksi.invoice,
+        petugas: transaksi.petugas,
+        payer: transaksi.payer,
+        payer_identity: transaksi.payer_identity,
+        createdAt: transaksi.createdAt,
+        details: invoiceDetails,
+        total_price: totalPrice,
+      };
+
+      return data;
+    } catch (error) {
+      console.error("Error in dataKwitansiPassport", error);
+      return {};
+    }
+  }
 } 
-  
 
 module.exports = Model_r;
