@@ -1,16 +1,16 @@
 <script setup lang="ts">
 // Import Icon
 import EditIcon from '@/components/User/Modules/KamarPaket/Icon/EditIcon.vue'
-import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
-import IconDownload from '@/components/Icons/IconDownload.vue'
+import DeleteIcon from '@/components/User/Modules/KamarPaket/Icon/DeleteIcon.vue'
+import IconDownload from '@/components/User/Modules/KamarPaket/Icon/IconDownload.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 
 // import element
 import LightButton from '@/components/Button/LightButton.vue'
 import DangerButton from '@/components/Button/DangerButton.vue'
-import Notification from '@/components/User/Modules/TransaksiPassport/Particle/Notification.vue'
-import Confirmation from '@/components/User/Modules/TransaksiPassport/Particle/Confirmation.vue'
+import Notification from '@/components/User/Modules/KamarPaket/Particle/Notification.vue'
+import Confirmation from '@/components/User/Modules/KamarPaket/Particle/Confirmation.vue'
 
 // Import form pop-up
 import FormAdd from '@/components/User/Modules/KamarPaket/Widget/FormAdd.vue'
