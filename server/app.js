@@ -101,6 +101,7 @@ const arr_router = [
   "daftar_transaksi_paket",
   "transaksi_passport",
   "transaksi_hotel",
+  "paket_agen",
 ];
 
 const arr = {};

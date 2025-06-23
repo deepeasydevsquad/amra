@@ -14,7 +14,7 @@ import FormAdd from '@/components/User/Modules/DaftarPaket/Widget/FormAdd.vue'
 import FormEdit from '@/components/User/Modules/DaftarPaket/Widget/FormEdit.vue'
 
 // import component
-import FormTransaksi from '@/components/User/Modules/DaftarTransaksiPaket/DaftarTransaksiPaket.vue'
+import DetailPaket from '@/components/User/Modules/DetailPaket/DetailPaket.vue'
 
 import LightButton from "@/components/Button/LightButton.vue"
 import DangerButton from "@/components/Button/DangerButton.vue"
@@ -97,7 +97,7 @@ const timeoutId = ref<number | null>(null);
 const dataPaket = ref<Paket[]>([]);
 const isFormOpen = ref<boolean>(false);
 const isFormOpenEdit = ref<boolean>(false);
-const isFormOpenTransaksi = ref<boolean>(false);
+const isPageDetailPaketOpen = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
@@ -167,8 +167,8 @@ const openFormEdit = (paketId: number) => {
   paket.value = paketId;
 }
 
-const openFormTransaksi = (paketId: number) => {
-  isFormOpenTransaksi.value = true;
+const openDetailPaket = (paketId: number) => {
+  isPageDetailPaketOpen.value = true;
   paket.value = paketId;
 }
 
@@ -218,11 +218,11 @@ const shortText = (teks:string, maxKarakter: number) => {
       @close="isFormOpenEdit = false; fetchData()"
       />
     </div>
-    <div v-else-if="isFormOpenTransaksi">
-      <FormTransaksi
-      :isFormOpenTransaksi="isFormOpenTransaksi"
+    <div v-else-if="isPageDetailPaketOpen">
+      <DetailPaket
+      :isPageDetailPaketOpen="isPageDetailPaketOpen"
       :paketId="paket"
-      @close="isFormOpenTransaksi = false; fetchData()"
+      @close="isPageDetailPaketOpen = false; fetchData()"
       />
     </div>
     <div v-else-if="dataPaket" class="container mx-auto">
@@ -312,7 +312,7 @@ const shortText = (teks:string, maxKarakter: number) => {
                 <td class="px-6 py-4 text-center">{{ paket.quota_jamaah }} Orang</td>
                 <td class="px-6 py-4 text-center">
                   <div class="flex justify-center gap-2">
-                    <LightButton  @click="openFormTransaksi(paket.id)">
+                    <LightButton  @click="openDetailPaket(paket.id)">
                       <DetailIcon></DetailIcon>
                     </LightButton>
                     <LightButton @click="openFormEdit(paket.id)">

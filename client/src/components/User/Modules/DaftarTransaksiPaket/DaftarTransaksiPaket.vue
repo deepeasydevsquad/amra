@@ -17,8 +17,6 @@ import FormEditVisa from '@/components/User/Modules/DaftarTransaksiPaket/Widgets
 import FormRefund from '@/components/User/Modules/DaftarTransaksiPaket/Widgets/FormRefund.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 
-import NavSubmenu from '@/components/User/Modules/DaftarPaket/Widget/NavSubmenu.vue';
-
 // Import service API
 import { daftarTransaksiPaket, deleteTransaksiPaket } from '@/service/daftar_transaksi_paket';
 import { ref, onMounted, computed } from 'vue';
@@ -36,7 +34,6 @@ const itemsPerPage = 100; // Jumlah daftar transaksi per halaman
 const currentPage = ref(1);
 const search = ref("");
 const totalPages = ref(0);
-const current = ref("transaksi");
 const timeoutId = ref<number | null>(null);
 
 const nextPage = () => {
@@ -173,10 +170,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="props.isDaftarTransaksiPaketOpen === false" class="flex items-center text-sm font-medium text-gray-700">
-    <NavSubmenu :current="current" @close="$emit('close')" />
-  </div>
-  <div v-else class="pl-4 flex justify-start mb-4">
+  <div v-if="props.isDaftarTransaksiPaketOpen === true" class="pl-4 flex justify-start mb-4">
       <button
       @click="$emit('close')"
       class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
