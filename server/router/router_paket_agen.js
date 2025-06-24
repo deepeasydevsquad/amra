@@ -6,6 +6,6 @@ const { authenticateToken } = require("../middleware/authenticateToken");
 
 const router = express.Router();
 
-router.get("/paket/agen", authenticateToken, controllers.daftar_agen);
+router.post("/paket/agen", authenticateToken, controllers.daftar_agen);
 
 module.exports = router;
