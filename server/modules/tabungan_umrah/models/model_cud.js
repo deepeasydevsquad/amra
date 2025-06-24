@@ -4,7 +4,6 @@ const {
   Sequelize,
   Company,
   Division,
-  Paket,
   Paket_price,
   Paket_transaction,
   Paket_transaction_payment_history,
@@ -12,8 +11,6 @@ const {
   Jamaah,
   Riwayat_tabungan,
   Refund_tabungan,
-  Agen,
-  Level_keagenan,
   Fee_agen,
   Member,
   Deposit,
@@ -257,7 +254,7 @@ class Model_cud {
           invoice: invoiceAgen,
           nominal: jamaah.Agen.Level_keagenan.default_fee || 0,
           status_bayar: 'belum_lunas',
-          info: `Fee dari transaksi ${moment(dateNow).format('YYYY MM DD')}`,
+          info: `Fee dari transaksi ${moment(dateNow).format('YYYY-MM-DD')}`,
           pembayaran_fee_agen_id: null,
           createdAt: dateNow,
           updatedAt: dateNow,
@@ -512,15 +509,8 @@ class Model_cud {
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
     
     try {
-      // call object
-      const model_r = new Model_r(this.req);
-      // get info tabungan
-      const infoTabungan = await model_r.infoTabungan(body.id, this.division_id);
       const invoiceHandover = await this.generateInvoiceHandover();
       const penerima = await this.penerima();
-
-      console.log("Data Body:", body);
-      console.log("Company ID:", this.company_id);
 
       const handoverFasilitas = await Handover_fasilitas.create({
         tabungan_id: body.id,
@@ -531,8 +521,6 @@ class Model_cud {
         createdAt: dateNow,
         updatedAt: dateNow,
       }, { transaction: this.t });
-
-      console.log("Handover Fasilitas:", handoverFasilitas);
 
       // Insert detail handover fasilitas
       for (const fasilitas_id of body.detail_fasilitas) {
@@ -869,6 +857,7 @@ class Model_cud {
         const dataFasilitasList = handoverFasilitas.map(item => ({
           paket_transaction_id: paketTransaction.id,
           invoice: item.invoice,
+          penerima: item.penerima,
           petugas: item.petugas,
           nomor_identitas_penerima: item.nomor_identitas_penerima,
           createdAt: dateNow,

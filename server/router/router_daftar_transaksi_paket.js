@@ -41,9 +41,17 @@ router.post(
   "/daftar-transaksi-paket/get-daftar-transaksi-paket/list",
   authenticateToken,
   [
+    body("id")
+      .trim()
+      .notEmpty().withMessage("ID Paket tidak boleh kosong.")
+      .isInt().withMessage("ID Paket harus berupa angka.")
+      .custom(validation.check_id_paket),
     body("pageNumber").trim(),
-    body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
-    body("search").trim(),
+    body("perpage")
+      .trim()
+      .notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
+    body("search")
+      .trim()
   ],
   controllers.getDaftarTransaksiPaket
 );

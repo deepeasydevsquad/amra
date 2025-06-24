@@ -16,13 +16,13 @@ const {
   Member,
   Handover_fasilitas,
   Handover_fasilitas_detail,
-  Deposit,
-  Jurnal,
   Handover_barang,
   Mst_fasilitas,
   Mst_kota,
   Mst_pendidikan,
   Mst_pekerjaan,
+  Mst_mahram_type,
+  Mahram
 } = require("../../../models");
 const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
 const { getAgenById } = require("../../../helper/JamaahHelper");
@@ -108,7 +108,7 @@ class Model_r {
   async getRiwayatTabungan(tabungan_id) {
     const list = await Riwayat_tabungan.findAll({
       where: { tabungan_id },
-      order: [["id", "ASC"]],
+      order: [["createdAt", "DESC"]],
     });
 
     return list.map((r) => ({
@@ -448,49 +448,51 @@ class Model_r {
     try {
       await this.initialize();
       const { id: tabunganId } = this.req.body;
-      
+
       const tabungan = await Tabungan.findByPk(tabunganId);
-      if (!tabungan?.target_paket_id) {
-        return { data: { error: true, err_msg: "Tabungan tidak memiliki target paket" }, total: 0 };
-      }
-      
-      const paket = await Paket.findByPk(tabungan.target_paket_id, { attributes: ["facilities"] });
-      const fasilitasIds = JSON.parse(paket?.facilities || "[]").map(f => +f.id);
-      
-      const handoverIds = await Handover_fasilitas.findAll({
-        attributes: ["id"],
-        where: { tabungan_id: tabunganId },
+
+      const paket = await Paket.findByPk(tabungan.target_paket_id, {
+        attributes: ["facilities"],
         raw: true,
-      }).then(rows => rows.map(r => r.id));
-      
+      });
+
+      const fasilitasIds = JSON.parse(paket?.facilities || "[]").map(f => +f.id);
+      if (!fasilitasIds.length) {
+        return { data: [], total: 0 };
+      }
+
       const usedIds = await Handover_fasilitas_detail.findAll({
         attributes: ["mst_fasilitas_id"],
-        where: {
-          handover_fasilitas_id: { [Op.in]: handoverIds.length ? handoverIds : [0] },
-        },
+        include: [
+          {
+            model: Handover_fasilitas,
+            where: { tabungan_id: tabunganId },
+          },
+        ],
         raw: true,
       }).then(rows => rows.map(r => r.mst_fasilitas_id));
-      
-      const unusedIds = fasilitasIds.filter(id => !usedIds.includes(id));
-      
+
       const fasilitas = await Mst_fasilitas.findAll({
         where: {
-          id: { [Op.in]: unusedIds.length ? unusedIds : [0] },
+          id: {
+            [Op.in]: fasilitasIds,
+            ...(usedIds.length && { [Op.notIn]: usedIds }), // hanya jika ada usedIds
+          },
           company_id: this.company_id,
         },
         order: [["name", "ASC"]],
         raw: true,
       });
-      
+
       const data = fasilitas.map(f => ({ id: f.id, name: f.name }));
-      
+
       return {
         data,
         total: data.length,
       };
-      
+
     } catch (error) {
-      console.log("Error in getMstFasilitas:", error);
+      console.error("Error in getMstFasilitas:", error);
       return {};
     }
   }
@@ -619,6 +621,42 @@ class Model_r {
     return data;
   }
 
+    async getMahramGroupByJamaahId(jamaah_id) {
+    const dataMahram = await Mahram.findOne({ where: { jamaah_id } })
+    if (!dataMahram) return []
+    const mahram_id = dataMahram.mahram_id
+    const listMahram = await Mahram.findAll({
+      where: { mahram_id, jamaah_id: { [Op.ne]: jamaah_id } },
+      include: [
+        {
+          model: Mst_mahram_type,
+          attributes: ['name'],
+          required: true
+        },
+        {
+          model: Jamaah,
+          attributes: ["nomor_telephone"],
+          required: true,
+          include: [
+            {
+              model: Member,
+              required: true,
+              attributes: ["fullname"]
+            }
+          ]
+        }
+      ]
+    })
+    return listMahram.map(item => {
+      return {
+        id: item.jamaah_id,
+        mahram_type: item.Mst_mahram_type.name,
+        fullname: item.Jamaah?.Member?.fullname ?? '-',
+        nomor_telephone: item.Jamaah?.nomor_telephone
+      }
+    })
+  }
+
   async getCetakDataJamaahTabunganUmrah() {
     try {
       await this.initialize();
@@ -729,6 +767,9 @@ class Model_r {
       const alamatInfo = tabungan.Jamaah.kelurahan_id 
         ? await getAlamatInfo(tabungan.Jamaah.kelurahan_id) 
         : null;
+      const mahram = tabungan.Jamaah.id 
+        ? await this.getMahramGroupByJamaahId(tabungan.Jamaah.id)
+        : [];
 
       data["nama_paket"] = tabungan.Paket?.name ? tabungan.Paket.name : "-";
       data["nomor_register"] = tabungan.nomor_register ? tabungan.nomor_register : "-";
@@ -769,6 +810,7 @@ class Model_r {
         tabungan.Jamaah?.status_nikah === "menikah" ? 1 :
         tabungan.Jamaah?.status_nikah === "belum_menikah" ? 2 :
         3;
+      data["mahram"] = mahram;
       data["tanggal_nikah"] = tabungan.Jamaah?.tanggal_nikah ? moment(tabungan.Jamaah.tanggal_nikah).format("YYYY-MM-DD") : "-";
       data["nama_keluarga"] = tabungan.Jamaah?.nama_keluarga ? tabungan.Jamaah.nama_keluarga : "-";
       data["alamat_keluarga"] = tabungan.Jamaah?.alamat_keluarga ? tabungan.Jamaah.alamat_keluarga : "-";

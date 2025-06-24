@@ -10,8 +10,6 @@ const {
   Detail_fasilitas_paket_la,
   Paket_la_transaction,
   Company,
-  sequelize,
-  Sequelize,
   Division,
   Jamaah,
   Tabungan,
@@ -21,8 +19,11 @@ const {
   Riwayat_pembayaran_peminjaman,
   Peminjaman,
   Handover_fasilitas,
+  Handover_fasilitas_paket,
   Handover_fasilitas_detail,
+  Handover_fasilitas_detail_paket,
   Handover_barang,
+  Handover_barang_paket,
   Mst_fasilitas,
   Visa_transaction,
   Visa_transaction_detail,
@@ -1009,6 +1010,201 @@ class Model_r {
     } catch (error) {
       console.error("Error in dataKwitansiPassport", error);
       return {};
+    }
+  }
+
+    async dataKwitansiHandoverFasilitasPaket() {
+    await this.initialize();
+    const myDate = moment(new Date()).format("DD MMMM YYYY");
+
+    try {
+      let data = { ...(await this.header_kwitansi_invoice()) };
+
+      const adaInvoice = await Handover_fasilitas_paket.findOne({
+        where: { invoice: this.req.params.invoice },
+      });
+      
+      console.log(this.req.params)
+      console.log("ini adaInvoive: ", adaInvoice)
+
+      if (!adaInvoice) {
+        return {};
+      }
+
+      const hasil = await Handover_fasilitas_paket.findOne({
+        attributes: [
+          "id",
+          "invoice",
+          "petugas",
+          "penerima",
+          "nomor_identitas_penerima",
+          "createdAt",
+        ],
+        where: { invoice: this.req.params.invoice },
+        include: [
+          {
+            model: Paket_transaction,
+            include: [
+              {
+                model: Jamaah,
+                include: [
+                  {
+                    model: Member,
+                    attributes: ["fullname", "whatsapp_number"],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+
+      if (!hasil) return {};
+
+      // Basic info
+      data.invoice = hasil.invoice;
+      data.petugas = hasil.petugas;
+      data.penerima = hasil.penerima;
+      data.nomor_identitas_penerima = hasil.nomor_identitas_penerima;
+      data.tanggal_transaksi = moment(hasil.createdAt).format(
+        "YYYY-MM-DD HH:mm:ss"
+      );
+
+      // Detail fasilitas
+      const details = await Handover_fasilitas_detail_paket.findAll({
+        where: { handover_fasilitas_paket_id: hasil.id },
+        raw: true,
+      });
+
+      if (!details || details.length === 0) {
+        data.detail = [];
+      } else {
+        const fasilitasIds = details.map((d) => d.mst_fasilitas_id);
+
+        const fasilitasList = await Mst_fasilitas.findAll({
+          where: { id: { [Op.in]: fasilitasIds } },
+          attributes: ["id", "name"],
+          raw: true,
+        });
+
+        const fasilitasMap = fasilitasList.reduce((acc, f) => {
+          acc[f.id] = f.name;
+          return acc;
+        }, {});
+
+        data.detail = details.map((detail) => ({
+          name: fasilitasMap[detail.mst_fasilitas_id] || "Tidak diketahui",
+        }));
+      }
+
+      // Info jamaah
+      const member = hasil?.Tabungan?.Jamaah?.Member;
+      if (member) {
+        data.fullname = member.fullname;
+        data.whatsapp_number = member.whatsapp_number;
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Error in dataKwitansiHandoverFasilitasPaket:", error);
+      throw error;
+    }
+  }
+
+    async dataKwitansiHandoverBarangPaket() {
+    await this.initialize();
+
+    try {
+      let data = { ...(await this.header_kwitansi_invoice()) };
+
+      const adaInvoice = await Handover_barang_paket.findOne({
+        where: { invoice_handover: this.req.params.invoice },
+      });
+
+      if (!adaInvoice) {
+        return {};
+      }
+
+      const handoverBarang = await Handover_barang_paket.findAll({
+        where: { invoice_handover: this.req.params.invoice },
+        attributes: [
+          "invoice_handover",
+          "nama_barang",
+          "giver_handover",
+          "giver_handover_identity",
+          "giver_handover_hp",
+          "giver_handover_address",
+          "receiver_handover",
+          "date_taken",
+        ],
+        raw: true,
+      });
+      data.invoice_handover = handoverBarang[0].invoice_handover;
+      data.handover_barang = handoverBarang.map((item) => item.nama_barang);
+      data.giver_handover = handoverBarang[0].giver_handover;
+      data.giver_handover_identity = handoverBarang[0].giver_handover_identity;
+      data.giver_handover_hp = handoverBarang[0].giver_handover_hp;
+      data.giver_handover_address = handoverBarang[0].giver_handover_address;
+      data.receiver_handover = handoverBarang[0].receiver_handover;
+      data.receiver_jabatan = (await tipe(this.req)).toUpperCase();
+      data.date_taken = moment(handoverBarang[0].date_taken).format(
+        "YYYY-MM-DD HH:mm:ss"
+      );
+
+      return data;
+    } catch (error) {
+      console.log("Error in dataKwitansiHandoverBarangPaket", error);
+      throw error;
+    }
+  }
+
+    async dataKwitansiPengembalianHandoverBarangPaket() {
+    await this.initialize();
+
+    try {
+      let data = { ...(await this.header_kwitansi_invoice()) };
+
+      const adaInvoice = await Handover_barang_paket.findOne({
+        where: { invoice_returned: this.req.params.invoice },
+      });
+
+      if (!adaInvoice) {
+        return {};
+      }
+
+      const handoverBarang = await Handover_barang_paket.findAll({
+        where: { invoice_returned: this.req.params.invoice },
+        attributes: [
+          "invoice_returned",
+          "nama_barang",
+          "giver_returned",
+          "receiver_returned",
+          "receiver_returned_identity",
+          "receiver_returned_hp",
+          "receiver_returned_address",
+          "date_returned",
+        ],
+        raw: true,
+      });
+      data.invoice_returned = handoverBarang[0].invoice_returned;
+      data.handover_barang = handoverBarang.map((item) => item.nama_barang);
+      data.giver_returned = handoverBarang[0].giver_returned;
+      data.giver_jabatan = (await tipe(this.req)).toUpperCase();
+      data.receiver_returned = handoverBarang[0].receiver_returned;
+      data.receiver_returned_identity =
+        handoverBarang[0].receiver_returned_identity;
+      data.receiver_returned_hp = handoverBarang[0].receiver_returned_hp;
+      data.receiver_returned_address =
+        handoverBarang[0].receiver_returned_address;
+      data.date_returned = moment(handoverBarang[0].date_returned).format(
+        "YYYY-MM-DD HH:mm:ss"
+      );
+
+      console.log(data);
+      return data;
+    } catch (error) {
+      console.log("Error in dataKwitansiPengembalianHandoverBarangPaket", error);
+      throw error;
     }
   }
 } 

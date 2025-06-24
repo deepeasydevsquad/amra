@@ -108,7 +108,7 @@ watch(
         </label>
       </template>
       <div v-else class="text-center text-gray-500 py-2">
-        Data tidak ditemukan
+        {{ label }} tidak ditemukan
       </div>
     </div>
 

@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     paket_transaction_id: DataTypes.INTEGER,
     invoice: DataTypes.STRING,
     petugas: DataTypes.STRING,
+    penerima: DataTypes.STRING,
     nomor_identitas_penerima: DataTypes.STRING
   }, {
     sequelize,

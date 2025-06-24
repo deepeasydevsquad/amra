@@ -17,8 +17,6 @@ import FormEditVisa from '@/components/User/Modules/DaftarTransaksiPaket/Widgets
 import FormRefund from '@/components/User/Modules/DaftarTransaksiPaket/Widgets/FormRefund.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 
-import NavSubmenu from '@/components/User/Modules/DaftarPaket/Widget/NavSubmenu.vue';
-
 // Import service API
 import { daftarTransaksiPaket, deleteTransaksiPaket } from '@/service/daftar_transaksi_paket';
 import { ref, onMounted, computed } from 'vue';
@@ -36,7 +34,6 @@ const itemsPerPage = 100; // Jumlah daftar transaksi per halaman
 const currentPage = ref(1);
 const search = ref("");
 const totalPages = ref(0);
-const current = ref("transaksi");
 const timeoutId = ref<number | null>(null);
 
 const nextPage = () => {
@@ -131,8 +128,9 @@ const openFormRefund = (id: number) => {
 const fetchData = async () => {
   try {
     isLoading.value = true
-    search.value = props.search || ''
+    search.value = props.search ? props.search : search.value
     const response = await daftarTransaksiPaket({
+      id: props.paketId,
       search: search.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value
@@ -173,10 +171,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="props.isDaftarTransaksiPaketOpen === false" class="flex items-center text-sm font-medium text-gray-700">
-    <NavSubmenu :current="current" @close="$emit('close')" />
-  </div>
-  <div v-else class="pl-4 flex justify-start mb-4">
+  <div v-if="props.isDaftarTransaksiPaketOpen === true" class="pl-4 flex justify-start mb-4">
       <button
       @click="$emit('close')"
       class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
@@ -193,15 +188,17 @@ onMounted(() => {
     </div>
       <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
-      <button
-        :disabled="props.isDaftarTransaksiPaketOpen"
-        @click="openForm()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Mulai transaksi
-      </button>
+      <div v-if="!props.isDaftarTransaksiPaketOpen">
+        <button
+          @click="openForm()"
+          class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Mulai transaksi
+        </button>
+      </div>
+      <div v-else></div>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
@@ -305,6 +302,7 @@ onMounted(() => {
       @status="(payload) => displayNotification(payload.err_msg || 'Pengembalian Barang gagal ditambahkan', payload.error ? 'error' : 'success')"
       />
   </transition>
+
 
   <!-- Form Edit Visa -->
   <transition

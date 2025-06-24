@@ -369,31 +369,15 @@ const cetakInvoice = async (invoice: string) => {
           <td class="py-3 px-6 border-gray-300 align-top">
               <table class="w-full">
                 <tbody>
-
-                    <tr v-for="(label, value) in {
-                        'Nama Klien': paket.client_name,
-                        'Nomor HP': paket.client_hp_number,
-                        'Alamat': paket.client_address,
-                        }" :key="label" class="border-gray-200 hover:bg-gray-200">
-                        <td class="py-1.5">{{ value }}</td>
-                        <td class="pl-8 pr-2">:</td>
-                        <td class="text-right space-y-2 text-sm py-1">{{ label }}</td>
-                      </tr>
-                  <!-- <tr>
-                    <td class="w-[30%]">Nama Klien</td>
-                    <td>:</td>
-                    <td class="text-right space-y-2 text-sm py-1">{{ paket.client_name }}</td>
+                  <tr v-for="(label, value) in {
+                    'Nama Klien': paket.client_name,
+                    'Nomor HP': paket.client_hp_number,
+                    'Alamat': paket.client_address,
+                    }" :key="label" class="border-gray-200 hover:bg-gray-200">
+                    <td class="py-1.5">{{ value }}</td>
+                    <td class="pl-8 pr-2">:</td>
+                    <td class="text-right space-y-2 text-sm py-1">{{ label }}</td>
                   </tr>
-                  <tr>
-                    <td class="w-[40%]">Nomor HP</td>
-                    <td>:</td>
-                    <td class="text-right space-y-2 text-sm py-1">{{ paket.client_hp_number }}</td>
-                  </tr>
-                  <tr>
-                    <td class="w-[40%]">Alamat</td>
-                    <td>:</td>
-                    <td class="text-right space-y-2 text-sm py-1">{{ paket.client_address }}</td>
-                  </tr> -->
                 </tbody>
               </table>
           </td>
