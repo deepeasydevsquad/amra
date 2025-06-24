@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getDownloadData } from '@/service/kamar_paket'
-import Header from '@/components/User/Modules/Invoice/Particle/Header.vue' // Pastikan path header benar
+import Header from '@/components/User/Modules/Invoice/Particle/Header.vue'
 
 const isLoading = ref(true)
 const data = ref<any>(null)
@@ -56,49 +56,60 @@ onMounted(async () => {
     <div class="border-b-2 border-black my-4"></div>
     <h2 class="text-lg font-bold text-center mb-6">DAFTAR KAMAR JAMAAH</h2>
 
-    <!-- Daftar Kamar -->
-    <div v-for="(room, index) in data.rooms" :key="index" class="mb-6 page-break-inside-avoid">
+    <!-- Tabel Per Kamar -->
+    <div
+      v-for="(room, roomIndex) in data.rooms"
+      :key="roomIndex"
+      class="mb-8 page-break-inside-avoid"
+    >
       <table class="w-full border-collapse border border-black text-xs">
         <thead class="bg-gray-100">
           <tr>
-            <th class="border border-black p-2 text-left" colspan="2">INFORMASI KAMAR</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="border border-black p-2 w-1/4"><strong>Tipe Kamar</strong></td>
-            <td class="border border-black p-2">{{ room.tipe_kamar }}</td>
-          </tr>
-          <tr>
-            <td class="border border-black p-2"><strong>Hotel</strong></td>
-            <td class="border border-black p-2">{{ room.hotel_name }} ({{ room.nama_kota }})</td>
-          </tr>
-          <tr>
-            <td class="border border-black p-2"><strong>Kapasitas</strong></td>
-            <td class="border border-black p-2">{{ room.kapasitas_kamar }} Orang</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h4 class="font-semibold mt-3 mb-1">Daftar Jamaah:</h4>
-      <table class="w-full border-collapse border border-black text-xs">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="border border-black p-2 text-left w-[5%]">No.</th>
-            <th class="border border-black p-2 text-left w-[55%]">Nama Lengkap</th>
-            <th class="border border-black p-2 text-left w-[40%]">Nomor Identitas</th>
+            <th class="border border-black p-2 text-left w-[8%]">No.</th>
+            <th class="border border-black p-2 text-left w-[30%]">Nama Lengkap</th>
+            <th class="border border-black p-2 text-left w-[22%]">Nomor Identitas</th>
+            <th class="border border-black p-2 text-left w-[15%]">Tipe Kamar</th>
+            <th class="border border-black p-2 text-left w-[15%]">Nama Hotel</th>
+            <th class="border border-black p-2 text-left w-[10%]">Kapasitas</th>
           </tr>
         </thead>
         <tbody>
           <tr v-if="room.jamaah.length === 0">
-            <td colspan="3" class="border border-black p-2 text-center italic">
-              Belum ada jamaah di kamar ini.
+            <td class="border border-black p-2 text-center">-</td>
+            <td class="border border-black p-2 text-center italic">
+              Belum ada jamaah di kamar ini
             </td>
+            <td class="border border-black p-2 text-center">-</td>
+            <td class="border border-black p-2">{{ room.tipe_kamar }}</td>
+            <td class="border border-black p-2">{{ room.hotel_name }} ({{ room.nama_kota }})</td>
+            <td class="border border-black p-2 text-center">{{ room.kapasitas_kamar }}</td>
           </tr>
+
           <tr v-for="(jamaah, jamaahIndex) in room.jamaah" :key="jamaahIndex">
             <td class="border border-black p-2 text-center">{{ jamaahIndex + 1 }}</td>
             <td class="border border-black p-2">{{ jamaah.nama }}</td>
             <td class="border border-black p-2">{{ jamaah.no_identity }}</td>
+            <td
+              v-if="jamaahIndex === 0"
+              class="border border-black p-2"
+              :rowspan="room.jamaah.length"
+            >
+              {{ room.tipe_kamar }}
+            </td>
+            <td
+              v-if="jamaahIndex === 0"
+              class="border border-black p-2"
+              :rowspan="room.jamaah.length"
+            >
+              {{ room.hotel_name }} ({{ room.nama_kota }})
+            </td>
+            <td
+              v-if="jamaahIndex === 0"
+              class="border border-black p-2 text-center"
+              :rowspan="room.jamaah.length"
+            >
+              {{ room.kapasitas_kamar }}
+            </td>
           </tr>
         </tbody>
       </table>
