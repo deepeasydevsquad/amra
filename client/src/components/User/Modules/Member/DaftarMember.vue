@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { daftarMember, daftarCabang, getInfoEditMember, deleteMember as deleteMemberApi  } from "@/service/member"
-import { paramCabang  } from '@/service/param_cabang'; // Import function POST
+import { paramCabang  } from '@/service/param_cabang';
 import DeleteIcon from '@/components/User/Modules/Member/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/Member/Icon/EditIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
