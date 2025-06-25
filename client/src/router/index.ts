@@ -26,6 +26,7 @@ import KwitansiHandoverFasilitasPaket from '@/components/User/Modules/Invoice/Kw
 import KwitansiHandoverBarangPaket from '@/components/User/Modules/Invoice/KwitansiHandoverBarangPaket.vue'
 import KwitansiPengembalianBarangPaket from '@/components/User/Modules/Invoice/KwitansiPengembalianBarangPaket.vue'
 import CetakDataAbsensiJamaah from '@/components/User/Modules/DaftarJamaahPaket/Widgets/CetakDataAbsensiJamaah.vue'
+import DownloadDaftarKamar from '@/components/User/Modules/KamarPaket/Widget/DownloadDaftarKamar.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -174,6 +175,12 @@ const router = createRouter({
       path: '/kwitansi-pengembalian-handover-barang-paket/:invoice',
       name: 'kwitansi-pengembalian-handover-barang-paket',
       component: KwitansiPengembalianBarangPaket,
+    },
+    {
+      path: '/download-daftar-kamar',
+      name: 'download-daftar-kamar',
+      component: DownloadDaftarKamar,
+
     },
   ],
 })
