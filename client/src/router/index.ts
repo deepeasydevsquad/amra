@@ -21,6 +21,7 @@ import KwitansiPembayaranTransaksiPaket from '@/components/User/Modules/Invoice/
 import InvoiceTransHotel from '@/components/User/Modules/Invoice/InvoiceTransHotel.vue'
 import TransaksiPassport from '@/components/User/Modules/TransaksiPassport/TransaksiPassport.vue'
 import CetakKwitansiPassport from '@/components/User/Modules/Invoice/InvoiceTransaksiPassport.vue'
+import DownloadDaftarKamar from '@/components/User/Modules/KamarPaket/Widget/DownloadDaftarKamar.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -144,6 +145,12 @@ const router = createRouter({
       path: '/cetak-kwitansi-passport/:invoice',
       name: 'cetak-kwitansi-passport',
       component: CetakKwitansiPassport,
+    },
+
+    {
+      path: '/download-daftar-kamar',
+      name: 'download-daftar-kamar',
+      component: DownloadDaftarKamar,
     },
   ],
 })

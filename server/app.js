@@ -101,7 +101,11 @@ const arr_router = [
   "daftar_transaksi_paket",
   "transaksi_passport",
   "transaksi_hotel",
+<<<<<<< HEAD
   "paket_agen",
+=======
+  "kamar_paket",
+>>>>>>> ec8a44707ae5f21c15b466e7ef4f1273788265f4
 ];
 
 const arr = {};
