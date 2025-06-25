@@ -104,6 +104,7 @@ const arr_router = [
   "daftar_jamaah_paket",
   "paket_agen",
   "kamar_paket",
+  "bus_paket",
 ];
 
 const arr = {};
