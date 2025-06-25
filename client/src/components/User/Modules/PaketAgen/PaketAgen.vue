@@ -70,27 +70,39 @@ const handlePageNow = (page: number) => {
 }
 
 const filteredData = computed(() => {
+  console.log('Search:', searchQuery.value)
+  console.log('Data:', data.value)
+
   if (!searchQuery.value) return data.value
+
   const keyword = searchQuery.value.toLowerCase()
-  return data.value.filter(
+
+  const result = data.value.filter(
     (item) =>
-      item.nama_agen.toLowerCase().includes(keyword) ||
-      item.agen_id.toString().includes(keyword) ||
-      item.whatsapp_number.includes(keyword) ||
-      item.rekrutans.some(
+      item.nama_agen?.toLowerCase().includes(keyword) ||
+      item.agen_id?.toString().includes(keyword) ||
+      item.whatsapp_number?.includes(keyword) ||
+      item.rekrutans?.some(
         (jamaah: any) =>
-          jamaah.fullname.toLowerCase().includes(keyword) ||
-          jamaah.identity_number.includes(keyword),
+          jamaah.fullname?.toLowerCase().includes(keyword) ||
+          jamaah.identity_number?.includes(keyword),
       ),
   )
+
+  console.log('Filtered Result:', result)
+  return result
 })
 
+const props = defineProps<{
+  paketId: number
+}>()
 const data = ref<any[]>([]) // array kosong
 
 const fetchData = async () => {
   try {
-    const response = await get_paket_agen()
-    data.value = response
+    const response = await get_paket_agen({ paket_id: props.paketId })
+    data.value = response.data
+    console.log(data.value)
   } catch (error) {
     console.error(error)
   }
@@ -98,6 +110,7 @@ const fetchData = async () => {
 
 onMounted(() => {
   fetchData()
+  searchQuery.value = ''
 })
 </script>
 
@@ -170,12 +183,12 @@ onMounted(() => {
 
             <!-- Fee -->
             <td class="text-center px-6 py-4 align-top">
-              Rp {{ item.total_belum_lunas.toLocaleString() }}
+              Rp {{ (item.total_belum_lunas ?? 0).toLocaleString() }}
             </td>
 
             <!-- Sudah Bayar -->
             <td class="text-center px-6 py-4 align-top">
-              Rp {{ item.total_lunas.toLocaleString() }}
+              Rp {{ (item.total_lunas ?? 0).toLocaleString() }}
             </td>
 
             <!-- Aksi -->
