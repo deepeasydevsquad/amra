@@ -133,7 +133,7 @@ onUnmounted(() => {
 
       <!-- No results message -->
       <div v-else class="px-4 py-2 text-gray-500 text-center">
-        Data tidak ditemukan
+        {{ label }} tidak ditemukan
       </div>
     </div>
   </div>

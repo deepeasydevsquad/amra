@@ -152,10 +152,10 @@ exports.kwitansi_pengembalian_handover_barang = async (req, res) => {
 exports.kwitansi_visa = async (req, res) => {
   if (!req.params.invoice || req.params.invoice === "undefined") {
     return res
-      .status(400)
-      .json({ error: true, err_msg: "Parameter invoice tidak valid." });
+    .status(400)
+    .json({ error: true, err_msg: "Parameter invoice tidak valid." });
   }
-
+  
   try {
     const model = new Model_r(req);
     const data = await model.KwitansiVisa();
@@ -163,8 +163,8 @@ exports.kwitansi_visa = async (req, res) => {
       res.status(200).json({ error: false, err_msg: "Data ditemukan", data });
     } else {
       res
-        .status(400)
-        .json({ error: true, err_msg: "Data kwitansi visa tidak ditemukan" });
+      .status(400)
+      .json({ error: true, err_msg: "Data kwitansi visa tidak ditemukan" });
     }
   } catch (error) {
     handleServerError(res, error.message);
@@ -189,7 +189,7 @@ exports.kwitansi_pembayaran_fee_agen = async (req, res) => {
 
 exports.kwitansi_trans_hotel = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
-
+  
   try {
     const model = new Model_r(req);
     const data = await model.invoice_trans_hotel();
@@ -201,12 +201,12 @@ exports.kwitansi_trans_hotel = async (req, res) => {
   } catch (error) {
     handleServerError(res, error.message);
   }
-
+  
 };
 
 exports.kwitansi_pembayaran_transaksi_paket_umrah = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
-
+  
   try {
     const model = new Model_r(req);
     const data = await model.dataKwitansiPembayaranTransaksiPaketUmrah();
@@ -226,7 +226,7 @@ exports.kwitansi_passport = async (req, res) => {
       .status(400)
       .json({ error: true, err_msg: "Parameter invoice tidak valid." });
   }
-
+  
   try {
     const model = new Model_r(req);
     const data = await model.KwitansiPassport();
@@ -234,8 +234,56 @@ exports.kwitansi_passport = async (req, res) => {
       res.status(200).json({ error: false, err_msg: "Data ditemukan", data });
     } else {
       res
-        .status(400)
-        .json({ error: true, err_msg: "Data kwitansi passport tidak ditemukan" });
+      .status(400)
+      .json({ error: true, err_msg: "Data kwitansi passport tidak ditemukan" });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
+exports.kwitansi_handover_fasilitas_paket = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.dataKwitansiHandoverFasilitasPaket();
+    if (Object.keys(data).length > 0) {
+      res.status(200).json({ error: false, err_msg: "Data ditemukan", data });
+    } else {
+      res.status(400).json({ error: true, err_msg: "Data tidak ditemukan" });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
+exports.kwitansi_handover_barang_paket = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.dataKwitansiHandoverBarangPaket();
+    if (Object.keys(data).length > 0) {
+      res.status(200).json({ error: false, err_msg: "Data ditemukan", data });
+    } else {
+      res.status(400).json({ error: true, err_msg: "Data tidak ditemukan" });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
+exports.kwitansi_pengembalian_handover_barang_paket = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.dataKwitansiPengembalianHandoverBarangPaket();
+    if (Object.keys(data).length > 0) {
+      res.status(200).json({ error: false, err_msg: "Data ditemukan", data });
+    } else {
+      res.status(400).json({ error: true, err_msg: "Data tidak ditemukan" });
     }
   } catch (error) {
     handleServerError(res, error.message);

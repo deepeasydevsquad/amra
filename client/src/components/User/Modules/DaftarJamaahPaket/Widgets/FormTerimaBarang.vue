@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
-import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue'
-import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confirmation.vue'
-import { addHandoverBarang } from "@/service/tabungan_umrah"
+import Notification from '@/components/User/Modules/DaftarJamaahPaket/Particle/Notification.vue'
+import Confirmation from '@/components/User/Modules/DaftarJamaahPaket/Particle/Confirmation.vue'
+import { addHandoverBarangPaket } from "@/service/daftar_jamaah_paket"
 
 import { ref, reactive } from 'vue'
 
@@ -19,8 +19,10 @@ const confirmAction = ref<(() => void) | null>(null)
 
 const props = defineProps<{
   isFormTerimaBarangOpen: boolean,
-  tabunganId: number,
-}>()
+  transpaketId: number,
+}>();
+
+console.log(props)
 
 const emit = defineEmits<{
   (e: 'close'): void
@@ -36,7 +38,6 @@ const errors = ref({
 })
 
 const form = reactive({
-  id: props.tabunganId ?? null,
   barangList: [''] as string[],
   giver_handover: '',
   giver_handover_identity: '',
@@ -75,8 +76,8 @@ const validateForm = (): boolean => {
     giver_handover_address: '',
   }
 
-  if (!form.id) {
-    displayNotification('ID Tabungan Umrah kosong', 'error')
+  if (!props.transpaketId) {
+    displayNotification('ID Transaksi Paket tidak ditemukan', 'error')
     isValid = false
   }
 
@@ -134,7 +135,7 @@ async function saveData() {
 
       try {
         const payload = {
-          id: form.id,
+          id: props.transpaketId ?? null,
           barangList: form.barangList,
           giver_handover: form.giver_handover,
           giver_handover_identity: form.giver_handover_identity,
@@ -142,12 +143,12 @@ async function saveData() {
           giver_handover_address: form.giver_handover_address
         }
 
-        const response = await addHandoverBarang(payload)
+        const response = await addHandoverBarangPaket(payload)
         if (response.data === null) {
           displayNotification('Nomor invoice tidak tersedia', 'error')
           return
         }
-        window.open(`/kwitansi-handover-barang/${response.data.invoice}`, '_blank')
+        window.open(`/kwitansi-handover-barang-paket/${response.data.invoice}`, '_blank')
         emit('status', { error: false, err_msg: 'Data handover barang berhasil diserahkan' })
         emit('close')
       } catch (error) {

@@ -23,6 +23,9 @@ module.exports = {
       petugas: {
         type: Sequelize.STRING
       },
+      penerima: {
+        type: Sequelize.STRING
+      },
       nomor_identitas_penerima: {
         type: Sequelize.STRING
       },

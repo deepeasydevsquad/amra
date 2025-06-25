@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import SearchableCheckboxList from '@/components/User/Modules/TabunganUmrah/Particle/SearchableCheckboxList.vue'
-import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue'
-import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confirmation.vue'
+import Notification from '@/components/User/Modules/DaftarJamaahPaket/Particle/Notification.vue'
+import Confirmation from '@/components/User/Modules/DaftarJamaahPaket/Particle/Confirmation.vue'
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 import { onMounted, reactive, ref } from 'vue'
-import { getHandoverFasilitas, getMstFasilitas, addHandoverFasilitas  } from '@/service/tabungan_umrah'
+import { getHandoverFasilitas, getMstFasilitas, addHandoverFasilitas  } from '@/service/daftar_jamaah_paket'
 
 const props = defineProps<{
-  isFormAddHandoverOpen: boolean;
-  tabunganId: number | null;
+  isFormHandoverFasilitasOpen: boolean;
+  transpaketId: number | null;
 }>()
+
 const emit = defineEmits<{
   (e: 'close'): void
   (e: 'status', payload: {error: boolean, err_msg?: string}): void
@@ -91,8 +92,8 @@ const fetchData = async () => {
   try {
     isLoading.value = true
     const [Mst_paketResponse, handoverFasilitasResponse] = await Promise.all([
-      getMstFasilitas(props.tabunganId || 0),
-      getHandoverFasilitas(props.tabunganId || 0),
+      getMstFasilitas(props.transpaketId || 0),
+      getHandoverFasilitas(props.transpaketId || 0),
     ])
 
     Mst_paket.value = Mst_paketResponse.data || []
@@ -158,7 +159,7 @@ const saveData = async () => {
       try {
         isLoading.value = true
         const payload = {
-          id: props.tabunganId,
+          id: props.transpaketId,
           penerima: form.nama_penerima,
           nomor_identitas_penerima: form.nomor_identitas_penerima,
           detail_fasilitas: form.detail_fasilitas,
@@ -171,7 +172,7 @@ const saveData = async () => {
           displayNotification('Nomor invoice tidak tersedia', 'error')
           return
         }
-        window.open(`/kwitansi-handover-fasilitas/${response.data.invoice}`, '_blank')
+        window.open(`/kwitansi-handover-fasilitas-paket/${response.data.invoice}`, '_blank')
         emit('close')
       } catch (error) {
         const errorMessage = error?.response?.data?.error_msg ? error.response.data.error_msg : 'Terjadi kesalahan saat menyimpan data'
@@ -191,7 +192,7 @@ onMounted(() => { fetchData() })
   <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
     <div class="animate-spin h-5 w-5 border-b-2 border-white rounded-full"></div>
   </div>
-  <div v-if="props.isFormAddHandoverOpen && !isLoading" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div v-if="props.isFormHandoverFasilitasOpen && !isLoading" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="flex min-h-screen items-end justify-center px-6 pt-6 pb-20 text-center sm:block sm:p-0">
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="$emit('close')"></div>
       <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>

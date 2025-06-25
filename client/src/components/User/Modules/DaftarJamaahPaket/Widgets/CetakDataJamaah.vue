@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import Header from '@/components/User/Modules/TabunganUmrah/Particle/Header.vue';
-import Footer from '@/components/User/Modules/TabunganUmrah/Particle/Footer.vue';
+import Header from '@/components/User/Modules/DaftarJamaahPaket/Particle/Header.vue';
+import Footer from '@/components/User/Modules/DaftarJamaahPaket/Particle/Footer.vue';
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { cetakDataJamaahTabunganUmrah } from '@/service/tabungan_umrah';
+import { cetakDataJamaahPaket } from '@/service/daftar_jamaah_paket';
 
 const props = defineProps<{
   isFormCetakDataJamaahOpen: boolean;
@@ -21,7 +21,7 @@ const query = route.query;
 const fetchData = async () => {
   isLoading.value = true;
   try {
-    const response = await cetakDataJamaahTabunganUmrah(params.id, query.petugasId);
+    const response = await cetakDataJamaahPaket(params.id, query.petugasId);
     data.value = response.data;
     console.log('Petugas data:', data.value);
   } catch (error) {
@@ -427,7 +427,7 @@ function formatDateToBoxes(dateStr: string): string[] {
 <style scoped>
 @media print {
   @page {
-    size: 8.5in 14in; /* Legal Size */
+    size: 210mm 297mm; /* A4 Size */
     margin: 0;
     -webkit-print-color-adjust: exact;
   }

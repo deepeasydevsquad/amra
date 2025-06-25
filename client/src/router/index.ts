@@ -21,6 +21,11 @@ import KwitansiPembayaranTransaksiPaket from '@/components/User/Modules/Invoice/
 import InvoiceTransHotel from '@/components/User/Modules/Invoice/InvoiceTransHotel.vue'
 import TransaksiPassport from '@/components/User/Modules/TransaksiPassport/TransaksiPassport.vue'
 import CetakKwitansiPassport from '@/components/User/Modules/Invoice/InvoiceTransaksiPassport.vue'
+import CetakDataJamaahPaket from '@/components/User/Modules/DaftarJamaahPaket/Widgets/CetakDataJamaah.vue'
+import KwitansiHandoverFasilitasPaket from '@/components/User/Modules/Invoice/KwitansiHandoverFasilitasPaket.vue'
+import KwitansiHandoverBarangPaket from '@/components/User/Modules/Invoice/KwitansiHandoverBarangPaket.vue'
+import KwitansiPengembalianBarangPaket from '@/components/User/Modules/Invoice/KwitansiPengembalianBarangPaket.vue'
+import CetakDataAbsensiJamaah from '@/components/User/Modules/DaftarJamaahPaket/Widgets/CetakDataAbsensiJamaah.vue'
 import DownloadDaftarKamar from '@/components/User/Modules/KamarPaket/Widget/DownloadDaftarKamar.vue'
 
 const router = createRouter({
@@ -146,11 +151,36 @@ const router = createRouter({
       name: 'cetak-kwitansi-passport',
       component: CetakKwitansiPassport,
     },
-
+    {
+      path: '/daftar-jamaah-paket/absensi-jamaah-paket/:paketId/cetak',
+      name: 'absensi-jamaah-paket',
+      component: CetakDataAbsensiJamaah,
+    },
+    {
+      path: '/daftar-jamaah-paket/cetak-data-jamaah/:id/cetak',
+      name: 'cetak-jamaah-paket',
+      component: CetakDataJamaahPaket,
+    },
+    {
+      path: '/kwitansi-handover-fasilitas-paket/:invoice',
+      name: 'kwitansi-handover-fasilitas-paket',
+      component: KwitansiHandoverFasilitasPaket,
+    },
+    {
+      path: '/kwitansi-handover-barang-paket/:invoice',
+      name: 'kwitansi-handover-barang-paket',
+      component: KwitansiHandoverBarangPaket,
+    },
+    {
+      path: '/kwitansi-pengembalian-handover-barang-paket/:invoice',
+      name: 'kwitansi-pengembalian-handover-barang-paket',
+      component: KwitansiPengembalianBarangPaket,
+    },
     {
       path: '/download-daftar-kamar',
       name: 'download-daftar-kamar',
       component: DownloadDaftarKamar,
+
     },
   ],
 })

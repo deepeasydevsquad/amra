@@ -117,7 +117,7 @@ class Model_r {
     const offset = (pageNumber - 1) * perpage;
     const search = body.search || "";
 
-    let where = { division_id: this.division_id };
+    let where = { paket_id: body.id, division_id: this.division_id };
     if (search) {
       const paketTransactionIds = await this.getPaketTransactionIdsFromSearch(search);
       where = { ...where, id: { [Op.in]: paketTransactionIds } };
@@ -168,8 +168,10 @@ class Model_r {
     ]
 
     try {
-      const totalData = await Paket_transaction.count({ where });
-      const dataList = await Paket_transaction.findAll(sql);
+      const query = await dbList(sql);
+      const totalData = await Paket_transaction.findAndCountAll(query.total);
+      const dataList = await Paket_transaction.findAll(query.sql);
+
       const data = await Promise.all(
         dataList.map(async (e) => {
           return await this.transformDaftarTransaksiPaket(e);
@@ -178,7 +180,7 @@ class Model_r {
 
       return { 
         data: data,
-        total: totalData
+        total: await totalData.count
       };    
     } catch (error) {
       console.log("Error in daftarTransaksiPaket:", error);
