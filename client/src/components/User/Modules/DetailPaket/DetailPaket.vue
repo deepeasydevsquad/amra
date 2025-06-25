@@ -32,7 +32,7 @@ console.log(currentComponent)
   <div v-if="props.isPageDetailPaketOpen">
     <NavSubmenu
       @close="emit('close')"
-      @update:current="(val) => current = val"
+      @update:current="(val : any) => current = val"
     />
 
     <component
