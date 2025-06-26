@@ -19,27 +19,15 @@ class Model_r {
   }
 
   async list() {
-    // initialize dependensi properties
     await this.initialize();
     const body = this.req.body;
     try {
-
       const akuntansi = new Akuntansi();
-            
-      const saldo_awals = await akuntansi.saldo_awal(body.periode, body.cabang); // Ambil daftar investor dari model
-      const data_jurnal = await akuntansi.get_jurnal_by_periode(body.periode, body.cabang); // Ambil daftar investor dari model
-
+      const saldo_awals = await akuntansi.saldo_awal(body.periode, body.cabang);
+      const data_jurnal = await akuntansi.get_jurnal_by_periode(body.periode, body.cabang);
       const list = await akuntansi.total_saldo(body.periode, data_jurnal.akun_debet, data_jurnal.akun_kredit, body.cabang, saldo_awals, this.company_id)
-
-      console.log("-----------list");
-      console.log(list);
-      console.log("-----------list");
-      
       return { list : list };
     } catch (error) {
-      console.log("___________________");
-      console.log(error);
-      console.log("___________________");
       return {};
     }
   }

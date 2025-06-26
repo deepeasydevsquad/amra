@@ -53,6 +53,7 @@ import PesanWhatsapp from '../../Modules/PesanWhatsapp/PesanWhatsapp.vue'
 import PembayaranFeeAgen from '../../Modules/PembayaranFeeAgen/PembayaranFeeAgen.vue'
 import TransaksiPassport from '../../Modules/TransaksiPassport/TransaksiPassport.vue'
 import TransHotel from '../../Modules/TransHotel/TransHotel.vue'
+import Modal from '../../Modules/Modal/Modal.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -100,6 +101,7 @@ const tabComponents = {
   pembayaran_fee_agen: PembayaranFeeAgen,
   trans_passport: TransaksiPassport,
   trans_hotel: TransHotel,
+  modal: Modal
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click

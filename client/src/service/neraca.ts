@@ -1,24 +1,24 @@
 
 
-import api from "./api"; // Import service API
+import api from "./api";
 
 export const dataNeracaApi = async (param : any) => {
   try {
-    const response = await api.post("/neraca/list", param); // Kirim data ke backend
-    return response.data; // Kembalikan data hasil request
+    const response = await api.post("/neraca/list", param);
+    return response.data;
   } catch (error) {
     console.error("Gagal mengambil kota:", error);
-    throw error; // Bisa ditangani di bagian pemanggilan
+    throw error;
   }
 };
 
 export const downloadNeracaApi = async (param: any) => {
   try {
+
     const response = await api.post('/neraca/download_data_neraca', param, {
-      responseType: 'blob', // << penting biar axios handle sebagai file
+      responseType: 'blob',
     })
 
-    // Bikin blob dari data response
     const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
 
     // Buat URL dari blob
@@ -39,34 +39,3 @@ export const downloadNeracaApi = async (param: any) => {
     throw error
   }
 }
-
-// export const addKota = async (param : any) => {
-//   try {
-//     const response = await api.post("/daftar_kota", param); // Kirim data ke backend
-//     return response.data; // Kembalikan data hasil request
-//   } catch (error) {
-//     console.error("Gagal menambahkan kota:", error);
-//     throw error; // Bisa ditangani di bagian pemanggilan
-//   }
-// };
-
-// export const editKota = async (id : any, param : any) => {
-//   try {
-//     const response = await api.post(`/daftar_kota/update` , {...param,...{id : id }}); // Kirim data ke backend
-//     return response.data; // Kembalikan data hasil request
-//   } catch (error) {
-//     console.error("Gagal mengedit kota:", error);
-//     throw error; // Bisa ditangani di bagian pemanggilan
-//   }
-// };
-
-// export const deleteKota = async (id : number) => {
-//   try {
-//     const response = await api.post(`/daftar_kota/delete`,{ id : id}); // Kirim data ke backend
-//     return response.data; // Kembalikan data hasil request
-//   } catch (error) {
-//     console.error("Gagal menghapus kota:", error);
-//     throw error; // Bisa ditangani di bagian pemanggilan
-//   }
-// };
-// deleteKota
