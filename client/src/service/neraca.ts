@@ -7,7 +7,7 @@ export const dataNeracaApi = async (param : any) => {
     const response = await api.post("/neraca/list", param);
     return response.data;
   } catch (error) {
-    console.error("Gagal mengambil kota:", error);
+    console.error("Gagal mengambil data laporan neraca:", error);
     throw error;
   }
 };

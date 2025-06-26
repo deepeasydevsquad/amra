@@ -45,12 +45,6 @@ class Akuntansi {
                 })
             );
 
-            console.log("DDDDD------>");
-            console.log(saldo_awal);
-            console.log(akun_debet);
-            console.log(akun_kredit);
-            console.log("DDDDD------>");
-
             var total = {};
             for( let x in akun_primary ) {
                 const q2 = await Akun_secondary.findAndCountAll({ 
@@ -91,39 +85,17 @@ class Akuntansi {
                             }
                         }
 
-                        console.log("ZZZZZZZZZZZZZZZZZZZ");
-                        console.log(e.nomor_akun);
-                        console.log(akun_primary[x]);
-                        console.log(saldo);
-                        
-
                         if( total[akun_primary[x]] !== undefined ) {
                             total[akun_primary[x]] = total[akun_primary[x]] + saldo
-                            console.log("^^^^^^^^^^^^^");
-                            console.log(total);
-                            console.log("^^^^^^^^^^^^^");
                         }else{
                             total = {...total,...{[akun_primary[x]] : saldo} };
-                            console.log("FFFFFFFF");
-                            console.log(total);
-                            console.log("FFFFFFFF");
                         }
-
-                        console.log("ZZZZZZZZZZZZZZZZZZZ");
                     })
                 );
             }
 
-            console.log("------>Total");
-            console.log(total);
-            console.log("------>Total");
-
             return ( total[1] !== undefined ? total[1] : 0 ) - ( total[2] !== undefined ? total[2] : 0 ) - ( total[3] !== undefined ? total[3] : 0 );
         } catch (error) {
-
-            console.log("&&&&&&&&&&&&&&&&&&&");
-            console.log(error);
-            console.log("&&&&&&&&&&&&&&&&&&&");
             return 0
         }
     }
@@ -220,16 +192,11 @@ class Akuntansi {
 
                         if(e.nomor_akun == '33000') {
                             var iktisar_laba_rugi = await this.iktisar_laba_rugi(periode, division_id, company_id);
-
-                            console.log("XXXXX");
-                            console.log(iktisar_laba_rugi);
-                            console.log("XXXXX");
                             saldo = saldo + iktisar_laba_rugi;
                         }
 
 
                         if( list[akun_primary[x]] !== undefined ) {
-                            // list[akun_primary[x]] = {...list[akun_primary[x]],...{[e.nama_akun] : { nomor_akun : e.nomor_akun, nama_akun: e.nama_akun, saldo: saldo}}}
                             list[akun_primary[x]].push({ nomor_akun : e.nomor_akun, nama_akun: e.nama_akun, saldo: saldo});
                         }else{
                             list = {...list,...{[akun_primary[x]] : [{ nomor_akun : e.nomor_akun, nama_akun: e.nama_akun, saldo: saldo}] } };
@@ -237,20 +204,37 @@ class Akuntansi {
                     })
                 );
             }
-
-            console.log("*******************************");
-            console.log(list);
-            console.log("*******************************");
-
             return list
             
         } catch (error) {
-            console.log("~~~~~~~~~~~~~~~~~~~~~~");
-            console.log(error);
-            console.log("~~~~~~~~~~~~~~~~~~~~~~");
             return {}
         }
         
+    }
+
+
+     // saldo awal 
+    async saldo_modal_awal(periode, division_id) {
+        // get saldo_awal
+      const q1 = await Saldo_akun.findAndCountAll({ 
+        where : { 
+          division_id: division_id, 
+          periode: periode, 
+        },
+        include: {
+            required : true, 
+            model: Akun_secondary, 
+            where: { nomor_akun: '31000'}
+        },
+        order : [["id", "asc"]]
+      });
+      var saldo_modal_awal = 0;
+      await Promise.all(
+        await q1.rows.map(async (e) => {
+            saldo_modal_awal = saldo_modal_awal + e.saldo;
+        })
+      );
+      return saldo_modal_awal;
     }
 }
 

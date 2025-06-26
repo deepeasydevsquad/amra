@@ -1,9 +1,7 @@
 <script setup lang="ts">
-  import { paramCabang, paramAkun, paramPeriode  } from '@/service/param_cabang'; // Import function POST
-  import { dataNeracaApi, downloadNeracaApi  } from '@/service/neraca'; // Import function POST
-  import IconDownload from '@/components/Icons/IconDownload.vue'
-  import PrimaryButton from '@/components/Button/PrimaryButton.vue'
-  import { ref, onMounted, computed } from 'vue';
+  import { paramCabang, paramAkun, paramPeriode  } from '@/service/param_cabang';
+  import { dataModalApi  } from '@/service/modal';
+  import { ref, onMounted } from 'vue';
 
   interface filterCabang {
     id: number;
@@ -15,42 +13,33 @@
     name: string;
   }
 
-  interface AkunNeraca {
-    nomor_akun: string;
-    nama_akun: string;
-    saldo: string;
+  interface DataModal {
+    modal_awal: number;
+    penambahan_modal: number;
+    iktisar_laba_rugi: number;
+    pengurangan_modal: number;
+    modal_akhir: number;
   }
 
-  interface Neraca {
-    [kategori: string]: AkunNeraca[];
-  }
-
-  interface DetailAkun {
-    nama_akun: string;
-    nomor_akun: string;
-    saldo: number;
-  }
-
-  interface Asset {
-    [kategori: string]: DetailAkun[];
-  }
-
-  interface Kewajiban {
-    [kategori: string]: DetailAkun[];
-  }
-
-  interface Ekuitas {
-    [kategori: string]: DetailAkun[];
+  interface Modal {
+    error: boolean;
+    data: DataModal;
   }
 
   const optionFilterCabang = ref<filterCabang[]>([]);
   const selectedOptionCabang = ref(0);
   const optionFilterPeriode = ref<filterPeriode[]>([]);
   const selectedOptionPeriode = ref(0);
-  const dataNeraca = ref<Neraca>({});
-  const dataAsset =  ref<DetailAkun[]>([]);
-  const dataKewajiban = ref<DetailAkun[]>([]);
-  const dataEkuitas = ref<DetailAkun[]>([]);
+  const dataModal = ref<Modal>({
+    error: false,
+    data: {
+      modal_awal: 0,
+      penambahan_modal: 0,
+      pengurangan_modal: 0,
+      iktisar_laba_rugi: 0,
+      modal_akhir: 0,
+    },
+  });
 
   const fetchFilterData = async() => {
     const responseCabang = await paramCabang();
@@ -63,18 +52,8 @@
   }
 
   const fetchData = async() => {
-    const response = await dataNeracaApi({periode:selectedOptionPeriode.value,cabang:selectedOptionCabang.value});
-    dataAsset.value = response.data['1'];
-    dataKewajiban.value = response.data['2'];
-    dataEkuitas.value = response.data['3'];
-  }
-
-  const download_neraca = async () => {
-    try {
-      const response = await downloadNeracaApi({ periode:selectedOptionPeriode.value, cabang:selectedOptionCabang.value })
-    } catch (error) {
-      console.error('Error fetching Neraca:', error)
-    }
+    const response = await dataModalApi({periode:selectedOptionPeriode.value,cabang:selectedOptionCabang.value});
+    dataModal.value = response;
   }
 
   const formatRupiah = (value: number): string => {
@@ -83,7 +62,6 @@
 
   onMounted(async () => {
     await fetchFilterData();
-    // totalColumns.value = 5
   });
 </script>
 <template>
@@ -111,142 +89,41 @@
           <thead>
             <tr>
               <th class="w-[25%] px-6 py-4 border-b border-t text-gray-500 text-center font-normal align-bottom">Modal Awal</th>
-              <th class="w-[50%] px-6 py-4 border-b border-t text-gray-500 text-center align-bottom" colspan="2"></th>
-              <th class="w-[25%] px-6 py-4 border-b border-t text-gray-500 text-center font-normal align-bottom">RP 30.000.000,-</th>
+              <th class="w-[25%] px-6 py-4 border-b border-t text-gray-500 text-center align-bottom" ></th>
+              <th class="w-[25%] px-6 py-4 border-b border-t text-gray-500 text-center align-bottom"></th>
+              <th class="w-[25%] px-6 py-4 border-b border-t text-gray-500 text-center font-normal align-bottom">{{ formatRupiah(dataModal.data.modal_awal) }}</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td class="px-6 py-4 border-b text-gray-500 text-center align-bottom"></td>
               <td class="px-6 py-4 border-b text-gray-500 text-center align-bottom">Pembahan Modal</td>
-              <td class="px-6 py-4 border-b text-gray-500 text-center align-bottom">Rp 30.000.000,-</td>
+              <td class="px-6 py-4 border-b text-gray-500 text-center align-bottom">{{ formatRupiah(dataModal.data.penambahan_modal) }}</td>
               <td class="px-6 py-4 border-b text-gray-500 text-center align-bottom"></td>
             </tr>
             <tr>
               <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom"></td>
               <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom">Ikhtisar Laba Rugi</td>
-              <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom">Rp 30.000.000,-</td>
+              <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom">{{ formatRupiah(dataModal.data.iktisar_laba_rugi) }}</td>
               <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom"></td>
             </tr>
             <tr>
               <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom"></td>
               <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom">Pengurangan Modal</td>
-              <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom">Rp 30.000.000,-</td>
+              <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom">{{ formatRupiah(dataModal.data.pengurangan_modal) }}</td>
               <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom"></td>
             </tr>
           </tbody>
           <tfoot>
             <tr>
               <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom">Modal Akhir</td>
-              <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom" colspan="2"></td>
-              <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom">Rp 30.000.000,-</td>
+              <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom"></td>
+              <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom"></td>
+              <td class="px-6 py-4 border-b  text-gray-500 text-center align-bottom">{{ formatRupiah(dataModal.data.modal_akhir) }}</td>
             </tr>
           </tfoot>
         </table>
       </div>
     </div>
-    <!-- <div class="overflow-hidden rounded-lg gap-2 flex">
-      <div class="w-1/2 py-4 ps-0 pe-4">
-        <table class="w-full border-collapse bg-white text-left text-sm text-gray-500" >
-          <thead>
-            <tr>
-              <th class="w-[100%] bg-blue-100 px-6 py-4 border text-gray-500 font-bold text-left align-bottom" colspan="3">AKTIVA</th>
-            </tr>
-            <tr>
-              <th class="w-[100%] px-6 py-4 border font-bold text-gray-500 text-left align-bottom" colspan="3">Asset</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-              <tr v-for="akun in dataAsset" :key="akun.nomor_akun">
-                <td class="w-[10%] px-6 py-4 border text-left text-xs ">{{ akun.nomor_akun }}</td>
-                <td class="w-[50%] px-6 py-4 border text-left text-xs ">{{ akun.nama_akun }}</td>
-                <td class="px-6 py-4 border text-left text-xs ">{{ formatRupiah(akun.saldo) }}</td>
-              </tr>
-          </tbody>
-          <tfoot>
-            <tr class="bg-red-50">
-              <td class="px-6 py-4 border text-left text-xs font-bold" colspan="2">SUBTOTAL ASSET</td>
-              <td class="px-6 py-4 border text-left text-xs font-bold">
-                {{ formatRupiah(dataAsset.reduce((total, akun) => total + akun.saldo, 0)) }}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-      <div class="w-1/2 py-4 ps-4 pe-0">
-        <table class="w-full border-collapse bg-white text-left text-sm text-gray-500 mb-3" >
-          <thead>
-            <tr>
-              <th class="w-[100%] bg-blue-100 px-6 py-4 border text-gray-500 font-bold text-left align-bottom" colspan="3">PASSIVA</th>
-            </tr>
-            <tr>
-              <th class="w-[100%] px-6 py-4 border font-bold text-gray-500 text-left align-bottom" colspan="3">Kewajiban</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-              <tr v-for="akun in dataKewajiban" :key="akun.nomor_akun">
-                <td class="w-[10%] px-6 py-4 border text-left text-xs ">{{ akun.nomor_akun }}</td>
-                <td class="w-[50%] px-6 py-4 border text-left text-xs ">{{ akun.nama_akun }}</td>
-                <td class="px-6 py-4 border text-left text-xs ">{{ formatRupiah(akun.saldo) }}</td>
-              </tr>
-          </tbody>
-          <tfoot>
-            <tr class="bg-red-50">
-              <td class="px-6 py-4 border text-left text-xs font-bold" colspan="2">SUBTOTAL KEWAJIBAN</td>
-              <td class="px-6 py-4 border text-left text-xs font-bold">
-                {{ formatRupiah(dataKewajiban.reduce((total, akun) => total + akun.saldo, 0)) }}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-        <table class="w-full border-collapse bg-white text-left text-sm text-gray-500 my-3" >
-          <thead>
-            <tr>
-              <th class="w-[100%] px-6 py-4 border font-bold text-gray-500 text-left align-bottom" colspan="3">Ekuitas</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-            <tr v-for="akun in dataEkuitas" :key="akun.nomor_akun">
-                <td class="w-[10%] px-6 py-4 border text-left text-xs ">{{ akun.nomor_akun }}</td>
-                <td class="w-[50%] px-6 py-4 border text-left text-xs ">{{ akun.nama_akun }}</td>
-                <td class="px-6 py-4 border text-left text-xs ">{{ formatRupiah(akun.saldo) }}</td>
-              </tr>
-          </tbody>
-          <tfoot>
-            <tr class="bg-red-50">
-              <td class="px-6 py-4 border text-left text-xs font-bold" colspan="2">SUBTOTAL EKUITAS</td>
-              <td class="px-6 py-4 border text-left text-xs font-bold">
-               {{ formatRupiah(dataEkuitas.reduce((total, akun) => total + akun.saldo, 0)) }}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </div> -->
-    <!-- <div class="overflow-hidden rounded-lg gap-2 flex">
-      <div class="w-1/2 py-4 ps-0 pe-4">
-        <table class="w-full border-collapse bg-red-100 text-left text-sm text-gray-500 my-3" >
-          <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-            <tr>
-              <td class="w-[60%] px-6 py-4 border text-left text-xs font-bold" colspan="2">TOTAL AKTIVA</td>
-              <td class="px-6 py-4 border text-left text-xs font-bold">{{ formatRupiah(dataAsset.reduce((total, akun) => total + akun.saldo, 0)) }}</td>
-            </tr>
-          </tbody>
-         </table>
-      </div>
-      <div class="w-1/2 py-4 ps-4 pe-0">
-        <table class="w-full border-collapse bg-red-100 text-left text-sm text-gray-500 my-3" >
-          <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-            <tr>
-              <td class="w-[60%] px-6 py-4 border text-left text-xs font-bold" colspan="2">TOTAL PASSIVA</td>
-              <td class="px-6 py-4 border text-left text-xs font-bold">{{ formatRupiah( dataKewajiban.reduce((total, akun) => total + akun.saldo, 0) + dataEkuitas.reduce((total, akun) => total + akun.saldo, 0)) }}</td>
-            </tr>
-          </tbody>
-         </table>
-      </div>
-    </div> -->
-
-
-
   </div>
 </template>
