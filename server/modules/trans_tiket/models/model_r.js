@@ -1,18 +1,23 @@
 const { Op, Ticket_transaction, Ticket_payment_history, Ticket_transaction_detail, Mst_airline  } = require("../../../models");
-//const { tipe } = require("../../../helper/companyHelper");
-//const { getCabang } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode } = require("../../../helper/companyHelper");
 
 class Model_r {
     constructor(req) {
       this.req = req;
       this.division_id;
     }
+
+    async initialize() {
+        if (!this.company_id) {
+            this.company_id = await getCompanyIdByCode(this.req);
+        }
+    }
+
     async ticket_transactions() {
 
         const query = this.req.query;
         const limit = query.perpage || 10;
-        const page =
-            query.pageNumber && query.pageNumber !== "0" ? query.pageNumber : 1;
+        const page = query.pageNumber && query.pageNumber !== "0" ? query.pageNumber : 1;
     
         let where = {};
     
@@ -50,18 +55,15 @@ class Model_r {
             include: [
                 {
                   model: Ticket_payment_history,
-                 // as: "histories", // use your actual alias if defined
-                  attributes: ["id","nominal", "invoice","ticket_transaction_id","costumer_name","costumer_identity","status","petugas","createdAt","updatedAt"], // adjust as needed
+                  attributes: ["id","nominal", "invoice","ticket_transaction_id","costumer_name","costumer_identity","status","petugas","createdAt","updatedAt"],
                 },
                 {
                   model: Ticket_transaction_detail,
-                 // as: "details", // use your actual alias if defined
-                  attributes: ["id", "pax","code_booking", "ticket_transaction_id","airlines_id", "departure_date","travel_price","costumer_price","createdAt","updatedAt"], // adjust as needed
+                  attributes: ["id", "pax","code_booking", "ticket_transaction_id","airlines_id", "departure_date","travel_price","costumer_price","createdAt","updatedAt"],
                   include: [
                     {
                       model: Mst_airline,
-                     // as: 'airline', // alias must match the one used in the association
-                      attributes: ["id", "name"] // assuming "name" is the airline name field
+                       attributes: ["id", "name"]
                     }
                   ]
                 },
@@ -74,9 +76,6 @@ class Model_r {
             let data = [];
     
             if (total > 0) {
-                // Ambil tipe dari token JWT
-               // const type = await tipe(this.req);
-        
                 data = ticketTransaction.rows.map((transaction) => ({
                     id: transaction.id,
                     division_id : transaction.division_id, 
@@ -126,5 +125,34 @@ class Model_r {
         }
 
     }
+
+    async getAirlines() {
+        // Initialize company_id
+        await this.initialize();
+
+        try {
+            var data = [{id: "0", name: "Pilih Maskapai"}];
+            await Mst_airline.findAll({ 
+                attributes: ['id', 'name'], 
+                where: { company_id : this.company_id}, 
+                order: [['id', 'ASC']], 
+            }).then(async (value) => {
+                await Promise.all(
+                    await value.map(async (e) => {
+                        data.push({ 
+                            id : e.id, 
+                            name : e.name
+                        });
+                    })
+                );
+            });
+            return data;
+        } catch (error) {
+            console.error("Error di Model_r saat mengambil getAllVisaTypes:", error);
+            throw error;
+        }
+
+    }
+
 }
 module.exports = Model_r;

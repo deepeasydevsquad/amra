@@ -32,8 +32,7 @@ router.post("/trans_tiket/add_tiket", authenticateToken,
     
             return true;
           }),
-    
-        body("customer")
+          body("customer")
           .notEmpty().withMessage("Customer tidak boleh kosong.")
           .custom((value) => {
             let parsed;
@@ -70,5 +69,14 @@ router.get("/trans_tiket/ticket_transactions", authenticateToken,
         query("search").trim(),
       ],
 controllers.getTicketTransactions);
+
+router.get(
+  "/trans_tiket/get-airlines",
+  authenticateToken,
+  controllers.getAirlines
+);
+
+
+
 
 module.exports = router;

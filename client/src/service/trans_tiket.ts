@@ -49,3 +49,13 @@ export const generate_nomor_invoice = async (param : any) => {
         throw error;
     }
 }
+
+export const getAirlines = async () => {
+  try {
+    const response = await api.get("/trans_tiket/get-airlines");
+    return response.data;
+  } catch (error) {
+    console.error("error", error);
+    throw error;
+  }
+};

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label :for="id" class="block text-sm font-medium text-gray-700 mb-2">
+    <label v-if="label_status" :for="id" class="block text-sm font-medium text-gray-700 mb-2">
       {{ label }}
     </label>
     <textarea
@@ -34,6 +34,7 @@ defineProps({
     default: 5,
   },
   note: String,
+  label_status : { type : Boolean, default : true }
 })
 
 const model = defineModel()

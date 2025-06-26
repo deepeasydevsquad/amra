@@ -112,13 +112,13 @@
   <!-- Form Ticket Transaction -->
   <FormTicketTransaction :showForm="showTicketTransactionDialog" :maskapaiList="maskapaiList" :formData="ticketTransactionData"  @cancel="closeTicketTransactionForm" @submitted="onTicketTransactionSubmitted" />
   </template>
-  
+
   <script setup lang="ts">
   import PrimaryButton from "@/components/Button/PrimaryButton.vue"
   import Pagination from '@/components/Pagination/Pagination.vue'
   import { reactive, computed, ref, onMounted, watchEffect } from 'vue'
-  import { daftarAirlines } from "@/service/data_master"
-  import { get_transactions } from "@/service/trans_tiket"
+  // import { daftarAirlines } from "@/service/data_master"
+  import { get_transactions, getAirlines } from "@/service/trans_tiket"
   import FormTicketTransaction from './Particle/FormTicketTransaction.vue'
   import { Maskapai } from "./Particle/FormTicketTransaction.vue"
   import { TicketTransactionForm } from "./Particle/FormTicketTransaction.vue"
@@ -129,7 +129,7 @@
   const totalPages = ref(0);
   const totalColumns = ref(4);
   const searchQuery = ref('');
-  const itemsPerPage = 2; 
+  const itemsPerPage = 2;
   const search = ref('');
   const filter = ref('');
 
@@ -137,7 +137,7 @@
     return Array.from({ length: totalPages.value }, (_, i) => i + 1);
   });
 
-  
+
   interface TicketTransaction {
       id: number;
       division_id: number;
@@ -246,7 +246,7 @@
   };
   const fetchMaskapai = async () => {
       try {
-        const response = await daftarAirlines()
+        const response = await getAirlines()
         maskapaiList.value = response.data
       } catch (error) {
         console.error('Gagal fetch data cabang:', error)
@@ -256,8 +256,7 @@
       showTicketTransactionDialog.value = false;
       fetchData(); // refresh only after successful form submission
 };
-  
+
 </script>
 
- 
-  
+

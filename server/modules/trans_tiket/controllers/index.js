@@ -54,6 +54,17 @@ controllers.getTicketTransactions = async(req, res) => {
   catch(error) {
      handleServerError(res, error.message);
   }
-
 };
+
+controllers.getAirlines = async ( req, res) => {
+
+   try {
+      const model_r = new Model_r(req);
+      const data = await model_r.getAirlines();
+      res.status(200).json({ error: false, data: data } );   
+   } catch (error) {
+      handleServerError(res, error.message);
+   }
+}
+
 module.exports = controllers;

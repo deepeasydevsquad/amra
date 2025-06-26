@@ -1,7 +1,7 @@
 <!-- InputText.vue -->
 <template>
   <div>
-    <label :for="id" class="block text-sm font-medium text-gray-700 mb-2">{{ label }}</label>
+    <label v-if="label_status === true" :for="id" class="block text-sm font-medium text-gray-700 mb-2">{{ label }}</label>
     <input
       :id="id"
       :type="type"
@@ -26,5 +26,6 @@ defineProps({
   type: { type: String, default: 'text' },
   error: String,
   note: String,
+  label_status : { type : Boolean, default : true }
 })
 </script>

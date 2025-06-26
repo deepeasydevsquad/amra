@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label :for="id" class="block text-sm font-medium text-gray-700 mb-2">{{ label }}</label>
+    <label v-if="label_status == true" :for="id" class="block text-sm font-medium text-gray-700 mb-2">{{ label }}</label>
     <div class="flex items-center">
       <input
         type="file"
@@ -47,7 +47,8 @@ const props = defineProps({
   error: {
     type: String,
     default: ''
-  }
+  },
+  label_status : { type : Boolean, default : true }
 })
 
 const emit = defineEmits(['file-selected'])

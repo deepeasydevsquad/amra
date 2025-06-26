@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label :for="id" class="block text-sm font-medium text-gray-700 mb-2">{{ label }}</label>
+    <label v-if="label_status == true" :for="id" class="block text-sm font-medium text-gray-700 mb-2">{{ label }}</label>
     <input
       :type="type"
       :id="id"
@@ -43,6 +43,7 @@ defineProps({
   note: {
     type: String,
     default: 'Password hanya terdiri dari alpha numeric.'
-  }
+  },
+  label_status : { type : Boolean, default : true }
 })
 </script>
