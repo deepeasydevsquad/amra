@@ -8,6 +8,7 @@
   import PageKamar from '@/components/User/Modules/KamarPaket/KamarPaket.vue'
   import PaketAgen from '@/components/User/Modules/PaketAgen/PaketAgen.vue'
   import PageBus from '@/components/User/Modules/BusPaket/BusPaket.vue'
+  import PaketManifest from '@/components/User/Modules/ManifestPaket/ManifestPaket.vue'
 
   const props = defineProps<{
     isPageDetailPaketOpen: boolean
@@ -26,6 +27,7 @@
     agen: PaketAgen,
     kamar: PageKamar,
     bus: PageBus,
+    manifes: PaketManifest,
     // tambah yang lain jika perlu
   }
 

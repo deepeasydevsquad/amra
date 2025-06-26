@@ -2,7 +2,7 @@
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confirmation.vue'
-import { updateVisaTransaksiPaket, infoupdateVisaTransaksiPaket } from "@/service/daftar_transaksi_paket"
+import { updateManifestPaket, infoUpdateManifestPaket } from "@/service/manifest_paket"
 
 import { ref, reactive, onMounted } from 'vue'
 
@@ -18,8 +18,7 @@ const confirmTitle = ref('')
 const confirmAction = ref<(() => void) | null>(null)
 
 const props = defineProps<{
-  isFormEditVisaOpen: boolean,
-  paketId: number,
+  isFormEditMasnifestOpen: boolean,
   transpaketId: number
 }>()
 
@@ -31,15 +30,23 @@ const emit = defineEmits<{
 }>()
 
 const errors = ref({
-  nomor_visa: '',
-  tanggal_berlaku_visa: '',
-  tanggal_berakhir_visa: '',
+  fullname: '',
+  birth_date: '',
+  birth_place: '',
+  nomor_passport: '',
+  tanggal_di_keluarkan_passport: '',
+  tempat_di_keluarkan_passport: '',
+  masa_berlaku_passport: '',
 })
 
 const form = reactive({
-  nomor_visa: '',
-  tanggal_berlaku_visa: '',
-  tanggal_berakhir_visa: '',
+  fullname: '',
+  birth_date: '',
+  birth_place: '',
+  nomor_passport: '',
+  tanggal_di_keluarkan_passport: '',
+  tempat_di_keluarkan_passport: '',
+  masa_berlaku_passport: '',
 })
 
 // Function: Notification
@@ -65,10 +72,14 @@ function showConfirmation(title: string, message: string, action: () => void) {
 async function fetchData () {
   try {
     isLoading.value = true
-    const response = await infoupdateVisaTransaksiPaket(props.paketId, props.transpaketId)
-    form.nomor_visa = response.data.nomor_visa
-    form.tanggal_berlaku_visa = response.data.tanggal_berlaku_visa
-    form.tanggal_berakhir_visa = response.data.tanggal_berakhir_visa
+    const response = await infoUpdateManifestPaket(props.transpaketId)
+    form.fullname = response.data.fullname
+    form.birth_date = response.data.birth_date
+    form.birth_place = response.data.birth_place
+    form.nomor_passport = response.data.nomor_passport
+    form.tanggal_di_keluarkan_passport = response.data.tanggal_di_keluarkan_passport
+    form.tempat_di_keluarkan_passport = response.data.tempat_di_keluarkan_passport
+    form.masa_berlaku_passport = response.data.masa_berlaku_passport
   } catch (error) {
     console.error('Error fetching data:', error)
     displayNotification(error.response.data.error_msg, 'error')
@@ -81,31 +92,15 @@ async function fetchData () {
 const validateForm = (): boolean => {
   let isValid = true
   errors.value = {
-    nomor_visa: '',
-    tanggal_berlaku_visa: '',
-    tanggal_berakhir_visa: '',
+    nomor_passport: '',
+    tanggal_di_keluarkan_passport: '',
+    tempat_di_keluarkan_passport: '',
+    masa_berlaku_passport: '',
+    fullname: '',
+    birth_date: '',
+    birth_place: '',
   }
 
-  if (!form.nomor_visa) {
-    errors.value.nomor_visa = 'Nomor Visa wajib diisi'
-    isValid = false
-  }
-  if (!form.tanggal_berlaku_visa) {
-    errors.value.tanggal_berlaku_visa = 'Tanggal Berlaku Visa wajib diisi'
-    isValid = false
-  }
-  if (!form.tanggal_berakhir_visa) {
-    errors.value.tanggal_berakhir_visa = 'Tanggal Berakhir Visa wajib diisi'
-    isValid = false
-  }
-  if (form.tanggal_berlaku_visa && form.tanggal_berakhir_visa) {
-    const tanggalBerlaku = new Date(form.tanggal_berlaku_visa)
-    const tanggalBerakhir = new Date(form.tanggal_berakhir_visa)
-    if (tanggalBerlaku.getTime() >= tanggalBerakhir.getTime()) {
-      errors.value.tanggal_berlaku_visa = 'Tanggal Berlaku Visa tidak boleh dibawah Tanggal Berakhir Visa'
-      isValid = false
-    }
-  }
   return isValid
 }
 
@@ -121,19 +116,22 @@ async function saveData() {
 
       try {
         const payload = {
-          id: props.paketId,
-          transpaketId: props.transpaketId,
-          nomor_visa: form.nomor_visa,
-          tanggal_berlaku_visa: form.tanggal_berlaku_visa,
-          tanggal_berakhir_visa: form.tanggal_berakhir_visa,
+          id: props.transpaketId,
+          fullname: form.fullname,
+          birth_date: form.birth_date,
+          birth_place: form.birth_place,
+          nomor_passport: form.nomor_passport,
+          tanggal_di_keluarkan_passport: form.tanggal_di_keluarkan_passport,
+          tempat_di_keluarkan_passport: form.tempat_di_keluarkan_passport,
+          masa_berlaku_passport: form.masa_berlaku_passport,
         }
 
         console.log(payload)
-        await updateVisaTransaksiPaket(payload)
-        emit('status', { error: false, err_msg: 'Visa berhasil diupdate' })
+        const response = await updateManifestPaket(payload)
+        console.log(response)
+        emit('status', { error: response.error, err_msg: response.error_msg })
         emit('close')
       } catch (error) {
-        displayNotification('Gagal menyimpan Visa', 'error')
         displayNotification(error.response.data.error_msg, 'error')
       } finally {
         isLoading.value = false
@@ -153,7 +151,7 @@ onMounted(() => { fetchData() })
 
   <!-- Modal -->
   <div
-    v-if="props.isFormEditVisaOpen && !isLoading"
+    v-if="props.isFormEditMasnifestOpen && !isLoading"
     class="fixed inset-0 z-50 overflow-y-auto"
     role="dialog"
     aria-modal="true"
@@ -161,54 +159,45 @@ onMounted(() => { fetchData() })
     <div class="flex min-h-screen items-end justify-center px-6 pt-6 pb-20 text-center sm:block sm:p-0">
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="$emit('close')"></div>
         <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
-        <div class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle p-6">
+        <div class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-xl sm:align-middle p-6">
           <!-- Title -->
-          <h3 class="text-2xl font-bold text-gray-900 mb-4">Form Update Informasi Visa</h3>
-          <div class="overflow-y-auto no-scrollbar px-1">
-            <div class="space-y-4 text-gray-800 sm:min-h-[320px]">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">Form Update Manifest Paket</h3>
+          <div class="overflow-y-auto no-scrollbar px-1"><div class="overflow-y-auto no-scrollbar px-1">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-800 sm:min-h-[320px]">
+              <!-- Kolom 1 -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Nomor Visa
-                  <span class="text-red-600">*</span>
-                </label>
-                <input
-                  type="text"
-                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
-                  placeholder="Masukkan nomor visa"
-                  v-model="form.nomor_visa"
-                />
-                <p v-if="errors.nomor_visa" class="mt-1 text-sm text-red-600">{{ errors.nomor_visa }}</p>
+                <label class="block text-sm font-medium mb-2">Nama Lengkap</label>
+                <input type="text" v-model="form.fullname" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Masukkan nama lengkap">
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Tanggal Berlaku Visa
-                  <span class="text-red-600">*</span>
-                </label>
-                <input
-                  type="date"
-                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
-                  placeholder="Masukkan tanggal berlaku visa"
-                  v-model="form.tanggal_berlaku_visa"
-                />
-                <p v-if="errors.tanggal_berlaku_visa" class="mt-1 text-sm text-red-600">{{ errors.tanggal_berlaku_visa }}</p>
+                <label class="block text-sm font-medium mb-2">Tanggal Lahir</label>
+                <input type="date" v-model="form.birth_date" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Tanggal Berakhir Visa
-                  <span class="text-red-600">*</span>
-                </label>
-                <input
-                  type="date"
-                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
-                  placeholder="Masukkan tanggal berakhir visa"
-                  v-model="form.tanggal_berakhir_visa"
-                />
-                <p v-if="errors.tanggal_berakhir_visa" class="mt-1 text-sm text-red-600">{{ errors.tanggal_berakhir_visa }}</p>
+                <label class="block text-sm font-medium mb-2">Tempat Lahir</label>
+                <input type="text" v-model="form.birth_place" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Masukkan tempat lahir">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2">Nomor Passport</label>
+                <input type="text" v-model="form.nomor_passport" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Masukkan nomor passport">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2">Tanggal Di Keluarkan Passport</label>
+                <input type="date" v-model="form.tanggal_di_keluarkan_passport" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2">Tempat Di Keluarkan Passport</label>
+                <input type="text" v-model="form.tempat_di_keluarkan_passport" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Masukkan tempat di keluarkan passport">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2">Masa Berlaku Passport</label>
+                <input type="date" v-model="form.masa_berlaku_passport" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+              </div>
               </div>
             </div>
           </div>
           <div class="bg-gray-50 pb-3 pt-6 sm:flex sm:flex-row-reverse sm:px-0 gap-2">
-            <PrimaryButton @click="saveData()">UPDATE VISA</PrimaryButton>
+            <PrimaryButton @click="saveData()">UPDATE MANIFEST</PrimaryButton>
             <button
             @click="$emit('close')"
             class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-400 bg-gray-200 px-4 py-2 text-base font-medium text-gray-800 shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
