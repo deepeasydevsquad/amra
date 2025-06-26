@@ -2,20 +2,17 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Transaction_transaction_details', {
+    await queryInterface.createTable('Transport_transaction_details', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      // transport_transaction_id: {
-      //   type: Sequelize.INTEGER
-      // },
       transport_transaction_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Transaction_transactions",
+          model: "Transport_transactions",
           key: "id",
         },
         onDelete: 'CASCADE',
@@ -45,6 +42,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Transaction_transaction_details');
+    await queryInterface.dropTable('Transport_transaction_details');
   }
 };
