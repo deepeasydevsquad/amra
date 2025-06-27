@@ -341,13 +341,6 @@ const calculateSisa = computed(() => {
   return totalHarga - form.value.customer.dibayar
 })
 
-
-
-
-
-
-
-
 const validateForm = (): boolean => {
   let isValid = true
 
@@ -379,19 +372,20 @@ const validateForm = (): boolean => {
   form.value.tickets.forEach((ticket, index) => {
     const ticketErrors: ErrorFields['tickets'][0] = {}
 
+    console.log("____________________Tiket");
+    console.log(ticket);
+    console.log("____________________Tiket");
+
     if (!ticket.pax || ticket.pax <= 0) {
       ticketErrors.pax = 'Jumlah pax wajib lebih dari 0'
       isValid = false
     }
 
-    const maskapaiId = typeof ticket.maskapai === 'object' && ticket.maskapai !== null
-      ? ticket.maskapai.id : ticket.maskapai;
 
-    if (!maskapaiId || Number(maskapaiId) === 0) {
-      ticketErrors.maskapai = 'Maskapai wajib dipilih';
-      isValid = false;
+
+    if(ticket.airlines_id == '0') {
+      ticketErrors.airlines_id = "Maskapai wajib dipilih";
     }
-
 
     if (!ticket.code_booking.trim()) {
       ticketErrors.code_booking = 'Kode booking wajib diisi'
@@ -424,32 +418,32 @@ const handleSubmit = async (): Promise<void> => {
       return
     }
 
-    try {
-      const transactionData = new FormData()
-      if( form.value.id ) {
-        transactionData.append('id', form.value.id.toString())
-      }
-      transactionData.append('tickets', JSON.stringify(form.value.tickets))
-      transactionData.append('customer', JSON.stringify(form.value.customer))
-      transactionData.append('nomor_register', form.value.nomor_register)
-      transactionData.append('invoice', form.value.invoice)
+    // try {
+    //   const transactionData = new FormData()
+    //   if( form.value.id ) {
+    //     transactionData.append('id', form.value.id.toString())
+    //   }
+    //   transactionData.append('tickets', JSON.stringify(form.value.tickets))
+    //   transactionData.append('customer', JSON.stringify(form.value.customer))
+    //   transactionData.append('nomor_register', form.value.nomor_register)
+    //   transactionData.append('invoice', form.value.invoice)
 
-      console.log("-----------------1");
-      console.log(form.value.id);
-      console.log("-----------------1");
-      console.log("Log Form data objek");
-      console.log(JSON.stringify(form.value));
-      console.log("Log Form data pair");
-      for (let pair of transactionData.entries()) {
-        console.log(pair[0]+ ': ' + pair[1]);
-      }
+    //   console.log("-----------------1");
+    //   console.log(form.value.id);
+    //   console.log("-----------------1");
+    //   console.log("Log Form data objek");
+    //   console.log(JSON.stringify(form.value));
+    //   console.log("Log Form data pair");
+    //   for (let pair of transactionData.entries()) {
+    //     console.log(pair[0]+ ': ' + pair[1]);
+    //   }
 
-      const response = await add_tiket(transactionData)
-      emit('submitted')
+    //   const response = await add_tiket(transactionData)
+    //   emit('submitted')
 
-    } catch (error) {
-      console.error('Gagal menyimpan data member:', error)
-    }
+    // } catch (error) {
+    //   console.error('Gagal menyimpan data member:', error)
+    // }
   }
 
 watch(
