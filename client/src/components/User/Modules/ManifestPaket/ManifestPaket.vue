@@ -4,8 +4,8 @@ import EditIcon from '@/components/User/Modules/ManifestPaket/icon/EditIcon.vue'
 import DownloadIcon from '@/components/User/Modules/ManifestPaket/icon/DownloadIcon.vue'
 
 // import element
-import EditButton from '@/components/User/Modules/ManifestPaket/Particle/EditButton.vue'
-import Notification from '@/components/User/Modules/ManifestPaket/Particle/Notification.vue'
+import EditButton from '@/components/User/Modules/ManifestPaket/particle/EditButton.vue'
+import Notification from '@/components/User/Modules/ManifestPaket/particle/Notification.vue'
 
 // import widget
 import FormEditManifest from '@/components/User/Modules/ManifestPaket/widget/FormEditManifest.vue'
