@@ -212,8 +212,7 @@
   @success="handleJamaahSuccess"
 />
 
-<FormUpdate
-v-if="ShowFormUpdate"
+<FormUpdate v-if="ShowFormUpdate"
  :jamaah="selectedJamaah"
 @close="ShowFormUpdate = false"
 @update="updateSuccess"
