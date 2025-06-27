@@ -106,6 +106,7 @@ const arr_router = [
   "kamar_paket",
   "bus_paket",
   "modal",
+  "trans_transport",
 ];
 
 const arr = {};
