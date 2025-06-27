@@ -44,15 +44,12 @@
                   <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-xs leading-snug">
                     <div>PAX: {{ ticket.pax }}</div>
                     <div>NAMA AIRLINES: {{ ticket.airlines_name || 'N/A' }}</div>
-
                     <div class="text-red-500">KODE BOOKING: {{ ticket.code_booking }}</div>
                     <div>TANGGAL BERANGKAT: {{ new Date(ticket.departure_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) }}</div>
-
                     <div>HARGA TRAVEL: Rp {{ ticket.travel_price.toLocaleString() }}</div>
                     <div>HARGA KOSTUMER: Rp {{ ticket.costumer_price.toLocaleString() }}</div>
                   </div>
                 </div>
-
                 <!-- Subtotal -->
                 <div class="bg-red-100 mt-2 px-4 py-1 text-sm font-bold flex justify-between items-center w-full">
                   <span>SUBTOTAL</span>
@@ -86,10 +83,10 @@
               <!-- Aksi -->
               <td class="px-4 py-2 text-center align-top">
                 <div class="flex flex-col items-center space-y-2">
-                  <button class="text-gray-600 hover:text-blue-500"><i class="pi pi-refresh"></i></button>
-                  <button class="text-gray-600 hover:text-green-500"><i class="pi pi-calendar"></i></button>
-                  <button class="text-gray-600 hover:text-indigo-500"><i class="pi pi-list"></i></button>
-                  <button class="text-gray-600 hover:text-red-500"><i class="pi pi-times"></i></button>
+                  <LightButton class="p-2 "><i class="pi pi-refresh"></i></LightButton>
+                  <LightButton class="p-2 "><i class="pi pi-calendar"></i></LightButton>
+                  <LightButton class="p-2 "><i class="pi pi-list"></i></LightButton>
+                  <DangerButton class="p-2 "><i class="pi pi-times"></i></DangerButton>
                 </div>
               </td>
           </tr>
@@ -98,7 +95,7 @@
         <tbody v-else class="divide-y divide-gray-100 border-t border-gray-100">
           <tr>
             <td :colspan="totalColumns" class="px-6 py-4 text-center text-gray-500">
-              Daftar Transaksi Tiket Tidak di Temukan {{ totalColumns }}
+              Daftar transaksi tiket tidak di temukan
             </td>
           </tr>
         </tbody>
@@ -113,11 +110,12 @@
   <FormTicketTransaction :showForm="showTicketTransactionDialog" :maskapaiList="maskapaiList" :formData="ticketTransactionData"  @cancel="closeTicketTransactionForm" @submitted="onTicketTransactionSubmitted" />
   </template>
 
-  <script setup lang="ts">
+<script setup lang="ts">
+  import DangerButton from "@/components/Button/DangerButton.vue"
+  import LightButton from "@/components/Button/LightButton.vue"
   import PrimaryButton from "@/components/Button/PrimaryButton.vue"
   import Pagination from '@/components/Pagination/Pagination.vue'
   import { reactive, computed, ref, onMounted, watchEffect } from 'vue'
-  // import { daftarAirlines } from "@/service/data_master"
   import { get_transactions, getAirlines } from "@/service/trans_tiket"
   import FormTicketTransaction from './Particle/FormTicketTransaction.vue'
   import { Maskapai } from "./Particle/FormTicketTransaction.vue"
@@ -137,17 +135,16 @@
     return Array.from({ length: totalPages.value }, (_, i) => i + 1);
   });
 
-
   interface TicketTransaction {
-      id: number;
-      division_id: number;
-      nomor_register: string;
-      total_transaksi: number;
-      status: string;
-      createdAt: string;
-      updatedAt: string;
-      ticket_details: TicketDetail[];
-      payment_histories: PaymentHistory[];
+    id: number;
+    division_id: number;
+    nomor_register: string;
+    total_transaksi: number;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+    ticket_details: TicketDetail[];
+    payment_histories: PaymentHistory[];
   }
 
   interface TicketDetail {
@@ -176,8 +173,6 @@
       updatedAt: string;
   }
 
-
-  // Fetch data ticket transaction
   const fetchData = async () => {
     try {
       const response = await get_transactions({
@@ -192,11 +187,9 @@
       totalPages.value = Math.ceil(response.total / itemsPerPage);
     } catch (error) {
       console.error('Gagal fetch data ticket transactions:', error)
-     // showNotification.value = true
-     // notificationType.value = 'error'
-      //notificationMessage.value = 'Gagal fetch data member'
     }
   }
+
   const nextPage = () => {
     if (currentPage.value < totalPages.value) {
       currentPage.value++;
@@ -210,10 +203,12 @@
       fetchData()
     }
   };
+
   const pageNow = (page : number) => {
     currentPage.value = page
     fetchData()
   }
+
   onMounted(() => {
     fetchData()
   })
@@ -221,7 +216,6 @@
   const calculateTotalPayment = (transaction: TicketTransaction): number => {
   return transaction.payment_histories.reduce((sum, p) => sum + parseInt(p.nominal || '0'), 0)
   }
-
 
   const showTicketTransactionDialog = ref(false)
 
@@ -241,9 +235,11 @@
       fetchMaskapai();
       showTicketTransactionDialog.value = true
   }
+
   const closeTicketTransactionForm = () => {
       showTicketTransactionDialog.value = false
   };
+
   const fetchMaskapai = async () => {
       try {
         const response = await getAirlines()
@@ -252,10 +248,11 @@
         console.error('Gagal fetch data cabang:', error)
       }
   };
+
   const onTicketTransactionSubmitted = () => {
       showTicketTransactionDialog.value = false;
-      fetchData(); // refresh only after successful form submission
-};
+      fetchData();
+  };
 
 </script>
 

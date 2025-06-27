@@ -17,30 +17,30 @@
               </thead>
               <tbody>
                 <tr v-for="(ticket, index) in form.tickets" :key="index" >
-                  <td class="p-3 border-b align-middle text-center">
+                  <td class="px-3 pb-3 pt-5 border-b align-top text-center">
                     <DangerButton @click="removeTicket(index)" class="p-2 "><DeleteIcon /></DangerButton>
                   </td>
-                  <td class="px-3 pb-3 pt-5 border-b align-middle text-center">
+                  <td class="px-3 pb-3 pt-5 border-b align-top text-center">
                     <InputText label_status="false" type="number" v-model.number="ticket.pax" label="Pax" id="pax" placeholder="Pax" :error="errors.tickets?.[index]?.pax" />
                   </td>
-                  <td class="px-3 pb-3 pt-5 border-b align-middle text-center">
+                  <td class="px-3 pb-3 pt-5 border-b align-top text-center">
                     <SelectField label_status="false" v-model="ticket.airlines_id" id="maskapai" label="Maskapai" placeholder="Pilih Maskapai" :options="maskapaiList" :error="errors.tickets?.[index]?.maskapai" />
                   </td>
-                  <td class="px-3 pb-3 pt-5 border-b align-middle text-center">
+                  <td class="px-3 pb-3 pt-5 border-b align-top text-center">
                     <InputText label_status="false" v-model="ticket.code_booking" label="Kode Booking" id="code_booking" placeholder="Kode Booking" :error="errors.tickets?.[index]?.code_booking" />
                   </td>
-                  <td class="px-3 pb-3 pt-5 border-b align-middle text-center">
+                  <td class="px-3 pb-3 pt-5 border-b align-top text-center">
                     <InputDate label_status="false" v-model="ticket.departure_date" id="departure_date" label="Tanggal Berangkat" :error="errors.tickets?.[index]?.departure_date" />
                   </td>
-                  <td class="px-3 pb-3 pt-5 border-b align-middle text-center">
+                  <td class="px-3 pb-3 pt-5 border-b align-top text-center">
                     <InputText label_status="false"
                       v-model="ticket.travel_price_display"
                       label="Harga Travel" id="travel_price" placeholder="Harga Travel" :error="errors.tickets?.[index]?.travel_price" @input="e => updateHargaTravel(e, index)" />
                   </td>
-                  <td class="px-3 pb-3 pt-5 border-b align-middle text-center">
+                  <td class="px-3 pb-3 pt-5 border-b align-top text-center">
                       <InputText label_status="false" v-model="ticket.customer_price_display" label="Harga Customer" id="customer_price" placeholder="Harga Customer" :error="errors.tickets?.[index]?.customer_price"  @input="e => updateHargaCostumer(e, index)"/>
                   </td>
-                  <td class="px-3 pb-3 pt-5 border-b align-middle text-center">
+                  <td class="px-3 pb-3 pt-5 border-b align-top text-center">
                     {{ formatRupiah(ticket.customer_price * ticket.pax) }}
                   </td>
                 </tr>
@@ -120,7 +120,6 @@ import DeleteIcon from '@/components/User/Modules/Member/Icon/DeleteIcon.vue'
 // ✅ Props dari parent
 const props = defineProps<{ showForm: boolean; formData: TicketTransactionForm, maskapaiList : Maskapai[] }>()
 
-
 function updateHargaTravel(e : any, index : any) {
   const raw = e.target.value.replace(/[^\d]/g, '')
   const formatted = dinamicformatRupiah(raw)
@@ -142,36 +141,8 @@ function dinamicformatRupiah(value : any)  {
     currency: 'IDR',
     minimumFractionDigits: 0
   }).format(angka)
-
-  console.log("---------------");
-  console.log(currency);
-  console.log("---------------");
   return currency
 }
-
-//  const formatRupiahto = (angka :any, prefix = "Rp ") => {
-//     let numberString = angka.toString().replace(/\D/g, ""),
-//       split = numberString.split(","),
-//       sisa = split[0].length % 3,
-//       rupiah = split[0].substr(0, sisa),
-//       ribuan = split[0].substr(sisa).match(/\d{3}/g);
-
-//     if (ribuan) {
-//       let separator = sisa ? "." : "";
-//       rupiah += separator + ribuan.join(".");
-//     }
-
-//     return prefix + (rupiah || "0");
-//   };
-
-//   const formattedPrice = computed(() => {
-//     return formatRupiahto(dataEditSaldos.value.saldo);
-//   });
-
-  // const formatToRupiah = (event :any )  => {
-  //   let value = event.target.value.replace(/\D/g, "");
-  //   dataEditSaldos.value.saldo = value;
-  // };
 
 export interface TicketTransactionForm {
     id: number;
@@ -372,19 +343,14 @@ const validateForm = (): boolean => {
   form.value.tickets.forEach((ticket, index) => {
     const ticketErrors: ErrorFields['tickets'][0] = {}
 
-    console.log("____________________Tiket");
-    console.log(ticket);
-    console.log("____________________Tiket");
 
     if (!ticket.pax || ticket.pax <= 0) {
       ticketErrors.pax = 'Jumlah pax wajib lebih dari 0'
       isValid = false
     }
 
-
-
     if(ticket.airlines_id == '0') {
-      ticketErrors.airlines_id = "Maskapai wajib dipilih";
+      ticketErrors.maskapai = "Maskapai wajib dipilih";
     }
 
     if (!ticket.code_booking.trim()) {
@@ -418,32 +384,32 @@ const handleSubmit = async (): Promise<void> => {
       return
     }
 
-    // try {
-    //   const transactionData = new FormData()
-    //   if( form.value.id ) {
-    //     transactionData.append('id', form.value.id.toString())
-    //   }
-    //   transactionData.append('tickets', JSON.stringify(form.value.tickets))
-    //   transactionData.append('customer', JSON.stringify(form.value.customer))
-    //   transactionData.append('nomor_register', form.value.nomor_register)
-    //   transactionData.append('invoice', form.value.invoice)
+    try {
+      const transactionData = new FormData()
+      if( form.value.id ) {
+        transactionData.append('id', form.value.id.toString())
+      }
+      transactionData.append('tickets', JSON.stringify(form.value.tickets))
+      transactionData.append('customer', JSON.stringify(form.value.customer))
+      transactionData.append('nomor_register', form.value.nomor_register)
+      transactionData.append('invoice', form.value.invoice)
 
-    //   console.log("-----------------1");
-    //   console.log(form.value.id);
-    //   console.log("-----------------1");
-    //   console.log("Log Form data objek");
-    //   console.log(JSON.stringify(form.value));
-    //   console.log("Log Form data pair");
-    //   for (let pair of transactionData.entries()) {
-    //     console.log(pair[0]+ ': ' + pair[1]);
-    //   }
+      console.log("-----------------1");
+      console.log(form.value.id);
+      console.log("-----------------1");
+      console.log("Log Form data objek");
+      console.log(JSON.stringify(form.value));
+      console.log("Log Form data pair");
+      for (let pair of transactionData.entries()) {
+        console.log(pair[0]+ ': ' + pair[1]);
+      }
 
-    //   const response = await add_tiket(transactionData)
-    //   emit('submitted')
+      const response = await add_tiket(transactionData)
+      emit('submitted')
 
-    // } catch (error) {
-    //   console.error('Gagal menyimpan data member:', error)
-    // }
+    } catch (error) {
+      console.error('Gagal menyimpan data member:', error)
+    }
   }
 
 watch(
