@@ -3,9 +3,10 @@
      <!-- Tambah data dan Search -->
      <div class="flex justify-between mb-4" >
     <PrimaryButton @click="startTicketTransaction">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
+        </svg> -->
+        <i class="pi pi-plus"></i>
         Mulai Transaksi Tiket
     </PrimaryButton>
     <div class="flex items-center">
@@ -83,10 +84,11 @@
               <!-- Aksi -->
               <td class="px-4 py-2 text-center align-top">
                 <div class="flex flex-col items-center space-y-2">
-                  <LightButton class="p-2 "><i class="pi pi-refresh"></i></LightButton>
-                  <LightButton class="p-2 "><i class="pi pi-calendar"></i></LightButton>
-                  <LightButton class="p-2 "><i class="pi pi-list"></i></LightButton>
-                  <DangerButton class="p-2 "><i class="pi pi-times"></i></DangerButton>
+                  <LightButton class="p-2" title="Pembayaran Tiket"><i class="pi pi-money-bill"></i></LightButton>
+                  <LightButton class="p-2" title="Refund Tiket"><i class="pi pi-refresh"></i></LightButton>
+                  <LightButton class="p-2" title="Reschedule Tiket"><i class="pi pi-calendar"></i></LightButton>
+                  <LightButton class="p-2" title="Detail Riwayat Pembayaran Tiket"><i class="pi pi-list"></i></LightButton>
+                  <DangerButton class="p-2" title="Delete Tiket"><i class="pi pi-times"></i></DangerButton>
                 </div>
               </td>
           </tr>
