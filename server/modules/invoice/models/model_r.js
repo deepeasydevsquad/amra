@@ -38,6 +38,9 @@ const {
   Mst_hotel,
   Passport_transaction,
   Passport_transaction_detail,
+  Transport_transaction,
+  Transport_transaction_detail,
+  Mst_mobil,
 } = require("../../../models");
 const { Op } = require("sequelize");
 const {
@@ -812,49 +815,60 @@ class Model_r {
     try {
       let data = await this.header_kwitansi_invoice();
 
-      const paketTransactionHistory = await Paket_transaction_payment_history.findOne({
-        order: [["createdAt", "DESC"]],
-        where: {
-          invoice: this.req.params.invoice,
-        },
-        include: [
-          {
-            model: Paket_transaction,
-            required: true,
-            include: [
-              {
-                model: Mst_paket_type,
-                required: true,
-                attributes: ["name"],
-              },
-              {
-                model: Jamaah,
-                required: true,
-                include: {
-                  model: Member,
-                  required: true,
-                  attributes: ["fullname", "whatsapp_number"],
-                },
-              },
-            ],
+      const paketTransactionHistory =
+        await Paket_transaction_payment_history.findOne({
+          order: [["createdAt", "DESC"]],
+          where: {
+            invoice: this.req.params.invoice,
           },
-        ],
-      });
+          include: [
+            {
+              model: Paket_transaction,
+              required: true,
+              include: [
+                {
+                  model: Mst_paket_type,
+                  required: true,
+                  attributes: ["name"],
+                },
+                {
+                  model: Jamaah,
+                  required: true,
+                  include: {
+                    model: Member,
+                    required: true,
+                    attributes: ["fullname", "whatsapp_number"],
+                  },
+                },
+              ],
+            },
+          ],
+        });
 
       data = {
         ...data,
         invoice: paketTransactionHistory.invoice,
-        fullname: paketTransactionHistory.Paket_transaction.Jamaah.Member.fullname,
-        whatsapp_number: paketTransactionHistory.Paket_transaction.Jamaah.Member.whatsapp_number,
+        fullname:
+          paketTransactionHistory.Paket_transaction.Jamaah.Member.fullname,
+        whatsapp_number:
+          paketTransactionHistory.Paket_transaction.Jamaah.Member
+            .whatsapp_number,
         penerima: paketTransactionHistory.penerima,
         nominal: paketTransactionHistory.nominal,
-        info_paket: 'Pembelian Paket Tipe ' + paketTransactionHistory.Paket_transaction.Mst_paket_type.name,
-        createdAt: moment(paketTransactionHistory.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+        info_paket:
+          "Pembelian Paket Tipe " +
+          paketTransactionHistory.Paket_transaction.Mst_paket_type.name,
+        createdAt: moment(paketTransactionHistory.createdAt).format(
+          "YYYY-MM-DD HH:mm:ss"
+        ),
       };
 
       return data;
     } catch (error) {
-      console.error("Error in dataKwitansiPembayaranTransaksiPaketUmrah:", error);
+      console.error(
+        "Error in dataKwitansiPembayaranTransaksiPaketUmrah:",
+        error
+      );
       return {};
     }
   }
@@ -955,7 +969,7 @@ class Model_r {
             include: [
               {
                 model: Mst_kota,
-                as: 'Mst_kotum',
+                as: "Mst_kotum",
                 attributes: ["name"],
                 required: false,
               },
@@ -977,7 +991,7 @@ class Model_r {
       }
 
       // Memproses SEMUA detail, bukan hanya yang pertama
-      const invoiceDetails = detailsArray.map(detail => {
+      const invoiceDetails = detailsArray.map((detail) => {
         return {
           name: detail.name,
           identity_number: detail.identity_number,
@@ -986,13 +1000,15 @@ class Model_r {
           kk_number: detail.kk_number,
           address: detail.address,
           price: detail.price,
-          city: detail.Mst_kotum ? detail.Mst_kotum.name : "Kota Tidak Diketahui",
+          city: detail.Mst_kotum
+            ? detail.Mst_kotum.name
+            : "Kota Tidak Diketahui",
         };
       });
 
       // Menghitung total harga dari semua detail
       const totalPrice = detailsArray.reduce((sum, detail) => {
-          return sum + Number(detail.price || 0);
+        return sum + Number(detail.price || 0);
       }, 0);
 
       data = {
@@ -1013,7 +1029,7 @@ class Model_r {
     }
   }
 
-    async dataKwitansiHandoverFasilitasPaket() {
+  async dataKwitansiHandoverFasilitasPaket() {
     await this.initialize();
     const myDate = moment(new Date()).format("DD MMMM YYYY");
 
@@ -1023,9 +1039,9 @@ class Model_r {
       const adaInvoice = await Handover_fasilitas_paket.findOne({
         where: { invoice: this.req.params.invoice },
       });
-      
-      console.log(this.req.params)
-      console.log("ini adaInvoive: ", adaInvoice)
+
+      console.log(this.req.params);
+      console.log("ini adaInvoive: ", adaInvoice);
 
       if (!adaInvoice) {
         return {};
@@ -1111,7 +1127,7 @@ class Model_r {
     }
   }
 
-    async dataKwitansiHandoverBarangPaket() {
+  async dataKwitansiHandoverBarangPaket() {
     await this.initialize();
 
     try {
@@ -1158,7 +1174,7 @@ class Model_r {
     }
   }
 
-    async dataKwitansiPengembalianHandoverBarangPaket() {
+  async dataKwitansiPengembalianHandoverBarangPaket() {
     await this.initialize();
 
     try {
@@ -1203,10 +1219,87 @@ class Model_r {
       console.log(data);
       return data;
     } catch (error) {
-      console.log("Error in dataKwitansiPengembalianHandoverBarangPaket", error);
+      console.log(
+        "Error in dataKwitansiPengembalianHandoverBarangPaket",
+        error
+      );
       throw error;
     }
   }
-} 
+
+  async invoice_trans_transport() {
+    await this.initialize();
+
+    try {
+      const invoice = this.req.params.invoice;
+
+      const header = await this.header_kwitansi_invoice();
+
+      const transaksi = await Transport_transaction.findOne({
+        where: {
+          company_id: this.company_id,
+          invoice: invoice,
+        },
+        include: [
+          {
+            model: Transport_transaction_detail,
+            attributes: ["car_number", "price"],
+            include: [
+              {
+                model: Mst_mobil,
+                attributes: ["name"],
+              },
+            ],
+          },
+        ],
+        order: [["createdAt", "DESC"]],
+      });
+
+      if (!transaksi) {
+        this.message = "Data transaksi tidak ditemukan.";
+        this.state = false;
+        return {
+          status: false,
+          message: this.message,
+          data: null,
+        };
+      }
+
+      const detail_mobil = transaksi.Transport_transaction_details.map((d) => ({
+        car_number: d.car_number,
+        price: d.price,
+        nama_mobil: d.Mst_mobil?.name || "-",
+      }));
+
+      const total_price = detail_mobil.reduce(
+        (sum, d) => sum + (d.price || 0),
+        0
+      );
+
+      const data = {
+        invoice: transaksi.invoice,
+        payer: transaksi.payer,
+        payer_identity: transaksi.payer_identity,
+        petugas: transaksi.petugas,
+        total_price,
+        detail_mobil,
+        header_kwitansi: header,
+      };
+
+      return {
+        status: true,
+        message: "Data invoice berhasil diambil.",
+        data,
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        status: false,
+        message: "Gagal ambil data invoice transport.",
+        data: null,
+      };
+    }
+  }
+}
 
 module.exports = Model_r;

@@ -84,7 +84,7 @@ router.get(
   controller.kwitansi_pembayaran_transaksi_paket_umrah
 );
 
-router.get(  
+router.get(
   "/invoice/kwitansi-trans-hotel/:invoice",
   authenticateToken,
   controller.kwitansi_trans_hotel
@@ -112,6 +112,12 @@ router.get(
   "/invoice/kwitansi-pengembalian-handover-barang-paket/:invoice",
   authenticateToken,
   controller.kwitansi_pengembalian_handover_barang_paket
+);
+
+router.get(
+  "/invoice/kwitansi-trans-transport/:invoice",
+  authenticateToken,
+  controller.kwitansi_trans_transport
 );
 
 module.exports = router;

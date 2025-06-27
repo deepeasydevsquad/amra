@@ -27,6 +27,7 @@ import KwitansiHandoverBarangPaket from '@/components/User/Modules/Invoice/Kwita
 import KwitansiPengembalianBarangPaket from '@/components/User/Modules/Invoice/KwitansiPengembalianBarangPaket.vue'
 import CetakDataAbsensiJamaah from '@/components/User/Modules/DaftarJamaahPaket/Widgets/CetakDataAbsensiJamaah.vue'
 import DownloadDaftarKamar from '@/components/User/Modules/KamarPaket/Widget/DownloadDaftarKamar.vue'
+import InvoiceTransTransport from '@/components/User/Modules/Invoice/InvoiceTransTransport.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -182,6 +183,12 @@ const router = createRouter({
       component: DownloadDaftarKamar,
 
     },
+
+    {
+      path: '/kwitansi-trans-transport/:invoice',
+      name: 'kwitansi-trans-transport',
+      component: InvoiceTransTransport,
+    }
   ],
 })
 
