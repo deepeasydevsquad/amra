@@ -201,34 +201,21 @@ const shortText = (teks:string, maxKarakter: number) => {
 </script>
 
 <template>
-  <div class="p-4 bg-white min-h-screen">
     <div v-if="isLoading" class="flex items-center justify-center">
       <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
     </div>
     <div v-else-if="isFormOpen">
-      <FormAdd
-        :isFormOpen="isFormOpen"
-        @close="isFormOpen = false; fetchData()"
-      />
+      <FormAdd :isFormOpen="isFormOpen" @close="isFormOpen = false; fetchData()" />
     </div>
     <div v-else-if="isFormOpenEdit">
-      <FormEdit
-      :isFormOpen="isFormOpenEdit"
-      :paketId="paket"
-      @close="isFormOpenEdit = false; fetchData()"
-      />
+      <FormEdit :isFormOpen="isFormOpenEdit" :paketId="paket" @close="isFormOpenEdit = false; fetchData()" />
     </div>
     <div v-else-if="isPageDetailPaketOpen">
-      <DetailPaket
-      :isPageDetailPaketOpen="isPageDetailPaketOpen"
-      :paketId="paket"
-      @close="isPageDetailPaketOpen = false; fetchData()"
-      />
+      <DetailPaket :isPageDetailPaketOpen="isPageDetailPaketOpen" :paketId="paket" @close="isPageDetailPaketOpen = false; fetchData()" />
     </div>
-    <div v-else-if="dataPaket" class="container mx-auto">
-      <div class="flex justify-between mb-4">
-        <button
-          @click="openForm()"
+    <div v-else-if="dataPaket" class="container mx-auto px-4 mt-10">
+      <div class="flex justify-between items-center mb-6">
+        <button @click="openForm()"
           class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -262,7 +249,6 @@ const shortText = (teks:string, maxKarakter: number) => {
           </div>
         </div>
       </div>
-
       <!-- Table data -->
       <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
         <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
@@ -344,9 +330,7 @@ const shortText = (teks:string, maxKarakter: number) => {
           </tfoot>
         </table>
       </div>
-
     </div>
-  </div>
 
   <!-- Confirmation Dialog -->
   <Confirmation

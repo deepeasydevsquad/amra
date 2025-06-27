@@ -187,11 +187,11 @@
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">Nomor Transaksi</th>
-            <th class="w-[30%] px-6 py-4 font-bold text-gray-900 text-center">Info Member</th>
-            <th class="w-[30%] px-6 py-4 font-bold text-gray-900 text-center">Info</th>
-            <th class="w-[20%] px-6 py-4 font-bold text-gray-900 text-center">Waktu Transaksi</th>
-            <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Nomor Transaksi</th>
+            <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Info Member</th>
+            <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Info</th>
+            <th class="w-[20%] px-6 py-4 font-medium text-gray-900 text-center">Waktu Transaksi</th>
+            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">

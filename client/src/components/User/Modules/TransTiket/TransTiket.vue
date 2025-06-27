@@ -1,23 +1,20 @@
 <template>
-  <div class="container mx-auto p-4">
-     <!-- Tambah data dan Search -->
-     <div class="flex justify-between mb-4" >
-    <PrimaryButton @click="startTicketTransaction">
-        <i class="pi pi-plus"></i>
-        Mulai Transaksi Tiket
-    </PrimaryButton>
-    <div class="flex items-center">
-        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input
-          type="text"
-          v-model="searchQuery"
-          id="search"
-          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-          placeholder="Cari data..."
-        />
+  <div class="container mx-auto px-4 mt-10">
+    <div class="flex justify-between items-center mb-6" >
+      <PrimaryButton @click="startTicketTransaction">
+          <i class="pi pi-plus"></i> Mulai Transaksi Tiket
+      </PrimaryButton>
+      <div class="flex items-center">
+          <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
+          <input
+            type="text"
+            v-model="searchQuery"
+            id="search"
+            class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            placeholder="Cari data..."
+          />
+      </div>
     </div>
-    </div>
-    <!-- Tabel Data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
@@ -30,13 +27,10 @@
         </thead>
         <tbody v-if="data.length" class="divide-y divide-gray-100 border-t border-gray-100" >
           <tr v-for="transaction in data" :key="transaction?.id">
-              <!-- No Register -->
               <td class="px-4 py-2 align-top text-sm text-gray-800 whitespace-nowrap">
                 <div class="font-bold text-sm">{{ transaction.nomor_register }}</div>
                 <div class="text-xs text-gray-500">{{ new Date(transaction.updatedAt).toLocaleString() }}</div>
               </td>
-
-              <!-- Info Tiket -->
               <td class="px-4 py-2 text-sm text-gray-700 align-top w-[480px]">
                 <div v-for="ticket in transaction.ticket_details" :key="ticket.id" class="mb-4">
                   <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-xs leading-snug">
@@ -48,14 +42,11 @@
                     <div>HARGA KOSTUMER: Rp {{ ticket.costumer_price.toLocaleString() }}</div>
                   </div>
                 </div>
-                <!-- Subtotal -->
                 <div class="bg-red-100 mt-2 px-4 py-1 text-sm font-bold flex justify-between items-center w-full">
                   <span>SUBTOTAL</span>
                   <span class="text-red-500">: Rp {{ transaction.total_transaksi.toLocaleString() }}</span>
                 </div>
               </td>
-
-              <!-- Info Pembayaran -->
               <td class="px-4 py-2 text-sm text-gray-700 align-top">
                 <div class="space-y-1">
                   <div><strong>TOTAL TRANSAKSI TIKET</strong> : Rp {{ transaction.total_transaksi.toLocaleString() }}</div>
@@ -103,7 +94,6 @@
         </tfoot>
       </table>
     </div>
-
   </div>
   <!-- Form Ticket Transaction -->
   <FormTicketTransaction :showForm="showTicketTransactionDialog" :maskapaiList="maskapaiList" :formData="ticketTransactionData"  @cancel="closeTicketTransactionForm" @submitted="onTicketTransactionSubmitted" />

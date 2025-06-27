@@ -240,7 +240,7 @@ const parseIDR = (value: string): number => {
   <div class="container mx-auto px-4 mt-10">
     <div class="flex justify-between items-center mb-6">
       <!-- Tombol Tambah di kiri -->
-      <PrimaryButton @click="showModal = true" class="flex items-center gap-2">
+      <PrimaryButton @click="showModal = true" >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="w-5 h-5"
@@ -270,12 +270,12 @@ const parseIDR = (value: string): number => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="text-center px-6 py-4 w-[10%]">Invoice</th>
-            <th class="text-center px-6 py-4 w-[30%]">Nama / Nomor Identitas Pembayar</th>
-            <th class="text-center px-6 py-4 w-[30%]">Info Transport</th>
-            <th class="text-center px-6 py-4 w-[15%]">Total</th>
-            <th class="text-center px-6 py-4 w-[15%]">Tanggal Transaksi</th>
-            <th class="text-center px-6 py-4 w-[10%]">Aksi</th>
+            <th class="text-center font-medium  px-6 py-4 w-[10%]">Invoice</th>
+            <th class="text-center font-medium  px-6 py-4 w-[30%]">Nama / Nomor Identitas Pembayar</th>
+            <th class="text-center font-medium  px-6 py-4 w-[30%]">Info Transport</th>
+            <th class="text-center font-medium  px-6 py-4 w-[15%]">Total</th>
+            <th class="text-center font-medium  px-6 py-4 w-[15%]">Tanggal Transaksi</th>
+            <th class="text-center font-medium  px-6 py-4 w-[10%]">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
