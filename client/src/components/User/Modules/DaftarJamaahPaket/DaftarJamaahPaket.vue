@@ -27,8 +27,6 @@ const props = defineProps<{
   paketId: number
 }>()
 
-console.log(props)
-
 const isLoading = ref(false);
 const itemsPerPage = 100; // Jumlah daftar transaksi per halaman
 const currentPage = ref(1);

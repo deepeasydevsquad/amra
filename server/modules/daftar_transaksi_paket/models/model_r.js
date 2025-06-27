@@ -308,9 +308,17 @@ class Model_r {
         attributes: ["nomor_visa", "tanggal_berlaku_visa", "tanggal_berakhir_visa"],
       });
 
+      const listData = {
+        id: body.id,
+        transpaketId: body.transpaketId,
+        nomor_visa: data.nomor_visa,
+        tanggal_berlaku_visa: data.tanggal_berlaku_visa,
+        tanggal_berakhir_visa: data.tanggal_berakhir_visa,
+      };
+
       return ({
-        data: data,
-        total: data.length
+        data: listData,
+        total: 1
       })
     } catch (error) {
       console.log("Error in infoupdateVisaTransaksiPaket:", error);
@@ -460,7 +468,7 @@ class Model_r {
 
       return data;
     } catch (error) {
-      console.log("Error in infoTabungan:", error);
+      console.log("Error in infoDaftarTransaksiPaket:", error);
       return {};
     }
   }
