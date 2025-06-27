@@ -9,6 +9,7 @@
   import Notification from "../../../Modal/Notification.vue"
   import { getFilterAkun, getData, deleteAkun, kembalikanBuku } from "@/service/akun"; // Import function POST
   import { paramCabang  } from '@/service/param_cabang'; // Import function POST
+  import LightButton from "@/components/Button/LightButton.vue"
 
   import { ref, onMounted } from 'vue';
 
@@ -117,6 +118,7 @@
 
   const showAddModal = ref<boolean>(false);
   const addAkunBtn = async (id : number, nomor : string, primary_id : number) => {
+    selectedAkun.value = undefined;
     dataAddUpdateAkun.value.prefix = nomor.toString().charAt(0);
     dataAddUpdateAkun.value.primary_id = primary_id;
     dataAddUpdateAkun.value.nomor = '';
@@ -253,17 +255,17 @@
               <td class="px-6 py-4 text-center" :class="akun.type === 'header' ? 'font-bold bg-gray-200' : '' ">{{ akun.saldo_akhir }}</td>
               <td class="px-6 py-4 text-center" :class="akun.type === 'header' ? 'font-bold uppercase bg-gray-200' : '' ">
                 <div class="flex justify-center gap-2">
-                  <PrimaryButton v-if=" akun.type === 'header'" @click="addAkunBtn(akun.id, akun.nomor, akun.primary_id)">
+                  <LightButton v-if=" akun.type === 'header'" @click="addAkunBtn(akun.id, akun.nomor, akun.primary_id)" class="p-2 ">
                     <font-awesome-icon icon="fa-solid fa-plus" class="mr-0" />
-                  </PrimaryButton>
+                  </LightButton>
                   <template v-else>
-                    <SuccessButton  @click="editSaldo(akun.id, akun.saldo_awal)">
-                      <font-awesome-icon icon="fa-solid fa-money-bill" class="mr-0" />
-                    </SuccessButton>
+                    <LightButton @click="editSaldo(akun.id, akun.saldo_awal)" class="p-2 ">
+                      <i class="pi pi-money-bill"></i>
+                    </LightButton>
                     <template v-if="akun.tipe_akun !== 'bawaan' " >
-                      <PrimaryButton  @click="editAkunBtn(akun.id, akun.nomor, akun.primary_id, akun.name, akun.saldo_awal )" >
+                      <LightButton @click="editAkunBtn(akun.id, akun.nomor, akun.primary_id, akun.name, akun.saldo_awal )"  class="p-2 ">
                         <font-awesome-icon icon="fa-solid fa-pencil" class="mr-0" />
-                      </PrimaryButton>
+                      </LightButton>
                       <DangerButton @click="deleteAkunBtn(akun.id)" >
                         <font-awesome-icon icon="fa-solid fa-times" class="mr-0" />
                       </DangerButton>
@@ -286,14 +288,12 @@
     <!-- Confirmation Dialog -->
     <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
       <button @click="confirmAction && confirmAction()"
-        class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-      >
+        class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">
         Ya
       </button>
       <button
         @click="showConfirmDialog = false"
-        class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-      >
+        class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" >
         Tidak
       </button>
     </Confirmation>
