@@ -352,7 +352,7 @@ const parseIDR = (value: string): number => {
     "
     @submit="submitForm"
     :submitLabel="'Simpan'"
-    :width="'w-1/2'"
+    :width="'w-1/3'"
     :label="'Tambah Transaksi Transport'"
   >
     <div class="flex gap-4">
