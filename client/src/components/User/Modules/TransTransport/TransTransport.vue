@@ -219,6 +219,21 @@ const resetForm = () => {
     },
   ]
 }
+
+// Format ke IDR
+const formatToIDR = (value: number | string): string => {
+  const num = typeof value === 'string' ? Number(value.replace(/[^\d]/g, '')) : value
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+  }).format(num || 0)
+}
+
+// Ambil angka asli dari string IDR
+const parseIDR = (value: string): number => {
+  return Number(value.replace(/[^\d]/g, ''))
+}
 </script>
 
 <template>
@@ -337,23 +352,17 @@ const resetForm = () => {
     "
     @submit="submitForm"
     :submitLabel="'Simpan'"
-    :width="'w-1/3'"
+    :width="'w-1/2'"
     :label="'Tambah Transaksi Transport'"
   >
     <div class="flex gap-4">
       <div class="w-1/2">
-        <InputText
-          v-model="formData.payer"
-          label="Nama Pelanggan"
-          placeholder="Masukkan Nama"
-          :note="'Nama Pelanggan'"
-        />
+        <InputText v-model="formData.payer" placeholder="Masukkan Nama" :note="'Nama Pelanggan'" />
       </div>
 
       <div class="w-1/2">
         <InputText
           v-model="formData.payer_identity"
-          label="Identitas Pelanggan"
           placeholder="Masukkan Identitas"
           :note="'Identitas Pelanggan'"
         />
@@ -362,7 +371,6 @@ const resetForm = () => {
 
     <TextArea
       v-model="formData.address"
-      label="Alamat"
       id="address"
       placeholder="Tuliskan Alamat Anda..."
       :note="'Contoh: Jl. Raya Jakarta No. 123, Jakarta Selatan, DKI Jakarta'"
@@ -383,25 +391,34 @@ const resetForm = () => {
         >
           <td class="px-4 py-2">
             <SelectField
-              label="Mobil"
+              note="Mobil"
               v-model="mobil.mst_mobil_id"
               placeholder="Pilih Mobil"
               :options="MobilOptions"
             />
-            <InputText
-              v-model="mobil.car_number"
-              label="Plat Mobil"
-              placeholder="Masukkan Plat Mobil"
-            />
-            <InputText
-              v-model="mobil.price"
-              label="Harga Per Paket"
-              placeholder="Masukkan harga per paket"
-            />
+
+            <div class="flex gap-4 mt-2">
+              <div class="w-1/2">
+                <InputText
+                  v-model="mobil.car_number"
+                  note="Plat Mobil"
+                  placeholder="Masukkan Plat Mobil"
+                />
+              </div>
+              <div class="w-1/2">
+                <InputText
+                  :modelValue="formatToIDR(mobil.price)"
+                  @update:modelValue="mobil.price = parseIDR($event)"
+                  note="Harga Per Paket"
+                  placeholder="Masukkan harga per paket"
+                />
+              </div>
+            </div>
           </td>
+
           <td class="px-4 py-2 text-center">
-            <DangerButton @click="removeMobil(index)">
-              <DeleteIcon />
+            <DangerButton class="mt-2.5" @click="removeMobil(index)">
+              <DeleteIcon class="w-5 h-5" />
             </DangerButton>
           </td>
         </tr>
