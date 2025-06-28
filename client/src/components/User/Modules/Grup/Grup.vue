@@ -13,6 +13,7 @@ import Confirm from '@/components/User/Modules/Grup/Particle/ModalConfirmDelete.
 import Pagination from '@/components/Pagination/Pagination.vue'
 import LightButton from "@/components/Button/LightButton.vue"
 import DangerButton from "@/components/Button/DangerButton.vue"
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
 const isAddModalOpen = ref(false)
 const isUpdateModalOpen = ref(false)
@@ -41,11 +42,8 @@ interface SystemLogs {
   updatedAt: string;
 }
 
-// data
-// const data = ref<Partial<SystemLogs[]>>([])
 const data = ref<SystemLogs[]>([])
-
-// paging logic
+const search = ref('');
 const currentPage = ref(1)
 const itemsPerPage = 100
 const totalColumns = ref(5);
@@ -82,7 +80,11 @@ const confirmAction = ref<() => void>(() => {})
 
 const fetchData = async () => {
   try {
-    const response = await daftarGrup()
+    const response = await daftarGrup({
+      search: search.value,
+      perpage: itemsPerPage,
+      pageNumber: currentPage.value,
+    })
     if (response.success && response.data) {
       data.value = response.data
       totalPages.value = Math.ceil(response.total / itemsPerPage)
@@ -153,7 +155,7 @@ onMounted(fetchData)
 <template>
   <div class="container mx-auto p-4">
     <div class="flex justify-between mb-4">
-      <button
+      <!-- <button
         @click="isAddModalOpen = true"
         class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
       >
@@ -166,12 +168,21 @@ onMounted(fetchData)
           />
         </svg>
         Tambah Grup
-      </button>
+      </button> -->
+      <PrimaryButton @click="isAddModalOpen = true">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Tambah Grup
+      </PrimaryButton>
+
+
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
           type="text"
           id="search"
+          v-model="search" @change="fetchData()"
           class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
           placeholder="Cari data..."
         />
