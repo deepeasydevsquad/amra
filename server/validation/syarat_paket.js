@@ -15,12 +15,4 @@ validation.check_id_paket = async (value, { req }) => {
     return true;
 }
 
-validation.check_id_transpaket = async (value, { req }) => {
-    const division_id = await getCabang(req);
-    var check = await Paket_transaction.findOne({ where: { id : value, division_id : division_id }});
-    if (!check) {
-        throw new Error("ID Transaksi Paket tidak terdaftar dipangkalan data");
-    }
-}
-
 module.exports = validation;
