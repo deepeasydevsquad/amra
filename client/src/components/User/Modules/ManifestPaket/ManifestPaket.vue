@@ -7,8 +7,8 @@ import DownloadIcon from '@/components/User/Modules/ManifestPaket/Icon/DownloadI
 import EditButton from '@/components/User/Modules/ManifestPaket/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/ManifestPaket/Particle/Notification.vue'
 
-// import widget
-import FormEditManifest from '@/components/User/Modules/ManifestPaket/widget/FormEditManifest.vue'
+// import
+import FormUpdate from '@/components/User/Modules/DaftarJamaah/Particle/FormUpdate.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 
 
@@ -54,25 +54,62 @@ const pages = computed(() => {
 interface ManifestPaket {
     id: number;
     jamaah_id: number;
-    fullname: string;
-    identity_number: string;
+    nama_jamaah: string;
+    birth_place: string;
     birth_date: string;
     umur: number;
     whatsapp_number: string;
     status_kelengkapan: string;
     daftar_item_belum_lengkap: string[];
+    nama_agen: string;
+    nomor_identitas: string;
+    tempat_tanggal_lahir: string;
+    identity_type: string;
+    gender: string;
+    photo: string;
+    nomor_passport: string;
+    title: string;
+    nama_ayah: string;
+    nama_passport: string;
+    tanggal_di_keluarkan_passport: string;
+    tempat_di_keluarkan_passport: string;
+    masa_berlaku_passport: string;
+    kode_pos: string;
+    nomor_telephone: string;
+    pengalaman_haji: string;
+    tahun_haji: string;
+    pengalaman_umrah: string;
+    tahun_umrah: string;
+    desease: string;
+    last_education: string;
+    blood_type: string;
+    photo_4_6: string;
+    photo_3_4: string;
+    fc_passport: string;
+    mst_pekerjaan_id: string;
+    profession_instantion_name: string;
+    profession_instantion_address: string;
+    profession_instantion_telephone: string;
+    fc_kk: string;
+    fc_ktp: string;
+    buku_nikah: string;
+    akte_lahir: string;
+    buku_kuning: string;
+    keterangan: string;
+    nama_keluarga: string;
+    alamat_keluarga: string;
+    telephone_keluarga: string;
+    status_nikah: string;
+    tanggal_nikah: string;
+    kewarganegaraan: string;
 }
 
 const dataManifestPaket = ref<ManifestPaket[]>([])
-const transpaketId = ref<number>(0)
+const selectedJamaah = ref<ManifestPaket | null>(null);
 const isFormEditMasnifestOpen = ref<boolean>(false)
 const notificationMessage = ref<string>('');
 const notificationType = ref<'success' | 'error'>('success');
 const showNotification = ref<boolean>(false);
-const showConfirmDialog = ref<boolean>(false);
-const confirmMessage = ref<string>('');
-const confirmTitle = ref<string>('');
-const confirmAction = ref<(() => void) | null>(null);
 const totalColumns = ref(6);
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
@@ -87,8 +124,8 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   }, 3000);
 };
 
-const openFormEditManifest = (id: number) => {
-  transpaketId.value = id;
+const openFormEditManifest = (daftarManidest: ManifestPaket) => {
+  selectedJamaah.value = daftarManidest;
   isFormEditMasnifestOpen.value = true;
 }
 
@@ -170,8 +207,8 @@ onMounted(() => {
           <template v-if="dataManifestPaket && dataManifestPaket.length > 0">
             <tr v-for="dataManifest in dataManifestPaket" :key="dataManifest.id" class="hover:bg-gray-50">
               <td class="px-6 py-4 text-center">
-                <p>{{ dataManifest.fullname }}</p>
-                <p>({{ dataManifest.identity_number }})</p>
+                <p>{{ dataManifest.nama_jamaah }}</p>
+                <p>({{ dataManifest.nomor_identitas }})</p>
               </td>
               <td class="px-6 py-4 text-center">
                 <p>{{ dataManifest.status_kelengkapan }}</p>
@@ -194,7 +231,7 @@ onMounted(() => {
                 </template>
               </td>
               <td class="px-6 py-4 items-center justify-center flex gap-2">
-                <EditButton col-span-1 title="Cetak Data Jamaah" @click="openFormEditManifest(dataManifest.id)">
+                <EditButton col-span-1 title="Cetak Data Jamaah" @click="openFormEditManifest(dataManifest)">
                   <EditIcon></EditIcon>
                 </EditButton>
               </td>
@@ -228,12 +265,11 @@ onMounted(() => {
     leave-from-class="transform scale-100 opacity-100"
     leave-to-class="transform scale-95 opacity-0"
   >
-    <FormEditManifest
+    <FormUpdate
       v-if="isFormEditMasnifestOpen"
-      :isFormEditMasnifestOpen="isFormEditMasnifestOpen"
-      :transpaketId="transpaketId"
-      @close="isFormEditMasnifestOpen= false; fetchData()"
-      @status="(payload) => displayNotification(payload.err_msg || 'Manifest gagal diupdate', payload.error ? 'error' : 'success')"
+      :jamaah="selectedJamaah"
+      @close="isFormEditMasnifestOpen = false; fetchData()"
+      @update="displayNotification('Data Jamaah berhasil diperbarui', 'success')"
       />
   </transition>
 
