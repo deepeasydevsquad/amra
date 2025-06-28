@@ -6,12 +6,14 @@ import ModalUpdate from '@/components/User/Modules/Grup/Particle/ModalUpdate.vue
 import { daftarGrup, addGrup, editGrup, hapusGrup } from '@/service/grup'
 import DeleteIcon from '@/components/User/Modules/Grup/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/Grup/Icon/EditIcon.vue'
-import DangerButton from '@/components/User/Modules/Grup/Particle/DangerButton.vue'
+// import DangerButton from '@/components/User/Modules/Grup/Particle/DangerButton.vue'
 import EditButton from '@/components/User/Modules/Grup/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/Grup/Particle/Notification.vue'
 import Confirm from '@/components/User/Modules/Grup/Particle/ModalConfirmDelete.vue'
+import Pagination from '@/components/Pagination/Pagination.vue'
+import LightButton from "@/components/Button/LightButton.vue"
+import DangerButton from "@/components/Button/DangerButton.vue"
 
-const data = ref([])
 const isAddModalOpen = ref(false)
 const isUpdateModalOpen = ref(false)
 const grupToUpdate = ref<any>(null)
@@ -20,35 +22,70 @@ const showNotification = ref(false)
 const notificationType = ref<'success' | 'error'>('success')
 const notificationMessage = ref('')
 
-const currentPage = ref(1)
-const itemsPerPage = ref(5)
+interface SubmenuAccess {
+  id: number;
+  name: string;
+}
 
-const totalPages = computed(() => Math.ceil(data.value.length / itemsPerPage.value))
-const paginatedData = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value
-  const end = start + itemsPerPage.value
-  return data.value.slice(start, end)
-})
+interface GroupAccess {
+  id: number;
+  name: string;
+  submenu: SubmenuAccess[];
+}
+
+interface SystemLogs {
+  id: number;
+  name: string;
+  division:string;
+  group_access: GroupAccess[];
+  updatedAt: string;
+}
+
+// data
+// const data = ref<Partial<SystemLogs[]>>([])
+const data = ref<SystemLogs[]>([])
+
+// paging logic
+const currentPage = ref(1)
+const itemsPerPage = 100
+const totalColumns = ref(5);
+const totalPages = ref(0);
 
 const pages = computed(() => {
-  const pagesArray = []
-  for (let i = 1; i <= totalPages.value; i++) {
-    pagesArray.push(i)
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+});
+
+
+const pageNow = (page : number) => {
+  currentPage.value = page
+  fetchData()
+}
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    fetchData()
   }
-  return pagesArray
-})
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    fetchData()
+  }
+};
 
 const showConfirmDialog = ref(false)
 const confirmTitle = ref('')
 const confirmMessage = ref('')
 const confirmAction = ref<() => void>(() => {})
 
-const fetchGrup = async () => {
+const fetchData = async () => {
   try {
     const response = await daftarGrup()
     if (response.success && response.data) {
       data.value = response.data
-      console.log(response.data)
+      totalPages.value = Math.ceil(response.total / itemsPerPage)
     }
   } catch (error) {
     console.error('Gagal mengambil data grup:', error)
@@ -69,7 +106,7 @@ const handleSaveGroup = async (grup) => {
       showNotificationMessage('success', 'Data grup berhasil ditambahkan!')
     }
 
-    await fetchGrup() // Refresh UI setelah update
+    await fetchData() // Refresh UI setelah update
   } catch (error) {
     console.error('Error menyimpan grup:', error)
     showNotificationMessage('error', 'Gagal menyimpan data grup.')
@@ -92,7 +129,7 @@ const deleteGroup = async (grupId) => {
   try {
     await hapusGrup(grupId)
     showNotificationMessage('success', 'Data grup berhasil dihapus!')
-    await fetchGrup()
+    await fetchData()
   } catch (error) {
     showNotificationMessage('error', 'Gagal menghapus grup.')
   } finally {
@@ -111,23 +148,7 @@ const showNotificationMessage = (type, message) => {
   setTimeout(() => (showNotification.value = false), 3000)
 }
 
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++
-  }
-}
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--
-  }
-}
-
-const pageNow = (page) => {
-  currentPage.value = page
-}
-
-onMounted(fetchGrup)
+onMounted(fetchData)
 </script>
 <template>
   <div class="container mx-auto p-4">
@@ -161,28 +182,24 @@ onMounted(fetchGrup)
         <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead class="bg-gray-50">
             <tr>
-              <th class="w-[20%] px-4 py-3 font-bold text-gray-900 text-center">Nama Grup</th>
-              <th class="w-[20%] px-4 py-3 font-bold text-gray-900 text-center">Cabang</th>
-              <th class="w-[30%] px-4 py-3 font-bold text-gray-900 text-center">Akses Grup</th>
-              <th class="w-[15%] px-4 py-3 font-bold text-gray-900 text-center">Last Update</th>
-              <th class="w-[10%] px-4 py-3 font-bold text-gray-900 text-center">Aksi</th>
+              <th class="w-[20%] px-4 py-3 font-medium text-gray-900 text-center">Nama Grup</th>
+              <th class="w-[20%] px-4 py-3 font-medium text-gray-900 text-center">Cabang</th>
+              <th class="w-[30%] px-4 py-3 font-medium text-gray-900 text-center">Akses Grup</th>
+              <th class="w-[15%] px-4 py-3 font-medium text-gray-900 text-center">Last Update</th>
+              <th class="w-[10%] px-4 py-3 font-medium text-gray-900 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-            <template v-if="paginatedData.length > 0">
-              <tr v-for="(grup, index) in paginatedData" :key="grup.id" class="hover:bg-gray-50">
-                <td class="px-4 py-3 align-top text-center">{{ grup.name }}</td>
-                <td class="px-4 py-3 align-top text-center">{{ grup.division }}</td>
-                <td class="px-4 py-3">
+            <template v-if="data.length > 0">
+              <tr v-for="(grup, index) in data" :key="grup?.id" class="hover:bg-gray-50">
+                <td class="px-4 py-3 align-top text-center">{{ grup?.name }}</td>
+                <td class="px-4 py-3 align-top text-center">{{ grup?.division }}</td>
+                <td class="px-4 py-3 align-top">
                   <ol class="list-disc list-inside space-y-1">
-                    <li v-for="access in grup.group_access" :key="access.id">
+                    <li v-for="access in grup?.group_access" :key="access.id">
                       <span class="font-medium">{{ access.name }}</span>
-                      <ul v-if="access.Submenus.length > 0" class="list-none list-inside pl-5">
-                        <li
-                          v-for="submenu in access.Submenus"
-                          :key="submenu.id"
-                          class="flex items-center"
-                        >
+                      <ul v-if="grup?.group_access.length  > 0" class="list-none list-inside pl-5">
+                        <li v-for="submenu in access.submenu" :key="submenu.id" class="flex items-center" >
                           <svg
                             class="w-4 h-4 mr-2"
                             fill="none"
@@ -207,9 +224,9 @@ onMounted(fetchGrup)
                 </td>
                 <td class="px-4 py-3 align-top text-center">
                   <div class="flex justify-center gap-2">
-                    <EditButton @click="openUpdateModal(grup)">
+                    <LightButton @click="openUpdateModal(grup)">
                       <EditIcon></EditIcon>
-                    </EditButton>
+                    </LightButton>
                     <DangerButton @click="handleDeleteGroup(grup.id)">
                       <DeleteIcon></DeleteIcon>
                     </DangerButton>
@@ -226,49 +243,7 @@ onMounted(fetchGrup)
             </template>
           </tbody>
           <tfoot class="bg-gray-100 font-bold">
-            <tr>
-              <td colspan="6" class="px-4 py-4 text-center border min-h-[200px]">
-                <nav class="flex mt-0">
-                  <ul class="inline-flex items-center -space-x-px">
-                    <!-- Tombol Previous -->
-                    <li>
-                      <button
-                        @click="prevPage"
-                        :disabled="currentPage === 1"
-                        class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Previous
-                      </button>
-                    </li>
-                    <!-- Nomor Halaman -->
-                    <li v-for="page in pages" :key="page">
-                      <button
-                        @click="pageNow(page)"
-                        class="px-3 py-2 leading-tight border"
-                        :class="
-                          currentPage === page
-                            ? 'text-white bg-[#333a48] border-[#333a48]'
-                            : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'
-                        "
-                      >
-                        {{ page }}
-                      </button>
-                    </li>
-
-                    <!-- Tombol Next -->
-                    <li>
-                      <button
-                        @click="nextPage"
-                        :disabled="currentPage === totalPages"
-                        class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Next
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
-              </td>
-            </tr>
+            <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" />
           </tfoot>
         </table>
       </div>
@@ -278,38 +253,22 @@ onMounted(fetchGrup)
     <ModalAdd :isOpen="isAddModalOpen" @close="isAddModalOpen = false" @save="handleSaveGroup" />
 
     <!-- Modal Update -->
-    <ModalUpdate
-      :isOpen="isUpdateModalOpen"
-      :grupToUpdate="grupToUpdate"
-      @close="isUpdateModalOpen = false"
-      @save="handleSaveGroup"
-    />
+    <ModalUpdate :isOpen="isUpdateModalOpen" :grupToUpdate="grupToUpdate"  @close="isUpdateModalOpen = false"  @save="handleSaveGroup" />
 
     <!-- Notifikasi -->
-    <Notification
-      :showNotification="showNotification"
-      :notificationType="notificationType"
-      :notificationMessage="notificationMessage"
-      @close="showNotification = false"
-    />
-    <Confirm
-      :showConfirmDialog="showConfirmDialog"
-      :confirmTitle="confirmTitle"
-      :confirmMessage="confirmMessage"
-    >
-      <button
-        @click="confirmDelete"
-        class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-      >
+    <Notification :showNotification="showNotification"  :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" />
+
+    <Confirm :showConfirmDialog="showConfirmDialog" :confirmTitle="confirmTitle" :confirmMessage="confirmMessage"  >
+      <button @click="confirmDelete"
+        class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">
         Ya
       </button>
-      <button
-        @click="showConfirmDialog = false"
-        class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-      >
+      <button @click="showConfirmDialog = false"
+        class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
         Tidak
       </button>
     </Confirm>
+
   </div>
 </template>
 
