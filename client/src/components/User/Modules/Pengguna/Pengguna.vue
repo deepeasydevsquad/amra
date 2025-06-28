@@ -67,9 +67,9 @@
             <td class="px-6 py-4 text-center">{{ user.Grup?.name || '-' }}</td>
             <td class="px-6 py-4 text-center">
               <div class="flex justify-center gap-2">
-                <EditButton @click="editUser(user.id)" title="Edit Pengguna">
+                <LightButton @click="editUser(user.id)" title="Edit Pengguna">
                   <EditIcon />
-                </EditButton>
+                </LightButton>
                 <DangerButton @click="confirmDelete(user.id)" title="Hapus Pengguna">
                   <DeleteIcon />
                 </DangerButton>
@@ -80,83 +80,7 @@
 
         <!-- Pagination Footer -->
         <tfoot class="bg-gray-100 font-bold">
-          <tr>
-            <td class="px-4 py-4 text-left border min-h-[200px]" :colspan="4">
-              <nav class="flex mt-0">
-                <ul class="inline-flex items-center -space-x-px">
-                  <!-- Previous Button -->
-                  <li>
-                    <button
-                      @click="prevPage"
-                      :disabled="currentPage === 1"
-                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                  </li>
-
-                  <!-- First Page -->
-                  <li v-if="currentPage > Math.floor(maxVisiblePages / 2) + 1">
-                    <button
-                      @click="goToPage(1)"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                    >
-                      1
-                    </button>
-                  </li>
-                  <li v-if="currentPage > Math.floor(maxVisiblePages / 2) + 1" class="px-2 py-2">
-                    ...
-                  </li>
-
-                  <!-- Page Numbers -->
-                  <li
-                    v-for="page in visiblePages"
-                    :key="page"
-                    v-if="users.length > 0 && !isLoading"
-                  >
-                    <button
-                      @click="goToPage(page)"
-                      class="px-3 py-2 leading-tight border"
-                      :class="{
-                        'text-white bg-[#333a48] border-[#333a48]': currentPage === page,
-                        'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700':
-                          currentPage !== page,
-                      }"
-                    >
-                      {{ page }}
-                    </button>
-                  </li>
-
-                  <!-- Last Page -->
-                  <li
-                    v-if="currentPage < totalPages - Math.floor(maxVisiblePages / 2)"
-                    class="px-2 py-2"
-                  >
-                    ...
-                  </li>
-                  <li v-if="currentPage < totalPages - Math.floor(maxVisiblePages / 2)">
-                    <button
-                      @click="goToPage(totalPages)"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                    >
-                      {{ totalPages }}
-                    </button>
-                  </li>
-
-                  <!-- Next Button -->
-                  <li>
-                    <button
-                      @click="nextPage"
-                      :disabled="currentPage === totalPages"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </td>
-          </tr>
+          <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" />
         </tfoot>
       </table>
     </div>
@@ -233,17 +157,16 @@ import Confirmation from './Particle/Confirmation.vue'
 import Notification from './Particle/Notification.vue'
 import DeleteIcon from './Icon/DeleteIcon.vue'
 import EditIcon from './Icon/EditIcon.vue'
-import DangerButton from './Particle/DangerButton.vue'
+// import DangerButton from './Particle/DangerButton.vue'
 import EditButton from './Particle/EditButton.vue'
+import Pagination from '@/components/Pagination/Pagination.vue'
+import LightButton from "@/components/Button/LightButton.vue"
+import DangerButton from "@/components/Button/DangerButton.vue"
 
 // Data State
 const users = ref([])
 const searchQuery = ref('')
-const currentPage = ref(1)
-const totalPages = ref(1)
 const totalItems = ref(0)
-const itemsPerPage = ref(10)
-const maxVisiblePages = 5
 const isLoading = ref(false)
 
 // Modal State
@@ -262,35 +185,66 @@ const notificationType = ref<'success' | 'error'>('success')
 const timeoutId = ref<number | null>(null)
 const searchTimeout = ref<number | null>(null)
 
+// paging logic
+const currentPage = ref(1)
+const itemsPerPage = 100
+const totalColumns = ref(4);
+const totalPages = ref(0);
+
+const pages = computed(() => {
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+});
+
+
+const pageNow = (page : number) => {
+  currentPage.value = page
+  fetchData()
+}
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    fetchData()
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    fetchData()
+  }
+};
+
+
 // Computed Properties
-const visiblePages = computed(() => {
-  const pages = []
-  const halfVisible = Math.floor(maxVisiblePages / 2)
+// const visiblePages = computed(() => {
+//   const pages = []
+//   const halfVisible = Math.floor(maxVisiblePages / 2)
 
-  let startPage = currentPage.value - halfVisible
-  let endPage = currentPage.value + halfVisible
+//   let startPage = currentPage.value - halfVisible
+//   let endPage = currentPage.value + halfVisible
 
-  // Adjust if we're near the start
-  if (startPage < 1) {
-    startPage = 1
-    endPage = Math.min(maxVisiblePages, totalPages.value)
-  }
+//   // Adjust if we're near the start
+//   if (startPage < 1) {
+//     startPage = 1
+//     endPage = Math.min(maxVisiblePages, totalPages.value)
+//   }
 
-  // Adjust if we're near the end
-  if (endPage > totalPages.value) {
-    endPage = totalPages.value
-    startPage = Math.max(1, endPage - maxVisiblePages + 1)
-  }
+//   // Adjust if we're near the end
+//   if (endPage > totalPages.value) {
+//     endPage = totalPages.value
+//     startPage = Math.max(1, endPage - maxVisiblePages + 1)
+//   }
 
-  for (let i = startPage; i <= endPage; i++) {
-    pages.push(i)
-  }
+//   for (let i = startPage; i <= endPage; i++) {
+//     pages.push(i)
+//   }
 
-  return pages
-})
+//   return pages
+// })
 
 // Methods
-const fetchPengguna = async () => {
+const fetchData = async () => {
   isLoading.value = true
   try {
     const response = await daftarPengguna({
@@ -306,7 +260,7 @@ const fetchPengguna = async () => {
     // Adjust current page if it's out of bounds
     if (currentPage.value > totalPages.value && totalPages.value > 0) {
       currentPage.value = totalPages.value
-      await fetchPengguna() // Refetch with corrected page
+      await fetchData() // Refetch with corrected page
       return
     }
   } catch (error) {
@@ -327,7 +281,7 @@ const handleSearch = () => {
   }
 
   searchTimeout.value = window.setTimeout(() => {
-    fetchPengguna()
+    fetchData()
   }, 500)
 }
 
@@ -349,12 +303,12 @@ const resetNotificationTimeout = () => {
 const goToPage = (page: number) => {
   if (page >= 1 && page <= totalPages.value && page !== currentPage.value) {
     currentPage.value = page
-    fetchPengguna()
+    fetchData()
   }
 }
 
-const nextPage = () => goToPage(currentPage.value + 1)
-const prevPage = () => goToPage(currentPage.value - 1)
+// const nextPage = () => goToPage(currentPage.value + 1)
+// const prevPage = () => goToPage(currentPage.value - 1)
 
 // User Actions
 const editUser = (id: number) => {
@@ -379,7 +333,7 @@ const executeDelete = async () => {
       currentPage.value--
     }
 
-    fetchPengguna()
+    fetchData()
   } catch (error) {
     console.error('Gagal menghapus pengguna:', error)
     displayNotification('Gagal menghapus pengguna', 'error')
@@ -390,7 +344,7 @@ const executeDelete = async () => {
 }
 
 const handleUserUpdated = () => {
-  fetchPengguna()
+  fetchData()
   displayNotification('Data pengguna berhasil diperbarui', 'success')
 }
 
@@ -411,20 +365,20 @@ const closeFormAddModal = () => {
 // Tambahkan handler untuk event dari FormAdd
 const handleAddMember = () => {
   closeFormAddModal()
-  fetchPengguna()
+  fetchData()
   displayNotification('Member berhasil ditambahkan', 'success')
 }
 
 // Tambahkan handler untuk event dari FormAddPengguna
 const handlePenggunaAdded = () => {
   showAddPenggunaModal.value = false
-  fetchPengguna()
+  fetchData()
   displayNotification('Pengguna berhasil ditambahkan', 'success')
 }
 
 // Lifecycle Hooks
 onMounted(() => {
-  fetchPengguna()
+  fetchData()
 })
 
 onUnmounted(() => {

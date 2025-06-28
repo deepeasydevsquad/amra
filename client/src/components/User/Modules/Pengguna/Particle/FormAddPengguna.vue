@@ -21,7 +21,7 @@
             @change="updateCabangId"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
           >
-            <option value="" disabled>Pilih Member</option>
+            <option value="0">Pilih Member</option>
             <option v-for="member in members" :key="member.id" :value="member.id">
               {{ member.fullname }}
             </option>
@@ -36,7 +36,7 @@
             v-model="selectedGrup"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
           >
-            <option value="" disabled>Pilih Grup</option>
+            <option value="0">Pilih Grup</option>
             <option v-for="grup in grups" :key="grup.id" :value="grup.id">
               {{ grup.name }}
             </option>
@@ -134,8 +134,8 @@ const props = defineProps({
 const emit = defineEmits(['update:isModalOpen'])
 
 // State untuk select member, grup, dan cabang_id
-const selectedMember = ref<number | null>(null)
-const selectedGrup = ref<number | null>(null)
+const selectedMember = ref<number | null>(0)
+const selectedGrup = ref<number | null>(0)
 const selectedCabangId = ref<number | null>(null) // Tambahkan ref untuk cabang_id
 
 // Fungsi untuk mengambil cabang_id dari member yang dipilih
