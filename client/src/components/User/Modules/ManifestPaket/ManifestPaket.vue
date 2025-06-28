@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 // Import icon
 import EditIcon from '@/components/User/Modules/ManifestPaket/icon/EditIcon.vue'
 import DownloadIcon from '@/components/User/Modules/ManifestPaket/icon/DownloadIcon.vue'
@@ -10,7 +11,6 @@ import Notification from '@/components/User/Modules/ManifestPaket/particle/Notif
 // import widget
 import FormEditManifest from '@/components/User/Modules/ManifestPaket/widget/FormEditManifest.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
-
 
 import { ref, onMounted, computed } from 'vue'
 import { daftarManifestPaket, downloadAbsensi } from '@/service/manifest_paket'
