@@ -1,5 +1,26 @@
 import api from './api' // Import service API
 
+
+export const getMember = async () => {
+  try {
+    const response = await api.get("/pengguna/get-member");
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil data member:", error);
+    throw error;
+  }
+}
+
+export const getGrup = async () => {
+  try {
+    const response = await api.get("/pengguna/get-grup");
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil data cabang:", error);
+    throw error;
+  }
+}
+
 export const daftarPengguna = async (param: any) => {
   try {
     const response = await api.get('/get-pengguna', param)

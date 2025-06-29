@@ -1,16 +1,11 @@
 const {
   Op,
-  User,
-  Grup,
-  Company,
-  Division,
   Paket,
   Paket_transaction,
   Jamaah,
   Member,
   Mst_pendidikan,
   Mst_pekerjaan,
-  Mst_kota,
   Mst_provider,
   Mst_asuransi
 } = require("../../../models");
@@ -71,15 +66,58 @@ class Model_r {
     const { status, missingItems } = await this.checkKelengkapanData(jamaah);
 
     return {
-      id: e.id ? e.id : "-",
-      jamaah_id: jamaah.id ? jamaah.id : "-",
-      fullname: jamaahMember.fullname ? jamaahMember.fullname : "-",
-      identity_number: jamaahMember.identity_number ? jamaahMember.identity_number : "-",
-      birth_date: jamaahMember.birth_date ? moment(jamaahMember.birth_date).format("DD MMMM YYYY") : "-",
+      id: e.id,
+      jamaah_id: jamaah.id,
+      nama_jamaah: jamaahMember.fullname,
+      birth_place: jamaahMember.birth_place,
+      birth_date: jamaahMember.birth_date ? moment(jamaahMember.birth_date).format("YYYY-MM-DD") : "",
       umur: jamaahMember.birth_date ? moment().diff(moment(jamaahMember.birth_date), "years") : "-",
-      whatsapp_number: jamaahMember.whatsapp_number ? jamaahMember.whatsapp_number : "-",
-      status_kelengkapan: status ? status : "-",
+      whatsapp_number: jamaahMember.whatsapp_number,
+      status_kelengkapan: status,
       daftar_item_belum_lengkap: missingItems,
+      nama_agen: e.Agen?.Member?.fullname,
+      nomor_identitas: jamaahMember.identity_number,
+      tempat_tanggal_lahir: jamaahMember.birth_place && jamaahMember.birth_date
+        ? `${jamaahMember.birth_place}, ${moment(jamaahMember.birth_date).format("DD MMMM YYYY")}`
+        : "-",
+      identity_type: jamaahMember.identity_type,
+      gender: jamaahMember.gender,
+      photo: jamaahMember.photo,
+      nomor_passport: jamaah.nomor_passport,
+      title: jamaah.title,
+      nama_ayah: jamaah.nama_ayah,
+      nama_passport: jamaah.nama_passport,
+      tanggal_di_keluarkan_passport: jamaah.tanggal_di_keluarkan_passport,
+      tempat_di_keluarkan_passport: jamaah.tempat_di_keluarkan_passport,
+      masa_berlaku_passport: jamaah.masa_berlaku_passport,
+      kode_pos: jamaah.kode_pos,
+      nomor_telephone: jamaah.nomor_telephone,
+      pengalaman_haji: jamaah.pengalaman_haji,
+      tahun_haji: jamaah.tahun_haji,
+      pengalaman_umrah: jamaah.pengalaman_umrah,
+      tahun_umrah: jamaah.tahun_umrah,
+      desease: jamaah.desease,
+      last_education: jamaah.last_education,
+      blood_type: jamaah.blood_type,
+      photo_4_6: jamaah.photo_4_6,
+      photo_3_4: jamaah.photo_3_4,
+      fc_passport: jamaah.fc_passport,
+      mst_pekerjaan_id: jamaah.mst_pekerjaan_id,
+      profession_instantion_name: jamaah.profession_instantion_name,
+      profession_instantion_address: jamaah.profession_instantion_address,
+      profession_instantion_telephone: jamaah.profession_instantion_telephone,
+      fc_kk: jamaah.fc_kk,
+      fc_ktp: jamaah.fc_ktp,
+      buku_nikah: jamaah.buku_nikah,
+      akte_lahir: jamaah.akte_lahir,
+      buku_kuning: jamaah.buku_kuning,
+      keterangan: jamaah.keterangan,
+      nama_keluarga: jamaah.nama_keluarga,
+      alamat_keluarga: jamaah.alamat_keluarga,
+      telephone_keluarga: jamaah.telephone_keluarga,
+      status_nikah: jamaah.status_nikah,
+      tanggal_nikah: jamaah.tanggal_nikah,
+      kewarganegaraan: jamaah.kewarganegaraan,
     };
   }
 
@@ -114,12 +152,10 @@ class Model_r {
     sql["include"] = [
       {
         model: Jamaah,
-        attributes: ["id", "nomor_passport", "tanggal_di_keluarkan_passport", "tempat_di_keluarkan_passport", "masa_berlaku_passport"],
         required: true,
         include: [
           {
             model: Member,
-            attributes: ["fullname", "identity_number", "birth_date", "birth_place", "whatsapp_number"],
             required: true
           }
         ]
@@ -329,29 +365,6 @@ class Model_r {
       await this.dataManifestExcel(dataManifest, res);
     } catch (error) {
       console.log('Error in downloadManifestPaket: ', error);
-    }
-  }
-
-  async getInfoUpdaterManifestPaket() {
-    await this.initialize();
-    const body = this.req.body;
-
-    try {
-      const infoManifestPaket = await this.infoManifestPaket(body.id, this.division_id);
-
-      const data = {
-        fullname: infoManifestPaket.Jamaah?.Member?.fullname || '',
-        birth_date: infoManifestPaket.Jamaah?.Member?.birth_date ? moment(infoManifestPaket.Jamaah.Member.birth_date).format("YYYY-MM-DD") : '',
-        birth_place: infoManifestPaket.Jamaah?.Member?.birth_place || '',
-        nomor_passport: infoManifestPaket.Jamaah?.nomor_passport || '',
-        tanggal_di_keluarkan_passport: infoManifestPaket.Jamaah?.tanggal_di_keluarkan_passport ? moment(infoManifestPaket.Jamaah.tanggal_di_keluarkan_passport).format("YYYY-MM-DD") : '',
-        tempat_di_keluarkan_passport: infoManifestPaket.Jamaah?.tempat_di_keluarkan_passport || '',
-        masa_berlaku_passport: infoManifestPaket.Jamaah?.masa_berlaku_passport ? moment(infoManifestPaket.Jamaah.masa_berlaku_passport).format("YYYY-MM-DD") : ''
-      };
-      return {data};
-    } catch (error) {
-      console.log("Error in getInfoPengembalianHandoverBarangPaket:", error);
-      return {};
     }
   }
 

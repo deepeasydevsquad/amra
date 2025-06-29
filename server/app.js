@@ -109,6 +109,7 @@ const arr_router = [
   "modal",
   "trans_transport",
   "profile",
+  "syarat_paket",
 ];
 
 const arr = {};

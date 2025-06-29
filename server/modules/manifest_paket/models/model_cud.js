@@ -1,17 +1,8 @@
 const { 
   sequelize,
-  Op,
   Company,
-  Division,
-  Paket_transaction,
-  Paket_transaction_payment_history,
   Jamaah,
   Member,
-  Deposit,
-  Handover_fasilitas,
-  Handover_fasilitas_paket,
-  Handover_barang,
-  Handover_barang_paket,
   } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
@@ -54,48 +45,6 @@ class Model_cud {
     return "Tipe user tidak diketahui";
   }
   
-  // ==== UPDATE MANIFEST PAKET ====
-  async updateManifestPaket() {
-    await this.initialize();
-    const body = this.req.body;
-    const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
-
-    try {
-      const model_r = new Model_r(this.req);
-      const infoManifestPaket = await model_r.infoManifestPaket(body.id, this.division_id);
-
-      await Jamaah.update(
-        {
-          nomor_passport: body.nomor_passport,
-          tanggal_di_keluarkan_passport: body.tanggal_di_keluarkan_passport === "" ? null : body.tanggal_di_keluarkan_passport,
-          tempat_di_keluarkan_passport: body.tempat_di_keluarkan_passport,
-          masa_berlaku_passport: body.masa_berlaku_passport === "" ? null : body.masa_berlaku_passport,
-          updatedAt: dateNow,
-        }, {
-          where: {
-            id: infoManifestPaket.jamaah_id,
-          }, transaction: this.t }
-      );
-
-      await Member.update(
-        {
-          fullname: body.fullname,
-          birth_date: body.birth_date === "" ? null : body.birth_date,
-          birth_place: body.birth_place,
-          updatedAt: dateNow
-        }, {
-          where: {
-            id: infoManifestPaket.Jamaah.member_id,
-          }, transaction: this.t }
-      );
-      
-      this.message = `Mengupdate manifest paket transaksi paket id: ${ body.id } dengan jamaah id: ${infoManifestPaket.jamaah_id}`;
-    } catch (error) {
-      console.log("Error in updateManifestPaket: ", error);
-      this.state = false;
-    }
-  }
-
   // response
   async response() {
     if (this.state) {
