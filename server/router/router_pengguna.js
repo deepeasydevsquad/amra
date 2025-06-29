@@ -2,7 +2,7 @@ const express = require("express");
 const { body } = require("express-validator");
 const { authenticateToken } = require("../middleware/authenticateToken");
 const controllers = require("../modules/pengguna/controllers/index");
-const validation = require("../validation/daftar_mobil");
+const validation = require("../validation/pengguna");
 const router = express.Router();
 
 console.log("Controllers Object:", controllers);
@@ -11,13 +11,13 @@ console.log("editPengguna Function:", controllers.editPengguna);
 
 router.get("/get-pengguna", authenticateToken, controllers.getPengguna);
 
+// pengguna/add-pengguna
 router.post("/pengguna/add-pengguna", 
   authenticateToken, 
   [
     body("member_id").custom(validation.check_id_member),
     body("grup_id").trim().notEmpty().withMessage("Group ID tidak boleh kosong.").custom(validation.check_id_grup),
     body("division_id").custom(validation.check_id_cabang),
-    
     body("fullname").custom(validation.check_fullname),
     body("identity_number").custom(validation.check_identity_number),
     body("identity_type").custom(validation.check_identity_type),
@@ -26,9 +26,6 @@ router.post("/pengguna/add-pengguna",
     body("birth_date").custom(validation.check_birth_date),
     body("whatsapp_number").custom(validation.check_whatsapp_number),
     body("password").custom(validation.check_password),
-
-    // fullname, identity_number, identity_type, gender, birth_place, birth_date, whatsapp_number, password
-
   ],
   controllers.addPengguna
 );

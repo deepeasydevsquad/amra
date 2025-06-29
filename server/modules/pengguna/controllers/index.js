@@ -1,6 +1,6 @@
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
-const { handleServerError } = require("../../../helper/handleError");
+const { handleServerError, handleValidationErrors } = require("../../../helper/handleError");
 
 exports.getPengguna = async (req, res) => {
   try {
@@ -13,11 +13,30 @@ exports.getPengguna = async (req, res) => {
 };
 
 exports.addPengguna = async (req, res) => {
+
+  if (!(await handleValidationErrors(req, res))) return;
+
   try {
     const model = new Model_cud(req);
-    const data = await model.tambahPengguna();
-    res.status(data.success ? 200 : 400).json(data);
+    // proses menambahk pengguna
+    await model.tambahPengguna();
+    // get response
+    if ( await model.response() ) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Pengguna baru berhasil ditambahkan.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Pengguna Baru Gagal Ditambahkan.',
+      });
+    }
   } catch (error) {
+
+    console.log("-------------???");
+    console.log(error);
+    console.log("-------------???");
     handleServerError(res, error.message);
   }
 };

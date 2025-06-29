@@ -138,6 +138,10 @@ const handleSubmit = async (): Promise<void> => {
     // Panggil fungsi addPengguna dengan FormData
     const response = await addPengguna(formData)
 
+    console.log("****************");
+    console.log(response);
+    console.log("****************");
+
     if (response.success) {
       emit('pengguna-added')
       closeModal()

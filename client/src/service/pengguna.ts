@@ -33,7 +33,7 @@ export const daftarPengguna = async (param: any) => {
 
 export const addPengguna = async (param: any) => {
   try {
-    const response = await api.post('/add-pengguna', param) // Kirim data ke backend
+    const response = await api.post('/pengguna/add-pengguna', param) // Kirim data ke backend
     return response.data // Kembalikan data hasil request
   } catch (error) {
     console.error('Gagal menambahkan pengguna:', error)
