@@ -1,6 +1,5 @@
 const { Member, Grup } = require("../models");
 const { getCompanyIdByCode } = require("../helper/companyHelper");
-const { convertToRP } = require("../helper/currencyHelper");
     
 const validation = {};
 
@@ -82,20 +81,58 @@ validation.check_gender = async ( value, { req } ) => {
     return true;
 }
 
-validation.check_birth_place = async ( value ) => {
-
+validation.check_birth_place = async ( value, { req } ) => {
+    if(!req.body.member_id) {
+        if( !req.body.birth_place  || value == ''){
+            throw new Error("Tempat lahir wajib diisi.");
+        } 
+    }
+    return true;
 }
 
+validation.check_birth_date = async ( value, { req } ) => {
+    if(!req.body.member_id) {
+        if( !req.body.birth_date  || value == ''){
+            throw new Error("Tanggal lahir wajib diisi.");
+        } 
+    }
+    return true;
+}
 
-    // body("fullname").custom(validation.check_fullname),
-    // body("identity_number").custom(validation.check_identity_number),
-    // body("identity_type").custom(validation.check_identity_type),
-    // body("gender").custom(validation.check_gender),
-    // body("birth_place").custom(validation.check_birth_place),
-    // body("birth_date").custom(validation.check_birth_date),
-    // body("whatsapp_number").custom(validation.check_whatsapp_number),
-    // body("password").custom(validation.check_password),
+validation.check_whatsapp_number = async ( value, { req } ) => {
+    if(!req.body.member_id) {
+        if( !req.body.whatsapp_number  || value == ''){
+            throw new Error("Nomor whatsapp wajib diisi.");
+        }else{
+            const company_id = await getCompanyIdByCode(req);
+            var check = await Member.findOne({
+                where: { 
+                    whatsapp_number : value
+                },
+                include: {
+                    required: true, 
+                    model: Division, 
+                    where: { 
+                        company_id: company_id 
+                    }
+                }
+            });
+            if (check) {
+                throw new Error("Nomor ini sudah digunakan.");
+            }
+        }
+    }
+    return true;
+}
 
+validation.check_password = async ( value, { req } ) => {
+    if(!req.body.member_id) {
+        if( !req.body.check_password  || value == ''){
+            throw new Error("Password wajib diisi.");
+        } 
+    }
+    return true;
+}
 
 module.exports = validation;
   
