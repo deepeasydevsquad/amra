@@ -42,3 +42,48 @@ exports.deletePengguna = async (req, res) => {
     handleServerError(res, error.message);
   }
 };
+
+
+exports.get_member = async (req, res) => {
+  try {
+
+    const model = new Model_r(req);
+    const data = await model.get_member();
+    if( data.length > 0 ) {
+      res.status(200).json({ 
+        error: false, 
+        error_message: 'Data member berhasil ditemukan', 
+        data : data 
+      });
+    }else{
+      res.status(400).json({ 
+        error: true, 
+        error_message: 'Data member tidak ditemukan', 
+      });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
+exports.get_grup = async (req, res) => {
+  try {
+
+    const model = new Model_r(req);
+    const data = await model.get_grup();
+    if( data.length > 0 ) {
+      res.status(200).json({ 
+        error: false, 
+        error_message: 'Data grup berhasil ditemukan', 
+        data : data 
+      });
+    }else{
+      res.status(400).json({ 
+        error: true, 
+        error_message: 'Data grup tidak ditemukan', 
+      });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}

@@ -16,8 +16,12 @@ exports.getMenu = async (req, res) => {
 
 exports.getGrup = async (req, res) => {
   try {
-    const grup = await new Model_r(req).getGrup();
-    res.status(200).json(grup);
+    const grup = await new Model_r(req).list();
+    res.status(200).json({error: false, 
+      error_message: '',
+      data : grup.data,
+      total: grup.total
+    });
   } catch (error) {
     handleServerError(res, error.message); // ✅ Perbaikan di sini
   }

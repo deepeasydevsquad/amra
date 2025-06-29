@@ -6,8 +6,6 @@ import ModalUpdate from '@/components/User/Modules/Grup/Particle/ModalUpdate.vue
 import { daftarGrup, addGrup, editGrup, hapusGrup } from '@/service/grup'
 import DeleteIcon from '@/components/User/Modules/Grup/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/Grup/Icon/EditIcon.vue'
-// import DangerButton from '@/components/User/Modules/Grup/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/Grup/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/Grup/Particle/Notification.vue'
 import Confirm from '@/components/User/Modules/Grup/Particle/ModalConfirmDelete.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
@@ -85,7 +83,8 @@ const fetchData = async () => {
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
     })
-    if (response.success && response.data) {
+
+    if (response.error == false ) {
       data.value = response.data
       totalPages.value = Math.ceil(response.total / itemsPerPage)
     }
@@ -94,9 +93,9 @@ const fetchData = async () => {
   }
 }
 
-const handleSaveGroup = async (grup) => {
+const handleSaveGroup = async (grup: any) => {
   try {
-    console.log('Mengirim data ke API:', grup) // Cek data sebelum dikirim
+    console.log('Mengirim data ke API:', grup)
 
     if (grup.id) {
       const response = await editGrup(grup)
@@ -108,26 +107,26 @@ const handleSaveGroup = async (grup) => {
       showNotificationMessage('success', 'Data grup berhasil ditambahkan!')
     }
 
-    await fetchData() // Refresh UI setelah update
+    await fetchData()
   } catch (error) {
     console.error('Error menyimpan grup:', error)
     showNotificationMessage('error', 'Gagal menyimpan data grup.')
   }
 }
 
-const openUpdateModal = (grup) => {
+const openUpdateModal = (grup : any) => {
   grupToUpdate.value = grup
   isUpdateModalOpen.value = true
 }
 
-const handleDeleteGroup = (grupId) => {
+const handleDeleteGroup = (grupId : any) => {
   confirmTitle.value = 'Konfirmasi Hapus'
   confirmMessage.value = 'Apakah Anda yakin ingin menghapus grup ini?'
   confirmAction.value = () => deleteGroup(grupId)
   showConfirmDialog.value = true
 }
 
-const deleteGroup = async (grupId) => {
+const deleteGroup = async (grupId : any) => {
   try {
     await hapusGrup(grupId)
     showNotificationMessage('success', 'Data grup berhasil dihapus!')
@@ -143,7 +142,7 @@ const confirmDelete = () => {
   confirmAction.value()
 }
 
-const showNotificationMessage = (type, message) => {
+const showNotificationMessage = (type :any, message: any) => {
   notificationType.value = type
   notificationMessage.value = message
   showNotification.value = true
@@ -155,28 +154,12 @@ onMounted(fetchData)
 <template>
   <div class="container mx-auto p-4">
     <div class="flex justify-between mb-4">
-      <!-- <button
-        @click="isAddModalOpen = true"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-        Tambah Grup
-      </button> -->
       <PrimaryButton @click="isAddModalOpen = true">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
         Tambah Grup
       </PrimaryButton>
-
-
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
@@ -211,18 +194,8 @@ onMounted(fetchData)
                       <span class="font-medium">{{ access.name }}</span>
                       <ul v-if="grup?.group_access.length  > 0" class="list-none list-inside pl-5">
                         <li v-for="submenu in access.submenu" :key="submenu.id" class="flex items-center" >
-                          <svg
-                            class="w-4 h-4 mr-2"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M9 5l7 7-7 7"
-                            />
+                          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                           </svg>
                           {{ submenu.name }}
                         </li>
@@ -279,7 +252,6 @@ onMounted(fetchData)
         Tidak
       </button>
     </Confirm>
-
   </div>
 </template>
 

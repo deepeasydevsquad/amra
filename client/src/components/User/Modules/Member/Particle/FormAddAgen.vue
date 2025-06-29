@@ -24,6 +24,7 @@
   import Form from "@/components/Modal/Form.vue"
   import Notification from "@/components/Modal/Notification.vue"
   import SelectField from "@/components/Form/SelectField.vue"
+  // import Form from "@/components/Modal/Form.vue"
 
   interface Option {
     id: number
@@ -52,14 +53,9 @@
   const showNotification = ref<boolean>(false);
   const notificationMessage = ref<string>('');
   const notificationType = ref<'success' | 'error'>('success');
-  // const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
-  //   notificationMessage.value = message;
-  //   notificationType.value = type;
-  //   showNotification.value = true;
-  // };
 
   // ✅ Props dari parent
-  const props = defineProps<{ showForm: boolean; memberId:number, memberName:string, memberIdentitas:string }>()
+  const props = defineProps<{ showForm: boolean }>()
 
   const emit = defineEmits<{
     (e: 'save', data: FormData): void;
@@ -160,10 +156,6 @@
 
     try {
       const response = await makeAnAgen({ id : form.value.id, level: form.value.level_id, upline: form.value.upline_id } );
-
-      console.log("resss------------>");
-      console.log(response);
-      console.log("resss------------>");
       if(response.error) {
         displayNotification(response.error_msg, 'error');
       }else{

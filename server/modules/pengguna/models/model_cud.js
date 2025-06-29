@@ -19,132 +19,128 @@ class Model_cud {
     this.t = await sequelize.transaction();
   }
 
+  async get_division_by_member_id (member_id) {
+    const q = await Member.findOne({
+        where: { 
+          id : member_id
+        },
+        include: {
+          required : true, 
+          model: Division, 
+          where: { 
+            company_id: this.company_id
+          }
+        }
+      });
+      return q.division_id;
+  }
+
+
   // Tambah Pengguna
-async tambahPengguna() {
-  await this.initialize();
-  const { member_id, grup_id, division_id } = this.req.body;
-  const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
+  async tambahPengguna() {
 
-  console.log("req.body:", this.req.body);
-  console.log("req.file:", this.req.file);
+    await this.initialize();
 
-  try {
-    // Konversi ID ke integer agar tidak error di database
-    const divisionIdInt = parseInt(division_id, 10);
-    const grupIdInt = parseInt(grup_id, 10);
-    if (isNaN(divisionIdInt) || isNaN(grupIdInt)) {
-      throw new Error("division_id atau grup_id harus berupa angka.");
-    }
+    // const { member_id, grup_id } = this.req.body;
+    
+    const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
 
-    const photo = this.req.file ? this.req.file.path : null;
-    let memberId = member_id;
+    try {
+      var member_id;
+      var division_id;
 
-    if (memberId) {
-      // Cek apakah member dengan ID tersebut ada di database
-      const existingMember = await Member.findByPk(memberId);
-      if (!existingMember) throw new Error("Member dengan ID tersebut tidak ditemukan");
+      if( ! this.req.body.member_id ) {
+        division_id = this.req.body.division_id
+        const photo = this.req.file ? this.req.file.path : null;
+        const { fullname, identity_number, identity_type, gender, birth_place, birth_date, whatsapp_number, password } = this.req.body;
 
-      this.message = `Menambahkan user baru untuk member yang sudah ada: ${existingMember.fullname} (Member ID: ${memberId})`;
-    } else {
-      // Jika tidak ada member_id, ambil data member dari req.body langsung
-      const {
-        fullname,
-        identity_number,
-        identity_type,
-        gender,
-        birth_place,
-        birth_date,
-        whatsapp_number,
-        password
-      } = this.req.body;
+        // if (!password) throw new Error("Password tidak boleh kosong");
 
-      if (!password) throw new Error("Password tidak boleh kosong");
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const iM = await Member.create(
+          {
+            company_id: this.company_id,
+            division_id: division_id,
+            fullname,
+            identity_number,
+            identity_type,
+            gender,
+            birth_place,
+            birth_date,
+            whatsapp_number,
+            password: hashedPassword,
+            photo,
+            createdAt: myDate,
+            updatedAt: myDate,
+          },
+          { transaction: this.t }
+        );
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const newMember = await Member.create(
+        member_id = iM.id;
+        this.message = `Menambahkan member & user baru: ${fullname} (Member ID: ${memberId})`;
+      }else{
+        division_id = await get_division_by_member_id(this.req.body.member_id);
+        member_id = this.req.body.member_id;
+      }
+
+      // insert new User
+      const insert = await User.create(
         {
-          company_id: this.company_id,
-          division_id: divisionIdInt,
-          fullname,
-          identity_number,
-          identity_type,
-          gender,
-          birth_place,
-          birth_date,
-          whatsapp_number,
-          password: hashedPassword,
-          photo,
+          member_id: member_id,
+          grup_id: this.req.body.grup_id,
+          division_id: division_id,
           createdAt: myDate,
           updatedAt: myDate,
         },
         { transaction: this.t }
       );
 
-      memberId = newMember.id;
-      this.message = `Menambahkan member & user baru: ${fullname} (Member ID: ${memberId})`;
+      this.message += ` dan User ID: ${insert.id}`;
+
+      return await this.response();
+    } catch (error) {
+      this.state = false;
+      this.message = error.message;
+      return await this.response();
     }
-
-    // Buat User baru dengan member yang sudah ada atau baru dibuat
-    const newUser = await User.create(
-      {
-        member_id: memberId,
-        grup_id: grupIdInt,
-        division_id: divisionIdInt,
-        createdAt: myDate,
-        updatedAt: myDate,
-      },
-      { transaction: this.t }
-    );
-
-    this.message += ` dan User ID: ${newUser.id}`;
-    return await this.response();
-  } catch (error) {
-    this.state = false;
-    this.message = error.message;
-    return await this.response();
   }
-}
-
-
 
   // Edit Pengguna
-async editPengguna() {
-  await this.initialize();
+  async editPengguna() {
+    await this.initialize();
 
-console.log('📩 Data sebelum parsing:', this.req.body);
+    console.log('📩 Data sebelum parsing:', this.req.body);
 
-let { id, grup_id } = this.req.body;
+    let { id, grup_id } = this.req.body;
 
-  try {
-    const model_r = new Model_r(this.req);
-    const infoPengguna = await model_r.infoPengguna(id);
-    if (!infoPengguna) throw new Error("Pengguna tidak ditemukan");
+    try {
+      const model_r = new Model_r(this.req);
+      const infoPengguna = await model_r.infoPengguna(id);
+      if (!infoPengguna) throw new Error("Pengguna tidak ditemukan");
 
-    // Konversi id dan grup_id ke integer
-    id = Number(id);
-    grup_id = Number(grup_id);
+      // Konversi id dan grup_id ke integer
+      id = Number(id);
+      grup_id = Number(grup_id);
 
-    console.log('📝 Data setelah parsing:', { id, grup_id });
+      console.log('📝 Data setelah parsing:', { id, grup_id });
 
-    if (isNaN(id) || isNaN(grup_id)) {
-      throw new Error('ID atau grup_id tidak valid');
+      if (isNaN(id) || isNaN(grup_id)) {
+        throw new Error('ID atau grup_id tidak valid');
+      }
+
+      const updateData = { grup_id };
+
+      await User.update(updateData, { where: { id }, transaction: this.t });
+
+      this.message = `Memperbarui grup pengguna ID: ${id} menjadi Grup ID: ${grup_id}`;
+      return await this.response();
+    } catch (error) {
+      console.error('❌ Error Backend:', error);
+      this.state = false;
+      this.message = error.message;
+      return await this.response();
     }
-
-    const updateData = { grup_id };
-
-    await User.update(updateData, { where: { id }, transaction: this.t });
-
-    this.message = `Memperbarui grup pengguna ID: ${id} menjadi Grup ID: ${grup_id}`;
-    return await this.response();
-  } catch (error) {
-    console.error('❌ Error Backend:', error);
-    this.state = false;
-    this.message = error.message;
-    return await this.response();
   }
-}
-
-
 
 
   // Hapus Pengguna

@@ -1,9 +1,19 @@
 const { User, Member, Grup, Division } = require("../../../models");
+const { tipe, getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
 const { Op } = require("sequelize");
 
 class Model_r {
   constructor(req) {
     this.req = req;
+    this.company_id;
+    this.type;
+    this.division;
+  }
+
+  async initialize() {
+    this.company_id = await getCompanyIdByCode(this.req);
+    this.type = await tipe(this.req);
+    this.division = await getCabang(this.req);
   }
 
   async daftar_pengguna() {
@@ -57,6 +67,73 @@ class Model_r {
       console.error("Error fetching user info:", error);
       return {};
     }
+  }
+
+  async get_member() {
+
+    await this.initialize();
+
+    var memberIdIsUser = [];
+    await User.findAll({ 
+      include: {
+        required : true, 
+        model: Division, 
+        where : { 
+          company_id : this.company_id,
+        }
+      }, 
+    }).then(async (value) => {
+      await Promise.all(
+        await value.map(async (e) => {
+            memberIdIsUser.push(e.member_id);
+        })
+      );
+    });
+
+    var data = [];
+    await Member.findAll({ 
+      include: {
+        required : true, 
+        model: Division, 
+        where : { 
+          company_id : this.company_id,
+        }
+      },
+      where : { 
+        id: { [Op.ne] : memberIdIsUser }
+      }
+    }).then(async (value) => {
+      await Promise.all(
+        await value.map(async (e) => {
+          data.push({id: e.id, name: e.fullname });
+        })
+      );
+    });
+
+    return data;
+  }
+
+  async get_grup() {
+    await this.initialize();
+
+    var data = [];
+    await Grup.findAll({ 
+      include: {
+        required : true, 
+        model: Division, 
+        where : { 
+          company_id : this.company_id,
+        }
+      },
+    }).then(async (value) => {
+      await Promise.all(
+        await value.map(async (e) => {
+          data.push({id: e.id, name: e.name });
+        })
+      );
+    });
+
+    return data;
   }
 }
 
