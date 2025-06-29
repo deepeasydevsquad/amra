@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "airlines_id",
         onDelete: 'CASCADE',
       });
+      Mst_airline.hasMany(models.Ticket_transaction_refund, {
+        foreignKey: "airlines_id",
+        onDelete: 'CASCADE',
+      });
     }
   }
   Mst_airline.init({

@@ -54,16 +54,36 @@ validation.check_identity_number = async ( value, { req } ) => {
     return true;
 }
 
-validation.identity_type = async ( value, { req } ) => {
+validation.check_identity_type = async ( value, { req } ) => {
+    var type = ['ktp','passport']
     if(!req.body.member_id) {
-        if( !req.body.identity_type  || req.body.identity_type == ''){
-            throw new Error("Tipe identitas wajib diisi");
+        if( !req.body.identity_type  || value == ''){
+            throw new Error("Tipe identitas wajib diisi.");
+        } else {
+            if( !type.includes( value ) ) {
+                throw new Error("Format tipe identitas tidak ditemukan.");
+            }
         }
-        // else if( ) {
-
-        // }
     }
     return true;
+}
+
+validation.check_gender = async ( value, { req } ) => {
+    var gender = ['laki_laki','perempuan'];
+    if(!req.body.member_id) {
+        if( !req.body.gender  || value == ''){
+            throw new Error("Jenis kelamin wajib diisi.");
+        } else {
+            if( !gender.includes( value ) ) {
+                throw new Error("Format jenis kelamin tidak ditemukan.");
+            }
+        }
+    }
+    return true;
+}
+
+validation.check_birth_place = async ( value ) => {
+
 }
 
 

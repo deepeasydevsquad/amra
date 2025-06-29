@@ -17,7 +17,7 @@ router.post("/pengguna/add-pengguna",
     body("member_id").custom(validation.check_id_member),
     body("grup_id").trim().notEmpty().withMessage("Group ID tidak boleh kosong.").custom(validation.check_id_grup),
     body("division_id").custom(validation.check_id_cabang),
-
+    
     body("fullname").custom(validation.check_fullname),
     body("identity_number").custom(validation.check_identity_number),
     body("identity_type").custom(validation.check_identity_type),
