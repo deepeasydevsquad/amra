@@ -15,81 +15,80 @@ import Pagination from '@/components/Pagination/Pagination.vue'
 import { ref, onMounted, computed } from 'vue'
 import { daftarManifestPaket, downloadAbsensi } from '@/service/manifest_paket'
 
-
 const props = defineProps<{
   paketId: number
 }>()
 
-const isLoading = ref(false);
-const itemsPerPage = 100; // Jumlah daftar transaksi per halaman
-const currentPage = ref(1);
-const search = ref("");
-const totalPages = ref(0);
-const timeoutId = ref<number | null>(null);
+const isLoading = ref(false)
+const itemsPerPage = 100 // Jumlah daftar transaksi per halaman
+const currentPage = ref(1)
+const search = ref('')
+const totalPages = ref(0)
+const timeoutId = ref<number | null>(null)
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
-    currentPage.value++;
+    currentPage.value++
     fetchData()
   }
-};
+}
 
 const prevPage = () => {
   if (currentPage.value > 1) {
-    currentPage.value--;
+    currentPage.value--
     fetchData()
   }
-};
+}
 
-const pageNow = (page : number) => {
+const pageNow = (page: number) => {
   currentPage.value = page
   fetchData()
 }
 
 // Generate array angka halaman
 const pages = computed(() => {
-  return Array.from({ length: totalPages.value }, (_, i) => i + 1);
-});
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1)
+})
 
 interface ManifestPaket {
-    id: number;
-    jamaah_id: number;
-    fullname: string;
-    identity_number: string;
-    birth_date: string;
-    umur: number;
-    whatsapp_number: string;
-    status_kelengkapan: string;
-    daftar_item_belum_lengkap: string[];
+  id: number
+  jamaah_id: number
+  fullname: string
+  identity_number: string
+  birth_date: string
+  umur: number
+  whatsapp_number: string
+  status_kelengkapan: string
+  daftar_item_belum_lengkap: string[]
 }
 
 const dataManifestPaket = ref<ManifestPaket[]>([])
 const transpaketId = ref<number>(0)
 const isFormEditMasnifestOpen = ref<boolean>(false)
-const notificationMessage = ref<string>('');
-const notificationType = ref<'success' | 'error'>('success');
-const showNotification = ref<boolean>(false);
-const showConfirmDialog = ref<boolean>(false);
-const confirmMessage = ref<string>('');
-const confirmTitle = ref<string>('');
-const confirmAction = ref<(() => void) | null>(null);
-const totalColumns = ref(6);
+const notificationMessage = ref<string>('')
+const notificationType = ref<'success' | 'error'>('success')
+const showNotification = ref<boolean>(false)
+const showConfirmDialog = ref<boolean>(false)
+const confirmMessage = ref<string>('')
+const confirmTitle = ref<string>('')
+const confirmAction = ref<(() => void) | null>(null)
+const totalColumns = ref(6)
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
-  notificationMessage.value = message;
-  notificationType.value = type;
-  showNotification.value = true;
+  notificationMessage.value = message
+  notificationType.value = type
+  showNotification.value = true
 
-  if (timeoutId.value) clearTimeout(timeoutId.value);
+  if (timeoutId.value) clearTimeout(timeoutId.value)
 
   timeoutId.value = window.setTimeout(() => {
-    showNotification.value = false;
-  }, 3000);
-};
+    showNotification.value = false
+  }, 3000)
+}
 
 const openFormEditManifest = (id: number) => {
-  transpaketId.value = id;
-  isFormEditMasnifestOpen.value = true;
+  transpaketId.value = id
+  isFormEditMasnifestOpen.value = true
 }
 
 const fetchData = async () => {
@@ -99,28 +98,28 @@ const fetchData = async () => {
       paketId: props.paketId,
       search: search.value,
       perpage: itemsPerPage,
-      pageNumber: currentPage.value
-    });
-    dataManifestPaket.value = response.data;
+      pageNumber: currentPage.value,
+    })
+    dataManifestPaket.value = response.data
     console.log(dataManifestPaket)
-    totalPages.value = Math.ceil(response.total / itemsPerPage);
+    totalPages.value = Math.ceil(response.total / itemsPerPage)
   } catch (error) {
-    console.error('Error fetching data:', error);
+    console.error('Error fetching data:', error)
   } finally {
     isLoading.value = false
   }
-};
+}
 
 const DownloadAbsensi = async () => {
   try {
     isLoading.value = true
-    await downloadAbsensi(props.paketId);
+    await downloadAbsensi(props.paketId)
   } catch (error) {
-    console.error('Error fetching data:', error);
+    console.error('Error fetching data:', error)
   } finally {
     isLoading.value = false
   }
-};
+}
 
 onMounted(() => {
   fetchData()
@@ -129,14 +128,18 @@ onMounted(() => {
 
 <template>
   <div class="p-4 bg-white min-h-screen">
-    <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div
+      v-if="isLoading"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    >
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400"></div>
     </div>
-      <!-- Tambah data dan Search -->
+    <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
       <button
         @click="DownloadAbsensi()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
+        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
+      >
         <DownloadIcon />
         Download Manifest
       </button>
@@ -162,13 +165,19 @@ onMounted(() => {
             <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Status</th>
             <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Umur</th>
             <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Nomor Whatsapp</th>
-            <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">Daftar Item Yang Belum Lengkap</th>
+            <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">
+              Daftar Item Yang Belum Lengkap
+            </th>
             <th class="w-[5%] px-6 py-4 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
           <template v-if="dataManifestPaket && dataManifestPaket.length > 0">
-            <tr v-for="dataManifest in dataManifestPaket" :key="dataManifest.id" class="hover:bg-gray-50">
+            <tr
+              v-for="dataManifest in dataManifestPaket"
+              :key="dataManifest.id"
+              class="hover:bg-gray-50"
+            >
               <td class="px-6 py-4 text-center">
                 <p>{{ dataManifest.fullname }}</p>
                 <p>({{ dataManifest.identity_number }})</p>
@@ -183,38 +192,56 @@ onMounted(() => {
               <td class="px-6 py-4 text-center">
                 <p>{{ dataManifest.whatsapp_number }}</p>
               </td>
-              <td class="px-6 py-4" :class="{'text-center': dataManifest.daftar_item_belum_lengkap.length === 0, 'text-left': dataManifest.daftar_item_belum_lengkap.length > 0}">
+              <td
+                class="px-6 py-4"
+                :class="{
+                  'text-center': dataManifest.daftar_item_belum_lengkap.length === 0,
+                  'text-left': dataManifest.daftar_item_belum_lengkap.length > 0,
+                }"
+              >
                 <template v-if="dataManifest.daftar_item_belum_lengkap.length === 0">
                   <p>Semua Item Lengkap</p>
                 </template>
                 <template v-else>
                   <ul>
-                    <li v-for="(item, index) in dataManifest.daftar_item_belum_lengkap" :key="index" class="list-disc list-inside pl-3 text-sm">{{ item }}</li>
+                    <li
+                      v-for="(item, index) in dataManifest.daftar_item_belum_lengkap"
+                      :key="index"
+                      class="list-disc list-inside pl-3 text-sm"
+                    >
+                      {{ item }}
+                    </li>
                   </ul>
                 </template>
               </td>
               <td class="px-6 py-4 items-center justify-center flex gap-2">
-                <EditButton col-span-1 title="Cetak Data Jamaah" @click="openFormEditManifest(dataManifest.id)">
+                <EditButton
+                  col-span-1
+                  title="Cetak Data Jamaah"
+                  @click="openFormEditManifest(dataManifest.id)"
+                >
                   <EditIcon></EditIcon>
                 </EditButton>
               </td>
             </tr>
           </template>
           <tr v-else>
-            <td :colspan=totalColumns class="px-6 py-4 text-center text-base text-gray-600">Daftar Manifest tidak ditemukan.</td>
+            <td :colspan="totalColumns" class="px-6 py-4 text-center text-base text-gray-600">
+              Daftar Manifest tidak ditemukan.
+            </td>
           </tr>
         </tbody>
-          <tfoot class="bg-gray-100 font-bold">
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
+        <tfoot class="bg-gray-100 font-bold">
+          <Pagination
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            :pages="pages"
+            :total-columns="totalColumns"
+            @prev-page="prevPage"
+            @next-page="nextPage"
+            @page-now="pageNow"
+          />
+        </tfoot>
       </table>
     </div>
   </div>
@@ -232,12 +259,23 @@ onMounted(() => {
       v-if="isFormEditMasnifestOpen"
       :isFormEditMasnifestOpen="isFormEditMasnifestOpen"
       :transpaketId="transpaketId"
-      @close="isFormEditMasnifestOpen= false; fetchData()"
-      @status="(payload) => displayNotification(payload.err_msg || 'Manifest gagal diupdate', payload.error ? 'error' : 'success')"
-      />
+      @close="
+        () => {
+          isFormEditMasnifestOpen = false
+          fetchData()
+        }
+      "
+      @status="
+        (payload) =>
+          displayNotification(
+            payload.err_msg || 'Manifest gagal diupdate',
+            payload.error ? 'error' : 'success',
+          )
+      "
+    />
   </transition>
 
-    <!-- Notification -->
+  <!-- Notification -->
   <Notification
     :showNotification="showNotification"
     :notificationType="notificationType"

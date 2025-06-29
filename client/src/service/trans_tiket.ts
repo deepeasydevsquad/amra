@@ -59,3 +59,14 @@ export const getAirlines = async () => {
     throw error;
   }
 };
+
+export const add_pembayaran = async (param : any) => {
+
+    try {
+        const response = await api.post("/trans_tiket/add_pembayaran", param);
+        return response.data;
+    } catch (error) {
+        console.error("Gagal menambahkan tiket:", error);
+        throw error;
+    }
+}
