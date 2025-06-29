@@ -38,10 +38,10 @@ class Model_cud {
 
   // Tambah Pengguna
   async tambahPengguna() {
-
+    // initialize 
     await this.initialize();
 
-    // const { member_id, grup_id } = this.req.body;
+    const body = this.req.body;
     
     const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
 
@@ -49,13 +49,11 @@ class Model_cud {
       var member_id;
       var division_id;
 
-      if( ! this.req.body.member_id ) {
-        division_id = this.req.body.division_id
+      if( ! body.member_id ) {
+        division_id = body.division_id;
+
         const photo = this.req.file ? this.req.file.path : null;
         const { fullname, identity_number, identity_type, gender, birth_place, birth_date, whatsapp_number, password } = this.req.body;
-
-        // if (!password) throw new Error("Password tidak boleh kosong");
-
         const hashedPassword = await bcrypt.hash(password, 10);
         const iM = await Member.create(
           {
@@ -75,16 +73,16 @@ class Model_cud {
           },
           { transaction: this.t }
         );
-
+        // define member id
         member_id = iM.id;
-        this.message = `Menambahkan member & user baru: ${fullname} (Member ID: ${memberId})`;
       }else{
-        division_id = await get_division_by_member_id(this.req.body.member_id);
+        // get division id from database by member id
+        division_id = await get_division_by_member_id(body.member_id);
         member_id = this.req.body.member_id;
       }
 
       // insert new User
-      const insert = await User.create(
+      const i = await User.create(
         {
           member_id: member_id,
           grup_id: this.req.body.grup_id,
@@ -95,13 +93,10 @@ class Model_cud {
         { transaction: this.t }
       );
 
-      this.message += ` dan User ID: ${insert.id}`;
-
-      return await this.response();
+      // message
+      this.message = `Menambahkan staff baru dengan (Member ID: ${member_id}) dan (User ID: ${i.id})`;
     } catch (error) {
       this.state = false;
-      this.message = error.message;
-      return await this.response();
     }
   }
 

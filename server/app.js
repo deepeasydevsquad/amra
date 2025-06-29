@@ -108,6 +108,7 @@ const arr_router = [
   "manifest_paket",
   "modal",
   "trans_transport",
+  "profile",
   "syarat_paket",
 ];
 

@@ -15,7 +15,6 @@ const MESSAGES = {
 
 const helper = {};
 
-
 helper.error_msg2 = async (errors) => {
   var detail = [];
   errors.array().forEach((error) => {
@@ -46,12 +45,18 @@ helper.handleValidationErrors2 = async (req, res) => {
   return true;
 };
 
-
 helper.handleValidationErrors = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const err_msg = await helper.error_msg(errors);
-    res.status(400).json({ error: true, error_msg: err_msg });
+    
+    if (!res.headersSent) {
+      res.status(400).json({ 
+        status: "error", 
+        error: true, 
+        message: err_msg.replace(/<br>/g, ' ') 
+      });
+    }
     return false;
   }
   return true;
@@ -61,25 +66,41 @@ helper.handleValidationErrorsFiles = async (req, res, files) => {
   const errors = validationResult(req);
   for (let x in files) {
     if (req.files[files[x].path] === undefined) {
-      errors.push = {
+      errors.errors.push({
         value: "",
         msg: `File ${files[x].path} Wajib Diupload.`,
-        param: "file",
+        param: files[x].path,
         location: "body",
-      };
+      });
     }
   }
 
   if (!errors.isEmpty()) {
     const err_msg = await helper.error_msg(errors);
-    res.status(400).json({ error: true, error_msg: err_msg });
+    
+    if (!res.headersSent) {
+      res.status(400).json({ 
+        status: "error",
+        error: true, 
+        message: err_msg.replace(/<br>/g, ' ')
+      });
+    }
     return false;
   }
   return true;
 };
 
-helper.handleServerError = (res, message = MESSAGES.INTERNAL_ERROR) => {
-  res.status(500).json({ error: true, error_msg: message });
+helper.handleServerError = (res, error) => {
+  if (!res.headersSent) {
+    const statusCode = error?.statusCode || 500;
+    const message = error?.message || MESSAGES.INTERNAL_ERROR;
+    
+    res.status(statusCode).json({ 
+      status: "error",
+      error: true, 
+      message: message 
+    });
+  }
 };
 
 module.exports = helper;
