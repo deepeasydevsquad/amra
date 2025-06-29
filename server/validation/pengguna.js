@@ -58,9 +58,10 @@ validation.identity_type = async ( value, { req } ) => {
     if(!req.body.member_id) {
         if( !req.body.identity_type  || req.body.identity_type == ''){
             throw new Error("Tipe identitas wajib diisi");
-        }else{
-            
         }
+        // else if( ) {
+
+        // }
     }
     return true;
 }
