@@ -157,7 +157,7 @@ validation.check_whatsapp_number = async ( value, { req } ) => {
 
 validation.check_password = async ( value, { req } ) => {
     if(!req.body.member_id) {
-        if( !req.body.check_password  || value == ''){
+        if( !req.body.password  || value == ''){
             throw new Error("Password wajib diisi.");
         } 
     }

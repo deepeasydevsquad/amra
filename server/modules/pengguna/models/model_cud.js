@@ -77,7 +77,7 @@ class Model_cud {
         member_id = iM.id;
       }else{
         // get division id from database by member id
-        division_id = await get_division_by_member_id(body.member_id);
+        division_id = await this.get_division_by_member_id(body.member_id);
         member_id = this.req.body.member_id;
       }
 
@@ -96,6 +96,11 @@ class Model_cud {
       // message
       this.message = `Menambahkan staff baru dengan (Member ID: ${member_id}) dan (User ID: ${i.id})`;
     } catch (error) {
+
+      console.log("----------------");
+      console.log(error);
+      console.log("----------------");
+
       this.state = false;
     }
   }

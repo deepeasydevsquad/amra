@@ -142,7 +142,7 @@ const handleSubmit = async (): Promise<void> => {
     console.log(response);
     console.log("****************");
 
-    if (response.success) {
+    if (response.error == false) {
       emit('pengguna-added')
       closeModal()
     } else {
