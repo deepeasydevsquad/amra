@@ -88,4 +88,13 @@ controllers.add_pembayaran_ticket = async (req, res) => {
   }
 };
 
+controllers.detail_ticket = async (req, res) => {
+  try {
+    const data = await new Model_r(req).get_detail_tiket();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
 module.exports = controllers;

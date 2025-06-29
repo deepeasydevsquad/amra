@@ -120,4 +120,15 @@ router.post(
   controllers.add_pembayaran_ticket
 );
 
+router.post(
+  "/trans_tiket/detail",
+  authenticateToken,
+  [
+    body("register_number")
+      .notEmpty()
+      .withMessage("Ticket Registrasi wajib diisi"),
+  ],
+  controllers.detail_ticket
+);
+
 module.exports = router;
