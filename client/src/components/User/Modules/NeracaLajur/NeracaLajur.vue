@@ -115,43 +115,43 @@
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[7%]  px-0 py-4  border font-bold text-gray-900 text-center align-bottom" rowspan="2">Kode Akun</th>
-            <th class="w-[23%] px-6 py-4  border font-bold text-gray-900 text-center align-bottom" rowspan="2">Nama Akun</th>
-            <th class="w-[14%] px-6 py-4  border font-bold text-gray-900 text-center align-bottom" colspan="2">Saldo Awal</th>
-            <th class="w-[14%] px-6 py-4  border font-bold text-gray-900 text-center align-bottom" colspan="2">Penyesuaian</th>
-            <th class="w-[14%] px-6 py-4  border font-bold text-gray-900 text-center align-bottom" colspan="2">Saldo Disesuaikan</th>
-            <th class="w-[14%] px-6 py-4  border font-bold text-gray-900 text-center align-bottom" colspan="2">Neraca</th>
-            <th class="w-[14%] px-6 py-4  border font-bold text-gray-900 text-center align-bottom" colspan="2">Laba Rugi</th>
+            <th class="w-[7%]  px-0 py-4  border font-medium text-gray-900 text-center align-bottom" rowspan="2">Kode Akun</th>
+            <th class="w-[23%] px-6 py-4  border font-medium text-gray-900 text-center align-bottom" rowspan="2">Nama Akun</th>
+            <th class="w-[14%] px-6 py-4  border font-medium text-gray-900 text-center align-bottom" colspan="2">Saldo Awal</th>
+            <th class="w-[14%] px-6 py-4  border font-medium text-gray-900 text-center align-bottom" colspan="2">Penyesuaian</th>
+            <th class="w-[14%] px-6 py-4  border font-medium text-gray-900 text-center align-bottom" colspan="2">Saldo Disesuaikan</th>
+            <th class="w-[14%] px-6 py-4  border font-medium text-gray-900 text-center align-bottom" colspan="2">Neraca</th>
+            <th class="w-[14%] px-6 py-4  border font-medium text-gray-900 text-center align-bottom" colspan="2">Laba Rugi</th>
           </tr>
           <tr>
-            <th class="w-[7%] px-6 py-4  border font-bold text-gray-900 text-center" >
+            <th class="w-[7%] px-6 py-4  border font-medium text-gray-900 text-center" >
               Debet
             </th>
-            <th class="w-[7%] px-6 py-4  border font-bold text-gray-900 text-center" >
+            <th class="w-[7%] px-6 py-4  border font-medium text-gray-900 text-center" >
               Kredit
             </th>
-            <th class="w-[7%] px-6 py-4  border font-bold text-gray-900 text-center" >
+            <th class="w-[7%] px-6 py-4  border font-medium text-gray-900 text-center" >
               Debet
             </th>
-            <th class="w-[7%] px-6 py-4  border font-bold text-gray-900 text-center" >
+            <th class="w-[7%] px-6 py-4  border font-medium text-gray-900 text-center" >
               Kredit
             </th>
-            <th class="w-[7%] px-6 py-4  border font-bold text-gray-900 text-center" >
+            <th class="w-[7%] px-6 py-4  border font-medium text-gray-900 text-center" >
               Debet
             </th>
-            <th class="w-[7%] px-6 py-4  border font-bold text-gray-900 text-center" >
+            <th class="w-[7%] px-6 py-4  border font-medium text-gray-900 text-center" >
               Kredit
             </th>
-            <th class="w-[7%] px-6 py-4  border font-bold text-gray-900 text-center" >
+            <th class="w-[7%] px-6 py-4  border font-medium text-gray-900 text-center" >
               Debet
             </th>
-            <th class="w-[7%] px-6 py-4  border font-bold text-gray-900 text-center" >
+            <th class="w-[7%] px-6 py-4  border font-medium text-gray-900 text-center" >
               Kredit
             </th>
-            <th class="w-[7%] px-6 py-4 border font-bold text-gray-900 text-center" >
+            <th class="w-[7%] px-6 py-4 border font-medium text-gray-900 text-center" >
               Debet
             </th>
-            <th class="w-[7%] px-6 py-4 font-bold border font-bold text-gray-900 text-center" >
+            <th class="w-[7%] px-6 py-4 border font-medium text-gray-900 text-center" >
               Kredit
             </th>
           </tr>

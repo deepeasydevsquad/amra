@@ -56,11 +56,11 @@
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[15%] px-6 py-4 font-bold text-gray-900 text-center">Nomor Identitas</th>
-            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center">Nama Jamaah</th>
-            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center">Nomor Passport</th>
-            <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center">Tempat / Tanggal Lahir</th>
-            <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Nomor Identitas</th>
+            <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">Nama Jamaah</th>
+            <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">Nomor Passport</th>
+            <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">Tempat / Tanggal Lahir</th>
+            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -212,8 +212,7 @@
   @success="handleJamaahSuccess"
 />
 
-<FormUpdate
-v-if="ShowFormUpdate"
+<FormUpdate v-if="ShowFormUpdate"
  :jamaah="selectedJamaah"
 @close="ShowFormUpdate = false"
 @update="updateSuccess"

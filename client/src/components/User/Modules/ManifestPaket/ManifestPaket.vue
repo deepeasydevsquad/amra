@@ -1,107 +1,106 @@
 <script setup lang="ts">
+
 // Import icon
 import EditIcon from '@/components/User/Modules/ManifestPaket/icon/EditIcon.vue'
-import DownloadIcon from '@/components/User/Modules/ManifestPaket/Icon/DownloadIcon.vue'
+import DownloadIcon from '@/components/User/Modules/ManifestPaket/icon/DownloadIcon.vue'
 
 // import element
-import EditButton from '@/components/User/Modules/ManifestPaket/Particle/EditButton.vue'
-import Notification from '@/components/User/Modules/ManifestPaket/Particle/Notification.vue'
+import EditButton from '@/components/User/Modules/ManifestPaket/particle/EditButton.vue'
+import Notification from '@/components/User/Modules/ManifestPaket/particle/Notification.vue'
 
 // import
 import FormUpdate from '@/components/User/Modules/DaftarJamaah/Particle/FormUpdate.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 
-
 import { ref, onMounted, computed } from 'vue'
 import { daftarManifestPaket, downloadAbsensi } from '@/service/manifest_paket'
-
 
 const props = defineProps<{
   paketId: number
 }>()
 
-const isLoading = ref(false);
-const itemsPerPage = 100; // Jumlah daftar transaksi per halaman
-const currentPage = ref(1);
-const search = ref("");
-const totalPages = ref(0);
-const timeoutId = ref<number | null>(null);
+const isLoading = ref(false)
+const itemsPerPage = 100 // Jumlah daftar transaksi per halaman
+const currentPage = ref(1)
+const search = ref('')
+const totalPages = ref(0)
+const timeoutId = ref<number | null>(null)
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
-    currentPage.value++;
+    currentPage.value++
     fetchData()
   }
-};
+}
 
 const prevPage = () => {
   if (currentPage.value > 1) {
-    currentPage.value--;
+    currentPage.value--
     fetchData()
   }
-};
+}
 
-const pageNow = (page : number) => {
+const pageNow = (page: number) => {
   currentPage.value = page
   fetchData()
 }
 
 // Generate array angka halaman
 const pages = computed(() => {
-  return Array.from({ length: totalPages.value }, (_, i) => i + 1);
-});
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1)
+})
 
 interface ManifestPaket {
-    id: number;
-    jamaah_id: number;
-    nama_jamaah: string;
-    birth_place: string;
-    birth_date: string;
-    umur: number;
-    whatsapp_number: string;
-    status_kelengkapan: string;
-    daftar_item_belum_lengkap: string[];
-    nama_agen: string;
-    nomor_identitas: string;
-    tempat_tanggal_lahir: string;
-    identity_type: string;
-    gender: string;
-    photo: string;
-    nomor_passport: string;
-    title: string;
-    nama_ayah: string;
-    nama_passport: string;
-    tanggal_di_keluarkan_passport: string;
-    tempat_di_keluarkan_passport: string;
-    masa_berlaku_passport: string;
-    kode_pos: string;
-    nomor_telephone: string;
-    pengalaman_haji: string;
-    tahun_haji: string;
-    pengalaman_umrah: string;
-    tahun_umrah: string;
-    desease: string;
-    last_education: string;
-    blood_type: string;
-    photo_4_6: string;
-    photo_3_4: string;
-    fc_passport: string;
-    mst_pekerjaan_id: string;
-    profession_instantion_name: string;
-    profession_instantion_address: string;
-    profession_instantion_telephone: string;
-    fc_kk: string;
-    fc_ktp: string;
-    buku_nikah: string;
-    akte_lahir: string;
-    buku_kuning: string;
-    keterangan: string;
-    nama_keluarga: string;
-    alamat_keluarga: string;
-    telephone_keluarga: string;
-    status_nikah: string;
-    tanggal_nikah: string;
-    kewarganegaraan: string;
+  id: number;
+  jamaah_id: number;
+  nama_jamaah: string;
+  birth_place: string;
+  birth_date: string;
+  umur: number;
+  whatsapp_number: string;
+  status_kelengkapan: string;
+  daftar_item_belum_lengkap: string[];
+  nama_agen: string;
+  nomor_identitas: string;
+  tempat_tanggal_lahir: string;
+  identity_type: string;
+  gender: string;
+  photo: string;
+  nomor_passport: string;
+  title: string;
+  nama_ayah: string;
+  nama_passport: string;
+  tanggal_di_keluarkan_passport: string;
+  tempat_di_keluarkan_passport: string;
+  masa_berlaku_passport: string;
+  kode_pos: string;
+  nomor_telephone: string;
+  pengalaman_haji: string;
+  tahun_haji: string;
+  pengalaman_umrah: string;
+  tahun_umrah: string;
+  desease: string;
+  last_education: string;
+  blood_type: string;
+  photo_4_6: string;
+  photo_3_4: string;
+  fc_passport: string;
+  mst_pekerjaan_id: string;
+  profession_instantion_name: string;
+  profession_instantion_address: string;
+  profession_instantion_telephone: string;
+  fc_kk: string;
+  fc_ktp: string;
+  buku_nikah: string;
+  akte_lahir: string;
+  buku_kuning: string;
+  keterangan: string;
+  nama_keluarga: string;
+  alamat_keluarga: string;
+  telephone_keluarga: string;
+  status_nikah: string;
+  tanggal_nikah: string;
+  kewarganegaraan: string;
 }
 
 const dataManifestPaket = ref<ManifestPaket[]>([])
@@ -113,16 +112,16 @@ const showNotification = ref<boolean>(false);
 const totalColumns = ref(6);
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
-  notificationMessage.value = message;
-  notificationType.value = type;
-  showNotification.value = true;
+  notificationMessage.value = message
+  notificationType.value = type
+  showNotification.value = true
 
-  if (timeoutId.value) clearTimeout(timeoutId.value);
+  if (timeoutId.value) clearTimeout(timeoutId.value)
 
   timeoutId.value = window.setTimeout(() => {
-    showNotification.value = false;
-  }, 3000);
-};
+    showNotification.value = false
+  }, 3000)
+}
 
 const openFormEditManifest = (daftarManidest: ManifestPaket) => {
   selectedJamaah.value = daftarManidest;
@@ -136,28 +135,28 @@ const fetchData = async () => {
       paketId: props.paketId,
       search: search.value,
       perpage: itemsPerPage,
-      pageNumber: currentPage.value
-    });
-    dataManifestPaket.value = response.data;
+      pageNumber: currentPage.value,
+    })
+    dataManifestPaket.value = response.data
     console.log(dataManifestPaket)
-    totalPages.value = Math.ceil(response.total / itemsPerPage);
+    totalPages.value = Math.ceil(response.total / itemsPerPage)
   } catch (error) {
-    console.error('Error fetching data:', error);
+    console.error('Error fetching data:', error)
   } finally {
     isLoading.value = false
   }
-};
+}
 
 const DownloadAbsensi = async () => {
   try {
     isLoading.value = true
-    await downloadAbsensi(props.paketId);
+    await downloadAbsensi(props.paketId)
   } catch (error) {
-    console.error('Error fetching data:', error);
+    console.error('Error fetching data:', error)
   } finally {
     isLoading.value = false
   }
-};
+}
 
 onMounted(() => {
   fetchData()
@@ -166,14 +165,18 @@ onMounted(() => {
 
 <template>
   <div class="p-4 bg-white min-h-screen">
-    <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div
+      v-if="isLoading"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    >
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400"></div>
     </div>
-      <!-- Tambah data dan Search -->
+    <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
       <button
         @click="DownloadAbsensi()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
+        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
+      >
         <DownloadIcon />
         Download Manifest
       </button>
@@ -199,13 +202,19 @@ onMounted(() => {
             <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Status</th>
             <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Umur</th>
             <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Nomor Whatsapp</th>
-            <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">Daftar Item Yang Belum Lengkap</th>
+            <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">
+              Daftar Item Yang Belum Lengkap
+            </th>
             <th class="w-[5%] px-6 py-4 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
           <template v-if="dataManifestPaket && dataManifestPaket.length > 0">
-            <tr v-for="dataManifest in dataManifestPaket" :key="dataManifest.id" class="hover:bg-gray-50">
+            <tr
+              v-for="dataManifest in dataManifestPaket"
+              :key="dataManifest.id"
+              class="hover:bg-gray-50"
+            >
               <td class="px-6 py-4 text-center">
                 <p>{{ dataManifest.nama_jamaah }}</p>
                 <p>({{ dataManifest.nomor_identitas }})</p>
@@ -220,13 +229,25 @@ onMounted(() => {
               <td class="px-6 py-4 text-center">
                 <p>{{ dataManifest.whatsapp_number }}</p>
               </td>
-              <td class="px-6 py-4" :class="{'text-center': dataManifest.daftar_item_belum_lengkap.length === 0, 'text-left': dataManifest.daftar_item_belum_lengkap.length > 0}">
+              <td
+                class="px-6 py-4"
+                :class="{
+                  'text-center': dataManifest.daftar_item_belum_lengkap.length === 0,
+                  'text-left': dataManifest.daftar_item_belum_lengkap.length > 0,
+                }"
+              >
                 <template v-if="dataManifest.daftar_item_belum_lengkap.length === 0">
                   <p>Semua Item Lengkap</p>
                 </template>
                 <template v-else>
                   <ul>
-                    <li v-for="(item, index) in dataManifest.daftar_item_belum_lengkap" :key="index" class="list-disc list-inside pl-3 text-sm">{{ item }}</li>
+                    <li
+                      v-for="(item, index) in dataManifest.daftar_item_belum_lengkap"
+                      :key="index"
+                      class="list-disc list-inside pl-3 text-sm"
+                    >
+                      {{ item }}
+                    </li>
                   </ul>
                 </template>
               </td>
@@ -238,20 +259,22 @@ onMounted(() => {
             </tr>
           </template>
           <tr v-else>
-            <td :colspan=totalColumns class="px-6 py-4 text-center text-base text-gray-600">Daftar Manifest tidak ditemukan.</td>
+            <td :colspan="totalColumns" class="px-6 py-4 text-center text-base text-gray-600">
+              Daftar Manifest tidak ditemukan.
+            </td>
           </tr>
         </tbody>
-          <tfoot class="bg-gray-100 font-bold">
-            <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          </tfoot>
+        <tfoot class="bg-gray-100 font-bold">
+          <Pagination
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            :pages="pages"
+            :total-columns="totalColumns"
+            @prev-page="prevPage"
+            @next-page="nextPage"
+            @page-now="pageNow"
+          />
+        </tfoot>
       </table>
     </div>
   </div>
@@ -271,9 +294,10 @@ onMounted(() => {
       @close="isFormEditMasnifestOpen = false; fetchData()"
       @update="displayNotification('Data Jamaah berhasil diperbarui', 'success')"
       />
+
   </transition>
 
-    <!-- Notification -->
+  <!-- Notification -->
   <Notification
     :showNotification="showNotification"
     :notificationType="notificationType"

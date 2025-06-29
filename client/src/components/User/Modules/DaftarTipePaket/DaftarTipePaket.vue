@@ -177,9 +177,9 @@ const deleteData = async (id: number) => {
 </script>
 
 <template>
-  <div class="container mx-auto p-4">
+  <div class="container mx-auto px-4 mt-10">
     <!-- Tambah data dan Search -->
-    <div class="flex justify-between mb-4">
+    <div class="flex justify-between items-center mb-6">
       <button
         @click="openModal()"
         class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
@@ -200,7 +200,6 @@ const deleteData = async (id: number) => {
         />
       </div>
     </div>
-
     <!-- Table data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">

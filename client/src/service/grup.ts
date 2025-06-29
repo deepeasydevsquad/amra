@@ -2,7 +2,7 @@ import api from './api'
 
 export const daftarMenu = async (param: any) => {
   try {
-    const response = await api.get('/get-menu', param)
+    const response = await api.get('grup/get-menu', param)
     return response.data
   } catch (error) {
     console.error('Gagal Mengambil Menu', error)
@@ -12,7 +12,7 @@ export const daftarMenu = async (param: any) => {
 
 export const daftarGrup = async (param: any) => {
   try {
-    const response = await api.get('/get-grup', param)
+    const response = await api.post('grup/get-grup', param)
     return response.data
   } catch (error) {
     console.error('Gagal Mengambil Grup', error)
@@ -22,7 +22,7 @@ export const daftarGrup = async (param: any) => {
 
 export const addGrup = async (param: any) => {
   try {
-    const response = await api.post('/add-grup', param)
+    const response = await api.post('grup/add-grup', param)
     return response.data
   } catch (error) {
     console.error('Gagal menambahkan grup:', error)
@@ -32,7 +32,7 @@ export const addGrup = async (param: any) => {
 
 export const editGrup = async (param: any) => {
   try {
-    const response = await api.put('/update-grup', param)
+    const response = await api.put('grup/update-grup', param)
     return response.data
   } catch (error) {
     console.error('Gagal menambahkan grup:', error)
@@ -42,7 +42,7 @@ export const editGrup = async (param: any) => {
 
 export const hapusGrup = async (id: any) => {
   try {
-    const response = await api.post(`/delete-grup`, { id: id })
+    const response = await api.post(`/grup/delete-grup`, { id: id })
     return response.data
   } catch (error) {
     console.error('Gagal menambahkan grup:', error)

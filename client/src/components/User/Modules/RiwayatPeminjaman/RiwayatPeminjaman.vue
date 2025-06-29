@@ -49,12 +49,12 @@
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-100">
           <tr>
-            <th class="w-[15%] px-6 py-4 font-bold text-gray-900 text-center">Ne Registrasi / Invoice</th>
-            <th class="w-[30%] px-6 py-4 font-bold text-gray-900 text-center">Info Jamaah</th>
-            <th class="w-[15%] px-6 py-4 font-bold text-gray-900 text-center">Biaya</th>
-            <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">Status Biaya</th>
-            <th class="w-[15%] px-6 py-4 font-bold text-gray-900 text-center">Penerima</th>
-            <th class="w-[15%] px-6 py-4 font-bold text-gray-900 text-center">Tanggal Transaksi</th>
+            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Ne Registrasi / Invoice</th>
+            <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Info Jamaah</th>
+            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Biaya</th>
+            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Status Biaya</th>
+            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Penerima</th>
+            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Tanggal Transaksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">

@@ -310,9 +310,9 @@ const cetakKwitansi = async (invoice: string) => {
         <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead class="bg-gray-50">
             <tr>
-              <th class="w-[25%] px-6 py-4 font-bold text-gray-900 text-center">Info Jamaah</th>
-              <th :class="filter === 'sudah_beli_paket' ? 'w-[75%]' : 'w-[70%]'" class="px-6 py-4 font-bold text-gray-900 text-center">Info Deposit</th>
-              <th class="w-[5%] px-6 py-4 font-bold text-gray-900 text-center" v-if="filter === 'belum_beli_paket'">Aksi</th>
+              <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">Info Jamaah</th>
+              <th :class="filter === 'sudah_beli_paket' ? 'w-[75%]' : 'w-[70%]'" class="px-6 py-4 font-medium text-gray-900 text-center">Info Deposit</th>
+              <th class="w-[5%] px-6 py-4 font-medium text-gray-900 text-center" v-if="filter === 'belum_beli_paket'">Aksi</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 border-t border-gray-100">

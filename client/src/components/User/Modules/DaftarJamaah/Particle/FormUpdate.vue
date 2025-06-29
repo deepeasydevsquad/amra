@@ -926,8 +926,8 @@ const dataPengalamanHaji = ref('')
 const fetchPengalaman = async() => {
   try{
     const response = await daftarPengalaman()
-    dataPengalaman.value = response.data 
-    console.log('data pengalaman', dataPengalaman.value) 
+    dataPengalaman.value = response.data
+    console.log('data pengalaman', dataPengalaman.value)
   }catch(error){
     console.log('error fetch data Pengalaman', error)
   }
@@ -1199,7 +1199,7 @@ const fetchKelurahan = async (kecamatanId) => {
 const dataAgen = ref('')
 
 const fetchAgen = async()=>{
-  
+
   try{
     const response = await daftarAgen()
     dataAgen.value = response.data
@@ -1246,8 +1246,6 @@ const fetchMember = async () => {
     console.error('Error fetching member:', error)
   }
 }
-
-
 
 const props = defineProps<{
   jamaah: any

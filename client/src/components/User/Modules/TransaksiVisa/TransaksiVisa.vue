@@ -78,35 +78,35 @@ interface TransaksiVisa {
   valid_until : string;
   price : number;
   createdAt : string;
-  jenis_visa : string; 
+  jenis_visa : string;
 }
 
 // --- Functions ---
 const fetchData = async () => {
   try {
     isLoading.value = true
-    
+
     console.log('Fetching data with params:', {
       search: search.value,
       filter: filter.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
     });
-    
+
     const response = await getDaftarTransaksiVisa({
       search: search.value,
       filter: filter.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
     });
-    
+
     console.log('Fetch response:', response);
-    
+
     if (response && response.error) {
       displayNotification(response.error_msg || 'Terjadi kesalahan saat mengambil data', "error");
       return;
     }
-    
+
     totalPages.value = Math.ceil((response?.total || 0) / itemsPerPage);
     TransaksiVisa.value = response?.data || [];
 
@@ -114,7 +114,7 @@ const fetchData = async () => {
 
   } catch (error) {
     console.error('Error fetching data:', error);
-    
+
     if (error instanceof TypeError && error.message.includes('fetch')) {
       displayNotification('Gagal terhubung ke server. Periksa koneksi internet Anda.', 'error');
     } else if (error instanceof Error) {
@@ -155,11 +155,11 @@ onMounted(async () => {
 const deleteItem = async (id: number) => {
   try {
     console.log('Attempting to delete item with ID:', id);
-    
+
     const response = await deleteTransaksiVisa(id);
-    
+
     console.log('Delete response:', response);
-    
+
     if (response && response.error) {
       displayNotification(response.error_msg || 'Terjadi kesalahan saat menghapus data', 'error');
     } else if (response && response.success) {
@@ -171,10 +171,10 @@ const deleteItem = async (id: number) => {
     } else {
       displayNotification(response.error_msg || 'Gagal menghapus data.', 'error');
     }
-    
+
   } catch (error) {
     console.error('Error deleting data:', error);
-    
+
     // Cek jenis error yang lebih spesifik
     if (error instanceof TypeError && error.message.includes('fetch')) {
       displayNotification('Gagal terhubung ke server. Periksa koneksi internet Anda.', 'error');
@@ -221,15 +221,14 @@ const openFormCetakDataJamaah = (item: any) => {
 </script>
 
 <template>
-  <div class="container mx-auto p-4">
-    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
+  <div class="container mx-auto px-4 mt-10">
+    <div class="flex justify-between items-center mb-6">
       <PrimaryButton @click="isFormOpen = true">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
         Tambah Transaksi Visa
       </PrimaryButton>
-
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
         <label for="search" class="text-sm font-medium text-gray-700">Search</label>
         <input
@@ -244,15 +243,15 @@ const openFormCetakDataJamaah = (item: any) => {
     </div>
 
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
-      <table class="w-full border-collapse bg-white text-left text-xs text-gray-700">
+      <table class="w-full border-collapse bg-white text-left text-sm text-gray-700">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[10%] px-6 py-4 font-bold text-center">Nomor Invoice</th>
-            <th class="w-[20%] px-6 py-4 font-bold text-center">Info Pembayar</th>
-            <th class="w-[30%] px-6 py-4 font-bold text-center">Info Visa</th>
-            <th class="w-[15%] px-6 py-4 font-bold text-center">Total</th>
-            <th class="w-[15%] px-6 py-4 font-bold text-center">Tanggal</th>
-            <th class="w-[10%] px-6 py-4 font-bold text-center">Aksi</th>
+            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Nomor Invoice</th>
+            <th class="w-[20%] px-6 py-4 font-medium text-center">Info Pembayar</th>
+            <th class="w-[30%] px-6 py-4 font-medium text-center">Info Visa</th>
+            <th class="w-[15%] px-6 py-4 font-medium text-center">Total</th>
+            <th class="w-[15%] px-6 py-4 font-medium text-center">Tanggal</th>
+            <th class="w-[10%] px-6 py-4 font-medium text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -299,34 +298,34 @@ const openFormCetakDataJamaah = (item: any) => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold ">
-          <Pagination 
-            :current-page="currentPage" 
-            :total-pages="totalPages" 
-            :pages="pages" 
-            :total-columns="totalColumns" 
-            @prev-page="prevPage" 
-            @next-page="nextPage" 
-            @page-now="pageNow" 
+          <Pagination
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            :pages="pages"
+            :total-columns="totalColumns"
+            @prev-page="prevPage"
+            @next-page="nextPage"
+            @page-now="pageNow"
           />
         </tfoot>
       </table>
     </div>
 
     <!-- Notification Component -->
-    <Notification 
-      v-if="showNotification" 
+    <Notification
+      v-if="showNotification"
       :show-notification="showNotification"
-      :notification-message="notificationMessage" 
+      :notification-message="notificationMessage"
       :notification-type="notificationType"
-      @close="showNotification = false" 
+      @close="showNotification = false"
     />
 
     <!-- Confirmation Component -->
-    <Confirmation 
-      v-if="showConfirmDialog" 
+    <Confirmation
+      v-if="showConfirmDialog"
       :show-confirm-dialog="showConfirmDialog"
-      :confirm-title="confirmTitle" 
-      :confirm-message="confirmMessage" 
+      :confirm-title="confirmTitle"
+      :confirm-message="confirmMessage"
       @close="handleCancelConfirm"
     >
       <button
@@ -358,7 +357,7 @@ const openFormCetakDataJamaah = (item: any) => {
         v-if="isFormOpen"
         :isFormOpen="isFormOpen"
         @close="isFormOpen = false; fetchData()"
-        @save-success="handleSaveSuccess" 
+        @save-success="handleSaveSuccess"
       />
     </transition>
   </div>

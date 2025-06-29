@@ -208,8 +208,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container mx-auto p-4">
-    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
+  <div class="container mx-auto px-4 mt-10">
+    <div class="flex justify-between items-center mb-6">
       <PrimaryButton @click="isFormOpen = true">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -236,15 +236,15 @@ onMounted(async () => {
     </div>
 
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
-      <table class="w-full border-collapse bg-white text-left text-xs text-gray-700">
+      <table class="w-full border-collapse bg-white text-left text-sm text-gray-700">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[10%] px-6 py-4 font-bold text-center">Nomor Invoice</th>
-            <th class="w-[20%] px-6 py-4 font-bold text-center">Info Pembayar</th>
-            <th class="w-[30%] px-6 py-4 font-bold text-center">Info Tansaksi Passport</th>
-            <th class="w-[15%] px-6 py-4 font-bold text-center">Total</th>
-            <th class="w-[15%] px-6 py-4 font-bold text-center">Tanggal</th>
-            <th class="w-[10%] px-6 py-4 font-bold text-center">Aksi</th>
+            <th class="w-[10%] px-6 py-4 font-medium text-center">Nomor Invoice</th>
+            <th class="w-[20%] px-6 py-4 font-medium text-center">Info Pembayar</th>
+            <th class="w-[30%] px-6 py-4 font-medium text-center">Info Tansaksi Passport</th>
+            <th class="w-[15%] px-6 py-4 font-medium text-center">Total</th>
+            <th class="w-[15%] px-6 py-4 font-medium text-center">Tanggal</th>
+            <th class="w-[10%] px-6 py-4 font-medium text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">

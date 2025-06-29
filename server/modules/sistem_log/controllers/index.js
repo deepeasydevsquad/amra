@@ -3,15 +3,18 @@ const { handleServerError } = require("../../../helper/handleError");
 
 exports.get_sistem_log = async (req, res) => {
   try {
-    const modelRInstance = new Model_r(); // Buat instance dari Model_r
-    const logs = await modelRInstance.getTravelLogs(); // Panggil method getTravelLogs
+    const model = new Model_r(req); // Buat instance dari Model_r
+    const logs = await model.list(); // Panggil method getTravelLogs
 
     res.status(200).json({
       error: false,
-      data: logs, // Data log yang sudah diformat
-      total: logs.length, // Jumlah total log
+      data: logs.data, // Data log yang sudah diformat
+      total: logs.total, // Jumlah total log
     });
   } catch (error) {
+    console.log("--------------xxxx");
+      console.log(error);
+      console.log("--------------xxxx");
     handleServerError(res, error.message); // Handle error
   }
 };

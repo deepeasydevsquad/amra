@@ -119,7 +119,6 @@
 
       setTimeout(() => emit('close'), 3000)
     } catch (error) {
-      // console.error(error)
       displayNotification('Gagal menyimpan data', 'error')
     }
   }
