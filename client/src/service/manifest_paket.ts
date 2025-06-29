@@ -10,26 +10,6 @@ export const daftarManifestPaket = async (param: any) => {
   }
 }
 
-export const updateManifestPaket = async (param: any) => {
-  try {
-    const response = await api.post('/daftar-manifest-paket/update-manifest-paket', param)
-    return response.data
-  } catch (error) {
-    console.log("gagal update manifest paket:", error)
-    throw error
-  }
-}
-
-export const infoUpdateManifestPaket = async (id: number) => {
-  try {
-    const response = await api.post('/daftar-manifest-paket/get-info-update-manifest-paket', { id })
-    return response.data;
-  } catch (error) {
-    console.log('gagal mengambil info update manifest paket:', error)
-    throw error
-  }
-}
-
 export const downloadAbsensi = async (id: number) => {
   try {
     const response = await api.post('/daftar-manifest-paket/download-manifest-paket',
