@@ -78,29 +78,12 @@ const submit = async () => {
 </script>
 
 <template>
-  <Form
-    :label="'Pembayaran Tiket'"
-    :submitLabel="'Simpan'"
-    :width="'w-1/2'"
-    @cancel="emit('cancel')"
-    @submit="submit"
-  >
-    <!-- Baris: Nama & Identitas -->
-    <div class="grid grid-cols-2 gap-4">
-      <InputReadonly label="Nama Customer" id="nama" :value="form.costumer_name" />
-      <InputReadonly label="Nomor Identitas" id="identitas" :value="form.costumer_identity" />
-    </div>
-
-    <!-- Baris: Nominal Bayar & Sisa -->
-    <div class="grid grid-cols-2 gap-4 mt-4">
-      <!-- Ganti input nominal bayar -->
-      <InputCurrency label="Nominal Bayar" id="nominal" v-model="form.nominal" />
-
-      <InputReadonly
-        label="Sisa Nominal"
-        id="nominal_sisa"
-        :value="formatRupiah(form.nominal_sisa)"
-      />
+  <Form :label="'Pembayaran Tiket'" :submitLabel="'BAYAR'" :width="'w-1/5'" @cancel="emit('cancel')" @submit="submit" >
+    <div >
+      <InputReadonly class="mt-0" label="Nama Customer" id="nama" :value="form.costumer_name" />
+      <InputReadonly class="mt-6" label="Nomor Identitas" id="identitas" :value="form.costumer_identity" />
+      <InputCurrency class="mt-6"  label="Nominal Bayar" id="nominal" v-model="form.nominal" />
+      <InputReadonly class="mt-6" label="Sisa Nominal" id="nominal_sisa" :value="formatRupiah(form.nominal_sisa)"/>
     </div>
   </Form>
 </template>
