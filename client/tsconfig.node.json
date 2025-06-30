@@ -18,7 +18,11 @@
     "moduleResolution": "Bundler",
     "types": ["node", "vue", "vite/client"], 
     "skipLibCheck": true,
-    "noEmitOnError": false
+    "noEmitOnError": false, 
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   }
 }
   // "compilerOptions": {
