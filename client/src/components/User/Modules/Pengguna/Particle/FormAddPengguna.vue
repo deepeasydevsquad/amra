@@ -10,6 +10,7 @@
             {{ member.name }}
           </option>
         </select>
+        <p v-if="errors.member" class="text-red-500 text-sm mt-1">{{ errors.member }}</p>
       </div>
       <div class="mb-0">
         <label for="grup" class="block text-sm font-medium text-gray-700 mb-2">Grup</label>
@@ -18,6 +19,7 @@
           <option value="0">Pilih Grup</option>
           <option v-for="grup in grups" :key="grup.id" :value="grup.id">{{ grup.name }}</option>
         </select>
+        <p v-if="errors.grup" class="text-red-500 text-sm mt-1">{{ errors.grup }}</p>
       </div>
     </div>
   </Form>
@@ -46,21 +48,37 @@ interface Member {
   cabang_id: number
 }
 
+ interface ErrorFields {
+    member?: string
+    grup?: string
+  }
+
+const errors = ref<ErrorFields>({
+  member: '',
+  grup: '',
+})
+
 const grups = ref<Grup[]>([])
 const members = ref<Member[]>([])
 const penggunaList = ref<any[]>([])
+// Notification State
+const showNotification = ref(false)
+const notificationMessage = ref('')
+const notificationType = ref<'success' | 'error'>('success')
+const timeoutId = ref<number | null>(null)
+const searchTimeout = ref<number | null>(null)
 
 // Fungsi untuk mengambil data pengguna dari API
-const fetchPengguna = async () => {
-  try {
-    const response = await daftarPengguna()
-    if (response.success && response.data) {
-      penggunaList.value = response.data
-    }
-  } catch (error) {
-    console.error('Gagal mengambil data pengguna:', error)
-  }
-}
+// const fetchPengguna = async () => {
+//   try {
+//     const response = await daftarPengguna()
+//     if (response.success && response.data) {
+//       penggunaList.value = response.data
+//     }
+//   } catch (error) {
+//     console.error('Gagal mengambil data pengguna:', error)
+//   }
+// }
 
 // Fetch data grup dari API
 const fetchGrup = async () => {
@@ -75,19 +93,20 @@ const fetchGrup = async () => {
 }
 
 // Fetch data member dari API
-// const fetchMember = async () => {
-//   try {
-//     const response = await getMember()
-//     if (response && Array.isArray(response.data)) {
-//       members.value = response.data
-//       console.log('✅ Data member berhasil dimuat:', members.value)
-//     } else {
-//       console.error('❌ Data member bukan array atau response tidak valid:', response)
-//     }
-//   } catch (error) {
-//     console.error('❌ Gagal fetch data member:', error)
-//   }
-// }
+const fetchMember = async () => {
+  try {
+    const response = await getMember()
+    if (response && Array.isArray(response.data)) {
+      members.value = response.data
+      // console.log('✅ Data member berhasil dimuat:', members.value)
+    }
+    // else {
+    //   console.error('❌ Data member bukan array atau response tidak valid:', response)
+    // }
+  } catch (error) {
+    console.error('❌ Gagal fetch data member:', error)
+  }
+}
 
 // Emit event untuk menutup modal
 const emit = defineEmits(['update:isModalOpen'])
@@ -109,25 +128,58 @@ const updateCabangId = (): void => {
 
 // Fungsi untuk menutup modal
 const closeModal = (): void => {
-  fetchPengguna()
+  // fetchPengguna()
   emit('update:isModalOpen', false) // Emit perubahan ke parent
+}
+
+
+// Validasi form
+const validateForm = (): boolean => {
+
+  errors.value = {
+    member: '',
+    grup: '',
+  }
+
+  let isValid = true
+
+  // Validasi member
+  if (selectedMember.value == 0) {
+    errors.value.member = 'Anda wajib memilih salah satu member.'
+    isValid = false
+  }
+
+  // Validasi member
+  if (selectedGrup.value == 0) {
+    errors.value.member = 'Anda wajib memilih salah satu grup.'
+    isValid = false
+  }
+
+  return isValid
 }
 
 // Fungsi untuk handle submit dengan FormData
 const handleSubmit = async (): Promise<void> => {
 
-  if (!selectedMember.value || !selectedGrup.value) {
-    alert('Silakan pilih member, grup, dan pastikan cabang_id tersedia!')
+  if (!validateForm()) {
     return
   }
+
+
+  // if (!selectedMember.value || !selectedGrup.value) {
+  //   // displayNotification()
+  //   displayNotification('Silakan pilih member, grup, dan pastikan cabang_id tersedia!', 'error')
+  //   // alert('Silakan pilih member, grup, dan pastikan cabang_id tersedia!')
+  //   return
+  // }
 
   try {
     // Buat objek FormData
     const formData = new FormData()
 
     // Tambahkan data ke FormData
-    formData.append('member_id', selectedMember.value.toString())
-    formData.append('grup_id', selectedGrup.value.toString())
+    formData.append('member_id', selectedMember.value!.toString())
+    formData.append('grup_id', selectedGrup.value!.toString())
 
     // Debugging: Tampilkan isi FormData
     for (const [key, value] of formData.entries()) {
@@ -153,9 +205,23 @@ const handleSubmit = async (): Promise<void> => {
   }
 }
 
+const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
+  notificationMessage.value = message
+  notificationType.value = type
+  showNotification.value = true
+  resetNotificationTimeout()
+}
+
+const resetNotificationTimeout = () => {
+  if (timeoutId.value) clearTimeout(timeoutId.value)
+  timeoutId.value = window.setTimeout(() => {
+    showNotification.value = false
+  }, 3000)
+}
+
 // Fetch data ketika komponen dimount
 onMounted(() => {
-  // fetchMember()
+  fetchMember()
   fetchGrup()
 })
 </script>

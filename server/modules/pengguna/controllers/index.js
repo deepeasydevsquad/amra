@@ -33,30 +33,55 @@ exports.addPengguna = async (req, res) => {
       });
     }
   } catch (error) {
-
-    console.log("-------------???");
-    console.log(error);
-    console.log("-------------???");
     handleServerError(res, error.message);
   }
 };
 
 // ✅ KELUARKAN FUNGSI INI DARI DALAM `addPengguna`
 exports.editPengguna = async (req, res) => {
+  
+  if (!(await handleValidationErrors(req, res))) return;
+
   try {
     const model = new Model_cud(req);
-    const data = await model.editPengguna();
-    res.status(data.success ? 200 : 400).json(data);
+    await model.editPengguna();
+    // get response
+    if ( await model.response() ) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Proses update pengguna berhasil dilakukan.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Proses update pengguna gagal dilakukan.',
+      });
+    }
+    // res.status(data.success ? 200 : 400).json(data);
   } catch (error) {
     handleServerError(res, error.message);
   }
 };
 
 exports.deletePengguna = async (req, res) => {
+  
+  if (!(await handleValidationErrors(req, res))) return;
+
   try {
     const model = new Model_cud(req);
-    const data = await model.hapusPengguna();
-    res.status(data.success ? 200 : 400).json(data);
+    await model.hapusPengguna();
+    // get response
+    if ( await model.response() ) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Proses menghapus pengguna berhasil dilakukan.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Proses menghapus pengguna gagal dilakukan.',
+      });
+    }
   } catch (error) {
     handleServerError(res, error.message);
   }
@@ -106,3 +131,29 @@ exports.get_grup = async (req, res) => {
     handleServerError(res, error.message);
   }
 }
+
+exports.get_info_edit_pengguna = async (req, res) => {
+
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    // proses menambahk pengguna
+    const data = await model.get_info_edit_pengguna();
+    // get response
+    if ( Object.keys(data).length > 0  ) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Info edit pengguna berhasil ditemukan.',
+        data: data
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Info edit pengguna gagal ditemukan.',
+      });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};

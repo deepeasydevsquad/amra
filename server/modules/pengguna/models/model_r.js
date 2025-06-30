@@ -90,6 +90,10 @@ class Model_r {
       );
     });
 
+    console.log("*****************");
+    console.log(memberIdIsUser);
+    console.log("*****************");
+
     var data = [];
     await Member.findAll({ 
       include: {
@@ -100,7 +104,7 @@ class Model_r {
         }
       },
       where : { 
-        id: { [Op.ne] : memberIdIsUser }
+        id: { [Op.notIn] : memberIdIsUser }
       }
     }).then(async (value) => {
       await Promise.all(
@@ -109,6 +113,11 @@ class Model_r {
         })
       );
     });
+
+
+    console.log("^^^^^^^^^^^^^^^^^^^^^^^");
+    console.log(data);
+    console.log("^^^^^^^^^^^^^^^^^^^^^^^");
 
     return data;
   }
@@ -131,6 +140,24 @@ class Model_r {
           data.push({id: e.id, name: e.name });
         })
       );
+    });
+
+    return data;
+  }
+
+
+  async get_info_edit_pengguna() {
+
+    await this.initialize();
+
+    var data = {};
+    await User.findOne({
+      where: { id: this.req.body.id },
+    }).then(async (e) => {
+      if (e) {
+        data["id"] = e.id;
+        data["grup_id"] = e.grup_id;
+      }
     });
 
     return data;

@@ -9,7 +9,7 @@ console.log("Controllers Object:", controllers);
 console.log("editPengguna Function:", controllers.editPengguna);
 
 
-router.get("/get-pengguna", authenticateToken, controllers.getPengguna);
+router.get("/pengguna/get-pengguna", authenticateToken, controllers.getPengguna);
 
 // pengguna/add-pengguna
 router.post("/pengguna/add-pengguna", 
@@ -30,8 +30,22 @@ router.post("/pengguna/add-pengguna",
   controllers.addPengguna
 );
 
-router.put("/edit-pengguna", authenticateToken, controllers.editPengguna);
-router.post("/delete-pengguna", authenticateToken, controllers.deletePengguna)
+router.post("/pengguna/edit-pengguna", 
+  authenticateToken,
+  [
+    body("id").trim().notEmpty().withMessage("Pengguna ID tidak boleh kosong.").custom(validation.check_id_pengguna),
+    body("grup_id").trim().notEmpty().withMessage("Grup ID tidak boleh kosong.").custom(validation.check_id_grup),
+  ],
+  controllers.editPengguna
+);
+
+router.post("/pengguna/delete-pengguna", 
+  authenticateToken, 
+  [
+    body("id").trim().notEmpty().withMessage("Pengguna ID tidak boleh kosong.").custom(validation.check_id_pengguna),
+  ],
+  controllers.deletePengguna
+);
 
 router.get("/pengguna/get-member", 
   authenticateToken, 
@@ -42,6 +56,14 @@ router.get("/pengguna/get-grup",
   authenticateToken, 
   controllers.get_grup
 );
+
+router.post('/pengguna/get-info-edit-pengguna', 
+  authenticateToken, 
+  [
+    body("id").trim().notEmpty().withMessage("Pengguna ID tidak boleh kosong.").custom(validation.check_id_pengguna),
+  ],
+  controllers.get_info_edit_pengguna
+)
 
 
 module.exports = router;

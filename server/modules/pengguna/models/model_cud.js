@@ -96,81 +96,60 @@ class Model_cud {
       // message
       this.message = `Menambahkan staff baru dengan (Member ID: ${member_id}) dan (User ID: ${i.id})`;
     } catch (error) {
-
-      console.log("----------------");
-      console.log(error);
-      console.log("----------------");
-
       this.state = false;
     }
   }
 
   // Edit Pengguna
   async editPengguna() {
+
     await this.initialize();
 
-    console.log('📩 Data sebelum parsing:', this.req.body);
-
-    let { id, grup_id } = this.req.body;
-
     try {
-      const model_r = new Model_r(this.req);
-      const infoPengguna = await model_r.infoPengguna(id);
-      if (!infoPengguna) throw new Error("Pengguna tidak ditemukan");
+      await User.update(
+        { grup_id : this.req.body.grup_id }, 
+        { 
+          where: { id : this.req.body.id }, 
+          transaction: this.t 
+        });
 
-      // Konversi id dan grup_id ke integer
-      id = Number(id);
-      grup_id = Number(grup_id);
-
-      console.log('📝 Data setelah parsing:', { id, grup_id });
-
-      if (isNaN(id) || isNaN(grup_id)) {
-        throw new Error('ID atau grup_id tidak valid');
-      }
-
-      const updateData = { grup_id };
-
-      await User.update(updateData, { where: { id }, transaction: this.t });
-
-      this.message = `Memperbarui grup pengguna ID: ${id} menjadi Grup ID: ${grup_id}`;
-      return await this.response();
+      this.message = `Memperbarui grup pengguna ID: ${this.req.body.id} menjadi Grup ID: ${this.req.body.grup_id}`;
     } catch (error) {
-      console.error('❌ Error Backend:', error);
       this.state = false;
-      this.message = error.message;
-      return await this.response();
     }
   }
 
-
   // Hapus Pengguna
   async hapusPengguna() {
+
     await this.initialize();
-    const { id } = this.req.body;
+
     try {
       const model_r = new Model_r(this.req);
-      const infoPengguna = await model_r.infoPengguna(id);
-      if (!infoPengguna) throw new Error("Pengguna tidak ditemukan");
+      const infoPengguna = await model_r.infoPengguna(this.req.body.id);
 
-      await User.destroy({ where: { id }, transaction: this.t });
-      this.message = `Menghapus Pengguna dengan Username: ${infoPengguna.fullname} dan ID: ${id}`;
-      return await this.response();
+      await User.destroy({ 
+        where: { id: this.req.body.id }, 
+        transaction: this.t 
+      });
+
+      this.message = `Menghapus Pengguna dengan Username: ${infoPengguna.fullname} dan ID: ${this.req.body.id}`;
     } catch (error) {
       this.state = false;
-      this.message = error.message;
-      return await this.response();
     }
   }
 
   // Response handler
   async response() {
     if (this.state) {
-      await writeLog(this.req, this.t, { msg: this.message });
+      await writeLog(this.req, this.t, { msg: this.message, });
+      // commit
       await this.t.commit();
-      return { success: true, message: this.message };
+      return true;
     } else {
+      // rollback
       await this.t.rollback();
-      return { success: false, message: this.message };
+      return false;
     }
   }
 }

@@ -107,10 +107,10 @@
   <FormUpdatePengguna
     :isModalOpen="isModalOpen"
     :idPengguna="idPengguna"
-    @update:isModalOpen="isModalOpen = $event"
-    @pengguna-updated="handleUserUpdated"
+   @cancel="closeEditFrom"
   />
-
+ <!-- @update:isModalOpen="isModalOpen = $event" -->
+    <!-- @pengguna-updated="handleUserUpdated" -->
   <Confirmation
     :showConfirmDialog="showDeleteConfirmDialog"
     confirmTitle="Konfirmasi Hapus"
@@ -136,6 +136,9 @@
     :notificationMessage="notificationMessage"
     @close="showNotification = false"
   />
+
+    <!-- Notification Popup -->
+  <!-- <Notification :showNotification="showNotification" :notificationType="'success'" :notificationMessage="'Data berhasil disimpan!'" @closeNotification="showNotification = false" /> -->
 </template>
 
 <script setup lang="ts">
@@ -187,6 +190,10 @@ const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
 });
 
+const closeEditFrom = () => {
+  isModalOpen.value = false
+  fetchData()
+}
 
 const pageNow = (page : number) => {
   currentPage.value = page
@@ -277,7 +284,7 @@ const editUser = (id: number) => {
 
   // users.value.find((user) => user.id === id)
   console.log("--------||||||||||||");
-  console.log(penggunaToUpdate.value);
+  // console.log(penggunaToUpdate.value);
   console.log("--------||||||||||||");
 
   isModalOpen.value = true

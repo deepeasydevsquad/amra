@@ -23,7 +23,7 @@ export const getGrup = async () => {
 
 export const daftarPengguna = async (param: any) => {
   try {
-    const response = await api.get('/get-pengguna', param)
+    const response = await api.get('/pengguna/get-pengguna', param)
     return response.data // Kembalikan data hasil request
   } catch (error) {
     console.error('Gagal menambahkan pengguna:', error)
@@ -43,7 +43,7 @@ export const addPengguna = async (param: any) => {
 
 export const editPengguna = async (param: any) => {
   try {
-    const response = await api.put('/edit-pengguna', param)
+    const response = await api.post('/pengguna/edit-pengguna', param)
     return response.data
   } catch (error) {
     console.error('Gagal menambahkan grup:', error)
@@ -53,7 +53,17 @@ export const editPengguna = async (param: any) => {
 
 export const deletePengguna = async (id: number) => {
   try {
-    const response = await api.post('/delete-pengguna', { id }) // Kirim data ke backend dengan benar
+    const response = await api.post('/pengguna/delete-pengguna', { id }) // Kirim data ke backend dengan benar
+    return response.data // Kembalikan data hasil request
+  } catch (error) {
+    console.error('Gagal menghapus pengguna:', error)
+    throw error // Bisa ditangani di bagian pemanggilan
+  }
+}
+
+export const getInfoEditPengguna = async (id: number) => {
+    try {
+    const response = await api.post('/pengguna/get-info-edit-pengguna', { id }) // Kirim data ke backend dengan benar
     return response.data // Kembalikan data hasil request
   } catch (error) {
     console.error('Gagal menghapus pengguna:', error)

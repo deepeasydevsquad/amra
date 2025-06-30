@@ -1,4 +1,4 @@
-const { Member, Grup, Division } = require("../models");
+const { Member, Grup, Division, User } = require("../models");
 const { getCompanyIdByCode } = require("../helper/companyHelper");
     
 const validation = {};
@@ -164,5 +164,26 @@ validation.check_password = async ( value, { req } ) => {
     return true;
 }
 
+
+validation.check_id_pengguna = async ( value ) => {
+    try {
+        var check = await User.findOne({
+            where: { 
+                id : value
+            },
+        });
+        if (!check) {
+            throw new Error("ID Pengguna tidak ditemukan.");
+        }
+        return true 
+    } catch (error) {
+        console.log("---------------");
+        console.log(error);
+        console.log("---------------");
+        return false
+    }
+
+}
+ 
 module.exports = validation;
   
