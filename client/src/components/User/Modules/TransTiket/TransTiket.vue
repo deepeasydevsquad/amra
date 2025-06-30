@@ -128,7 +128,10 @@
                 <LightButton class="p-2" title="Reschedule Tiket"
                   ><i class="pi pi-calendar"></i
                 ></LightButton>
-                <LightButton class="p-2" title="Detail Riwayat Pembayaran Tiket"
+                <LightButton
+                  class="p-2"
+                  @click="openModalDetail(transaction.nomor_register)"
+                  title="Detail Riwayat Pembayaran Tiket"
                   ><i class="pi pi-list"></i
                 ></LightButton>
                 <DangerButton class="p-2" title="Delete Tiket"
@@ -180,6 +183,12 @@
     "
   />
 
+  <DetailTiket
+    :formStatus="ShowModalDetail"
+    :nomor_register="nomor_register"
+    @cancel="closeModalDetail"
+  />
+
   <Notification
     :showNotification="showNotification"
     :notificationType="notificationType"
@@ -198,6 +207,7 @@ import { reactive, computed, ref, onMounted, watchEffect } from 'vue'
 import { get_transactions, getAirlines } from '@/service/trans_tiket'
 import FormTicketTransaction from './Particle/FormTicketTransaction.vue'
 import FormPembayaranTiket from './Particle/FormPembayaranTiket.vue'
+import DetailTiket from './Particle/DetailTiket.vue'
 import { Maskapai } from './Particle/FormTicketTransaction.vue'
 import { TicketTransactionForm } from './Particle/FormTicketTransaction.vue'
 
@@ -357,6 +367,20 @@ const onTicketTransactionSubmitted = () => {
   showTicketTransactionDialog.value = false
   displayNotification('Transaksi berhasil', 'success')
   fetchData()
+}
+
+const ShowModalDetail = ref(false)
+const nomor_register = ref('')
+
+const closeModalDetail = () => {
+  ShowModalDetail.value = false
+  nomor_register.value = ''
+}
+
+const openModalDetail = (register_number: string) => {
+  nomor_register.value = register_number
+  console.log('SET NOMOR REGISTER:', register_number)
+  ShowModalDetail.value = true
 }
 
 const showModalPembayaran = ref(false)

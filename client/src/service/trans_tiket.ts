@@ -70,3 +70,14 @@ export const add_pembayaran = async (param : any) => {
         throw error;
     }
 }
+
+
+export const get_detail = async (param : any) => {
+  try {
+      const response = await api.post("/trans_tiket/detail", param);
+      return response.data;
+  } catch (error) {
+      console.error("Gagal mengambil detail tiket:", error);
+      throw error;
+  }
+}
