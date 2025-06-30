@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import Notification from '@/components/Modal/Notification.vue'
 import Confirmation from '@/components/Modal/Confirmation.vue'
 import Logout from '@/components/Login/widgets/Logout.vue'
+import ModalEditProfile from '@/components/User/Modules/Profile/ModalEditProfile.vue'
 
 const target = ref(null)
 const dropdownOpen = ref(false)
@@ -14,12 +15,35 @@ onClickOutside(target, () => {
 })
 const handleLogoutClick = () => {
   if (logoutRef.value) {
-    logoutRef.value.showLogoutConfirmation() 
+    logoutRef.value.showLogoutConfirmation()
   }
 }
 
 const closeDropdown = () => {
   dropdownOpen.value = false
+}
+
+const showModal = ref(false)
+
+const ModalEdit = ref(false)
+
+const openModalEdit = () => {
+  ModalEdit.value = true
+}
+
+const showNotification = ref(false)
+const notificationType = ref<'success' | 'error'>('success')
+const notificationMessage = ref('')
+
+function showNotif(payload: { type: 'success' | 'error'; message: string }) {
+  console.log('📩 Parent menerima notif:', payload)
+  notificationType.value = payload.type
+  notificationMessage.value = payload.message
+  showNotification.value = true
+
+  setTimeout(() => {
+    showNotification.value = false
+  }, 4000)
 }
 </script>
 
@@ -61,8 +85,8 @@ const closeDropdown = () => {
     >
       <ul class="flex flex-col gap-5 border-b border-stroke px-6 py-6 dark:border-strokedark">
         <li>
-          <router-link
-            to="/profile"
+          <button
+            @click="openModalEdit"
             class="flex items-center gap-3.5 text-sm font-medium duration-300 text-amra ease-in-out hover:text-primary lg:text-base"
           >
             <svg
@@ -75,21 +99,32 @@ const closeDropdown = () => {
             >
               <path
                 d="M11 9.62499C8.42188 9.62499 6.35938 7.59687 6.35938 5.12187C6.35938 2.64687 8.42188 0.618744 11 0.618744C13.5781 0.618744 15.6406 2.64687 15.6406 5.12187C15.6406 7.59687 13.5781 9.62499 11 9.62499ZM11 2.16562C9.28125 2.16562 7.90625 3.50624 7.90625 5.12187C7.90625 6.73749 9.28125 8.07812 11 8.07812C12.7188 8.07812 14.0938 6.73749 14.0938 5.12187C14.0938 3.50624 12.7188 2.16562 11 2.16562Z"
-                fill=""
               />
               <path
                 d="M17.7719 21.4156H4.2281C3.5406 21.4156 2.9906 20.8656 2.9906 20.1781V17.0844C2.9906 13.7156 5.7406 10.9656 9.10935 10.9656H12.925C16.2937 10.9656 19.0437 13.7156 19.0437 17.0844V20.1781C19.0094 20.8312 18.4594 21.4156 17.7719 21.4156ZM4.53748 19.8687H17.4969V17.0844C17.4969 14.575 15.4344 12.5125 12.925 12.5125H9.07498C6.5656 12.5125 4.5031 14.575 4.5031 17.0844V19.8687H4.53748Z"
-                fill=""
               />
             </svg>
             Edit Profile
-          </router-link>
+          </button>
         </li>
       </ul>
-      
+
       <div @click="handleLogoutClick">
         <Logout ref="logoutRef" @close-dropdown="closeDropdown" />
       </div>
     </div>
-    </div>
+  </div>
+
+  <ModalEditProfile
+    :formStatus="ModalEdit"
+    @cancel="ModalEdit = false"
+    @submitted="ModalEdit = false"
+    @notify="showNotif"
+  />
+  <Notification
+    :showNotification="showNotification"
+    :notificationType="notificationType"
+    :notificationMessage="notificationMessage"
+    @close="showNotification = false"
+  />
 </template>
