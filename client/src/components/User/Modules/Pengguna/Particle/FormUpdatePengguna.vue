@@ -19,8 +19,8 @@
 
 <script setup lang="ts">
 import { ref, defineProps, defineEmits, onMounted, watch } from 'vue'
-import { daftarGrup } from '@/service/grup'
-import { editPengguna, daftarPengguna } from '@/service/pengguna'
+// import { daftarGrup } from '@/service/grup'
+import { editPengguna, daftarPengguna, getGrup } from '@/service/pengguna'
 import Form from "@/components/Modal/Form.vue"
 
 // Interfaces
@@ -54,11 +54,11 @@ const fetchPengguna = async () => {
 // Props dari parent
 const props = defineProps({
   isModalOpen: Boolean,
-  penggunaToUpdate: Object as () => Pengguna | null,
+  idPengguna: Number,
 })
 
 // Debug props.penggunaToUpdate
-console.log('📝 props.penggunaToUpdate:', props.penggunaToUpdate)
+// console.log('📝 props.penggunaToUpdate:', props.penggunaToUpdate)
 
 // Emit event ke parent
 const emit = defineEmits(['update:isModalOpen'])
@@ -66,8 +66,8 @@ const emit = defineEmits(['update:isModalOpen'])
 // Fetch data grup
 const fetchGrup = async () => {
   try {
-    const response = await daftarGrup()
-    if (response.success && response.data) {
+    const response = await getGrup()
+    if (response.error == false && response.data) {
       grups.value = response.data
       console.log('✅ Grup Loaded:', grups.value)
     }
@@ -77,17 +77,17 @@ const fetchGrup = async () => {
 }
 
 // Auto-select grup saat modal dibuka
-watch(
-  [() => props.penggunaToUpdate, grups],
-  ([pengguna, grupList]) => {
-    if (pengguna && grupList.length > 0) {
-      const grupDitemukan = grupList.find((grup) => grup.name === pengguna.Grup?.name)
-      selectedGrup.value = grupDitemukan ? grupDitemukan.id : null
-      console.log('✅ Grup Selected:', selectedGrup.value)
-    }
-  },
-  { immediate: true },
-)
+// watch(
+//   [() => props.penggunaToUpdate, grups],
+//   ([pengguna, grupList]) => {
+//     if (pengguna && grupList.length > 0) {
+//       const grupDitemukan = grupList.find((grup) => grup.name === pengguna.Grup?.name)
+//       selectedGrup.value = grupDitemukan ? grupDitemukan.id : null
+//       console.log('✅ Grup Selected:', selectedGrup.value)
+//     }
+//   },
+//   { immediate: true },
+// )
 
 // Fungsi untuk menutup modal
 const closeModal = (): void => {
@@ -135,8 +135,27 @@ const handleSubmit = async (): Promise<void> => {
 }
 
 // Fetch data saat komponen dimount
-onMounted(async () => {
-  await fetchGrup()
-  await fetchPengguna()
-})
+// onMounted(async () => {
+//   await fetchGrup()
+//   await fetchPengguna()
+// })
+
+
+watch(
+  () => props.isModalOpen,
+  async (newDefaultValue) =>  {
+    if (newDefaultValue) {
+      await fetchPengguna();
+
+      // emit('update:modelValue', newDefaultValue);
+      // // centang checkboxnya
+      // props.options.forEach((option) => {
+      //   if (newDefaultValue.includes(option[idField].toString())) {
+      //     toggleOption(option);
+      //   }
+      // });
+    }
+  },
+  { immediate: true }
+);
 </script>

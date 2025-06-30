@@ -37,7 +37,6 @@ const props = defineProps({
 
 interface Grup {
   id: number
-  // cabang_id: number
   name: string
 }
 
@@ -76,19 +75,19 @@ const fetchGrup = async () => {
 }
 
 // Fetch data member dari API
-const fetchMember = async () => {
-  try {
-    const response = await getMember()
-    if (response && Array.isArray(response.data)) {
-      members.value = response.data
-      console.log('✅ Data member berhasil dimuat:', members.value)
-    } else {
-      console.error('❌ Data member bukan array atau response tidak valid:', response)
-    }
-  } catch (error) {
-    console.error('❌ Gagal fetch data member:', error)
-  }
-}
+// const fetchMember = async () => {
+//   try {
+//     const response = await getMember()
+//     if (response && Array.isArray(response.data)) {
+//       members.value = response.data
+//       console.log('✅ Data member berhasil dimuat:', members.value)
+//     } else {
+//       console.error('❌ Data member bukan array atau response tidak valid:', response)
+//     }
+//   } catch (error) {
+//     console.error('❌ Gagal fetch data member:', error)
+//   }
+// }
 
 // Emit event untuk menutup modal
 const emit = defineEmits(['update:isModalOpen'])
@@ -152,7 +151,7 @@ const handleSubmit = async (): Promise<void> => {
 
 // Fetch data ketika komponen dimount
 onMounted(() => {
-  fetchMember()
+  // fetchMember()
   fetchGrup()
 })
 </script>

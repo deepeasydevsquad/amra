@@ -106,7 +106,7 @@
 
   <FormUpdatePengguna
     :isModalOpen="isModalOpen"
-    :penggunaToUpdate="penggunaToUpdate"
+    :idPengguna="idPengguna"
     @update:isModalOpen="isModalOpen = $event"
     @pengguna-updated="handleUserUpdated"
   />
@@ -164,7 +164,7 @@ const isLoading = ref(false)
 // Modal State
 const isConfirmationModalVisible = ref(false)
 const isModalOpen = ref(false)
-const penggunaToUpdate = ref(null)
+const idPengguna = ref<number>(0);
 const showDeleteConfirmDialog = ref(false)
 const userIdToDelete = ref<number | null>(null)
 const showFormAddModal = ref(false)
@@ -206,34 +206,6 @@ const prevPage = () => {
     fetchData()
   }
 };
-
-
-// Computed Properties
-// const visiblePages = computed(() => {
-//   const pages = []
-//   const halfVisible = Math.floor(maxVisiblePages / 2)
-
-//   let startPage = currentPage.value - halfVisible
-//   let endPage = currentPage.value + halfVisible
-
-//   // Adjust if we're near the start
-//   if (startPage < 1) {
-//     startPage = 1
-//     endPage = Math.min(maxVisiblePages, totalPages.value)
-//   }
-
-//   // Adjust if we're near the end
-//   if (endPage > totalPages.value) {
-//     endPage = totalPages.value
-//     startPage = Math.max(1, endPage - maxVisiblePages + 1)
-//   }
-
-//   for (let i = startPage; i <= endPage; i++) {
-//     pages.push(i)
-//   }
-
-//   return pages
-// })
 
 // Methods
 const fetchData = async () => {
@@ -299,12 +271,15 @@ const goToPage = (page: number) => {
   }
 }
 
-// const nextPage = () => goToPage(currentPage.value + 1)
-// const prevPage = () => goToPage(currentPage.value - 1)
-
 // User Actions
 const editUser = (id: number) => {
-  penggunaToUpdate.value = users.value.find((user) => user.id === id)
+  idPengguna.value = id;
+
+  // users.value.find((user) => user.id === id)
+  console.log("--------||||||||||||");
+  console.log(penggunaToUpdate.value);
+  console.log("--------||||||||||||");
+
   isModalOpen.value = true
 }
 
