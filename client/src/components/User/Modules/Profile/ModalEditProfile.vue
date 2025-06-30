@@ -145,27 +145,30 @@ function submit() {
       <!-- Isi Form -->
       <div class="w-2/3">
         <div v-if="activeMenu === 'informasi'" class="flex flex-col gap-4">
-          <InputText label="Nama" id="nama" v-model="formData.nama" />
-          <InputText label="Username" id="username" v-model="formData.username" />
-          <InputText label="Email" id="email" v-model="formData.email" />
-          <InputText label="Whatsapp" id="whatsapp" v-model="formData.whatsapp" />
+          <InputText label="Nama" id="nama" v-model="formData.nama" placeholder="Nama" />
+          <InputText label="Username" id="username" v-model="formData.username" placeholder="Username"/>
+          <InputText label="Email" id="email" v-model="formData.email" placeholder="Email"/>
+          <InputText label="Whatsapp" id="whatsapp" v-model="formData.whatsapp" placeholder="Whatsapp"/>
         </div>
 
         <div v-else class="flex flex-col gap-4">
           <InputText
             label="Password Lama"
+            placeholder="Password Lama"
             id="old_password"
             type="password"
             v-model="passwordData.old_password"
           />
           <InputText
             label="Password Baru"
+            placeholder="Password Baru"
             id="new_password"
             type="password"
             v-model="passwordData.new_password"
           />
           <InputText
             label="Konfirmasi Password"
+            placeholder="Konfirmasi Password"
             id="confirm_password"
             type="password"
             v-model="passwordData.confirm_password"
