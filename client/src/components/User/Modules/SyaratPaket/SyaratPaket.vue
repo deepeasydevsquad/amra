@@ -4,7 +4,7 @@ import XIcon from '@/components/User/Modules/SyaratPaket/icon/XIcon.vue'
 import CheckIcon from '@/components/User/Modules/SyaratPaket/icon/CheckIcon.vue'
 
 // Import components
-import Notification from '@/components/User/Modules/SyaratPaket/Particle/Notification.vue'
+import Notification from '@/components/User/Modules/SyaratPaket/particle/Notification.vue'
 
 // import widget
 import Pagination from '@/components/Pagination/Pagination.vue'

@@ -21,14 +21,16 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // fa-image
 // Import ikon yang dibutuhkan
-import { faUser, faHome, faHouseCrack, faCaretRight, faExchange, faBoxOpen, faUsers, faGlobe, faDatabase,
-  faChartArea, faCogs, faBackward, faForward, faBook, faArrowRight, faPlus, faMoneyBill, faPencil, faTimes, faBox, faMoneyBillAlt, faUndoAlt, faListAlt, faImage } from '@fortawesome/free-solid-svg-icons'
+import { faUser, faUserCheck, faHome, faHouseCrack, faCaretRight, faExchange, faBoxOpen, faUsers, faGlobe, faDatabase,
+  faChartArea, faCogs, faBackward, faForward, faBook, faArrowRight, faPlus, faMoneyBill, faPencil, faTimes, faBox,
+  faMoneyBillAlt, faUndoAlt, faListAlt, faImage, faTicket, faCircleArrowRight} from '@fortawesome/free-solid-svg-icons'
 import { faCircle } from '@fortawesome/free-regular-svg-icons'
 
 
 // Tambahkan ikon ke library
-library.add( faUser, faHome, faHouseCrack, faCaretRight, faCircle, faExchange, faBoxOpen, faUsers, faGlobe, faDatabase,
-  faChartArea, faCogs, faBackward, faForward, faBook, faArrowRight, faPlus, faMoneyBill, faPencil, faTimes, faBox, faMoneyBillAlt, faUndoAlt, faListAlt, faImage);
+library.add( faUser, faUserCheck, faHome, faHouseCrack, faCaretRight, faCircle, faExchange, faBoxOpen, faUsers, faGlobe, faDatabase,
+  faChartArea, faCogs, faBackward, faForward, faBook, faArrowRight, faPlus, faMoneyBill, faPencil, faTimes, faBox,
+  faMoneyBillAlt, faUndoAlt, faListAlt, faImage, faTicket, faCircleArrowRight);
 
 const app = createApp(App)
 const head = createHead();

@@ -192,7 +192,7 @@ onMounted(() => {
             </td>
 
             <!-- Aksi -->
-            <td class="text-center px-6 py-4 align-top">
+            <td class="text-center px-6 py-4 align-top flex justify-center">
               <LightButton @click=""> <NabungIcon class="h-7 w-7 text-gray-600" /></LightButton>
             </td>
           </tr>

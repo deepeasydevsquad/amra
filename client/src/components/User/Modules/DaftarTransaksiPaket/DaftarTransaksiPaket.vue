@@ -253,7 +253,7 @@ onMounted(() => {
                   <li class="items-center gap-1"> <strong>Sisa: </strong> <br> {{ dataTransPaket.sisa.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }) }} </li>
                 </ul>
               </td>
-              <td class="px-6 py-4 text-center flex gap-2">
+              <td class="px-6 py-4 text-center flex gap-2 justify-center">
                 <LightButton @click="openFormRefund(dataTransPaket.id)" title="Refund Transaksi Paket">
                   <RefundIcon class="h-4 w-4 text-gray-600" />
                 </LightButton>
