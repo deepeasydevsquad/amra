@@ -281,8 +281,8 @@ const addAgen = async (id: number, name: string, identity_number: string) => {
               <span v-if="member?.status_jamaah === true" class="bg-blue-100 text-blue-800 text-xs font-bold me-2 px-3 py-1.5 rounded-lg dark:bg-blue-900 dark:text-blue-300">Jamaah</span>
             </td>
             <td class="px-6 py-4 text-center">{{ member?.cabang }}</td>
-            <td class="px-6 py-4 text-center">
-              <div class="flex justify-center gap-2">
+            <td class="px-6 py-4 text-right">
+              <div class="flex justify-end gap-2">
                 <LightButton @click="editMember(member!.id)" class="p-2 "><EditIcon /></LightButton>
                 <LightButton v-if="member?.status_agen === false"  @click="addAgen(member.id, member?.fullname, member.identity_number )" class="p-2 "><AddAgenIcon /></LightButton>
                 <DangerButton @click="confirmDelete(member!.id)" class="p-2 "><DeleteIcon /></DangerButton>
