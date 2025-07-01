@@ -24,10 +24,11 @@ import { ref, onMounted, computed } from 'vue';
 const props = defineProps<{
   paketId: number
   search: string | null
-  isDaftarTransaksiPaketOpen: boolean
+  showBackButton?: boolean
+  showAddTransactionButton?: boolean
 }>()
 
-console.log(props)
+const { showBackButton = false, showAddTransactionButton = false } = props
 
 const isLoading = ref(false);
 const itemsPerPage = 100; // Jumlah daftar transaksi per halaman
@@ -139,6 +140,7 @@ const fetchData = async () => {
     totalPages.value = Math.ceil(response.total / itemsPerPage);
   } catch (error) {
     console.error('Error fetching data:', error);
+    displayNotification(error?.response?.data?.error_msg || 'Gagal memuat data transaksi paket', 'error');
   } finally {
     isLoading.value = false
   }
@@ -150,7 +152,7 @@ async function deleteData(transpaketId: number) {
     'Apakah Anda yakin ingin menghapus data ini?',
     async () => {
       try {
-        console.log('Deleting data with ID:', transpaketId);
+        
         await deleteTransaksiPaket(props.paketId, transpaketId)
         showConfirmDialog.value = false
         displayNotification('Data berhasil dihapus!', 'success')
@@ -163,33 +165,29 @@ async function deleteData(transpaketId: number) {
   );
 }
 
-// Define state untuk menyimpan menu yang aktif
 onMounted(() => {
-  // Set default menu yang aktif
   fetchData();
 })
 </script>
 
 <template>
-  <div v-if="props.isDaftarTransaksiPaketOpen === true" class="pl-4 flex justify-start mb-4">
-      <button
-      @click="$emit('close')"
-      class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
-      >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-      </svg>
-      Kembali
-    </button>
-  </div>
   <div class="p-4 bg-white min-h-screen">
     <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400"></div>
     </div>
-      <!-- Tambah data dan Search -->
+    <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
-      <div v-if="!props.isDaftarTransaksiPaketOpen">
+      <div class="flex items-center gap-2">
         <button
+          v-if="props.showBackButton"
+          @click="$emit('close')"
+          class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
+          >
+          <font-awesome-icon :icon="['fas', 'arrow-left']" class="w-5 h-5 mr-1" />
+          Kembali
+        </button>
+        <button
+          v-if="props.showAddTransactionButton"
           @click="openForm()"
           class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,7 +196,6 @@ onMounted(() => {
           Mulai transaksi
         </button>
       </div>
-      <div v-else></div>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input

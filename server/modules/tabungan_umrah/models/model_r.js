@@ -6,6 +6,7 @@ const {
   Division,
   Paket,
   Paket_price,
+  Paket_transaction,
   Mst_paket_type,
   Fee_agen,
   Tabungan,
@@ -340,9 +341,16 @@ class Model_r {
             }
           });
 
+          const countPaketTransaction = await Paket_transaction.count({
+            where: {
+              paket_id: e.id,
+              division_id: this.division_id,
+            }
+          });
+
           return {
             id: e.id,
-            kuota_jamaah_tersisa: e.quota_jamaah - (countJamaahPaket || 0),
+            kuota_jamaah_tersisa: e.quota_jamaah - (countJamaahPaket || 0) - (countPaketTransaction || 0),
             name: e.name,
             price: hargaSemua,
             hari_tersisa: moment(e.departure_date).diff(moment(), 'days'),

@@ -35,12 +35,12 @@
 
   const currentComponent = computed(() => componentMap[current.value])
 
-  console.log(currentComponent)
+  
 </script>
 
 <template>
   <div v-if="props.isPageDetailPaketOpen">
     <NavSubmenu @close="emit('close')"  @update:current="(val : any) => current = val" />
-    <component :is="currentComponent" :paket-id="props.paketId" />
+    <component :is="currentComponent" :paket-id="props.paketId" :showBackButton="false" :showAddTransactionButton="true" />
   </div>
 </template>

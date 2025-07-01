@@ -150,7 +150,8 @@ const saveData = async () => {
     window.open(`/kwitansi-tabungan-umrah/${response.data.invoice}`, '_blank')
     emit('close')
   } catch (error) {
-    displayNotification(error?.response?.data?.error_msg, 'error')
+    console.error('Error saving data:', error)
+    displayNotification(error?.response?.data?.message, 'error')
   } finally {
     isLoading.value = false
   }
