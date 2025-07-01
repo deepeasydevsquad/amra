@@ -110,6 +110,7 @@ const arr_router = [
   "trans_transport",
   "profile",
   "syarat_paket",
+  "beranda_utama",
 ];
 
 const arr = {};

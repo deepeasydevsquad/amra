@@ -234,7 +234,7 @@ onMounted(() => {
                 </ul>
                 <p v-else>Fasilitas Jamaah belum diberikan</p>
               </td>
-              <td class="px-6 py-4 text-center flex gap-2">
+              <td class="px-6 py-4 text-center flex gap-2 justify-center">
                 <LightButton @click="openFormOpsiHandoverBarang(dataJamaah)" title="Handover Barang">
                   <HandoverIcon class="h-4 w-4 text-gray-600" />
                 </LightButton>
