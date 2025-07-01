@@ -85,7 +85,7 @@ const notificationType = ref<'success' | 'error'>('success');
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
-const totalColumns = ref(4); // Default 3 kolom
+const totalColumns = ref(5);
 
 const selectedSupplier = ref<Partial<EditSupplier>>({
   name: '',

@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
   import { ref, watch } from 'vue'
-  import { addMember, getInfoMember, editMember } from '@/service/member'
+  import { addMember, editMember } from '@/service/member'
   import InputText from "@/components/Form/InputText.vue"
   import SelectField from "@/components/Form/SelectField.vue"
   import InputDate from "@/components/Form/InputDate.vue"

@@ -27,13 +27,11 @@
 
 <script setup lang="ts">
 import { ref, defineProps, defineEmits, onMounted } from 'vue'
-// import { getMember } from '@/service/member'
-import { daftarGrup } from '@/service/grup'
-import { addPengguna, daftarPengguna, getMember, getGrup } from '@/service/pengguna'
+import { addPengguna, getMember, getGrup } from '@/service/pengguna'
 import Form from "@/components/Modal/Form.vue"
 
 // Props untuk kontrol modal dari parent
-const props = defineProps({
+defineProps({
   isModalOpen: Boolean,
 })
 
@@ -60,25 +58,12 @@ const errors = ref<ErrorFields>({
 
 const grups = ref<Grup[]>([])
 const members = ref<Member[]>([])
-const penggunaList = ref<any[]>([])
 // Notification State
 const showNotification = ref(false)
 const notificationMessage = ref('')
 const notificationType = ref<'success' | 'error'>('success')
 const timeoutId = ref<number | null>(null)
 const searchTimeout = ref<number | null>(null)
-
-// Fungsi untuk mengambil data pengguna dari API
-// const fetchPengguna = async () => {
-//   try {
-//     const response = await daftarPengguna()
-//     if (response.success && response.data) {
-//       penggunaList.value = response.data
-//     }
-//   } catch (error) {
-//     console.error('Gagal mengambil data pengguna:', error)
-//   }
-// }
 
 // Fetch data grup dari API
 const fetchGrup = async () => {
@@ -98,11 +83,7 @@ const fetchMember = async () => {
     const response = await getMember()
     if (response && Array.isArray(response.data)) {
       members.value = response.data
-      // console.log('✅ Data member berhasil dimuat:', members.value)
     }
-    // else {
-    //   console.error('❌ Data member bukan array atau response tidak valid:', response)
-    // }
   } catch (error) {
     console.error('❌ Gagal fetch data member:', error)
   }
@@ -132,10 +113,8 @@ const closeModal = (): void => {
   emit('update:isModalOpen', false) // Emit perubahan ke parent
 }
 
-
 // Validasi form
 const validateForm = (): boolean => {
-
   errors.value = {
     member: '',
     grup: '',
@@ -160,18 +139,9 @@ const validateForm = (): boolean => {
 
 // Fungsi untuk handle submit dengan FormData
 const handleSubmit = async (): Promise<void> => {
-
   if (!validateForm()) {
     return
   }
-
-
-  // if (!selectedMember.value || !selectedGrup.value) {
-  //   // displayNotification()
-  //   displayNotification('Silakan pilih member, grup, dan pastikan cabang_id tersedia!', 'error')
-  //   // alert('Silakan pilih member, grup, dan pastikan cabang_id tersedia!')
-  //   return
-  // }
 
   try {
     // Buat objek FormData
@@ -188,10 +158,6 @@ const handleSubmit = async (): Promise<void> => {
 
     // Panggil fungsi addPengguna dengan FormData
     const response = await addPengguna(formData)
-
-    console.log("****************");
-    console.log(response);
-    console.log("****************");
 
     if (response.error == false) {
       emit('pengguna-added')

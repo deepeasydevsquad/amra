@@ -88,13 +88,12 @@
 
   <FormAdd :showFormAddModal="showFormAddModal" @close="closeFormAddModal" @save="handleAddMember" />
 
-  <!-- Pindahkan FormAddPengguna ke sini -->
   <div
     v-if="showAddPenggunaModal"
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
   >
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
-      <FromAddPengguna
+      <FormAddPengguna
         v-model:isModalOpen="showAddPenggunaModal"
         @pengguna-added="handlePenggunaAdded"
       />
@@ -104,13 +103,8 @@
   <!-- Modals and Notifications -->
   <ConfirmTambah v-model:isVisible="isConfirmationModalVisible" :onConfirm="handleConfirmation" />
 
-  <FormUpdatePengguna
-    :isModalOpen="isModalOpen"
-    :idPengguna="idPengguna"
-   @cancel="closeEditFrom"
-  />
- <!-- @update:isModalOpen="isModalOpen = $event" -->
-    <!-- @pengguna-updated="handleUserUpdated" -->
+  <FormUpdatePengguna :isModalOpen="isModalOpen" :idPengguna="idPengguna" @cancel="closeEditFrom" />
+
   <Confirmation
     :showConfirmDialog="showDeleteConfirmDialog"
     confirmTitle="Konfirmasi Hapus"
@@ -130,22 +124,15 @@
     </button>
   </Confirmation>
 
-  <Notification
-    :showNotification="showNotification"
-    :notificationType="notificationType"
-    :notificationMessage="notificationMessage"
-    @close="showNotification = false"
-  />
+  <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false"/>
 
-    <!-- Notification Popup -->
-  <!-- <Notification :showNotification="showNotification" :notificationType="'success'" :notificationMessage="'Data berhasil disimpan!'" @closeNotification="showNotification = false" /> -->
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted,  } from 'vue'
 import { daftarPengguna, deletePengguna } from '../../../../service/pengguna'
 import FormAdd from './Particle/FormAdd.vue'
-import FromAddPengguna from './Particle/FormAddPengguna.vue'
+import FormAddPengguna from './Particle/FormAddPengguna.vue'
 import ConfirmTambah from './Particle/ConfirmTambah.vue'
 import FormUpdatePengguna from './Particle/FormUpdatePengguna.vue'
 import Confirmation from './Particle/Confirmation.vue'
