@@ -3,11 +3,11 @@
 import CetakIcon from '@/components/Icons/CetakIcon.vue'
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
-import PrimaryButton from "@/components/Button/PrimaryButton.vue"
+import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 
 // import element
 import LightButton from '@/components/Button/LightButton.vue'
-import DangerButton from "@/components/Button/DangerButton.vue"
+import DangerButton from '@/components/Button/DangerButton.vue'
 import Notification from '@/components/User/Modules/TransaksiVisa/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/TransaksiVisa/Particle/Confirmation.vue'
 
@@ -15,70 +15,79 @@ import Confirmation from '@/components/User/Modules/TransaksiVisa/Particle/Confi
 import FormAdd from '@/components/User/Modules/TransaksiVisa/Widget/FormAdd.vue'
 
 // Import Service & Vue
-import { getDaftarTransaksiVisa, deleteTransaksiVisa } from '@/service/transaksi_visa';
-import { ref, onMounted, computed } from 'vue';
+import { getDaftarTransaksiVisa, deleteTransaksiVisa } from '@/service/transaksi_visa'
+import { ref, onMounted, computed } from 'vue'
+import Modal from '../Modal/Modal.vue'
+import FormAddVisa from './Widget/FormAddVisa.vue'
+
+const ModalVisa = ref(false)
+
+const openModalVisa = () => {
+  ModalVisa.value = true
+  console.log('openModalVisa called')
+}
 
 // --- State ---
-const itemsPerPage = 3;
-const currentPage = ref(1);
-const search = ref('');
-const filter = ref('belum_ada_transaksi');
-const totalPages = ref(0);
-const totalColumns = ref(0);
+const itemsPerPage = 3
+const currentPage = ref(1)
+const search = ref('')
+const filter = ref('belum_ada_transaksi')
+const totalPages = ref(0)
+const totalColumns = ref(0)
 
-const TransaksiVisa = ref<TransaksiVisa[]>([]);
-const isFormOpen = ref<boolean>(false);
-const isLoading = ref<boolean>(false);
+const TransaksiVisa = ref<TransaksiVisa[]>([])
+const isFormOpen = ref<boolean>(false)
+const isLoading = ref<boolean>(false)
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-    fetchData();
+    currentPage.value++
+    fetchData()
   }
-};
+}
 
 const prevPage = () => {
   if (currentPage.value > 1) {
-    currentPage.value--;
-    fetchData();
+    currentPage.value--
+    fetchData()
   }
-};
+}
 
-const pageNow = (page : number) => {
-  currentPage.value = page;
-  fetchData();
+const pageNow = (page: number) => {
+  currentPage.value = page
+  fetchData()
 }
 
 // --- Computed Pagination ---
 const pages = computed(() => {
-  return Array.from({ length: totalPages.value }, (_, i) => i + 1);
-});
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1)
+})
 
 // State untuk notifikasi & konfirmasi
-const showConfirmDialog = ref<boolean>(false);
-const showNotification = ref<boolean>(false);
-const notificationMessage = ref<string>('');
-const notificationType = ref<'success' | 'error'>('success');
-const confirmMessage = ref<string>('');
-const confirmTitle = ref<string>('');
-const confirmAction = ref<(() => void) | null>(null);
+const showConfirmDialog = ref<boolean>(false)
+const showNotification = ref<boolean>(false)
+const notificationMessage = ref<string>('')
+const notificationType = ref<'success' | 'error'>('success')
+const confirmMessage = ref<string>('')
+const confirmTitle = ref<string>('')
+const confirmAction = ref<(() => void) | null>(null)
 
 // --- Interface ---
 interface TransaksiVisa {
-  id : number;
-  invoice : string;
-  petugas : string;
-  payer : string;
-  payer_identity : string;
-  name : string;
-  identity_number : string;
-  birth_place : string;
-  birth_date : string;
-  passport_number : string;
-  valid_until : string;
-  price : number;
-  createdAt : string;
-  jenis_visa : string;
+  id: number
+  invoice: string
+  petugas: string
+  payer: string
+  payer_identity: string
+  name: string
+  identity_number: string
+  birth_place: string
+  birth_date: string
+  passport_number: string
+  valid_until: string
+  price: number
+  createdAt: string
+  jenis_visa: string
 }
 
 // --- Functions ---
@@ -91,141 +100,146 @@ const fetchData = async () => {
       filter: filter.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
-    });
+    })
 
     const response = await getDaftarTransaksiVisa({
       search: search.value,
       filter: filter.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
-    });
+    })
 
-    console.log('Fetch response:', response);
+    console.log('Fetch response:', response)
 
     if (response && response.error) {
-      displayNotification(response.error_msg || 'Terjadi kesalahan saat mengambil data', "error");
-      return;
+      displayNotification(response.error_msg || 'Terjadi kesalahan saat mengambil data', 'error')
+      return
     }
 
-    totalPages.value = Math.ceil((response?.total || 0) / itemsPerPage);
-    TransaksiVisa.value = response?.data || [];
+    totalPages.value = Math.ceil((response?.total || 0) / itemsPerPage)
+    TransaksiVisa.value = response?.data || []
 
-    console.log('Fetched data:', response?.data);
-
+    console.log('Fetched data:', response?.data)
   } catch (error) {
-    console.error('Error fetching data:', error);
+    console.error('Error fetching data:', error)
 
     if (error instanceof TypeError && error.message.includes('fetch')) {
-      displayNotification('Gagal terhubung ke server. Periksa koneksi internet Anda.', 'error');
+      displayNotification('Gagal terhubung ke server. Periksa koneksi internet Anda.', 'error')
     } else if (error instanceof Error) {
-      displayNotification(`Error: ${error.message}`, 'error');
+      displayNotification(`Error: ${error.message}`, 'error')
     } else {
-      displayNotification('Gagal mengambil data. Silakan coba lagi.', 'error');
+      displayNotification('Gagal mengambil data. Silakan coba lagi.', 'error')
     }
   } finally {
     isLoading.value = false
   }
-};
+}
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   setTimeout(() => {
-    notificationMessage.value = message;
-    notificationType.value = type;
-    showNotification.value = true;
-  }, 100);
-};
+    notificationMessage.value = message
+    notificationType.value = type
+    showNotification.value = true
+  }, 100)
+}
 
-const handleSaveSuccess = (message: string) => {
-  displayNotification(message, 'success');
-};
+const handleSaveSuccess = async (message: string) => {
+  displayNotification('Data transaksi berhasil disimpan.', 'success')
+  await fetchData()
+  ModalVisa.value = false
+}
 
 const showConfirmation = (title: string, message: string, action: () => void) => {
-  confirmTitle.value = title;
-  confirmMessage.value = message;
-  confirmAction.value = action;
-  showConfirmDialog.value = true;
-};
+  confirmTitle.value = title
+  confirmMessage.value = message
+  confirmAction.value = action
+  showConfirmDialog.value = true
+}
 
 // --- Lifecycle Hook ---
 onMounted(async () => {
-  await fetchData();
-  totalColumns.value = document.querySelectorAll("thead th").length;
-});
+  await fetchData()
+  totalColumns.value = document.querySelectorAll('thead th').length
+})
 
 const deleteItem = async (id: number) => {
   try {
-    console.log('Attempting to delete item with ID:', id);
+    console.log('Attempting to delete item with ID:', id)
 
-    const response = await deleteTransaksiVisa(id);
+    const response = await deleteTransaksiVisa(id)
 
-    console.log('Delete response:', response);
+    console.log('Delete response:', response)
 
     if (response && response.error) {
-      displayNotification(response.error_msg || 'Terjadi kesalahan saat menghapus data', 'error');
+      displayNotification(response.error_msg || 'Terjadi kesalahan saat menghapus data', 'error')
     } else if (response && response.success) {
-      displayNotification('Data transaksi berhasil dihapus.', 'success');
-      await fetchData();
+      displayNotification('Data transaksi berhasil dihapus.', 'success')
+      await fetchData()
     } else if (response && response.success) {
-      displayNotification(response.message || 'Data transaksi berhasil dihapus.', 'success');
-      await fetchData();
+      displayNotification(response.message || 'Data transaksi berhasil dihapus.', 'success')
+      await fetchData()
     } else {
-      displayNotification(response.error_msg || 'Gagal menghapus data.', 'error');
+      displayNotification(response.error_msg || 'Gagal menghapus data.', 'error')
     }
-
   } catch (error) {
-    console.error('Error deleting data:', error);
+    console.error('Error deleting data:', error)
 
     // Cek jenis error yang lebih spesifik
     if (error instanceof TypeError && error.message.includes('fetch')) {
-      displayNotification('Gagal terhubung ke server. Periksa koneksi internet Anda.', 'error');
+      displayNotification('Gagal terhubung ke server. Periksa koneksi internet Anda.', 'error')
     } else if (error instanceof Error) {
-      displayNotification(`Error: ${error.message}`, 'error');
+      displayNotification(`Error: ${error.message}`, 'error')
     } else {
-      displayNotification('Gagal menghapus data. Silakan coba lagi.', 'error');
+      displayNotification('Gagal menghapus data. Silakan coba lagi.', 'error')
     }
   } finally {
-    showConfirmDialog.value = false;
+    showConfirmDialog.value = false
   }
-};
+}
 
 const handleDelete = (id: number) => {
   showConfirmation(
     'Konfirmasi Hapus',
     'Apakah Anda yakin ingin menghapus data transaksi ini secara permanen?',
-    () => deleteItem(id)
-  );
-};
+    () => deleteItem(id),
+  )
+}
 
 // Fungsi untuk handle konfirmasi
 const handleConfirm = () => {
   if (confirmAction.value) {
-    confirmAction.value();
+    confirmAction.value()
   }
-  showConfirmDialog.value = false;
-};
+  showConfirmDialog.value = false
+}
 
 const openCetakKwitansi = (invoice: string) => {
-  console.log('Invoice to print:', invoice); // TAMBAHKAN INI
-  const url = `/cetak-kwitansi-visa/${invoice}`;
-  window.open(url, '_blank');
-};
+  console.log('Invoice to print:', invoice) // TAMBAHKAN INI
+  const url = `/cetak-kwitansi-visa/${invoice}`
+  window.open(url, '_blank')
+}
 
 const handleCancelConfirm = () => {
-  showConfirmDialog.value = false;
-};
+  showConfirmDialog.value = false
+}
 
 // Fungsi placeholder untuk cetak (belum diimplementasi)
 const openFormCetakDataJamaah = (item: any) => {
-  console.log('Cetak data untuk:', item);
-};
+  console.log('Cetak data untuk:', item)
+}
 </script>
 
 <template>
   <div class="container mx-auto px-4 mt-10">
     <div class="flex justify-between items-center mb-6">
-      <PrimaryButton @click="isFormOpen = true">
+      <PrimaryButton @click="openModalVisa">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          />
         </svg>
         Tambah Transaksi Visa
       </PrimaryButton>
@@ -268,12 +282,12 @@ const openFormCetakDataJamaah = (item: any) => {
             </td>
           </tr>
           <tr v-for="item in TransaksiVisa" :key="item.id" class="hover:bg-gray-50 transition">
-            <td class="px-6 py-4 text-center">{{ item.invoice }}</td>
-            <td class="px-6 py-4 text-center">
+            <td class="px-6 py-4 text-center align-top">{{ item.invoice }}</td>
+            <td class="px-6 py-4 text-center align-top">
               {{ item.payer }}<br />
               <span class="text-xs text-gray-500">{{ item.payer_identity }}</span>
             </td>
-            <td class="px-6 py-4">
+            <td class="px-6 py-4 align-top">
               <h1 class="font-bold">{{ item.jenis_visa }}</h1>
               <div class="text-xs leading-5 space-y-1">
                 <div>Nama: {{ item.name }}</div>
@@ -284,8 +298,10 @@ const openFormCetakDataJamaah = (item: any) => {
                 <div>Harga: Rp {{ item.price.toLocaleString() }}</div>
               </div>
             </td>
-            <td class="px-6 py-4 text-center">Rp. {{ item.price.toLocaleString() }}</td>
-            <td class="px-6 py-2 text-xs text-center">{{ new Date(item.createdAt).toLocaleDateString('id-ID') }}</td>
+            <td class="px-6 py-4 text-center align-top">Rp. {{ item.price.toLocaleString() }}</td>
+            <td class="px-6 py-4 text-center align-top">
+              {{ new Date(item.createdAt).toLocaleDateString('id-ID') }}
+            </td>
             <td class="px-6 py-4 flex items-center justify-center gap-2">
               <LightButton title="Cetak Kwitansi" @click="openCetakKwitansi(item.invoice)">
                 <CetakIcon class="h-4 w-4 text-gray-600" />
@@ -297,7 +313,7 @@ const openFormCetakDataJamaah = (item: any) => {
             </td>
           </tr>
         </tbody>
-        <tfoot class="bg-gray-100 font-bold ">
+        <tfoot class="bg-gray-100 font-bold">
           <Pagination
             :current-page="currentPage"
             :total-pages="totalPages"
@@ -353,12 +369,13 @@ const openFormCetakDataJamaah = (item: any) => {
       leave-from-class="transform scale-100 opacity-100"
       leave-to-class="transform scale-95 opacity-0"
     >
-      <FormAdd
-        v-if="isFormOpen"
-        :isFormOpen="isFormOpen"
-        @close="isFormOpen = false; fetchData()"
-        @save-success="handleSaveSuccess"
-      />
     </transition>
   </div>
+
+  <FormAddVisa
+    :formStatus="ModalVisa"
+    @cancel="ModalVisa = false"
+    @submitted="handleSaveSuccess"
+    @notify=""
+  />
 </template>
