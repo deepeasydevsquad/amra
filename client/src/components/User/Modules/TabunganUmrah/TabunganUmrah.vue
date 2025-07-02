@@ -140,7 +140,7 @@ const fetchData = async () => {
     totalPages.value = Math.ceil(response.total / itemsPerPage);
     dataTabunganUmrah.value = response.data || []; // Ensure it assigns an array
 
-    
+
 
   } catch (error) {
       console.error('Error fetching data:', error);
@@ -245,7 +245,7 @@ const deleteData = async (id: number) => {
 
 const cetakKwitansi = async (invoice: string) => {
   try {
-    
+    const adaInvoice = await cekKwitansiTabunganUmrah(invoice);
     if (adaInvoice === null) {
       displayNotification('Nomor invoice tidak tersedia', 'error')
       return
