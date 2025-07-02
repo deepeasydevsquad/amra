@@ -1,7 +1,6 @@
 <!-- components/User/Modules/DaftarPaket/Widget/NavSubmenu.vue -->
 <script lang="ts" setup>
 import { defineEmits, ref, watch } from 'vue'
-import BackButton from '@/components/User/Modules/TransPaket/Particle/BackButton.vue'
 import SubmenuItem from '@/components/User/Modules/TransPaket/Particle/SubmenuItem.vue'
 
 const emit = defineEmits<{

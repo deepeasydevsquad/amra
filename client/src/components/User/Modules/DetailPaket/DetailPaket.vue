@@ -12,12 +12,11 @@
   import pageSyarat from '@/components/User/Modules/SyaratPaket/SyaratPaket.vue'
 
   const props = defineProps<{
-    isPageDetailPaketOpen: boolean
     paketId: number
   }>()
 
   const emit = defineEmits<{
-    (e: 'close'): void
+    (e: 'closeDetailPaket'): void
   }>()
 
   const current = ref('transaksi')
@@ -35,12 +34,11 @@
 
   const currentComponent = computed(() => componentMap[current.value])
 
-  
 </script>
 
 <template>
-  <div v-if="props.isPageDetailPaketOpen">
-    <NavSubmenu @close="emit('close')"  @update:current="(val : any) => current = val" />
+  <div>
+    <NavSubmenu @close="emit('closeDetailPaket')"  @update:current="(val : any) => current = val" />
     <component :is="currentComponent" :paket-id="props.paketId" :showBackButton="false" :showAddTransactionButton="true" />
   </div>
 </template>

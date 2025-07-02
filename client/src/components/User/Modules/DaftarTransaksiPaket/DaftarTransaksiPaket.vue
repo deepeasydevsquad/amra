@@ -152,7 +152,6 @@ async function deleteData(transpaketId: number) {
     'Apakah Anda yakin ingin menghapus data ini?',
     async () => {
       try {
-        
         await deleteTransaksiPaket(props.paketId, transpaketId)
         showConfirmDialog.value = false
         displayNotification('Data berhasil dihapus!', 'success')

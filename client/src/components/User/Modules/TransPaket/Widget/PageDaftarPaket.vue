@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { getDaftarPaket } from '@/service/trans_paket'
-import DaftarTransaksiPaket from '@/components/User/Modules/DaftarTransaksiPaket/DaftarTransaksiPaket.vue'
 import Notification from '@/components/User/Modules/TransPaket/Particle/Notification.vue'
 const BASE_URL = import.meta.env.VITE_APP_API_BASE_URL
 
@@ -20,9 +19,7 @@ interface Paket {
 }
 
 const isLoading = ref(false)
-const isDaftarTransaksiPaketOpen = ref<boolean>(false)
 const daftarPaket = ref<Paket[]>([])
-const paketId = ref<number>(0)
 const notificationMessage = ref<string>('');
 const notificationType = ref<'success' | 'error'>('success');
 const showNotification = ref<boolean>(false);
@@ -53,16 +50,18 @@ const fetchDaftarPaket = async () => {
   }
 }
 
-const handleBeliPaket = (id: number) => {
-  paketId.value = id;
-  isDaftarTransaksiPaketOpen.value = true
+const emit = defineEmits<{
+  (e: 'showDetailPaket', paketId: number): void
+}>()
 
+const handleBeliPaket = (id: number) => {
+  emit('showDetailPaket', id)
 }
 
 const formatPrice = (price: number) => {
   if (price === 0) return 'Rp 0';
-  const prices = price / 1_000_000;
-  return `Rp ${prices.toFixed(1)}jt`;
+  const priceInMillions = price / 1_000_000;
+  return `Rp ${priceInMillions.toFixed(1)}jt`;
 };
 
 onMounted(() => {
@@ -71,7 +70,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="!isDaftarTransaksiPaketOpen" class="p-4 bg-white rounded-b-lg shadow-md text-gray-800">
+  <div class="p-4 bg-white rounded-b-lg shadow-md text-gray-800">
     <div
       v-if="isLoading"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
@@ -104,9 +103,8 @@ onMounted(() => {
               <p class="text-xl font-semibold">Gambar tidak ditemukan</p>
             </div>
           </div>
-          <div class="p-4 space-y-2">
-            <h3 class="text-lg font-bold text-center">{{ paket.name }}</h3>
-
+          <h3 class="p-2 text-lg font-bold text-center">{{ paket.name }}</h3>
+          <div class="pr-4 pl-4 space-y-4">
             <div class="grid grid-cols-2 gap-y-1 text-sm">
               <div class="flex items-center gap-1">
                 <font-awesome-icon :icon="['fas', 'qrcode']" class="w-4 h-4 text-gray-600" />
@@ -159,15 +157,6 @@ onMounted(() => {
       </div>
     </div>
   </div>
-
-  <DaftarTransaksiPaket
-    v-if="isDaftarTransaksiPaketOpen"
-    :showBackButton="true"
-    :showAddTransactionButton="true"
-    :search="''"
-    :paketId="paketId"
-    @close="isDaftarTransaksiPaketOpen = false, fetchDaftarPaket()"
-  />
 
   <Notification
     :showNotification="showNotification"
