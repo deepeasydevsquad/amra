@@ -3,8 +3,8 @@ import { ref, computed } from 'vue'
 import NavSubmenu from '@/components/User/Modules/TransPaket/Widget/NavSubmenu.vue'
 
 // Import komponen tab
-import PageDaftarPaket from '@/components/User/Modules/TransPaket/widget/PageDaftarPaket.vue'
-import PageDaftarJamaah from '@/components/User/Modules/TransPaket/widget/PageDaftarJamaah.vue'
+import PageDaftarPaket from '@/components/User/Modules/TransPaket/Widget/PageDaftarPaket.vue'
+import PageDaftarJamaah from '@/components/User/Modules/TransPaket/Widget/PageDaftarJamaah.vue'
 import PagePembayaranPaket from '@/components/User/Modules/TransPaket/Widget/PagePembayaranPaket.vue'
 import PagePembayaranPaketAgen from '@/components/User/Modules/TransPaket/Widget/PagePembayaranPaketAgen.vue'
 import DetailPaket from '@/components/User/Modules/DetailPaket/DetailPaket.vue'
