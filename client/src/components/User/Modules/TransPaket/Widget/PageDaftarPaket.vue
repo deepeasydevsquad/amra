@@ -104,8 +104,8 @@ onMounted(() => {
             </div>
           </div>
           <h3 class="p-2 text-lg font-bold text-center">{{ paket.name }}</h3>
-          <div class="pr-4 pl-4 space-y-4">
-            <div class="grid grid-cols-2 gap-y-1 text-sm">
+          <div class="pr-4 pl-4 space-y-8 pb-8 pt-4">
+            <div class="grid grid-cols-2 gap-y-3 text-sm">
               <div class="flex items-center gap-1">
                 <font-awesome-icon :icon="['fas', 'qrcode']" class="w-4 h-4 text-gray-600" />
                 <span>Kode Paket</span>
