@@ -1,12 +1,8 @@
 <script setup lang="ts">
 import Form from '@/components/Modal/FormEditProfile.vue'
 import InputText from '@/components/Form/InputText.vue'
-import InputCurrency from '@/components/Form/InputCurrency.vue'
-import InputReadonly from '@/components/Form/InputReadonly.vue'
-import { ref, watch, onMounted, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { detail_refund, refund } from '@/service/trans_tiket'
-import { c } from 'node_modules/vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P'
-import { on } from 'events'
 
 const props = defineProps<{
   nomor_register: string
@@ -24,6 +20,11 @@ const parseRupiah = (val: string): number => {
 
 const detailList = ref<any[]>([])
 
+const namaPelanggan = ref('')
+const identitasFee = ref('')
+const sudahDibayar = ref(0)
+const sisaPembayaran = ref(0)
+
 watch(
   [() => props.formStatus, () => props.nomor_register],
   async ([open, nomorRegisterNow]) => {
@@ -32,13 +33,14 @@ watch(
         const res = await detail_refund({ nomor_register: nomorRegisterNow })
 
         namaPelanggan.value = res.nama_pelanggan ?? ''
-        totalRefund.value = parseRupiah(res.total_transaksi)
-        totalFeeTiket.value = parseRupiah(res.detail[0]?.total_fee_tiket)
         identitasFee.value = ''
         sudahDibayar.value = parseRupiah(res.total_dibayar)
         sisaPembayaran.value = parseRupiah(res.detail[0]?.sisa_tagihan)
-        detailList.value = res.detail ?? []
-        totalRefund.value = 0
+        detailList.value = (res.detail ?? []).map((d: any) => ({
+          ...d,
+          refund: 0,
+          fee: 0,
+        }))
       } catch (err) {
         console.error('❌ Gagal ambil refund:', err)
       }
@@ -49,31 +51,29 @@ watch(
   { immediate: true },
 )
 
-const namaPelanggan = ref('')
-const totalRefund = ref(0)
-const totalFeeTiket = ref(0)
-const identitasFee = ref('')
-const sudahDibayar = ref(0)
-const sisaPembayaran = ref(0)
-const totalFee = ref(0)
-
 const resetForm = () => {
   namaPelanggan.value = ''
-  totalRefund.value = 0
-  totalFeeTiket.value = 0
-  totalFee.value = 0
   identitasFee.value = ''
   sudahDibayar.value = 0
   sisaPembayaran.value = 0
   detailList.value = []
 }
 
+const totalRefund = computed(() => {
+  return detailList.value.reduce((acc, item) => acc + (parseInt(item.refund) || 0), 0)
+})
+
+const totalFee = computed(() => {
+  return detailList.value.reduce((acc, item) => acc + (parseInt(item.fee) || 0), 0)
+})
+
 const totalRefundFormatted = computed({
   get() {
     return 'Rp ' + totalRefund.value.toLocaleString('id-ID')
   },
   set(val: string) {
-    totalRefund.value = parseInt(val.replace(/[^\d]/g, '')) || 0
+    const value = parseRupiah(val)
+    detailList.value.forEach((item) => (item.refund = value))
   },
 })
 
@@ -82,7 +82,8 @@ const totalFeeFormatted = computed({
     return 'Rp ' + totalFee.value.toLocaleString('id-ID')
   },
   set(val: string) {
-    totalFee.value = parseInt(val.replace(/[^\d]/g, '')) || 0
+    const value = parseRupiah(val)
+    detailList.value.forEach((item) => (item.fee = value))
   },
 })
 
@@ -91,7 +92,7 @@ const sudahDibayarFormatted = computed({
     return 'Rp ' + sudahDibayar.value.toLocaleString('id-ID')
   },
   set(val: string) {
-    sudahDibayar.value = parseInt(val.replace(/[^\d]/g, '')) || 0
+    sudahDibayar.value = parseRupiah(val)
   },
 })
 
@@ -100,7 +101,7 @@ const sisaPembayaranFormatted = computed({
     return 'Rp ' + sisaPembayaran.value.toLocaleString('id-ID')
   },
   set(val: string) {
-    sisaPembayaran.value = parseInt(val.replace(/[^\d]/g, '')) || 0
+    sisaPembayaran.value = parseRupiah(val)
   },
 })
 
@@ -110,29 +111,45 @@ const submitRefund = async () => {
     return
   }
 
-  try {
-    // buat detail refund sesuai banyaknya item (sementara pakai total yg sama semua)
-    const detail = detailList.value.map(() => ({
-      refund: totalRefund.value,
-      fee: totalFee.value,
-    }))
+  const detail = detailList.value.map((item) => ({
+    refund: parseInt(item.refund) || 0,
+    fee: parseInt(item.fee) || 0,
+  }))
 
-    const payload = {
-      nomor_register: props.nomor_register,
-      costumer_name: namaPelanggan.value,
-      costumer_identity: identitasFee.value,
-      detail,
-    }
-
-    await refund(payload)
-
-    emit('submitted') // kasih tau parent kalau berhasil
-    resetForm()
-  } catch (error) {
-    console.error('❌ Gagal submit refund:', error)
+  const payload = {
+    nomor_register: props.nomor_register,
+    costumer_name: namaPelanggan.value,
+    costumer_identity: identitasFee.value,
+    detail,
   }
+
+  await refund(payload)
+  console.log('✅ Submit refund:', payload)
+
+  emit('submitted')
+  resetForm()
 }
+
+const getFormatted = (value: number) => 'Rp ' + (value || 0).toLocaleString('id-ID')
+const toNumber = (val: string) => parseInt(val.replace(/[^\d]/g, '')) || 0
+
+const getRefundModel = (item: any) =>
+  computed({
+    get: () => getFormatted(item.refund),
+    set: (val: string) => {
+      item.refund = toNumber(val)
+    },
+  })
+
+const getFeeModel = (item: any) =>
+  computed({
+    get: () => getFormatted(item.fee),
+    set: (val: string) => {
+      item.fee = toNumber(val)
+    },
+  })
 </script>
+
 <template>
   <div class="text-black">
     <Form
@@ -208,11 +225,18 @@ const submitRefund = async () => {
 
             <td class="px-4 py-2 border-b text-left align-top">
               <InputText
-                placeholder="Total Di Refund"
-                v-model="totalRefundFormatted"
-                note="Total di Refund"
+                placeholder="Refund"
+                :modelValue="getRefundModel(item).value"
+                @update:modelValue="getRefundModel(item).value = $event"
+                note="Refund"
               />
-              <InputText placeholder="Total Fee" v-model="totalFeeFormatted" note="Total Fee" />
+
+              <InputText
+                placeholder="Fee"
+                :modelValue="getFeeModel(item).value"
+                @update:modelValue="getFeeModel(item).value = $event"
+                note="Fee"
+              />
             </td>
           </tr>
         </tbody>
@@ -258,8 +282,6 @@ const submitRefund = async () => {
           />
         </div>
       </div>
-
-      <!-- Invoice di bawah input -->
     </Form>
   </div>
 </template>
