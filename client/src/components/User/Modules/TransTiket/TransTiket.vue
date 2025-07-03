@@ -122,7 +122,10 @@
                   <i class="pi pi-money-bill"></i>
                 </LightButton>
 
-                <LightButton class="p-2" title="Refund Tiket"
+                <LightButton
+                  @click="openModalRefund(transaction.nomor_register)"
+                  class="p-2"
+                  title="Refund Tiket"
                   ><i class="pi pi-refresh"></i
                 ></LightButton>
                 <LightButton class="p-2" title="Reschedule Tiket"
@@ -189,6 +192,19 @@
     @cancel="closeModalDetail"
   />
 
+  <FormRefun
+    :formStatus="showModalRefund"
+    :nomor_register="nomor_register"
+    @cancel="showModalRefund = false"
+    @close="showModalRefund = false"
+    @submitted="
+      () => {
+        RefundSuccess()
+        fetchData()
+      }
+    "
+  />
+
   <Notification
     :showNotification="showNotification"
     :notificationType="notificationType"
@@ -207,6 +223,7 @@ import { reactive, computed, ref, onMounted, watchEffect } from 'vue'
 import { get_transactions, getAirlines } from '@/service/trans_tiket'
 import FormTicketTransaction from './Particle/FormTicketTransaction.vue'
 import FormPembayaranTiket from './Particle/FormPembayaranTiket.vue'
+import FormRefun from './Particle/FormRefun.vue'
 import DetailTiket from './Particle/DetailTiket.vue'
 import { Maskapai } from './Particle/FormTicketTransaction.vue'
 import { TicketTransactionForm } from './Particle/FormTicketTransaction.vue'
@@ -238,6 +255,11 @@ const resetNotificationTimeout = () => {
   timeoutId.value = window.setTimeout(() => {
     showNotification.value = false
   }, 3000)
+}
+
+const RefundSuccess = () => {
+  showModalRefund.value = false
+  displayNotification('Refund berhasil', 'success')
 }
 
 const handleSuccess = () => {
@@ -367,6 +389,14 @@ const onTicketTransactionSubmitted = () => {
   showTicketTransactionDialog.value = false
   displayNotification('Transaksi berhasil', 'success')
   fetchData()
+}
+
+const showModalRefund = ref(false)
+
+const openModalRefund = (register_number: string) => {
+  showModalRefund.value = true
+  nomor_register.value = register_number
+  console.log('SET NOMOR REGISTER:', register_number)
 }
 
 const ShowModalDetail = ref(false)
