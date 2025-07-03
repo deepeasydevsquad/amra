@@ -36,6 +36,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Total_rekapitulasi_details');
+    await queryInterface.dropTable('Ticket_rekapitulasi_details');
   }
 };

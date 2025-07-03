@@ -14,7 +14,9 @@ module.exports = (sequelize, DataTypes) => {
       Ticket_rekapitulasi.belongsTo(models.Division, {
         foreignKey: "division_id",
       });
-      Ticket_rekapitulasi.hasMany(models.Total_rekapitulasi_detail, {
+
+      console.log('DEBUG Ticket_rekapitulasi_detail:', models.Ticket_rekapitulasi_detail);
+      Ticket_rekapitulasi.hasMany(models.Ticket_rekapitulasi_detail, {
         foreignKey: "ticket_rekapitulasi_id",
         onDelete: 'CASCADE',
       });
