@@ -26,6 +26,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "ticket_transaction_id",
         onDelete: 'CASCADE',
       });
+      Ticket_transaction.hasMany(models.Total_rekapitulasi_detail, {
+        foreignKey: "ticket_transaction_id",
+        onDelete: 'CASCADE',
+      });
     }
     // 🔽 Static method to generate unique nomor_register
     static async generateUniqueNomorRegister() {
