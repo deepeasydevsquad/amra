@@ -28,7 +28,7 @@ watch(current, (val) => {
 </script>
 
 <template>
-  <nav class="flex divide-x border rounded-md overflow-hidden shadow-sm">
+  <nav class="ml-4 mr-4 flex divide-x border rounded-md overflow-hidden shadow-sm">
     <BackButton @click="emit('close')" />
     <SubmenuItem
       v-for="item in items"

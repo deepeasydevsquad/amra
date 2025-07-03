@@ -140,7 +140,7 @@ const fetchData = async () => {
     totalPages.value = Math.ceil(response.total / itemsPerPage);
     dataTabunganUmrah.value = response.data || []; // Ensure it assigns an array
 
-    console.log('Fetched data:', response.data);
+
 
   } catch (error) {
       console.error('Error fetching data:', error);
@@ -245,9 +245,7 @@ const deleteData = async (id: number) => {
 
 const cetakKwitansi = async (invoice: string) => {
   try {
-    console.log(invoice)
     const adaInvoice = await cekKwitansiTabunganUmrah(invoice);
-    console.log(adaInvoice)
     if (adaInvoice === null) {
       displayNotification('Nomor invoice tidak tersedia', 'error')
       return
@@ -637,7 +635,8 @@ const cetakKwitansi = async (invoice: string) => {
     v-if="isDaftarTransaksiPaketOpen"
     :paketId="paketId"
     :search="dataSearch"
-    :isDaftarTransaksiPaketOpen="isDaftarTransaksiPaketOpen"
+    :showBackButton="true"
+    :showAddTransactionButton="false"
     @close="isDaftarTransaksiPaketOpen = false; fetchData()"
   />
   <!-- Confirmation Dialog -->

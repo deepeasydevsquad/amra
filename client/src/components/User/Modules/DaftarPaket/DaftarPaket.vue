@@ -107,7 +107,7 @@ const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
 const totalColumns = ref(5); // Default 3 kolom
-const paket = ref<number | null>(null);
+const paket = ref<number>(0);
 
 const fetchData = async () => {
   try {
@@ -211,7 +211,7 @@ const shortText = (teks:string, maxKarakter: number) => {
       <FormEdit :isFormOpen="isFormOpenEdit" :paketId="paket" @close="isFormOpenEdit = false; fetchData()" />
     </div>
     <div v-else-if="isPageDetailPaketOpen">
-      <DetailPaket :isPageDetailPaketOpen="isPageDetailPaketOpen" :paketId="paket" @close="isPageDetailPaketOpen = false; fetchData()" />
+      <DetailPaket :isPageDetailPaketOpen="isPageDetailPaketOpen" :paketId="paket" @closeDetailPaket="isPageDetailPaketOpen = false; fetchData()" />
     </div>
     <div v-else-if="dataPaket" class="container mx-auto px-4 mt-10">
       <div class="flex justify-between items-center mb-6">
