@@ -59,17 +59,13 @@
                   <div>HARGA KOSTUMER: Rp {{ ticket.costumer_price.toLocaleString() }}</div>
                 </div>
               </div>
-              <div
-                class="bg-red-100 mt-2 px-4 py-1 text-sm font-bold flex justify-between items-center w-full"
-              >
+              <div class="bg-red-100 mt-2 px-4 py-1 text-sm font-bold flex justify-between items-center w-full" >
                 <span>SUBTOTAL</span>
-                <span class="text-red-500"
-                  >: Rp {{ transaction.total_transaksi.toLocaleString() }}</span
-                >
+                <span class="text-red-500">: Rp {{ transaction.total_transaksi.toLocaleString() }}</span>
               </div>
             </td>
             <td class="px-4 py-2 text-sm text-gray-700 align-top">
-              <div class="space-y-1">
+              <div class="space-y-1" v-if="transaction.status =='active'">
                 <div>
                   <strong>TOTAL TRANSAKSI TIKET</strong> : Rp
                   {{ transaction.total_transaksi.toLocaleString() }}
@@ -86,6 +82,9 @@
                     ).toLocaleString()
                   }}
                 </div>
+              </div>
+              <div class="space-y-1 text-center py-5" v-if="transaction.status =='refund'">
+                <strong class="text-red">TRANSAKSI SUDAH DIREFUND</strong>
               </div>
 
               <div
@@ -109,37 +108,18 @@
                 </ul>
               </div>
             </td>
-
             <!-- Aksi -->
             <td class="px-4 py-2 text-center align-top">
               <div class="flex flex-col items-center space-y-2">
-                <LightButton
-                  v-if="transaction.total_transaksi > calculateTotalPayment(transaction)"
-                  class="p-2"
-                  title="Pembayaran Tiket"
-                  @click="openPembayaranForm(transaction)"
-                >
-                  <i class="pi pi-money-bill"></i>
-                </LightButton>
-
-                <LightButton
-                  @click="openModalRefund(transaction.nomor_register)"
-                  class="p-2"
-                  title="Refund Tiket"
-                  ><i class="pi pi-refresh"></i
-                ></LightButton>
-                <LightButton class="p-2" title="Reschedule Tiket"
-                  ><i class="pi pi-calendar"></i
-                ></LightButton>
-                <LightButton
-                  class="p-2"
-                  @click="openModalDetail(transaction.nomor_register)"
-                  title="Detail Riwayat Pembayaran Tiket"
-                  ><i class="pi pi-list"></i
-                ></LightButton>
-                <DangerButton class="p-2" title="Delete Tiket"
-                  ><i class="pi pi-times"></i
-                ></DangerButton>
+                <LightButton v-if="transaction.total_transaksi > calculateTotalPayment(transaction) && transaction.status == 'active'"
+                  class="p-2" title="Pembayaran Tiket" @click="openPembayaranForm(transaction)" ><i class="pi pi-money-bill"></i></LightButton>
+               <LightButton v-if="transaction.status == 'active'" @click="openModalRefund(transaction.nomor_register)" class="p-2"
+                  title="Refund Tiket" ><i class="pi pi-refresh"></i></LightButton>
+                <LightButton class="p-2" title="Reschedule Tiket" v-if="transaction.status == 'active'"
+                  ><i class="pi pi-calendar"></i></LightButton>
+                <LightButton class="p-2" @click="openModalDetail(transaction.nomor_register)" v-if="transaction.status == 'active'"
+                  title="Detail Riwayat Pembayaran Tiket"><i class="pi pi-list"></i></LightButton>
+                <DangerButton class="p-2" title="Delete Tiket"><i class="pi pi-times"></i></DangerButton>
               </div>
             </td>
           </tr>
