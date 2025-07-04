@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
       Ticket_transaction_detail.belongsTo(models.Mst_airline, {
         foreignKey: "airlines_id",
       });
+      Ticket_transaction_detail.hasMany(models.Ticket_reschedule_detail_history, {
+        foreignKey: "ticket_transaction_detail_id",
+        onDelete: 'CASCADE',
+      });
     }
   }
   Ticket_transaction_detail.init({
