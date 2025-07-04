@@ -1,20 +1,12 @@
 <template>
   <div class="p-6">
     <div class="flex justify-between items-center mb-4">
-      <button
-        @click="openModal('add')"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
-      >
+      <PrimaryButton @click="openModal('add')">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
         Tambah Cabang
-      </button>
+      </PrimaryButton>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
@@ -48,9 +40,9 @@
               <td class="px-4 py-3 text-center -gray-200">{{ cabang.address }}</td>
               <td class="w-[30%]  px-4 py-3 text-left -gray-200">{{ cabang.note }}</td>
               <td class="px-4 py-3 text-center -gray-200 flex justify-center gap-2">
-                <EditButton @click="openModal('edit', cabang)">
+                <LightButton @click="openModal('edit', cabang)">
                   <EditIcon></EditIcon>
-                </EditButton>
+                </LightButton>
                 <DangerButton @click="hapusData(cabang)">
                   <DeleteIcon></DeleteIcon>
                 </DangerButton>
@@ -63,49 +55,7 @@
             </tr>
           </tbody>
           <tfoot class="bg-gray-100 font-bold border">
-            <tr>
-              <td class="px-4 py-4 text-center" :colspan="5">
-                <nav class="flex mt-0">
-                  <ul class="inline-flex items-center -space-x-px">
-                    <!-- Tombol Previous -->
-                    <li>
-                      <button
-                        @click="prevPage"
-                        :disabled="currentPage === 1"
-                        class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Previous
-                      </button>
-                    </li>
-                    <!-- Nomor Halaman -->
-                    <li v-for="page in pages" :key="page" v-if="paginatedCabang.length > 0">
-                      <button
-                        @click="pageNow(page)"
-                        class="px-3 py-2 leading-tight border min-w-[40px]"
-                        :class="
-                          currentPage === page
-                            ? 'text-white bg-[#333a48] border-[#333a48]'
-                            : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'
-                        "
-                      >
-                        {{ page }}
-                      </button>
-                    </li>
-
-                    <!-- Tombol Next -->
-                    <li>
-                      <button
-                        @click="nextPage"
-                        :disabled="currentPage === totalPages"
-                        class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Next
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
-              </td>
-            </tr>
+            <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" />
           </tfoot>
         </table>
       </div>
@@ -136,17 +86,17 @@ import DeleteIcon from './Icon/DeleteIcon.vue'
 import EditIcon from './Icon/EditIcon.vue'
 
 // import element
-import DangerButton from './Particle/DangerButton.vue'
-import EditButton from './Particle/EditButton.vue'
-import Notification from './Particle/Notification.vue'
-import Confirmation from './Particle/Confirmation.vue'
+import Pagination from '@/components/Pagination/Pagination.vue'
+import LightButton from "@/components/Button/LightButton.vue"
+import DangerButton from "@/components/Button/DangerButton.vue"
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
 const cabangs = ref([])
 const search = ref('')
 const modalOpen = ref(false)
 const modalType = ref('add')
 
-const fetchCabang = async () => {
+const fetchData = async () => {
   try {
     const response = await daftarCabang()
     if (response?.data) {
@@ -173,10 +123,8 @@ const formData = ref({
 })
 
 const openModal = (mode = 'add', cabang = null) => {
-  console.log('openModal called with:', { mode, cabang }) // Debugging
 
   if (mode === 'edit' && cabang) {
-    console.log('Masuk ke mode edit')
     formData.value = { ...cabang, city: cabang.city_id || cabang.city }
   } else {
     console.log('Masuk ke mode add')
@@ -193,7 +141,7 @@ const openModal = (mode = 'add', cabang = null) => {
   modalOpen.value = true
 }
 
-const saveData = async (formValue) => {
+const saveData = async (formValue : any) => {
   try {
     const formData = new FormData()
     formData.append('name', formValue.name)
@@ -204,43 +152,39 @@ const saveData = async (formValue) => {
     if (formValue.tanda_tangan) {
       formData.append('tanda_tangan', formValue.tanda_tangan)
     } else {
-      alert('File tanda tangan wajib diunggah!')
+       displayNotification('File tanda tangan wajib diunggah!', 'error')
       return
     }
     const response = await addCabang(formData)
-    console.log('🔍 Full Response:', response)
-
     if (response.success || response.data?.success) {
-      alert('Cabang berhasil Ditambahkan!')
+      displayNotification('Cabang Berhasil Ditambahkan!', 'success')
       modalOpen.value = false
-      fetchCabang()
+      fetchData()
     }
   } catch (error) {
-    console.error('Error saat menyimpan data:', error)
-    alert('Terjadi kesalahan, coba lagi!')
+    displayNotification('Terjadi kesalahan, coba lagi!', 'error')
   }
 }
 
-const updateData = async (formValue) => {
+const updateData = async (formValue :any) => {
   try {
     const response = await editCabang(formValue.id, formValue)
 
     console.log('🔍 Full Response:', response)
 
     if (response.success || response.data?.success) {
-      alert('Cabang berhasil diperbarui!')
+      displayNotification('Cabang berhasil diperbarui!', 'success')
       modalOpen.value = false
-      fetchCabang()
+      fetchData()
     } else {
-      console.warn('⚠️ Response sukses = false, cek API!', response)
+      displayNotification('Response sukses = false, cek API', 'error')
     }
   } catch (error) {
-    console.error('Error saat memperbarui data:', error)
-    alert('Terjadi kesalahan, coba lagi!')
+    displayNotification('Terjadi kesalahan, coba lagi!', 'error')
   }
 }
 
-const hapusData = async (cabang) => {
+const hapusData = async (cabang : any) => {
   if (!confirm('Apakah kamu yakin ingin menghapus cabang ini?')) return
 
   try {
@@ -248,18 +192,18 @@ const hapusData = async (cabang) => {
     console.log('Response:', response)
 
     if (response.success || response.data?.success) {
-      alert('Cabang berhasil dihapus!')
-      fetchCabang() // Refresh daftar cabang setelah hapus
+      displayNotification('Cabang berhasil dihapus!', 'success')
+      fetchData()
     } else {
-      console.warn('⚠️ Gagal menghapus cabang, cek response!', response)
-      alert('Gagal menghapus cabang, coba lagi!')
+      displayNotification('Gagal menghapus cabang, coba lagi!', 'error')
     }
   } catch (error) {
     console.error('Error saat menghapus cabang:', error)
-    alert('Terjadi kesalahan, coba lagi!')
+    // alert('Terjadi kesalahan, coba lagi!')
   }
 }
 
+const totalColumns = ref(5);
 const itemsPerPage = 10
 const currentPage = ref(1)
 
@@ -272,26 +216,48 @@ const paginatedCabang = computed(() => {
   return filteredCabang.value.slice(start, start + itemsPerPage)
 })
 
-const pages = computed(() => {
-  return Array.from({ length: totalPages.value }, (_, i) => i + 1)
-})
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--
-  }
+const pageNow = (page : number) => {
+  currentPage.value = page
+  fetchData()
 }
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
-    currentPage.value++
+    currentPage.value++;
+    fetchData()
   }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    fetchData()
+  }
+};
+
+const pages = computed(() => {
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+});
+
+const showNotification = ref(false)
+const notificationMessage = ref('')
+const notificationType = ref<'success' | 'error'>('success')
+const timeoutId = ref<number | null>(null)
+const searchTimeout = ref<number | null>(null)
+
+
+const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
+  notificationMessage.value = message
+  notificationType.value = type
+  showNotification.value = true
+  resetNotificationTimeout()
 }
 
-const pageNow = (page) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page
-  }
+const resetNotificationTimeout = () => {
+  if (timeoutId.value) clearTimeout(timeoutId.value)
+  timeoutId.value = window.setTimeout(() => {
+    showNotification.value = false
+  }, 3000)
 }
 
 // Reset ke page 1 saat filter berubah
@@ -306,5 +272,5 @@ watch(filteredCabang, () => {
   }
 })
 
-onMounted(fetchCabang)
+onMounted(fetchData)
 </script>

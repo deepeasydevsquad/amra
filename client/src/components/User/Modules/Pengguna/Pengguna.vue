@@ -3,23 +3,14 @@
     <!-- Header with Add User and Search -->
     <div class="flex flex-col md:flex-row justify-between mb-6 gap-4">
       <!-- Add User Button -->
-      <button
-        @click="isConfirmationModalVisible = true"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2 w-full md:w-auto justify-center"
-      >
+      <PrimaryButton @click="isConfirmationModalVisible = true">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
         Tambah Pengguna
-      </button>
-
+      </PrimaryButton>
       <!-- Search Input -->
-      <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-2">
+      <div class="flex flex-col md:flex-row items-center w-full md:w-1/3 gap-3">
         <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
         <input
           type="text"
@@ -88,10 +79,7 @@
 
   <FormAdd :showFormAddModal="showFormAddModal" @close="closeFormAddModal" @save="handleAddMember" />
 
-  <div
-    v-if="showAddPenggunaModal"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-  >
+  <div v-if="showAddPenggunaModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" >
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
       <FormAddPengguna
         v-model:isModalOpen="showAddPenggunaModal"
@@ -139,11 +127,10 @@ import Confirmation from './Particle/Confirmation.vue'
 import Notification from './Particle/Notification.vue'
 import DeleteIcon from './Icon/DeleteIcon.vue'
 import EditIcon from './Icon/EditIcon.vue'
-// import DangerButton from './Particle/DangerButton.vue'
-import EditButton from './Particle/EditButton.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 import LightButton from "@/components/Button/LightButton.vue"
 import DangerButton from "@/components/Button/DangerButton.vue"
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
 // Data State
 const users = ref([])
@@ -332,6 +319,10 @@ const handleAddMember = () => {
 
 // Tambahkan handler untuk event dari FormAddPengguna
 const handlePenggunaAdded = () => {
+
+  console.log("-----XXXX");
+  console.log("-----XXXX");
+  console.log("-----XXXX");
   showAddPenggunaModal.value = false
   fetchData()
   displayNotification('Pengguna berhasil ditambahkan', 'success')

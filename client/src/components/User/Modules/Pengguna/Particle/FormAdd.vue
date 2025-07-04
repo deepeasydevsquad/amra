@@ -181,8 +181,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, defineProps, defineEmits, } from 'vue'
-import { addPengguna } from '@/service/pengguna'
-import { getMember, getType } from '@/service/member'
+import { addPengguna, getMember } from '@/service/pengguna'
+import { getType } from '@/service/member'
 import { daftarCabang } from '@/service/cabang'
 import { daftarGrup } from '@/service/grup'
 import Form from "@/components/Modal/Form.vue"
