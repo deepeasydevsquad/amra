@@ -31,7 +31,7 @@ class Model_r {
         include : {
           required: true,
           model: Mst_kota, 
-          attributes: ["name"],
+          attributes: ["name", "id"],
         }
       }).then(async (value) => {
         await Promise.all(
@@ -40,6 +40,7 @@ class Model_r {
               id : e.id, 
               name : e.name, 
               city : e.Mst_kotum.name,
+              city_id : e.Mst_kotum.id,
               pos_code: e.pos_code, 
               address: e.address,
               note: e.note

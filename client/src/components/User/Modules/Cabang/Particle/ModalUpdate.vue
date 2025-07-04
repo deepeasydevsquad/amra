@@ -1,105 +1,81 @@
 <template>
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
-    <div class="bg-white p-6 rounded-lg shadow-xl max-w-lg w-full relative">
-      <!-- Tombol Close -->
-      <button
-        @click="$emit('close')"
-        class="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-      >
-        ✕
-      </button>
+  <Form class="mr-6" :form-status="isOpen" :label="'Update Cabang'" width="sm:w-1/3 sm:max-w-1/3" @close="$emit('close')" @cancel="$emit('close')"  @submit="updateForm" :submitLabel="'PERBAHARUI CABANG'">
 
-      <!-- Judul Modal -->
-      <h2 class="text-2xl font-semibold mb-4 text-gray-800 text-center">Edit Cabang</h2>
 
-      <!-- Form -->
-      <div class="mb-4">
-        <label class="block text-gray-700 font-medium mb-1">Nama Kota</label>
-        <select
-          v-model="form.city"
-          class="border p-2 rounded w-full focus:ring focus:ring-blue-300 text-gray-700"
-          :disabled="!kotaList.length"
-        >
-          <option value="" disabled>Pilih Kota</option>
-          <option v-for="kota in kotaList" :key="kota.id" :value="kota.id">
-            {{ kota.name }}
-          </option>
-        </select>
+    <div class="mb-4">
+      <label class="block text-gray-700 font-medium mb-1">Nama Cabang</label>
+      <input
+        v-model="form.name"
+        placeholder="Nama Cabang"
+        type="text"
+        class="text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+      />
+    </div>
+
+    <div class="mb-4 grid grid-cols-2">
+      <div class="me-2">
+         <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-1">Nama Kota</label>
+          <select v-model="form.city_id" class="text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" :disabled="!kotaList.length" >
+            <option value="" disabled>Pilih Kota</option>
+            <option v-for="kota in kotaList" :key="kota.id" :value="kota.id">
+              {{ kota.name }}
+            </option>
+          </select>
+        </div>
       </div>
-
-      <div class="mb-4">
-        <label class="block text-gray-700 font-medium mb-1">Nama Cabang</label>
-        <input
-          v-model="form.name"
-          placeholder="Nama Cabang"
-          type="text"
-          class="border p-2 rounded w-full focus:ring focus:ring-blue-300 text-gray-700"
-        />
-      </div>
-      <div class="mb-4">
-        <label class="block text-gray-700 font-medium mb-1">Kode Pos</label>
-        <input
-          v-model="form.pos_code"
-          placeholder="Kode Pos"
-          type="text"
-          class="border p-2 rounded w-full focus:ring focus:ring-blue-300 text-gray-700"
-        />
-      </div>
-
-      <div class="mb-4">
-        <label class="block text-gray-700 font-medium mb-1">Alamat</label>
-        <input
-          v-model="form.address"
-          placeholder="Alamat"
-          type="text"
-          class="border p-2 rounded w-full focus:ring focus:ring-blue-300 text-gray-700"
-        />
-      </div>
-
-      <div class="mb-4">
-        <label class="block text-gray-700 font-medium mb-1">Tanda Tangan</label>
-        <input
-          type="file"
-          @change="handleFileUpload"
-          accept="image/png"
-          class="border p-2 rounded w-full focus:ring focus:ring-blue-300 text-gray-700"
-        />
-        <p v-if="form.tanda_tangan" class="text-sm text-gray-600 mt-1">
-          File saat ini: {{ form.tanda_tangan.name || 'Sudah ada tanda tangan' }}
-        </p>
-      </div>
-
-      <div class="mb-4">
-        <label class="block text-gray-700 font-medium mb-1">Catatan</label>
-        <textarea
-          placeholder="Catatan"
-          v-model="form.note"
-          class="border text-gray-700 p-2 rounded w-full focus:ring focus:ring-blue-300"
-        ></textarea>
-      </div>
-
-      <!-- Tombol Aksi -->
-      <div class="flex justify-end space-x-2">
-        <button
-          @click="$emit('close')"
-          class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-        >
-          Batal
-        </button>
-        <button
-          @click="updateForm"
-          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Simpan Perubahan
-        </button>
+      <div class="ms-2">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-1">Kode Pos</label>
+          <input
+            v-model="form.pos_code"
+            placeholder="Kode Pos"
+            type="text"
+            class="text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
       </div>
     </div>
-  </div>
+    <div class="mb-4 grid grid-cols-2">
+      <div class="me-2">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-1">Tanda Tangan</label>
+          <input
+            type="file"
+            @change="handleFileUpload"
+            accept="image/png"
+            class="text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+          <p v-if="form.tanda_tangan" class="text-sm text-gray-600 mt-1">
+            File saat ini: {{ form.tanda_tangan.name || 'Sudah ada tanda tangan' }}
+          </p>
+        </div>
+
+      </div>
+      <div class="ms-2">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-1">Alamat</label>
+          <textarea placeholder="Alamat" v-model="form.address"
+            class="text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none" rows="4"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="mb-4">
+      <label class="block text-gray-700 font-medium mb-1">Catatan</label>
+      <textarea
+        placeholder="Catatan"
+        v-model="form.note"
+        class="text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none" rows="4"
+      ></textarea>
+    </div>
+  </Form>
 </template>
 
 <script setup lang="ts">
 import { ref, defineEmits, defineProps, onMounted, watch } from 'vue'
 import { daftarKota } from '../../../../../service/cabang'
+import Form from "@/components/Modal/Form.vue"
 
 interface Kota {
   id: number
@@ -107,6 +83,8 @@ interface Kota {
 }
 
 const emit = defineEmits(['close', 'update'])
+
+const isOpen = ref(true)
 
 // Props untuk menerima data cabang yang akan diedit
 const props = defineProps({
@@ -118,6 +96,7 @@ const form = ref({
   id: null,
   name: '',
   city: '',
+  city_id:0,
   pos_code: '',
   address: '',
   tanda_tangan: null,
@@ -129,10 +108,16 @@ watch(
   () => props.cabang,
   (newCabang) => {
     if (newCabang) {
+
+      console.log("________xxx________");
+      console.log(newCabang);
+      // console.log(newCabang.city_id);
+      console.log("________xxx________");
       form.value = {
         id: newCabang.id,
         name: newCabang.name,
         city: newCabang.city,
+        city_id: newCabang.city_id,
         pos_code: newCabang.pos_code,
         address: newCabang.address,
         tanda_tangan: newCabang.tanda_tangan,
@@ -143,9 +128,6 @@ watch(
   { immediate: true },
 )
 
-onMounted(() => {
-  fetchKota()
-})
 
 const fetchKota = async () => {
   try {
@@ -176,4 +158,10 @@ const updateForm = () => {
   })
   console.log('Update event emitted!')
 }
+
+onMounted(() => {
+  fetchKota()
+})
+
+
 </script>

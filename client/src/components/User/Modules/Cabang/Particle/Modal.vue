@@ -1,95 +1,59 @@
 <template>
-  <Form :form-status="isOpen" :label="'Tambah Cabang Baru'" width="sm:w-1/3 sm:max-w-1/3" @close="$emit('close')" @cancel="$emit('close')"  @submit="saveForm" :submitLabel="'TAMBAH CABANG'">
-    <!-- Form -->
-    <div class="mb-4">
-      <label class="block text-gray-700 font-medium mb-1">Nama Kota</label>
-      <select
-        v-model="form.city"
-        class="border p-2 rounded w-full focus:ring focus:ring-sky-600 text-gray-700"
-        :disabled="kotaList.length == 0"
-      >
-        <option value="" disabled>Pilih Kota</option>
-        <option v-for="kota in kotaList" :key="kota.id" :value="kota.id">
-          {{ kota.name }}
-        </option>
-      </select>
-    </div>
-
+  <Form class="mr-6" :form-status="isOpen" :label="'Tambah Cabang Baru'" width="sm:w-1/3 sm:max-w-1/3" @close="$emit('close')" @cancel="$emit('close')"  @submit="saveForm" :submitLabel="'TAMBAH CABANG'">
     <div class="mb-4">
       <label class="block text-gray-700 font-medium mb-1">Nama Cabang</label>
-      <input
-        v-model="form.name"
-        placeholder="Nama Cabang"
-        type="text"
-        class="border p-2 rounded w-full focus:ring focus:ring-sky-600 text-gray-700"
-      />
+      <input v-model="form.name" placeholder="Nama Cabang" type="text"
+        class="text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
     </div>
-
-    <div class="mb-4">
-      <label class="block text-gray-700 font-medium mb-1">Kode Pos</label>
-      <input
-        v-model="form.pos_code"
-        placeholder="Kode Pos"
-        type="text"
-        class="border p-2 rounded w-full focus:ring focus:ring-sky-600 text-gray-700"
-      />
+    <div class="mb-4 grid grid-cols-2">
+      <div class="me-2">
+        <label class="block text-gray-700 font-medium mb-1">Nama Kota</label>
+        <select v-model="form.city"
+          class="text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          :disabled="kotaList.length == 0">
+          <option value="" disabled>Pilih Kota</option>
+          <option v-for="kota in kotaList" :key="kota.id" :value="kota.id">
+            {{ kota.name }}
+          </option>
+        </select>
+      </div>
+      <div class="ms-2">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-1">Kode Pos</label>
+          <input v-model="form.pos_code" placeholder="Kode Pos" type="text"
+            class="text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+        </div>
+      </div>
     </div>
-
-    <div class="mb-4">
-      <label class="block text-gray-700 font-medium mb-1">Alamat</label>
-      <input
-        v-model="form.address"
-        placeholder="Alamat"
-        type="text"
-        class="border p-2 rounded w-full focus:ring focus:ring-sky-600 text-gray-700"
-      />
+    <div class="mb-4 grid grid-cols-2">
+      <div class="me-2">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-1">Tanda Tangan</label>
+          <input type="file" @change="handleFileUpload" accept="image/png"
+            class="text-gray-700 w-full px-4 pt-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+          <p class="text-xs text-gray-500 mt-1">
+            Gambar harus berekstensi <span class="font-semibold">.png</span>, maksimal
+            <span class="font-semibold">1 MB</span>, dan berukuran
+            <span class="font-semibold">110 x 80 pixel</span>.
+          </p>
+        </div>
+      </div>
+      <div class="ms-2">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-1">Alamat</label>
+          <textarea placeholder="Alamat" v-model="form.address"
+            class="text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none" rows="4"
+          ></textarea>
+        </div>
+      </div>
     </div>
-
-    <div class="mb-4">
-      <label class="block text-gray-700 font-medium mb-1">Tanda Tangan</label>
-      <input
-        type="file"
-        @change="handleFileUpload"
-        accept="image/png"
-        class="border p-2 rounded w-full focus:ring focus:ring-green-300 text-gray-700"
-      />
-      <p class="text-xs text-gray-500 mt-1">
-        Gambar harus berekstensi <span class="font-semibold">.png</span>, maksimal
-        <span class="font-semibold">1 MB</span>, dan berukuran
-        <span class="font-semibold">110 x 80 pixel</span>.
-      </p>
-    </div>
-
     <div class="mb-4">
       <label class="block text-gray-700 font-medium mb-1">Catatan</label>
-      <textarea
-        placeholder="Catatan"
-        v-model="form.note"
-        class="border text-gray-700 p-2 rounded w-full focus:ring focus:ring-sky-600"
+      <textarea placeholder="Catatan" v-model="form.note"
+        class="text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none" rows="4"
       ></textarea>
     </div>
   </Form>
-  <!-- <Transition name="modal-fade">
-    <div
-      v-if="isOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4"
-    >
-      <Transition name="modal-scale">
-        <div class="bg-white p-6 rounded-lg shadow-xl max-w-lg w-full relative" v-if="isOpen">
-          <button
-            @click="$emit('close')"
-            class="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
-          >
-            ✕
-          </button>
-
-          <h2 class="text-2xl font-semibold mb-4 text-gray-800 text-center">Tambah Cabang</h2>
-
-
-        </div>
-      </Transition>
-    </div>
-  </Transition> -->
 </template>
 
 <script setup lang="ts">

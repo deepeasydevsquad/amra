@@ -4,9 +4,7 @@
     <div class="flex flex-col md:flex-row justify-between mb-6 gap-4">
       <!-- Add User Button -->
       <PrimaryButton @click="isConfirmationModalVisible = true">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
+        <IconPlus/>
         Tambah Pengguna
       </PrimaryButton>
       <!-- Search Input -->
@@ -26,12 +24,12 @@
     <!-- User Table -->
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-4 font-bold text-gray-900 text-center">Nama</th>
-            <th class="px-6 py-4 font-bold text-gray-900 text-center">Nama Cabang</th>
-            <th class="px-6 py-4 font-bold text-gray-900 text-center">Nama Grup</th>
-            <th class="w-[10%] px-6 py-4 font-bold text-gray-900 text-center">Aksi</th>
+        <thead class="bg-gray-100">
+          <tr class="bg-gray-100">
+            <th class="px-6 py-4 font-medium text-gray-900 text-center">Nama</th>
+            <th class="px-6 py-4 font-medium text-gray-900 text-center">Nama Cabang</th>
+            <th class="px-6 py-4 font-medium text-gray-900 text-center">Nama Grup</th>
+            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -93,11 +91,7 @@
 
   <FormUpdatePengguna :isModalOpen="isModalOpen" :idPengguna="idPengguna" @cancel="closeEditFrom" />
 
-  <Confirmation
-    :showConfirmDialog="showDeleteConfirmDialog"
-    confirmTitle="Konfirmasi Hapus"
-    confirmMessage="Apakah Anda yakin ingin menghapus pengguna ini?"
-  >
+  <Confirmation :showConfirmDialog="showDeleteConfirmDialog" confirmTitle="Konfirmasi Hapus" confirmMessage="Apakah Anda yakin ingin menghapus pengguna ini?" >
     <button
       @click="executeDelete()"
       class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
@@ -127,13 +121,33 @@ import Confirmation from './Particle/Confirmation.vue'
 import Notification from './Particle/Notification.vue'
 import DeleteIcon from './Icon/DeleteIcon.vue'
 import EditIcon from './Icon/EditIcon.vue'
+import IconPlus from '@/components/Icons/IconPlus.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 import LightButton from "@/components/Button/LightButton.vue"
 import DangerButton from "@/components/Button/DangerButton.vue"
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
 // Data State
-const users = ref([])
+interface Members {
+  fullname: string;
+}
+
+interface Divisions {
+  name: string;
+}
+
+interface Grups {
+  name: string;
+}
+
+interface User {
+  id: number;
+  Member: Members;
+  Division: Divisions;
+  Grup: Grups;
+}
+
+const users = ref<User[]>([]);
 const searchQuery = ref('')
 const totalItems = ref(0)
 const isLoading = ref(false)
@@ -255,12 +269,6 @@ const goToPage = (page: number) => {
 // User Actions
 const editUser = (id: number) => {
   idPengguna.value = id;
-
-  // users.value.find((user) => user.id === id)
-  console.log("--------||||||||||||");
-  // console.log(penggunaToUpdate.value);
-  console.log("--------||||||||||||");
-
   isModalOpen.value = true
 }
 
@@ -319,10 +327,6 @@ const handleAddMember = () => {
 
 // Tambahkan handler untuk event dari FormAddPengguna
 const handlePenggunaAdded = () => {
-
-  console.log("-----XXXX");
-  console.log("-----XXXX");
-  console.log("-----XXXX");
   showAddPenggunaModal.value = false
   fetchData()
   displayNotification('Pengguna berhasil ditambahkan', 'success')

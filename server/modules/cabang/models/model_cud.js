@@ -5,18 +5,17 @@ const { writeLog } = require("../../../helper/writeLogHelper");
 class Model_cud {
   constructor(req) {
     this.req = req;
-    this.company_id;
-    this.t; // Transaction object
-    this.state = true; // State untuk menandai sukses/gagal
-    this.message = ""; // Pesan log
+    this.company_id = null;
+    this.t = null; // Sequelize transaction
+    this.state = true;
+    this.message = "";
   }
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
-    this.t = await sequelize.transaction(); // Inisialisasi transaction
+    this.t = await sequelize.transaction();
   }
 
-  // ✅ Validasi berdasarkan ID kota
   async validateCityId(cityId) {
     return (await Mst_kota.findByPk(cityId)) !== null;
   }
@@ -28,183 +27,129 @@ class Model_cud {
     return null;
   }
 
-  // ✅ Tambah Division
   async createDivision() {
     await this.initialize();
-    const { city, name, pos_code, address, note } = this.req.body;
 
+    const { city, name, pos_code, address, note } = this.req.body;
     const file = this.req.file;
 
     try {
-      // Validasi file tanda tangan
+      if (!this.company_id) throw new Error("ID perusahaan tidak ditemukan.");
+
       const fileError = this.validateSignatureFile(file);
-      if (fileError) {
-        throw new Error(fileError);
-      }
+      if (fileError) throw new Error(fileError);
 
-      // Ambil data kota dari database
       const cityData = await Mst_kota.findOne({ where: { id: city } });
-      if (!cityData) {
-        throw new Error("ID kota tidak valid.");
-      }
+      if (!cityData) throw new Error("ID kota tidak valid.");
 
-      // Insert process
-      const division = await Division.create(
-        {
-          company_id: this.company_id,
-          kota_id : city,
-          name,
-          pos_code,
-          address,
-          note,
-          tanda_tangan: file.filename,
-        },
-        {
-          transaction: this.t,
-        }
-      );
+      const division = await Division.create({
+        company_id: this.company_id,
+        kota_id: city,
+        name,
+        pos_code,
+        address,
+        note,
+        tanda_tangan: file.filename,
+      }, { transaction: this.t });
 
-      // Set log message
       this.message = `Menambahkan Division Baru dengan Nama Kota: ${cityData.name}, Kode Pos: ${pos_code}, dan ID Division: ${division.id}`;
 
-      // Write log
-      await writeLog(this.req, this.t, {
-        msg: this.message,
-      });
-
-      // Commit transaction
+      await writeLog(this.req, this.t, { msg: this.message });
       await this.t.commit();
+
       return { success: true, data: division };
     } catch (error) {
-      // Rollback transaction jika terjadi error
-      await this.t.rollback();
+      if (this.t) await this.t.rollback();
       console.error("Error saat menambahkan division:", error.message);
       return { success: false, error: error.message };
     }
   }
 
-  // ✅ Update Division
   async updateDivision(id) {
     await this.initialize();
-    const { city, name, pos_code, address, note } = this.req.body;
-
+    const { city_id, name, pos_code, address, note } = this.req.body;
     const file = this.req.file;
 
     try {
-      // Cek apakah division ada
+      if (!this.company_id) throw new Error("ID perusahaan tidak ditemukan.");
+
       const division = await Division.findOne({
         where: { id, company_id: this.company_id },
       });
-      if (!division) {
-        throw new Error("Division tidak ditemukan.");
-      }
+      if (!division) throw new Error("Division tidak ditemukan.");
 
-      // Cek apakah city (ID kota) valid
-      if (!(await this.validateCityId(city))) {
-        throw new Error("ID kota tidak valid.");
-      }
+      if (!(await this.validateCityId(city_id))) throw new Error("ID kota tidak valid.");
 
-      // Ambil nama kota berdasarkan ID kota
-      const cityData = await Mst_kota.findOne({ where: { id: city } });
-      if (!cityData) {
-        throw new Error("Kota tidak ditemukan.");
-      }
+      const cityData = await Mst_kota.findOne({ where: { id: city_id } });
+      if (!cityData) throw new Error("Kota tidak ditemukan.");
 
-      // Validasi file tanda tangan jika ada
+      const datas = {
+        kota_id: city_id,
+        name,
+        pos_code,
+        address,
+        note,
+      };
+
       if (file) {
         const fileError = this.validateSignatureFile(file);
-        if (fileError) {
-          throw new Error(fileError);
-        }
-        division.tanda_tangan = file.filename;
+        if (fileError) throw new Error(fileError);
+        datas.tanda_tangan = file.filename;
       }
 
-      // Update process
-      await division.update(
-        {
-          city_id: city,
-          city: cityData.name,
-          name,
-          pos_code,
-          address,
-          note,
-        },
-        {
-          transaction: this.t,
-        }
-      );
-
-      // Set log message
-      this.message = `Memperbaharui Data Division dengan ID: ${id}, Nama Kota: ${cityData.name}, Kode Pos: ${pos_code}`;
-
-      // Write log
-      await writeLog(this.req, this.t, {
-        msg: this.message,
+      await Division.update(datas, {
+        where: { id, company_id: this.company_id },
+        transaction: this.t,
       });
 
-      // Commit transaction
+      this.message = `Memperbaharui Data Division dengan ID: ${id}, Nama Kota: ${cityData.name}, Kode Pos: ${pos_code}`;
+      await writeLog(this.req, this.t, { msg: this.message });
       await this.t.commit();
-      return { success: true, data: division };
+
+      return { success: true, data: datas };
     } catch (error) {
-      // Rollback transaction jika terjadi error
-      await this.t.rollback();
+      if (this.t) await this.t.rollback();
       console.error("Error saat mengupdate division:", error.message);
       return { success: false, error: error.message };
     }
   }
 
-  // ✅ Delete Division
   async deleteDivision(id) {
     await this.initialize();
 
     try {
-      // Cek jumlah cabang yang tersisa
+      if (!this.company_id) throw new Error("ID perusahaan tidak ditemukan.");
+
       const totalCabang = await Division.count({
         where: { company_id: this.company_id },
       });
       if (totalCabang <= 1) {
-        throw new Error(
-          "Tidak dapat menghapus cabang karena harus ada minimal 1 cabang tersisa."
-        );
+        throw new Error("Minimal harus ada 1 cabang yang tersisa.");
       }
 
-      // Cek apakah cabang yang ingin dihapus adalah tempat admin berada
       const adminCabang = await Company.findOne({
         where: { id: this.company_id },
-        attributes: ["division_id"], // Asumsi 'division_id' menyimpan cabang admin
+        attributes: ["division_id"],
       });
 
       if (adminCabang && adminCabang.division_id === id) {
         throw new Error("Cabang tempat admin berada tidak dapat dihapus.");
       }
 
-      // Cari cabang yang akan dihapus
       const division = await Division.findOne({
         where: { id, company_id: this.company_id },
       });
-      if (!division) {
-        throw new Error("Division tidak ditemukan.");
-      }
+      if (!division) throw new Error("Division tidak ditemukan.");
 
-      // Delete process
-      await division.destroy({
-        transaction: this.t,
-      });
+      await division.destroy({ transaction: this.t });
 
-      // Set log message
       this.message = `Menghapus Division dengan ID: ${id}, Nama Kota: ${division.city}`;
-
-      // Write log
-      await writeLog(this.req, this.t, {
-        msg: this.message,
-      });
-
-      // Commit transaction
+      await writeLog(this.req, this.t, { msg: this.message });
       await this.t.commit();
+
       return { success: true, message: "Division berhasil dihapus." };
     } catch (error) {
-      // Rollback transaction jika terjadi error
-      await this.t.rollback();
+      if (this.t) await this.t.rollback();
       console.error("Error saat menghapus division:", error.message);
       return { success: false, error: error.message };
     }

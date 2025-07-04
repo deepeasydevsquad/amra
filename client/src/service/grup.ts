@@ -10,9 +10,9 @@ export const daftarMenu = async (param: any) => {
   }
 }
 
-export const daftarGrup = async (param: any) => {
+export const daftarGrup = async () => {
   try {
-    const response = await api.post('grup/get-grup', param)
+    const response = await api.post('grup/get-grup')
     return response.data
   } catch (error) {
     console.error('Gagal Mengambil Grup', error)

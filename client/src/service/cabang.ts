@@ -1,8 +1,8 @@
 import api from './api' // Import service API
 
-export const daftarCabang = async (param: any) => {
+export const daftarCabang = async () => {
   try {
-    const response = await api.get('/get-cabang', param) // Kirim data ke backend
+    const response = await api.get('/get-cabang') // Kirim data ke backend
     return response.data // Kembalikan data hasil request
   } catch (error) {
     console.error('Gagal menambahkan kota:', error)
@@ -10,9 +10,9 @@ export const daftarCabang = async (param: any) => {
   }
 }
 
-export const daftarKota = async (param: any) => {
+export const daftarKota = async () => {
   try {
-    const response = await api.get('/ambil-kota', param)
+    const response = await api.get('/ambil-kota');
     return response.data
   } catch (error) {
     console.log('-------------------')

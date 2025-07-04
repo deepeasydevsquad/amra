@@ -1,42 +1,33 @@
 <template>
-  <div class="p-6">
-    <div class="flex justify-between items-center mb-4">
+  <div class="container mx-auto p-4">
+    <div class="flex flex-col md:flex-row justify-between mb-6 gap-4">
       <PrimaryButton @click="openModal('add')">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
+        <IconPlus/>
         Tambah Cabang
       </PrimaryButton>
-      <div class="flex items-center">
+      <div class="flex flex-col md:flex-row items-center w-full md:w-1/3 gap-3">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input
-          v-model="search"
-          type="text"
-          placeholder="Cari cabang..."
-          class="block w-64 px-3 py-2 text-gray-700 bg-white -gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:-blue-500 transition-all duration-200"
+        <input v-model="search" type="text" placeholder="Cari cabang..."
+          class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
         />
       </div>
     </div>
     <div class="overflow-hidden rounded-lg -gray-200 shadow-md">
       <div class="overflow-x-auto">
-        <table class="w-full table-fixed border-collapse bg-white text-left text-sm text-gray-500">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="w-[20%] px-4 py-3 font-bold text-gray-900 text-center">Nama Kota</th>
-              <th class="w-[15%] px-4 py-3 font-bold text-gray-900 text-center">Kode Pos</th>
-              <th class="w-[25%] px-4 py-3 font-bold text-gray-900 text-center">Alamat</th>
-              <th class="w-[30%] px-4 py-3 font-bold text-gray-900 text-center">Catatan</th>
-              <th class="w-[10%] px-4 py-3 font-bold text-gray-900 text-center">Aksi</th>
+        <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
+          <thead class="bg-gray-100">
+            <tr class="bg-gray-100">
+              <th class="w-[20%] px-6 py-4 font-medium text-gray-900 text-center">Nama Cabang</th>
+              <th class="w-[20%] px-6 py-4 font-medium text-gray-900 text-center">Info Kota</th>
+              <th class="w-[20%] px-6 py-4 font-medium text-gray-900 text-center">Alamat</th>
+              <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Catatan</th>
+              <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 -t -gray-100" v-if="paginatedCabang.length > 0">
-            <tr
-              v-for="(cabang, index) in paginatedCabang"
-              :key="cabang.id"
-              class="hover:bg-gray-50"
-            >
-              <td class="px-4 py-3 text-center -gray-200">{{ cabang.city }}</td>
-              <td class="px-4 py-3 text-center -gray-200">{{ cabang.pos_code }}</td>
+            <tr v-for="(cabang, index) in paginatedCabang" :key="cabang.id" class="hover:bg-gray-50">
+              <td class="px-4 py-3 text-center -gray-200">{{ cabang.name }}</td>
+              <td class="px-4 py-3 text-center -gray-200">{{ cabang.city }}<br>{{ cabang.pos_code }}</td>
               <td class="px-4 py-3 text-center -gray-200">{{ cabang.address }}</td>
               <td class="w-[30%]  px-4 py-3 text-left -gray-200">{{ cabang.note }}</td>
               <td class="px-4 py-3 text-center -gray-200 flex justify-center gap-2">
@@ -60,20 +51,9 @@
         </table>
       </div>
     </div>
-
     <!-- Modal Tambah & Update -->
-    <Modal
-      v-if="modalOpen && modalType === 'add'"
-      @close="modalOpen = false"
-      :form="formData"
-      @save="saveData"
-    />
-    <ModalUpdate
-      v-if="modalOpen && modalType === 'edit'"
-      :cabang="formData"
-      @update="updateData"
-      @close="modalOpen = false"
-    />
+    <Modal v-if="modalOpen && modalType === 'add'" @close="modalOpen = false" :form="formData"  @save="saveData" />
+    <ModalUpdate v-if="modalOpen && modalType === 'edit'" :cabang="formData" @update="updateData" @close="modalOpen = false" />
   </div>
 </template>
 
@@ -86,15 +66,44 @@ import DeleteIcon from './Icon/DeleteIcon.vue'
 import EditIcon from './Icon/EditIcon.vue'
 
 // import element
+// icon
+import IconPlus from '@/components/Icons/IconPlus.vue'
+
 import Pagination from '@/components/Pagination/Pagination.vue'
 import LightButton from "@/components/Button/LightButton.vue"
 import DangerButton from "@/components/Button/DangerButton.vue"
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
-const cabangs = ref([])
+interface Cabang {
+  id: number;
+  city: string;
+  city_id?:number;
+  pos_code: string;
+  address: string;
+  note: string;
+}
+
+const cabangs = ref<Cabang[]>([]);
 const search = ref('')
 const modalOpen = ref(false)
 const modalType = ref('add')
+const formData = ref({
+  name: '',
+  city: '',
+  city_id: 0,
+  pos_code: '',
+  address: '',
+  tanda_tangan: null,
+  note: '',
+})
+const totalColumns = ref(5);
+const itemsPerPage = 10
+const currentPage = ref(1)
+const showNotification = ref(false)
+const notificationMessage = ref('')
+const notificationType = ref<'success' | 'error'>('success')
+const timeoutId = ref<number | null>(null)
+const searchTimeout = ref<number | null>(null)
 
 const fetchData = async () => {
   try {
@@ -113,19 +122,10 @@ const filteredCabang = computed(() => {
   )
 })
 
-const formData = ref({
-  name: '',
-  city: '',
-  pos_code: '',
-  address: '',
-  tanda_tangan: null,
-  note: '',
-})
-
 const openModal = (mode = 'add', cabang = null) => {
-
   if (mode === 'edit' && cabang) {
-    formData.value = { ...cabang, city: cabang.city_id || cabang.city }
+    formData.value = cabang
+    //{ ...cabang, city: cabang.city_id || cabang.city }
   } else {
     console.log('Masuk ke mode add')
     formData.value = {
@@ -199,13 +199,10 @@ const hapusData = async (cabang : any) => {
     }
   } catch (error) {
     console.error('Error saat menghapus cabang:', error)
-    // alert('Terjadi kesalahan, coba lagi!')
+    displayNotification('Terjadi kesalahan, coba lagi!', 'error')
   }
 }
 
-const totalColumns = ref(5);
-const itemsPerPage = 10
-const currentPage = ref(1)
 
 const totalPages = computed(() => {
   return Math.max(1, Math.ceil((filteredCabang.value?.length || 0) / itemsPerPage))
@@ -238,13 +235,6 @@ const prevPage = () => {
 const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
 });
-
-const showNotification = ref(false)
-const notificationMessage = ref('')
-const notificationType = ref<'success' | 'error'>('success')
-const timeoutId = ref<number | null>(null)
-const searchTimeout = ref<number | null>(null)
-
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message

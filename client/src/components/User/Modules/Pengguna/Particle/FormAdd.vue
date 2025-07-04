@@ -454,7 +454,7 @@ const handleSubmit = async (): Promise<void> => {
     console.log('Response dari server:', response)
 
     emit('save', form.value)
-    emit('pengguna-added')
+    // emit('pengguna-added')
     emit('close')
   } catch (error) {
     console.error('Gagal menyimpan data member:', error)

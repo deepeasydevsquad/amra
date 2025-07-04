@@ -19,6 +19,11 @@ import DetailPaket from '@/components/User/Modules/DetailPaket/DetailPaket.vue'
 import LightButton from "@/components/Button/LightButton.vue"
 import DangerButton from "@/components/Button/DangerButton.vue"
 
+// import Pagination from '@/components/Pagination/Pagination.vue'
+// import LightButton from "@/components/Button/LightButton.vue"
+// import DangerButton from "@/components/Button/DangerButton.vue"
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
+
 // import API
 import { daftarPaket, deletePaket } from '@/service/daftar_paket'
 import { ref, onMounted, computed } from 'vue';
@@ -215,27 +220,22 @@ const shortText = (teks:string, maxKarakter: number) => {
     </div>
     <div v-else-if="dataPaket" class="container mx-auto px-4 mt-10">
       <div class="flex justify-between items-center mb-6">
-        <button @click="openForm()"
-          class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
+        <PrimaryButton @click="openForm()">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
           Tambah Paket
-        </button>
+        </PrimaryButton>
 
         <div class="flex items-center">
           <label for="filter" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
-          <select
-            id="filter"
+          <select id="filter"
             class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-            v-model="filter"
-            @change="fetchData()"
-          >
+            v-model="filter" @change="fetchData()">
             <option value="" selected>Lihat Semua</option>
             <option value="sudah_berangkat">Sudah Berangkat</option>
             <option value="belum_berangkat">Belum Berangkat</option>
           </select>
-
           <div class="flex items-center ml-4">
             <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
             <input
