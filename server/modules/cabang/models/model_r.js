@@ -42,6 +42,7 @@ class Model_r {
               city : e.Mst_kotum.name,
               city_id : e.Mst_kotum.id,
               pos_code: e.pos_code, 
+              tanda_tangan: e.tanda_tangan,
               address: e.address,
               note: e.note
             });

@@ -49,6 +49,11 @@
           <p v-if="form.tanda_tangan" class="text-sm text-gray-600 mt-1">
             File saat ini: {{ form.tanda_tangan.name || 'Sudah ada tanda tangan' }}
           </p>
+          <p v-else class="text-xs text-gray-500 mt-1">
+            Gambar harus berekstensi <span class="font-semibold">.png</span>, maksimal
+            <span class="font-semibold">1 MB</span>, dan berukuran
+            <span class="font-semibold">110 x 80 pixel</span>.
+          </p>
         </div>
 
       </div>
