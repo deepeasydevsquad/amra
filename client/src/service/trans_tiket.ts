@@ -81,3 +81,24 @@ export const get_detail = async (param : any) => {
       throw error;
   }
 }
+
+export const detail_refund = async (param : any) => {
+
+  try {
+      const response = await api.post("/trans_tiket/detail_refund", param);
+      return response.data;
+  } catch (error) {
+      console.error("Gagal mengambil detail refund:", error);
+      throw error;
+  }
+}
+
+export const refund = async (param : any) => {
+  try {
+      const response = await api.post("/trans_tiket/refund", param);
+      return response.data;
+  } catch (error) {
+      console.error("Gagal melakukan refund tiket:", error);
+      throw error;
+  }
+}

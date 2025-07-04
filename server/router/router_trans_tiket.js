@@ -1,6 +1,7 @@
 const express = require("express");
 const { body, query } = require("express-validator");
 const controllers = require("../modules/trans_tiket/controllers/index");
+const controller_r = require("../modules/refund_tiket/controllers/index");
 const { authenticateToken } = require("../middleware/authenticateToken");
 
 const router = express.Router();
@@ -129,6 +130,45 @@ router.post(
       .withMessage("Ticket Registrasi wajib diisi"),
   ],
   controllers.detail_ticket
+);
+
+router.post(
+  "/trans_tiket/detail_refund",
+  authenticateToken,
+  [
+    body("register_number")
+      .notEmpty()
+      .withMessage("Ticket Registrasi wajib diisi"),
+  ],
+  controller_r.refund_tiket_detail
+);
+
+router.post(
+  "/trans_tiket/refund",
+  authenticateToken,
+  [
+    body("nomor_register")
+      .notEmpty()
+      .withMessage("Ticket Registrasi wajib diisi"),
+    body("costumer_name").notEmpty().withMessage("Nama wajib diisi"),
+    body("costumer_identity").notEmpty().withMessage("Identitas wajib diisi"),
+    body("detail")
+      .isArray({ min: 1 })
+      .withMessage("Detail refund harus berupa array dan minimal 1 data"),
+
+    body("detail.*.refund")
+      .notEmpty()
+      .withMessage("Nilai refund wajib diisi")
+      .isNumeric()
+      .withMessage("Nilai refund harus berupa angka"),
+
+    body("detail.*.fee")
+      .notEmpty()
+      .withMessage("Nilai fee wajib diisi")
+      .isNumeric()
+      .withMessage("Nilai fee harus berupa angka"),
+  ],
+  controller_r.refund_tiket
 );
 
 module.exports = router;
