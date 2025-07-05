@@ -62,14 +62,16 @@ class Model_r {
         ],
       });
 
-      const dataJamaah = await Paket_transaction.count({
-        where: {
-          division_id: this.division_id,
-          paket_id: {
-            [Op.in]: dataPaket.map(p => p.id),
+      var total_jamaah = {};
+      for( let x in dataPaket ) {
+        var dataJamaah = await Paket_transaction.count({
+          where: {
+            division_id: this.division_id,
+            paket_id: dataPaket[x].id
           },
-        },
-      });
+        });
+        total_jamaah = {...total_jamaah,...{[dataPaket[x].id] : dataJamaah}}
+      }
 
       const data = await Promise.all(dataPaket.map(async paket => {
         const prices = paket.Paket_prices.map(item => item.price);
@@ -100,7 +102,7 @@ class Model_r {
           durasi: moment(paket.return_date).diff(moment(paket.departure_date), 'days'),
           departure_date: moment(paket.departure_date).format("DD MMM YY"),
           prices: price,
-          total_jamaah: dataJamaah,
+          total_jamaah: total_jamaah[paket.id],
         };
       }));
 

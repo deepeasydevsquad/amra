@@ -155,16 +155,9 @@ onMounted(() => {
           </div>
 
       </div>
-
-      <!-- kontenmu di sini -->
     </template>
   </vueper-slide>
 </vueper-slides>
-
-
-<!-- :style="'background-color: ' + ['#ff5252', '#42b983'][i % 2]" -->
-
-
 
 
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
