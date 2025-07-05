@@ -180,7 +180,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container mx-auto p-4">
+  <div class="container mx-auto py-4 px-0">
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
       <div class="flex gap-2">
         <PrimaryButton @click="isFormOpen = true">

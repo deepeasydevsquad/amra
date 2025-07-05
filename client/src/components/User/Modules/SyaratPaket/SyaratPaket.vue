@@ -99,7 +99,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-4 bg-white min-h-screen">
+  <div class="py-4 px-0 bg-white min-h-screen">
     <div
       v-if="isLoading"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"

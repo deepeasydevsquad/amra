@@ -115,7 +115,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container mx-auto px-4 mt-10">
+  <div class="container mx-auto py-4 px-0 ">
     <div class="flex justify-between items-center mb-6">
       <div class="flex justify-end items-center w-full mb-4">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
