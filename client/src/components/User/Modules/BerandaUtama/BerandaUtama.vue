@@ -191,7 +191,7 @@ onMounted(() => {
         <font-awesome-icon icon="fa-undo-alt" class="mr-0" /> Reload Page
       </button>
       <div class="bg-gray-200 px-4 py-2 rounded border border-gray-300 text-sm flex items-center gap-1 hover:bg-gray-300">
-        <font-awesome-icon icon="fa-solid fa-money-bill-alt" class="mr-2 w-6 h-6" /> <strong>SALDO perusahaan :</strong> Rp. {{ dataStatusCard.saldo_perusahaan.toLocaleString() }}
+        <font-awesome-icon icon="fa-solid fa-money-bill-alt" class="mr-2 w-6 h-6" /> <strong>SALDO PERUSAHAAN :</strong> Rp. {{ dataStatusCard.saldo_perusahaan.toLocaleString() }}
       </div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-8 gap-4">

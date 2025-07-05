@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { getDaftarPaket } from '@/service/trans_paket'
 import Notification from '@/components/User/Modules/TransPaket/Particle/Notification.vue'
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 const BASE_URL = import.meta.env.VITE_APP_API_BASE_URL
 
 interface Paket {
@@ -70,98 +71,58 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-4 bg-white rounded-b-lg shadow-md text-gray-800">
-    <div
-      v-if="isLoading"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-    >
+  <div class="py-4 px-0 bg-white rounded-b-lg  text-gray-800">
+    <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" >
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400"></div>
     </div>
-
     <div v-else>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-        <div
-          v-for="paket in daftarPaket"
-          :key="paket.id"
-          class="bg-white border rounded-lg shadow-sm hover:shadow-md transition"
-        >
-          <div
-            class="relative w-full h-96 rounded-t-lg bg-gray-200"
-            :class="{ 'bg-gray-300': !paket.photo || paket.photo === '-' }"
-          >
-            <img
-              v-if="paket.photo && paket.photo !== '-'"
-              :src="BASE_URL + paket.photo"
-              :alt="`Foto Paket ${paket.name}`"
-              class="w-full h-full object-cover"
-                          @error="paket.photo = '-'"
-            />
-            <div
-              v-else
-              class="absolute inset-0 flex items-center justify-center text-gray-500 border-2 border-dashed border-gray-400"
-            >
+        <div v-for="paket in daftarPaket" :key="paket.id" class="bg-white border rounded-lg shadow-sm hover:shadow-md transition" >
+          <div class="relative w-full h-96 rounded-t-lg bg-gray-200" :class="{ 'bg-gray-300': !paket.photo || paket.photo === '-' }" >
+            <img v-if="paket.photo && paket.photo !== '-'" :src="BASE_URL + paket.photo" :alt="`Foto Paket ${paket.name}`" class="w-full h-full object-cover" @error="paket.photo = '-'" />
+            <div v-else class="absolute inset-0 flex items-center justify-center text-gray-500 border-2 border-dashed border-gray-400" >
               <p class="text-xl font-semibold">Gambar tidak ditemukan</p>
             </div>
           </div>
-          <h3 class="p-2 text-lg font-bold text-center">{{ paket.name }}</h3>
+          <h3 class="p-2 mt-3 text-lg font-bold text-center">{{ paket.name }}</h3>
           <div class="pr-4 pl-4 space-y-8 pb-8 pt-4">
-            <div class="grid grid-cols-2 gap-y-3 text-sm">
+            <div class="grid grid-cols-2 gap-y-3 text-sm pr-4 pl-4">
               <div class="flex items-center gap-1">
-                <font-awesome-icon :icon="['fas', 'qrcode']" class="w-4 h-4 text-gray-600" />
+                <font-awesome-icon :icon="['fas', 'qrcode']" class="w-4 h-4 text-gray-600 pr-2" />
                 <span>Kode Paket</span>
               </div>
-              <div class="ml-6 font-semibold">{{ paket.kode }}</div>
-
+              <div class="ml-6 font-semibold text-right">{{ paket.kode }}</div>
               <div class="flex items-center gap-1">
-                <font-awesome-icon :icon="['fas', 'calendar']" class="w-4 h-4 text-gray-600" />
+                <font-awesome-icon :icon="['fas', 'calendar']" class="w-4 h-4 text-gray-600 pr-2" />
                 <span>Jdwl. Berangkat</span>
               </div>
-              <div class="ml-6 font-semibold">{{ paket.departure_date }}</div>
-
+              <div class="ml-6 font-semibold text-right">{{ paket.departure_date }}</div>
               <div class="flex items-center gap-1">
-                <font-awesome-icon :icon="['far', 'clock']" class="w-4 h-4 text-gray-600" />
+                <font-awesome-icon :icon="['far', 'clock']" class="w-4 h-4 text-gray-600 pr-2" />
                 <span>Durasi Perjalanan</span>
               </div>
-              <div class="ml-6 font-semibold">{{ paket.durasi }} Hari</div>
-
+              <div class="ml-6 font-semibold text-right">{{ paket.durasi }} Hari</div>
               <div class="flex items-center gap-1">
-                <font-awesome-icon :icon="['far', 'user']" class="w-4 h-4 text-gray-600" />
+                <font-awesome-icon :icon="['far', 'user']" class="w-4 h-4 text-gray-600 pr-2" />
                 <span>Total Jamaah</span>
               </div>
-              <div class="ml-6 font-semibold">{{ paket.total_jamaah }} Orang</div>
-
+              <div class="ml-6 font-semibold text-right">{{ paket.total_jamaah }} Orang</div>
               <div class="flex items-center gap-1">
-                <font-awesome-icon :icon="['fas', 'money-bill']" class="w-4 h-4 text-gray-600" />
+                <font-awesome-icon :icon="['fas', 'money-bill']" class="w-4 h-4 text-gray-600 pr-2" />
                 <span>Harga</span>
               </div>
               <div class="flex flex-col">
-                <span class="ml-6 font-semibold text-blue-600">
-                  {{ formatPrice(paket.prices.min) }}
-                </span>
-                <span
-                  v-if="paket.prices.min !== paket.prices.max"
-                  class="ml-6 font-semibold text-blue-600"
-                >
-                  {{ formatPrice(paket.prices.max) }}
-                </span>
+                <span class="ml-6 font-semibold text-blue-600 text-right">{{ formatPrice(paket.prices.min) }}</span>
+                <span v-if="paket.prices.min !== paket.prices.max" class="ml-6 font-semibold text-blue-600" >{{ formatPrice(paket.prices.max) }}</span>
               </div>
             </div>
-            <button
-              @click="handleBeliPaket(paket.id)"
-              class="mt-3 w-full px-3 py-2 border border-[#455494] text-[#455494] rounded hover:bg-[#455494] hover:text-white transition"
-            >
-              Beli Paket
-            </button>
+            <PrimaryButton @click="handleBeliPaket(paket.id)" :auto="false" >
+              BELI PAKET
+            </PrimaryButton>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <Notification
-    :showNotification="showNotification"
-    :notificationType="notificationType"
-    :notificationMessage="notificationMessage"
-    @close="showNotification = false"
-  />
+  <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" />
 </template>
