@@ -349,15 +349,15 @@ const cetakInvoice = async (invoice: string) => {
     </div>
 
     <!-- Table data -->
-    <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
+    <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md mb-5">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
-          <tr class="bg-gray-100">
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">No. Register</th>
-            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Klien</th>
-            <th class="w-[46%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Item Transaksi</th>
-            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Info Harga</th>
-            <th class="w-[5%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">No. Register</th>
+            <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Info Klien</th>
+            <th class="w-[46%] px-6 py-3 font-medium text-gray-900 text-center">Info Item Transaksi</th>
+            <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Info Harga</th>
+            <th class="w-[5%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -520,14 +520,14 @@ const cetakInvoice = async (invoice: string) => {
   </div>
 
   <!-- Modal -->
-  <transition
+  <!-- <transition
     enter-active-class="transition duration-200 ease-out"
     enter-from-class="transform scale-95 opacity-0"
     enter-to-class="transform scale-100 opacity-100"
     leave-active-class="transition duration-200 ease-in"
     leave-from-class="transform scale-100 opacity-100"
     leave-to-class="transform scale-95 opacity-0"
-  >
+  > -->
     <Form
       v-if="isModalOpen && selectedPaketLA"
       :isModalOpen="isModalOpen"
@@ -536,7 +536,7 @@ const cetakInvoice = async (invoice: string) => {
       @save="saveData"
       @close="isModalOpen = false; fetchData()"
       />
-  </transition>
+  <!-- </transition> -->
 
   <!-- FormItem Overlay -->
   <Transition

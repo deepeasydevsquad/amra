@@ -180,7 +180,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container mx-auto py-4 px-0">
+  <div class="container mx-auto p-4 min-h-screen">
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
       <div class="flex gap-2">
         <PrimaryButton @click="isFormOpen = true">
@@ -222,15 +222,15 @@ onMounted(async () => {
 
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
       <table
-        class="w-full border-collapse bg-white text-center text-base justify-center text-gray-700"
+        class="w-full border-collapse bg-white text-center text-sm justify-center text-gray-700"
       >
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="w-[25%] px-4 py-3 font-bold text-gray-900 text-base">Tipe Kamar</th>
-            <th class="w-[10%] px-4 py-3 font-bold text-gray-900 text-base">Kapasitas Kamar</th>
-            <th class="w-[35%] px-4 py-3 font-bold text-gray-900 text-base">Daftar Jamaah</th>
-            <th class="w-[15%] px-4 py-3 font-bold text-gray-900 text-base">Nama Kota</th>
-            <th class="w-[10%] px-4 py-3 font-bold text-center text-gray-900 text-base">Aksi</th>
+            <th class="w-[25%] px-4 py-3 font-medium text-gray-900 text-sm">Tipe Kamar</th>
+            <th class="w-[10%] px-4 py-3 font-medium text-gray-900 text-sm">Kapasitas Kamar</th>
+            <th class="w-[35%] px-4 py-3 font-medium text-gray-900 text-sm">Daftar Jamaah</th>
+            <th class="w-[15%] px-4 py-3 font-medium text-gray-900 text-sm">Nama Kota</th>
+            <th class="w-[10%] px-4 py-3 font-medium text-center text-gray-900 text-sm">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -242,8 +242,8 @@ onMounted(async () => {
             </td>
           </tr>
           <tr v-else-if="kamarList.length === 0">
-            <td :colspan="totalColumns || 5" class="px-4 py-4 text-center text-gray-500">
-              {{ search ? 'Data tidak ditemukan' : 'Belum ada data kamar' }}
+            <td :colspan="totalColumns || 5" class="px-4 py-3 text-center text-gray-500">
+              {{ search ? 'Data tidak ditemukan' : 'Daftar Kamar Tidak Ditemukan' }}
             </td>
           </tr>
           <tr v-for="item in kamarList" :key="item.id" class="hover:bg-gray-50 transition">

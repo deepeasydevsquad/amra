@@ -7,6 +7,7 @@ import Confirmation from '@/components/User/Modules/DaftarTipePaket/Particle/Con
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 import LightButton from "@/components/Button/LightButton.vue"
 import Pagination from '@/components/Pagination/Pagination.vue'
+import Form from '@/components/Modal/Form.vue'
 
 // Import service API
 import { daftarTipePaket, addTipePaket, editTipePaket, deleteTipePaket } from '@/service/daftar_tipe_paket'; // Import function POST
@@ -180,14 +181,12 @@ const deleteData = async (id: number) => {
   <div class="container mx-auto px-4 mt-10">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between items-center mb-6">
-      <button
-        @click="openModal()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
+       <PrimaryButton @click="openModal()">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
         Tambah Tipe Paket
-      </button>
+      </PrimaryButton>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
@@ -201,12 +200,12 @@ const deleteData = async (id: number) => {
       </div>
     </div>
     <!-- Table data -->
-    <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
+    <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md mb-5">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="w-[90%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Tipe Paket</th>
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[90%] px-6 py-3 font-medium text-gray-900 text-center">Nama Tipe Paket</th>
+            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -231,55 +230,25 @@ const deleteData = async (id: number) => {
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
           <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" />
-
         </tfoot>
       </table>
     </div>
 
     <!-- Modal Form -->
-    <Transition
-      enter-active-class="transition duration-200 ease-out"
-      enter-from-class="transform scale-95 opacity-0"
-      enter-to-class="transform scale-100 opacity-100"
-      leave-active-class="transition duration-200 ease-in"
-      leave-from-class="transform scale-100 opacity-100"
-      leave-to-class="transform scale-95 opacity-0"
-    >
-      <div v-if="isModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="isModalOpen = false"></div>
-          <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
-          <div class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <h3 class="text-2xl flex justify-center font-bold leading-6 text-gray-900 mb-4">
-                {{ selectedTipePaket.id ? "Edit Data Tipe Paket" : "Tambah Tipe Paket Baru" }}
-              </h3>
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
-                  <input
-                    v-model="selectedTipePaket.name"
-                    type="text"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
-                    placeholder="Nama Tipe Paket"
-                  />
-                  <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
-                </div>
-              </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-2">
-              <PrimaryButton @click="saveData">{{ selectedTipePaket.id ? "SIMPAN PERUBAHAN" : "TAMBAH" }}</PrimaryButton>
-              <button
-                @click="isModalOpen = false"
-                class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                BATAL
-              </button>
-            </div>
-          </div>
+    <Form :form-status="isModalOpen" :label="selectedTipePaket.id ? 'Edit Data Tipe Paket' : 'Tambah Tipe Paket Baru'" width="sm:w-full sm:max-w-md" @close="isModalOpen = false" @cancel="isModalOpen = false"  @submit="saveData" :submitLabel="selectedTipePaket.id ? 'SIMPAN PERUBAHAN' : 'TAMBAH'">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+          <input
+            v-model="selectedTipePaket.name"
+            type="text"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
+            placeholder="Nama Tipe Paket"
+          />
+          <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
         </div>
       </div>
-    </Transition>
+    </Form>
 
     <!-- Confirmation Dialog -->
     <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >

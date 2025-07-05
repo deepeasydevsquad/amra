@@ -99,7 +99,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="py-4 px-0 bg-white min-h-screen">
+  <div class="p-4 bg-white min-h-screen">
     <div
       v-if="isLoading"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
@@ -124,11 +124,11 @@ onMounted(() => {
     <!-- Table data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">Jamaah</th>
-            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Jenis Kelamin</th>
-            <th class="w-[60%] px-6 py-4 font-medium text-gray-900 text-center">Syarat-syarat</th>
+            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Jamaah</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Jenis Kelamin</th>
+            <th class="w-[60%] px-6 py-3 font-medium text-gray-900 text-center">Syarat-syarat</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -155,8 +155,8 @@ onMounted(() => {
             </tr>
           </template>
           <tr v-else>
-            <td :colspan="totalColumns" class="px-6 py-4 text-center text-base text-gray-600">
-              Daftar Syarat tidak ditemukan.
+            <td :colspan="totalColumns" class="px-6 py-4 text-center text-sm text-gray-600">
+              Daftar Syarat Tidak Ditemukan.
             </td>
           </tr>
         </tbody>

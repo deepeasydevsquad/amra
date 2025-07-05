@@ -8,8 +8,8 @@ import DangerButton from '@/components/User/Modules/KostumerPaketLa/Particle/Dan
 import EditButton from '@/components/User/Modules/KostumerPaketLa/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/KostumerPaketLa/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/KostumerPaketLa/Particle/Confirmation.vue'
-
 import LightButton from "@/components/User/Modules/DaftarPaketLa/Particle/LightButton.vue"
+import Form from '@/components/Modal/Form.vue'
 
 // Import service API
 import { daftarKostumerPaketLA, addKostumerPaketLA, editKostumerPaketLA, deleteKostumerPaketLA } from '@/service/daftar_kostumer_paket_la' // Import function POST
@@ -219,14 +219,14 @@ const deleteData = async (id: number) => {
     </div>
 
     <!-- Table data -->
-    <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
+    <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md mb-5">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-           <th class="w-[50%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Kostumer</th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor HP</th>
-            <th class="w-[35%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Alamat</th>
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+           <th class="w-[50%] px-6 py-3 font-medium text-gray-900 text-center">Nama Kostumer</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Nomor HP</th>
+            <th class="w-[35%] px-6 py-3 font-medium text-gray-900 text-center">Alamat</th>
+            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -267,75 +267,40 @@ const deleteData = async (id: number) => {
       </table>
     </div>
 
-    <!-- Modal Form -->
-    <Transition
-      enter-active-class="transition duration-200 ease-out"
-      enter-from-class="transform scale-95 opacity-0"
-      enter-to-class="transform scale-100 opacity-100"
-      leave-active-class="transition duration-200 ease-in"
-      leave-from-class="transform scale-100 opacity-100"
-      leave-to-class="transform scale-95 opacity-0"
-    >
-      <div v-if="isModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="isModalOpen = false"></div>
-          <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
-          <div class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <h3 class="text-2xl flex justify-center font-bold leading-6 text-gray-900 mb-4">
-                {{ selectedKostumerPaketLA.id ? "Edit Data Kostumer" : "Tambah Kostumer Baru" }}
-              </h3>
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
-                  <input
-                    v-model="selectedKostumerPaketLA.name"
-                    type="text"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
-                    placeholder="Nama Kostumer"
-                  />
-                  <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Nomor HP</label>
-                  <input
-                    v-model="selectedKostumerPaketLA.mobile_number"
-                    type="text"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
-                    placeholder="Nomor HP"
-                  />
-                  <p v-if="errors.mobile_number" class="mt-1 text-sm text-red-600">{{ errors.mobile_number }}</p>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
-                  <textarea
-                    v-model="selectedKostumerPaketLA.address"
-                    rows="3"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
-                    placeholder="Alamat"
-                  ></textarea>
-                  <p v-if="errors.address" class="mt-1 text-sm text-red-600">{{ errors.address }}</p>
-                </div>
-              </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-              <button
-                @click="saveData"
-                class="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                {{ selectedKostumerPaketLA.id ? "Simpan Perubahan" : "Tambah" }}
-              </button>
-              <button
-                @click="isModalOpen = false"
-                class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                Batal
-              </button>
-            </div>
-          </div>
+    <Form :form-status="isModalOpen" :label="selectedKostumerPaketLA.id ? 'Edit Data Kostumer' : 'Tambah Kostumer Baru' " width="sm:w-full sm:max-w-md" @close="isModalOpen = false" @cancel="isModalOpen = false"  @submit="saveData" :submitLabel="selectedKostumerPaketLA.id ? 'SIMPAN PERUBAHAN' : 'TAMBAH'">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+          <input
+            v-model="selectedKostumerPaketLA.name"
+            type="text"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
+            placeholder="Nama Kostumer"
+          />
+          <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nomor HP</label>
+          <input
+            v-model="selectedKostumerPaketLA.mobile_number"
+            type="text"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
+            placeholder="Nomor HP"
+          />
+          <p v-if="errors.mobile_number" class="mt-1 text-sm text-red-600">{{ errors.mobile_number }}</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+          <textarea
+            v-model="selectedKostumerPaketLA.address"
+            rows="3"
+            class="resize-none w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
+            placeholder="Alamat"
+          ></textarea>
+          <p v-if="errors.address" class="mt-1 text-sm text-red-600">{{ errors.address }}</p>
         </div>
       </div>
-    </Transition>
+    </Form>
 
     <!-- Confirmation Dialog -->
     <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >

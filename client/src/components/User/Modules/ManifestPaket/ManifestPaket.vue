@@ -164,19 +164,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="py-4 px-0 bg-white min-h-screen">
-    <div
-      v-if="isLoading"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-    >
+  <div class="p-4 bg-white min-h-screen">
+    <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" >
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400"></div>
     </div>
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
-      <button
-        @click="DownloadAbsensi()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
-      >
+      <button @click="DownloadAbsensi()" class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
         <DownloadIcon />
         Download Manifest
       </button>
@@ -196,16 +190,16 @@ onMounted(() => {
     <!-- Table data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">Jamaah</th>
-            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Status</th>
-            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Umur</th>
-            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Nomor Whatsapp</th>
-            <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">
+            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Jamaah</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Status</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Umur</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Nomor Whatsapp</th>
+            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">
               Daftar Item Yang Belum Lengkap
             </th>
-            <th class="w-[5%] px-6 py-4 font-medium text-gray-900 text-center">Aksi</th>
+            <th class="w-[5%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -259,8 +253,8 @@ onMounted(() => {
             </tr>
           </template>
           <tr v-else>
-            <td :colspan="totalColumns" class="px-6 py-4 text-center text-base text-gray-600">
-              Daftar Manifest tidak ditemukan.
+            <td :colspan="totalColumns" class="px-6 py-3 text-center text-sm text-gray-600">
+              Daftar Manifes Tidak Ditemukan.
             </td>
           </tr>
         </tbody>

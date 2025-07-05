@@ -166,7 +166,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="py-4 px-0 bg-white min-h-screen">
+  <div class="p-4 bg-white min-h-screen">
     <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400"></div>
     </div>
@@ -192,15 +192,15 @@ onMounted(() => {
     </div>
 
     <!-- Table data -->
-    <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
+    <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md mb-5">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Jamaah</th>
-            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Mahram</th>
-            <th class="w-[20%] px-6 py-4 font-medium text-gray-900 text-center">Paket</th>
-            <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">Info</th>
-            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Aksi</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Jamaah</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Mahram</th>
+            <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Paket</th>
+            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Info</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -248,7 +248,7 @@ onMounted(() => {
             </tr>
           </template>
           <tr v-else>
-            <td :colspan=totalColumns class="px-6 py-4 text-center text-base text-gray-600">Daftar Jamaah tidak ditemukan.</td>
+            <td :colspan=totalColumns class="px-6 py-3 text-center text-sm text-gray-600">Daftar Jamaah Tidak Ditemukan.</td>
           </tr>
         </tbody>
           <tfoot class="bg-gray-100 font-bold">

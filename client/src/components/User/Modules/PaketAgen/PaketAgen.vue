@@ -115,9 +115,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container mx-auto py-4 px-0 ">
-    <div class="flex justify-between items-center mb-6">
-      <div class="flex justify-end items-center w-full mb-4">
+  <div class="container mx-auto p-4 min-h-screen">
+    <div class="flex justify-between items-center mb-4">
+      <div class="flex justify-end items-center w-full">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
           v-model="searchQuery"
@@ -130,18 +130,18 @@ onMounted(() => {
     </div>
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="text-center px-6 py-4 w-[30%]">Info Agen</th>
-            <th class="text-center px-6 py-4 w-[30%]">Info Jamaah</th>
-            <th class="text-center px-6 py-4 w-[15%]">Fee</th>
-            <th class="text-center px-6 py-4 w-[15%]">Sudah Bayar</th>
-            <th class="text-center px-6 py-4 w-[10%]">Aksi</th>
+            <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[30%]">Info Agen</th>
+            <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[30%]">Info Jamaah</th>
+            <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[15%]">Fee</th>
+            <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[15%]">Sudah Bayar</th>
+            <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[10%]">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
           <tr v-if="filteredData.length === 0">
-            <td colspan="5" class="text-center py-4 text-gray-500">Data tidak ada</td>
+            <td colspan="5" class="text-center py-3 text-sm text-gray-500">Daftar Agen Tidak Ditemukan</td>
           </tr>
           <tr
             v-for="item in filteredData"

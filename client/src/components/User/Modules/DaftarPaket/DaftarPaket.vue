@@ -250,17 +250,17 @@ const shortText = (teks:string, maxKarakter: number) => {
         </div>
       </div>
       <!-- Table data -->
-      <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
+      <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md mb-5">
         <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-          <thead class="bg-gray-50">
+          <thead class="bg-gray-100">
             <tr>
-              <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Paket</th>
-              <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Harga</th>
-              <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Deskripsi</th>
-              <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Tgl. Berangkat</th>
-              <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Tgl. Kembali</th>
-              <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Total Jamaah</th>
-              <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+              <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Nama Paket</th>
+              <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Harga</th>
+              <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Deskripsi</th>
+              <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Tgl. Berangkat</th>
+              <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Tgl. Kembali</th>
+              <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Total Jamaah</th>
+              <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 border-t border-gray-100">
