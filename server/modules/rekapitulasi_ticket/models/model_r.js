@@ -372,18 +372,16 @@ class Model_r {
         ],
       });
 
-      // Step 3: Transform the data to flatten all transaction details into one list
       const transformedDetails = details.flatMap(detail => {
         const trx = detail.Ticket_transaction;
         if (!trx || !trx.Ticket_transaction_details) {
-          return []; // Return an empty array to be filtered out by flatMap
+          return [];
         }
 
-        // Map over each of the transaction's details
         return trx.Ticket_transaction_details.map(trxDetail => {
           const airline = trxDetail.Mst_airline ? trxDetail.Mst_airline.name : 'N/A';
           return {
-            id: trxDetail.id, // Use the actual detail ID for a unique key
+            id: trxDetail.id,
             nomor_register: trx.nomor_register,
             tanggal_transaksi: moment(trx.createdAt).format('DD-MM-YYYY'),
             pax: trxDetail.pax || 1,
