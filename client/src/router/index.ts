@@ -28,6 +28,7 @@ import KwitansiPengembalianBarangPaket from '@/components/User/Modules/Invoice/K
 import CetakDataAbsensiJamaah from '@/components/User/Modules/DaftarJamaahPaket/Widgets/CetakDataAbsensiJamaah.vue'
 import DownloadDaftarKamar from '@/components/User/Modules/KamarPaket/Widget/DownloadDaftarKamar.vue'
 import InvoiceTransTransport from '@/components/User/Modules/Invoice/InvoiceTransTransport.vue'
+import CetakRekapitulasi from '@/components/User/Modules/RekapitulasiTicket/Widget/CetakRekapitulasi.vue'
 import Profile from '@/components/User/Modules/Profile/Profile.vue'
 
 const router = createRouter({
@@ -182,13 +183,16 @@ const router = createRouter({
       path: '/download-daftar-kamar',
       name: 'download-daftar-kamar',
       component: DownloadDaftarKamar,
-
     },
-
     {
       path: '/kwitansi-trans-transport/:invoice',
       name: 'kwitansi-trans-transport',
       component: InvoiceTransTransport,
+    },
+    {
+      path: '/rekapitulasi-ticket/cetak/:regnumb',
+      name: 'rekapitulasi-ticket',
+      component: CetakRekapitulasi
     },
     {
       path : '/profile',

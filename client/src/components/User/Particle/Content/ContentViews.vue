@@ -55,6 +55,7 @@ import TransaksiPassport from '../../Modules/TransaksiPassport/TransaksiPassport
 import TransHotel from '../../Modules/TransHotel/TransHotel.vue'
 import Modal from '../../Modules/Modal/Modal.vue'
 import TransTransport from '../../Modules/TransTransport/TransTransport.vue'
+import RekapitulasiTicket from '../../Modules/RekapitulasiTicket/RekapitulasiTicket.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -104,6 +105,7 @@ const tabComponents = {
   trans_hotel: TransHotel,
   modal: Modal,
   trans_transport: TransTransport,
+  rekapitulasi_tiket: RekapitulasiTicket,
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click
