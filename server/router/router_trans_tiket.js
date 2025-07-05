@@ -2,6 +2,7 @@ const express = require("express");
 const { body, query } = require("express-validator");
 const controllers = require("../modules/trans_tiket/controllers/index");
 const controller_r = require("../modules/refund_tiket/controllers/index");
+const controller_r2 = require("../modules/reschelude_tiket/controllers/index");
 const { authenticateToken } = require("../middleware/authenticateToken");
 
 const router = express.Router();
@@ -171,4 +172,54 @@ router.post(
   controller_r.refund_tiket
 );
 
+router.post(
+  "/trans_tiket/detail_reschedule",
+  authenticateToken,
+  [
+    body("nomor_register")
+      .notEmpty()
+      .withMessage("Ticket Registrasi wajib diisi"),
+  ],
+  controller_r2.detail_reschedule
+);
+
+router.post(
+  "/trans_tiket/reschedule",
+  authenticateToken,
+  [
+    body("ticket_transaction_id")
+      .notEmpty()
+      .withMessage("ID transaksi tiket wajib diisi")
+      .isInt()
+      .withMessage("ID transaksi harus berupa angka"),
+
+    body("costumer_name").notEmpty().withMessage("Nama customer wajib diisi"),
+
+    body("costumer_identity")
+      .notEmpty()
+      .withMessage("Identitas customer wajib diisi"),
+
+    body("details")
+      .isArray({ min: 1 })
+      .withMessage(
+        "Detail reschedule wajib berbentuk array dan tidak boleh kosong"
+      ),
+    body("details.*.ticket_transaction_detail_id")
+      .notEmpty()
+      .withMessage("ID detail transaksi wajib diisi"),
+    body("details.*.departure_date")
+      .notEmpty()
+      .withMessage("Tanggal keberangkatan baru wajib diisi"),
+    body("details.*.travel_price")
+      .notEmpty()
+      .withMessage("Harga travel wajib diisi"),
+    body("details.*.costumer_price")
+      .notEmpty()
+      .withMessage("Harga customer wajib diisi"),
+    body("details.*.code_booking")
+      .notEmpty()
+      .withMessage("Kode booking wajib diisi"),
+  ],
+  controller_r2.reschelude
+);
 module.exports = router;
