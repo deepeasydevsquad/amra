@@ -11,6 +11,34 @@ module.exports = {
         createdAt: new Date(), 
         updatedAt: new Date() 
       },
+      { 
+        paket_id: 2,
+        mst_paket_type_id: 1,
+        price: 33000000,
+        createdAt: new Date(), 
+        updatedAt: new Date() 
+      },
+      { 
+        paket_id: 2,
+        mst_paket_type_id: 2,
+        price: 43000000,
+        createdAt: new Date(), 
+        updatedAt: new Date() 
+      },
+      { 
+        paket_id: 3,
+        mst_paket_type_id: 1,
+        price: 44000000,
+        createdAt: new Date(), 
+        updatedAt: new Date() 
+      },
+      { 
+        paket_id: 4,
+        mst_paket_type_id: 1,
+        price: 44000000,
+        createdAt: new Date(), 
+        updatedAt: new Date() 
+      },
     ], {});
   },
 
