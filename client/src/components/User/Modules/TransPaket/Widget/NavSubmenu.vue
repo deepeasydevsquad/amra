@@ -13,7 +13,7 @@ const current = ref('daftar_paket')
 const items = [
   { label: 'Daftar Paket', icon: 'box-open', value: 'daftar_paket' },
   { label: 'Daftar Jamaah', icon: 'users', value: 'daftar_jamaah' },
-  { label: 'Pembayaran Paket', icon: 'money-bill', value: 'pembayaran_paket' },
+  // { label: 'Pembayaran Paket', icon: 'money-bill', value: 'pembayaran_paket' },
   { label: 'Pembayaran Paket Agen', icon: 'user-check', value: 'pembayaran_paket_agen' },
 ]
 

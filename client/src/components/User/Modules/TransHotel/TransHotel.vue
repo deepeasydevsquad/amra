@@ -291,20 +291,14 @@ const cetak_invoice = (invoice: string) => {
 
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center w-[10%]">Invoice</th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center w-[15%]">
-              Nama/Nomor Identitas Pembayar
-            </th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center w-[40%]">
-              Info Transaksi Hotel
-            </th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center w-[20%]">Total</th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center w-[15%]">
-              Tanggal Transaksi
-            </th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center w-[15%]">Aksi</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[10%]">Invoice</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">Nama/Nomor Identitas Pembayar</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[40%]">Info Transaksi Hotel</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">Total</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">Tanggal Transaksi</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[5%]">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -340,12 +334,12 @@ const cetak_invoice = (invoice: string) => {
             <td class="px-6 py-4 text-center align-top">{{ transaksi.tanggal_transaksi }}</td>
             <td class="px-6 py-4 text-center align-top">
               <div class="flex flex-col items-center gap-2">
-                <DangerButton @click="deleteData(transaksi.id)">
-                  <DeleteIcon />
-                </DangerButton>
                 <LightButton @click="cetak_invoice(transaksi.invoice)">
                   <CetakIcon />
                 </LightButton>
+                <DangerButton @click="deleteData(transaksi.id)">
+                  <DeleteIcon />
+                </DangerButton>
               </div>
             </td>
           </tr>

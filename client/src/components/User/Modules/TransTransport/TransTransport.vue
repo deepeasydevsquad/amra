@@ -268,61 +268,45 @@ const parseIDR = (value: string): number => {
     </div>
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="text-center font-medium  px-6 py-4 w-[10%]">Invoice</th>
-            <th class="text-center font-medium  px-6 py-4 w-[30%]">Nama / Nomor Identitas Pembayar</th>
-            <th class="text-center font-medium  px-6 py-4 w-[30%]">Info Transport</th>
-            <th class="text-center font-medium  px-6 py-4 w-[15%]">Total</th>
-            <th class="text-center font-medium  px-6 py-4 w-[15%]">Tanggal Transaksi</th>
-            <th class="text-center font-medium  px-6 py-4 w-[10%]">Aksi</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[10%]">Invoice</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[30%]">Nama / Nomor Identitas Pembayar</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[30%]">Info Transport</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[15%]">Total</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[15%]">Tanggal Transaksi</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[10%]">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
-          <tr v-if="filteredData.length === 0">
-            <td colspan="6" class="text-center py-4 text-gray-500">Data tidak ada</td>
-          </tr>
-
+          <tr v-if="filteredData.length === 0"><td colspan="6" class="text-center py-4 text-gray-500">Daftar Transaksi Transport Tidak Ditemukan</td></tr>
           <tr v-for="item in filteredData" :key="item.invoice" class="hover:bg-gray-50">
             <td class="text-center px-6 py-4 align-top">{{ item.invoice }}</td>
-
-            <td class="px-6 py-4 align-top">
-              <div>{{ item.payer }} / {{ item.payer_identity }}</div>
-            </td>
-
+            <td class="px-6 py-4 align-top"><div>{{ item.payer }} / {{ item.payer_identity }}</div></td>
             <td class="px-6 py-4 align-top">
               <div v-for="(mobil, idx) in item.detail_mobil" :key="idx" class="mb-2">
                 <div class="grid grid-cols-[120px_1fr] gap-y-1 items-start">
                   <div>Nama Mobil</div>
-                  <div>
-                    : <strong>{{ mobil.nama_mobil }}</strong>
-                  </div>
-
+                  <div>: <strong>{{ mobil.nama_mobil }}</strong></div>
                   <div>Plat Mobil</div>
                   <div>: {{ mobil.car_number }}</div>
-
                   <div>Harga Per Paket</div>
                   <div>: Rp {{ mobil.price?.toLocaleString() }}</div>
                 </div>
                 <hr class="my-2 border-dashed" />
               </div>
             </td>
-
-            <td class="text-center px-6 py-4 align-top">
-              Rp {{ item.total_price?.toLocaleString() }}
-            </td>
-
-            <td class="text-center px-6 py-4 align-top">
-              {{ item.tanggal_transaksi }}
-            </td>
-
-            <td class="text-center px-6 py-4 align-top">
-              <LightButton @click="cetak_invoice(item.invoice)">
-                <CetakIcon class="h-6 w-6 text-gray-600" />
-              </LightButton>
-              <DangerButton @click="deleteData(item.id)">
-                <DeleteIcon class="w-5 h-5" />
-              </DangerButton>
+            <td class="text-center px-6 py-4 align-top">Rp {{ item.total_price?.toLocaleString() }}</td>
+            <td class="text-center px-6 py-4 align-top">{{ item.tanggal_transaksi }}</td>
+            <td class="px-6 py-4 text-center align-top">
+              <div class="flex flex-col items-center gap-2">
+                <LightButton @click="cetak_invoice(item.invoice)">
+                  <CetakIcon class="h-4 w-4 text-gray-600" />
+                </LightButton>
+                <DangerButton @click="deleteData(item.id)">
+                  <DeleteIcon class="w-5 h-5" />
+                </DangerButton>
+              </div>
             </td>
           </tr>
         </tbody>

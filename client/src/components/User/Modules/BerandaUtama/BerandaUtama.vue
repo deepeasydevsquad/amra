@@ -7,6 +7,7 @@ import SkeletonTable from '@/components/User/Modules/BerandaUtama/widget/Skeleto
 import InfoCard from '@/components/User/Modules/BerandaUtama/widget/InfoCard.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
+import PrimaryButtonLight from '@/components/Button/PrimaryButtonLight.vue'
 
 interface StatusCard {
   saldo_perusahaan: number;
@@ -187,12 +188,12 @@ onMounted(() => {
   </div>
   <div class="p-4 space-y-6 text-gray-800">
     <div class="flex justify-between items-center border-b pb-4 mb-4">
-      <button class="px-4 py-2 bg-gray-200 border border-collapse rounded hover:bg-gray-300" @click="$router.go(0)">
+      <PrimaryButtonLight class="flex items-center gap-2 text-base"  @click="$router.go(0)">
         <font-awesome-icon icon="fa-undo-alt" class="mr-0" /> Reload Page
-      </button>
-      <div class="bg-gray-200 px-4 py-2 rounded border border-gray-300 text-sm flex items-center gap-1 hover:bg-gray-300">
-        <font-awesome-icon icon="fa-solid fa-money-bill-alt" class="mr-2 w-6 h-6" /> <strong>SALDO PERUSAHAAN :</strong> Rp. {{ dataStatusCard.saldo_perusahaan.toLocaleString() }}
-      </div>
+      </PrimaryButtonLight>
+      <PrimaryButtonLight class="flex items-center gap-2 text-base">
+        <font-awesome-icon icon="fa-solid fa-money-bill-alt" class="mr-2" /> <strong>Saldo Perusahaan :</strong> Rp. {{ dataStatusCard.saldo_perusahaan.toLocaleString() }}
+      </PrimaryButtonLight>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-8 gap-4">
       <div class="md:col-span-5">
@@ -215,14 +216,14 @@ onMounted(() => {
           <table v-else class="w-full text-sm border">
             <thead class="bg-gray-100">
               <tr>
-                <th class="border p-2 hover:bg-gray-200">Headline</th>
-                <th class="border p-2 hover:bg-gray-200">Aksi</th>
+                <th class="px-3 py-3 font-medium text-gray-900 text-center">Headline</th>
+                <th class="px-3 py-3 font-medium text-gray-900 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(item, index) in headline.data" :key="index" class="hover:bg-gray-50 text-center">
-                <td class="border p-2 hover:bg-gray-100">{{ item.title }}</td>
-                <td class="border p-2 hover:bg-gray-100 gap-2 flex justify-center">
+                <td class="text-center px-3 py-3 align-top">{{ item.title }}</td>
+                <td class="text-center px-3 py-3 align-top">
                   <button class="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">
                     <font-awesome-icon icon="pencil-alt" class="mr-1" /> Edit
                   </button>
@@ -232,7 +233,7 @@ onMounted(() => {
                 </td>
               </tr>
               <tr v-if="headline.data.length === 0">
-                <td :colspan="headline.totalColumns" class="border p-2 hover:bg-gray-100 text-center text-gray-500">Daftar headline tidak ditemukan</td>
+                <td :colspan="headline.totalColumns" class="border p-3 hover:bg-gray-100 text-center text-gray-500">Daftar Headline Tidak Ditemukan</td>
               </tr>
             </tbody>
             <tfoot class="bg-gray-100 font-bold">
@@ -255,35 +256,35 @@ onMounted(() => {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="bg-white rounded shadow p-4">
         <div class="flex items-center mb-4 justify-between">
-          <h2 class="font-semibold mb-4">Jamaah Terdaftar</h2>
+          <h2 class="font-semibold mt-1">Jamaah Terdaftar</h2>
           <input
             type="text"
-            class="block px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder:text-gray-400"
+            class="block w-1/2 px-3 py-2 text-base text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder:text-gray-400"
             v-model="jamaah.search"
             @input="handleSearch({ ...jamaah, fetchData: fetchJamaahData })"
             placeholder="Nama / Nomor Identitas Jamaah"
           />
         </div>
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto ">
           <SkeletonTable v-if="jamaah.isLoading" :columns="jamaah.totalColumns" :rows="jamaah.itemsPerPage" />
           <table v-else class="w-full text-sm border">
             <thead class="bg-gray-100">
               <tr>
-                <th class="border p-2 hover:bg-gray-200">Nama Jamaah / Nomor Identitas</th>
-                <th class="border p-2 hover:bg-gray-200">Tempat / Tanggal Lahir</th>
-                <th class="border p-2 hover:bg-gray-200">Nomor Passport</th>
-                <th class="border p-2 hover:bg-gray-200">Total Pembelian</th>
+                <th class="px-3 py-3 font-medium text-gray-900 text-center">Nama Jamaah / Nomor Identitas</th>
+                <th class="px-3 py-3 font-medium text-gray-900 text-center">Tempat / Tanggal Lahir</th>
+                <th class="px-3 py-3 font-medium text-gray-900 text-center">Nomor Passport</th>
+                <th class="px-3 py-3 font-medium text-gray-900 text-center">Total Pembelian</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(item, index) in jamaah.data" :key="index" class="hover:bg-gray-50 text-center">
-                <td class="border p-2 hover:bg-gray-100">{{ item.jamaah_name }} / {{ item.jamaah_identity }}</td>
-                <td class="border p-2 hover:bg-gray-100">{{ item.birth_place }} / {{ item.birth_date }}</td>
-                <td class="border p-2 hover:bg-gray-100">{{ item.no_passport }}</td>
-                <td class="border p-2 hover:bg-gray-100">{{ item.total }}</td>
+                <td class="text-center px-3 py-3 align-top">{{ item.jamaah_name }} / {{ item.jamaah_identity }}</td>
+                <td class="text-center px-3 py-3 align-top">{{ item.birth_place }} / {{ item.birth_date }}</td>
+                <td class="text-center px-3 py-3 align-top">{{ item.no_passport }}</td>
+                <td class="text-center px-3 py-3 align-top">{{ item.total }}</td>
               </tr>
               <tr v-if="jamaah.data.length === 0">
-                <td :colspan="jamaah.totalColumns" class="border p-2 hover:bg-gray-100 text-center text-gray-500">Data jamaah tidak ditemukan</td>
+                <td :colspan="jamaah.totalColumns" class="border p-3 hover:bg-gray-100 text-center text-gray-500">Data Jamaah Tidak Ditemukan</td>
               </tr>
             </tbody>
             <tfoot class="bg-gray-100 font-bold">
@@ -302,39 +303,39 @@ onMounted(() => {
       </div>
       <div class="bg-white rounded shadow p-4">
         <div class="flex items-center mb-4 justify-between">
-          <h2 class="font-semibold mb-4">Permintaan Deposit Member</h2>
+          <h2 class="font-semibold mt-1">Permintaan Deposit Member</h2>
           <input
             type="text"
-            class="block px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder:text-gray-400"
+            class="block w-1/2 px-3 py-2 text-base text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder:text-gray-400"
             v-model="deposit.search"
             @input="handleSearch({ ...deposit, fetchData: fetchDepositMemberData })"
             placeholder="Nama / Nomor Identitas Member"
           />
         </div>
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto rounded-lg">
           <SkeletonTable v-if="deposit.isLoading" :columns="deposit.totalColumns" :rows="deposit.itemsPerPage" />
           <table v-else class="w-full text-sm border">
             <thead class="bg-gray-100">
               <tr>
-                <th class="border p-2 hover:bg-gray-200">Nama Member / Identitas Member</th>
-                <th class="border p-2 hover:bg-gray-200">Jumlah / Keperluan / Sumber Biaya</th>
-                <th class="border p-2 hover:bg-gray-200">Bank Info</th>
-                <th class="border p-2 hover:bg-gray-200">Aksi</th>
+                <th class="p-3 font-medium text-gray-900 text-center">Nama Member / Identitas Member</th>
+                <th class="p-3 font-medium text-gray-900 text-center">Jumlah / Keperluan / Sumber Biaya</th>
+                <th class="p-3 font-medium text-gray-900 text-center">Bank Info</th>
+                <th class="p-3 font-medium text-gray-900 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(item, index) in deposit.data" :key="index" class="hover:bg-gray-50 text-center">
-                <td class="border p-2 hover:bg-gray-100">{{ item.member_name }} / {{ item.member_identity }}</td>
-                <td class="border p-2 hover:bg-gray-100">{{ item.jumlah }} / {{ item.keperluan }} / {{ item.sumber_biaya }}</td>
-                <td class="border p-2 hover:bg-gray-100">{{ item.bank_info }}</td>
-                <td class="border p-2 hover:bg-gray-100">
+                <td class="text-center p-3 align-top">{{ item.member_name }} / {{ item.member_identity }}</td>
+                <td class="text-center p-3 align-top">{{ item.jumlah }} / {{ item.keperluan }} / {{ item.sumber_biaya }}</td>
+                <td class="text-center p-3 align-top">{{ item.bank_info }}</td>
+                <td class="text-center p-3 align-top">
                   <button class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">Setujui</button>
                   <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Tolak</button>
                 </td>
               </tr>
               <tr v-if="deposit.data.length === 0">
-                <td :colspan="deposit.totalColumns" class="border p-2 hover:bg-gray-100 text-center text-gray-500">
-                  Daftar request deposit tidak ditemukan
+                <td :colspan="deposit.totalColumns" class="border p-3 hover:bg-gray-100 text-center text-gray-500 ">
+                  Daftar Request Deposit Tidak Ditemukan
                 </td>
               </tr>
             </tbody>

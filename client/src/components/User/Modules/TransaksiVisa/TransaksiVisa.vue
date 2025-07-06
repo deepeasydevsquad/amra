@@ -258,14 +258,14 @@ const openFormCetakDataJamaah = (item: any) => {
 
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-700">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Nomor Invoice</th>
-            <th class="w-[20%] px-6 py-4 font-medium text-center">Info Pembayar</th>
-            <th class="w-[30%] px-6 py-4 font-medium text-center">Info Visa</th>
-            <th class="w-[15%] px-6 py-4 font-medium text-center">Total</th>
-            <th class="w-[15%] px-6 py-4 font-medium text-center">Tanggal</th>
-            <th class="w-[10%] px-6 py-4 font-medium text-center">Aksi</th>
+            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Nomor Invoice</th>
+            <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Info Pembayar</th>
+            <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Info Visa</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Total</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Tanggal</th>
+            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
