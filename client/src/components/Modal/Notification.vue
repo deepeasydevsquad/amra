@@ -4,7 +4,8 @@ import { defineProps, defineEmits } from 'vue'
 const props = defineProps<{
   showNotification: boolean
   notificationType: string
-  notificationMessage: string
+  notificationMessage?: string
+   notificationMessageHtml?: string
 }>()
 
 const emit = defineEmits(['close'])
@@ -69,8 +70,10 @@ const closeNotification = () => {
               >
                 {{ notificationType === 'success' ? 'Berhasil' : 'Gagal' }}
               </h3>
-              <p class="mt-1 text-lg text-gray-500">
+              <p class="mt-1 text-lg text-gray-500" v-if="notificationMessage">
                 {{ notificationMessage }}
+              </p>
+              <p class="mt-1 text-lg text-gray-500" v-else v-html="notificationMessageHtml">
               </p>
             </div>
           </div>

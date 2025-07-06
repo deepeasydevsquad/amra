@@ -21,7 +21,7 @@
     />
 
     <p v-if="error" class="text-red-500 text-sm mt-1">{{ error }}</p>
-    <p class="text-xs text-gray-500 mt-2">{{ note }}</p>
+    <p  v-if="note" class="text-xs text-gray-500 mt-2">{{ note }}</p>
   </div>
 </template>
 

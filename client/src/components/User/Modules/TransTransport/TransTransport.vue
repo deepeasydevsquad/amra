@@ -282,7 +282,7 @@ const parseIDR = (value: string): number => {
           <tr v-if="filteredData.length === 0"><td colspan="6" class="text-center py-4 text-gray-500">Daftar Transaksi Transport Tidak Ditemukan</td></tr>
           <tr v-for="item in filteredData" :key="item.invoice" class="hover:bg-gray-50">
             <td class="text-center px-6 py-4 align-top">{{ item.invoice }}</td>
-            <td class="px-6 py-4 align-top"><div>{{ item.payer }} / {{ item.payer_identity }}</div></td>
+            <td class="text-center px-6 py-4 align-top"><div>{{ item.payer }} / {{ item.payer_identity }}</div></td>
             <td class="px-6 py-4 align-top">
               <div v-for="(mobil, idx) in item.detail_mobil" :key="idx" class="mb-2">
                 <div class="grid grid-cols-[120px_1fr] gap-y-1 items-start">

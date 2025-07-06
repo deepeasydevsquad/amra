@@ -14,8 +14,8 @@ import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
 import IconMoney from '@/components/Icons/IconMoney.vue'
 import CetakIcon from '@/components/Icons/CetakIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
+import IconPlus from '@/components/Icons/IconPlus.vue'
 import { ref, watch, computed, onMounted } from 'vue'
-import { paramCabang  } from '@/service/param_cabang';
 
 import {
   daftar_hotel,
@@ -24,7 +24,6 @@ import {
   add_transaksi,
   hapus_transaksi,
 } from '@/service/transaksi_hotel'
-// import IconMoney from '@/components/Icons/IconMoney.vue'
 
 const showModal = ref(false)
 const currentPage = ref(1)
@@ -81,12 +80,13 @@ const handlePageNow = (page: number) => {
 
 const rows = ref([
   {
+    id: '',
     name: '',
     identity_number: '',
-    kota_id: '',
+    kota_id: '0',
     birth_place: '',
     birth_date: '',
-    hotel_id: '',
+    hotel_id: '0',
     check_in: '',
     check_out: '',
     price: '',
@@ -94,14 +94,16 @@ const rows = ref([
   },
 ])
 
+
 const addRow = () => {
   rows.value.push({
+    id: '',
     name: '',
     identity_number: '',
-    kota_id: '',
+    kota_id: "0",
     birth_place: '',
     birth_date: '',
-    hotel_id: '',
+    hotel_id: "0",
     check_in: '',
     check_out: '',
     price: '',
@@ -124,10 +126,13 @@ onMounted(async () => {
 const fetchKotaOptions = async () => {
   try {
     const data = await daftar_kota()
-    kotaOptions.value = data.map((item: any) => ({
-      id: item.id,
-      name: `${item.name} (${item.kode})`,
-    }))
+     kotaOptions.value = [
+      { id: 0, name: 'Pilih Kota' },
+      ...data.map((item: any) => ({
+        id: item.id,
+        name: `${item.name} - ${item.kode}`,
+      })),
+    ];
     console.log('data kota', data)
   } catch (error) {
     displayNotification('Gagal ambil data kota', 'error')
@@ -137,30 +142,16 @@ const fetchKotaOptions = async () => {
 const fetchHotelOptions = async () => {
   try {
     const data = await daftar_hotel()
-    hotelOptions.value = data.map((item: any) => ({
-      id: item.id,
-      name: `${item.name} - ${item.kota}`, // biar jelas dari kota mana
-    }))
-    console.log('data hotel', data)
+    hotelOptions.value = [
+      { id: 0, name: 'Pilih Hotel' },
+      ...data.map((item: any) => ({
+        id: item.id,
+        name: `${item.name} - ${item.kota}`,
+      })),
+    ];
   } catch (error) {
     displayNotification('Gagal ambil data hotel', 'error')
   }
-}
-
-
-interface filterCabang {
-  id: number;
-  name: string;
-}
-
-const selectedOptionCabang = ref(0);
-const optionFilterCabang = ref<filterCabang[]>([]);
-
-const fetchFilterData = async() => {
-  const response = await paramCabang();
-  optionFilterCabang.value = response.data;
-  selectedOptionCabang.value = response.data[0].id;
-  await fetchDataTransaksi();
 }
 
 const data = ref<any[]>([])
@@ -217,7 +208,74 @@ const parseHarga = (val: unknown): number => {
   return parseInt(String(val).replace(/\D/g, '')) || 0
 }
 
+const errors = ref<Record<string, string>>({})
+
+const validateForm = (): boolean => {
+  let isValid = true;
+
+  errors.value = {};
+
+  rows.value.forEach((row, index) => {
+    if (row.name === "") {
+      errors.value[`name_${index}`] = 'Nama Tidak Boleh Kosong';
+      isValid = false;
+    }
+    if (row.identity_number === "") {
+      errors.value[`identity_number_${index}`] = 'Nomor Identitas Tidak Boleh Kosong';
+      isValid = false;
+    }
+    if (row.birth_date === "") {
+      errors.value[`birth_date_${index}`] = 'Tanggal Lahir Tidak Boleh Kosong';
+      isValid = false;
+    }
+    if (row.birth_place === "") {
+      errors.value[`birth_place_${index}`] = 'Tempat Lahir Tidak Boleh Kosong';
+      isValid = false;
+    }
+    if (row.check_in === "") {
+      errors.value[`check_in_${index}`] = 'Tanggal Checkin Tidak Boleh Kosong';
+      isValid = false;
+    }
+    if (row.check_out === "") {
+      errors.value[`check_out_${index}`] = 'Tanggal Checkout Tidak Boleh Kosong';
+      isValid = false;
+    }
+    if (row.hotel_id === "0" || row.hotel_id == '') {
+      errors.value[`hotel_id_${index}`] = 'Anda Wajib Memilih Salah Satu Hotel';
+      isValid = false;
+    }
+
+    console.log("Kota ID");
+    console.log(row);
+    console.log(row.kota_id);
+    console.log("Kota ID");
+    if (row.kota_id === "0" || row.kota_id == '' ) {
+      errors.value[`kota_id_${index}`] = 'Anda Wajib Memilih Salah Satu Kota';
+      isValid = false;
+    }
+
+    if (row.price === "" ) {
+      errors.value[`price_${index}`] = 'Harga Paket Wajib Diisi';
+      isValid = false;
+    }
+  });
+
+  const hasPayer = rows.value.some(row => row.payer !== false)
+  if (!hasPayer) {
+    displayNotification('Anda wajib memilih salah satu pembayar', 'error')
+    isValid = false
+  }
+
+  return isValid;
+}
+
+
 const submitTransaksi = async () => {
+
+  if (!validateForm()) {
+    return
+  }
+
   try {
     const payload = {
       details: rows.value.map((row) => ({
@@ -233,8 +291,6 @@ const submitTransaksi = async () => {
         payer: row.payer,
       })),
     }
-
-    console.log('payload', payload)
 
     // ⬇️ ambil response dari add_transaksi
     const response = await add_transaksi(payload)
@@ -264,18 +320,20 @@ const submitTransaksi = async () => {
 const resetForm = () => {
   rows.value = [
     {
+      id: '',
       name: '',
       identity_number: '',
-      kota_id: '',
+      kota_id: '0',
       birth_place: '',
       birth_date: '',
-      hotel_id: '',
+      hotel_id: '0',
       check_in: '',
       check_out: '',
       price: '',
       payer: false,
     },
   ]
+  errors.value = {};
 }
 
 const cetak_invoice = (invoice: string) => {
@@ -290,7 +348,7 @@ const cetak_invoice = (invoice: string) => {
     <div class="flex justify-between items-center mb-6">
       <PrimaryButton @click="showModal = true" class="flex items-center gap-2">
         <IconMoney />
-        Tambah Transaksi
+        Tambah Transaksi Hotel
       </PrimaryButton>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
@@ -351,93 +409,45 @@ const cetak_invoice = (invoice: string) => {
     </div>
   </div>
 
-  <Form
-    :formStatus="showModal"
-    @cancel="
+  <Form :formStatus="showModal" @cancel="
       () => {
         showModal = false
         resetForm()
       }
     "
-    @submit="submitTransaksi"
-    :submitLabel="'Simpan'"
-    :width="'w-2/3'"
-    :label="'Tambah Transaksi Hotel'"
-  >
+    @submit="submitTransaksi" :submitLabel="'TAMBAH TRANSAKSI HOTEL'" :width="'w-2/3'" :label="'Tambah Transaksi Hotel'">
     <table class="table-auto w-full">
       <thead class="bg-gray-100 text-sm text-gray-700">
         <tr class="text-center">
-          <th class="w-[30%] px-4 py-2">Info Pelanggan</th>
-          <th class="w-[30%] px-4 py-2">Info Hotel</th>
-          <th class="w-[20%] px-4 py-2">Biaya</th>
-          <th class="w-[20%] px-4 py-2">Aksi</th>
+          <th class="w-[25%] px-4 font-medium py-3">Info Pelanggan</th>
+          <th class="w-[40%] px-4 font-medium py-3">Info Hotel</th>
+          <th class="w-[20%] px-4 font-medium py-3">Biaya</th>
+          <th class="w-[20%] px-4 font-medium py-3">Pembayar</th>
+          <th class="w-[5%] px-4 font-medium py-3">Aksi</th>
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="(row, index) in rows"
-          :key="index"
-          class="align-top border-t border-gray-200 hover:bg-gray-50 transition-colors"
-        >
+        <tr v-for="(row, index) in rows" :key="index" class="align-top border-t border-gray-200 hover:bg-gray-50 transition-colors" >
           <td class="text-left px-4 pt-6 pb-2 space-y-2">
-            <InputText
-              v-model="row.name"
-              placeholder="Masukkan nama pelanggan"
-              :note="'Nama Pelanggan'"
-            />
-            <InputText
-              v-model="row.identity_number"
-              placeholder="Masukkan identitas"
-              :note="'Identitas Pelanggan'"
-            />
-            <SelectField
-              v-model="row.kota_id"
-              placeholder="Pilih Kota"
-              :note="'Kota Pelanggan'"
-              :options="kotaOptions"
-            />
-            <InputText
-              v-model="row.birth_place"
-              placeholder="Masukkan tempat lahir"
-              :note="'Tempat Lahir'"
-            />
-            <InputDate
-              v-model="row.birth_date"
-              placeholder="Masukkan tanggal lahir"
-              :note="'Tanggal Lahir'"
-            />
+            <InputText v-model="row.name" placeholder="Masukkan nama pelanggan" label="Nama Pelanggan" class="pb-3" :error="errors['name_'+ index]"/>
+            <InputText v-model="row.identity_number" placeholder="Masukkan identitas" label="Nomor Identitas Pelanggan" class="pb-3" :error="errors['identity_number_'+ index]"/>
+            <SelectField v-model="row.kota_id" placeholder="Pilih Kota" label="Kota" :options="kotaOptions" class="pb-3" :error="errors['kota_id_'+ index]"/>
+            <InputText v-model="row.birth_place" placeholder="Masukkan tempat lahir" class="pb-3" label="Tempat Lahir" :error="errors['birth_place_'+ index]" />
+            <InputDate v-model="row.birth_date" placeholder="Masukkan tanggal lahir" class="pb-3" label="Tanggal Lahir" :error="errors['birth_date_'+ index]" />
           </td>
-
           <td class="text-left px-4 pt-6 pb-2 space-y-2">
-            <SelectField
-              v-model="row.hotel_id"
-              placeholder="Pilih hotel"
-              :note="'Pilih Hotel'"
-              :options="hotelOptions"
-            />
-            <InputDate v-model="row.check_in" :note="'Tanggal check in'" />
-            <InputDate v-model="row.check_out" :note="'Tanggal check out'" />
+            <SelectField v-model="row.hotel_id" placeholder="Pilih hotel" label="Nama Hotel" :options="hotelOptions" class="pb-3" :error="errors['hotel_id_'+ index]" />
+            <InputDate v-model="row.check_in" class="pb-3" label="Tanggal Checkin" :error="errors['check_in_'+ index]"/>
+            <InputDate v-model="row.check_out"  class="pb-3" label="Tanggal Checkout" :error="errors['check_out_'+ index]"/>
           </td>
-
           <td class="text-left px-4 pt-6 pb-2 space-y-2">
-            <InputText
-              :modelValue="formatHargaInput(row.price)"
-              @update:modelValue="(val) => (row.price = parseHarga(val))"
-              placeholder="Harga Paket"
-              :note="'Harga Per Paket'"
-            />
+            <InputText :modelValue="formatHargaInput(row.price)" @update:modelValue="(val) => (row.price = parseHarga(val))" placeholder="Harga Paket" label="Harga Paket" :error="errors['price_'+ index]" />
           </td>
-
+          <td class="text-center px-4 pt-6 pb-2 space-y-2">
+            <input  class="w-5 h-5 mt-10 border-gray-300 text-gray-600 rounded focus:ring-gray-500" name="payer" type="radio" v-model="row.payer" :value="true"/>
+          </td>
           <td class="text-center px-4 pt-6 pb-2 align-top">
-            <div class="flex flex-col items-center gap-2">
-              <label class="inline-flex items-center">
-                <input
-                  class="w-5 h-5 border-gray-300 text-gray-600 rounded focus:ring-gray-500"
-                  type="checkbox"
-                  v-model="row.payer"
-                />
-                <span class="ml-2 text-sm text-gray-700">Pembayar</span>
-              </label>
+            <div class="flex flex-col items-center gap-2 pt-7">
               <DangerButton @click="removeRow(index)" size="sm">
                 <DeleteIcon />
               </DangerButton>
@@ -446,30 +456,23 @@ const cetak_invoice = (invoice: string) => {
         </tr>
       </tbody>
     </table>
-
-    <div class="mt-4 flex justify-end">
-      <PrimaryButton @click="addRow">+ Tambah Pelanggan</PrimaryButton>
+    <div class="mt-4 flex justify-end bg-gray-100 p-3">
+      <PrimaryButton @click="addRow"><IconPlus></IconPlus> Tambah Pelanggan</PrimaryButton>
     </div>
   </Form>
 
-  <Confirmation
-    :showConfirmDialog="showConfirmDialog"
-    :confirmTitle="confirmTitle"
-    :confirmMessage="confirmMessage"
-  >
-    <button
-      @click="confirmAction && confirmAction()"
+  <Confirmation :showConfirmDialog="showConfirmDialog" :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
+    <button @click="confirmAction && confirmAction()"
       class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
     >
       Ya
     </button>
-    <button
-      @click="showConfirmDialog = false"
+    <button @click="showConfirmDialog = false"
       class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
     >
       Tidak
     </button>
   </Confirmation>
 
-  <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" />
+  <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessageHtml="notificationMessage" @close="showNotification = false" />
 </template>

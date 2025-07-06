@@ -2,6 +2,7 @@
 // Import Icon
 import CetakIcon from '@/components/Icons/CetakIcon.vue'
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
+import IconPlus from '@/components/Icons/IconPlus.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 
@@ -214,14 +215,7 @@ onMounted(async () => {
   <div class="container mx-auto px-4 mt-10">
     <div class="flex justify-between items-center mb-6">
       <PrimaryButton @click="isFormOpen = true">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
+        <IconPlus></IconPlus>
         Tambah Transaksi Passport
       </PrimaryButton>
 
@@ -247,7 +241,7 @@ onMounted(async () => {
             <th class="w-[30%] px-6 py-3 text-gray-900 font-medium text-center">Info Tansaksi Passport</th>
             <th class="w-[15%] px-6 py-3 text-gray-900 font-medium text-center">Total</th>
             <th class="w-[15%] px-6 py-3 text-gray-900 font-medium text-center">Tanggal</th>
-            <th class="w-[5%] px-6 py-3 text-gray-900 font-medium text-center">Aksi</th>
+            <th class="w-[5%]  px-6 py-3 text-gray-900 font-medium text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -260,44 +254,44 @@ onMounted(async () => {
           </tr>
           <tr v-else-if="TransaksiPassport.length === 0">
             <td colspan="6" class="px-6 py-6 text-center text-gray-500">
-              {{ search ? 'Data tidak ditemukan' : 'Belum ada data transaksi passport' }}
+              {{ search ? 'Data tidak ditemukan' : 'Transaksi Passport Tidak Ditemukan' }}
             </td>
           </tr>
           <tr v-for="item in TransaksiPassport" :key="item.id" class="hover:bg-gray-50 transition">
             <td class="px-6 py-4 text-center">{{ item.invoice }}</td>
             <td class="px-6 py-4 text-center">
               {{ item.payer }}<br />
-              <span class="text-xs text-gray-500">{{ item.payer_identity }}</span>
+              <span class="text-sm text-gray-500">{{ item.payer_identity }}</span>
             </td>
             <td class="px-6 py-4">
-              <div class="text-xs leading-5 space-y-1">
-                <div>Nama: {{ item.name }}</div>
-                <div>No ID: {{ item.identity_number }}</div>
-                <div>No. KK: {{ item.kk_number }}</div>
-                <div>
-                  TTL: {{ item.birth_place }},
-                  {{
+              <div class="text-sm leading-5 space-y-1">
+                <div class="grid grid-cols-[120px_1fr] gap-y-1 items-start">
+                  <div>Nama</div>
+                  <div>: {{ item.name }}</div>
+                  <div>No ID</div>
+                  <div>: {{ item.identity_number }}</div>
+                  <div>No. KK</div>
+                  <div>: {{ item.kk_number }}</div>
+                  <div>TTL</div>
+                  <div>: {{ item.birth_place }}
+                    {{
                     new Date(item.birth_date).toLocaleDateString('id-ID', {
                       year: 'numeric',
                       month: 'short',
                       day: 'numeric',
                     })
                   }}
+                  </div>
                 </div>
-                <div>Alamat: {{ item.address }}</div>
-                <div>Harga: Rp {{ item.price.toLocaleString() }}</div>
               </div>
             </td>
             <td class="px-6 py-4 text-center">Rp. {{ item.price.toLocaleString() }}</td>
-            <td class="px-6 py-2 text-xs text-center">
-              {{ new Date(item.createdAt).toLocaleDateString('id-ID') }}
-            </td>
+            <td class="px-6 py-2 text-sm text-center">{{ new Date(item.createdAt).toLocaleDateString('id-ID') }}</td>
             <td class="px-6 py-4 text-center align-top">
               <div class="flex flex-col items-center gap-2">
                 <LightButton title="Cetak Kwitansi" @click="openCetakKwitansi(item.invoice)">
                 <CetakIcon class="h-4 w-4 text-gray-600" />
               </LightButton>
-
               <DangerButton title="Delete" @click="handleDelete(item.id)">
                 <DeleteIcon class="w-5 h-5" />
               </DangerButton>
@@ -306,16 +300,7 @@ onMounted(async () => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <Pagination
-            :current-page="currentPage"
-            :total-pages="totalPages"
-            :pages="pages"
-            :total-columns="totalColumns"
-            @prev-page="prevPage"
-            @next-page="nextPage"
-            @page-now="pageNow"
-            :totalRow="totalRow"
-          />
+          <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" :totalRow="totalRow" />
         </tfoot>
       </table>
     </div>

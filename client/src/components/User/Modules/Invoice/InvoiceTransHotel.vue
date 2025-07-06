@@ -99,13 +99,10 @@ onMounted(async () => {
               <div class="grid grid-cols-[90px_1fr] gap-y-1">
                 <div>Nama Hotel</div>
                 <div>: {{ detail.hotel_name }}</div>
-
                 <div>TTL</div>
                 <div>: {{ detail.birth_place }}, {{ formatDate(detail.birth_date) }}</div>
-
                 <div>Check In</div>
                 <div>: {{ formatDate(detail.check_in) }}</div>
-
                 <div>Check Out</div>
                 <div>: {{ formatDate(detail.check_out) }}</div>
               </div>
