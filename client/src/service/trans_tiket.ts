@@ -102,3 +102,23 @@ export const refund = async (param : any) => {
       throw error;
   }
 }
+
+export const detail_reschedule = async (param : any) => {
+  try {
+      const response = await api.post("/trans_tiket/detail_reschedule", param);
+      return response.data;
+  } catch (error) {
+      console.error("Gagal mengambil detail reschedule:", error);
+      throw error;
+  }
+}
+
+export const reschedule = async (param : any) => {
+  try {
+      const response = await api.post("/trans_tiket/reschedule", param);
+      return response.data;
+  } catch (error) {
+      console.error("Gagal melakukan reschedule tiket:", error);
+      throw error;
+  }
+}
