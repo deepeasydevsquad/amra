@@ -11,9 +11,11 @@ import InputReadonly from '@/components/Form/InputReadonly.vue'
 import LightButton from '@/components/Button/LightButton.vue'
 import DangerButton from '@/components/Button/DangerButton.vue'
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
+import IconMoney from '@/components/Icons/IconMoney.vue'
 import CetakIcon from '@/components/Icons/CetakIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 import { ref, watch, computed, onMounted } from 'vue'
+import { paramCabang  } from '@/service/param_cabang';
 
 import {
   daftar_hotel,
@@ -22,10 +24,12 @@ import {
   add_transaksi,
   hapus_transaksi,
 } from '@/service/transaksi_hotel'
+// import IconMoney from '@/components/Icons/IconMoney.vue'
 
 const showModal = ref(false)
 const currentPage = ref(1)
 const totalPages = ref(1)
+const itemsPerPage = 100;
 const showNotification = ref(false)
 const notificationMessage = ref('')
 const notificationType = ref('')
@@ -61,6 +65,7 @@ const pages = computed<number[]>(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1)
 })
 const totalColumns = 6 // karena table punya 5 kolom
+const totalRow = ref(0);
 
 const searchQuery = ref('')
 
@@ -113,7 +118,7 @@ const removeRow = (index: number) => {
 onMounted(async () => {
   await fetchKotaOptions()
   await fetchHotelOptions()
-  await fetchDataTransaksi()
+  await fetchDataTransaksi();
 })
 
 const fetchKotaOptions = async () => {
@@ -142,12 +147,33 @@ const fetchHotelOptions = async () => {
   }
 }
 
+
+interface filterCabang {
+  id: number;
+  name: string;
+}
+
+const selectedOptionCabang = ref(0);
+const optionFilterCabang = ref<filterCabang[]>([]);
+
+const fetchFilterData = async() => {
+  const response = await paramCabang();
+  optionFilterCabang.value = response.data;
+  selectedOptionCabang.value = response.data[0].id;
+  await fetchDataTransaksi();
+}
+
 const data = ref<any[]>([])
 
 const fetchDataTransaksi = async () => {
   try {
-    const result = await daftar_transaksi()
-    data.value = result
+    const result = await daftar_transaksi({
+      search : searchQuery.value,
+      perpage: itemsPerPage,
+      pageNumber: currentPage.value,
+    })
+    data.value = result.data
+    totalRow.value= result.total;
     console.log('data transaksi', data)
     console.log('data value', data.value)
   } catch (error) {
@@ -256,46 +282,29 @@ const cetak_invoice = (invoice: string) => {
   const printUrl = `/kwitansi-trans-hotel/${invoice}`
   window.open(printUrl, '_blank')
 }
+
 </script>
 
 <template>
   <div class="container mx-auto px-4 mt-10">
     <div class="flex justify-between items-center mb-6">
-      <!-- Tombol Tambah di kiri -->
       <PrimaryButton @click="showModal = true" class="flex items-center gap-2">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-5 h-5"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M2 4a2 2 0 012-2h16a2 2 0 012 2v4H2V4zm0 6h20v10a2 2 0 01-2 2H4a2 2 0 01-2-2V10zm4 4a1 1 0 000 2h4a1 1 0 000-2H6z"
-          />
-        </svg>
-
+        <IconMoney />
         Tambah Transaksi
       </PrimaryButton>
-
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input
-          v-model="searchQuery"
-          type="text"
-          id="search"
-          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder:text-gray-400"
-          placeholder="Cari Transaksi..."
-        />
+        <input v-model="searchQuery" type="text" id="search" @keyup="fetchDataTransaksi()"
+          class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" placeholder="Cari Transaksi..." />
       </div>
     </div>
-
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-100">
           <tr>
             <th class="px-6 py-3 font-medium text-gray-900 text-center w-[10%]">Invoice</th>
-            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">Nama/Nomor Identitas Pembayar</th>
-            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[40%]">Info Transaksi Hotel</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[20%]">Nama/Nomor Identitas Pembayar</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[35%]">Info Transaksi Hotel</th>
             <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">Total</th>
             <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">Tanggal Transaksi</th>
             <th class="px-6 py-3 font-medium text-gray-900 text-center w-[5%]">Aksi</th>
@@ -303,19 +312,13 @@ const cetak_invoice = (invoice: string) => {
         </thead>
         <tbody class="divide-y divide-gray-200">
           <tr v-if="data.length === 0">
-            <td colspan="5" class="px-6 py-4 text-center text-gray-500">Data tidak ada</td>
+            <td colspan="5" class="px-6 py-4 text-center text-gray-500">Daftar Transaksi Hotel Tidak Ditemukan</td>
           </tr>
-          <tr
-            v-for="transaksi in data"
-            :key="transaksi.id"
-            class="hover:bg-gray-50 transition-colors"
-          >
+          <tr v-for="transaksi in data" :key="transaksi.id" class="hover:bg-gray-50 transition-colors">
             <td class="px-6 py-4 text-center align-top">{{ transaksi.invoice }}</td>
-            <td class="px-6 py-4 text-center align-top">
-              {{ transaksi.payer }} / {{ transaksi.payer_identity }}
-            </td>
+            <td class="px-6 py-4 text-center align-top">{{ transaksi.payer }} <br> {{ transaksi.payer_identity }}</td>
             <td class="px-6 py-4 text-left space-y-3">
-              <div v-for="(detail, idx) in transaksi.details" :key="idx" class="border-b pb-2">
+              <div v-for="(detail, idx) in transaksi.details" :key="idx" class="pb-2" :class="transaksi.details.length-1 == idx ? '' : 'border-b' ">
                 <p class="font-semibold text-gray-800 mb-2">{{ detail.hotel_name }}</p>
                 <div class="grid grid-cols-[100px_1fr] text-sm text-gray-700 gap-y-1">
                   <span>Nama</span><span>: {{ detail.name }}</span> <span>Identitas</span
@@ -327,10 +330,7 @@ const cetak_invoice = (invoice: string) => {
                 </div>
               </div>
             </td>
-
-            <td class="px-6 py-4 text-center align-top">
-              {{ formatHarga(transaksi.total_harga) }}
-            </td>
+            <td class="px-6 py-4 text-center align-top">{{ formatHarga(transaksi.total_harga) }}</td>
             <td class="px-6 py-4 text-center align-top">{{ transaksi.tanggal_transaksi }}</td>
             <td class="px-6 py-4 text-center align-top">
               <div class="flex flex-col items-center gap-2">
@@ -345,28 +345,9 @@ const cetak_invoice = (invoice: string) => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-           <Pagination
-          :currentPage="currentPage"
-          :totalPages="totalPages"
-          :pages="pages"
-          :totalColumns="totalColumns"
-          @prev-page="handlePrev"
-          @next-page="handleNext"
-          @page-now="handlePageNow"
-        />
+           <Pagination :currentPage="currentPage" :totalPages="totalPages" :pages="pages" :totalColumns="totalColumns" @prev-page="handlePrev" @next-page="handleNext" @page-now="handlePageNow" :totalRow = "totalRow"/>
         </tfoot>
       </table>
-      <!-- <table class="w-full">
-        <Pagination
-          :currentPage="currentPage"
-          :totalPages="totalPages"
-          :pages="pages"
-          :totalColumns="totalColumns"
-          @prev-page="handlePrev"
-          @next-page="handleNext"
-          @page-now="handlePageNow"
-        />
-      </table> -->
     </div>
   </div>
 
@@ -490,10 +471,5 @@ const cetak_invoice = (invoice: string) => {
     </button>
   </Confirmation>
 
-  <Notification
-    :showNotification="showNotification"
-    :notificationType="notificationType"
-    :notificationMessage="notificationMessage"
-    @close="showNotification = false"
-  />
+  <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" />
 </template>

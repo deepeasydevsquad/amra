@@ -174,7 +174,7 @@ onMounted(fetchData)
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <div class="overflow-x-auto">
         <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-          <thead class="bg-gray-50">
+          <thead class="bg-gray-100">
             <tr>
               <th class="w-[20%] px-4 py-3 font-medium text-gray-900 text-center">Nama Grup</th>
               <th class="w-[20%] px-4 py-3 font-medium text-gray-900 text-center">Cabang</th>

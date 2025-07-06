@@ -13,32 +13,32 @@ const errorMessage = ref<string | null>(null);
 onMounted(async () => {
   try {
     const invoice = route.params.invoice as string;
-    
+
     console.log('[VUE DEBUG] Invoice from params:', invoice);
-    
+
     if (!invoice || invoice === 'undefined') {
       console.error('[VUE ERROR] Invoice parameter is missing or invalid');
       errorMessage.value = 'Parameter invoice tidak valid atau hilang dari URL.';
       isLoading.value = false;
       return;
     }
-    
+
     console.log('[VUE DEBUG] Fetching kwitansi for invoice:', invoice);
-    
+
     const response = await cetakKwitansiVisa(invoice);
-    
+
     console.log('[VUE DEBUG] Response received:', response);
-    
+
     if (response.error) {
       console.error('[VUE ERROR] API Error:', response.error_msg);
       errorMessage.value = `Gagal memuat data dari server: ${response.error_msg}`;
       isLoading.value = false;
       return;
     }
-    
+
     data.value = response.data;
     console.log('[VUE DEBUG] Kwitansi data loaded:', data.value);
-    
+
     // DEBUG: Cek apakah data header tersedia
     console.log('[VUE DEBUG] Header data check:', {
       logo: data.value?.logo,
@@ -49,13 +49,13 @@ onMounted(async () => {
       email: data.value?.email,
       whatsapp_company_number: data.value?.whatsapp_company_number
     });
-    
+
   } catch (error: any) {
     console.error('[VUE ERROR] Error fetching visa transaction:', error);
     errorMessage.value = `Terjadi kesalahan fatal: ${error.message}`;
   } finally {
     isLoading.value = false;
-    
+
     // Tunggu data ter-load dan header ter-render sebelum print
     if (data.value) {
       setTimeout(() => {
@@ -75,7 +75,7 @@ const formatDate = (dateString: string) => {
   if (!dateString) return '-';
   return new Date(dateString).toLocaleDateString('id-ID', {
     day: '2-digit',
-    month: 'long', 
+    month: 'long',
     year: 'numeric'
   });
 };
@@ -96,7 +96,7 @@ const formatDate = (dateString: string) => {
           </button>
       </div>
   </div>
-  
+
   <div v-else-if="data" class="bg-white max-w-[210mm] mx-auto p-[15mm] font-serif print:p-[10mm] print:m-0 print:shadow-none"
     style="color: black; font-size: 10pt; text-align: justify; line-height: 1.3"
   >

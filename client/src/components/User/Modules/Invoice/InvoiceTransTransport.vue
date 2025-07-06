@@ -44,8 +44,8 @@ onMounted(async () => {
 
 <template>
   <div
-    class="print-area bg-white mx-auto p-[20mm] font-sans print:p-0 print:m-0 print:shadow-none"
-    style="width: 210mm; height: 330mm; font-size: 11pt; line-height: 1.6; color: #111827"
+    class="bg-white max-w-[210mm] mx-auto p-[15mm] font-serif print:p-[10mm] print:m-0 print:shadow-none"
+    style="color: black; font-size: 10pt; text-align: justify; line-height: 1.3"
   >
     <Header v-if="data" :data="data.header_kwitansi" />
 

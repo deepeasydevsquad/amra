@@ -185,13 +185,13 @@
     <!-- Deposit Table -->
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Nomor Transaksi</th>
-            <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Info Member</th>
-            <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Info</th>
-            <th class="w-[20%] px-6 py-4 font-medium text-gray-900 text-center">Waktu Transaksi</th>
-            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Aksi</th>
+            <th class="w-[10%] px-0 py-3 font-medium text-gray-900 text-center">Nomor Transaksi</th>
+            <th class="w-[30%] px-0 py-3 font-medium text-gray-900 text-center">Info Member</th>
+            <th class="w-[30%] px-0 py-3 font-medium text-gray-900 text-center">Info</th>
+            <th class="w-[20%] px-0 py-3 font-medium text-gray-900 text-center">Waktu Transaksi</th>
+            <th class="w-[10%] px-0 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -205,8 +205,8 @@
           </tr>
           <!-- Empty State -->
           <tr v-else-if="deposits.length === 0">
-            <td colspan="5" class="px-6 py-4 text-center text-base text-gray-600">
-              {{ searchQuery ? 'Hasil pencarian tidak ditemukan' : 'Belum ada data deposit' }}
+            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-600">
+              {{ searchQuery ? 'Hasil pencarian tidak ditemukan' : 'Daftar Deposit Tidak Ditemukan' }}
             </td>
           </tr>
           <!-- Deposit Data -->

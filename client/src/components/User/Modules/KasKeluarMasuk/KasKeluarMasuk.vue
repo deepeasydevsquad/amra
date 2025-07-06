@@ -10,16 +10,25 @@ import Notification from '@/components/User/Modules/Supplier/Particle/Notificati
 import Confirmation from '@/components/User/Modules/Supplier/Particle/Confirmation.vue'
 
 import Pagination from '@/components/Pagination/Pagination.vue'
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
 // Import service API
-import { daftarSupplier, daftarBank, addSupplier, editSupplier, deleteSupplier } from '@/service/supplier'; // Import function POST
+// import { daftarSupplier, daftarBank, addSupplier, editSupplier, deleteSupplier } from '@/service/supplier'; // Import function POST
+import { paramCabang  } from '@/service/param_cabang';
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+
+interface filterCabang {
+  id: number;
+  name: string;
+}
 
 const itemsPerPage = 100; // Jumlah supplier per halaman
 const currentPage = ref(1);
 const search = ref("");
 const totalPages = ref(0);
+const selectedOptionCabang = ref(0);
+const optionFilterCabang = ref<filterCabang[]>([]);
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
@@ -85,7 +94,8 @@ const notificationType = ref<'success' | 'error'>('success');
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
-const totalColumns = ref(5);
+const totalColumns = ref(6);
+const totalRow = ref(0);
 
 const selectedSupplier = ref<Partial<EditSupplier>>({
   name: '',
@@ -101,30 +111,37 @@ const errors = ref<Errors>({
   nomor_rekening: ''
 });
 
+const fetchFilterData = async() => {
+  const response = await paramCabang();
+  optionFilterCabang.value = response.data;
+  selectedOptionCabang.value = response.data[0].id;
+  await fetchData();
+}
+
 const fetchData = async () => {
     try {
-        // Fetch data secara paralel untuk efisiensi
-        const [supplierResponse, bankResponse] = await Promise.all([
-            daftarSupplier({
-                search: search.value,
-                perpage: itemsPerPage,
-                pageNumber: currentPage.value,
-            }),
-            daftarBank({
-                search: search.value,
-                perpage: itemsPerPage,
-                pageNumber: currentPage.value,
-            }),
-        ]);
+        // // Fetch data secara paralel untuk efisiensi
+        // const [supplierResponse, bankResponse] = await Promise.all([
+        //     daftarSupplier({
+        //         search: search.value,
+        //         perpage: itemsPerPage,
+        //         pageNumber: currentPage.value,
+        //     }),
+        //     daftarBank({
+        //         search: search.value,
+        //         perpage: itemsPerPage,
+        //         pageNumber: currentPage.value,
+        //     }),
+        // ]);
 
-        if (supplierResponse?.error) {
-            displayNotification(supplierResponse.error_msg || "Gagal mengambil data supplier", "error");
-            return;
-        }
+        // if (supplierResponse?.error) {
+        //     displayNotification(supplierResponse.error_msg || "Gagal mengambil data supplier", "error");
+        //     return;
+        // }
 
-        dataBank.value = bankResponse?.data || [];
-        dataSupplier.value = supplierResponse?.data || [];
-        totalPages.value = supplierResponse?.total ? Math.ceil(supplierResponse.total / itemsPerPage) : 0;
+        // dataBank.value = bankResponse?.data || [];
+        // dataSupplier.value = supplierResponse?.data || [];
+        // totalPages.value = supplierResponse?.total ? Math.ceil(supplierResponse.total / itemsPerPage) : 0;
 
     } catch (error) {
         // Notifikasi jika ada kesalahan sistem atau jaringan
@@ -144,32 +161,32 @@ const openModal = (supplier?: Supplier) => {
 };
 
 onMounted(async () => {
-  await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-  totalColumns.value = document.querySelectorAll("thead th").length;
+  await fetchFilterData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
+  // totalColumns.value = document.querySelectorAll("thead th").length;
 });
 
-const validateForm = (): boolean => {
-  errors.value = { name: '', address: '', bank: '', nomor_rekening: '' };
-  let isValid = true;
+// const validateForm = (): boolean => {
+//   errors.value = { name: '', address: '', bank: '', nomor_rekening: '' };
+//   let isValid = true;
 
-  if (!selectedSupplier.value.name?.trim()) {
-    errors.value.name = 'Nama tidak boleh kosong';
-    isValid = false;
-  }
-  if (!selectedSupplier.value.address?.trim()) {
-    errors.value.address = 'Alamat tidak boleh kosong';
-    isValid = false;
-  }
-  if (!selectedSupplier.value.bank_id?.toString().trim()) {
-    errors.value.bank = 'Bank tidak boleh kosong';
-    isValid = false;
-  }
-  if (!selectedSupplier.value.nomor_rekening) {
-    errors.value.nomor_rekening = 'Nomor rekening tidak boleh kosong';
-    isValid = false;
-  }
-  return isValid;
-};
+//   if (!selectedSupplier.value.name?.trim()) {
+//     errors.value.name = 'Nama tidak boleh kosong';
+//     isValid = false;
+//   }
+//   if (!selectedSupplier.value.address?.trim()) {
+//     errors.value.address = 'Alamat tidak boleh kosong';
+//     isValid = false;
+//   }
+//   if (!selectedSupplier.value.bank_id?.toString().trim()) {
+//     errors.value.bank = 'Bank tidak boleh kosong';
+//     isValid = false;
+//   }
+//   if (!selectedSupplier.value.nomor_rekening) {
+//     errors.value.nomor_rekening = 'Nomor rekening tidak boleh kosong';
+//     isValid = false;
+//   }
+//   return isValid;
+// };
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message;
@@ -190,53 +207,53 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
   showConfirmDialog.value = true;
 };
 
-const saveData = async () => {
-  if (!validateForm()) return;
+// const saveData = async () => {
+//   if (!validateForm()) return;
 
-  const isEdit = !!selectedSupplier.value.id;
-  const action = async () => {
-    try {
-      if (isEdit) {
-        const response = await editSupplier(selectedSupplier.value.id, selectedSupplier.value );
-        showConfirmDialog.value = false;
-        displayNotification(response.error_msg);
-      } else {
-        const response = await addSupplier(selectedSupplier.value);
-        showConfirmDialog.value = false;
-        displayNotification(response.error_msg);
-      }
-      isModalOpen.value = false;
-      fetchData();
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        displayNotification(error.response?.data?.error_msg || 'Terjadi kesalahan saat menyimpan data.', 'error');
-      } else {
-        displayNotification('Terjadi kesalahan yang tidak terduga.', 'error');
-      }
-      showConfirmDialog.value = false;
-    }
-  };
+//   const isEdit = !!selectedSupplier.value.id;
+//   const action = async () => {
+//     try {
+//       if (isEdit) {
+//         const response = await editSupplier(selectedSupplier.value.id, selectedSupplier.value );
+//         showConfirmDialog.value = false;
+//         displayNotification(response.error_msg);
+//       } else {
+//         const response = await addSupplier(selectedSupplier.value);
+//         showConfirmDialog.value = false;
+//         displayNotification(response.error_msg);
+//       }
+//       isModalOpen.value = false;
+//       fetchData();
+//     } catch (error) {
+//       if (axios.isAxiosError(error)) {
+//         displayNotification(error.response?.data?.error_msg || 'Terjadi kesalahan saat menyimpan data.', 'error');
+//       } else {
+//         displayNotification('Terjadi kesalahan yang tidak terduga.', 'error');
+//       }
+//       showConfirmDialog.value = false;
+//     }
+//   };
 
-  isEdit ? showConfirmation('Konfirmasi Perubahan', 'Apakah Anda yakin ingin mengubah data ini?', action) : action();
-};
+//   isEdit ? showConfirmation('Konfirmasi Perubahan', 'Apakah Anda yakin ingin mengubah data ini?', action) : action();
+// };
 
-const deleteData = async (id: number) => {
-  showConfirmation(
-    'Konfirmasi Hapus',
-    'Apakah Anda yakin ingin menghapus data ini?',
-    async () => {
-      try {
-        const response = await deleteSupplier(id);
-        showConfirmDialog.value = false;
-        displayNotification(response.error_msg);
-        fetchData();
-      } catch (error) {
-        console.error('Error deleting data:', error);
-        displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
-      }
-    }
-  );
-};
+// const deleteData = async (id: number) => {
+//   showConfirmation(
+//     'Konfirmasi Hapus',
+//     'Apakah Anda yakin ingin menghapus data ini?',
+//     async () => {
+//       try {
+//         const response = await deleteSupplier(id);
+//         showConfirmDialog.value = false;
+//         displayNotification(response.error_msg);
+//         fetchData();
+//       } catch (error) {
+//         console.error('Error deleting data:', error);
+//         displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
+//       }
+//     }
+//   );
+// };
 
 </script>
 
@@ -244,27 +261,22 @@ const deleteData = async (id: number) => {
   <div class="container mx-auto px-4 mt-10">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-6">
-      <button
-        @click="openModal()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
+      <PrimaryButton @click="openModal()">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
         Tambah Transaksi Keluar Masuk
-      </button>
+      </PrimaryButton>
       <div class="flex items-center">
-        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input
-          type="text"
-          id="search"
-          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-          v-model="search"
-          @change="fetchData()"
-          placeholder="Cari data..."
-        />
+        <input v-model="search" type="text" placeholder="Cari Nomor Invoice..."
+        class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" />
+        <select  v-model="selectedOptionCabang" style="width: 300px;" @change="fetchData()" class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+              {{ optionC.name }}
+            </option>
+          </select>
       </div>
     </div>
-
     <!-- Table data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
@@ -302,55 +314,7 @@ const deleteData = async (id: number) => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
-          <!-- <tr>
-            <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
-              <nav class="flex mt-0">
-                <ul class="inline-flex items-center -space-x-px">
-                  <li>
-                    <button
-                      @click="prevPage"
-                      :disabled="currentPage === 1"
-                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg
-                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                  </li>
-                  <li v-for="page in pages" :key="page">
-                    <button
-                      @click="pageNow(page)"
-                      class="px-3 py-2 leading-tight border"
-                      :class="currentPage === page
-                        ? 'text-white bg-[#333a48] border-[#333a48]'
-                        : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'"
-                    >
-                      {{ page }}
-                    </button>
-                  </li>
-
-                  <li>
-                    <button
-                      @click="nextPage"
-                      :disabled="currentPage === totalPages"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg
-                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </td>
-          </tr> -->
+          <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" :totalRow="totalRow" />
         </tfoot>
       </table>
     </div>

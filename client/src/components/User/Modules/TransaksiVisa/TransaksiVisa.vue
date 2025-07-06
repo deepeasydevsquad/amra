@@ -33,7 +33,8 @@ const currentPage = ref(1)
 const search = ref('')
 const filter = ref('belum_ada_transaksi')
 const totalPages = ref(0)
-const totalColumns = ref(0)
+const totalColumns = ref(6)
+const totalRow = ref(0);
 
 const TransaksiVisa = ref<TransaksiVisa[]>([])
 const isFormOpen = ref<boolean>(false)
@@ -117,6 +118,7 @@ const fetchData = async () => {
     }
 
     totalPages.value = Math.ceil((response?.total || 0) / itemsPerPage)
+    totalRow.value = response.total
     TransaksiVisa.value = response?.data || []
 
     console.log('Fetched data:', response?.data)
@@ -159,7 +161,7 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 // --- Lifecycle Hook ---
 onMounted(async () => {
   await fetchData()
-  totalColumns.value = document.querySelectorAll('thead th').length
+  // totalColumns.value = document.querySelectorAll('thead th').length
 })
 
 const deleteItem = async (id: number) => {
@@ -334,6 +336,7 @@ const openFormCetakDataJamaah = (item: any) => {
             @prev-page="prevPage"
             @next-page="nextPage"
             @page-now="pageNow"
+            :totalRow="totalRow"
           />
         </tfoot>
       </table>

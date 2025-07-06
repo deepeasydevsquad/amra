@@ -22,6 +22,12 @@ router.post(
 router.post(
   "/trans_hotel/daftar_transaksi",
   authenticateToken,
+  [
+    // body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong."),
+    body("pageNumber").trim().notEmpty().withMessage("Page Number tidak boleh kosong."),
+    body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
+    body("search").trim(),
+  ],
   controllers.daftar_transaksi_hotel
 );
 

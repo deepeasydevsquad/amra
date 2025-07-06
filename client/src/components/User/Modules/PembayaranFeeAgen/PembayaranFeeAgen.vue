@@ -243,31 +243,20 @@ const cetak_invoice = (invoice: string) => {
 
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center w-[20%]">Nomor Invoice</th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center w-[15%]">
-              Total Pembayaran
-            </th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center w-[25%]">
-              Penerima Pembayaran
-            </th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center w-[25%]">
-              Petugas Pembayaran
-            </th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center w-[15%]">Aksi</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[20%]">Nomor Invoice</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">Total Pembayaran</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[25%]">Penerima Pembayaran</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[25%]">Petugas Pembayaran</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
           <tr v-if="filteredData.length === 0">
-            <td colspan="5" class="px-6 py-4 text-center text-gray-500">Data tidak ada</td>
+            <td colspan="5" class="px-6 py-4 text-center text-gray-500">Riwayat Pembayaran Fee Agen Tidak Ditemukan</td>
           </tr>
-
-          <tr
-            v-for="pembayaran in filteredData"
-            :key="pembayaran.id"
-            class="hover:bg-gray-50 transition-colors"
-          >
+          <tr v-for="pembayaran in filteredData" :key="pembayaran.id" class="hover:bg-gray-50 transition-colors" >
             <td class="px-6 py-4 text-center">{{ pembayaran.invoice }}</td>
             <td class="px-6 py-4 text-center">{{ pembayaran.nominal }}</td>
             <td class="px-6 py-4 text-center">{{ pembayaran.applicant_name }}</td>

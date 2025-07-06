@@ -1,6 +1,6 @@
 <template>
-  <tr>
-    <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
+  <tr class="border">
+    <td class="px-4 py-4 text-center min-h-[200px]" :colspan="totalColumns-2">
       <nav class="flex mt-0">
         <ul class="inline-flex items-center -space-x-px">
           <!-- Tombol Previous -->
@@ -42,6 +42,9 @@
         </ul>
       </nav>
     </td>
+    <td class="px-4 py-4 text-right min-h-[200px] font-medium text-sm" colspan="2">
+      Total Entries {{ totalRow }}
+    </td>
   </tr>
 </template>
 
@@ -50,7 +53,8 @@ defineProps({
   currentPage: Number,
   totalPages: Number,
   pages: Array,
-  totalColumns: Number
+  totalColumns: Number,
+  totalRow: { type: Number, default: 0}
 })
 
 defineEmits(['prev-page', 'next-page', 'page-now'])

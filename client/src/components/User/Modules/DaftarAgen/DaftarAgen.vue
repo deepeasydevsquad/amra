@@ -14,13 +14,13 @@
     </div>
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Nama Agen</th>
-            <th class="w-[20%] px-6 py-4 font-medium text-gray-900 text-center">Nomor Identitas Agen</th>
-            <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Level Keagenan</th>
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Cabang</th>
-            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Aksi</th>
+            <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Nama Agen</th>
+            <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Nomor Identitas Agen</th>
+            <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Level Keagenan</th>
+            <th class="w-[10%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Cabang</th>
+            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody v-if="agens.length" class="divide-y divide-gray-100 border-t border-gray-100" >
@@ -41,7 +41,7 @@
         <tbody v-else class="divide-y divide-gray-100 border-t border-gray-100">
           <tr>
             <td :colspan="totalColumns" class="px-6 py-4 text-center text-gray-500">
-              Daftar Agen Tidak di Temukan
+              Daftar Agen Tidak Di Temukan
             </td>
           </tr>
         </tbody>

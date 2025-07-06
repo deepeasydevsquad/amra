@@ -16,12 +16,12 @@
       <div class="overflow-x-auto">
         <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead class="bg-gray-100">
-            <tr class="bg-gray-100">
-              <th class="w-[20%] px-6 py-4 font-medium text-gray-900 text-center">Nama Cabang</th>
-              <th class="w-[20%] px-6 py-4 font-medium text-gray-900 text-center">Info Kota</th>
-              <th class="w-[20%] px-6 py-4 font-medium text-gray-900 text-center">Alamat</th>
-              <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Catatan</th>
-              <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Aksi</th>
+            <tr>
+              <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Nama Cabang</th>
+              <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Info Kota</th>
+              <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Alamat</th>
+              <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Catatan</th>
+              <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 -t -gray-100" v-if="paginatedCabang.length > 0">

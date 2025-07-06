@@ -23,7 +23,8 @@ const currentPage = ref(1)
 const search = ref('')
 const filter = ref('belum_ada_transaksi')
 const totalPages = ref(0)
-const totalColumns = ref(0)
+const totalColumns = ref(6)
+const totalRow = ref(0);
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
@@ -102,6 +103,8 @@ const fetchData = async () => {
 
     totalPages.value = Math.ceil((response?.total || 0) / itemsPerPage)
     TransaksiPassport.value = response?.data || []
+
+    totalRow.value = response.total
 
     console.log('Fetched data:', response?.data)
   } catch (error) {
@@ -203,7 +206,7 @@ const handleCancelConfirm = () => {
 // --- Lifecycle Hook ---
 onMounted(async () => {
   await fetchData()
-  totalColumns.value = document.querySelectorAll('thead th').length
+  // totalColumns.value = document.querySelectorAll('thead th').length
 })
 </script>
 
@@ -311,6 +314,7 @@ onMounted(async () => {
             @prev-page="prevPage"
             @next-page="nextPage"
             @page-now="pageNow"
+            :totalRow="totalRow"
           />
         </tfoot>
       </table>

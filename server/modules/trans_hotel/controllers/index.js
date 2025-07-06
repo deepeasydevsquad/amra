@@ -58,9 +58,12 @@ exports.hapus_transaksi_hotel = async (req, res) => {
 };
 
 exports.daftar_transaksi_hotel = async (req, res) => {
+  
+  if (!(await handleValidationErrors(req, res))) return;
+
   try {
     const data = await new Model_r(req).daftar_transaksi_hotel();
-    res.status(200).json(data);
+    res.status(200).json({error: false, data : data.data, total: data.total });
   } catch (error) {
     handleServerError(res, error.message);
   }

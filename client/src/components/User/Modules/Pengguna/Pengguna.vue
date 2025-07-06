@@ -25,11 +25,11 @@
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-100">
-          <tr class="bg-gray-100">
-            <th class="px-6 py-4 font-medium text-gray-900 text-center">Nama</th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center">Nama Cabang</th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center">Nama Grup</th>
-            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Aksi</th>
+          <tr >
+            <th class="px-6 py-3 font-medium text-gray-900 text-center">Nama</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center">Nama Cabang</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center">Nama Grup</th>
+            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">

@@ -54,13 +54,13 @@
     <!-- Deposit Table -->
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md mb-5">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Nomor Identitas</th>
-            <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">Nama Jamaah</th>
-            <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">Nomor Passport</th>
-            <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">Tempat / Tanggal Lahir</th>
-            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Aksi</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Nomor Identitas</th>
+            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Nama Jamaah</th>
+            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Nomor Passport</th>
+            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Tempat / Tanggal Lahir</th>
+            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -75,17 +75,13 @@
 
           <!-- Empty State -->
           <tr v-else-if="jamaah.length === 0">
-            <td colspan="5" class="px-6 py-4 text-center text-base text-gray-600">
-              {{ searchQuery ? 'Hasil pencarian tidak ditemukan' : 'Data jamaah tidak ditemukan' }}
+            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-600">
+              {{ searchQuery ? 'Hasil pencarian tidak ditemukan' : 'Daftar Jamaah Tidak Ditemukan' }}
             </td>
           </tr>
 
           <!-- Data Jamaah -->
-          <tr
-            v-for="jamaahs in jamaah"
-            :key="jamaahs.id"
-            class="hover:bg-gray-50 transition-colors"
-          >
+          <tr v-for="jamaahs in jamaah" :key="jamaahs.id" class="hover:bg-gray-50 transition-colors" >
             <td class="px-6 py-4 text-center">{{ jamaahs.nomor_identitas || '-' }}</td>
             <td class="px-6 py-4 text-center">{{ jamaahs.nama_jamaah || '-' }}</td>
             <td class="px-6 py-4 text-center">{{ jamaahs.nomor_passport || '-' }}</td>

@@ -1,13 +1,4 @@
-const {
-  Hotel_transaction,
-  Hotel_transaction_detail,
-  Mst_hotel,
-  Mst_kota,
-  sequelize,
-  Company,
-  Users,
-  Member,
-} = require("../../../models");
+const { Hotel_transaction, Hotel_transaction_detail, Mst_hotel, Mst_kota, sequelize, Company, Users, Member } = require("../../../models");
 const moment = require("moment");
 const { Op } = require("sequelize");
 const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
@@ -27,67 +18,90 @@ class Model_r {
     try {
       await this.initialize(); // inisialisasi company_id
 
-      const transaksiList = await Hotel_transaction.findAll({
-        where: { company_id: this.company_id },
-        include: [
-          {
-            model: Hotel_transaction_detail,
-            required: true,
-            attributes: [
-              "name",
-              "birth_date",
-              "birth_place",
-              "identity_number",
-              "price",
-              "check_in",
-              "check_out",
-            ],
-            include: [
-              {
-                model: Mst_hotel,
-                required: true,
-                attributes: ["name"],
-              },
-            ],
-          },
-        ],
-      });
+      const body = this.req.body;
+      const limit = body.perpage || 10;
+      const page = body.pageNumber && body.pageNumber !== "0" ? body.pageNumber : 1;
+  
+      let where = { company_id: this.company_id };
+  
+      if (body.search) {
+        where = {
+          ...where,
+          ...{ 
+            invoice: { [Op.like]: `%${body.search}%` } 
+          }
+        };
+      }
 
-      const data = transaksiList.map((trx) => {
-        const detailList = trx.Hotel_transaction_details || []; // ⬅️ fix di sini
+      var sql = {
+        limit: parseInt(limit),
+        offset: (page - 1) * limit,
+        order: [["id", "ASC"]],
+        where: where,
+      };
 
-        const total_harga = detailList.reduce(
-          (sum, detail) => sum + Number(detail.price || 0),
-          0
+      const q = await Hotel_transaction.findAndCountAll(sql);
+      const total = q.count;
+      let data = [];
+
+      if (total > 0) {
+        var listId = [];
+        await Promise.all(
+          await q.rows.map(async (trx) => {
+            data.push({
+              id: trx.id,
+              invoice: trx.invoice,
+              payer: trx.payer,
+              payer_identity: trx.payer_identity,
+              petugas: trx.petugas,
+              tanggal_transaksi: moment(trx.createdAt).format(
+                "YYYY-MM-DD HH:mm:ss"
+              ),
+              total_harga: 0,
+              details: [],
+            });
+            listId.push(trx.id);
+          })
         );
 
-        return {
-          id: trx.id,
-          invoice: trx.invoice,
-          payer: trx.payer,
-          payer_identity: trx.payer_identity,
-          petugas: trx.petugas,
-          tanggal_transaksi: moment(trx.createdAt).format(
-            "YYYY-MM-DD HH:mm:ss"
-          ),
-          total_harga: total_harga,
-          details: detailList.map((d) => ({
-            name: d.name,
-            birth_place: d.birth_place,
-            birth_date: d.birth_date,
-            identity_number: d.identity_number,
-            price: d.price,
-            check_in: d.check_in,
-            check_out: d.check_out,
-            hotel_name: d.Mst_hotel?.name ?? "-",
-          })),
-        };
-      });
+        var dataHotel = {};
+        var totalHotel = {};
+        await Hotel_transaction_detail.findAll({ 
+          where : { 
+            hotel_transaction_id  : { [Op.in] : listId },
+          },
+          include: [
+            {
+              model: Mst_hotel,
+              required: true,
+              attributes: ["name"],
+            },
+          ],
+        }).then(async (value) => {
+          await Promise.all(
+            await value.map(async (e) => {
+              if(dataHotel[e.hotel_transaction_id] == undefined ) {
+                dataHotel = {...dataHotel,...{[e.hotel_transaction_id] : [{name: e.name,birth_place: e.birth_place, birth_date: e.birth_date, identity_number: e.identity_number, price: e.price, check_in: e.check_in, check_out: e.check_out, hotel_name: e.Mst_hotel?.name ?? "-"}]}};
+                totalHotel = {...totalHotel,...{[e.hotel_transaction_id] : e.price } };
+              }else{
+                dataHotel[e.hotel_transaction_id].push({name: e.name,birth_place: e.birth_place, birth_date: e.birth_date, identity_number: e.identity_number, price: e.price, check_in: e.check_in, check_out: e.check_out, hotel_name: e.Mst_hotel?.name ?? "-"});
+                totalHotel[e.hotel_transaction_id] =  totalHotel[e.hotel_transaction_id] + e.price;
+              }
+            })
+          );
+        });
 
-      return data;
+        for( let x in data ) {
+          if( dataHotel[data[x].id] !== undefined) {
+            data[x].details = dataHotel[data[x].id];
+            data[x].total_harga = totalHotel[data[x].id];
+          }
+        }
+      }
+
+      return { data: data, total: total };
     } catch (error) {
-      console.error("Gagal ambil daftar transaksi hotel:", error);
-      return [];
+      return {};
     }
   }
 

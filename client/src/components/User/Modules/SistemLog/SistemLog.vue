@@ -26,13 +26,13 @@
     <!-- Tabel System Log -->
     <div v-else class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center">Log Message</th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center">User</th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center">Transaction Date</th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center">IP Address</th>
-            <th class="px-6 py-4 font-medium text-gray-900 text-center">Cabang</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center">Log Message</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center">User</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center">Transaction Date</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center">IP Address</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center">Cabang</th>
           </tr>
         </thead>
         <tbody v-if="data.length > 0" class="divide-y divide-gray-200">
@@ -52,7 +52,7 @@
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" />
+          <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" :totalRow="totalRow"/>
         </tfoot>
       </table>
     </div>
@@ -107,6 +107,7 @@ const fetchData = async () => {
       cabang: selectedOptionCabang.value
     });
     data.value = response.data
+    totalRow.value = response.total;
     totalPages.value = Math.ceil(response.total / itemsPerPage);
   } catch (err) {
     error.value = 'Gagal mengambil data log. Silakan coba lagi.'
@@ -127,6 +128,7 @@ const currentPage = ref(1)
 const itemsPerPage = 100
 const totalColumns = ref(5);
 const totalPages = ref(0);
+const totalRow = ref(0);
 
 const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
