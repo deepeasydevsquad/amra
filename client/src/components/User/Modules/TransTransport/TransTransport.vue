@@ -119,10 +119,13 @@ const deleteData = async (id: number) => {
 const fetchMobil = async () => {
   try {
     const data = await daftar_mobil()
-    MobilOptions.value = data.map((item: any) => ({
-      id: item.id,
-      name: `${item.name}`,
-    }))
+     MobilOptions.value = [
+      { id: 0, name: 'Pilih Mobil' },
+      ...data.map((item: any) => ({
+        id: item.id,
+        name: `${item.name}`,
+      })),
+    ];
     console.log('data kota', data)
   } catch (error) {
     displayNotification('Gagal ambil data kota', 'error')
@@ -143,7 +146,7 @@ const formData = ref({
 
 const formMobilList = ref([
   {
-    mst_mobil_id: '',
+    mst_mobil_id: '0',
     car_number: '',
     price: null,
   },
@@ -151,7 +154,7 @@ const formMobilList = ref([
 
 const addMobil = () => {
   formMobilList.value.push({
-    mst_mobil_id: '',
+    mst_mobil_id: '0',
     car_number: '',
     price: null,
   })
@@ -322,10 +325,6 @@ const parseIDR = (value: string): number => {
         />
         </tfoot>
       </table>
-
-      <!-- <table class="w-full bg-gray-50">
-
-      </table> -->
     </div>
   </div>
 
@@ -361,13 +360,14 @@ const parseIDR = (value: string): number => {
       id="address"
       placeholder="Tuliskan Alamat Anda..."
       :note="'Contoh: Jl. Raya Jakarta No. 123, Jakarta Selatan, DKI Jakarta'"
+      class="resize-none"
     />
 
-    <table class="table-auto w-full">
+    <table class="table-auto w-full mt-5">
       <thead class="bg-gray-100 text-sm text-gray-700">
         <tr class="text-center">
-          <th class="w-[90%] px-4 py-2">Info Mobil</th>
-          <th class="w-[10%] px-4 py-2">Aksi</th>
+          <th class="w-[90%] px-4 py-3">Info Mobil</th>
+          <th class="w-[10%] px-4 py-3">Aksi</th>
         </tr>
       </thead>
       <tbody class="align-top border-t border-gray-200">

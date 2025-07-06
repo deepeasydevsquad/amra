@@ -106,7 +106,12 @@ onMounted(() => {
   >
     <div class="flex items-center justify-center gap-2 px-6 py-2.5 lg:py-3.5">
       <router-link to="/">
-        <img :src="BASE_URL + '/uploads/pengaturan/' + logo " alt="Logo" />
+        <img v-if="logo !== 'default.png'" :src="BASE_URL + '/uploads/pengaturan/' + logo " alt="Logo" class="h-14" />
+        <div v-else class="relative w-60 h-17 rounded-t-lg ">
+          <div  class="absolute inset-0 flex items-center justify-center text-white border-2 border-dashed border-white " >
+            <p class="text-xl font-semibold">Logo</p>
+          </div>
+        </div>
       </router-link>
       <button class="block lg:hidden" @click="sidebarStore.isSidebarOpen = false">
         <svg
