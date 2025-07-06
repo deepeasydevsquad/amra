@@ -340,7 +340,6 @@ const cetak_invoice = (invoice: string) => {
   const printUrl = `/kwitansi-trans-hotel/${invoice}`
   window.open(printUrl, '_blank')
 }
-
 </script>
 
 <template>
@@ -353,7 +352,7 @@ const cetak_invoice = (invoice: string) => {
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input v-model="searchQuery" type="text" id="search" @keyup="fetchDataTransaksi()"
-          class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" placeholder="Cari Transaksi..." />
+          class="w-full sm:w-72 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Cari Invoice..." />
       </div>
     </div>
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
@@ -370,9 +369,9 @@ const cetak_invoice = (invoice: string) => {
         </thead>
         <tbody class="divide-y divide-gray-200">
           <tr v-if="data.length === 0">
-            <td colspan="5" class="px-6 py-4 text-center text-gray-500">Daftar Transaksi Hotel Tidak Ditemukan</td>
+            <td colspan="6" class="px-6 py-4 text-center text-gray-500">Daftar Transaksi Hotel Tidak Ditemukan</td>
           </tr>
-          <tr v-for="transaksi in data" :key="transaksi.id" class="hover:bg-gray-50 transition-colors">
+          <tr v-else  v-for="transaksi in data" :key="transaksi.id" class="hover:bg-gray-50 transition-colors">
             <td class="px-6 py-4 text-center align-top">{{ transaksi.invoice }}</td>
             <td class="px-6 py-4 text-center align-top">{{ transaksi.payer }} <br> {{ transaksi.payer_identity }}</td>
             <td class="px-6 py-4 text-left space-y-3">

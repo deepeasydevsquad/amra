@@ -261,8 +261,8 @@ const parseIDR = (value: string): number => {
           v-model="searchQuery"
           type="text"
           id="search"
-          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder:text-gray-400"
-          placeholder="Cari Transaksi..."
+          class="w-full sm:w-72 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Cari Invoice..."
         />
       </div>
     </div>
