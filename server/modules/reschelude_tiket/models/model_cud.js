@@ -79,24 +79,44 @@ class Model_cud {
     const petugas = await this.penerima();
 
     try {
-      // 1. Ambil data transaksi lama (include detail-nya)
+      // 🔍 Validasi basic
+      if (!body.ticket_transaction_id || !Array.isArray(body.details)) {
+        throw new Error("Data tidak lengkap untuk proses reschedule.");
+      }
+
+      for (const detail of body.details) {
+        if (
+          !detail.ticket_transaction_detail_id ||
+          !detail.departure_date ||
+          detail.travel_price == null ||
+          detail.costumer_price == null ||
+          !detail.code_booking
+        ) {
+          throw new Error("Beberapa data detail tidak lengkap.");
+        }
+      }
+
+      // 1. Ambil data transaksi lama
       const transaksi = await Ticket_transaction.findOne({
         where: { id: body.ticket_transaction_id },
-        include: [{ model: Ticket_transaction_detail }],
+        include: [
+          { model: Ticket_transaction_detail },
+          {
+            model: Ticket_payment_history,
+          },
+        ],
         transaction: this.t,
       });
 
-      if (!transaksi) {
-        throw new Error("Transaksi tidak ditemukan.");
-      }
+      if (!transaksi) throw new Error("Transaksi tidak ditemukan.");
 
-      // 2. Hitung total transaksi baru dari costumer_price yang baru
+      // 2. Hitung total baru
       const newTotalTransaction = body.details.reduce(
         (total, d) => total + Number(d.costumer_price || 0),
         0
       );
 
-      // 3. Insert ke Ticket_reschedule_history (backup data utama)
+      // 3. Simpan ke history utama
       const tiket_reschedule = await Ticket_reschedule_history.create(
         {
           division_id: this.division,
@@ -113,53 +133,19 @@ class Model_cud {
         { transaction: this.t }
       );
 
-      // 4. Insert semua detail ke Ticket_reschedule_detail_history_
-      console.log("▶️ Mulai proses insert detail reschedule...");
-      console.log("📦 Jumlah detail dari body:", body.details?.length || 0);
-      console.log(
-        "📦 Jumlah detail dari transaksi:",
-        transaksi.Ticket_transaction_details?.length || 0
-      );
-
+      // 4. Insert semua ke detail history
       for (const detailBaru of body.details) {
-        console.log(
-          "\n🔁 Looping detailBaru:",
-          detailBaru.ticket_transaction_detail_id
-        );
-
         const detailLama = transaksi.Ticket_transaction_details.find(
           (d) => d.id === detailBaru.ticket_transaction_detail_id
         );
 
         if (!detailLama) {
           console.warn(
-            "❌ DetailLama gak ditemukan untuk ID:",
+            "❌ Detail lama gak ditemukan untuk ID:",
             detailBaru.ticket_transaction_detail_id
           );
           continue;
         }
-
-        console.log("✅ Ditemukan detailLama:", {
-          id: detailLama.id,
-          pax: detailLama.pax,
-          departure_date: detailLama.departure_date,
-        });
-
-        console.log("📥 Siap insert detail baru ke DB dengan data:");
-        console.log({
-          ticket_reschedule_history_id: tiket_reschedule.id,
-          ticket_transaction_detail_id: detailLama.id,
-          old_departure_date: detailLama.departure_date,
-          old_travel_price: detailLama.travel_price,
-          old_costumer_price: detailLama.costumer_price,
-          old_code_booking: detailLama.code_booking,
-          new_departure_date: detailBaru.departure_date,
-          new_travel_price: detailBaru.travel_price,
-          new_costumer_price: detailBaru.costumer_price,
-          new_code_booking: detailBaru.code_booking,
-          createdAt: myDate,
-          updatedAt: myDate,
-        });
 
         await Ticket_reschedule_detail_history.create(
           {
@@ -178,28 +164,65 @@ class Model_cud {
           },
           { transaction: this.t }
         );
-
-        console.log("✅ Insert detail berhasil untuk ID:", detailLama.id);
       }
 
-      console.log("🏁 Proses insert detail selesai.");
-
-      // 5. Update total transaksi ke Ticket_transaction
+      // 5. Update total transaksi
       await Ticket_transaction.update(
-        {
-          total_transaksi: newTotalTransaction,
-        },
-        {
-          where: { id: transaksi.id },
-          transaction: this.t,
-        }
+        { total_transaksi: newTotalTransaction },
+        { where: { id: transaksi.id }, transaction: this.t }
       );
 
-      // 6. Hapus semua Ticket_payment_history terkait transaksi ini
+      // 6 Update detail transaksi satu-satu
+      for (const detailBaru of body.details) {
+        const detailLama = transaksi.Ticket_transaction_details.find(
+          (d) => d.id === detailBaru.ticket_transaction_detail_id
+        );
+
+        if (!detailLama) continue;
+
+        await Ticket_transaction_detail.update(
+          {
+            departure_date: detailBaru.departure_date,
+            travel_price: detailBaru.travel_price,
+            costumer_price: detailBaru.costumer_price,
+            code_booking: detailBaru.code_booking,
+            updatedAt: myDate,
+          },
+          {
+            where: { id: detailLama.id },
+            transaction: this.t,
+          }
+        );
+      }
+
+      // 7. Hitung total nominal lama dari semua history pembayaran
+      const totalNominalLama = transaksi.Ticket_payment_histories.reduce(
+        (total, item) => total + Number(item.nominal || 0),
+        0
+      );
+
+      // 8. Hapus semua history pembayaran lama
       await Ticket_payment_history.destroy({
         where: { ticket_transaction_id: transaksi.id },
         transaction: this.t,
       });
+
+      // 9. Buat 1 payment history baru pakai total nominal lama
+      await Ticket_payment_history.create(
+        {
+          ticket_transaction_id: transaksi.id,
+          nominal: totalNominalLama,
+          invoice: invoice,
+          costumer_name: body.costumer_name,
+          costumer_identity: body.costumer_identity,
+          status: "cash",
+          petugas: petugas,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        { transaction: this.t }
+      );
+
       this.invoice = invoice;
       this.message = "Berhasil melakukan reschedule tiket";
     } catch (error) {
