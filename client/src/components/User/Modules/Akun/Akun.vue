@@ -230,14 +230,14 @@
     <!-- Table data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center" colspan="2">Nomor</th>
-            <th class="w-[35%] px-6 py-4 font-medium text-gray-900 text-center">Nama Akun</th>
-            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Type</th>
-            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Saldo Awal</th>
-            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Saldo Akhir</th>
-            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Aksi</th>
+            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center" colspan="2">Nomor</th>
+            <th class="w-[35%] px-6 py-3 font-medium text-gray-900 text-center">Nama Akun</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Type</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Saldo Awal</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Saldo Akhir</th>
+            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">

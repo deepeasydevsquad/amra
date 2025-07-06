@@ -60,7 +60,7 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 const pages = computed<number[]>(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1)
 })
-const totalColumns = 5 // karena table punya 5 kolom
+const totalColumns = 6 // karena table punya 5 kolom
 
 const searchQuery = ref('')
 
@@ -344,8 +344,19 @@ const cetak_invoice = (invoice: string) => {
             </td>
           </tr>
         </tbody>
+        <tfoot class="bg-gray-100 font-bold">
+           <Pagination
+          :currentPage="currentPage"
+          :totalPages="totalPages"
+          :pages="pages"
+          :totalColumns="totalColumns"
+          @prev-page="handlePrev"
+          @next-page="handleNext"
+          @page-now="handlePageNow"
+        />
+        </tfoot>
       </table>
-      <table class="w-full">
+      <!-- <table class="w-full">
         <Pagination
           :currentPage="currentPage"
           :totalPages="totalPages"
@@ -355,7 +366,7 @@ const cetak_invoice = (invoice: string) => {
           @next-page="handleNext"
           @page-now="handlePageNow"
         />
-      </table>
+      </table> -->
     </div>
   </div>
 

@@ -154,14 +154,14 @@
     <!-- Table data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Tanggal Transaksi</th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Ref</th>
-            <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Keterangan</th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Debet</th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Kredit</th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Saldo</th>
+            <th class="w-[15%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Tanggal Transaksi</th>
+            <th class="w-[15%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Ref</th>
+            <th class="w-[25%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Keterangan</th>
+            <th class="w-[15%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Debet</th>
+            <th class="w-[15%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Kredit</th>
+            <th class="w-[15%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Saldo</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">

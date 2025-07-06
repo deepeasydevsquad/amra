@@ -261,11 +261,11 @@ const openFormCetakDataJamaah = (item: any) => {
         <thead class="bg-gray-100">
           <tr>
             <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Nomor Invoice</th>
-            <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Info Pembayar</th>
+            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Info Pembayar</th>
             <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Info Visa</th>
             <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Total</th>
             <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Tanggal</th>
-            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
+            <th class="w-[5%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -302,7 +302,19 @@ const openFormCetakDataJamaah = (item: any) => {
             <td class="px-6 py-4 text-center align-top">
               {{ new Date(item.createdAt).toLocaleDateString('id-ID') }}
             </td>
-            <td class="px-6 py-4 flex items-center justify-center gap-2">
+            <td class="px-6 py-4 text-center align-top">
+              <div class="flex flex-col items-center gap-2">
+                <LightButton title="Cetak Kwitansi" @click="openCetakKwitansi(item.invoice)">
+                  <CetakIcon class="h-4 w-4 text-gray-600" />
+                </LightButton>
+
+                <DangerButton title="Delete" @click="handleDelete(item.id)">
+                  <DeleteIcon class="w-5 h-5" />
+                </DangerButton>
+              </div>
+            </td>
+            <!-- <td class="px-6 py-4 flex items-center justify-center gap-2">
+
               <LightButton title="Cetak Kwitansi" @click="openCetakKwitansi(item.invoice)">
                 <CetakIcon class="h-4 w-4 text-gray-600" />
               </LightButton>
@@ -310,7 +322,7 @@ const openFormCetakDataJamaah = (item: any) => {
               <DangerButton title="Delete" @click="handleDelete(item.id)">
                 <DeleteIcon class="w-5 h-5" />
               </DangerButton>
-            </td>
+            </td> -->
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">

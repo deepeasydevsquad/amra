@@ -288,7 +288,8 @@ onMounted(async () => {
             <td class="px-6 py-4 text-center">Rp. {{ item.price.toLocaleString() }}</td>
             <td class="px-6 py-2 text-xs text-center">
               {{ new Date(item.createdAt).toLocaleDateString('id-ID') }}
-            </td><td class="px-6 py-4 text-center align-top">
+            </td>
+            <td class="px-6 py-4 text-center align-top">
               <div class="flex flex-col items-center gap-2">
                 <LightButton title="Cetak Kwitansi" @click="openCetakKwitansi(item.invoice)">
                 <CetakIcon class="h-4 w-4 text-gray-600" />

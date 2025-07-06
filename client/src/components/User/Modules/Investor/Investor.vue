@@ -199,13 +199,13 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
     <!-- Table data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama & Nomor Identitas Investor</th>
-            <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Kontak & Alamat</th>
-            <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Investasi & Saham</th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Cabang</th>
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[25%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Nama & Nomor Identitas Investor</th>
+            <th class="w-[25%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Nomor Kontak & Alamat</th>
+            <th class="w-[25%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Investasi & Saham</th>
+            <th class="w-[15%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Cabang</th>
+            <th class="w-[10%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -226,7 +226,7 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
             </tr>
           </template>
           <tr v-else>
-            <td colspan="5" class="px-6 py-4 text-center text-base text-gray-600">Daftar investor tidak ditemukan.</td>
+            <td colspan="5" class="px-6 py-3 text-center text-base text-gray-600">Daftar investor tidak ditemukan.</td>
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">

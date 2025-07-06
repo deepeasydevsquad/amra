@@ -60,7 +60,7 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 const pages = computed<number[]>(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1)
 })
-const totalColumns = 5 // karena table punya 5 kolom
+const totalColumns = 6 // karena table punya 5 kolom
 
 const searchQuery = ref('')
 
@@ -310,10 +310,8 @@ const parseIDR = (value: string): number => {
             </td>
           </tr>
         </tbody>
-      </table>
-
-      <table class="w-full bg-gray-50">
-        <Pagination
+        <tfoot class="bg-gray-100 font-bold">
+           <Pagination
           :currentPage="currentPage"
           :totalPages="totalPages"
           :pages="pages"
@@ -322,7 +320,12 @@ const parseIDR = (value: string): number => {
           @next-page="handleNext"
           @page-now="handlePageNow"
         />
+        </tfoot>
       </table>
+
+      <!-- <table class="w-full bg-gray-50">
+
+      </table> -->
     </div>
   </div>
 

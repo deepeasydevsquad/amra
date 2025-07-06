@@ -475,29 +475,28 @@ const cetakInvoice = async (invoice: string) => {
                 </tbody>
               </table>
           </td>
-          <td class="p-3 border-gray-300 align-top gap-2">
-            <div class="grid ">
-              <!--  s -->
-              <LightButton  @click="openFormItem(paket.id)">
-                <font-awesome-icon icon="fa-solid fa-box" />
-              </LightButton>
-              <LightButton @click="openFormPembayaran(paket.id, paket.register_number)">
-                <font-awesome-icon icon="fa-solid fa-money-bill-alt" />
-              </LightButton>
-              <LightButton @click="openFormRefund(paket.id, paket.register_number)">
-                <font-awesome-icon icon="fa-solid fa-undo-alt" />
-              </LightButton>
-              <LightButton>
-                <font-awesome-icon icon="fa-solid fa-list-alt" />
-              </LightButton>
-              <LightButton @click="openModal(paket)" class="p-2 rounded">
-                <EditIcon />
-              </LightButton>
-              <DangerButton @click="deleteData(paket.id)" class="p-2 rounded">
-                <DeleteIcon />
-              </DangerButton>
-            </div>
-          </td>
+          <td class="px-6 py-4 text-center align-top">
+              <div class="flex flex-col items-center gap-2">
+                <LightButton  @click="openFormItem(paket.id)">
+                  <font-awesome-icon icon="fa-solid fa-box" />
+                </LightButton>
+                <LightButton @click="openFormPembayaran(paket.id, paket.register_number)">
+                  <font-awesome-icon icon="fa-solid fa-money-bill-alt" />
+                </LightButton>
+                <LightButton @click="openFormRefund(paket.id, paket.register_number)">
+                  <font-awesome-icon icon="fa-solid fa-undo-alt" />
+                </LightButton>
+                <LightButton>
+                  <font-awesome-icon icon="fa-solid fa-list-alt" />
+                </LightButton>
+                <LightButton @click="openModal(paket)" class="p-2 rounded">
+                  <EditIcon />
+                </LightButton>
+                <DangerButton @click="deleteData(paket.id)" class="p-2 rounded">
+                  <DeleteIcon />
+                </DangerButton>
+              </div>
+            </td>
         </tr>
       </template>
       <tr v-else>
