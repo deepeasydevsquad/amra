@@ -5,12 +5,6 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { cetakDataJamaahTabunganUmrah } from '@/service/tabungan_umrah';
 
-const props = defineProps<{
-  isFormCetakDataJamaahOpen: boolean;
-  dataTabungan: {
-    id: number;
-  } | null
-}>()
 const isLoading = ref(true);
 const data = ref<any>(null)
 const route = useRoute();
