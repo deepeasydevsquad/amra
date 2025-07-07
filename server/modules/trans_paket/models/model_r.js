@@ -1,14 +1,30 @@
 const {
   Op,
+  User,
+  Grup,
+  Division,
+  Company,
+  Mst_kota,
+  Mst_paket_type,
+  Mst_fasilitas,
+  Mst_pendidikan,
+  Mst_pekerjaan,
+  Mst_mahram_type,
+  Mahram,
   Paket,
   Paket_price,
-  Company,
   Paket_transaction,
   Jamaah,
   Member,
+  handover_barang,
+  Handover_barang_paket,
+  Handover_fasilitas_detail_paket,
+  Handover_fasilitas_paket,
+  handover_fasilitas,
+  Handover_fasilitas_detail,
   sequelize,
 } = require("../../../models");
-const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
 const { getAlamatInfo } = require("../../../helper/alamatHelper");
 const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
@@ -32,14 +48,35 @@ class Model_r {
     this.division_id = await getCabang(this.req);
   }
 
-  async getPaketList() {
+  async penerima() {
+    this.tipe = await tipe(this.req);
+
+    if (this.tipe === "administrator") {
+      const company = await Company.findOne({
+        where: { id: this.company_id },
+      });
+      return company?.company_name ?? "Unknown Company";
+    }
+
+    if (this.tipe === "staff") {
+      const member = await Member.findOne({
+        where: { company_id: this.company_id },
+        order: [["id", "DESC"]],
+      });
+      return member?.fullname ?? "Unknown Staff";
+    }
+
+    return "Tipe user tidak diketahui";
+  }
+
+  async getPaketListTransPaket() {
     await this.initialize();
 
     try {
       const where = {
         division_id: this.division_id,  
         departure_date: {
-          [Op.gte]: moment().startOf('day').toDate(),
+          [Op.gt]: moment().startOf('day').toDate(),
         },
       };
 
@@ -111,8 +148,172 @@ class Model_r {
         total: data.length,
       };
     } catch (error) {
-      console.error("Error in getPaketList:", error);
-      throw new Error("Failed to retrieve paket list");
+      console.error("Error in getPaketListTransPaket:", error);
+      return { data: [], total: 0 };
+    }
+  }
+
+  // Fungsi untuk ambil ID paket transaction dari pencarian
+  async getPaketTransactionIdsFromSearch(searchTerm) {
+    const paketTransactionIds = await Paket_transaction.findAll({
+      attributes: ['id'],
+      where: {
+        [Op.or]: [
+          { '$Jamaah.Member.fullname$': { [Op.like]: `%${searchTerm}%` } },
+          { '$Jamaah.Member.identity_number$': { [Op.like]: `%${searchTerm}%` } },
+        ],
+      },
+      include: [{ model: Jamaah, include: [Member] }],
+      raw: true,
+    });
+
+    return paketTransactionIds.map((j) => j.id);
+  }
+
+  async getHandoverBarangPaket(paket_trans_id) {
+    const dataHandoverBarang = await Handover_barang_paket.findAll({
+      where: {
+        paket_transaction_id: paket_trans_id, 
+        status: "diambil",
+      },
+      attributes: ["id", "nama_barang"],
+      order: [['createdAt', 'Desc']],
+    })
+
+    return dataHandoverBarang.map((e) => ({
+      id: e.id,
+      name: e.nama_barang,
+    }))
+  }
+
+  async getHandoverFasilitasPaket(paket_trans_id) {
+    const dataHandoverFasilitas = await Handover_fasilitas_paket.findAll({
+      where: {
+        paket_transaction_id: paket_trans_id,
+      },
+      order: [['createdAt', 'DESC']],
+      include: [
+        {
+          model: Handover_fasilitas_detail_paket,
+          required: true,
+          include: [
+            {
+              model: Mst_fasilitas,
+              required: true,
+              attributes: ['id', 'name']
+            }
+          ]
+        }
+      ],
+      raw: true,
+    });
+
+    return dataHandoverFasilitas.map((row) => ({
+      id: row['Handover_fasilitas_detail_pakets.Mst_fasilita.id'],
+      name: row['Handover_fasilitas_detail_pakets.Mst_fasilita.name'],
+    }));
+  }
+
+  // Fungsi utama
+  async transformDaftarJamaahPaket(e) {
+    const paket_price = await Paket_price.findOne({ where: { paket_id: e.paket_id, mst_paket_type_id: e.mst_paket_type_id } });
+    const paket = e.Paket;
+    const mstPaketType = e.Mst_paket_type;
+    const jamaah = e.Jamaah?.Member;
+    return {
+      id: e.id,
+      kode: paket?.kode,
+      name: paket?.name,
+      type: mstPaketType?.name,
+      price: paket_price?.price,
+      jamaah_id: e.Jamaah?.id,
+      nomor_passport: e.Jamaah?.nomor_passport,
+      fullname: jamaah?.fullname,
+      identity_number: jamaah?.identity_number,
+      birth_date: jamaah?.birth_date ? moment(jamaah.birth_date).format('DD-MM-YYYY') : '',
+      birth_place: jamaah?.birth_place,
+      handover_barang: await this.getHandoverBarangPaket(e.id),
+      handover_fasilitas: await this.getHandoverFasilitasPaket(e.id)
+    };
+  }
+
+  // Fungsi daftar jamaah paket
+  async getDaftarJamaahTransPaket() {
+    await this.initialize();
+
+    const body = this.req.body;
+    const pageNumber = typeof body.pageNumber === "undefined" || body.pageNumber === 0 ? 1 : parseInt(body.pageNumber) || 1;
+    const perpage = parseInt(body.perpage) || 10;
+    const offset = (pageNumber - 1) * perpage;
+    const search = body.search || "";
+
+    let where = { division_id: this.division_id };
+    if (search) {
+      const paketTransactionIds = await this.getPaketTransactionIdsFromSearch(search);
+      where = { ...where, id: { [Op.in]: paketTransactionIds } };
+    }
+
+    var sql = {}
+    sql["limit"] = perpage * 1;
+    sql["offset"] = offset;
+    sql["order"] = [["createdAt", "DESC"]];
+    sql["attributes"] = [
+      "id",
+      "division_id",
+      "jamaah_id",
+      "paket_id",
+      "mst_paket_type_id",
+      "createdAt",
+      "updatedAt"
+    ];
+    sql["where"] = where;
+    sql["include"] = [
+      {
+        model: Mst_paket_type,
+        attributes: ["id", "name"],
+        required: true
+      },
+      {
+        model: Paket,
+        where: {
+          division_id: this.division_id,
+          departure_date: { [Op.gt]: new Date() },
+        },
+        attributes: ["id", "kode", "name"],
+        required: true
+      },
+      {
+        model: Jamaah,
+        attributes: ["id", "nomor_passport"],
+        required: true,
+        include: [
+          {
+            model: Member,
+            attributes: ["fullname", "identity_number", "birth_date", "birth_place"],
+            required: true
+          }
+        ]
+      }
+    ]
+
+    try {
+      const query = await dbList(sql);
+      const totalData = await Paket_transaction.findAndCountAll(query.total);
+      const dataList = await Paket_transaction.findAll(query.sql);
+
+      const data = await Promise.all(
+        dataList.map(async (e) => {
+          return await this.transformDaftarJamaahPaket(e);
+        })
+      );
+
+      return { 
+        data: data,
+        total: await totalData.count
+      };    
+    } catch (error) {
+      console.log("Error in daftarJamaahPaket:", error);
+      return { data: [], total: 0 };
     }
   }
 }

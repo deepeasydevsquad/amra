@@ -21,7 +21,6 @@ const {
   Mst_kota
 } = require("../../../models");
 const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
-const { getJamaahInfo } = require("../../../helper/JamaahHelper");
 const { getAlamatInfo } = require("../../../helper/alamatHelper");
 const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
