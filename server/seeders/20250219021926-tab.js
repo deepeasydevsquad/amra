@@ -59,11 +59,12 @@ module.exports = {
       { name: 'Pengaturan', icon : 'fas fa-cogs', path: 'pengaturan', desc:'Fitur ini merupakan fitur untuk melakukan pengaturan terhadap aplikasi amra..',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Daftar Cabang', icon : 'fas fa-users-cog', path: 'daftar_cabang', desc:'Fitur daftar cabang merupakan fitur untuk menampilkan daftar cabang pada perusahaan yang terdapat didalam aplikasi.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Riwayat Transaksi Peminjaman', icon : 'fas fa-money-bill-wave', path: 'riwayat_transaksi_peminjaman', desc:'Fitur ini menampilkan daftar riwayat transaksi peminjaman.',  createdAt: new Date(), updatedAt: new Date() },
-      { name: 'Daftar Transaksi PPOB', icon : 'fas fa-exchange', path: 'daftar_transaksi_ppob', desc:'Fitur ini menampilkan daftar dari ppob para jamaah.',  createdAt: new Date(), updatedAt: new Date() },
+      { name: 'Riwayat Transaksi PPOB', icon : 'fas fa-exchange', path: 'riwayat_transaksi_ppob', desc:'Fitur ini menampilkan riwayat dari transaksi ppob yang pernah dilakukan oleh para jamaah.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Pembayaran Fee Agen', icon : 'fas fa-money-check-alt', path: 'pembayaran_fee_agen', desc:'Fitur ini menampilkan daftar riwayat pembayaran fee agen dan fitur pembayaran fee agen.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Daftar Stok Fasilitas', icon : 'fas fa-clipboard-check', path: 'daftar_stok_fasilitas', desc:'Fitur ini menampilkan jumlah stok fasilitas yang masih tersedia.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Daftar Item Fasilitas', icon : 'fas fa-clipboard-check', path: 'daftar_item_fasilitas', desc:'Fitur ini menampilkan seluruh item stok fasilitas.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Riwayat Pembayaran Gaji Staff', icon : 'fas fa-money-check-alt', path: 'riwayat_pembayaran_gaji_staff', desc:'Fitur ini merupakan fitur untuk melakukan pembayaran gaji para Staff.',  createdAt: new Date(), updatedAt: new Date() },
+      { name: 'Daftar Produk PPOB', icon : 'fas fa-clipboard-check', path: 'daftar_produk_ppob', desc:'Fitur ini menampilkan daftar produk dari ppob.',  createdAt: new Date(), updatedAt: new Date() },
     ], {});
   },
 

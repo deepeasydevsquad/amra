@@ -86,6 +86,7 @@ const items = [
   { label: 'Kamar', icon: 'kamar', value: 'kamar' },
   { label: 'Bus', icon: 'bus', value: 'bus' },
   { label: 'Agen', icon: 'agen', value: 'agen' },
+  { label: 'Kas K&M', icon: 'k&t', value: 'kas' },
   { label: 'K&T', icon: 'k&t', value: 'k&t' },
 ]
 
