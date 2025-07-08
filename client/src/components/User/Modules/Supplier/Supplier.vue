@@ -2,6 +2,7 @@
 // Import Icon
 import DeleteIcon from '@/components/User/Modules/Supplier/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/Supplier/Icon/EditIcon.vue'
+import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 
 // import element
 import DangerButton from '@/components/User/Modules/Supplier/Particle/DangerButton.vue'
@@ -75,6 +76,7 @@ interface Errors {
 }
 
 const timeoutId = ref<number | null>(null);
+const totalRow = ref<number>(0);
 const dataSupplier = ref<Supplier[]>([]);
 const dataBank = ref<Bank[]>([]);
 const isModalOpen = ref<boolean>(false);
@@ -124,6 +126,7 @@ const fetchData = async () => {
 
         dataBank.value = bankResponse?.data || [];
         dataSupplier.value = supplierResponse?.data || [];
+        totalRow.value = supplierResponse?.total;
         totalPages.value = supplierResponse?.total ? Math.ceil(supplierResponse.total / itemsPerPage) : 0;
 
     } catch (error) {
@@ -244,14 +247,13 @@ const deleteData = async (id: number) => {
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
-      <button
-        @click="openModal()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
+      <PrimaryButton
+        @click="openModal()">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
         Tambah Supplier
-      </button>
+      </PrimaryButton>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
@@ -306,50 +308,11 @@ const deleteData = async (id: number) => {
               :total-pages="totalPages"
               :pages="pages"
               :total-columns="totalColumns"
+              :total-row="totalRow"
               @prev-page="prevPage"
               @next-page="nextPage"
               @page-now="pageNow"
             />
-          <!-- <tr>
-            <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
-              <nav class="flex mt-0">
-                <ul class="inline-flex items-center -space-x-px">
-                  <li>
-                    <button
-                      @click="prevPage"
-                      :disabled="currentPage === 1"
-                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg
-                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                  </li>
-                  <li v-for="page in pages" :key="page">
-                    <button
-                      @click="pageNow(page)"
-                      class="px-3 py-2 leading-tight border"
-                      :class="currentPage === page
-                        ? 'text-white bg-[#333a48] border-[#333a48]'
-                        : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'"
-                    >
-                      {{ page }}
-                    </button>
-                  </li>
-
-                  <li>
-                    <button
-                      @click="nextPage"
-                      :disabled="currentPage === totalPages"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg
-                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </td>
-          </tr> -->
         </tfoot>
       </table>
     </div>
@@ -415,16 +378,15 @@ const deleteData = async (id: number) => {
                 </div>
               </div>
             </div>
-            <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-              <button
+            <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-2">
+              <PrimaryButton
                 @click="saveData"
-                class="inline-flex w-full justify-center rounded-md border border-transparent bg-[#333a48] px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
               >
                 {{ selectedSupplier.id ? "Simpan Perubahan" : "Tambah" }}
-              </button>
+              </PrimaryButton>
               <button
                 @click="isModalOpen = false"
-                class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-400 bg-gray-200 px-4 py-2 text-base font-medium text-gray-800 shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
               >
                 Batal
               </button>
