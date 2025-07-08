@@ -25,7 +25,7 @@ module.exports = {
       { menu_id : menus[1].id, name: 'Transaksi Paket', path: 'transaksi_paket', tab:`[{"id":"${tabs[0].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[1].id, name: 'Transaksi Umum', path: 'transaksi_umum', tab:`[{"id":"${tabs[16].id}"},{"id":"${tabs[17].id}"},{"id":"${tabs[18].id}"},{"id":"${tabs[19].id}"},{"id":"${tabs[20].id}"},{"id":"${tabs[59].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[1].id, name: 'Rekapitulasi', path: 'rekapitulasi', tab:`[{"id":"${tabs[21].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
-      { menu_id : menus[1].id, name: 'Stok', path: 'stok', tab:`[{"id":"${tabs[57].id}"},{"id":"${tabs[58].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
+      { menu_id : menus[1].id, name: 'Stok Fasilitas', path: 'stok', tab:`[{"id":"${tabs[57].id}"},{"id":"${tabs[58].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[2].id, name: 'Daftar Paket', path: 'daftar_paket', tab:`[{"id":"${tabs[4].id}"},{"id":"${tabs[5].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[2].id, name: 'Daftar Paket LA', path: 'daftar_paket_la', tab:`[{"id":"${tabs[9].id}"},{"id":"${tabs[10].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[3].id, name: 'Daftar Member', path: 'daftar_member', tab:`[{"id":"${tabs[23].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },

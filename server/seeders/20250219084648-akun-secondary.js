@@ -36,7 +36,7 @@ module.exports = {
       { company_id: 1, akun_primary_id: 5, nomor_akun: '54000', nama_akun : 'HPP PASSPORT', tipe_akun : 'bawaan', path : 'hpp_passport', createdAt: new Date(), updatedAt: new Date() },
       { company_id: 1, akun_primary_id: 5, nomor_akun: '55000', nama_akun : 'HPP TRANSPORT', tipe_akun : 'bawaan', path : 'hpp_transport', createdAt: new Date(), updatedAt: new Date() },
       { company_id: 1, akun_primary_id: 5, nomor_akun: '56000', nama_akun : 'PROMOSI DAN IKLAN', tipe_akun : 'bawaan', path : '', createdAt: new Date(), updatedAt: new Date() },
-      { company_id: 1, akun_primary_id: 6, nomor_akun: '60001', nama_akun : 'GAJI KARYAWAN', tipe_akun : 'bawaan', path : '', createdAt: new Date(), updatedAt: new Date() },
+      { company_id: 1, akun_primary_id: 6, nomor_akun: '60001', nama_akun : 'GAJI STAFF', tipe_akun : 'bawaan', path : '', createdAt: new Date(), updatedAt: new Date() },
     ], {});
   },
 
