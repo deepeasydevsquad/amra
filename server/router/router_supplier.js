@@ -9,7 +9,7 @@ const router = express.Router();
 router.get(
   "/supplier/get-bank",
   authenticateToken,
-  controllers.get_daftar_bank
+  controllers.getDaftarBank
 )
 
 router.post(
