@@ -9,7 +9,15 @@ module.exports = {
         kode : 'BSI', 
         name : 'Bank Syariah Indonesia', 
         createdAt: new Date(), 
-        updatedAt: new Date() },
+        updatedAt: new Date() 
+      },
+      {
+        company_id : 1,
+        kode : 'BNI',
+        name : 'Bank Nasional Indonesia',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
     ], {});
   },
 

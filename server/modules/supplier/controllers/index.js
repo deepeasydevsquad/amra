@@ -4,6 +4,19 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 
 const controllers = {};
 
+// Mendapatan daftar bank
+controllers.get_daftar_bank = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_r = new Model_r(req);
+    const feedBack = await model_r.daftar_bank(); // Ambil daftar bank dari model
+    res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
 // **Mendapatkan daftar Supplier**
 controllers.get_daftar_supplier = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;

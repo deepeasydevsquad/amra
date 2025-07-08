@@ -6,6 +6,12 @@ const validation = require("../validation/supplier");
 
 const router = express.Router();
 
+router.get(
+  "/supplier/get-bank",
+  authenticateToken,
+  controllers.get_daftar_bank
+)
+
 router.post(
   "/supplier/list",
   authenticateToken,
@@ -18,7 +24,7 @@ router.post(
 );
 
 router.post(
-  "/supplier/",
+  "/supplier/add",
   authenticateToken,
   [
     body("name").trim().notEmpty().withMessage("Nama supplier tidak boleh kosong."),

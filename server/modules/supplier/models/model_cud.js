@@ -13,14 +13,12 @@ class Model_cud {
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
-    // initialize transaction
     this.t = await sequelize.transaction();
     this.state = true;
   }
 
   // Tambah Kota
   async add() {
-    // initialize dependensi properties
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
@@ -54,13 +52,9 @@ class Model_cud {
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
-    // update process
     try {
-      // call object
       const model_r = new Model_r(this.req);
-      // get info kota
       const infoSupplier = await model_r.infoSupplier(body.id, this.company_id);
-      // update data kota
       await Supplier.update(
         {
           name: body.name,
@@ -85,15 +79,11 @@ class Model_cud {
 
   // Hapus Kota
   async delete() {
-    // initialize dependensi properties
     await this.initialize();
     const body = this.req.body;
     try {
-      // call object
       const model_r = new Model_r(this.req);
-      // get info kota
       const infoSupplier = await model_r.infoSupplier(body.id, this.company_id);
-      // delete process
       await Supplier.destroy(
         {
           where: {
