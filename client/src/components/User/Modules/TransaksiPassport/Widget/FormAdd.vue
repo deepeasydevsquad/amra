@@ -330,10 +330,10 @@ const unformatPrice = (formatted: string) => parseInt(formatted.replace(/[^\d]/g
             >
               INVOICE : {{ form.invoice }}
             </span>
-            <button
-              @click="closeForm"
-              class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
-            >
+
+
+
+            <button @click="closeForm" class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg" >
               <svg
                 class="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
