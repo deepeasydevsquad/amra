@@ -54,7 +54,7 @@ class Model_r {
         Paket.findAll({
           where: {
             ...where,
-            departure_date: { [Op.gte]: myDate.format("YYYY-MM-DD") },
+            departure_date: { [Op.gt]: myDate.format("YYYY-MM-DD") },
           },
           attributes: ['id'],
         }),
@@ -154,7 +154,7 @@ class Model_r {
       const data = rows.map(item => ({
         jamaah_name: item.Member?.fullname || '',
         jamaah_identity: item.Member?.identity_number || '',
-        birth_date: item.Member?.birth_date ? moment(item.Member.birth_date).format('YYYY-MM-DD') : '',
+        birth_date: item.Member?.birth_date ? moment(item.Member.birth_date).format('DD-MM-YYYY') : '',
         birth_place: item.Member?.birth_place || '',
         no_passport: item.nomor_passport || '',
         total: parseInt(pembelianMap[item.id] || 0, 10),

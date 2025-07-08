@@ -5,16 +5,30 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 const controllers = {};
 
 // Mendapatkan daftar paket
-controllers.getPaketList = async (req, res) => {
+controllers.getPaketListTransPaket = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_r = new Model_r(req);
-    const feedBack = await model_r.getPaketList();
+    const feedBack = await model_r.getPaketListTransPaket();
     res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
   } catch (error) {
     handleServerError(error, res);
   }
 };
+
+// Mendapatkan daftar jamaah
+controllers.getDaftarJamaahTransPaket = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_r = new Model_r(req);
+    const feedBack = await model_r.getDaftarJamaahTransPaket();
+    res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
+  } catch (error) {
+    handleServerError(error, res);
+  }
+}
+
 module.exports = controllers;
 

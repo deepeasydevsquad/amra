@@ -92,10 +92,6 @@ const isFormPengembalianBarangOpen = ref<boolean>(false);
 const notificationMessage = ref<string>('');
 const notificationType = ref<'success' | 'error'>('success');
 const showNotification = ref<boolean>(false);
-const showConfirmDialog = ref<boolean>(false);
-const confirmMessage = ref<string>('');
-const confirmTitle = ref<string>('');
-const confirmAction = ref<(() => void) | null>(null);
 const totalColumns = ref(5);
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
@@ -109,6 +105,7 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
     showNotification.value = false;
   }, 3000);
 };
+
 
 const openFormDownloadAbsensi = () => {
   isFormDownloadAbsensiOpen.value = true;

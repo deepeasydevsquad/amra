@@ -314,7 +314,7 @@ class Model_r {
         where: {
           division_id: this.division_id,
           departure_date: {
-            [Op.gte]: moment().format('YYYY-MM-DD'),
+            [Op.gt]: moment().format('YYYY-MM-DD'),
           },
         },
         attributes: ["id", "name", "departure_date", "quota_jamaah"],
