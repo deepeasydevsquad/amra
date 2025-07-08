@@ -5,7 +5,7 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 const controllers = {};
 
 // Mendapatan daftar bank
-controllers.get_daftar_bank = async (req, res) => {
+controllers.getDaftarBank = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
@@ -18,7 +18,7 @@ controllers.get_daftar_bank = async (req, res) => {
 };
 
 // **Mendapatkan daftar Supplier**
-controllers.get_daftar_supplier = async (req, res) => {
+controllers.getDaftarSupplier = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
