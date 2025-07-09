@@ -20,6 +20,7 @@ import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 // import Modal Componen
 import Notification from '@/components/Modal/Notification.vue'
 import Confirmation from '@/components/Modal/Confirmation.vue'
+import FormAddUpdate from '@/components/User/Modules/KasKeluarMasuk/Widget/FormAddUpdate.vue'
 
 // import Feature Componen
 import Pagination from '@/components/Pagination/Pagination.vue'
@@ -32,13 +33,19 @@ interface filterCabang {
   name: string;
 }
 
-interface Supplier {
+interface AkunTerlibat{
+  id:number;
+  name: string
+}
+
+interface KasKeluarMasuk {
   id: number;
-  name: string;
-  address: string;
-  bank: string;
-  bank_id: string;
-  nomor_rekening: string;
+  invoice: string;
+  dibayar_diterima: string;
+  petugas: string;
+  status_kwitansi: string;
+  tanggal: string;
+  akun_terlibat: AkunTerlibat;
 }
 
 interface EditSupplier {
@@ -74,10 +81,11 @@ const optionFilterCabang = ref<filterCabang[]>([]);
 
 
 const timeoutId = ref<number | null>(null);
-const dataSupplier = ref<Supplier[]>([]);
+const datas = ref<KasKeluarMasuk[]>([]);
 
 const dataBank = ref<Bank[]>([]);
-const isModalOpen = ref<boolean>(false);
+const showAddUpdate = ref<boolean>(false);
+const id = ref<number>(0);
 
 // notification
 const showNotification = ref<boolean>(false);
@@ -133,9 +141,6 @@ const pages = computed(() => {
 });
 
 
-
-
-
 const fetchFilterData = async() => {
   const response = await paramCabang();
   optionFilterCabang.value = response.data;
@@ -175,15 +180,18 @@ const fetchData = async () => {
     }
 };
 
-const openModal = (supplier?: Supplier) => {
-  selectedSupplier.value = supplier ? { ...{ id: supplier.id, name: supplier.name, address: supplier.address, bank_id: supplier.bank_id, nomor_rekening: supplier.nomor_rekening } } : { name: '', address: '', bank_id: '0',  nomor_rekening: '' };
+const addKasKeluarMasuk = () => {
+  // selectedSupplier.value = supplier ? { ...{ id: supplier.id, name: supplier.name, address: supplier.address, bank_id: supplier.bank_id, nomor_rekening: supplier.nomor_rekening } } : { name: '', address: '', bank_id: '0',  nomor_rekening: '' };
 
 
-  console.log('Informasi Edit Supplier');
-  console.log(selectedSupplier.value);
-  console.log('Informasi Edit Supplier');
-  isModalOpen.value = true;
+  // console.log('Informasi Edit Supplier');
+  // console.log(selectedSupplier.value);
+  // console.log('Informasi Edit Supplier');
+  showAddUpdate.value = true;
 };
+
+
+
 
 onMounted(async () => {
   await fetchFilterData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
@@ -280,13 +288,22 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
 //   );
 // };
 
+const saveAddUpdateForm = async () => {
+  fetchData();
+  showAddUpdate.value = false;
+}
+
+const closeForm = async () => {
+  showAddUpdate.value = false;
+}
+
 </script>
 
 <template>
   <div class="container mx-auto px-4 mt-10">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-6">
-      <PrimaryButton @click="openModal()"><IconPlus/> Tambah Transaksi Keluar Masuk</PrimaryButton>
+      <PrimaryButton @click="addKasKeluarMasuk()"><IconPlus/> Tambah Transaksi Keluar Masuk</PrimaryButton>
       <div class="flex items-center">
         <input v-model="search" type="text" placeholder="Cari Nomor Invoice..."
         class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" />
@@ -311,20 +328,20 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-          <template v-if="dataSupplier && dataSupplier.length > 0">
-            <tr v-for="supplier in dataSupplier" :key="supplier.id" class="hover:bg-gray-50">
-              <td class="px-6 py-4 text-center">{{ supplier.name }}</td>
-              <td class="px-6 py-4 text-center">{{ supplier.address }}</td>
-              <td class="px-6 py-4 text-center">{{ supplier.bank }}</td>
-              <td class="px-6 py-4 text-center">{{ supplier.nomor_rekening }}</td>
+          <template v-if="datas && datas.length > 0">
+            <tr v-for="data in datas" :key="data.id" class="hover:bg-gray-50">
+              <td class="px-6 py-4 text-center">{{ data.invoice }}</td>
+              <td class="px-6 py-4 text-center">{{ data.dibayar_diterima }}</td>
+              <td class="px-6 py-4 text-center">{{ data.akun_terlibat }}</td>
+              <td class="px-6 py-4 text-center">{{ data.status_kwitansi }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
-                  <LightButton @click="openModal(supplier)">
+                  <!-- <LightButton @click="openModal(supplier)">
                     <EditIcon></EditIcon>
-                  </LightButton>
-                  <DangerButton @click="deleteData(supplier.id)">
+                  </LightButton> -->
+                  <!-- <DangerButton @click="deleteData(supplier.id)">
                     <DeleteIcon></DeleteIcon>
-                  </DangerButton>
+                  </DangerButton> -->
                 </div>
               </td>
             </tr>
@@ -339,7 +356,9 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
       </table>
     </div>
     <!-- Modal Form -->
-    <Transition
+
+    <FormAddUpdate :showForm="showAddUpdate" :id="id"  @cancel="closeForm" @save="saveAddUpdateForm"/>
+    <!-- <Transition
       enter-active-class="transition duration-200 ease-out"
       enter-from-class="transform scale-95 opacity-0"
       enter-to-class="transform scale-100 opacity-100"
@@ -417,7 +436,7 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
           </div>
         </div>
       </div>
-    </Transition>
+    </Transition> -->
 
     <!-- Confirmation Dialog -->
     <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
