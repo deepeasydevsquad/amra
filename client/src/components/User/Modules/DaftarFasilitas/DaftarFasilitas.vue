@@ -1,185 +1,137 @@
 <script setup lang="ts">
-  // Import Icon
-  import DeleteIcon from '@/components/User/Modules/DaftarFasilitas/Icon/DeleteIcon.vue'
-  import EditIcon from '@/components/User/Modules/DaftarFasilitas/Icon/EditIcon.vue'
+// Import Icon
+import DeleteIcon from '@/components/User/Modules/DaftarFasilitas/Icon/DeleteIcon.vue'
+import EditIcon from '@/components/User/Modules/DaftarFasilitas/Icon/EditIcon.vue'
 
-  // import element
-  import DangerButton from '@/components/User/Modules/DaftarFasilitas/Particle/DangerButton.vue'
-  import Notification from '@/components/User/Modules/DaftarFasilitas/Particle/Notification.vue'
-  import Confirmation from '@/components/User/Modules/DaftarFasilitas/Particle/Confirmation.vue'
+// import element
+import Form from '@/components/User/Modules/DaftarFasilitas/Widget/Form.vue'
+import DangerButton from '@/components/User/Modules/DaftarFasilitas/Particle/DangerButton.vue'
+import Notification from '@/components/User/Modules/DaftarFasilitas/Particle/Notification.vue'
+import Confirmation from '@/components/User/Modules/DaftarFasilitas/Particle/Confirmation.vue'
 
-  import LightButton from "@/components/Button/LightButton.vue"
-  import Pagination from '@/components/Pagination/Pagination.vue'
+import PrimaryButton from '@/components/Button/PrimaryButton.vue'
+import LightButton from "@/components/Button/LightButton.vue"
+import Pagination from '@/components/Pagination/Pagination.vue'
 
-  // Import service API
-  import { daftarFasilitas, addFasilitas, editFasilitas, deleteFasilitas } from '@/service/daftar_fasilitas'; // Import function POST
-  import { ref, onMounted, computed } from 'vue';
-  import axios from 'axios';
+// Import service API
+import { daftarFasilitas, deleteFasilitas } from '@/service/daftar_fasilitas'; // Import function POST
+import { ref, onMounted, computed } from 'vue';
 
-  const itemsPerPage = 100; // Jumlah fasilitas per halaman
-  const currentPage = ref(1);
-  const search = ref("");
-  const totalPages = ref(0);
+const itemsPerPage = 100; // Jumlah fasilitas per halaman
+const currentPage = ref(1);
+const search = ref("");
+const totalPages = ref(0);
 
-  const nextPage = () => {
-    if (currentPage.value < totalPages.value) {
-      currentPage.value++;
-      fetchData()
-    }
-  };
-
-  const prevPage = () => {
-    if (currentPage.value > 1) {
-      currentPage.value--;
-      fetchData()
-    }
-  };
-
-  const pageNow = (page : number) => {
-    currentPage.value = page
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
     fetchData()
   }
+};
 
-  // Generate array angka halaman
-  const pages = computed(() => {
-    return Array.from({ length: totalPages.value }, (_, i) => i + 1);
-  });
-
-  interface Fasilitas {
-    id: number;
-    name: string;
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    fetchData()
   }
+};
 
-  interface Errors {
-    name: string;
-  }
+const pageNow = (page : number) => {
+  currentPage.value = page
+  fetchData()
+}
 
-  const timeoutId = ref<number | null>(null);
-  const dataFasilitas = ref<Fasilitas[]>([]);
-  const isModalOpen = ref<boolean>(false);
-  const showNotification = ref<boolean>(false);
-  const showConfirmDialog = ref<boolean>(false);
-  const notificationMessage = ref<string>('');
-  const notificationType = ref<'success' | 'error'>('success');
-  const confirmMessage = ref<string>('');
-  const confirmTitle = ref<string>('');
-  const confirmAction = ref<(() => void) | null>(null);
-  const totalColumns = ref(3); // Default 3 kolom
+// Generate array angka halaman
+const pages = computed(() => {
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+});
 
-  const selectedFasilitas = ref<Partial<Fasilitas>>({
-    name: '',
-  });
+interface Fasilitas {
+  id: number;
+  name: string;
+}
 
-  const errors = ref<Errors>({
-    name: '',
-  });
+const timeoutId = ref<number | null>(null);
+const dataFasilitas = ref<Fasilitas[]>([]);
+const total = ref<number>(0)
+const isModalOpen = ref<boolean>(false);
+const showNotification = ref<boolean>(false);
+const showConfirmDialog = ref<boolean>(false);
+const notificationMessage = ref<string>('');
+const notificationType = ref<'success' | 'error'>('success');
+const confirmMessage = ref<string>('');
+const confirmTitle = ref<string>('');
+const confirmAction = ref<(() => void) | null>(null);
+const totalColumns = ref(3); // Default 3 kolom
 
-  const fetchData = async() => {
-    const response = await daftarFasilitas({search: search.value, perpage: itemsPerPage, pageNumber: currentPage.value});
-    totalPages.value = Math.ceil(response.total / itemsPerPage)
-    dataFasilitas.value = response.data;
-  }
+const selectedFasilitas = ref<Partial<Fasilitas>>({
+  name: '',
+});
 
-  const openModal = (fasilitas?: Fasilitas) => {
-    selectedFasilitas.value = fasilitas ? { ...fasilitas } : { name: '' };
-    isModalOpen.value = true;
-  };
+const fetchData = async() => {
+  const response = await daftarFasilitas({search: search.value, perpage: itemsPerPage, pageNumber: currentPage.value});
+  totalPages.value = Math.ceil(response.total / itemsPerPage)
+  dataFasilitas.value = response.data;
+  total.value = response.total;
+}
 
-  onMounted(async () => {
-    await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-    totalColumns.value = document.querySelectorAll("thead th").length;
-  });
+const openModal = (fasilitas?: Fasilitas) => {
+  selectedFasilitas.value = fasilitas ? { ...fasilitas } : { name: '' };
+  isModalOpen.value = true;
+};
 
-  const validateForm = (): boolean => {
-    errors.value = { name: '' };
-    let isValid = true;
+onMounted(async () => {
+  await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
+  totalColumns.value = document.querySelectorAll("thead th").length;
+});
 
-    if (!selectedFasilitas.value.name?.trim()) {
-      errors.value.name = 'Nama tidak boleh kosong';
-      isValid = false;
-    }
-    return isValid;
-  };
+const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
+  notificationMessage.value = message;
+  notificationType.value = type;
+  showNotification.value = true;
 
-  const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
-    notificationMessage.value = message;
-    notificationType.value = type;
-    showNotification.value = true;
+  if (timeoutId.value) clearTimeout(timeoutId.value);
 
-    if (timeoutId.value) clearTimeout(timeoutId.value);
+  timeoutId.value = window.setTimeout(() => {
+    showNotification.value = false;
+  }, 3000);
+};
 
-    timeoutId.value = window.setTimeout(() => {
-      showNotification.value = false;
-    }, 3000);
-  };
+const showConfirmation = (title: string, message: string, action: () => void) => {
+  confirmTitle.value = title;
+  confirmMessage.value = message;
+  confirmAction.value = action;
+  showConfirmDialog.value = true;
+};
 
-  const showConfirmation = (title: string, message: string, action: () => void) => {
-    confirmTitle.value = title;
-    confirmMessage.value = message;
-    confirmAction.value = action;
-    showConfirmDialog.value = true;
-  };
-
-  const saveData = async () => {
-    if (!validateForm()) return;
-
-    const isEdit = !!selectedFasilitas.value.id;
-    const action = async () => {
+const deleteData = async (id: number) => {
+  showConfirmation(
+    'Konfirmasi Hapus',
+    'Apakah Anda yakin ingin menghapus data ini?',
+    async () => {
       try {
-        if (isEdit) {
-          const response = await editFasilitas(selectedFasilitas.value.id, selectedFasilitas.value );
-          showConfirmDialog.value = false;
-          displayNotification(response.error_msg);
-        } else {
-          const response = await addFasilitas(selectedFasilitas.value);
-          showConfirmDialog.value = false;
-          displayNotification(response.error_msg);
-        }
-        isModalOpen.value = false;
+        const response = await deleteFasilitas(id);
+        showConfirmDialog.value = false;
+        displayNotification(response.error_msg);
         fetchData();
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          displayNotification(error.response?.data?.error_msg || 'Terjadi kesalahan saat menyimpan data.', 'error');
-        } else {
-          displayNotification('Terjadi kesalahan yang tidak terduga.', 'error');
-        }
-        showConfirmDialog.value = false;
+        console.error('Error deleting data:', error);
+        displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
       }
-    };
-
-    isEdit ? showConfirmation('Konfirmasi Perubahan', 'Apakah Anda yakin ingin mengubah data ini?', action) : action();
-  };
-
-  const deleteData = async (id: number) => {
-    showConfirmation(
-      'Konfirmasi Hapus',
-      'Apakah Anda yakin ingin menghapus data ini?',
-      async () => {
-        try {
-          const response = await deleteFasilitas(id);
-          showConfirmDialog.value = false;
-          displayNotification(response.error_msg);
-          fetchData();
-        } catch (error) {
-          console.error('Error deleting data:', error);
-          displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
-        }
-      }
-    );
-  };
+    }
+  );
+};
 </script>
 <template>
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
-      <button
+      <PrimaryButton
         @click="openModal()"
         class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
+        <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
         Tambah Fasilitas
-      </button>
+      </PrimaryButton>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
@@ -224,20 +176,18 @@
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
           <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            :pages="pages"
+            :total-columns="totalColumns"
+            :total-row="total"
+            @prev-page="prevPage"
+            @next-page="nextPage"
+            @page-now="pageNow"
             />
         </tfoot>
       </table>
     </div>
-
-
-
 
     <!-- Modal Form -->
     <Transition
@@ -248,44 +198,13 @@
       leave-from-class="transform scale-100 opacity-100"
       leave-to-class="transform scale-95 opacity-0"
     >
-      <div v-if="isModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="isModalOpen = false"></div>
-          <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
-          <div class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <h3 class="text-2xl flex justify-center font-bold leading-6 text-gray-900 mb-4">
-                {{ selectedFasilitas.id ? "Edit Data Fasilitas" : "Tambah Fasilitas Baru" }}
-              </h3>
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
-                  <input
-                    v-model="selectedFasilitas.name"
-                    type="text"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal" placeholder="Nama Fasilitas"
-                  />
-                  <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
-                </div>
-              </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-              <button
-                @click="saveData"
-                class="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                {{ selectedFasilitas.id ? "Simpan Perubahan" : "Tambah" }}
-              </button>
-              <button
-                @click="isModalOpen = false"
-                class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                Batal
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Form
+        v-if="isModalOpen"
+        :is-modal-open="isModalOpen"
+        :selected-fasilitas="selectedFasilitas"
+        @close="isModalOpen = false; fetchData()"
+        @status="(payload) => displayNotification(payload.err_msg || 'Tambah atau Update Fasilitas gagal', payload.error ? 'error' : 'success')"
+      />
     </Transition>
 
     <!-- Confirmation Dialog -->
