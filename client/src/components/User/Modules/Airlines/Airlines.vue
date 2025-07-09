@@ -9,6 +9,7 @@ import DangerButton from '@/components/User/Modules/Airlines/Particle/DangerButt
 import Notification from '@/components/User/Modules/Airlines/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/Airlines/Particle/Confirmation.vue'
 import LightButton from "@/components/Button/LightButton.vue"
+import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 
 // Import service API
@@ -139,12 +140,12 @@ const deleteData = async (id: number) => {
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
-      <button
+      <PrimaryButton
         @click="openModal()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
+      >
         <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
         Tambah Maskapai
-      </button>
+      </PrimaryButton>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
