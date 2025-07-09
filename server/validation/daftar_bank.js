@@ -33,11 +33,18 @@ validation.check_edit_kode_bank = async ( value,  { req } ) => {
     
     var body = req.body;
     const company_id = await getCompanyIdByCode(req);
-    var check = await Mst_bank.findOne({where: { kode : value, company_id : company_id, id : body.id }});
-    if (check) {
-        throw new Error("Kode bank sudah terdaftar di pangkalan data. Silakan ubah kode bank dengan KODE BANK yang lain");
+    if(body.id) {
+        var check = await Mst_bank.findOne({where: { kode : value, company_id : company_id, id :  { [Op.ne] : body.id } }});
+        if (check) {
+            throw new Error("Kode bank sudah terdaftar di pangkalan data. Silakan ubah kode bank dengan KODE BANK yang lain");
+        }
+    }else{
+        var check = await Mst_bank.findOne({where: { kode : value, company_id : company_id }});
+        if (check) {
+            throw new Error("Kode bank sudah terdaftar di pangkalan data. Silakan ubah kode bank dengan KODE BANK yang lain");
+        }
     }
-
+    
     return true;
 }
 
