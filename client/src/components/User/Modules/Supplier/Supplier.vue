@@ -1,7 +1,8 @@
 <script setup lang="ts">
 // Import Icon
-import DeleteIcon from '@/components/User/Modules/Supplier/Icon/DeleteIcon.vue'
-import EditIcon from '@/components/User/Modules/Supplier/Icon/EditIcon.vue'
+import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
+// import EditIcon from '@/components/User/Modules/Supplier/Icon/EditIcon.vue'
+import EditIcon from '@/components/Icons/EditIcon.vue'
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 
 // import element
@@ -10,6 +11,7 @@ import LightButton from "@/components/Button/LightButton.vue"
 import Notification from '@/components/User/Modules/Supplier/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/Supplier/Particle/Confirmation.vue'
 
+// import widget componen
 import Pagination from '@/components/Pagination/Pagination.vue'
 import Form from '@/components/User/Modules/Supplier/Widget/Form.vue'
 

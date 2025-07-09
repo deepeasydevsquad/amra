@@ -1,58 +1,36 @@
 <script setup lang="ts">
-// Import Icon
-import DeleteIcon from '@/components/User/Modules/Supplier/Icon/DeleteIcon.vue'
-import EditIcon from '@/components/User/Modules/Supplier/Icon/EditIcon.vue'
 
-// import element
-import DangerButton from '@/components/User/Modules/Supplier/Particle/DangerButton.vue'
-import LightButton from "@/components/Button/LightButton.vue"
-import Notification from '@/components/User/Modules/Supplier/Particle/Notification.vue'
-import Confirmation from '@/components/User/Modules/Supplier/Particle/Confirmation.vue'
-
-import Pagination from '@/components/Pagination/Pagination.vue'
-import PrimaryButton from "@/components/Button/PrimaryButton.vue"
-
-// Import service API
-// import { daftarSupplier, daftarBank, addSupplier, editSupplier, deleteSupplier } from '@/service/supplier'; // Import function POST
-import { paramCabang  } from '@/service/param_cabang';
+// main elemen
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+
+// import service
+import { paramCabang  } from '@/service/param_cabang';
+
+// Import Icon Componen
+import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
+import EditIcon from '@/components/Icons/EditIcon.vue'
+import IconPlus from '@/components/Icons/IconPlus.vue'
+
+// import Button Componen
+import DangerButton from '@/components/Button/DangerButton.vue'
+import LightButton from "@/components/Button/LightButton.vue"
+import PrimaryButton from "@/components/Button/PrimaryButton.vue"
+
+// import Modal Componen
+import Notification from '@/components/Modal/Notification.vue'
+import Confirmation from '@/components/Modal/Confirmation.vue'
+
+// import Feature Componen
+import Pagination from '@/components/Pagination/Pagination.vue'
+
+
+// interface inisialisasi
 
 interface filterCabang {
   id: number;
   name: string;
 }
-
-const itemsPerPage = 100; // Jumlah supplier per halaman
-const currentPage = ref(1);
-const search = ref("");
-const totalPages = ref(0);
-const selectedOptionCabang = ref(0);
-const optionFilterCabang = ref<filterCabang[]>([]);
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-    fetchData()
-  }
-};
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-    fetchData()
-  }
-};
-
-const pageNow = (page : number) => {
-  currentPage.value = page
-  fetchData()
-}
-
-// Generate array angka halaman
-const pages = computed(() => {
-  return Array.from({ length: totalPages.value }, (_, i) => i + 1);
-});
 
 interface Supplier {
   id: number;
@@ -83,19 +61,35 @@ interface Errors {
   nomor_rekening: string;
 }
 
+// variable inisialisasi
+// pagination
+const itemsPerPage = 100;
+const currentPage = ref(1);
+const search = ref("");
+const totalPages = ref(0);
+const selectedOptionCabang = ref(0);
+const totalColumns = ref(6);
+const totalRow = ref(0);
+const optionFilterCabang = ref<filterCabang[]>([]);
+
+
 const timeoutId = ref<number | null>(null);
 const dataSupplier = ref<Supplier[]>([]);
+
 const dataBank = ref<Bank[]>([]);
 const isModalOpen = ref<boolean>(false);
+
+// notification
 const showNotification = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
 const notificationMessage = ref<string>('');
 const notificationType = ref<'success' | 'error'>('success');
+
+// confirmation
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
-const totalColumns = ref(6);
-const totalRow = ref(0);
+
 
 const selectedSupplier = ref<Partial<EditSupplier>>({
   name: '',
@@ -110,6 +104,37 @@ const errors = ref<Errors>({
   bank: '',
   nomor_rekening: ''
 });
+
+
+// func inisialisasi
+// Pagination
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    fetchData()
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    fetchData()
+  }
+};
+
+const pageNow = (page : number) => {
+  currentPage.value = page
+  fetchData()
+}
+
+// Generate array angka halaman
+const pages = computed(() => {
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+});
+
+
+
+
 
 const fetchFilterData = async() => {
   const response = await paramCabang();
@@ -200,12 +225,12 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   }, 3000);
 };
 
-const showConfirmation = (title: string, message: string, action: () => void) => {
-  confirmTitle.value = title;
-  confirmMessage.value = message;
-  confirmAction.value = action;
-  showConfirmDialog.value = true;
-};
+// const showConfirmation = (title: string, message: string, action: () => void) => {
+//   confirmTitle.value = title;
+//   confirmMessage.value = message;
+//   confirmAction.value = action;
+//   showConfirmDialog.value = true;
+// };
 
 // const saveData = async () => {
 //   if (!validateForm()) return;
@@ -261,12 +286,7 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
   <div class="container mx-auto px-4 mt-10">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-6">
-      <PrimaryButton @click="openModal()">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        Tambah Transaksi Keluar Masuk
-      </PrimaryButton>
+      <PrimaryButton @click="openModal()"><IconPlus/> Tambah Transaksi Keluar Masuk</PrimaryButton>
       <div class="flex items-center">
         <input v-model="search" type="text" placeholder="Cari Nomor Invoice..."
         class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" />
