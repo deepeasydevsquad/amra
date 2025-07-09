@@ -1,5 +1,5 @@
 
-const { Deposit, Peminjaman, Riwayat_pembayaran_peminjaman, Fee_agen, Op } = require("../models");
+const { Deposit, Peminjaman, Riwayat_pembayaran_peminjaman, Fee_agen, Op, Kas_keluar_masuk } = require("../models");
 
 const helper = {};
 
@@ -54,4 +54,15 @@ helper.menghasilkan_invoice_fee_agen = async () => {
   return rand;
 }
  
+
+helper.menghasilkan_invoice_kas_keluar_masuk = async ( division_id ) => {
+  var rand = 0;
+  let condition = true;
+  while (condition) {
+    rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    check = await Kas_keluar_masuk.findOne({ where: { invoice: rand, division_id: { [Op.in] : division_id  }  } });
+    if (!check) condition = false;
+  }
+  return rand;
+}
 module.exports = helper;

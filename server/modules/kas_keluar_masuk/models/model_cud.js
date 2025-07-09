@@ -1,6 +1,11 @@
 "use strict";
 const { sequelize, Kamar, Kamar_jamaah } = require("../../../models");
-const { getCompanyIdByCode } = require("../../../helper/companyHelper");
+// const { getCompanyIdByCode } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
+const { menghasilkan_invoice_kas_keluar_masuk } = require("../../../helper/randomHelper");
+const moment = require("moment");
+
+const Model_r_cabang = require("../../param_cabang/models/model_r");
 
 class model_cud {
   constructor(req) {
@@ -8,35 +13,74 @@ class model_cud {
     this.company_id;
   }
 
+  // async initialize() {
+  //   if (!this.company_id) {
+  //     this.company_id = await getCompanyIdByCode(this.req);
+  //   }
+  // }
+
   async initialize() {
-    if (!this.company_id) {
-      this.company_id = await getCompanyIdByCode(this.req);
-    }
+    this.company_id = await getCompanyIdByCode(this.req);
+    this.division_id = await getCabang(this.req);
+    // initialize transaction
+    this.t = await sequelize.transaction();
+    this.state = true;
   }
 
   // Tambah Akun
-  async add() {
+  async add_kas_keluar_masuk() {
     // initialize dependensi properties
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
+    const model = new Model_r_cabang(this.req);
+    // await model.add_kas_keluar_masuk();
+    const listDivision = await model.paramListAllCabang();
+
     try {
 
+      const division_id = body.cabang;
+      const invoice = await menghasilkan_invoice_kas_keluar_masuk(listDivision);
+      const dibayar_diterima = body.diterima_dibayar;
+      const ref = body.ref;
+      const keterangan = body.keterangan;
+      // var status_kwitansi = 'masuk';
+      const kaskeluarmasuk = body.kaskeluarmasuk;
+      var data = [];
+      for( let x in kaskeluarmasuk ) {
+
+        // const result = str.substring(0, 5);
+
+      }
+
+      // if (substr($akun_debet[$key], 0, 1) == '1') {
+			// 		$data['status_kwitansi'] = 'masuk';
+			// 	}
+			// 	if (substr($akun_kredit[$key], 0, 1) == '1') {
+			// 		$data['status_kwitansi'] = 'keluar';
+			// 	}
+
+      console.log("---------");
+      console.log(division_id);
+      console.log(invoice);
+      console.log("---------");
+
+
+      // insert 
       // const primary_id = body.primary_id;
       // const prefix = body.prefix;
       // const nomor_akun = prefix + body.nomor;
       // const nama_akun = body.nama;
 
       // // insert process
-      // const insert = await Akun_secondary.create(
+      // const insert = await Kas_keluar_masuk.create(
       //   {
-      //     company_id : this.company_id, 
-      //     akun_primary_id : primary_id,
-      //     nomor_akun: nomor_akun,
-      //     nama_akun: nama_akun,
-      //     tipe_akun: 'tambahan',
-      //     path: '',
+      //     division_id: '',
+      //     invoice: '',
+      //     dibayar_diterima: '', 
+      //     petugas: '',
+      //     status_kwitansi: '',
       //     createdAt: myDate,
       //     updatedAt: myDate,
       //   },
@@ -48,6 +92,10 @@ class model_cud {
       // write log message
       this.message = `Menambahkan Akun Baru dengan Nama Akun : ${body.nama}, Nomor Akun : ${nomor_akun} dan ID Akun : ${insert.id}`;
     } catch (error) {
+
+      console.log("********1");
+      console.log(error);
+      console.log("********1");
       this.state = false;
     }
   }

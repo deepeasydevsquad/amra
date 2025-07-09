@@ -219,8 +219,7 @@
       return
     }
 
-
-     try {
+    try {
       const formData = new FormData()
       if (form.value.id) {
         formData.append('id', form.value.id)
@@ -242,7 +241,7 @@
 
       const response = await addUpdateKasKeluarMasuk(formData);
       // emit('submitted')
-      emit('save')
+      // emit('save')
     } catch (error) {
       emit('cancel')
       console.error('Gagal menyimpan data member:', error)

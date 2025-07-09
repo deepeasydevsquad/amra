@@ -66,6 +66,31 @@ class Model_r {
       );
     return data;
   }
+
+  async paramListAllCabang() {
+    // initialize dependensi properties
+    await this.initialize();
+
+    
+    try {
+      var data = [];
+      const { rows } = await Division.findAndCountAll({ where : { company_id : this.company_id} });
+      await Promise.all(
+        await rows.map(async (e) => {
+          data.push({id: e.id, name: e.name });
+        })
+      );  
+      return data;
+    } catch (error) {
+      console.log("__________________________");
+      console.log(error);
+      console.log("__________________________");
+      return []
+    }
+    
+    
+    
+  }
 }
 
 module.exports = Model_r;

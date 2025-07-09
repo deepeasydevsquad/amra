@@ -32,6 +32,12 @@ controllers.addKasKeluarMasuk = async (req, res) => {
         res.status(400).json({ error: true, error_msg: 'Kas Keluar Masuk Gagal Disimpan.' });
       }
   } catch (error) {
+
+    console.log("********0");
+    console.log(error);
+    console.log("********0");
+
+
     handleServerError(res, error.message);
   }
 }
