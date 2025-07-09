@@ -3,47 +3,8 @@
     <div class="flex justify-between mb-4 items-center gap-4">
       <!-- Container tombol-tombol -->
       <div class="flex gap-3">
-        <button
-          @click="modalTambahSurat()"
-          class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
-        >
-          <!-- icon PDF -->
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path d="M6 2a2 2 0 00-2 2v16c0 1.103.897 2 2 2h12a2 2 0 002-2V8l-6-6H6z" />
-            <path
-              fill="#fff"
-              d="M9 13h1v3H9v-3zm2.5 0h.75c.276 0 .5.224.5.5v2c0 .276-.224.5-.5.5H11.5v-3zm2 0H15a1 1 0 010 2h-.5v1H13.5v-3z"
-            />
-            <path d="M13 3.5V9h5.5L13 3.5z" />
-          </svg>
-          Cetak Surat
-        </button>
-
-        <button
-          @click="showModalKonfigurasi()"
-          class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-5 h-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M11.25 2.25c.414 0 .75.336.75.75v1.086a7.5 7.5 0 012.95 1.27l.769-.77a.75.75 0 011.06 0l1.06 1.06a.75.75 0 010 1.061l-.77.77a7.5 7.5 0 011.27 2.949h1.086a.75.75 0 01.75.75v1.5a.75.75 0 01-.75.75h-1.086a7.5 7.5 0 01-1.27 2.949l.77.77a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 01-1.061 0l-.77-.77a7.5 7.5 0 01-2.949 1.27v1.086a.75.75 0 01-.75.75h-1.5a.75.75 0 01-.75-.75v-1.086a7.5 7.5 0 01-2.949-1.27l-.77.77a.75.75 0 01-1.06 0l-1.061-1.06a.75.75 0 010-1.061l.77-.77a7.5 7.5 0 01-1.27-2.949H2.25a.75.75 0 01-.75-.75v-1.5c0-.414.336-.75.75-.75h1.086a7.5 7.5 0 011.27-2.949l-.77-.77a.75.75 0 010-1.061l1.061-1.06a.75.75 0 011.06 0l.77.77A7.5 7.5 0 0110.5 4.086V3c0-.414.336-.75.75-.75zM12 15a3 3 0 100-6 3 3 0 000 6z"
-            />
-          </svg>
-          Konfigurasi Surat
-        </button>
+        <PrimaryButton @click="modalTambahSurat()"><SuratIcon />Tambah Surat</PrimaryButton>
+        <PrimaryButton @click="showModalKonfigurasi()"><GearIcon />Konfigurasi Surat</PrimaryButton>
       </div>
 
       <!-- Search -->
@@ -76,11 +37,11 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
-          <tr v-if="!paginatedRiwayat || paginatedRiwayat.length === 0">
+          <tr v-if="!riwayatSurat || riwayatSurat.length === 0">
             <td colspan="7" class="px-6 py-4 text-center text-gray-500">Data tidak ada</td>
           </tr>
           <tr
-            v-for="riwayatSurat in paginatedRiwayat"
+            v-for="riwayatSurat in riwayatSurat"
             :key="riwayatSurat.nomor_surat"
             class="hover:bg-gray-50"
           >
@@ -111,66 +72,35 @@
             <td class="px-6 py-4 text-center">{{ riwayatSurat.nama_petugas }}</td>
             <td class="px-6 py-4 text-center">{{ formatDate(riwayatSurat.tanggal_surat) }}</td>
             <td class="px-6 py-4 text-center grid grid-cols-2 gap-2">
-              <div class="grid ">
+              <div class="grid">
                 <LightButton
-                @click="handleDownload(riwayatSurat.info.jamaah_id, riwayatSurat.tipe_surat)"
-                title="Cetak Surat"
-                class="p-1 w-6 h-6"
-              >
-                <CetakIcon class="w-4 h-4" />
-              </LightButton>
-              <DangerButton
-                @click="handleDelete(riwayatSurat.id)"
-                title="Hapus Surat"
-                class="p-1 w-6 h-6"
-              >
-                <DeleteIcon class="w-4 h-4" />
-              </DangerButton>
+                  @click="handleDownload(riwayatSurat.info.jamaah_id, riwayatSurat.tipe_surat)"
+                  title="Cetak Surat"
+                  class="p-1 w-6 h-6"
+                >
+                  <CetakIcon class="w-4 h-4" />
+                </LightButton>
+                <DangerButton
+                  @click="handleDelete(riwayatSurat.id)"
+                  title="Hapus Surat"
+                  class="p-1 w-6 h-6"
+                >
+                  <DeleteIcon class="w-4 h-4" />
+                </DangerButton>
               </div>
-
             </td>
           </tr>
         </tbody>
-        <tfoot class="bg-gray-100">
-          <tr>
-            <td colspan="7" class="px-4 py-4 text-left">
-              <nav class="flex justify-left">
-                <ul class="inline-flex items-center -space-x-px">
-                  <li>
-                    <button
-                      @click="prevPage"
-                      :disabled="currentPage === 1"
-                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
-                    >
-                      Previous
-                    </button>
-                  </li>
-                  <li v-for="page in pages" :key="page">
-                    <button
-                      @click="pageNow(page)"
-                      :class="
-                        currentPage === page
-                          ? 'bg-[#333a48] text-white'
-                          : 'bg-white text-gray-500 hover:bg-gray-100'
-                      "
-                      class="px-3 py-2 border border-gray-300"
-                    >
-                      {{ page }}
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      @click="nextPage"
-                      :disabled="currentPage === totalPages"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </td>
-          </tr>
+        <tfoot class="bg-gray-100 font-bold text-right">
+          <Pagination
+            :currentPage="currentPage"
+            :totalPages="totalPages"
+            :pages="pages"
+            :totalColumns="totalColumns"
+            @prev-page="prevPage"
+            @next-page="nextPage"
+            @page-now="pageNow"
+          />
         </tfoot>
       </table>
     </div>
@@ -216,7 +146,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import Pagination from '@/components/Pagination/Pagination.vue'
 import DeleteIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/DeleteIcon.vue'
+import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import Confirmation from '@/components/User/Modules/DaftarPaketLa/Particle/Confirmation.vue'
 import CetakIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/CetakIcon.vue'
 import DangerButton from '@/components/Button/DangerButton.vue'
@@ -226,18 +158,20 @@ import { getRiwayatSurat } from '@/service/daftar_konfigurasi_surat'
 import ModalTambahSurat from '@/components/User/Modules/DaftarSuratMenyurat/widgets/ModalTambahSurat.vue'
 import ModalKonfigurasi from '@/components/User/Modules/DaftarSuratMenyurat/widgets/ModalKonfigurasi.vue'
 import { deleteSurat } from '../../../../service/daftar_konfigurasi_surat'
+import SuratIcon from '@/components/Icons/SuratIcon.vue'
+import GearIcon from '@/components/Icons/GearIcon.vue'
 
+const totalPages = ref(0)
 const riwayatSurat = ref<any[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
 const searchQuery = ref('')
 const currentPage = ref(1)
-const itemsPerPage = 100
+const itemsPerPage = 10
+const total = ref(0)
 const modalKonfigurasi = ref(false)
 const showModalTambahSurat = ref(false)
 const timeoutId = ref<number | null>(null)
-const dataProviderVisa = ref<ProviderVisa[]>([])
-const isModalOpen = ref<boolean>(false)
 const showNotification = ref<boolean>(false)
 const showConfirmDialog = ref<boolean>(false)
 const notificationMessage = ref<string>('')
@@ -245,7 +179,30 @@ const notificationType = ref<'success' | 'error'>('success')
 const confirmMessage = ref<string>('')
 const confirmTitle = ref<string>('')
 const confirmAction = ref<(() => void) | null>(null)
-const totalColumns = ref(3) // Default 3 kolom
+const totalColumns = ref(7) // Default 3 kolom
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+    fetchRiwayatSurat()
+  }
+}
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--
+    fetchRiwayatSurat()
+  }
+}
+
+const pageNow = (page: number) => {
+  currentPage.value = page
+  fetchRiwayatSurat()
+}
+
+const pages = computed(() => {
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1)
+})
 
 const handleTambahSurat = () => {
   showModalTambahSurat.value = false
@@ -305,7 +262,7 @@ const handleDelete = async (id: number) => {
     try {
       const response = await deleteSurat({ id: id })
       showConfirmDialog.value = false
-      displayNotification(response.error_msg)
+      displayNotification('Delete berhasil', 'success')
       fetchRiwayatSurat()
     } catch (error) {
       console.error('Error deleting data:', error)
@@ -327,8 +284,18 @@ const fetchRiwayatSurat = async () => {
   try {
     loading.value = true
     error.value = null
-    const data = await getRiwayatSurat()
-    riwayatSurat.value = data
+
+    const payload = {
+      perpage: itemsPerPage,
+      pageNumber: currentPage.value,
+      search: searchQuery.value || '',
+    }
+
+    const data = await getRiwayatSurat(payload)
+
+    riwayatSurat.value = data.data
+    total.value = data.total
+    totalPages.value = Math.ceil(data.total / itemsPerPage)
     console.log('Riwayat Surat:', riwayatSurat.value)
   } catch (err) {
     console.error(err)
@@ -357,33 +324,7 @@ const formatTipeSurat = (tipe: string) => {
     .join(' ') // gabung lagi pake spasi
 }
 
-const filteredRiwayat = computed(() => {
-  const search = searchQuery.value.toLowerCase()
-  return (riwayatSurat.value || []).filter(
-    (r) =>
-      r.nomor_surat?.toLowerCase().includes(search) ||
-      r.tipe_surat?.toLowerCase().includes(search) ||
-      r.info?.toLowerCase().includes(search) ||
-      r.tujuan?.toLowerCase().includes(search) ||
-      r.petugas?.toLowerCase().includes(search),
-  )
-})
-
-const totalPages = computed(() => Math.ceil(filteredRiwayat.value.length / itemsPerPage))
-const paginatedRiwayat = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  const end = start + itemsPerPage
-  return filteredRiwayat.value.slice(start, end)
-})
-
-const pages = computed(() => Array.from({ length: totalPages.value }, (_, i) => i + 1))
-const pageNow = (page: number) => (currentPage.value = page)
-const nextPage = () => currentPage.value < totalPages.value && currentPage.value++
-const prevPage = () => currentPage.value > 1 && currentPage.value--
-
 onMounted(() => {
   fetchRiwayatSurat()
 })
 </script>
-
-<style scoped></style>

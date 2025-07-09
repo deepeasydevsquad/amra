@@ -4,45 +4,45 @@ const { authenticateToken } = require("../middleware/authenticateToken");
 const router = express.Router();
 const validasiKonfigurasiSurat = require("../validation/konfigurasi_surat");
 const SuratValidator = require("../validation/add_surat");
-
-console.log("Controllers Object:", controllers);
-
-function debugBody(req, res, next) {
-  console.log("Body sebelum validasi:", req.body);
-  next();
-}
-
-router.post("/delete_surat", authenticateToken, controllers.deleteSurat);
+const { body } = require("express-validator");
 
 router.post(
-  "/add_surat",
+  "/daftar_surat_menyurat/delete_surat",
+  [body("id").trim().notEmpty().withMessage("ID Surat tidak boleh kosong.")],
+  authenticateToken,
+  controllers.deleteSurat
+);
+
+router.post(
+  "/daftar_surat_menyurat/add_surat",
   authenticateToken,
   SuratValidator(),
   controllers.addSurat
 );
 
 router.post(
-  "/add_konfigurasi_surat",
+  "/daftar_surat_menyurat/add_konfigurasi_surat",
   authenticateToken,
   validasiKonfigurasiSurat,
   controllers.addKonfigurasi
 );
 
 router.get(
-  "/get_jamaah_surat",
+  "/daftar_surat_menyurat/get_jamaah_surat",
   authenticateToken,
   controllers.get_daftar_jamaah
 );
 
 router.post(
-  "/get_konfigurasi_surat",
+  "/daftar_surat_menyurat/get_konfigurasi_surat",
   authenticateToken,
   controllers.get_konfigurasi
 );
 
 router.post(
-  "/get_riwayat_surat",
+  "/daftar_surat_menyurat/get_riwayat_surat",
   authenticateToken,
+  [body("pageNumber").trim(), body("perpage").trim(), body("search").trim()],
   controllers.get_riwayat_surat
 );
 
