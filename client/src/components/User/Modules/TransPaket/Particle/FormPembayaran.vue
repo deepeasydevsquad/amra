@@ -60,11 +60,11 @@ const submitPembayaran = async (selectedFeeIds: number[]) => {
     nominal: total,
   }
 
-  console.log('📤 Payload:', payload)
-
   try {
     const res = await add_pembayaran(payload)
     console.log('✅ Sukses bayar:', res)
+    const printUrl = `/kwitansi-pembayaran-fee-agen/${res.invoice}`
+    window.open(printUrl, '_blank')
     emit('submitted')
   } catch (err) {
     console.error('❌ Gagal bayar:', err)
