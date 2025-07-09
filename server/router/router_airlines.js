@@ -14,11 +14,11 @@ router.post(
     body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
   ],
-  controllers.get_daftar_airlines
+  controllers.getDaftarAirlines
 );
 
 router.post(
-  "/airlines/",
+  "/airlines/add",
   authenticateToken,
   [
     body("name").trim().notEmpty().withMessage("Nama Maskapai tidak boleh kosong."),

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import PrimaryButton from '@/components/Button/PrimaryButton.vue';
-import Confirmation from '@/components/User/Modules/DaftarBank/Particle/Confirmation.vue';
-import { addBank, editBank } from '@/service/daftar_bank';
+import Confirmation from '@/components/User/Modules/Airlines/Particle/Confirmation.vue';
+import { addAirlines, editAirlines } from '@/service/airlines';
 
 const emit = defineEmits<{
   (e: 'close'): void
@@ -14,31 +14,27 @@ const props = defineProps({
     type: Boolean,
     required: true
   },
-  selectedBank: {
+  selectedAirlines: {
     type: Object,
   }
 })
 
-interface Bank {
+interface Airlines {
   id: number;
-  kode: string;
   name: string;
 }
 
 interface Errors {
-  kode: string;
   name: string;
 }
 
-const errors = ref<Errors>({
-  kode: '',
+const Airlines = ref<Partial<Airlines>>({
   name: '',
 });
 
-const Bank = ref<Partial<Bank>>({
-  kode: '',
+const errors = ref<Errors>({
   name: '',
-})
+});
 
 const showConfirmDialog = ref<boolean>(false);
 const confirmMessage = ref<string>('');
@@ -53,15 +49,11 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 };
 
 const validateForm = (): boolean => {
-  errors.value = { kode: '', name: '' };
+  errors.value = { name: '' };
   let isValid = true;
 
-  if (!Bank.value.kode?.trim()) {
-    errors.value.kode = 'Kode tidak boleh kosong';
-    isValid = false;
-  }
-  if (!Bank.value.name?.trim()) {
-    errors.value.name = 'Nama tidak boleh kosong';
+  if (!Airlines.value.name?.trim()) {
+    errors.value.name = 'Nama Maskapai tidak boleh kosong';
     isValid = false;
   }
   return isValid;
@@ -70,17 +62,18 @@ const validateForm = (): boolean => {
 const saveData = async () => {
   if (!validateForm()) return;
 
-  const isEdit = !!Bank.value.id;
+  const isEdit = !!Airlines.value.id;
   const action = async () => {
     try {
       if (isEdit) {
-        const response = await editBank(Bank.value.id, Bank.value );
+        const response = await editAirlines(Airlines.value.id, Airlines.value );
         showConfirmDialog.value = false;
-        emit('status', { error: false, err_msg: (response?.error_msg || response?.data?.message) || 'Bank berhasil di update' });
+        console.log('Response:', response);
+        emit('status', { error: false, err_msg: (response?.error_msg || response?.message) || 'Maskapai berhasil di update' });
       } else {
-        const response = await addBank(Bank.value);
+        const response = await addAirlines(Airlines.value);
         showConfirmDialog.value = false;
-        emit('status', { error: false, err_msg: (response?.error_msg || response?.data?.message) || 'Bank berhasil di tambahkan' });
+        emit('status', { error: false, err_msg: (response?.error_msg || response?.message) || 'Maskapai berhasil di tambahkan' });
       }
       emit('close')
     } catch (error) {
@@ -93,7 +86,7 @@ const saveData = async () => {
 };
 
 onMounted(() => {
-  Bank.value = { ...Bank.value, ...(props.selectedBank ?? {}) };
+  Airlines.value = { ...Airlines.value, ...(props.selectedAirlines ?? {}) };
 })
 </script>
 
@@ -105,26 +98,16 @@ onMounted(() => {
       <div class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
         <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
           <h3 class="text-2xl flex justify-center font-bold leading-6 text-gray-900 mb-4">
-            {{ Bank.id ? "Edit Data Bank" : "Tambah Bank Baru" }}
+            {{ Airlines.id ? "Edit Data Airlines" : "Tambah Airlines Baru" }}
           </h3>
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Kode</label>
-              <input
-                v-model="Bank.kode"
-                type="text"
-                class="w-full rounded-md border-gray-300 shadow-sm focus focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
-                placeholder="Kode Bank"
-              />
-              <p v-if="errors.kode" class="mt-1 text-sm text-red-600">{{ errors.kode }}</p>
-            </div>
-            <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
               <input
-                v-model="Bank.name"
+                v-model="Airlines.name"
                 type="text"
                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
-                placeholder="Nama Bank"
+                placeholder="Nama Maskapai"
               />
               <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
             </div>
@@ -134,7 +117,7 @@ onMounted(() => {
           <PrimaryButton
             @click="saveData"
           >
-            {{ Bank.id ? "Simpan Perubahan" : "Tambah" }}
+            {{ Airlines.id ? "Simpan Perubahan" : "Tambah" }}
           </PrimaryButton>
           <button
             @click="emit('close')"
