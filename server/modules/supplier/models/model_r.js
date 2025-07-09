@@ -78,6 +78,22 @@ class Model_r {
       };
 
     } catch (error) {
+      return { data: [], total: 0 };
+    }
+  }
+
+  async daftar_bank() {
+    await this.initialize();
+    try {
+      const data = await Mst_bank.findAll({
+        where: { company_id: this.company_id },
+        attributes: ["id", "name"],
+      });
+      return {
+        data: data,
+        total: data.length,
+      };
+    } catch (error) {
       return {};
     }
   }
@@ -96,7 +112,6 @@ class Model_r {
               data["nomor_rekening"] = e.nomor_rekening;
           }
       });
-     
       return data
     } catch (error) {
       return {}      
