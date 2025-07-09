@@ -17,6 +17,7 @@ import { ref, watch, computed, onMounted } from 'vue'
 import { on } from 'events'
 
 import { get_paket_agen } from '@/service/paket_agen'
+import FormPembayaran from '../TransPaket/Particle/FormPembayaran.vue'
 
 const showModalDetail = ref(false)
 const showModal = ref(false)
@@ -30,6 +31,11 @@ const confirmMessage = ref('')
 const confirmTitle = ref('')
 const confirmAction = ref<(() => void) | null>(null)
 const timeoutId = ref<number | null>(null)
+
+const PembayaranSuccess = () => {
+  modalPembayaran.value = false
+  displayNotification('Pembayaran berhasil', 'success')
+}
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message
@@ -112,6 +118,14 @@ onMounted(() => {
   fetchData()
   searchQuery.value = ''
 })
+
+const modalPembayaran = ref(false)
+const agen_id = ref(0)
+
+const openModalPembayaran = (id: number) => {
+  modalPembayaran.value = true
+  agen_id.value = id
+}
 </script>
 
 <template>
@@ -132,68 +146,85 @@ onMounted(() => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-100">
           <tr>
-            <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[30%]">Info Agen</th>
-            <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[30%]">Info Jamaah</th>
+            <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[30%]">
+              Info Agen
+            </th>
+            <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[30%]">
+              Info Jamaah
+            </th>
             <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[15%]">Fee</th>
-            <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[15%]">Sudah Bayar</th>
+            <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[15%]">
+              Sudah Bayar
+            </th>
             <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[10%]">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
           <tr v-if="filteredData.length === 0">
-            <td colspan="5" class="text-center py-3 text-sm text-gray-500">Daftar Agen Tidak Ditemukan</td>
+            <td colspan="5" class="text-center py-3 text-sm text-gray-500">
+              Daftar Agen Tidak Ditemukan
+            </td>
           </tr>
+
           <tr
             v-for="item in filteredData"
             :key="item.agen_id"
             class="hover:bg-gray-50 transition-colors"
           >
             <!-- Info Agen -->
-            <!-- Info Agen -->
-            <td class="px-6 py-4 align-top">
-              <div class="flex gap-x-2">
-                <div class="space-y-1">
-                  <div>Nama Agen</div>
-                  <div>No Identitas</div>
-                  <div>Level</div>
-                  <div>No WA</div>
-                </div>
-                <div class="space-y-1">
-                  <div>: {{ item.nama_agen }}</div>
-                  <div>: {{ item.agen_id }}</div>
-                  <div>: {{ item.level_keagenan }}</div>
-                  <div>: {{ item.whatsapp_number }}</div>
-                </div>
+            <td class="px-4 py-4 border-b text-left align-top">
+              <div class="py-1">
+                <span class="inline-block w-20 font-bold">Nama Agen</span>:
+                {{ item.nama_agen }}
+              </div>
+              <div class="py-1">
+                <span class="inline-block w-20 font-bold">Level</span>:
+                {{ item.level_keagenan }}
+              </div>
+              <div class="py-1">
+                <span class="inline-block w-20 font-bold">No WA</span>:
+                {{ item.whatsapp_number }}
               </div>
             </td>
 
             <!-- Info Jamaah -->
-            <td class="px-6 py-4 align-top">
-              <div v-for="jamaah in item.rekrutans" :key="jamaah.id" class="flex gap-x-2 mb-3">
-                <div class="space-y-1">
-                  <div>Nama Jamaah</div>
-                  <div>No Identitas</div>
+            <td class="px-4 py-2 border-b text-left align-top">
+              <div
+                v-for="jamaah in item.rekrutans"
+                :key="jamaah.id"
+                class="border-b border-gray-100 last:border-none py-2"
+              >
+                <div class="py-1">
+                  <span class="inline-block w-30 font-bold">Nama Jamaah</span>:
+                  {{ jamaah.fullname }}
                 </div>
-                <div class="space-y-1">
-                  <div>: {{ jamaah.fullname }}</div>
-                  <div>: {{ jamaah.identity_number }}</div>
+                <div class="py-1">
+                  <span class="inline-block w-30 font-bold">No Identitas</span>:
+                  {{ jamaah.identity_number }}
                 </div>
               </div>
             </td>
 
             <!-- Fee -->
-            <td class="text-center px-6 py-4 align-top">
-              Rp {{ (item.total_belum_lunas ?? 0).toLocaleString() }}
+            <td class="px-4 py-4 border-b text-left align-top">
+              <div class="py-1">
+                {{ (item.total_belum_lunas ?? 0).toLocaleString() }}
+              </div>
             </td>
 
             <!-- Sudah Bayar -->
-            <td class="text-center px-6 py-4 align-top">
-              Rp {{ (item.total_lunas ?? 0).toLocaleString() }}
+            <td class="px-4 py-4 border-b text-left align-top">
+              <div class="py-1">
+                Rp
+                {{ (item.total_lunas ?? 0).toLocaleString() }}
+              </div>
             </td>
 
             <!-- Aksi -->
-            <td class="text-center px-6 py-4 align-top flex justify-center">
-              <LightButton @click=""> <NabungIcon class="h-7 w-7 text-gray-600" /></LightButton>
+            <td class="px-4 py-5 border-b text-center align-top">
+              <LightButton @click="openModalPembayaran(item.agen_id)">
+                <i class="pi pi-money-bill"></i>
+              </LightButton>
             </td>
           </tr>
         </tbody>
@@ -212,4 +243,24 @@ onMounted(() => {
       </table>
     </div>
   </div>
+
+  <FormPembayaran
+    :formStatus="modalPembayaran"
+    :agen_id="agen_id"
+    @cancel="modalPembayaran = false"
+    @close="modalPembayaran = false"
+    @submitted="
+      () => {
+        fetchData()
+        PembayaranSuccess()
+      }
+    "
+  />
+
+  <Notification
+    :showNotification="showNotification"
+    :notificationType="notificationType"
+    :notificationMessage="notificationMessage"
+    @close="showNotification = false"
+  />
 </template>

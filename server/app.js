@@ -113,6 +113,7 @@ const arr_router = [
   "beranda_utama",
   "trans_paket",
   "rekapitulasi_ticket",
+  "pembayaran_agen_paket",
 ];
 
 const arr = {};
