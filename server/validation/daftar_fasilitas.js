@@ -13,4 +13,3 @@ validation.check_id_fasilitas = async ( value, { req } ) => {
 }
 
 module.exports = validation;
-  
