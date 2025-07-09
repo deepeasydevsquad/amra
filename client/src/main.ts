@@ -1,49 +1,78 @@
+// Import Global Styles
 import './assets/css/satoshi.css'
 import './assets/css/style.css'
 import 'flowbite'
 
-import PrimeVue from 'primevue/config'
-import 'primeicons/primeicons.css'
-import Aura from '@primeuix/themes/aura';
-import { createPinia } from 'pinia'
-import VueApexCharts from 'vue3-apexcharts'
+// Vue Core
 import { createApp } from 'vue'
-import { createHead } from '@vueuse/head';
 import App from './App.vue'
 import router from './router'
-// @ts-ignore
-// import rupiahPlugin from './plugins/rupiahPlugin'
-// import { createMetaManager } from 'vue-meta';
+import { createPinia } from 'pinia'
+import { createHead } from '@vueuse/head'
 
-// Import FontAwesome
+// PrimeVue
+import PrimeVue from 'primevue/config'
+import Aura from '@primeuix/themes/aura'
+import 'primeicons/primeicons.css'
+
+// Chart
+import VueApexCharts from 'vue3-apexcharts'
+
+// FontAwesome Setup
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-// fa-image
-import { faUser, faUserCheck, faHome, faHouseCrack, faCaretRight, faExchange, faBoxOpen, faUsers, faGlobe, faDatabase,
+// FontAwesome Icons - Solid
+import {
+  faPlaneArrival, faBuilding, faPlane, faMoneyBillWave, faTicketSimple , faUser, faUserCheck, faHome, faHouseCrack, faCaretRight, faExchange, faBoxOpen, faUsers, faGlobe, faDatabase,
   faChartArea, faCogs, faBackward, faForward, faBook, faArrowRight, faPlus, faMoneyBill, faPencil, faTimes, faBox,
-  faMoneyBillAlt, faUndoAlt, faListAlt, faImage, faTicket, faCircleArrowRight, faQrcode, faCalendar, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+  faMoneyBillAlt, faUndoAlt, faListAlt, faImage, faTicket, faCircleArrowRight, faQrcode, faCalendar, faArrowLeft,
+  faHandHoldingDollar, faMoneyCheckAlt, faCity, faCar, faHotel, faPassport, faSubway, faClipboardList,
+  faPiggyBank, faUserCog, faUserTie, faCalculator, faList, faBalanceScale, faBalanceScaleLeft, faCommentDollar,
+  faShieldAlt, faEnvelope, faClipboardCheck, faLayerGroup, faPeopleCarry
+} from '@fortawesome/free-solid-svg-icons'
+
+// FontAwesome Icons - Regular
 import { faCircle, faClock, faUser as farUser } from '@fortawesome/free-regular-svg-icons'
 
-library.add(faUser, farUser, faUserCheck, faHome, faHouseCrack, faCaretRight, faCircle, faExchange, faBoxOpen, faUsers, faGlobe, faDatabase,
+// FontAwesome Icons - Brands
+import { faCcVisa, faWhatsapp } from '@fortawesome/free-brands-svg-icons'
+
+// Tambahkan semua icon ke library FontAwesome
+library.add(
+  // Solid Icons
+  faUser, faUserCheck, faHome, faHouseCrack, faCaretRight, faExchange, faBoxOpen, faUsers, faGlobe, faDatabase,
   faChartArea, faCogs, faBackward, faForward, faBook, faArrowRight, faPlus, faMoneyBill, faPencil, faTimes, faBox,
-  faMoneyBillAlt, faUndoAlt, faListAlt, faImage, faTicket, faCircleArrowRight, faQrcode, faCalendar, faClock, faArrowLeft)
+  faMoneyBillAlt, faUndoAlt, faListAlt, faImage, faTicket, faCircleArrowRight, faQrcode, faCalendar, faArrowLeft,
+  faHandHoldingDollar, faMoneyCheckAlt, faCity, faCar, faHotel, faPassport, faSubway, faClipboardList,
+  faPiggyBank, faUserCog, faUserTie, faCalculator, faList, faBalanceScale, faBalanceScaleLeft, faCommentDollar,
+  faShieldAlt, faEnvelope, faClipboardCheck, faLayerGroup, faPeopleCarry, faTicketSimple, faMoneyBillWave, faPlane,
+  faBuilding, faPlaneArrival, faCircle, faClock, farUser, faCcVisa, faWhatsapp
+)
 
+// Buat App Vue
 const app = createApp(App)
-const head = createHead();
+const head = createHead()
 
+// Gunakan Plugin dan Komponen
 app.use(router)
-app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(createPinia())
-app.use(router)
 app.use(VueApexCharts)
-// app.use(rupiahPlugin)
-app.use(head);
-// app.use(createMetaManager());
+app.use(head)
 app.use(PrimeVue, {
   theme: {
-      preset: Aura
+    preset: Aura
   }
-});
+})
 
+router.beforeEach((to, from, next) => {
+  const defaultTitle = 'Nama Aplikasi Anda'
+  document.title = to.meta.title || defaultTitle
+  next()
+})
+
+// Register FontAwesome Component
+app.component('font-awesome-icon', FontAwesomeIcon)
+
+// Mount ke DOM
 app.mount('#app')

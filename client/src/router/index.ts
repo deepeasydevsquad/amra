@@ -38,6 +38,10 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+      meta: {
+        title: 'Aplikasi ',
+        description: 'Ini adalah deskripsi halaman Home',
+      },
     },
     {
       path: '/Login',

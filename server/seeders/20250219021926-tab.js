@@ -5,7 +5,7 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert('Tabs', [
       { name: 'Trans. Paket', icon : 'fas fa-box-open', path: 'trans_paket', desc:'Fitur transaksi paket merupakan fitur untuk menampilkan daftar transaksi paket yang belum berangkat',  createdAt: new Date(), updatedAt: new Date() },
-      { name: 'Trans. Tiket', icon : 'fas fa-ticket-alt', path: 'trans_tiket', desc:'Fitur transaksi tiket merupakan fitur untuk melakukan transaksi tiketing',  createdAt: new Date(), updatedAt: new Date() },
+      { name: 'Trans. Tiket', icon : 'fas fa-ticket-simple', path: 'trans_tiket', desc:'Fitur transaksi tiket merupakan fitur untuk melakukan transaksi tiketing',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Trans. Paket LA', icon : 'fas fa-box', path: 'trans_paket_la', desc:'Fitur transaksi paket land arrangement (LA) merupakan fitur untuk melakukan transaksi paket LA dan menampilkan riwayat dari transaksi paket LA',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Deposit Saldo', icon : 'fas fa-hand-holding-usd', path: 'deposit_saldo', desc:'Fitur deposit saldo merupakan fitur untuk melakukan deposit saldo member.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Daftar Paket', icon : 'fas fa-box', path: 'daftar_paket', desc:'Fitur daftar paket merupakan fitur untuk menampilkan seluruh daftar paket yang telah dibuat',  createdAt: new Date(), updatedAt: new Date() },
@@ -65,6 +65,7 @@ module.exports = {
       { name: 'Daftar Item Fasilitas', icon : 'fas fa-clipboard-check', path: 'daftar_item_fasilitas', desc:'Fitur ini menampilkan seluruh item stok fasilitas.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Riwayat Pembayaran Gaji Staff', icon : 'fas fa-money-check-alt', path: 'riwayat_pembayaran_gaji_staff', desc:'Fitur ini merupakan fitur untuk melakukan pembayaran gaji para Staff.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Daftar Produk PPOB', icon : 'fas fa-clipboard-check', path: 'daftar_produk_ppob', desc:'Fitur ini menampilkan daftar produk dari ppob.',  createdAt: new Date(), updatedAt: new Date() },
+      { name: 'Request Deposit Saldo Member', icon : 'fas fa-clipboard-check', path: 'request_deposit_saldo_member', desc:'Fitur ini menampilkan daftar produk dari ppob.',  createdAt: new Date(), updatedAt: new Date() },
     ], {});
   },
 
