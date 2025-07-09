@@ -94,7 +94,7 @@ class Model_r {
         total: data.length,
       };
     } catch (error) {
-      return {};
+      return { data: [], total: 0 };
     }
   }
 
