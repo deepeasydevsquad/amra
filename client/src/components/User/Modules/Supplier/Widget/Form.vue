@@ -158,7 +158,7 @@ onMounted(() => {
               <textarea
                 v-model="Supplier.address"
                 rows="3"
-                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
+                class="w-full resize-none rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
                 placeholder="Alamat Supplier"
               ></textarea>
               <p v-if="errors.address" class="mt-1 text-sm text-red-600">{{ errors.address }}</p>
