@@ -7,18 +7,18 @@ const validation = require("../validation/daftar_bank");
 const router = express.Router();
 
 router.post(
-  "/daftar_bank/list",
+  "/daftar-bank/list",
   authenticateToken,
   [
     body("pageNumber").trim(),
     body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
   ],
-  controllers.get_daftar_bank
+  controllers.getDaftarBank
 );
 
 router.post(
-  "/daftar_bank/",
+  "/daftar-bank/add",
   authenticateToken,
   [
     body("kode").trim().toUpperCase().notEmpty().withMessage("Kode bank tidak boleh kosong.").isLength({ min: 3, max: 3 }).withMessage("Kode bank harus terdiri dari 3 huruf.").custom(validation.check_add_kode_bank),
@@ -28,7 +28,7 @@ router.post(
 );
 
 router.post(
-  "/daftar_bank/update",
+  "/daftar-bank/update",
   authenticateToken,
   [
     body("id").trim().notEmpty().withMessage("ID bank tidak boleh kosong.").isInt().withMessage("ID bank harus berupa angka.").custom(validation.check_id_bank),
@@ -39,7 +39,7 @@ router.post(
 );
 
 router.post(
-  "/daftar_bank/delete",
+  "/daftar-bank/delete",
   authenticateToken,
   [body("id").trim().notEmpty().withMessage("ID bank tidak boleh kosong.").isInt().withMessage("ID bank harus berupa angka.").custom(validation.check_id_bank)],
   controllers.delete
