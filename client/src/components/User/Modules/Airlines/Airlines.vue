@@ -73,10 +73,6 @@ const selectedAirlines = ref<Partial<Airlines>>({
   name: '',
 });
 
-const errors = ref<Errors>({
-  name: '',
-});
-
 const fetchData = async() => {
   const response = await daftarAirlines({
     search: search.value,
