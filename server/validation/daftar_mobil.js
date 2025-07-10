@@ -13,4 +13,3 @@ validation.check_id_mobil = async ( value, { req } ) => {
 }
 
 module.exports = validation;
-  

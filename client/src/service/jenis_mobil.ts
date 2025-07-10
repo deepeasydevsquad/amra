@@ -2,7 +2,7 @@ import api from "./api";
 
 export const daftarJenisMobil = async (param : any) => {
   try {
-    const response = await api.post("/daftar_mobil/list", param);
+    const response = await api.post("/daftar-mobil/list", param);
     return response.data;
   } catch (error) {
     console.error("Gagal mengambil jenis mobil:", error);
@@ -12,7 +12,7 @@ export const daftarJenisMobil = async (param : any) => {
 
 export const addJenisMobil = async (param : any) => {
   try {
-    const response = await api.post("/daftar_mobil", param);
+    const response = await api.post("/daftar-mobil/add", param);
     return response.data;
   } catch (error) {
     console.error("Gagal menambahkan jenis mobil:", error);
@@ -22,7 +22,7 @@ export const addJenisMobil = async (param : any) => {
 
 export const editJenisMobil = async (id : any, param : any) => {
   try {
-    const response = await api.post(`/daftar_mobil/update` , {...param,...{id : id }});
+    const response = await api.post(`/daftar-mobil/update` , {...param,...{id : id }});
     return response.data;
   } catch (error) {
     console.error("Gagal mengedit jenis mobil:", error);
@@ -32,7 +32,7 @@ export const editJenisMobil = async (id : any, param : any) => {
 
 export const deleteJenisMobil = async (id : number) => {
   try {
-    const response = await api.post(`/daftar_mobil/delete`,{ id : id});
+    const response = await api.post(`/daftar-mobil/delete`,{ id : id});
     return response.data;
   } catch (error) {
     console.error("Gagal menghapus jenis mobil:", error);

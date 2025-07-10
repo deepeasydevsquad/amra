@@ -5,7 +5,7 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 const controllers = {};
 
 // **Mendapatkan daftar mobil**
-controllers.get_daftar_mobil = async (req, res) => {
+controllers.getDaftarMobil = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {

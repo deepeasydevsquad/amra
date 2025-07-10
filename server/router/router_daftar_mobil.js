@@ -7,18 +7,18 @@ const validation = require("../validation/daftar_mobil");
 const router = express.Router();
 
 router.post(
-  "/daftar_mobil/list",
+  "/daftar-mobil/list",
   authenticateToken,
   [
     body("pageNumber").trim(),
     body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
   ],
-  controllers.get_daftar_mobil
+  controllers.getDaftarMobil
 );
 
 router.post(
-  "/daftar_mobil/",
+  "/daftar-mobil/add",
   authenticateToken,
   [
     body("name").trim().notEmpty().withMessage("Nama Jenis Mobil tidak boleh kosong."),
@@ -27,7 +27,7 @@ router.post(
 );
 
 router.post(
-  "/daftar_mobil/update",
+  "/daftar-mobil/update",
   authenticateToken,
   [
     body("id").trim().notEmpty().withMessage("ID Jenis Mobil tidak boleh kosong.").custom(validation.check_id_mobil),
@@ -37,7 +37,7 @@ router.post(
 );
 
 router.post(
-  "/daftar_mobil/delete",
+  "/daftar-mobil/delete",
   authenticateToken,
   [body("id").trim().notEmpty().withMessage("ID Jenis Mobil tidak boleh kosong.").isInt().withMessage("ID Jenis Mobil harus berupa angka.").custom(validation.check_id_mobil)],
   controllers.delete
