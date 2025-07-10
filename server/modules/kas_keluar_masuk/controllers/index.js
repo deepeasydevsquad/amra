@@ -67,9 +67,6 @@ controllers.delete = async ( req, res) => {
         res.status(400).json({ error: true, error_msg: 'Proses Delete Kas Keluar Masuk Gagal Dilakukan.' });
       }
   } catch (error) {
-    console.log("xxxx");
-    console.log(error);
-    console.log("xxxx");
     handleServerError(res, error.message);
   }
 }
