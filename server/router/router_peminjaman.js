@@ -112,4 +112,10 @@ router.post(
   controllers.downloadDataPeminjaman
 );
 
+router.get(
+  "/peminjaman/daftar_jamaah",
+  authenticateToken,
+  controllers.get_jamaah
+);
+
 module.exports = router;

@@ -269,5 +269,30 @@ class Model_r {
       this.res.status(500).json({ message: "Gagal download data peminjaman." });
     }
   }
+
+  async daftar_jamaah() {
+    await this.initialize();
+    try {
+      const jamaah = await Jamaah.findAll({
+        where: {
+          division_id: this.division_id,
+        },
+        include: [
+          {
+            model: Member,
+            required: true,
+            attributes: ["fullname"],
+          },
+        ],
+      });
+      return jamaah.map((j) => ({
+        id: j.id,
+        nama_jamaah: j.Member?.fullname || "-", // atau bisa ganti ke j.nama_jamaah kalau mau
+      }));
+    } catch (error) {
+      console.error("Gagal ambil data jamaah:", error);
+      return [];
+    }
+  }
 }
 module.exports = Model_r;
