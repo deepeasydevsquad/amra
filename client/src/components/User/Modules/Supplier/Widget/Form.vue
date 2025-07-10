@@ -110,11 +110,11 @@ const saveData = async () => {
       if (isEdit) {
         const response = await editSupplier(Supplier.value.id, Supplier.value);
         showConfirmDialog.value = false;
-        emit('status', { error: false, err_msg: (response?.data?.err_msg || response?.data?.message) || 'Supplier berhasil di update' });
+        emit('status', { error: false, err_msg: (response?.error_msg || response?.data?.message) || 'Supplier berhasil di update' });
       } else {
         const response = await addSupplier(Supplier.value);
         showConfirmDialog.value = false;
-        emit('status', { error: false, err_msg: (response?.data?.err_msg || response?.data?.message) || 'Supplier berhasil di tambahkan' });
+        emit('status', { error: false, err_msg: (response?.error_msg || response?.data?.message) || 'Supplier berhasil di tambahkan' });
       }
       emit('close');
     } catch (error) {
@@ -127,7 +127,7 @@ const saveData = async () => {
 };
 
 onMounted(() => {
-  Supplier.value = props.selectedSupplier ?? {};
+  Supplier.value = { ...Supplier.value, ...(props.selectedSupplier ?? {}) };
   fetchDataBank()
 })
 </script>

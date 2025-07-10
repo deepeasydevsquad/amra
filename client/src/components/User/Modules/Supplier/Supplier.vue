@@ -66,7 +66,7 @@ interface EditSupplier {
 }
 
 const timeoutId = ref<number | null>(null);
-const totalRow = ref<number>(0);
+const total = ref<number>(0);
 const dataSupplier = ref<Supplier[]>([]);
 const isModalOpen = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
@@ -99,7 +99,7 @@ const fetchData = async () => {
         }
 
         dataSupplier.value = supplierResponse?.data || [];
-        totalRow.value = supplierResponse?.total;
+        total.value = supplierResponse?.total;
         totalPages.value = supplierResponse?.total ? Math.ceil(supplierResponse.total / itemsPerPage) : 0;
     } catch (error) {
         displayNotification("Terjadi kesalahan saat mengambil data, coba lagi nanti.", "error");
@@ -223,7 +223,7 @@ const deleteData = async (id: number) => {
               :total-pages="totalPages"
               :pages="pages"
               :total-columns="totalColumns"
-              :total-row="totalRow"
+              :total-row="total"
               @prev-page="prevPage"
               @next-page="nextPage"
               @page-now="pageNow"
