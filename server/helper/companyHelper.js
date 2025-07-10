@@ -47,9 +47,6 @@ companyHelper.tipe = async (req) => {
   }
 };
 
-
-
-
 companyHelper.username = async (req) => {
   try {
     const authHeader = req.headers["authorization"];

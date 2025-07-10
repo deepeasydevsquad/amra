@@ -20,7 +20,7 @@ router.get(
 
 // Rute untuk menambahkan data kas keluar masuk baru kedalam database
 router.post(
-  "/kas-keluar-masuk/add-kas-keluar-masuk",
+  "/kas-keluar-masuk/add",
   authenticateToken,
   [
     body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(params.check_cabang_id),
@@ -35,22 +35,37 @@ router.post(
   controllers.addKasKeluarMasuk
 );
 
+// Route untuk list
+router.post(
+  "/kas-keluar-masuk/list",
+  authenticateToken,
+  [
+    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong."),
+    body("pageNumber").trim().notEmpty().withMessage("Page Number tidak boleh kosong."),
+    body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
+    body("search").trim(),
+  ],
+  controllers.list
+);
 
-// formData.append('cabang', JSON.stringify(form.value.cabang))
-//       formData.append('tanggal_transaksi', form.value.tanggal_transaksi)
-//       formData.append('diterima_dibayar', form.value.diterima_dibayar)
-//       formData.append('ref', form.value.ref)
-//       formData.append('keterangan', form.value.keterangan)
-//       formData.append('kaskeluarmasuk', JSON.stringify(form.value.kasKeluarMasuk))
 
+router.post(
+  "/kas-keluar-masuk/delete",
+  authenticateToken,
+  [
+    body("id").trim().notEmpty().withMessage("ID Kas Keluar Masuk tidak boleh kosong.").custom(validation.check_id),
+  ],
+  controllers.delete
+);
 
-// // Rute untuk membuat kamar baru
-// router.post(
-//   "/daftar-kamar-paket/create-kamar",
-//   authenticateToken,
-//   validation.createKamar,
-//   controllers.createKamarPaket
-// );
+  // body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(params.check_cabang_id),
+  // body("tanggal_transaksi").trim().notEmpty().withMessage("Tanggal Transaksi tidak boleh kosong."),
+  // body("diterima_dibayar").trim().notEmpty().withMessage("Diterima Dari atau Dibayar Kepada tidak boleh kosong."),
+  // body("ref").trim().notEmpty().withMessage("Referensi tidak boleh kosong."),
+  // body("keterangan").trim().notEmpty().withMessage("Keterangan tidak boleh kosong."),
+  // body("kaskeluarmasuk.*.akun_debet").trim().notEmpty().withMessage("Akun Debet tidak boleh kosong.").custom(validation.check_akun),
+  // body("kaskeluarmasuk.*.akun_kredit").trim().notEmpty().withMessage("Akun Kredit tidak boleh kosong.").custom(validation.check_akun),
+  // body("kaskeluarmasuk.*.saldo").trim().notEmpty().withMessage("Saldo tidak boleh kosong.").custom(validation.check_saldo), 
 
 // http://localhost:3001/kas-keluar-masuk/get-akun
 

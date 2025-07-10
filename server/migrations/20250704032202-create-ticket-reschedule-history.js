@@ -10,10 +10,20 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       division_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Divisions",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
       },
       ticket_transaction_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Ticket_transactions",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
       },
       old_total_transaction: {
         type: Sequelize.INTEGER

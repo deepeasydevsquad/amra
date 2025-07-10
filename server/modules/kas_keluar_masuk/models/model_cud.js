@@ -1,11 +1,12 @@
 "use strict";
-const { sequelize, Kamar, Kamar_jamaah } = require("../../../models");
-// const { getCompanyIdByCode } = require("../../../helper/companyHelper");
-const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
+const { sequelize, Member, Company, Kas_keluar_masuk, Jurnal } = require("../../../models");
+const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
 const { menghasilkan_invoice_kas_keluar_masuk } = require("../../../helper/randomHelper");
+const { writeLog } = require("../../../helper/writeLogHelper");
 const moment = require("moment");
 
 const Model_r_cabang = require("../../param_cabang/models/model_r");
+const Model_r = require("../models/model_r");
 
 class model_cud {
   constructor(req) {
@@ -13,18 +14,34 @@ class model_cud {
     this.company_id;
   }
 
-  // async initialize() {
-  //   if (!this.company_id) {
-  //     this.company_id = await getCompanyIdByCode(this.req);
-  //   }
-  // }
-
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
     this.division_id = await getCabang(this.req);
     // initialize transaction
     this.t = await sequelize.transaction();
     this.state = true;
+  }
+
+  
+  async petugas() {
+    this.tipe = await tipe(this.req);
+
+    if (this.tipe === "administrator") {
+      const company = await Company.findOne({
+        where: { id: this.company_id },
+      });
+      return company?.company_name ?? "Unknown Company";
+    }
+
+    if (this.tipe === "staff") {
+      const member = await Member.findOne({
+        where: { company_id: this.company_id },
+        order: [["id", "DESC"]],
+      });
+      return member?.fullname ?? "Unknown Staff";
+    }
+
+    return "Tipe user tidak diketahui";
   }
 
   // Tambah Akun
@@ -39,66 +56,108 @@ class model_cud {
     const listDivision = await model.paramListAllCabang();
 
     try {
-
+      const model_r = new Model_r(this.req);
+      const listAkun = await model_r.get_akun_secondary(this.company_id);
       const division_id = body.cabang;
       const invoice = await menghasilkan_invoice_kas_keluar_masuk(listDivision);
+      const petugas = await this.petugas();
       const dibayar_diterima = body.diterima_dibayar;
       const ref = body.ref;
       const keterangan = body.keterangan;
-      // var status_kwitansi = 'masuk';
-      const kaskeluarmasuk = body.kaskeluarmasuk;
-      var data = [];
+      var status_kwitansi = '';
+      const kaskeluarmasuk = JSON.parse(body.kaskeluarmasuk);
+
+      // insert Jurnal
       for( let x in kaskeluarmasuk ) {
+        await Jurnal.create(
+          {
+            division_id: division_id,
+            source: 'kaskeluarmasuk:invoice:' + invoice,
+            ref: ref, 
+            ket: keterangan,
+            akun_debet: listAkun[kaskeluarmasuk[x].akun_debet],
+            akun_kredit: listAkun[kaskeluarmasuk[x].akun_kredit],
+            saldo: kaskeluarmasuk[x].saldo,
+            removable: 'false',
+            periode_id: '0',
+            createdAt: myDate,
+            updatedAt: myDate,
+          },
+          {
+            transaction: this.t,
+          }
+        );
 
-        // const result = str.substring(0, 5);
+        const akunDebet = listAkun[kaskeluarmasuk[x].akun_debet];
+        const akunKredit = listAkun[kaskeluarmasuk[x].akun_kredit];
 
+        if (!akunDebet || !akunKredit) {
+          throw new Error("Akun debet atau kredit tidak ditemukan dalam listAkun.");
+        }
+
+        if (akunDebet.substring(0, 1) === '1') {
+          status_kwitansi = 'masuk';
+        } else if (akunKredit.substring(0, 1) === '1') {
+          status_kwitansi = 'keluar';
+        }
       }
-
-      // if (substr($akun_debet[$key], 0, 1) == '1') {
-			// 		$data['status_kwitansi'] = 'masuk';
-			// 	}
-			// 	if (substr($akun_kredit[$key], 0, 1) == '1') {
-			// 		$data['status_kwitansi'] = 'keluar';
-			// 	}
-
-      console.log("---------");
-      console.log(division_id);
-      console.log(invoice);
-      console.log("---------");
-
-
-      // insert 
-      // const primary_id = body.primary_id;
-      // const prefix = body.prefix;
-      // const nomor_akun = prefix + body.nomor;
-      // const nama_akun = body.nama;
-
-      // // insert process
-      // const insert = await Kas_keluar_masuk.create(
-      //   {
-      //     division_id: '',
-      //     invoice: '',
-      //     dibayar_diterima: '', 
-      //     petugas: '',
-      //     status_kwitansi: '',
-      //     createdAt: myDate,
-      //     updatedAt: myDate,
-      //   },
-      //   {
-      //     transaction: this.t,
-      //   }
-      // );
+      // insert process
+      const insert = await Kas_keluar_masuk.create(
+        {
+          division_id: division_id,
+          invoice: invoice,
+          dibayar_diterima: dibayar_diterima, 
+          petugas: petugas,
+          status_kwitansi: status_kwitansi,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
 
       // write log message
-      this.message = `Menambahkan Akun Baru dengan Nama Akun : ${body.nama}, Nomor Akun : ${nomor_akun} dan ID Akun : ${insert.id}`;
+      this.message = `Menambahkan Kas Keluar Masuk dengan nomor invoice : ${invoice}, Petugas : ${petugas} dan ID Kas Keluar Masuk : ${insert.id}`;
     } catch (error) {
-
-      console.log("********1");
-      console.log(error);
-      console.log("********1");
       this.state = false;
     }
   }
+
+  // delete kas keluar masuk
+  async delete () {
+    // initialize dependensi properties
+    await this.initialize();
+    const body = this.req.body;
+    try {
+      // call model
+      const model_r = new Model_r(this.req);
+      const invoice = await model_r.getInvoiceById(body.id, this.company_id);
+      // destroy Jurnal
+      await Jurnal.destroy(
+        {
+          where: { source: 'kaskeluarmasuk:invoice:' + invoice },
+        }, 
+        {
+          transaction: this.t,
+        }
+      );
+      // destroy Kas Keluar Masuk
+      await Kas_keluar_masuk.destroy(
+        {
+          where: { id: body.id },
+        }, 
+        {
+          transaction: this.t,
+        }
+      );
+
+      this.message = `Menghapus Kas Keluar dengan Invoice ${invoice} (ID Kas Keluar Masuk: ${body.id})`;
+    } catch (error) {
+      this.state = false;
+    }
+  }
+
 
 
   // async create_kamar() {

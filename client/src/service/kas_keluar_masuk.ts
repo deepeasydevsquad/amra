@@ -21,13 +21,36 @@ export const getAkun = async () => {
 
 export const addUpdateKasKeluarMasuk = async (data: any) => {
   try {
-    const response = await api.post('/kas-keluar-masuk/add-kas-keluar-masuk', data)
+    const response = await api.post('/kas-keluar-masuk/add', data)
     return response.data
   } catch (error) {
     console.error('Gagal membuat kamar:', error)
     throw error
   }
 }
+
+export const listUrl = async (data: any) => {
+  try {
+    const response = await api.post('/kas-keluar-masuk/list', data)
+    return response.data
+  } catch (error) {
+    console.error('Gagal membuat kamar:', error)
+    throw error
+  }
+}
+
+export const deleteUrl = async (data: any) => {
+  try {
+    const response = await api.post('/kas-keluar-masuk/delete', data)
+    return response.data
+  } catch (error) {
+    console.error('Gagal membuat kamar:', error)
+    throw error
+  }
+}
+
+//
+
 
 // export const getAllHotels = async () => {
 //   try {

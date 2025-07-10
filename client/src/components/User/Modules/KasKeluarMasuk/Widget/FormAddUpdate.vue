@@ -229,19 +229,14 @@
       formData.append('diterima_dibayar', form.value.diterima_dibayar)
       formData.append('ref', form.value.ref)
       formData.append('keterangan', form.value.keterangan)
-      formData.append('kaskeluarmasuk',  form.value.kasKeluarMasuk.map(item => ({
-            akun_debet: item.akun_debet,
-            akun_kredit: item.akun_kredit,
-            saldo: item.saldo
-          })))
+      formData.append('kaskeluarmasuk',  JSON.stringify(form.value.kasKeluarMasuk))
 
       for (let pair of formData.entries()) {
         console.log(pair[0] + ': ' + pair[1])
       }
 
       const response = await addUpdateKasKeluarMasuk(formData);
-      // emit('submitted')
-      // emit('save')
+      emit('save')
     } catch (error) {
       emit('cancel')
       console.error('Gagal menyimpan data member:', error)
@@ -249,87 +244,7 @@
 
     createEmptyForm()
     createEmptyError()
-
-
-
-
-
   }
-
-
-
-
-//  if (form.value.cabang == '0') {
-//       errors.value.cabang = 'Anda wajib memilih salah satu cabang'
-//       isValid = false
-//     }
-
-//     if (!form.value.tanggal_transaksi.trim()) {
-//       errors.value.tanggal_transaksi = 'Tanggal Transaksi wajib diisi'
-//       isValid = false
-//     }
-
-//     if (!form.value.diterima_dibayar.trim()) {
-//       errors.value.diterima_dibayar = 'Penerima / Pemberi wajib diisi'
-//       isValid = false
-//     }
-
-//     if (!form.value.ref.trim()) {
-//       errors.value.ref = 'Kolom Ref wajib diisi'
-//       isValid = false
-//     }
-
-//     if (!form.value.keterangan.trim()) {
-//       errors.value.keterangan = 'Kolom Keterangan wajib diisi'
-//       isValid = false
-//     }
-
-//     // // Validate each ticket row
-//     form.value.kasKeluarMasuk.forEach((kasKasKeluar, index) => {
-//       const kasKeluarMasukErrors: ErrorFields['kasKeluarMasuk'][0] = {}
-
-//       if( kasKasKeluar.akun_debet != '0' && kasKasKeluar.akun_kredit != '0' && kasKasKeluar.akun_debet == kasKasKeluar.akun_kredit) {
-//         kasKeluarMasukErrors.akun_debet = 'Akun Debet tidak boleh sama dengan Akun Kredit.'
-//         kasKeluarMasukErrors.akun_kredit = 'Akun Kredit tidak boleh sama dengan Akun Debet.'
-//       }
-
-//       if (!kasKasKeluar.akun_debet || kasKasKeluar.akun_debet == '0') {
-//         kasKeluarMasukErrors.akun_debet = 'Anda wajib memilih salah satu Akun Debet.'
-//         isValid = false
-//       }
-
-//       if (!kasKasKeluar.akun_kredit || kasKasKeluar.akun_kredit == '0') {
-//         kasKeluarMasukErrors.akun_kredit = 'Anda wajib memilih salah satu Akun Kredit.'
-//         isValid = false
-//       }
-
-//       if (!kasKasKeluar.saldo || kasKasKeluar.saldo == 0) {
-//         kasKeluarMasukErrors.saldo = 'Saldo wajib diinput.'
-//         isValid = false
-//       }
-
-//       errors.value.kasKeluarMasuk![index] = kasKeluarMasukErrors
-//     })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   const form = ref<FormData>({
     id: 0,

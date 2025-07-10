@@ -10,7 +10,12 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       division_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Divisions",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
       },
       invoice: {
         type: Sequelize.STRING
