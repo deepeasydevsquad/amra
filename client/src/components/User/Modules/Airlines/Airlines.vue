@@ -52,10 +52,6 @@ interface Airlines {
   name: string;
 }
 
-interface Errors {
-  name: string;
-}
-
 const timeoutId = ref<number | null>(null);
 const dataAirlines = ref<Airlines[]>([]);
 const total = ref<number>(0);
