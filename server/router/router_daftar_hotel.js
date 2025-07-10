@@ -6,19 +6,25 @@ const validation = require("../validation/daftar_hotel");
 
 const router = express.Router();
 
+router.get(
+  "/daftar-hotel/get-kota",
+  authenticateToken,
+  controllers.getDaftarKota
+)
+
 router.post(
-  "/daftar_hotel/list",
+  "/daftar-hotel/list",
   authenticateToken,
   [
     body("pageNumber").trim(),
     body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
   ],
-  controllers.get_daftar_hotel
+  controllers.getDaftarHotel
 );
 
 router.post(
-  "/daftar_hotel/",
+  "/daftar-hotel/add",
   authenticateToken,
   [
     body("kota").trim().notEmpty().withMessage("Nama Kota tidak boleh kosong.").custom(validation.check_kota_hotel),
@@ -30,7 +36,7 @@ router.post(
 );
 
 router.post(
-  "/daftar_hotel/update",
+  "/daftar-hotel/update",
   authenticateToken,
   [
     body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").custom(validation.check_id_hotel),
@@ -43,7 +49,7 @@ router.post(
 );
 
 router.post(
-  "/daftar_hotel/delete",
+  "/daftar-hotel/delete",
   authenticateToken,
   [body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").isInt().withMessage("ID Kota harus berupa angka.").custom(validation.check_id_hotel)],
   controllers.delete

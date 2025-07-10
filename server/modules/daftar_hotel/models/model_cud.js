@@ -30,7 +30,7 @@ class Model_cud {
       const insert = await Mst_hotel.create(
         {
           company_id : this.company_id, 
-          kota_id: await getKotaIdByName(body.kota),
+          kota_id: await getKotaIdByName(body.kota, this.company_id),
           name: body.name,
           desc: body.desc,
           star: body.star,
@@ -63,7 +63,7 @@ class Model_cud {
       // update data kota
       await Mst_hotel.update(
         {
-          kota_id: await getKotaIdByName(body.kota),
+          kota_id: await getKotaIdByName(body.kota,  this.company_id),
           name: body.name,
           desc: body.desc,
           star: body.star,

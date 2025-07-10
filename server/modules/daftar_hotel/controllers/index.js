@@ -4,8 +4,21 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 
 const controllers = {};
 
+controllers.getDaftarKota = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_r = new Model_r(req);
+    const feedBack = await model_r.daftar_kota();
+
+    res.status(200).json({ error: false, data: feedBack.data, total: feedBack.total });
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
 // **Mendapatkan daftar hotel**
-controllers.get_daftar_hotel = async (req, res) => {
+controllers.getDaftarHotel = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {

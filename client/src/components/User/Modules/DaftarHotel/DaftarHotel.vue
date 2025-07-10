@@ -4,18 +4,18 @@ import DeleteIcon from '@/components/User/Modules/DaftarHotel/Icon/DeleteIcon.vu
 import EditIcon from '@/components/User/Modules/DaftarHotel/Icon/EditIcon.vue'
 
 // import element
+import Form from '@/components/User/Modules/DaftarHotel/Widget/Form.vue'
 import DangerButton from '@/components/User/Modules/DaftarHotel/Particle/DangerButton.vue'
 import Notification from '@/components/User/Modules/DaftarHotel/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/DaftarHotel/Particle/Confirmation.vue'
 
+import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import LightButton from "@/components/Button/LightButton.vue"
 import Pagination from '@/components/Pagination/Pagination.vue'
 
 // Import service API
-import { daftarHotel, addHotel, editHotel, deleteHotel } from '@/service/daftar_hotel' // Import function POST
-import { daftarKota } from '@/service/daftar_kota'; // Import function GET
+import { daftarHotel, deleteHotel } from '@/service/daftar_hotel' // Import function POST
 import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
 
 const itemsPerPage = 100; // Jumlah hotel per halaman
 const currentPage = ref(1);
@@ -58,21 +58,9 @@ interface Hotel {
   star: number;
 }
 
-interface Kota {
-  id: number;
-  name: string;
-}
-
-interface Errors {
-  kota: string;
-  name: string;
-  desc: string;
-  star: string;
-}
-
 const timeoutId = ref<number | null>(null);
 const dataHotel = ref<Hotel[]>([]);
-const dataKota = ref<Kota[]>([]);
+const total = ref<number>(0);
 const isModalOpen = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
@@ -90,26 +78,13 @@ const selectedHotel = ref<Partial<Hotel>>({
   star: 0
 });
 
-const errors = ref<Errors>({
-  kota: '',
-  name: '',
-  desc: '',
-  star: ''
-});
-
 const fetchData = async () => {
+  try {
     const response = await daftarHotel({
         search: search.value,
         perpage: itemsPerPage,
         pageNumber: currentPage.value,
     });
-
-    const responseKota = await daftarKota({
-        search: search.value,
-        perpage: itemsPerPage,
-        pageNumber: currentPage.value,
-    });
-    dataKota.value = responseKota.data;
 
     if (response.error) {
         displayNotification(response.error_msg, "error");
@@ -117,7 +92,12 @@ const fetchData = async () => {
     }
 
     totalPages.value = Math.ceil(response.total / itemsPerPage);
-    dataHotel.value = response.data || []; // Ensure it assigns an array
+    dataHotel.value = response.data || [];
+    total.value = response.total;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    displayNotification('Gagal mengambil data.', 'error');
+  }
 };
 
 const openModal = (hotel?: Hotel) => {
@@ -129,29 +109,6 @@ onMounted(async () => {
   await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
   totalColumns.value = document.querySelectorAll("thead th").length;
 });
-
-const validateForm = (): boolean => {
-  errors.value = { kota: '', name: '', desc: '', star: '' };
-  let isValid = true;
-
-  if (!selectedHotel.value.kota?.trim()) {
-    errors.value.kota = 'Kota tidak boleh kosong';
-    isValid = false;
-  }
-  if (!selectedHotel.value.name?.trim()) {
-    errors.value.name = 'Nama tidak boleh kosong';
-    isValid = false;
-  }
-  if (!selectedHotel.value.desc?.trim()) {
-    errors.value.desc = 'Deskripsi tidak boleh kosong';
-    isValid = false;
-  }
-  if (!selectedHotel.value.star || selectedHotel.value.star < 1) {
-    errors.value.star = 'Bintang harus lebih dari 0';
-    isValid = false;
-  }
-  return isValid;
-};
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message;
@@ -170,36 +127,6 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
   confirmMessage.value = message;
   confirmAction.value = action;
   showConfirmDialog.value = true;
-};
-
-const saveData = async () => {
-  if (!validateForm()) return;
-
-  const isEdit = !!selectedHotel.value.id;
-  const action = async () => {
-    try {
-      if (isEdit) {
-        const response = await editHotel(selectedHotel.value.id, selectedHotel.value );
-        showConfirmDialog.value = false;
-        displayNotification(response.error_msg);
-      } else {
-        const response = await addHotel(selectedHotel.value);
-        showConfirmDialog.value = false;
-        displayNotification(response.error_msg);
-      }
-      isModalOpen.value = false;
-      fetchData();
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        displayNotification(error.response?.data?.error_msg || 'Terjadi kesalahan saat menyimpan data.', 'error');
-      } else {
-        displayNotification('Terjadi kesalahan yang tidak terduga.', 'error');
-      }
-      showConfirmDialog.value = false;
-    }
-  };
-
-  isEdit ? showConfirmation('Konfirmasi Perubahan', 'Apakah Anda yakin ingin mengubah data ini?', action) : action();
 };
 
 const deleteData = async (id: number) => {
@@ -226,14 +153,12 @@ const deleteData = async (id: number) => {
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
-      <button
+      <PrimaryButton
         @click="openModal()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
+      >
+        <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
         Tambah Hotel
-      </button>
+      </PrimaryButton>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
@@ -287,6 +212,7 @@ const deleteData = async (id: number) => {
               :total-pages="totalPages"
               :pages="pages"
               :total-columns="totalColumns"
+              :total-row="total"
               @prev-page="prevPage"
               @next-page="nextPage"
               @page-now="pageNow"
@@ -303,80 +229,17 @@ const deleteData = async (id: number) => {
       leave-from-class="transform scale-100 opacity-100"
       leave-to-class="transform scale-95 opacity-0"
     >
-      <div v-if="isModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="isModalOpen = false"></div>
-          <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
-          <div class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <h3 class="text-2xl flex justify-center font-bold leading-6 text-gray-900 mb-4">
-                {{ selectedHotel.id ? "Edit Data Hotel" : "Tambah Hotel Baru" }}
-              </h3>
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Nama Kota</label>
-                  <select
-                    v-model="selectedHotel.kota"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
-                  >
-                    <option value="" disabled>Pilih Kota</option>
-                    <option v-for="kota in dataKota" :key="kota.id" :value="kota.name">{{ kota.name }}</option>
-                  </select>
-                  <p v-if="errors.kota" class="mt-1 text-sm text-red-600">{{ errors.kota }}</p>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Nama Hotel</label>
-                  <input
-                    v-model="selectedHotel.name"
-                    type="text"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
-                    placeholder="Nama Hotel"
-                  />
-                  <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Hotel</label>
-                  <textarea
-                    v-model="selectedHotel.desc"
-                    rows="3"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
-                    placeholder="Deskripsi Hotel"
-                  ></textarea>
-                  <p v-if="errors.desc" class="mt-1 text-sm text-red-600">{{ errors.desc }}</p>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Bintang</label>
-                  <input
-                    v-model="selectedHotel.star"
-                    type="text"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
-                    placeholder="Jumlah Bintang Hotel"
-                  />
-                  <p v-if="errors.star" class="mt-1 text-sm text-red-600">{{ errors.star }}</p>
-                </div>
-              </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-              <button
-                @click="saveData"
-                class="inline-flex w-full justify-center rounded-md border border-transparent bg-[#333a48] px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                {{ selectedHotel.id ? "Simpan Perubahan" : "Tambah" }}
-              </button>
-              <button
-                @click="isModalOpen = false"
-                class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                Batal
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Form
+        v-if="isModalOpen"
+        :is-modal-open="isModalOpen"
+        :selected-hotel="selectedHotel"
+        @close="isModalOpen = false; fetchData()"
+        @status="(payload) => displayNotification(payload.err_msg || 'Tambah atau Update Hotel gagal', payload.error ? 'error' : 'success')"
+      />
     </Transition>
 
     <!-- Confirmation Dialog -->
-    <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
+    <Confirmation :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
       <button @click="confirmAction && confirmAction()"
         class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
       >

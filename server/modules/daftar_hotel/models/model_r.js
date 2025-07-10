@@ -1,6 +1,6 @@
-const { Op, Mst_hotel } = require("../../../models");
+const { Op, Mst_hotel, Mst_kota } = require("../../../models");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
-const { getKotaNameById, getKotaIdByName } = require("../../../helper/kotaHelper");
+const { getKotaNameById, getKotaIdByCharName } = require("../../../helper/kotaHelper");
 const { dbList } = require("../../../helper/dbHelper");
 
 class Model_r {
@@ -11,6 +11,23 @@ class Model_r {
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
+  }
+
+  async daftar_kota() {
+    await this.initialize();
+    try {
+      const data = await Mst_kota.findAll({
+        where: { company_id: this.company_id },
+        attributes: ["id", "name"],
+        order: [["name", "ASC"]]
+      });
+      return {
+        data: data,
+        total: data.length,
+      };
+    } catch (error) {
+      return { data: [], total: 0 };
+    }
   }
 
   async daftar_hotel() {
@@ -27,7 +44,7 @@ class Model_r {
         
     if (body.search != undefined && body.search != "") {
       where = {...where,...{ 
-        [Op.or]: [{ kota_id : { [Op.like]: "%" + await getKotaIdByName(body.search) + "%" } }, { name : { [Op.like]: "%" + body.search + "%" } }, { desc : { [Op.like]: "%" + body.search + "%" } }, { star : { [Op.like]: "%" + body.search + "%" } }]
+        [Op.or]: [{ kota_id : { [Op.like]: "%" + await getKotaIdByCharName(body.search, this.company_id) + "%" } }, { name : { [Op.like]: "%" + body.search + "%" } }, { desc : { [Op.like]: "%" + body.search + "%" } }, { star : { [Op.like]: "%" + body.search + "%" } }]
       }};
     }
 
@@ -92,7 +109,6 @@ class Model_r {
               data["star"] = e.star;
           }
       });
-     
       return data
     } catch (error) {
       return {}      
