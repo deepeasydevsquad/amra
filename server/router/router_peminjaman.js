@@ -9,7 +9,7 @@ const router = express.Router();
  * menambah peminjaman jamaah
  */
 router.post(
-  "/add-peminjaman",
+  "/peminjaman/add-peminjaman",
   authenticateToken,
   [
     body("dp").trim(),
@@ -40,13 +40,30 @@ router.post(
 /**
  * menambah peminjaman jamaah
  */
-router.post("/get-peminjaman", authenticateToken, controllers.daftarPinjaman);
+router.post(
+  "/peminjaman/get-peminjaman",
+  authenticateToken,
+  [
+    // cabang
+    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong."),
+    body("pageNumber")
+      .trim()
+      .notEmpty()
+      .withMessage("Page Number tidak boleh kosong."),
+    body("perpage")
+      .trim()
+      .notEmpty()
+      .withMessage("Jumlah Per Page tidak boleh kosong."),
+    body("search").trim(),
+  ],
+  controllers.daftarPinjaman
+);
 
 /**
  * mengambil informasi peminjaman
  */
 router.post(
-  "/get-skema",
+  "/peminjaman/get-skema",
   authenticateToken,
   [
     body("peminjaman_id")
@@ -62,7 +79,7 @@ router.post(
  * mengambil informasi peminjaman
  */
 router.post(
-  "/update-skema",
+  "/peminjaman/update-skema",
   authenticateToken,
   [
     body("peminjaman_id")
@@ -78,7 +95,7 @@ router.post(
  * mengambil informasi peminjaman
  */
 router.post(
-  "/bayar-perbulan",
+  "/peminjaman/bayar-perbulan",
   authenticateToken,
   [
     body("peminjaman_id")
@@ -90,7 +107,7 @@ router.post(
 );
 
 router.post(
-  "/download_data_peminjaman",
+  "/peminjaman/download_data_peminjaman",
   authenticateToken,
   controllers.downloadDataPeminjaman
 );

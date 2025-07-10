@@ -12,7 +12,11 @@ const {
   Users,
 } = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
-const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
+const {
+  getCompanyIdByCode,
+  tipe,
+  getCabang,
+} = require("../../../helper/companyHelper");
 const {
   menghasilkan_invoice_riwayat_pembayaran_peminjaman,
   menghasilkan_nomor_registrasi_peminjaman,
@@ -26,6 +30,7 @@ class Model_cud {
     this.req = req;
     this.res = res;
     this.company_id = null;
+    this.division_id;
     this.message = "";
     this.t = null;
     this.state = true;
@@ -33,6 +38,10 @@ class Model_cud {
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
+    this.division_id = await getCabang(this.req);
+  }
+
+  async transaction() {
     this.t = await sequelize.transaction();
   }
 
@@ -67,7 +76,7 @@ class Model_cud {
 
     if (role === "staff") {
       const member = await Member.findOne({
-        where: { company_id: this.company_id, role: "staff" },
+        where: { division_id: this.division_id, role: "staff" },
         order: [["id", "DESC"]],
       });
       return member?.fullname ?? "Unknown Staff";
@@ -108,7 +117,7 @@ class Model_cud {
         .format("YYYY-MM-DD");
 
       skema.push({
-        company_id: this.company_id,
+        division_id: this.division_id,
         peminjaman_id,
         term: i + 1,
         nominal: jumlah,
@@ -132,21 +141,27 @@ class Model_cud {
       dp,
       sudah_berangkat = false,
     } = this.req.body;
-
+    console.log("masuk ke petugas");
     const petugas = await this.petugas();
+
     const register_number = await menghasilkan_nomor_registrasi_peminjaman();
+
     const invoice = await menghasilkan_invoice_riwayat_pembayaran_peminjaman();
+
     const invoice_fee_agen = await menghasilkan_invoice_fee_agen();
+
     const info_jamaah = await this.mengambil_info_jamaah();
+
     const saldoSebelum = info_jamaah.total_deposit;
     const saldoSesudah = saldoSebelum + nominal;
     const member_id = info_jamaah.member_id;
 
     try {
+      await this.transaction();
       // Insert data Peminjaman baru
       const IP = await Peminjaman.create(
         {
-          company_id: this.company_id,
+          division_id: this.division_id,
           jamaah_id,
           register_number,
           nominal,
@@ -169,7 +184,7 @@ class Model_cud {
         // menginput riwayat pembayara jika ada DP
         await Riwayat_pembayaran_peminjaman.create(
           {
-            company_id: this.company_id,
+            division_id: this.division_id,
             peminjaman_id: IP.id,
             invoice,
             nominal: dp,
@@ -185,7 +200,7 @@ class Model_cud {
       if (!sudah_berangkat) {
         await Deposit.create(
           {
-            company_id: this.company_id,
+            division_id: this.division_id,
             member_id,
             invoice,
             nominal,
@@ -208,7 +223,7 @@ class Model_cud {
 
         return await Fee_agen.create(
           {
-            company_id: this.company_id,
+            division_id: this.division_id,
             agen_id: info_jamaah.agen_id,
             invoice: invoice_fee_agen,
             nominal: default_fee,
@@ -231,7 +246,7 @@ class Model_cud {
 
   async updateSkema() {
     await this.initialize(); // bikin this.t
-
+    await this.transaction();
     const now = moment().format("YYYY-MM-DD HH:mm:ss");
 
     try {
@@ -241,7 +256,7 @@ class Model_cud {
         {
           where: {
             peminjaman_id: peminjaman_id,
-            company_id: this.company_id,
+            division_id: this.division_id,
           },
         },
         {
@@ -252,7 +267,7 @@ class Model_cud {
       for (let x in updatedSkema) {
         await Skema_peminjaman.create(
           {
-            company_id: this.company_id,
+            division_id: this.division_id,
             peminjaman_id: peminjaman_id,
             term: updatedSkema[x].term,
             nominal: updatedSkema[x].nominal,
@@ -290,6 +305,7 @@ class Model_cud {
 
   async pembayaranPerbulan() {
     await this.initialize();
+    await this.transaction();
 
     const { peminjaman_id, nominal } = this.req.body;
     this.invoice = await this.generateInvoicePembayaran(); // Simpan invoice dalam properti ini
@@ -301,7 +317,7 @@ class Model_cud {
     try {
       await Riwayat_pembayaran_peminjaman.create(
         {
-          company_id: this.company_id,
+          division_id: this.division_id,
           peminjaman_id,
           invoice: this.invoice, // Gunakan invoice yang sudah disimpan
           nominal,

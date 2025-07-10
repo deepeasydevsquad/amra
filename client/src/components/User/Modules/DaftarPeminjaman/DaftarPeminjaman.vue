@@ -1,31 +1,42 @@
 <template>
   <div class="container mx-auto p-4">
     <!-- Header dengan Add User dan Search -->
-    <div class="flex flex-col md:flex-row justify-between mb-6 gap-4">
-      <!-- Tombol Tambah Peminjaman -->
+    <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+      <!-- Tombol Tambah & Download -->
       <div class="flex items-center gap-2">
-        <PrimaryButton @click="bukaModalPeminjaman()">
+        <PrimaryButton @click="bukaModalPeminjaman">
           <IconPlus />
           Tambah Peminjaman
         </PrimaryButton>
 
-        <PrimaryButton @click="download_peminjaman()">
+        <PrimaryButton @click="download_peminjaman">
           <IconDownload />
           Download Data
         </PrimaryButton>
       </div>
 
-      <!-- Input Pencarian -->
-      <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-2">
-        <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+      <!-- Search + Filter Cabang -->
+      <div class="flex items-center gap-0">
+        <!-- Search -->
         <input
           type="text"
           id="search"
-          class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
           v-model="searchQuery"
           @input="handleSearch"
           placeholder="Cari berdasarkan nama..."
+          class="w-64 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
         />
+
+        <!-- Dropdown Cabang -->
+        <select
+          v-model="selectedOptionCabang"
+          @change="fetchPinjaman"
+          class="w-60 px-3 py-2 text-sm bg-white border border-l-0 border-gray-300 text-gray-700 rounded-e-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+        >
+          <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+            {{ optionC.name }}
+          </option>
+        </select>
       </div>
     </div>
 
@@ -179,10 +190,23 @@
                 <LightButton @click="handleCetak(pinjaman)">
                   <CetakIcon class="w-4 h-4" />
                 </LightButton>
-                <LightButton @click="bukaModalBayar({id: pinjaman.id, riwayat_pembayaran: pinjaman.riwayat_pembayaran})" title="Pembayaran Cicilan" class="p-1 w-6 h-6" >
+                <LightButton
+                  @click="
+                    bukaModalBayar({
+                      id: pinjaman.id,
+                      riwayat_pembayaran: pinjaman.riwayat_pembayaran,
+                    })
+                  "
+                  title="Pembayaran Cicilan"
+                  class="p-1 w-6 h-6"
+                >
                   <BayarIcon class="w-4 h-4" />
                 </LightButton>
-                <LightButton @click="handleModalUpdate(pinjaman.id)" title="Edit Skema Cicilan" class="p-1 w-6 h-6">
+                <LightButton
+                  @click="handleModalUpdate(pinjaman.id)"
+                  title="Edit Skema Cicilan"
+                  class="p-1 w-6 h-6"
+                >
                   <EditIcon class="w-4 h-4" />
                 </LightButton>
                 <DangerButton @click="" title="Hapus Peminjaman" class="p-1 w-6 h-6">
@@ -195,51 +219,16 @@
 
         <!-- Footer Pagination -->
         <tfoot class="bg-gray-100 font-bold">
-          <tr>
-            <td class="px-4 py-4 text-left border min-h-[200px]" :colspan="5">
-              <nav class="flex mt-0">
-                <ul class="inline-flex items-center -space-x-px">
-                  <li>
-                    <button
-                      @click="prevPage"
-                      :disabled="currentPage === 1"
-                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                  </li>
-
-                  <li
-                    v-for="page in visiblePages"
-                    :key="page"
-                    v-if="pinjamans.length > 0 && !isLoading"
-                  >
-                    <button
-                      @click="goToPage(page)"
-                      class="px-3 py-2 leading-tight border"
-                      :class="{
-                        'text-white bg-[#333a48] border-[#333a48]': currentPage === page,
-                        'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700':
-                          currentPage !== page,
-                      }"
-                    >
-                      {{ page }}
-                    </button>
-                  </li>
-
-                  <li>
-                    <button
-                      @click="nextPage"
-                      :disabled="currentPage === totalPages"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </td>
-          </tr>
+          <Pagination
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            :pages="visiblePages"
+            :total-columns="totalColumns"
+            :total-row="totalItems"
+            @prev-page="prevPage"
+            @next-page="nextPage"
+            @page-now="goToPage"
+          />
         </tfoot>
       </table>
     </div>
@@ -304,6 +293,7 @@ const handleSuccessBayarPinjaman = () => { -->
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { daftarPinjaman, downloadPeminjaman } from '@/service/daftar_pinjaman'
+import { paramCabang } from '@/service/param_cabang'
 import DeleteIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/EditIcon.vue'
 import CetakIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/CetakIcon.vue'
@@ -319,12 +309,24 @@ import FormUpdateSkema from '@/components/User/Modules/DaftarPeminjaman/widget/F
 import FormPembayaran from '@/components/User/Modules/DaftarPeminjaman/widget/FormPembayaran.vue'
 
 // Button
+import Pagination from '@/components/Pagination/Pagination.vue'
 import LightButton from '@/components/Button/LightButton.vue'
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import DangerButton from '@/components/Button/DangerButton.vue'
 // Icon
 import IconPlus from '@/components/Icons/IconPlus.vue'
 import IconDownload from '@/components/Icons/IconDownload.vue'
+
+const totalColumns = ref(5)
+
+const pages = computed(() => {
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1)
+})
+
+const pageNow = (page: number) => {
+  currentPage.value = page
+  fetchPinjaman()
+}
 
 // Interface untuk Type Safety
 interface Pinjaman {
@@ -344,6 +346,22 @@ interface Pinjaman {
     nominal: number
     status: string
   }>
+}
+
+interface filterCabang {
+  id: number
+  name: string
+}
+
+//filter cabang
+const selectedOptionCabang = ref(0)
+const optionFilterCabang = ref<filterCabang[]>([])
+
+const fetchFilterData = async () => {
+  const response = await paramCabang()
+  optionFilterCabang.value = response.data
+  selectedOptionCabang.value = response.data[0].id
+  await fetchPinjaman()
 }
 
 // Data State
@@ -469,19 +487,18 @@ const fetchPinjaman = async () => {
       search: searchQuery.value,
       perpage: itemsPerPage.value,
       pageNumber: currentPage.value,
+      cabang: selectedOptionCabang.value,
     })
 
-    // Debugging response
-    console.log('API Response:', response)
-
     // Handle berbagai kemungkinan struktur response
-    if (response && (response.data || response)) {
-      const data = response.data || response
-      pinjamans.value = Array.isArray(data) ? data : data.data || []
-      totalItems.value = data.total || data.length || 0
+    if (response && response.data) {
+      pinjamans.value = response.data
+      totalItems.value = response.total || response.data.length || 0
       totalPages.value = Math.ceil(totalItems.value / itemsPerPage.value) || 1
     } else {
-      throw new Error('Format response tidak valid')
+      pinjamans.value = []
+      totalItems.value = 0
+      totalPages.value = 1
     }
   } catch (error) {
     console.error('Error fetching pinjaman:', error)
@@ -563,7 +580,7 @@ const handleAddPinjaman = () => {
 
 // Lifecycle Hooks
 onMounted(() => {
-  fetchPinjaman()
+  fetchFilterData()
 })
 
 onUnmounted(() => {

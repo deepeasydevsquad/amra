@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Riwayat_pembayaran_peminjaman extends Model {
     /**
@@ -11,24 +9,27 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Riwayat_pembayaran_peminjaman.belongsTo(models.Company, {
-        foreignKey: "company_id",
+      Riwayat_pembayaran_peminjaman.belongsTo(models.Division, {
+        foreignKey: "division_id",
       });
       Riwayat_pembayaran_peminjaman.belongsTo(models.Peminjaman, {
         foreignKey: "peminjaman_id",
       });
     }
   }
-  Riwayat_pembayaran_peminjaman.init({
-    company_id: DataTypes.INTEGER,
-    peminjaman_id: DataTypes.INTEGER,
-    invoice: DataTypes.STRING,
-    nominal: DataTypes.INTEGER,
-    status: DataTypes.ENUM(['dp', 'cicilan']),
-    petugas: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'Riwayat_pembayaran_peminjaman',
-  });
+  Riwayat_pembayaran_peminjaman.init(
+    {
+      division_id: DataTypes.INTEGER,
+      peminjaman_id: DataTypes.INTEGER,
+      invoice: DataTypes.STRING,
+      nominal: DataTypes.INTEGER,
+      status: DataTypes.ENUM(["dp", "cicilan"]),
+      petugas: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      modelName: "Riwayat_pembayaran_peminjaman",
+    }
+  );
   return Riwayat_pembayaran_peminjaman;
 };

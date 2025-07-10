@@ -2,7 +2,7 @@ import api from "./api"; // Import service API
 
 export const daftarPinjaman = async (param : any) => {
   try {
-    const response = await api.post("/get-peminjaman", param); // Kirim data ke backend
+    const response = await api.post("/peminjaman/get-peminjaman", param); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request
   } catch (error) {
     console.error("Gagal mengambil data pinjaman:", error);
@@ -12,7 +12,7 @@ export const daftarPinjaman = async (param : any) => {
 
 export const addPinjaman = async (param : any) => {
   try {
-    const response = await api.post("/add-peminjaman", param); // Kirim data ke backend
+    const response = await api.post("/peminjaman/add-peminjaman", param); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request
   } catch (error) {
     console.error("Gagal menambahkan pinjaman:", error);
@@ -22,7 +22,7 @@ export const addPinjaman = async (param : any) => {
 
 export const getSkema = async (param: number) => {
   try {
-    const response = await api.post('/get-skema', { peminjaman_id: param }); // Kirim id via body
+    const response = await api.post('/peminjaman/get-skema', { peminjaman_id: param }); // Kirim id via body
     return response.data;
   } catch (error) {
     console.error("Gagal mengambil data skema:", error);
@@ -32,7 +32,7 @@ export const getSkema = async (param: number) => {
 
 export const updateSkema = async ( param : any) => {
   try {
-    const response = await api.post("/update-skema", param); // Kirim data ke backend
+    const response = await api.post("/peminjaman/update-skema", param); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request
   } catch (error) {
     console.error("Gagal mengubah skema:", error);
@@ -42,7 +42,7 @@ export const updateSkema = async ( param : any) => {
 
 export const pembayaranPerbulan = async (param : any) => {
   try {
-    const response = await api.post("/bayar-perbulan", param); // Kirim data ke backend
+    const response = await api.post("/peminjaman/bayar-perbulan", param); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request
   } catch (error) {
     console.error("Gagal membuat pembayaran perbulan:", error);
@@ -52,7 +52,7 @@ export const pembayaranPerbulan = async (param : any) => {
 
 export const downloadPeminjaman = async (param: any) => {
   try {
-    const response = await api.post('/download_data_peminjaman', param, {
+    const response = await api.post('/peminjaman/download_data_peminjaman', param, {
       responseType: 'blob', // << penting biar axios handle sebagai file
     })
 

@@ -97,6 +97,7 @@
             :totalPages="totalPages"
             :pages="pages"
             :totalColumns="totalColumns"
+            :total-row="total"
             @prev-page="prevPage"
             @next-page="nextPage"
             @page-now="pageNow"

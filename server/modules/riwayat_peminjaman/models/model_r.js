@@ -6,7 +6,10 @@ const {
   Member,
   sequelize,
 } = require("../../../models");
-const { getCompanyIdByCode } = require("../../../helper/companyHelper");
+const {
+  getCompanyIdByCode,
+  getCabang,
+} = require("../../../helper/companyHelper");
 const { Op } = require("sequelize");
 const moment = require("moment");
 class Model_r {
@@ -17,6 +20,7 @@ class Model_r {
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
+    this.division_id = await getCabang(this.req);
   }
 
   async daftar_riwayat_peminjaman() {
@@ -29,7 +33,7 @@ class Model_r {
 
     const search = body.search;
     let where = {
-      company_id: this.company_id,
+      division_id: this.division_id,
     };
 
     if (search) {
@@ -45,6 +49,8 @@ class Model_r {
 
     try {
       const result = await Peminjaman.findAndCountAll({
+        distinct: true,
+        attributes: { exclude: ["company_id"] },
         limit,
         offset,
         where,
