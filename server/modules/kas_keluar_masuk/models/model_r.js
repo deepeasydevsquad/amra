@@ -120,11 +120,6 @@ class model_r {
 
     try {
 
-      const akuns = await Akun_secondary.findAll({
-        where: { company_id: this.company_id },
-        order: [["akun_primary_id", "ASC"],["nama_akun", "ASC"]],
-      });
-
       var data = [{id: 0, name: 'Pilih Akun'}];
 
       await Akun_secondary.findAll({ 
