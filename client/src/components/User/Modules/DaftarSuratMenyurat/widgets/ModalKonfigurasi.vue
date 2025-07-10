@@ -1,85 +1,103 @@
 <template>
-  <transition name="modal-fade">
-    <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4 pt-20" >
-      <div class="bg-white w-full max-w-xl py-8 ps-8 pe-4 rounded-2xl shadow-2xl transition-all duration-300">
-        <h2 class="text-2xl font-bold mb-6 text-gray-700 text-black">Konfigurasi Surat</h2>
-        <form @submit.prevent="submitForm" class="space-y-6 max-h-[70vh] overflow-y-auto pr-2 text-gray-700 scrollbar-thin scrollbar-thumb-gray-400" >
-          <!-- Section: Penanda Tangan -->
-          <div class="pn-6">
-            <h3 class="text-lg font-semibold mb-4 ">Penanda Tangan</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="text-sm font-medium">Nama</label>
-                <input v-model="form.nama_tanda_tangan" type="text" class="form-input" placeholder="Masukkan nama lengkap penanda tangan" required />
-              </div>
-              <div>
-                <label class="text-sm font-medium">Jabatan</label>
-                <input v-model="form.jabatan_tanda_tangan" type="text" class="form-input"  placeholder="Contoh: Direktur Utama" required />
-              </div>
-              <div class="md:col-span-2">
-                <label class="text-sm font-medium">Alamat</label>
-                <input v-model="form.alamat_tanda_tangan" type="text" class="form-input" placeholder="Masukkan alamat lengkap" required />
-              </div>
-            </div>
-          </div>
-
-          <!-- Section: Perusahaan -->
-          <div class="pt-0 pb-6">
-            <h3 class="text-lg font-semibold mb-4">Informasi Perusahaan</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="md:col-span-2">
-                <label class="text-sm font-medium">Nama Perusahaan</label>
-                <input v-model="form.nama_perusahaan" type="text" class="form-input" placeholder="Contoh: PT. Contoh Sukses Bersama" required />
-              </div>
-              <div class="md:col-span-2">
-                <label class="text-sm font-medium">Izin Perusahaan</label>
-                <input v-model="form.izin_perusahaan" type="text" class="form-input" placeholder="Contoh: Izin No. 123/ABC/XYZ" required />
-              </div>
-              <div>
-                <label class="text-sm font-medium">Kota</label>
-                <input v-model="form.kota_perusahaan" type="text" class="form-input" placeholder="Contoh: Jakarta" required />
-              </div>
-              <div>
-                <label class="text-sm font-medium">Provinsi</label>
-                <input v-model="form.provinsi_perusahaan" type="text" class="form-input" placeholder="Contoh: DKI Jakarta" required/>
-              </div>
-              <div class="md:col-span-2">
-                <label class="text-sm font-medium">Alamat Perusahaan</label>
-                <input v-model="form.alamat_perusahaan" type="text" class="form-input" placeholder="Masukkan alamat lengkap" required/>
-              </div>
-              <div>
-                <label class="text-sm font-medium">No Kontak</label>
-                <input v-model="form.no_kontak_perusahaan" type="text" class="form-input" placeholder="Contoh: 08123456789" required />
-              </div>
-              <div>
-                <label class="text-sm font-medium"  >Website <span class="text-xs text-gray-500">(Opsional)</span></label>
-                <input v-model="form.website_perusahaan" type="text" class="form-input" placeholder="Contoh: www.namadomain.com" />
-              </div>
-              <div class="md:col-span-2">
-                <label class="text-sm font-medium">Email</label>
-                <input v-model="form.email_perusahaan" type="email" class="form-input" placeholder="Contoh: info@namaperusahaan.com" required />
-              </div>
-            </div>
-          </div>
-
-          <!-- Buttons -->
-          <div class="flex justify-end gap-3 pt-2">
-            <button type="button" @click="closeModal" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition" >
-              Batal
-            </button>
-            <button type="submit" class="px-6 py-2 rounded-lg bg-[#455494] hover:bg-[#3a477d] text-white transition">
-              Simpan Konfigurasi
-            </button>
-          </div>
-        </form>
+  <Form
+    :formStatus="show"
+    :label="'Konfigurasi Surat'"
+    :width="'w-1/2'"
+    :submitLabel="'Simpan Konfigurasi'"
+    @submit="submitForm"
+    @cancel="closeModal"
+  >
+    <!-- Penanda Tangan -->
+    <div class="space-y-4">
+      <h3 class="text-lg font-semibold text-gray-700">Penanda Tangan</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <InputText
+          v-model="form.nama_tanda_tangan"
+          label="Nama"
+          placeholder="Masukkan nama lengkap penanda tangan"
+          required
+        />
+        <InputText
+          v-model="form.jabatan_tanda_tangan"
+          label="Jabatan"
+          placeholder="Contoh: Direktur Utama"
+          required
+        />
+        <InputText
+          v-model="form.alamat_tanda_tangan"
+          label="Alamat"
+          placeholder="Masukkan alamat lengkap"
+          class="md:col-span-2"
+          required
+        />
       </div>
     </div>
-  </transition>
+
+    <!-- Perusahaan -->
+    <div class="space-y-4 mt-6">
+      <h3 class="text-lg font-semibold text-gray-700">Informasi Perusahaan</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <InputText
+          v-model="form.nama_perusahaan"
+          label="Nama Perusahaan"
+          placeholder="Contoh: PT. Contoh Sukses Bersama"
+          class="md:col-span-2"
+          required
+        />
+        <InputText
+          v-model="form.izin_perusahaan"
+          label="Izin Perusahaan"
+          placeholder="Contoh: Izin No. 123/ABC/XYZ"
+          class="md:col-span-2"
+          required
+        />
+        <InputText
+          v-model="form.kota_perusahaan"
+          label="Kota"
+          placeholder="Contoh: Jakarta"
+          required
+        />
+        <InputText
+          v-model="form.provinsi_perusahaan"
+          label="Provinsi"
+          placeholder="Contoh: DKI Jakarta"
+          required
+        />
+        <InputText
+          v-model="form.alamat_perusahaan"
+          label="Alamat Perusahaan"
+          placeholder="Masukkan alamat lengkap"
+          class="md:col-span-2"
+          required
+        />
+        <InputText
+          v-model="form.no_kontak_perusahaan"
+          label="No Kontak"
+          placeholder="Contoh: 08123456789"
+          required
+        />
+        <InputText
+          v-model="form.website_perusahaan"
+          label="Website"
+          placeholder="Contoh: www.namadomain.com"
+        />
+        <InputText
+          v-model="form.email_perusahaan"
+          label="Email"
+          placeholder="Contoh: info@namaperusahaan.com"
+          class="md:col-span-2"
+          required
+        />
+      </div>
+    </div>
+  </Form>
 </template>
 
 <script setup lang="ts">
 import { reactive, defineProps, defineEmits, watch } from 'vue'
 import { getKonfigurasi, addKonfigurasi } from '@/service/daftar_konfigurasi_surat'
+import Form from '@/components/Modal/Form.vue'
+import InputText from '@/components/Form/InputText.vue'
 
 const props = defineProps<{ show: boolean }>()
 const emit = defineEmits(['close', 'submit', 'konfigurasi_success'])
@@ -168,25 +186,3 @@ watch(
   },
 )
 </script>
-
-<style scoped>
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: all 0.3s ease;
-}
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
-}
-.modal-fade-enter-to,
-.modal-fade-leave-from {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* Utility class biar DRY */
-.form-input {
-  @apply w-full border rounded px-3 py-2 mt-1 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400;
-}
-</style>
