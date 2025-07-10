@@ -23,9 +23,9 @@ controllers.addKasKeluarMasuk = async (req, res) => {
 
   try {
       const model = new Model_cud(req);
-      await model.add_kas_keluar_masuk();      // get response
+      const invoice = await model.add_kas_keluar_masuk();      // get response
       if (await model.response()) {
-        res.status(200).json({ error: false, error_msg: 'Kas Keluar Masuk Berhasil Disimpan.' });
+        res.status(200).json({ error: false, error_msg: 'Kas Keluar Masuk Berhasil Disimpan.', data: invoice });
       } else {
         res.status(400).json({ error: true, error_msg: 'Kas Keluar Masuk Gagal Disimpan.' });
       }

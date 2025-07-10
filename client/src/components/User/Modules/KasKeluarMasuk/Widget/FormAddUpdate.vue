@@ -236,6 +236,10 @@
       }
 
       const response = await addUpdateKasKeluarMasuk(formData);
+
+      const printUrl = `/invoice-kas-keluar-masuk/${response.data}`
+      window.open(printUrl, '_blank')
+
       emit('save')
     } catch (error) {
       emit('cancel')

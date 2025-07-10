@@ -148,6 +148,11 @@ async function deleteData(id: number) {
   );
 }
 
+async function cetakInvoice(invoice: string) {
+   const printUrl = `/invoice-kas-keluar-masuk/${invoice}`
+   window.open(printUrl, '_blank')
+}
+
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message;
   notificationType.value = type;
@@ -235,10 +240,10 @@ onMounted(async () => {
               <td class="px-6 py-4 text-center">{{ data.tanggal_transaksi }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
-                  <LightButton >
+                  <LightButton @click="cetakInvoice(data.invoice)">
                      <CetakIcon />
                   </LightButton>
-                  <DangerButton @click="deleteData(data.id, )">
+                  <DangerButton @click="deleteData(data.id)">
                     <DeleteIcon></DeleteIcon>
                   </DangerButton>
                 </div>

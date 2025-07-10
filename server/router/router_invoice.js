@@ -6,6 +6,12 @@ const { authenticateToken } = require("../middleware/authenticateToken");
 
 const router = express.Router();
 
+router.get(
+  "/invoice/header",
+  authenticateToken,
+  controller.header
+);
+
 router.post(
   "/invoice/cek-kwitansi-tabungan-umrah",
   authenticateToken,
@@ -16,6 +22,13 @@ router.post(
       .withMessage("Invoice tidak boleh kosong."),
   ],
   controller.cek_kwitansi_tabungan_umrah
+);
+
+// invoice/kas_keluar_masuk/
+router.get(
+  "/invoice/kas-keluar-masuk/:invoice",
+  authenticateToken,
+  controller.invoice_kas_keluar_masuk
 );
 
 router.get(

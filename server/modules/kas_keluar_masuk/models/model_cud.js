@@ -117,10 +117,13 @@ class model_cud {
         }
       );
 
+      return invoice;
+
       // write log message
       this.message = `Menambahkan Kas Keluar Masuk dengan nomor invoice : ${invoice}, Petugas : ${petugas} dan ID Kas Keluar Masuk : ${insert.id}`;
     } catch (error) {
       this.state = false;
+      return '';
     }
   }
 

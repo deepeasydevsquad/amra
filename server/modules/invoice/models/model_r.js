@@ -3,6 +3,7 @@ const path = require("path");
 const moment = require("moment");
 
 const {
+  Akun_secondary,
   Member,
   Deposit,
   Paket_la,
@@ -41,6 +42,8 @@ const {
   Transport_transaction,
   Transport_transaction_detail,
   Mst_mobil,
+  Kas_keluar_masuk, 
+  Jurnal
 } = require("../../../models");
 const { Op } = require("sequelize");
 const {
@@ -48,6 +51,8 @@ const {
   tipe,
   getCabang,
 } = require("../../../helper/companyHelper");
+
+const{ convertToRP } = require("../../../helper/currencyHelper");
 
 class Model_r {
   constructor(req) {
@@ -59,6 +64,91 @@ class Model_r {
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
     this.division_id = await getCabang(this.req);
+  }
+
+  async header() {
+    await this.initialize();
+    return this.header_kwitansi_invoice();
+  }
+
+  async get_akun_secondary_name(company_id) {
+    var data = {};
+    await Akun_secondary.findAll({ 
+      where : { company_id : company_id }
+    }).then(async (value) => {
+      await Promise.all(
+        await value.map(async (e) => {
+          data[e.nomor_akun] = e.nama_akun;
+        })
+      );
+    });
+    return data;
+  }
+
+  async dataInvoiceKasKeluarMasuk() {
+    await this.initialize();
+
+    const list_akun = await this.get_akun_secondary_name(this.company_id);
+
+    try {
+
+      var data = {};
+      await Kas_keluar_masuk.findOne({
+        where: { invoice: this.req.params.invoice}, // pastikan ini berdasarkan division_id
+        include: [
+          {
+            required: true,
+            model: Division,
+            where : {
+              company_id: this.company_id
+            }
+          }
+        ],
+      }).then(async (e) => {
+        if (e) {
+          data = {
+            id: e.id,
+            invoice: e.invoice,
+            dibayar_diterima: e.dibayar_diterima,
+            petugas: e.petugas,
+            status_kwitansi: e.status_kwitansi,
+            tanggal_transaksi: moment(e.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+            details: [],
+          }
+        }
+      });
+      // filter
+      if( Object.keys(data).length > 0 ) {
+        var details = [];
+        await Jurnal.findAll({
+          where : { 
+            source  : 'kaskeluarmasuk:invoice:' + this.req.params.invoice ,
+          },
+        }).then(async (value) => {
+          await Promise.all(
+            await value.map(async (e) => {
+              details.push({ 
+                  ref: e.ref, 
+                  ket: e.ket, 
+                  akun_debet: e.akun_debet + `<br><b>[${list_akun[e.akun_debet]}]</b>`, 
+                  akun_kredit: e.akun_kredit + `<br><b>[${list_akun[e.akun_kredit]}]</b>`, 
+                  saldo: await convertToRP(e.saldo) 
+              });
+            })
+          );
+        });
+
+        data.details = details;
+      }
+
+      return data;
+    } catch (error) {
+
+      console.log("------XXX-----");
+      console.log(error);
+      console.log("------XXX-----");
+      return {}
+    }
   }
 
   async header_kwitansi_invoice() {
@@ -111,10 +201,7 @@ class Model_r {
 
     if (division) {
       const invoiceLogo = division.Company?.invoice_logo;
-      const logoPath = invoiceLogo
-        ? path.resolve(__dirname, "../../../uploads", invoiceLogo)
-        : null;
-
+      const logoPath = invoiceLogo ? path.resolve(__dirname, "../../../uploads", invoiceLogo) : null;
       const exists = invoiceLogo && fs.existsSync(logoPath);
 
       data.logo = exists ? invoiceLogo : "default.png";
@@ -123,8 +210,7 @@ class Model_r {
       data.address = division.address ?? "-";
       data.pos_code = division.pos_code ?? "-";
       data.email = division.Company?.email ?? "-";
-      data.whatsapp_company_number =
-        division.Company?.whatsapp_company_number ?? "-";
+      data.whatsapp_company_number = division.Company?.whatsapp_company_number ?? "-";
     }
 
     console.log(data);

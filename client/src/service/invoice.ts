@@ -1,5 +1,25 @@
 import api from './api' // Import service API
 
+export const get_kas_keluar_masuk_data = async (invoice : string) => {
+  try {
+    const response = await api.get(`/invoice/kas-keluar-masuk/${invoice}`) // Kirim data ke backend
+    return response.data // Kembalikan data hasil request
+  } catch (error) {
+    console.error('Gagal mengambil data deposit', error)
+    throw error // Bisa ditangani di bagian pemanggilan
+  }
+}
+
+export const get_header = async () => {
+  try {
+    const response = await api.get(`/invoice/header`) // Kirim data ke backend
+    return response.data // Kembalikan data hasil request
+  } catch (error) {
+    console.error('Gagal mengambil data deposit', error)
+    throw error // Bisa ditangani di bagian pemanggilan
+  }
+}
+
 export const dataInvoiceDeposit = async (param: string) => {
   try {
     const response = await api.get(`/invoice/invoice-deposit/${param}`) // Kirim data ke backend
