@@ -7,18 +7,18 @@ const validation = require("../validation/daftar_fasilitas");
 const router = express.Router();
 
 router.post(
-  "/daftar_fasilitas/list",
+  "/daftar-fasilitas/list",
   authenticateToken,
   [
     body("pageNumber").trim(),
     body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
   ],
-  controllers.get_daftar_fasilitas
+  controllers.getDaftarFasilitas
 );
 
 router.post(
-  "/daftar_fasilitas/",
+  "/daftar-fasilitas/add",
   authenticateToken,
   [
     body("name").trim().notEmpty().withMessage("Nama Fasilitas tidak boleh kosong."),
@@ -27,7 +27,7 @@ router.post(
 );
 
 router.post(
-  "/daftar_fasilitas/update",
+  "/daftar-fasilitas/update",
   authenticateToken,
   [
     body("id").trim().notEmpty().withMessage("ID Fasilitas tidak boleh kosong.").custom(validation.check_id_fasilitas),
@@ -37,7 +37,7 @@ router.post(
 );
 
 router.post(
-  "/daftar_fasilitas/delete",
+  "/daftar-fasilitas/delete",
   authenticateToken,
   [body("id").trim().notEmpty().withMessage("ID Fasilitas tidak boleh kosong.").isInt().withMessage("ID Fasilitas harus berupa angka.").custom(validation.check_id_fasilitas)],
   controllers.delete

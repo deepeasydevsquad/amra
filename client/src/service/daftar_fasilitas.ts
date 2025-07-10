@@ -2,7 +2,7 @@ import api from "./api";
 
 export const daftarFasilitas = async (param : any) => {
   try {
-    const response = await api.post("/daftar_fasilitas/list", param);
+    const response = await api.post("/daftar-fasilitas/list", param);
     return response.data;
   } catch (error) {
     console.error("Gagal mengambil fasilitas:", error);
@@ -12,7 +12,7 @@ export const daftarFasilitas = async (param : any) => {
 
 export const addFasilitas = async (param : any) => {
   try {
-    const response = await api.post("/daftar_fasilitas", param);
+    const response = await api.post("/daftar-fasilitas/add", param);
     return response.data;
   } catch (error) {
     console.error("Gagal menambahkan fasilitas:", error);
@@ -22,7 +22,7 @@ export const addFasilitas = async (param : any) => {
 
 export const editFasilitas = async (id : any, param : any) => {
   try {
-    const response = await api.post(`/daftar_fasilitas/update` , {...param,...{id : id }});
+    const response = await api.post(`/daftar-fasilitas/update` , {...param,...{id : id }});
     return response.data;
   } catch (error) {
     console.error("Gagal mengedit fasilitas:", error);
@@ -32,7 +32,7 @@ export const editFasilitas = async (id : any, param : any) => {
 
 export const deleteFasilitas = async (id : number) => {
   try {
-    const response = await api.post(`/daftar_fasilitas/delete`,{ id : id});
+    const response = await api.post(`/daftar-fasilitas/delete`,{ id : id});
     return response.data;
   } catch (error) {
     console.error("Gagal menghapus fasilitas:", error);
