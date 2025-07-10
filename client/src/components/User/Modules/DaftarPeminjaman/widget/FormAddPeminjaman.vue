@@ -7,7 +7,7 @@ import SelectField from '@/components/Form/SelectField.vue'
 
 import { addPinjaman, daftar_jamaah } from '@/service/daftar_pinjaman'
 
-const props = defineProps({
+defineProps({
   modalTambahPinjaman: Boolean,
 })
 
@@ -29,22 +29,23 @@ const mulaiBayar = ref<string>(new Date().toISOString().slice(0, 10))
 const tenor = ref<number | null>(null)
 const berangkat = ref<boolean>(false)
 
-// // Format dropdown jamaah
-// const jamaahOptions = computed(() =>
-//   jamaahs.value.map((j: any) => ({ label: j.nama_jamaah, value: j.id })),
-// )
-
 const fetchJamaahs = async () => {
   try {
     const res = await daftar_jamaah()
-    jamaahs.value = res
+
+    jamaahs.value = [
+      { id: 0, name: 'Pilih Jamaah' },
+      ...res.map((item: any) => ({
+        id: item.id,
+        name: item.nama_jamaah,
+      })),
+    ];
+
     console.log('Jamaahs:', jamaahs.value)
   } catch (err) {
     console.error('Gagal ambil data jamaah:', err)
   }
 }
-
-onMounted(fetchJamaahs)
 
 // Format ke rupiah
 const formatRupiah = (val: number | null) => {
@@ -77,6 +78,7 @@ const updateDP = (val: string) => {
 }
 
 const resetForm = () => {
+  errors.value = {}
   selectedJamaah.value = 0
   nominal.value = null
   dp.value = null
@@ -85,7 +87,53 @@ const resetForm = () => {
   berangkat.value = false
 }
 
+const errors = ref<Record<string, string>>({})
+
+const validateForm = (): boolean => {
+  let isValid = true;
+
+  // Kosongkan errors sebelum validasi
+  errors.value = {};
+
+  // Tambah error jamaah jika belum dipilih
+  if (selectedJamaah.value == 0) {
+    errors.value.jamaah = 'Anda wajib memilih salah satu jamaah.';
+    isValid = false;
+  }
+
+  // Tambah error nominal jika 0
+  if (nominal.value == null) {
+    errors.value.nominal = 'Nominal tidak boleh nol.';
+    isValid = false;
+  }
+
+  // Tambah error dp jika 0
+  if (dp.value == null) {
+    errors.value.dp = 'DP tidak boleh nol.';
+    isValid = false;
+  }
+
+  // Tambah error tenor jika 0
+  if (tenor.value == null) {
+    errors.value.tenor = 'Tenor tidak boleh nol.';
+    isValid = false;
+  }
+
+  // Tambah error mulaiBayar jika kosong
+  if (mulaiBayar.value === '') {
+    errors.value.mulaiBayar = 'Anda wajib mengisi tanggal mulai bayar.';
+    isValid = false;
+  }
+
+  return isValid;
+}
+
 const submitForm = async () => {
+
+  if (!validateForm()) {
+    return
+  }
+
   const formData = {
     jamaah_id: selectedJamaah.value,
     nominal: nominal.value,
@@ -104,69 +152,36 @@ const submitForm = async () => {
   }
 }
 
-const jamaahOptions = computed(() =>
-  jamaahs.value.map((j) => ({
-    id: j.id,
-    name: j.nama_jamaah,
-  })),
-)
+onMounted(fetchJamaahs)
+
 </script>
 <template>
-  <Form
-    :formStatus="modalTambahPinjaman"
-    :label="'Tambah Peminjaman'"
-    :width="'w-1/3'"
-    :submitLabel="'Tambah'"
-    @submit="submitForm"
-    @cancel="
-      () => {
+  <Form :formStatus="modalTambahPinjaman" :label="'Tambah Peminjaman'" :width="'w-1/3'" :submitLabel="'TAMBAH PEMINJAMAN'" @submit="submitForm" @cancel="
+     () => {
         resetForm()
+
         emit('tutup')
       }
     "
   >
     <!-- Satu baris -->
-    <SelectField
-      v-model="selectedJamaah"
-      label="Jamaah"
-      placeholder="Pilih Jamaah"
-      :options="jamaahOptions"
-    />
-
-    <InputText
-      v-model="nominalFormatted"
-      label="Nominal Peminjaman"
-      placeholder="Masukkan nominal"
-      @update:modelValue="updateNominal"
-    />
-
+    <SelectField v-model="selectedJamaah" label="Jamaah" placeholder="Pilih Jamaah" :options="jamaahs" class="mb-3" :error="errors.jamaah" />
+    <InputText v-model="nominalFormatted" label="Nominal Peminjaman" placeholder="Masukkan nominal" @update:modelValue="updateNominal" class="mb-3" :error="errors.nominal"  />
     <!-- Grid 2 kolom: DP & Tenor -->
-    <div class="grid grid-cols-2 gap-4">
-      <InputText
-        v-model="dpFormatted"
-        label="DP"
-        placeholder="Masukkan DP"
-        @update:modelValue="updateDP"
-      />
-      <InputText v-model="tenor" label="Tenor" type="number" placeholder="Tenor" />
+    <div class="grid grid-cols-2 gap-4 mb-3">
+      <InputText v-model="dpFormatted" label="DP" placeholder="Masukkan DP" @update:modelValue="updateDP"  :error="errors.dp"/>
+      <InputText v-model="tenor" label="Tenor" type="number" placeholder="Tenor" :error="errors.tenor" />
     </div>
-
     <!-- Grid 2 kolom: Sudah Berangkat & Mulai Bayar -->
     <div class="grid grid-cols-2 gap-4">
       <div class="pt-6">
         <!-- <== padding atas untuk sejajarin -->
         <div class="flex items-center gap-2">
-          <input
-            v-model="berangkat"
-            type="checkbox"
-            id="sudah_berangkat"
-            class="h-5 w-5 text-blue-600 border-gray-300 rounded"
-          />
+          <input v-model="berangkat" type="checkbox" id="sudah_berangkat" class="h-5 w-5 text-blue-600 border-gray-300 rounded"  />
           <label for="sudah_berangkat" class="text-sm text-gray-700">Sudah Berangkat</label>
         </div>
       </div>
-
-      <InputDate v-model="mulaiBayar" label="Mulai Bayar" />
+      <InputDate v-model="mulaiBayar" label="Mulai Bayar"  :error="errors.mulaiBayar"/>
     </div>
   </Form>
 </template>
