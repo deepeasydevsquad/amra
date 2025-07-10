@@ -19,6 +19,7 @@ import CetakKwitansiVisa from '@/components/User/Modules/Invoice/InvoiceTransaks
 import InvoicePembayaranFeeAgen from '@/components/User/Modules/Invoice/InvoicePembayaranFeeAgen.vue'
 import KwitansiPembayaranTransaksiPaket from '@/components/User/Modules/Invoice/KwitansiPembayaranTransaksiPaket.vue'
 import InvoiceTransHotel from '@/components/User/Modules/Invoice/InvoiceTransHotel.vue'
+import InvoiceKasKeluarMasuk from '@/components/User/Modules/Invoice/InvoiceKasKeluarMasuk.vue'
 import TransaksiPassport from '@/components/User/Modules/TransaksiPassport/TransaksiPassport.vue'
 import CetakKwitansiPassport from '@/components/User/Modules/Invoice/InvoiceTransaksiPassport.vue'
 import CetakDataJamaahPaket from '@/components/User/Modules/DaftarJamaahPaket/Widgets/CetakDataJamaah.vue'
@@ -76,6 +77,11 @@ const router = createRouter({
       path: '/invoice-paket-la/:id',
       name: 'invoice-paket-la',
       component: InvoicePaketLa,
+    },
+    {
+      path: '/invoice-kas-keluar-masuk/:invoice',
+      name: 'invoice-kas-keluar-masuk',
+      component: InvoiceKasKeluarMasuk,
     },
     {
       path: '/invoice-deposit/:id',
