@@ -12,11 +12,6 @@ class Model_r {
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
-
-    console.log("-----------------------------Aa");
-    // console.log(this.req);
-    console.log(this.company_id);
-    console.log("-----------------------------Aa");
     this.type = await tipe(this.req);
     this.division = await getCabang(this.req);
   }

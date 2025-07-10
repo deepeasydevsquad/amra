@@ -8,7 +8,6 @@ const router = express.Router();
 router.post("/member/daftarMember", 
   authenticateToken, 
   [
-    // cabang
     body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong."),
     body("pageNumber").trim().notEmpty().withMessage("Page Number tidak boleh kosong."),
     body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
