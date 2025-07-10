@@ -1,21 +1,21 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Riwayat_pembayaran_peminjamans', {
+    await queryInterface.createTable("Riwayat_pembayaran_peminjamans", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
-      company_id: {
+      division_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Companies",
+          model: "Divisions",
           key: "id",
         },
-        onDelete: 'CASCADE',
+        onDelete: "CASCADE",
       },
       peminjaman_id: {
         type: Sequelize.INTEGER,
@@ -23,33 +23,33 @@ module.exports = {
           model: "Peminjamans",
           key: "id",
         },
-        onDelete: 'CASCADE',
+        onDelete: "CASCADE",
       },
       invoice: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       nominal: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       status: {
         type: Sequelize.ENUM,
-        values: ["db", "cicilan"],
-        defaultValue : "cicilan"
+        values: ["dp", "cicilan"],
+        defaultValue: "cicilan",
       },
       petugas: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Riwayat_pembayaran_peminjamans');
-  }
+    await queryInterface.dropTable("Riwayat_pembayaran_peminjamans");
+  },
 };

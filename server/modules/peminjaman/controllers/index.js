@@ -1,6 +1,9 @@
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
-const { handleServerError, handleValidationErrors } = require("../../../helper/handleError");
+const {
+  handleServerError,
+  handleValidationErrors,
+} = require("../../../helper/handleError");
 
 exports.addPinjaman = async (req, res) => {
   // filter error
@@ -28,6 +31,7 @@ exports.addPinjaman = async (req, res) => {
 };
 
 exports.daftarPinjaman = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
   try {
     const model = new Model_r(req);
     const data = await model.daftarPeminjaman();
@@ -38,8 +42,10 @@ exports.daftarPinjaman = async (req, res) => {
 };
 
 exports.SkemaByID = async (req, res) => {
-  // filter error
-  if (!(await handleValidationErrors(req, res))) return;
+  if (!(await handleValidationErrors(req, res))) {
+    console.log("❌ Validasi gagal");
+    return;
+  }
 
   try {
     const model = new Model_r(req);

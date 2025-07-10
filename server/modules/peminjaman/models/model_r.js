@@ -1,5 +1,14 @@
-const { Peminjaman, Skema_peminjaman, Riwayat_pembayaran_peminjaman, Jamaah, Member } = require("../../../models");
-const { getCompanyIdByCode } = require("../../../helper/companyHelper");
+const {
+  Peminjaman,
+  Skema_peminjaman,
+  Riwayat_pembayaran_peminjaman,
+  Jamaah,
+  Member,
+} = require("../../../models");
+const {
+  getCompanyIdByCode,
+  getCabang,
+} = require("../../../helper/companyHelper");
 const { Op } = require("sequelize");
 const ExcelJS = require("exceljs");
 
@@ -12,6 +21,7 @@ class Model_r {
   // Inisialisasi company_id berdasarkan kode perusahaan
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
+    this.division_id = await getCabang(this.req);
   }
 
   // Method untuk mendapatkan daftar peminjaman
@@ -24,24 +34,33 @@ class Model_r {
       parseInt(body.pageNumber, 10) > 0 ? parseInt(body.pageNumber, 10) : 1;
     const offset = (page - 1) * limit;
 
-    const search = body.search;
-    let where = {
-      company_id: this.company_id,
-    };
+    let where = {};
 
-    if (search) {
+    // ✅ Filter cabang
+    if (body.cabang) {
+      where.division_id = body.cabang;
+    }
+
+    // ✅ Filter search
+    if (body.search) {
       where = {
         ...where,
         [Op.or]: [
-          { register_number: { [Op.like]: `%${search}%` } },
-          { "$Jamaah.Member.fullname$": { [Op.like]: `%${search}%` } },
-          { "$Jamaah.Member.identity_number$": { [Op.like]: `%${search}%` } },
+          { register_number: { [Op.like]: `%${body.search}%` } },
+          { "$Jamaah.Member.fullname$": { [Op.like]: `%${body.search}%` } },
+          {
+            "$Jamaah.Member.identity_number$": {
+              [Op.like]: `%${body.search}%`,
+            },
+          },
         ],
       };
     }
 
     try {
       const result = await Peminjaman.findAndCountAll({
+        distinct: true,
+        attributes: { exclude: ["company_id"] },
         limit,
         offset,
         order: [["id", "ASC"]],
@@ -74,7 +93,7 @@ class Model_r {
         const jamaah = peminjaman.Jamaah;
         const member = jamaah?.Member;
 
-        const nominalSkema = peminjaman.Skema_peminjamans?.[0]?.nominal || null;
+        const nominalSkema = peminjaman.Skema_peminjamans?.[0]?.nominal || 0;
 
         const totalBayar = Array.isArray(
           peminjaman.Riwayat_pembayaran_peminjamans
@@ -94,18 +113,16 @@ class Model_r {
           nominal: peminjaman.nominal,
           tenor: peminjaman.tenor,
           dp: peminjaman.dp,
-          nominal_skema: nominalSkema || 0,
+          nominal_skema: nominalSkema,
           total_bayar: totalBayar,
-          riwayat_pembayaran: Array.isArray(
-            peminjaman.Riwayat_pembayaran_peminjamans
-          )
-            ? peminjaman.Riwayat_pembayaran_peminjamans.map((riwayat) => ({
-                invoice: riwayat.invoice,
-                nominal: riwayat.nominal,
-                status: riwayat.status,
-                create: riwayat.createdAt,
-              }))
-            : [],
+          riwayat_pembayaran: (
+            peminjaman.Riwayat_pembayaran_peminjamans || []
+          ).map((riwayat) => ({
+            invoice: riwayat.invoice,
+            nominal: riwayat.nominal,
+            status: riwayat.status,
+            create: riwayat.createdAt,
+          })),
         };
       });
 
@@ -156,7 +173,7 @@ class Model_r {
     const search = body.search || "";
 
     let where = {
-      company_id: this.company_id,
+      division_id: this.division_id,
     };
 
     if (search) {

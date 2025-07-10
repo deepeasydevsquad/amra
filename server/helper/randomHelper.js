@@ -1,5 +1,11 @@
-
-const { Deposit, Peminjaman, Riwayat_pembayaran_peminjaman, Fee_agen, Op, Kas_keluar_masuk } = require("../models");
+const {
+  Deposit,
+  Peminjaman,
+  Riwayat_pembayaran_peminjaman,
+  Fee_agen,
+  Op,
+  Kas_keluar_masuk,
+} = require("../models");
 
 const helper = {};
 
@@ -19,29 +25,38 @@ helper.menghasilkan_invoice_deposit = async () => {
     if (!check) condition = false;
   }
   return rand;
-}
+};
 
 helper.menghasilkan_nomor_registrasi_peminjaman = async () => {
   var rand = 0;
   let condition = true;
   while (condition) {
     rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    check = await Peminjaman.findOne({ where: { register_number: rand } });
+    check = await Peminjaman.findOne({
+      where: { register_number: rand },
+      attributes: ["id"], // <- ini biar gak ikut ambil company_id
+    });
+
     if (!check) condition = false;
   }
+  console.log("rand =>", rand);
   return rand;
-}
+};
 
 helper.menghasilkan_invoice_riwayat_pembayaran_peminjaman = async () => {
   var rand = 0;
   let condition = true;
   while (condition) {
     rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    check = await Riwayat_pembayaran_peminjaman.findOne({ where: { invoice: rand } });
+    check = await Riwayat_pembayaran_peminjaman.findOne({
+      where: { invoice: rand },
+
+      attributes: ["id"],
+    });
     if (!check) condition = false;
   }
   return rand;
-}
+};
 
 helper.menghasilkan_invoice_fee_agen = async () => {
   var rand = 0;
@@ -52,17 +67,18 @@ helper.menghasilkan_invoice_fee_agen = async () => {
     if (!check) condition = false;
   }
   return rand;
-}
- 
+};
 
-helper.menghasilkan_invoice_kas_keluar_masuk = async ( division_id ) => {
+helper.menghasilkan_invoice_kas_keluar_masuk = async (division_id) => {
   var rand = 0;
   let condition = true;
   while (condition) {
     rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    check = await Kas_keluar_masuk.findOne({ where: { invoice: rand, division_id: { [Op.in] : division_id  }  } });
+    check = await Kas_keluar_masuk.findOne({
+      where: { invoice: rand, division_id: { [Op.in]: division_id } },
+    });
     if (!check) condition = false;
   }
   return rand;
-}
+};
 module.exports = helper;

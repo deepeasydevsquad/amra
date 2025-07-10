@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Skema_peminjaman extends Model {
     /**
@@ -11,23 +9,26 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Skema_peminjaman.belongsTo(models.Company, {
-        foreignKey: "company_id",
+      Skema_peminjaman.belongsTo(models.Division, {
+        foreignKey: "division_id",
       });
       Skema_peminjaman.belongsTo(models.Peminjaman, {
         foreignKey: "peminjaman_id",
       });
     }
   }
-  Skema_peminjaman.init({
-    company_id: DataTypes.INTEGER,
-    peminjaman_id: DataTypes.INTEGER,
-    term: DataTypes.INTEGER,
-    nominal: DataTypes.INTEGER,
-    duedate: DataTypes.DATEONLY
-  }, {
-    sequelize,
-    modelName: 'Skema_peminjaman',
-  });
+  Skema_peminjaman.init(
+    {
+      division_id: DataTypes.INTEGER,
+      peminjaman_id: DataTypes.INTEGER,
+      term: DataTypes.INTEGER,
+      nominal: DataTypes.INTEGER,
+      duedate: DataTypes.DATEONLY,
+    },
+    {
+      sequelize,
+      modelName: "Skema_peminjaman",
+    }
+  );
   return Skema_peminjaman;
 };

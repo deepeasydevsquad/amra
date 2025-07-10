@@ -71,18 +71,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "company_id",
         onDelete: "CASCADE",
       });
-      Company.hasMany(models.Peminjaman, {
-        foreignKey: "company_id",
-        onDelete: "CASCADE",
-      });
-      Company.hasMany(models.Skema_peminjaman, {
-        foreignKey: "company_id",
-        onDelete: "CASCADE",
-      });
-      Company.hasMany(models.Riwayat_pembayaran_peminjaman, {
-        foreignKey: "company_id",
-        onDelete: "CASCADE",
-      });
+
       Company.hasMany(models.Fee_agen, {
         foreignKey: "company_id",
         onDelete: "CASCADE",

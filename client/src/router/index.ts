@@ -94,7 +94,7 @@ const router = createRouter({
     },
     {
       path: '/invoice-pembayaran/:invoice',
-      name: 'invoice-pembayran',
+      name: 'invoice-pembayaran',
       component: InvoicePembayranPerbulan,
     },
     {
