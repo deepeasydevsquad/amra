@@ -168,16 +168,36 @@ class Model_r {
 
   async daftar_riwayat_surat() {
     await this.initialize();
+    const body = this.req.body;
+
+    const limit = parseInt(body.perpage) || 10;
+    const page = parseInt(body.pageNumber) || 1;
+    const offset = (page - 1) * limit;
+    const search = body.search;
+
     try {
+      // ambil semua data dulu
       const raw = await Riwayat_surat_menyurat.findAll({
-        where: { company_id: this.company_id },
+        where: {
+          company_id: this.company_id,
+          ...(search && search !== ""
+            ? {
+                [Op.or]: [
+                  { nomor_surat: { [Op.like]: `%${search}%` } },
+                  { tipe_surat: { [Op.like]: `%${search}%` } },
+                  { tujuan: { [Op.like]: `%${search}%` } },
+                  { nama_petugas: { [Op.like]: `%${search}%` } },
+                ],
+              }
+            : {}),
+        },
         order: [["id", "DESC"]],
       });
 
-      const data = await Promise.all(
+      // format datanya
+      const allData = await Promise.all(
         raw.map(async (item) => {
           const infoFormatted = await this.formatInfoSurat(item.info);
-
           return {
             id: item.id,
             nomor_surat: item.nomor_surat,
@@ -190,10 +210,19 @@ class Model_r {
         })
       );
 
-      return data;
+      const data = allData.slice(offset, offset + limit);
+
+      return {
+        total: allData.length,
+        data: data,
+      };
     } catch (error) {
       console.error("Error daftar_riwayat_surat:", error);
-      return null;
+      return {
+        total: 0,
+        data: [],
+        error: "Gagal ambil data riwayat surat",
+      };
     }
   }
 

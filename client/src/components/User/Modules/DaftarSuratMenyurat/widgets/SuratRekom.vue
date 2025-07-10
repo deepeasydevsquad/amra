@@ -1,8 +1,6 @@
 <template>
-  <div
-    class="bg-white max-w-[210mm] mx-auto p-[20mm] font-serif print:p-0 print:m-0 print:shadow-none"
-    style="color: black; font-size: 11pt; text-align: justify; line-height: 1.5"
-  >
+  <div class="bg-white max-w-[210mm] mx-auto p-[15mm] font-serif print:p-[10mm] print:m-0 print:shadow-none"
+    style="color: black; font-size: 10pt; text-align: justify; line-height: 1.3">
     <div class="text-center mb-6">
       <div class="text-lg underline font-bold">SURAT REKOMENDASI</div>
       <div class="mt-4">

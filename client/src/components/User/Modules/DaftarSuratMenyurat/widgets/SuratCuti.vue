@@ -1,8 +1,6 @@
 <template>
-  <div
-    class="bg-white max-w-[210mm] mx-auto p-[20mm] font-serif print:p-0 print:m-0 print:shadow-none"
-    style="color: black; font-size: 11pt; text-align: justify; line-height: 1.5"
-  >
+  <div class="bg-white max-w-[210mm] mx-auto p-[20mm] font-serif print:p-[10mm] print:m-0 print:shadow-none"
+    style="color: black; font-size: 10pt; text-align: justify; line-height:  1.5">
     <!-- Header -->
     <div class="text-center mb-6">
       <h1 class="text-lg underline font-semibold">SURAT KETERANGAN UMROH</h1>

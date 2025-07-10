@@ -3,7 +3,7 @@ import api from './api' // Import service API
 
 export const getRiwayatSurat = async () => {
   try {
-    const response = await api.post('/get_riwayat_surat')
+    const response = await api.post('/daftar_surat_menyurat/get_riwayat_surat')
     return response.data
   } catch (error) {
     console.error('Gagal Mengambil Data:', error)
@@ -13,7 +13,7 @@ export const getRiwayatSurat = async () => {
 
 export const getKonfigurasi = async () => {
   try {
-    const response = await api.post('/get_konfigurasi_surat')
+    const response = await api.post('/daftar_surat_menyurat/get_konfigurasi_surat')
     return response.data
   } catch (error) {
     console.error('Gagal Mengambil Data:', error)
@@ -23,7 +23,7 @@ export const getKonfigurasi = async () => {
 
 export const addKonfigurasi = async (data : any) => {
   try {
-    const response = await api.post('/add_konfigurasi_surat', data)
+    const response = await api.post('/daftar_surat_menyurat/add_konfigurasi_surat', data)
     return response.data
   } catch (error) {
     console.error('Gagal Mengirim Data:', error)
@@ -33,7 +33,7 @@ export const addKonfigurasi = async (data : any) => {
 
 export const get_jamaah = async () => {
   try {
-    const response = await api.get('/get_jamaah_surat')
+    const response = await api.get('/daftar_surat_menyurat/get_jamaah_surat')
     return response.data
   } catch (error) {
     console.error('Gagal Mengambil Data:', error)
@@ -43,7 +43,7 @@ export const get_jamaah = async () => {
 
 export const add_surat = async (data : any) => {
   try {
-    const response = await api.post('/add_surat', data)
+    const response = await api.post('/daftar_surat_menyurat/add_surat', data)
     return response.data
   } catch (error) {
     console.error('Gagal Mengirim Data:', error)
@@ -63,7 +63,7 @@ export const cetak_surat = async (jenis_surat: string, data: any) => {
 
 export const deleteSurat = async ( data: any) => {
   try {
-    const response = await api.post('/delete_surat', data)
+    const response = await api.post('/daftar_surat_menyurat/delete_surat', data)
     return response.data
   } catch (error) {
     console.error('Gagal Mengambil Data:', error)
