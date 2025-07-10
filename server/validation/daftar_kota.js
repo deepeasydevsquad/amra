@@ -32,4 +32,3 @@ validation.check_edit_kode_kota = async ( value ,  { req } ) => {
 }
 
 module.exports = validation;
-  
