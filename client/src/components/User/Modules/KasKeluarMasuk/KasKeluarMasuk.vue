@@ -20,7 +20,7 @@ import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 // import Modal Componen
 import Notification from '@/components/Modal/Notification.vue'
 import Confirmation from '@/components/Modal/Confirmation.vue'
-import FormAddUpdate from '@/components/User/Modules/KasKeluarMasuk/Widget/FormAddUpdate.vue'
+import FormAddUpdate from '@/components/User/Modules/KasKeluarMasuk/Widget/formAddUpdate.vue'
 
 // import Feature Componen
 import Pagination from '@/components/Pagination/Pagination.vue'
