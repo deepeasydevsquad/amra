@@ -17,22 +17,24 @@
       label="Nomor Surat"
       placeholder="Contoh: 001/SRT/2025"
       required
+    class="mb-3"
     />
 
-    <InputDate v-model="form.tanggal_surat" label="Tanggal" required />
+    <InputDate v-model="form.tanggal_surat" label="Tanggal" required class="mb-3"/>
 
     <InputText
       v-model="form.tujuan"
       label="Tujuan"
       placeholder="Contoh: Kemenag, Imigrasi"
       required
+      class="mb-3"
     />
 
-    <SelectField v-model="form.tipe_surat" label="Jenis Surat" :options="suratOptions" />
+    <SelectField v-model="form.tipe_surat" label="Jenis Surat" :options="suratOptions" class="mb-3" />
 
     <!-- Surat Cuti -->
     <div v-if="form.tipe_surat === 'surat_cuti'">
-      <SelectField
+      <SelectField class="mb-3"
         v-model="form.jamaah_id"
         label="Jamaah"
         :options="[
@@ -41,16 +43,16 @@
         ]"
       />
 
-      <InputText v-model="form.jabatan" label="Jabatan" placeholder="Contoh: Ketua Rombongan" />
+      <InputText v-model="form.jabatan" label="Jabatan" placeholder="Contoh: Ketua Rombongan" class="mb-3" />
       <div class="grid grid-cols-2 gap-4">
-        <InputDate v-model="form.keberangkatan" label="Keberangkatan" />
-        <InputDate v-model="form.kepulangan" label="Kepulangan" />
+        <InputDate v-model="form.keberangkatan" label="Keberangkatan" class="mb-3" />
+        <InputDate v-model="form.kepulangan" label="Kepulangan" class="mb-3" />
       </div>
     </div>
 
     <!-- Rekom Paspor -->
     <div v-if="form.tipe_surat === 'rekom_paspor'">
-      <SelectField
+      <SelectField class="mb-3"
         v-model="form.jamaah_id"
         label="Jamaah"
         :options="[
@@ -58,7 +60,7 @@
           ...jamaahList.map((j) => ({ id: j.id, name: j.nama })),
         ]"
       />
-      <InputText
+      <InputText class="mb-3"
         v-model="form.bulan_tahun_berangkat"
         label="Bulan dan Tahun Keberangkatan"
         placeholder="Contoh: Januari"
