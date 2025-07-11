@@ -2,8 +2,8 @@
   <Form
     :formStatus="formtambahsurat"
     :label="'Buat Surat'"
-    :width="'w-1/3'"
-    :submitLabel="'Buat Surat'"
+    :width="'w-1/4'"
+    :submitLabel="'BUAT SURAT'"
     @submit="submitForm"
     @cancel="
       () => {

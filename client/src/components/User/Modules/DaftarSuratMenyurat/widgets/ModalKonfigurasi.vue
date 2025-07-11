@@ -2,8 +2,8 @@
   <Form
     :formStatus="show"
     :label="'Konfigurasi Surat'"
-    :width="'w-1/2'"
-    :submitLabel="'Simpan Konfigurasi'"
+    :width="'w-1/3'"
+    :submitLabel="'SIMPAN KONFIGURASI'"
     @submit="submitForm"
     @cancel="closeModal"
   >
