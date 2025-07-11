@@ -2,7 +2,7 @@ import api from "./api";
 
 export const daftarAsuransi = async (param : any) => {
   try {
-    const response = await api.post("/daftar_asuransi/list", param);
+    const response = await api.post("/daftar-asuransi/list", param);
     return response.data;
   } catch (error) {
     console.error("Gagal mengambil asuransi:", error);
@@ -12,7 +12,7 @@ export const daftarAsuransi = async (param : any) => {
 
 export const addAsuransi = async (param : any) => {
   try {
-    const response = await api.post("/daftar_asuransi", param);
+    const response = await api.post("/daftar-asuransi/add", param);
     return response.data;
   } catch (error) {
     console.error("Gagal menambahkan asuransi:", error);
@@ -22,7 +22,7 @@ export const addAsuransi = async (param : any) => {
 
 export const editAsuransi = async (id : any, param : any) => {
   try {
-    const response = await api.post(`/daftar_asuransi/update` , {...param,...{id : id }});
+    const response = await api.post(`/daftar-asuransi/update` , {...param,...{id : id }});
     return response.data;
   } catch (error) {
     console.error("Gagal mengedit asuransi:", error);
@@ -32,7 +32,7 @@ export const editAsuransi = async (id : any, param : any) => {
 
 export const deleteAsuransi = async (id : number) => {
   try {
-    const response = await api.post(`/daftar_asuransi/delete`,{ id : id});
+    const response = await api.post(`/daftar-asuransi/delete`,{ id : id});
     return response.data;
   } catch (error) {
     console.error("Gagal menghapus asuransi:", error);

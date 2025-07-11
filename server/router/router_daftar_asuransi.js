@@ -7,37 +7,37 @@ const validation = require("../validation/daftar_asuransi");
 const router = express.Router();
 
 router.post(
-  "/daftar_asuransi/list",
+  "/daftar-asuransi/list",
   authenticateToken,
   [
     body("pageNumber").trim(),
     body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
   ],
-  controllers.get_daftar_asuransi
+  controllers.getDaftarAsuransi
 );
 
 router.post(
-  "/daftar_asuransi/",
+  "/daftar-asuransi/add",
   authenticateToken,
   [
-    body("name").trim().notEmpty().withMessage("Nama Fasilitas tidak boleh kosong."),
+    body("name").trim().notEmpty().withMessage("Nama Fasilitas tidak boleh kosong.").toUpperCase(),
   ],
   controllers.add
 );
 
 router.post(
-  "/daftar_asuransi/update",
+  "/daftar-asuransi/update",
   authenticateToken,
   [
     body("id").trim().notEmpty().withMessage("ID Fasilitas tidak boleh kosong.").custom(validation.check_id_asuransi),
-    body("name").trim().notEmpty().withMessage("Nama Fasilitas tidak boleh kosong."),
+    body("name").trim().notEmpty().withMessage("Nama Fasilitas tidak boleh kosong.").toUpperCase(),
   ],
   controllers.update
 );
 
 router.post(
-  "/daftar_asuransi/delete",
+  "/daftar-asuransi/delete",
   authenticateToken,
   [body("id").trim().notEmpty().withMessage("ID Fasilitas tidak boleh kosong.").isInt().withMessage("ID Fasilitas harus berupa angka.").custom(validation.check_id_asuransi)],
   controllers.delete

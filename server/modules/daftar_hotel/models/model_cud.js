@@ -13,23 +13,20 @@ class Model_cud {
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
-    // initialize transaction
     this.t = await sequelize.transaction();
     this.state = true;
   }
 
   // Tambah Hotel
   async add() {
-    // initialize dependensi properties
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
     try {
-      // insert process
       const insert = await Mst_hotel.create(
         {
-          company_id : this.company_id, 
+          company_id: this.company_id, 
           kota_id: await getKotaIdByName(body.kota, this.company_id),
           name: body.name,
           desc: body.desc,
@@ -41,8 +38,8 @@ class Model_cud {
           transaction: this.t,
         }
       );
-      // write log message
-      this.message = `Menambahkan Hotel Baru dengan Kota : ${body.kota} dan Nama Hotel : ${body.name} dan ID Hotel  : ${insert.id}`;
+
+      this.message = `Menambahkan Hotel Baru dengan Kota: ${body.kota} dan Nama Hotel: ${body.name} dan ID Hotel: ${insert.id}`;
     } catch (error) {
       this.state = false;
     }
@@ -50,17 +47,14 @@ class Model_cud {
 
   // Edit kota
   async update() {
-    // initialize general property
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
-    // update process
+
     try {
-      // call object
       const model_r = new Model_r(this.req);
-      // get info kota
       const infoHotel = await model_r.infoHotel(body.id, this.company_id);
-      // update data kota
+
       await Mst_hotel.update(
         {
           kota_id: await getKotaIdByName(body.kota,  this.company_id),
@@ -70,14 +64,14 @@ class Model_cud {
           updatedAt: myDate,
         },
         {
-          where: { id: body.id, company_id : this.company_id,  },
+          where: { id: body.id, company_id: this.company_id,  },
         },
         {
           transaction: this.t,
         }
       );
-      // write log message
-      this.message = `Memperbaharui Data Hotel dengan Kota ${infoHotel.kota}, Nama Hotel ${infoHotel.name} dan ID Hotel : ${body.id} menjadi Kota ${body.kota} dan Nama Hotel ${body.name} dan Deskripsi ${body.desc} dan Rating ${body.star}`;
+
+      this.message = `Memperbaharui Data Hotel dengan Kota: ${infoHotel.kota}, Nama Hotel: ${infoHotel.name} dan ID Hotel: ${body.id} menjadi Kota ${body.kota} dan Nama Hotel ${body.name} dan Deskripsi ${body.desc} dan Rating ${body.star}`;
     } catch (error) {
       this.state = false;
     }
@@ -85,28 +79,25 @@ class Model_cud {
 
   // Hapus Hotel
   async delete() {
-    // initialize dependensi properties
     await this.initialize();
     const body = this.req.body;
     try {
-      // call object
       const model_r = new Model_r(this.req);
-      // get info kota
       const infoHotel = await model_r.infoHotel(body.id, this.company_id);
-      // delete process
+      
       await Mst_hotel.destroy(
         {
           where: {
             id: body.id,
-            company_id : this.company_id
+            company_id: this.company_id
           },
         },
         {
           transaction: this.t,
         }
       );
-      // write log message
-      this.message = `Menghapus Hotel dengan Kota : ${infoHotel.kota}, Nama Hotel : ${infoHotel.name} dan ID Hotel  : ${infoHotel.id}`;
+
+      this.message = `Menghapus Hotel dengan Kota: ${infoHotel.kota}, Nama Hotel: ${infoHotel.name} dan ID Hotel: ${infoHotel.id}`;
     } catch (error) {
       this.state = false;
     }

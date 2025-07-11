@@ -13,9 +13,7 @@ class Model_r {
   }
 
   async daftar_fasilitas() {
-    // initialize dependensi properties
     await this.initialize();
-
     const body = this.req.body;
     var limit = body.perpage;
     var page = 1;
@@ -42,7 +40,6 @@ class Model_r {
     sql["where"] = where;
 
     try {
-
       const query = await dbList(sql);
       const q = await Mst_fasilitas.findAndCountAll(query.total);
       const total = await q.count;

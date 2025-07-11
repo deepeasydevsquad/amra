@@ -86,17 +86,11 @@ const fetchData = async () => {
         pageNumber: currentPage.value,
     });
 
-    if (response.error) {
-        displayNotification(response.error_msg, "error");
-        return;
-    }
-
     totalPages.value = Math.ceil(response.total / itemsPerPage);
     dataHotel.value = response.data || [];
     total.value = response.total;
   } catch (error) {
-    console.error('Error fetching data:', error);
-    displayNotification('Gagal mengambil data.', 'error');
+    displayNotification('Terjadi kesalahan saat mengambil data.', 'error');
   }
 };
 
@@ -140,7 +134,6 @@ const deleteData = async (id: number) => {
         displayNotification(response.error_msg);
         fetchData();
       } catch (error) {
-        console.error('Error deleting data:', error);
         displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
       }
     }

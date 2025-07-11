@@ -68,7 +68,6 @@ const saveData = async () => {
       if (isEdit) {
         const response = await editAirlines(Airlines.value.id, Airlines.value );
         showConfirmDialog.value = false;
-        console.log('Response:', response);
         emit('status', { error: false, err_msg: (response?.error_msg || response?.message) || 'Maskapai berhasil di update' });
       } else {
         const response = await addAirlines(Airlines.value);

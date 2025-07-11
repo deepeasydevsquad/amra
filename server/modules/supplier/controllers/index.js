@@ -10,43 +10,43 @@ controllers.getDaftarBank = async (req, res) => {
 
   try {
     const model_r = new Model_r(req);
-    const feedBack = await model_r.daftar_bank(); // Ambil daftar bank dari model
+    const feedBack = await model_r.daftar_bank();
     res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
   } catch (error) {
     handleServerError(res, error.message);
   }
 };
 
-// **Mendapatkan daftar Supplier**
+// *Mendapatkan daftar Supplier*
 controllers.getDaftarSupplier = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_r = new Model_r(req);
-    const feedBack = await model_r.daftar_supplier(); // Ambil daftar supplier dari model
+    const feedBack = await model_r.daftar_supplier(); 
     res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
   } catch (error) {
     handleServerError(res, error.message);
   }
 };
 
-// **Menambahkan Supplier baru**
+// *Menambahkan Supplier*
 controllers.add = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_cud = new Model_cud(req);
     await model_cud.add();
-    // get response
+
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Supllier Baru berhasil ditambahkan.',
+        error_msg: 'Supllier berhasil ditambahkan.',
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Supllier Baru Gagal Ditambahkan.',
+        error_msg: 'Supllier gagal ditambahkan.',
       });
     }
   } catch (error) {
@@ -54,33 +54,33 @@ controllers.add = async (req, res) => {
   }
 };
 
-// **Update Supllier**
+// *Update Supllier*
 controllers.update = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_cud = new Model_cud(req);
     await model_cud.update();
-    // get response
+
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Supplier berhasil Diupdate.',
+        error_msg: 'Supplier berhasil diupdate.',
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Supplier Gagal Diupdate.',
+        error_msg: 'Supplier gagal diupdate.',
       });
     }
 
   } catch (error) {
-    console.error("Error di Controller:", error);
+    
     handleServerError(res, error.message);
   }
 };
 
-// **Hapus Supplier**
+// *Hapus Supplier*
 controllers.delete = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -88,7 +88,6 @@ controllers.delete = async (req, res) => {
     const model_cud = new Model_cud(req);
     await model_cud.delete();
 
-    // get response
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
@@ -97,7 +96,7 @@ controllers.delete = async (req, res) => {
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Supplier Gagal Dihapus.',
+        error_msg: 'Supplier gagal dihapus.',
       });
     }
   } catch (error) {

@@ -21,7 +21,7 @@ router.post(
   "/daftar-fasilitas/add",
   authenticateToken,
   [
-    body("name").trim().notEmpty().withMessage("Nama Fasilitas tidak boleh kosong."),
+    body("name").trim().notEmpty().withMessage("Nama Fasilitas tidak boleh kosong.").toUpperCase(),
   ],
   controllers.add
 );
@@ -31,7 +31,7 @@ router.post(
   authenticateToken,
   [
     body("id").trim().notEmpty().withMessage("ID Fasilitas tidak boleh kosong.").custom(validation.check_id_fasilitas),
-    body("name").trim().notEmpty().withMessage("Nama Fasilitas tidak boleh kosong."),
+    body("name").trim().notEmpty().withMessage("Nama Fasilitas tidak boleh kosong.").toUpperCase(),
   ],
   controllers.update
 );

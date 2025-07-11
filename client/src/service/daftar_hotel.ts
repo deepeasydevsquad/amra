@@ -48,4 +48,3 @@ export const deleteHotel = async (id : number) => {
     throw error;
   }
 };
-// deleteHotel

@@ -19,7 +19,7 @@
             <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Nama Agen</th>
             <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Nomor Identitas Agen</th>
             <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Level Keagenan</th>
-            <th class="w-[10%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Cabang</th>
+            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Cabang</th>
             <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>

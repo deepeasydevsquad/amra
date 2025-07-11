@@ -12,23 +12,20 @@ class Model_cud {
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
-    // initialize transaction
     this.t = await sequelize.transaction();
     this.state = true;
   }
 
   // Tambah Kota
   async add() {
-    // initialize dependensi properties
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
     try {
-      // insert process
       const insert = await Mst_kota.create(
         {
-          company_id : this.company_id, 
+          company_id: this.company_id, 
           kode: body.kode,
           name: body.name,
           createdAt: myDate,
@@ -38,8 +35,8 @@ class Model_cud {
           transaction: this.t,
         }
       );
-      // write log message
-      this.message = `Menambahkan Kota Baru dengan Kode Kota : ${body.kode} dan Nama Kota : ${body.name} dan ID Kota  : ${insert.id}`;
+
+      this.message = `Menambahkan Kota Baru dengan Kode Kota: ${body.kode} dan Nama Kota: ${body.name} dan ID Kota: ${insert.id}`;
     } catch (error) {
       this.state = false;
     }
@@ -47,17 +44,14 @@ class Model_cud {
 
   // Edit kota
   async update() {
-    // initialize general property
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
-    // update process
+
     try {
-      // call object
       const model_r = new Model_r(this.req);
-      // get info kota
       const infoKota = await model_r.infoKota(body.id, this.company_id);
-      // update data kota
+
       await Mst_kota.update(
         {
           kode: body.kode,
@@ -65,14 +59,14 @@ class Model_cud {
           updatedAt: myDate,
         },
         {
-          where: { id: body.id, company_id : this.company_id,  },
+          where: { id: body.id, company_id: this.company_id,  },
         },
         {
           transaction: this.t,
         }
       );
-      // write log message
-      this.message = `Memperbaharui Data Kota dengan Kode Kota ${infoKota.kode}, Nama Kota ${infoKota.name} dan ID Kota : ${body.id} menjadi Kode Kota ${body.kode} dan Nama Kota ${body.name}`;
+
+      this.message = `Memperbaharui Data Kota dengan Kode Kota: ${infoKota.kode}, Nama Kota: ${infoKota.name} dan ID Kota: ${body.id} menjadi Kode Kota: ${body.kode} dan Nama Kota ${body.name}`;
     } catch (error) {
       this.state = false;
     }
@@ -80,28 +74,25 @@ class Model_cud {
 
   // Hapus Kota
   async delete() {
-    // initialize dependensi properties
     await this.initialize();
     const body = this.req.body;
     try {
-      // call object
       const model_r = new Model_r(this.req);
-      // get info kota
       const infoKota = await model_r.infoKota(body.id, this.company_id);
-      // delete process
+      
       await Mst_kota.destroy(
         {
           where: {
             id: body.id,
-            company_id : this.company_id
+            company_id: this.company_id
           },
         },
         {
           transaction: this.t,
         }
       );
-      // write log message
-      this.message = `Menghapus Kota dengan Kode Kota : ${infoKota.kode} dan Nama Kota : ${infoKota.name} dan ID Kota  : ${infoKota.id}`;
+
+      this.message = `Menghapus Kota dengan Kode Kota: ${infoKota.kode} dan Nama Kota: ${infoKota.name} dan ID Kota: ${infoKota.id}`;
     } catch (error) {
       this.state = false;
     }

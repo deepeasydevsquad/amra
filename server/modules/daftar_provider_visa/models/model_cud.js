@@ -86,7 +86,7 @@ class Model_cud {
       const model_r = new Model_r(this.req);
       // get info provider visa
       const infoProviderVisa = await model_r.infoProviderVisa(body.id, this.company_id);
-      // delete process
+      
       await Mst_provider.destroy(
         {
           where: {

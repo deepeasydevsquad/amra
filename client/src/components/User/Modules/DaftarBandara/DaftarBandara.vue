@@ -67,12 +67,20 @@ const totalColumns = ref(3); // Default 3 kolom
 const selectedBandara = ref<Partial<Bandara>>({
   name: '',
 });
+const fetchData = async () => {
+  try {
+    const response = await daftarBandara({
+      search: search.value,
+      perpage: itemsPerPage,
+      pageNumber: currentPage.value,
+    });
 
-const fetchData = async() => {
-  const response = await daftarBandara({search: search.value, perpage: itemsPerPage, pageNumber: currentPage.value});
-  totalPages.value = Math.ceil(response.total / itemsPerPage)
-  dataBandara.value = response.data;
-  total.value = response.total;
+    totalPages.value = Math.ceil(response.total / itemsPerPage);
+    dataBandara.value = response.data;
+    total.value = response.total;
+  } catch (error) {
+    displayNotification('Terjadi kesalahan saat mengambil data.', 'error');
+  }
 }
 
 const openModal = (bandara?: Bandara) => {
@@ -115,7 +123,6 @@ const deleteData = async (id: number) => {
         displayNotification(response.error_msg);
         fetchData();
       } catch (error) {
-        console.error('Error deleting data:', error);
         displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
       }
     }

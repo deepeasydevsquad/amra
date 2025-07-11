@@ -4,15 +4,17 @@ import DeleteIcon from '@/components/User/Modules/DaftarAsuransi/Icon/DeleteIcon
 import EditIcon from '@/components/User/Modules/DaftarAsuransi/Icon/EditIcon.vue'
 
 // import element
+import Form from '@/components/User/Modules/DaftarAsuransi/Widget/Form.vue'
 import DangerButton from '@/components/User/Modules/DaftarAsuransi/Particle/DangerButton.vue'
 import Notification from '@/components/User/Modules/DaftarAsuransi/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/DaftarAsuransi/Particle/Confirmation.vue'
 
+import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import LightButton from "@/components/Button/LightButton.vue"
 import Pagination from '@/components/Pagination/Pagination.vue'
 
 // Import service API
-import { daftarAsuransi, addAsuransi, editAsuransi, deleteAsuransi } from '@/service/daftar_asuransi'; // Import function POST
+import { daftarAsuransi, deleteAsuransi } from '@/service/daftar_asuransi'; // Import function POST
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
@@ -50,12 +52,9 @@ interface Asuransi {
   name: string;
 }
 
-interface Errors {
-  name: string;
-}
-
 const timeoutId = ref<number | null>(null);
 const dataAsuransi = ref<Asuransi[]>([]);
+const total = ref<number>(0);
 const isModalOpen = ref<boolean>(false);
 const showNotification = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
@@ -70,14 +69,20 @@ const selectedAsuransi = ref<Partial<Asuransi>>({
   name: '',
 });
 
-const errors = ref<Errors>({
-  name: '',
-});
-
 const fetchData = async() => {
-  const response = await daftarAsuransi({search: search.value, perpage: itemsPerPage, pageNumber: currentPage.value});
-  totalPages.value = Math.ceil(response.total / itemsPerPage)
-  dataAsuransi.value = response.data;
+  try {
+    const response = await daftarAsuransi({
+      search: search.value,
+      perpage: itemsPerPage,
+      pageNumber: currentPage.value
+    });
+
+    totalPages.value = Math.ceil(response.total / itemsPerPage)
+    dataAsuransi.value = response.data;
+    total.value = response.total;
+  } catch (error) {
+    displayNotification('Terjadi kesalahan saat mengambil data.', 'error');
+  }
 }
 
 const openModal = (asuransi?: Asuransi) => {
@@ -89,17 +94,6 @@ onMounted(async () => {
   await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
   totalColumns.value = document.querySelectorAll("thead th").length;
 });
-
-const validateForm = (): boolean => {
-  errors.value = { name: '' };
-  let isValid = true;
-
-  if (!selectedAsuransi.value.name?.trim()) {
-    errors.value.name = 'Nama tidak boleh kosong';
-    isValid = false;
-  }
-  return isValid;
-};
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message;
@@ -120,36 +114,6 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
   showConfirmDialog.value = true;
 };
 
-const saveData = async () => {
-  if (!validateForm()) return;
-
-  const isEdit = !!selectedAsuransi.value.id;
-  const action = async () => {
-    try {
-      if (isEdit) {
-        const response = await editAsuransi(selectedAsuransi.value.id, selectedAsuransi.value );
-        showConfirmDialog.value = false;
-        displayNotification(response.error_msg);
-      } else {
-        const response = await addAsuransi(selectedAsuransi.value);
-        showConfirmDialog.value = false;
-        displayNotification(response.error_msg);
-      }
-      isModalOpen.value = false;
-      fetchData();
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        displayNotification(error.response?.data?.error_msg || 'Terjadi kesalahan saat menyimpan data.', 'error');
-      } else {
-        displayNotification('Terjadi kesalahan yang tidak terduga.', 'error');
-      }
-      showConfirmDialog.value = false;
-    }
-  };
-
-  isEdit ? showConfirmation('Konfirmasi Perubahan', 'Apakah Anda yakin ingin mengubah data ini?', action) : action();
-};
-
 const deleteData = async (id: number) => {
   showConfirmation(
     'Konfirmasi Hapus',
@@ -161,7 +125,6 @@ const deleteData = async (id: number) => {
         displayNotification(response.error_msg);
         fetchData();
       } catch (error) {
-        console.error('Error deleting data:', error);
         displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
       }
     }
@@ -174,14 +137,12 @@ const deleteData = async (id: number) => {
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
-      <button
+      <PrimaryButton
         @click="openModal()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
+      >
+      <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
         Tambah Asuransi
-      </button>
+      </PrimaryButton>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
@@ -230,6 +191,7 @@ const deleteData = async (id: number) => {
               :total-pages="totalPages"
               :pages="pages"
               :total-columns="totalColumns"
+              :total-row="total"
               @prev-page="prevPage"
               @next-page="nextPage"
               @page-now="pageNow"
@@ -247,44 +209,13 @@ const deleteData = async (id: number) => {
       leave-from-class="transform scale-100 opacity-100"
       leave-to-class="transform scale-95 opacity-0"
     >
-      <div v-if="isModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="isModalOpen = false"></div>
-          <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
-          <div class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <h3 class="text-2xl flex justify-center font-bold leading-6 text-gray-900 mb-4">
-                {{ selectedAsuransi.id ? "Edit Data Asuransi" : "Tambah Asuransi Baru" }}
-              </h3>
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
-                  <input
-                    v-model="selectedAsuransi.name"
-                    type="text"
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal" placeholder="Nama Asuransi"
-                  />
-                  <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name }}</p>
-                </div>
-              </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-              <button
-                @click="saveData"
-                class="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                {{ selectedAsuransi.id ? "Simpan Perubahan" : "Tambah" }}
-              </button>
-              <button
-                @click="isModalOpen = false"
-                class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                Batal
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Form
+        v-if="isModalOpen"
+        :is-modal-open="isModalOpen"
+        :selected-asuransi="selectedAsuransi"
+        @close="isModalOpen = false; fetchData()"
+        @status="(payload) => displayNotification(payload.err_msg || 'Tambah atau Update Asuransi gagal', payload.error ? 'error' : 'success')"
+      />
     </Transition>
 
     <!-- Confirmation Dialog -->

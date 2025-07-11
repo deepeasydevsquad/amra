@@ -86,33 +86,23 @@ const selectedSupplier = ref<Partial<EditSupplier>>({
 });
 
 const fetchData = async () => {
-    try {
-        const supplierResponse = await daftarSupplier({
-            search: search.value,
-            perpage: itemsPerPage,
-            pageNumber: currentPage.value,
-        });
+  try {
+    const supplierResponse = await daftarSupplier({
+        search: search.value,
+        perpage: itemsPerPage,
+        pageNumber: currentPage.value,
+    });
 
-        if (supplierResponse?.error) {
-            displayNotification(supplierResponse.data.error_msg || "Gagal mengambil data supplier", "error");
-            return;
-        }
-
-        dataSupplier.value = supplierResponse?.data || [];
-        total.value = supplierResponse?.total;
-        totalPages.value = supplierResponse?.total ? Math.ceil(supplierResponse.total / itemsPerPage) : 0;
-    } catch (error) {
-        displayNotification("Terjadi kesalahan saat mengambil data, coba lagi nanti.", "error");
-        console.error("Fetch Data Error:", error);
-    }
+    dataSupplier.value = supplierResponse?.data || [];
+    total.value = supplierResponse?.total;
+    totalPages.value = supplierResponse?.total ? Math.ceil(supplierResponse.total / itemsPerPage) : 0;
+  } catch (error) {
+    displayNotification('Terjadi kesalahan saat mengambil data.', 'error');
+  }
 };
 
 const openModal = (supplier?: Supplier) => {
   selectedSupplier.value = supplier ? { ...{ id: supplier.id, name: supplier.name, address: supplier.address, bank_id: supplier.bank_id, nomor_rekening: supplier.nomor_rekening } } : { name: '', address: '', bank_id: 0,  nomor_rekening: '' };
-
-  console.log('Informasi Edit Supplier');
-  console.log(selectedSupplier.value);
-  console.log('Informasi Edit Supplier');
   isModalOpen.value = true;
 };
 
@@ -151,7 +141,6 @@ const deleteData = async (id: number) => {
         displayNotification(response.error_msg);
         fetchData();
       } catch (error) {
-        console.error('Error deleting data:', error);
         displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
       }
     }

@@ -4,36 +4,36 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 
 const controllers = {};
 
-// **Mendapatkan daftar bank**
+// *Mendapatkan daftar bank*
 controllers.getDaftarBank = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_r = new Model_r(req);
-    const feedBack = await model_r.daftar_bank(); // Ambil daftar bank dari model
+    const feedBack = await model_r.daftar_bank();
     res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
   } catch (error) {
     handleServerError(res, error.message);
   }
 };
 
-// **Menambahkan bank baru**
+// *Menambahkan bank*
 controllers.add = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_cud = new Model_cud(req);
     await model_cud.add();
-    // get response
+
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Bank Baru berhasil ditambahkan.',
+        error_msg: 'Bank berhasil ditambahkan.',
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Bank Baru Gagal Ditambahkan.',
+        error_msg: 'Bank gagal ditambahkan.',
       });
     }
   } catch (error) {
@@ -41,33 +41,32 @@ controllers.add = async (req, res) => {
   }
 };
 
-// **Update bank**
+// *Update bank*
 controllers.update = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_cud = new Model_cud(req);
     await model_cud.update();
-    // get response
+
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Bank berhasil Diupdate.',
+        error_msg: 'Bank berhasil diupdate.',
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Bank Gagal Diupdate.',
+        error_msg: 'Bank gagal diupdate.',
       });
     }
 
   } catch (error) {
-    console.error("Error di Controller:", error);
     handleServerError(res, error.message);
   }
 };
 
-// **Hapus bank**
+// *Hapus bank*
 controllers.delete = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -75,7 +74,6 @@ controllers.delete = async (req, res) => {
     const model_cud = new Model_cud(req);
     await model_cud.delete();
 
-    // get response
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
@@ -84,7 +82,7 @@ controllers.delete = async (req, res) => {
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Bank Gagal Dihapus.',
+        error_msg: 'Bank gagal dihapus.',
       });
     }
   } catch (error) {

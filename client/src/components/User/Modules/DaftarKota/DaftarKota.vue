@@ -72,16 +72,21 @@ const selectedKota = ref<Partial<Kota>>({
 });
 
 
-const fetchData = async() => {
-  const response = await daftarKota({
-    search: search.value,
-    perpage: itemsPerPage,
-    pageNumber: currentPage.value
-  });
-  totalPages.value = Math.ceil(response.total / itemsPerPage)
-  dataKota.value = response.data;
-  total.value = response.total;
-}
+const fetchData = async () => {
+  try {
+    const response = await daftarKota({
+      search: search.value,
+      perpage: itemsPerPage,
+      pageNumber: currentPage.value,
+    });
+
+    totalPages.value = Math.ceil(response.total / itemsPerPage);
+    dataKota.value = response.data;
+    total.value = response.total;
+  } catch (error) {
+    displayNotification('Terjadi kesalahan saat mengambil data.', 'error');
+  }
+};
 
 const openModal = (kota?: Kota) => {
   selectedKota.value = kota ? { ...kota } : { kode: '', name: '' };
@@ -124,7 +129,6 @@ const deleteData = async (id: number) => {
         displayNotification(response.error_msg);
         fetchData();
       } catch (error) {
-        console.error('Error deleting data:', error);
         displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
       }
     }

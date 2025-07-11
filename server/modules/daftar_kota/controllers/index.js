@@ -4,36 +4,36 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 
 const controllers = {};
 
-// **Mendapatkan daftar kota**
+// *Mendapatkan daftar kota*
 controllers.get_daftar_kota = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_r = new Model_r(req);
-    const feedBack = await model_r.daftar_kota(); // Ambil daftar kota dari model
+    const feedBack = await model_r.daftar_kota();
     res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
   } catch (error) {
     handleServerError(res, error.message);
   }
 };
 
-// **Menambahkan kota baru**
+// *Menambahkan kota*
 controllers.add = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_cud = new Model_cud(req);
     await model_cud.add();
-    // get response
+
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Kota Baru berhasil ditambahkan.',
+        error_msg: 'Kota berhasil ditambahkan.',
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Kota Baru Gagal Ditambahkan.',
+        error_msg: 'Kota gagal ditambahkan.',
       });
     }
   } catch (error) {
@@ -41,33 +41,32 @@ controllers.add = async (req, res) => {
   }
 };
 
-// **Update kota**
+// *Update kota*
 controllers.update = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_cud = new Model_cud(req);
     await model_cud.update();
-    // get response
+
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Kota berhasil Diupdate.',
+        error_msg: 'Kota berhasil diupdate.',
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Kota Gagal Diupdate.',
+        error_msg: 'Kota gagal diupdate.',
       });
     }
 
   } catch (error) {
-    console.error("Error di Controller:", error);
     handleServerError(res, error.message);
   }
 };
 
-// **Hapus kota**
+// *Hapus kota*
 controllers.delete = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -75,7 +74,6 @@ controllers.delete = async (req, res) => {
     const model_cud = new Model_cud(req);
     await model_cud.delete();
 
-    // get response
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
@@ -84,7 +82,7 @@ controllers.delete = async (req, res) => {
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Kota Gagal Dihapus.',
+        error_msg: 'Kota gagal dihapus.',
       });
     }
   } catch (error) {
