@@ -112,8 +112,14 @@ router.post(
   controllers.downloadDataPeminjaman
 );
 
-router.get(
+router.post(
   "/peminjaman/daftar_jamaah",
+  [
+    body("id_cabang")
+      .trim()
+      .notEmpty()
+      .withMessage("Cabang tidak boleh kosong."),
+  ],
   authenticateToken,
   controllers.get_jamaah
 );

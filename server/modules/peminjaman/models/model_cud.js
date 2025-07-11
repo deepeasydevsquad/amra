@@ -141,27 +141,21 @@ class Model_cud {
       dp,
       sudah_berangkat = false,
     } = this.req.body;
-    console.log("masuk ke petugas");
     const petugas = await this.petugas();
-
     const register_number = await menghasilkan_nomor_registrasi_peminjaman();
-
     const invoice = await menghasilkan_invoice_riwayat_pembayaran_peminjaman();
-
     const invoice_fee_agen = await menghasilkan_invoice_fee_agen();
-
     const info_jamaah = await this.mengambil_info_jamaah();
-
     const saldoSebelum = info_jamaah.total_deposit;
     const saldoSesudah = saldoSebelum + nominal;
     const member_id = info_jamaah.member_id;
-
+    const body = this.req.body;
     try {
       await this.transaction();
       // Insert data Peminjaman baru
       const IP = await Peminjaman.create(
         {
-          division_id: this.division_id,
+          division_id: body.id_cabang,
           jamaah_id,
           register_number,
           nominal,
@@ -184,7 +178,7 @@ class Model_cud {
         // menginput riwayat pembayara jika ada DP
         await Riwayat_pembayaran_peminjaman.create(
           {
-            division_id: this.division_id,
+            division_id: body.id_cabang,
             peminjaman_id: IP.id,
             invoice,
             nominal: dp,
@@ -200,7 +194,7 @@ class Model_cud {
       if (!sudah_berangkat) {
         await Deposit.create(
           {
-            division_id: this.division_id,
+            division_id: body.id_cabang,
             member_id,
             invoice,
             nominal,
@@ -223,7 +217,7 @@ class Model_cud {
 
         return await Fee_agen.create(
           {
-            division_id: this.division_id,
+            division_id: body.id_cabang,
             agen_id: info_jamaah.agen_id,
             invoice: invoice_fee_agen,
             nominal: default_fee,

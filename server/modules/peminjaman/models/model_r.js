@@ -272,10 +272,12 @@ class Model_r {
 
   async daftar_jamaah() {
     await this.initialize();
+    const body = this.req.body;
+    console.log(body);
     try {
       const jamaah = await Jamaah.findAll({
         where: {
-          division_id: this.division_id,
+          division_id: body.id_cabang,
         },
         include: [
           {
