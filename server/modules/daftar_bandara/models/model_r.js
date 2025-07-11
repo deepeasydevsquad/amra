@@ -74,14 +74,13 @@ class Model_r {
     try {
       var data = {};
       await Mst_airport.findOne({
-          where: { id: id },
+          where: { id: id, company_id : company_id },
       }).then(async (e) => {
           if (e) {
               data["id"] = e.id;
               data["name"] = e.name;
           }
       });
-     
       return data
     } catch (error) {
       return {}      

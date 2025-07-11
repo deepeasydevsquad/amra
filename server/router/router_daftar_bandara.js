@@ -7,37 +7,37 @@ const validation = require("../validation/daftar_bandara");
 const router = express.Router();
 
 router.post(
-  "/daftar_bandara/list",
+  "/daftar-bandara/list",
   authenticateToken,
   [
     body("pageNumber").trim(),
     body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
   ],
-  controllers.get_daftar_bandara
+  controllers.getDaftarBandara
 );
 
 router.post(
-  "/daftar_bandara/",
+  "/daftar-bandara/add",
   authenticateToken,
   [
-    body("name").trim().notEmpty().withMessage("Nama Kota tidak boleh kosong."),
+    body("name").trim().notEmpty().withMessage("Nama Kota tidak boleh kosong.").toUpperCase(),
   ],
   controllers.add
 );
 
 router.post(
-  "/daftar_bandara/update",
+  "/daftar-bandara/update",
   authenticateToken,
   [
     body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").custom(validation.check_id_bandara),
-    body("name").trim().notEmpty().withMessage("Nama Kota tidak boleh kosong."),
+    body("name").trim().notEmpty().withMessage("Nama Kota tidak boleh kosong.").toUpperCase(),
   ],
   controllers.update
 );
 
 router.post(
-  "/daftar_bandara/delete",
+  "/daftar-bandara/delete",
   authenticateToken,
   [body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").isInt().withMessage("ID Kota harus berupa angka.").custom(validation.check_id_bandara)],
   controllers.delete
