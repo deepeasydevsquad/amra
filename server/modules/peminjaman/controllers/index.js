@@ -56,6 +56,20 @@ exports.SkemaByID = async (req, res) => {
   }
 };
 
+exports.get_jamaah = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) {
+    return;
+  }
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.daftar_jamaah();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
 exports.updateSkema = async (req, res) => {
   // filter error
   if (!(await handleValidationErrors(req, res))) return;
