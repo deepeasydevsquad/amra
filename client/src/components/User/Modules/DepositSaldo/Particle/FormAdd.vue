@@ -1,40 +1,13 @@
 <template>
-  <Form
-    :formStatus="true"
-    :label="'Form Transaksi Deposit Saldo'"
-    :width="'w-full max-w-md'"
-    :submitLabel="'Tambah Deposit'"
-    @cancel="emit('close')"
-    @submit="handleSubmit"
-  >
+  <Form :formStatus="true" :label="'Form Transaksi Deposit Saldo'" :width="'w-full max-w-md'" :submitLabel="'Tambah Deposit'" @cancel="emit('close')" @submit="handleSubmit" >
     <!-- Select Cabang -->
-    <SelectField v-model="selectedCabang" label="Pilih Cabang" :options="optionCabang" />
-
+    <SelectField v-model="selectedCabang" label="Pilih Cabang" :options="optionCabang" :error="errors['cabang']"/>
     <!-- Select Member -->
-    <SelectField
-      v-model="form.memberId"
-      label="Pilih Member"
-      :options="filteredMembers"
-      optionLabel="nama_member"
-      optionValue="id"
-    />
-
+    <SelectField v-model="form.memberId" label="Pilih Member" :options="filteredMembers" optionLabel="nama_member" optionValue="id" class="mt-4" :error="errors['member']"/>
     <!-- Input Nominal -->
-    <InputText
-      v-model="computedNominal"
-      label="Biaya Deposit (Rp)"
-      placeholder="Masukkan nominal"
-      required
-    />
-    <p class="text-xs text-gray-500 mt-1">Minimal deposit Rp1.000</p>
-
+    <InputText v-model="computedNominal" label="Biaya Deposit (Rp)" placeholder="Masukkan nominal" class="mt-4" :error="errors['nominal']" :note="'Minimal deposit Rp1.000'" required />
     <!-- Input Info -->
-    <InputText
-      v-model="form.info"
-      label="Keterangan (Opsional)"
-      placeholder="Contoh: Deposit awal"
-      textarea
-    />
+    <InputText v-model="form.info" label="Keterangan (Opsional)" placeholder="Contoh: Deposit awal" class="mt-4" textarea/>
   </Form>
 </template>
 
@@ -49,7 +22,7 @@ import SelectField from '@/components/Form/SelectField.vue'
 const emit = defineEmits(['close', 'success'])
 
 const form = ref({
-  memberId: '',
+  memberId: '0',
   nominal: 0,
   info: '',
 })
@@ -65,19 +38,31 @@ interface Cabang {
 }
 
 const optionCabang = ref<Cabang[]>([])
-const selectedCabang = ref('')
-const filteredMembers = ref<Member[]>([])
+const selectedCabang = ref('0')
+const filteredMembers = ref<Member[]>([{ id: "0", name: 'Pilih Member' }])
 
 const fetchCabang = async () => {
   const res = await paramCabang()
-  optionCabang.value = res.data
+  optionCabang.value = [
+      { id: 0, name: 'Pilih Cabang' },
+      ...res.data.map((item: any) => ({
+        id: item.id,
+        name: `${item.name}`,
+      })),
+    ];
   if (res.length > 0) selectedCabang.value = res[0].id
 }
 
 const fetchMembers = async () => {
   if (!selectedCabang.value) return
   const res = await get_member({ id_cabang: selectedCabang.value })
-  filteredMembers.value = res
+  filteredMembers.value = [
+      { id: "0", name: 'Pilih Member' },
+      ...res.map((item: any) => ({
+        id: item.id,
+        name: `${item.name}`,
+      })),
+    ];
 }
 
 const computedNominal = computed({
@@ -92,7 +77,37 @@ const computedNominal = computed({
   },
 })
 
+const errors = ref<Record<string, string>>({})
+
+const validateForm = (): boolean => {
+  let isValid = true;
+
+  errors.value = {};
+
+  if (selectedCabang.value === "0") {
+    errors.value[`cabang`] = 'Silahkan pilih salah satu Cabang.';
+    isValid = false;
+  }
+
+  if (form.value.memberId === "0") {
+    errors.value[`member`] = 'Silahkan pilih salah satu Member.';
+    isValid = false;
+  }
+
+  if (form.value.nominal <= 1000) {
+    errors.value[`nominal`] = 'Nominal Deposit adalah Rp 1.000,-';
+    isValid = false;
+  }
+
+  return isValid;
+}
+
 const handleSubmit = async () => {
+
+  if (!validateForm()) {
+    return
+  }
+
   try {
     const payload = {
       memberId: form.value.memberId,
