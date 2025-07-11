@@ -32,9 +32,12 @@ class Model_r {
     const offset = (page - 1) * limit;
 
     const search = body.search;
-    let where = {
-      division_id: this.division_id,
-    };
+    let where = {};
+
+    // ✅ Filter cabang
+    if (body.cabang) {
+      where.division_id = body.cabang;
+    }
 
     if (search) {
       where = {
@@ -49,8 +52,6 @@ class Model_r {
 
     try {
       const result = await Peminjaman.findAndCountAll({
-        distinct: true,
-        attributes: { exclude: ["company_id"] },
         limit,
         offset,
         where,
