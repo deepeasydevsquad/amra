@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Deposit extends Model {
     /**
@@ -11,28 +9,36 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Deposit.belongsTo(models.Company, {
-        foreignKey: "company_id",
+      Deposit.belongsTo(models.Division, {
+        foreignKey: "division_id",
       });
       Deposit.belongsTo(models.Member, {
         foreignKey: "member_id",
       });
     }
   }
-  Deposit.init({
-    company_id: DataTypes.INTEGER,
-    member_id: DataTypes.INTEGER,
-    invoice: DataTypes.STRING,
-    nominal: DataTypes.INTEGER,
-    saldo_sebelum: DataTypes.INTEGER,
-    saldo_sesudah: DataTypes.INTEGER,
-    sumber_dana: DataTypes.ENUM(["cash", "deposit"]),
-    penerima: DataTypes.STRING,
-    tipe_transaksi: DataTypes.ENUM(["deposit", "pindah_ke_tabungan", "sisa_pembelian_paket", "pembelian_ppob"]),
-    info: DataTypes.TEXT
-  }, {
-    sequelize,
-    modelName: 'Deposit',
-  });
+  Deposit.init(
+    {
+      division_id: DataTypes.INTEGER,
+      member_id: DataTypes.INTEGER,
+      invoice: DataTypes.STRING,
+      nominal: DataTypes.INTEGER,
+      saldo_sebelum: DataTypes.INTEGER,
+      saldo_sesudah: DataTypes.INTEGER,
+      sumber_dana: DataTypes.ENUM(["cash", "deposit"]),
+      penerima: DataTypes.STRING,
+      tipe_transaksi: DataTypes.ENUM([
+        "deposit",
+        "pindah_ke_tabungan",
+        "sisa_pembelian_paket",
+        "pembelian_ppob",
+      ]),
+      info: DataTypes.TEXT,
+    },
+    {
+      sequelize,
+      modelName: "Deposit",
+    }
+  );
   return Deposit;
 };

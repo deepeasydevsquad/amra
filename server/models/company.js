@@ -63,10 +63,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "company_id",
         onDelete: "CASCADE",
       });
-      Company.hasMany(models.Deposit, {
-        foreignKey: "company_id",
-        onDelete: "CASCADE",
-      });
       Company.hasMany(models.Mahram, {
         foreignKey: "company_id",
         onDelete: "CASCADE",

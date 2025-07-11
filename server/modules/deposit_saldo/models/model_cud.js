@@ -1,7 +1,11 @@
 const { sequelize, Deposit, Member, Company } = require("../../../models");
 const Model_r = require("./model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
-const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
+const {
+  getCompanyIdByCode,
+  tipe,
+  getCabang,
+} = require("../../../helper/companyHelper");
 const moment = require("moment");
 
 class Model_cud {
@@ -9,6 +13,7 @@ class Model_cud {
     this.req = req;
     this.tipe = req;
     this.company_id = null;
+    this.division_id = null;
     this.t = null;
     this.state = true;
     this.message = "";
@@ -17,6 +22,7 @@ class Model_cud {
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
+    this.division_id = await getCabang(this.req);
     this.t = await sequelize.transaction();
   }
 
@@ -41,10 +47,8 @@ class Model_cud {
     return "Tipe user tidak diketahui";
   }
 
-
-
   // ✅ Tambah deposit
-  async tambahDeposit( invoice ) {
+  async tambahDeposit(invoice) {
     await this.initialize();
     const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
@@ -63,7 +67,7 @@ class Model_cud {
 
       const insert = await Deposit.create(
         {
-          company_id: this.company_id,
+          division_id: body.division_id,
           member_id: body.memberId,
           invoice: invoice,
           nominal: body.nominal,
@@ -94,7 +98,9 @@ class Model_cud {
         }
       );
 
-      this.message = `Menambahkan deposit ke ${ member.fullname } sebesar Rp${body.nominal.toLocaleString("id-ID")}`;
+      this.message = `Menambahkan deposit ke ${
+        member.fullname
+      } sebesar Rp${body.nominal.toLocaleString("id-ID")}`;
     } catch (error) {
       console.error("Gagal tambah deposit:", error);
       this.state = false;
@@ -107,18 +113,16 @@ class Model_cud {
     if (this.state) {
       await writeLog(this.req, this.t, { msg: this.message });
       await this.t.commit();
-      return true; 
-
+      return true;
     } else {
       await this.t.rollback();
       return false;
-
     }
   }
 }
 
 // { success: false, message: this.message };
-// { success: true, message: this.message };  
+// { success: true, message: this.message };
 // ,
 // id: this.insertedDeposit?.id,
 // invoice: this.insertedDeposit?.invoice,

@@ -1,150 +1,84 @@
 <template>
-  <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
-    @click.self="emit('close')"
+  <Form
+    :formStatus="true"
+    :label="'Form Transaksi Deposit Saldo'"
+    :width="'w-full max-w-md'"
+    :submitLabel="'Tambah Deposit'"
+    @cancel="emit('close')"
+    @submit="handleSubmit"
   >
-    <div class="bg-white w-full max-w-md rounded-lg shadow-lg p-6">
-      <!-- Header -->
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold text-gray-800">Form Transaksi Deposit Saldo</h2>
-        <button @click="emit('close')" class="text-gray-500 hover:text-gray-700">&times;</button>
-      </div>
+    <!-- Select Cabang -->
+    <SelectField v-model="selectedCabang" label="Pilih Cabang" :options="optionCabang" />
 
-      <!-- Loading State -->
-      <div v-if="isLoading" class="flex justify-center py-8">
-        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
-      </div>
+    <!-- Select Member -->
+    <SelectField
+      v-model="form.memberId"
+      label="Pilih Member"
+      :options="filteredMembers"
+      optionLabel="nama_member"
+      optionValue="id"
+    />
 
-      <!-- Form -->
-      <form v-else @submit.prevent="handleSubmit">
-        <!-- Nama Member -->
-        <div class="mb-4 relative">
-          <label class="block text-sm font-medium text-gray-700 mb-1"> Nama Member </label>
+    <!-- Input Nominal -->
+    <InputText
+      v-model="computedNominal"
+      label="Biaya Deposit (Rp)"
+      placeholder="Masukkan nominal"
+      required
+    />
+    <p class="text-xs text-gray-500 mt-1">Minimal deposit Rp1.000</p>
 
-          <!-- Custom select trigger -->
-          <div
-            @click="isOpen = !isOpen"
-            class="flex items-center justify-between w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-left cursor-pointer focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          >
-            <span v-if="selectedMember" class="text-gray-700">{{ selectedMember.fullname }}</span>
-            <span v-else class="text-gray-400">Pilih Member</span>
-            <svg
-              class="h-5 w-5 text-gray-400"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-
-          <!-- Dropdown dengan input pencarian -->
-          <div
-            v-if="isOpen"
-            class="text-gray-700 absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 focus:outline-none max-h-60 overflow-auto"
-          >
-            <!-- Input pencarian -->
-            <div class="px-4 py-2 sticky top-0 bg-white">
-              <input
-                type="text"
-                v-model="memberSearch"
-                placeholder="Cari nama member..."
-                class="text-gray-700 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                @input="filterMembers"
-              />
-            </div>
-
-            <!-- Daftar member -->
-            <ul class="py-1">
-              <li
-                v-for="member in filteredMembers"
-                :key="member.id"
-                @click="selectMember(member)"
-                class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-blue-50"
-                :class="{
-                  'bg-blue-50 text-blue-600 font-medium': form.memberId === member.id,
-                  'text-gray-900': form.memberId !== member.id,
-                }"
-              >
-                <span class="block truncate">{{ member.fullname }}</span>
-                <span
-                  v-if="form.memberId === member.id"
-                  class="absolute inset-y-0 right-0 flex items-center pr-4 text-blue-600"
-                >
-                  <svg
-                    class="h-5 w-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </span>
-              </li>
-
-              <li v-if="filteredMembers.length === 0" class="px-4 py-2 text-gray-500">
-                Tidak ditemukan
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Biaya Deposit -->
-        <div class="mb-4">
-          <label for="biaya" class="block text-sm font-medium text-gray-700 mb-1">
-            Biaya Deposit (Rp)
-          </label>
-          <input
-            type="text"
-            id="nominal"
-            v-model="computedNominal"
-            placeholder="Masukkan nominal"
-            class="text-gray-700 w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-            required
-          />
-
-          <p class="text-xs text-gray-500 mt-1">Minimal deposit Rp1.000</p>
-        </div>
-
-        <!-- Info Deposit -->
-        <div class="mb-6">
-          <label for="info" class="block text-sm font-medium text-gray-700 mb-1"
-            >Keterangan (Opsional)</label
-          >
-          <textarea
-            id="info"
-            v-model="form.info"
-            placeholder="Contoh: Deposit awal"
-            rows="3"
-            class="text-gray-700 w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-          ></textarea>
-        </div>
-
-        <!-- Actions -->
-        <div class="flex justify-end gap-2">
-          <button type="button" @click="emit('close')" class="px-4 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition">BATAL</button>
-          <PrimaryButton type="submit" :disabled="isSubmitting">TAMBAH DEPOSIT</PrimaryButton>
-        </div>
-      </form>
-    </div>
-  </div>
+    <!-- Input Info -->
+    <InputText
+      v-model="form.info"
+      label="Keterangan (Opsional)"
+      placeholder="Contoh: Deposit awal"
+      textarea
+    />
+  </Form>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue'
-import { getMember } from '@/service/member'
-import { addDeposit, infoDeposit } from '@/service/deposit_saldo'
-import PrimaryButton from "@/components/Button/PrimaryButton.vue"
+import { ref, computed, onMounted, watch } from 'vue'
+import { addDeposit, get_member } from '@/service/deposit_saldo'
+import { paramCabang } from '@/service/param_cabang'
+import Form from '@/components/Modal/Form.vue'
+import InputText from '@/components/Form/InputText.vue'
+import SelectField from '@/components/Form/SelectField.vue'
 
-import { reactive } from 'vue'
+const emit = defineEmits(['close', 'success'])
+
+const form = ref({
+  memberId: '',
+  nominal: 0,
+  info: '',
+})
+
+interface Member {
+  id: string
+  name: string
+}
+
+interface Cabang {
+  id: number
+  name: string
+}
+
+const optionCabang = ref<Cabang[]>([])
+const selectedCabang = ref('')
+const filteredMembers = ref<Member[]>([])
+
+const fetchCabang = async () => {
+  const res = await paramCabang()
+  optionCabang.value = res.data
+  if (res.length > 0) selectedCabang.value = res[0].id
+}
+
+const fetchMembers = async () => {
+  if (!selectedCabang.value) return
+  const res = await get_member({ id_cabang: selectedCabang.value })
+  filteredMembers.value = res
+}
 
 const computedNominal = computed({
   get() {
@@ -158,109 +92,30 @@ const computedNominal = computed({
   },
 })
 
-interface FormType {
-  nominal: number
-}
-
-function formatRupiah(angka: number | null): string {
-  if (!angka || angka === 0) return ''
-  return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-}
-
-function updateNominal(value: string): void {
-  const clean = value.replace(/[^\d]/g, '')
-  form.nominal = Number(clean)
-}
-
-interface Member {
-  id: string | number
-  fullname: string
-  memberId: string
-}
-
-interface DepositForm {
-  memberId: string | number
-  nominal: number | 0
-  info: string
-}
-
-const emit = defineEmits(['close', 'submit'])
-
-// State
-const members = ref<Member[]>([])
-const filteredMembers = ref<Member[]>([])
-const memberSearch = ref('')
-const isLoading = ref(true)
-const isSubmitting = ref(false)
-const isOpen = ref(false)
-const selectedMember = ref<Member | null>(null)
-
-const form = ref<DepositForm>({
-  memberId: '',
-  nominal: null,
-  info: '',
-})
-
-// Fetch members
-const fetchMember = async () => {
-  try {
-    const response = await getMember()
-    members.value = response.data || []
-    filteredMembers.value = [...members.value] // Initialize filtered members
-  } catch (error) {
-    console.error('Gagal fetch data member:', error)
-    // Tambahkan notifikasi error jika perlu
-  } finally {
-    isLoading.value = false
-  }
-}
-
-// Filter members based on search query
-const filterMembers = () => {
-  if (!memberSearch.value) {
-    filteredMembers.value = [...members.value]
-    return
-  }
-
-  const searchTerm = memberSearch.value.toLowerCase()
-  filteredMembers.value = members.value.filter((member) =>
-    member.fullname.toLowerCase().includes(searchTerm),
-  )
-}
-
-// Select member
-const selectMember = (member: Member) => {
-  form.value.memberId = member.id
-  selectedMember.value = member
-  isOpen.value = false
-}
-
-// Close dropdown when clicking outside
-const handleClickOutside = (event: MouseEvent) => {
-  const target = event.target as HTMLElement
-  if (!target.closest('.relative')) {
-    isOpen.value = false
-  }
-}
-
-// Submit form
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
 const handleSubmit = async () => {
   try {
-    const result = await addDeposit(form.value)
-    await delay(100) // tunggu sebentar
-    window.open('/invoice-deposit/'+ result.data.invoice, '_blank')
+    const payload = {
+      memberId: form.value.memberId,
+      division_id: selectedCabang.value,
+      nominal: form.value.nominal,
+      info: form.value.info,
+    }
+
+    const res = await addDeposit(payload)
+    window.open('/invoice-deposit/' + res.data.invoice, '_blank')
     emit('success')
-  } catch (error) {
-    console.error('Gagal menambahkan deposit:', error)
-  } finally {
-    isSubmitting.value = false
+  } catch (e) {
+    console.error('Gagal tambah deposit', e)
   }
 }
 
-onMounted(() => {
-  fetchMember()
-  document.addEventListener('click', handleClickOutside)
+onMounted(async () => {
+  await fetchCabang()
+})
+
+watch(selectedCabang, async (val) => {
+  if (val) {
+    await fetchMembers()
+  }
 })
 </script>

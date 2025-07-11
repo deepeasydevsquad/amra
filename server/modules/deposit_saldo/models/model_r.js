@@ -40,7 +40,6 @@ class Model_r {
 
   async dataCompany() {
     await this.initialize();
-    console.log("Cek company ID sebelum query:", this.company_id);
 
     var data = {};
     await Company.findOne({
@@ -68,6 +67,12 @@ class Model_r {
     var page = body.pageNumber || 1;
 
     var where = {};
+
+    // ✅ Filter cabang
+    if (body.cabang) {
+      where.division_id = body.cabang;
+    }
+
     if (body.search != undefined && body.search != "") {
       where = {
         [Op.or]: [
@@ -127,8 +132,7 @@ class Model_r {
   }
 
   async infoDeposit() {
-    const { id } = this.req.body; // ✅ ambil id dengan destructure
-    console.log("ID dari frontend:", id); // Harus angka, bukan { id: 45 } atau "45"
+    const { id } = this.req.body;
 
     try {
       const dataDeposit = await Deposit.findOne({
@@ -140,6 +144,22 @@ class Model_r {
       console.error("Error fetching data deposit info:", error);
       return {};
     }
+  }
+
+  async daftar_member() {
+    const body = this.req.body;
+    const data = await Member.findAll({
+      where: {
+        division_id: body.id_cabang,
+      },
+      attributes: ["id", "fullname"],
+    });
+
+    const member = data.map((e) => ({
+      id: e.id,
+      name: e.fullname,
+    }));
+    return member;
   }
 }
 
