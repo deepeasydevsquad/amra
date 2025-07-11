@@ -7,37 +7,37 @@ const validation = require("../validation/daftar_provider_visa");
 const router = express.Router();
 
 router.post(
-  "/daftar_provider_visa/list",
+  "/daftar-provider-visa/list",
   authenticateToken,
   [
     body("pageNumber").trim(),
     body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
   ],
-  controllers.get_daftar_provider_visa
+  controllers.getDaftarProviderVisa
 );
 
 router.post(
-  "/daftar_provider_visa/",
+  "/daftar-provider-visa/add",
   authenticateToken,
   [
-    body("name").trim().notEmpty().withMessage("Nama Provider Visa tidak boleh kosong."),
+    body("name").trim().notEmpty().withMessage("Nama Provider Visa tidak boleh kosong.").toUpperCase(),
   ],
   controllers.add
 );
 
 router.post(
-  "/daftar_provider_visa/update",
+  "/daftar-provider-visa/update",
   authenticateToken,
   [
     body("id").trim().notEmpty().withMessage("ID Provider Visa tidak boleh kosong.").custom(validation.check_id_provider_visa),
-    body("name").trim().notEmpty().withMessage("Nama Provider Visa tidak boleh kosong."),
+    body("name").trim().notEmpty().withMessage("Nama Provider Visa tidak boleh kosong.").toUpperCase(),
   ],
   controllers.update
 );
 
 router.post(
-  "/daftar_provider_visa/delete",
+  "/daftar-provider-visa/delete",
   authenticateToken,
   [body("id").trim().notEmpty().withMessage("ID Provider Visa tidak boleh kosong.").isInt().withMessage("ID Provider Visa harus berupa angka.").custom(validation.check_id_provider_visa)],
   controllers.delete
