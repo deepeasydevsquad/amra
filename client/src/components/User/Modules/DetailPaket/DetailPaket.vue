@@ -10,6 +10,7 @@
   import PageBus from '@/components/User/Modules/BusPaket/BusPaket.vue'
   import PageManifest from '@/components/User/Modules/ManifestPaket/ManifestPaket.vue'
   import pageSyarat from '@/components/User/Modules/SyaratPaket/SyaratPaket.vue'
+  import K_t from '@/components/User/Modules/K_t/K_t.vue'
 
   const props = defineProps<{
     paketId: number
@@ -29,7 +30,7 @@
     bus: PageBus,
     manifes: PageManifest,
     syarat: pageSyarat,
-    // tambah yang lain jika perlu
+    k_t: K_t
   }
 
   const currentComponent = computed(() => componentMap[current.value])

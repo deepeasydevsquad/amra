@@ -17,6 +17,7 @@ module.exports = {
       { company_id: 1, akun_primary_id: 1, nomor_akun: '17010', nama_akun : 'AKUMULASI PENYUSUTAN BANGUNAN', tipe_akun : 'tambahan', path : '', createdAt: new Date(), updatedAt: new Date() },
       { company_id: 1, akun_primary_id: 1, nomor_akun: '18000', nama_akun : 'ASET LAINNYA', tipe_akun : 'tambahan', path : 'kas', createdAt: new Date(), updatedAt: new Date() },
       { company_id: 1, akun_primary_id: 1, nomor_akun: '18010', nama_akun : 'AKUMULASI PENYUSUTAN ASET LAINNYA', tipe_akun : 'tambahan', path : '', createdAt: new Date(), updatedAt: new Date() },
+      { company_id: 1, akun_primary_id: 1, nomor_akun: '19000', nama_akun : 'SALDO PPOB', tipe_akun : 'bawaan', path : '', createdAt: new Date(), updatedAt: new Date() },
       { company_id: 1, akun_primary_id: 2, nomor_akun: '21000', nama_akun : 'UTANG USAHA', tipe_akun : 'bawaan', path : 'utang_usaha', createdAt: new Date(), updatedAt: new Date() },
       { company_id: 1, akun_primary_id: 2, nomor_akun: '22000', nama_akun : 'UTANG JANGKA PANJANG', tipe_akun : 'bawaan', path : 'utang_jangka_panjang', createdAt: new Date(), updatedAt: new Date() },
       { company_id: 1, akun_primary_id: 3, nomor_akun: '31000', nama_akun : 'EKUITAS/MODAL', tipe_akun : 'bawaan', path : 'ekuitas_modal', createdAt: new Date(), updatedAt: new Date() },
