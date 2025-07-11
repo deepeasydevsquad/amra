@@ -4,36 +4,36 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 
 const controllers = {};
 
-// **Mendapatkan daftar airline**
+// *Mendapatkan daftar airline*
 controllers.getDaftarAirlines = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_r = new Model_r(req);
-    const feedBack = await model_r.daftar_airlines(); // Ambil daftar airline dari model
+    const feedBack = await model_r.daftar_airlines();
     res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
   } catch (error) {
     handleServerError(res, error.message);
   }
 };
 
-// **Menambahkan airline baru**
+// *Menambahkan airline*
 controllers.add = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_cud = new Model_cud(req);
     await model_cud.add();
-    // get response
+
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Maskapai Baru berhasil ditambahkan.',
+        error_msg: 'Maskapai berhasil ditambahkan.',
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Maskapai Baru Gagal Ditambahkan.',
+        error_msg: 'Maskapai gagal ditambahkan.',
       });
     }
   } catch (error) {
@@ -41,33 +41,32 @@ controllers.add = async (req, res) => {
   }
 };
 
-// **Update airline**
+// *Update airline*
 controllers.update = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_cud = new Model_cud(req);
     await model_cud.update();
-    // get response
+
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Maskapai berhasil Diupdate.',
+        error_msg: 'Maskapai berhasil diupdate.',
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Maskapai Gagal Diupdate.',
+        error_msg: 'Maskapai gagal diupdate.',
       });
     }
 
   } catch (error) {
-    console.error("Error di Controller:", error);
     handleServerError(res, error.message);
   }
 };
 
-// **Hapus airline**
+// *Hapus airline*
 controllers.delete = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -75,7 +74,6 @@ controllers.delete = async (req, res) => {
     const model_cud = new Model_cud(req);
     await model_cud.delete();
 
-    // get response
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
@@ -84,7 +82,7 @@ controllers.delete = async (req, res) => {
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Maskapai Gagal Dihapus.',
+        error_msg: 'Maskapai gagal dihapus.',
       });
     }
   } catch (error) {

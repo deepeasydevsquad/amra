@@ -13,9 +13,7 @@ class Model_r {
   }
 
   async daftar_asuransi() {
-    // initialize dependensi properties
     await this.initialize();
-
     const body = this.req.body;
     var limit = body.perpage;
     var page = 1;
@@ -42,7 +40,6 @@ class Model_r {
     sql["where"] = where;
 
     try {
-
       const query = await dbList(sql);
       const q = await Mst_asuransi.findAndCountAll(query.total);
       const total = await q.count;
@@ -70,18 +67,17 @@ class Model_r {
     }
   }
 
-  async infoAsuransi(id) {
+  async infoAsuransi(id, company_id) {
     try {
       var data = {};
       await Mst_asuransi.findOne({
-          where: { id: id },
+          where: { id: id, company_id: company_id },
       }).then(async (e) => {
           if (e) {
               data["id"] = e.id;
               data["name"] = e.name;
           }
       });
-     
       return data
     } catch (error) {
       return {}      

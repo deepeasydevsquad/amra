@@ -4,7 +4,7 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 
 const controllers = {};
 
-// **Mendapatkan daftar mobil**
+// *Mendapatkan daftar mobil*
 controllers.getDaftarMobil = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -17,23 +17,23 @@ controllers.getDaftarMobil = async (req, res) => {
   }
 };
 
-// **Menambahkan mobil baru**
+// *Menambahkan mobil*
 controllers.add = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_cud = new Model_cud(req);
     await model_cud.add();
-    // get response
+
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Jenis Mobil Baru berhasil ditambahkan.',
+        error_msg: 'Jenis Mobil berhasil ditambahkan.',
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Jenis Mobil Baru Gagal Ditambahkan.',
+        error_msg: 'Jenis Mobil gagal ditambahkan.',
       });
     }
   } catch (error) {
@@ -41,33 +41,32 @@ controllers.add = async (req, res) => {
   }
 };
 
-// **Update mobil**
+// *Update mobil*
 controllers.update = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_cud = new Model_cud(req);
     await model_cud.update();
-    // get response
+
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Jenis Mobil berhasil Diupdate.',
+        error_msg: 'Jenis Mobil berhasil diupdate.',
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Jenis Mobil Gagal Diupdate.',
+        error_msg: 'Jenis Mobil gagal diupdate.',
       });
     }
 
   } catch (error) {
-    console.error("Error di Controller:", error);
     handleServerError(res, error.message);
   }
 };
 
-// **Hapus mobil**
+// *Hapus mobil*
 controllers.delete = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -75,7 +74,6 @@ controllers.delete = async (req, res) => {
     const model_cud = new Model_cud(req);
     await model_cud.delete();
 
-    // get response
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
@@ -84,7 +82,7 @@ controllers.delete = async (req, res) => {
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Jenis Mobil Gagal Dihapus.',
+        error_msg: 'Jenis Mobil gagal dihapus.',
       });
     }
   } catch (error) {

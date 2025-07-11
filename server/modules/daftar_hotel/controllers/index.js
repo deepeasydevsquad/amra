@@ -31,7 +31,7 @@ controllers.getDaftarHotel = async (req, res) => {
   }
 };
 
-// **Menambahkan hotel baru**
+// *Menambahkan hotel*
 controllers.add = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -42,12 +42,12 @@ controllers.add = async (req, res) => {
     if (await model_cud.response()) {
       res.status(200).json({ 
         error: false, 
-        error_msg: "Hotel baru berhasil ditambahkan." 
+        error_msg: "Hotel berhasil ditambahkan." 
       });
     } else {
       res.status(400).json({ 
         error: true, 
-        error_msg: "Hotel baru gagal ditambahkan." 
+        error_msg: "Hotel gagal ditambahkan." 
       });
     }
   } catch (error) {
@@ -55,7 +55,7 @@ controllers.add = async (req, res) => {
   }
 };
 
-// **Update hotel**
+// *Update hotel*
 controllers.update = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -79,7 +79,7 @@ controllers.update = async (req, res) => {
   }
 };
 
-// **Hapus hotel**
+// *Hapus hotel*
 controllers.delete = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
