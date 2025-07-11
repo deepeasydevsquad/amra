@@ -102,7 +102,7 @@ class Model_r {
     try {
       var data = {};
       await Supplier.findOne({
-          where: { id: id },
+          where: { id: id, company_id: company_id },
       }).then(async (e) => {
           if (e) {
               data["id"] = e.id;

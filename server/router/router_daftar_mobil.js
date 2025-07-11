@@ -21,7 +21,7 @@ router.post(
   "/daftar-mobil/add",
   authenticateToken,
   [
-    body("name").trim().notEmpty().withMessage("Nama Jenis Mobil tidak boleh kosong."),
+    body("name").trim().notEmpty().withMessage("Nama Jenis Mobil tidak boleh kosong.").toUpperCase(),
   ],
   controllers.add
 );
@@ -31,7 +31,7 @@ router.post(
   authenticateToken,
   [
     body("id").trim().notEmpty().withMessage("ID Jenis Mobil tidak boleh kosong.").custom(validation.check_id_mobil),
-    body("name").trim().notEmpty().withMessage("Nama Jenis Mobil tidak boleh kosong."),
+    body("name").trim().notEmpty().withMessage("Nama Jenis Mobil tidak boleh kosong.").toUpperCase(),
   ],
   controllers.update
 );
