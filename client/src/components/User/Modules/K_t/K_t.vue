@@ -176,13 +176,13 @@ onMounted(() => {
         <tbody>
           <tr class="border-b">
             <td></td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-left">POTENSI PENDAPATAN PAKET</td>
+            <td class="px-0 py-3 font-bold text-gray-900 text-left">POTENSI PENDAPATAN PAKET</td>
             <td></td>
             <td></td>
             <td></td>
             <td></td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-right">Rp 30.000.000,-</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center">-</td>
+            <td class="px-0 py-3 font-bold text-gray-900 text-right">Rp 30.000.000,-</td>
+            <td class="px-0 py-3 font-bold text-gray-900 text-center">-</td>
           </tr>
           <tr>
             <td class="px-0 py-3 font-medium text-gray-900 text-center">1</td>
@@ -201,11 +201,11 @@ onMounted(() => {
     <div class="overflow-hidden  border border-gray-200 mt-10">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <tbody>
-          <tr class="border-b bg-gray-50">
-            <td class="w-[3%] px-6 py-3 font-medium text-gray-900 text-center">A.</td>
-            <td colspan="5" class="px-0 py-3 font-medium text-gray-900 text-left">POTENSI PENDAPATAN PAKET</td>
-            <td class="w-[13%] px-0 py-3 font-medium text-gray-900 text-right">Rp 30.000.000,-</td>
-            <td class="w-[15%] px-0 py-3 font-medium text-gray-900 text-center">-</td>
+          <tr class="border-b bg-gray-50 font-bold">
+            <td class="w-[3%] px-6 py-3 font-bold text-gray-900 text-center">A.</td>
+            <td colspan="5" class="px-0 py-3 font-bold text-gray-900 text-left">KEBERANGKATAN</td>
+            <td class="w-[13%] px-0 py-3 font-bold text-gray-900 text-right">Rp 30.000.000,-</td>
+            <td class="w-[15%] px-0 py-3 font-bold text-gray-900 text-center">-</td>
           </tr>
           <tr class="border-b">
             <td class="px-6 py-3 font-medium text-gray-900 text-center">1</td>
@@ -226,10 +226,10 @@ onMounted(() => {
             <td class="px-0 py-3 font-medium text-gray-900 text-center">-</td>
           </tr>
           <tr class="border-b bg-gray-50">
-            <td class="px-6 py-3 font-medium text-gray-900 text-center">B.</td>
-            <td colspan="5" class="px-0 py-3 font-medium text-gray-900 text-left">AKTUALISASI KEGIATAN ANGGARAN</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-right">Rp 30.000.000,-</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center">
+            <td class="px-6 py-3 font-bold text-gray-900 text-center">B.</td>
+            <td colspan="5" class="px-0 py-3 font-bold text-gray-900 text-left">AKTUALISASI KEGIATAN ANGGARAN</td>
+            <td class="px-0 py-3 font-bold text-gray-900 text-right">Rp 30.000.000,-</td>
+            <td class="px-0 py-3 font-bold text-gray-900 text-center">
               <div class="flex justify-center">
                 <LightButton><IconPlus/></LightButton>
               </div>
