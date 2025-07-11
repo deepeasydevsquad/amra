@@ -72,15 +72,20 @@ const selectedBank = ref<Partial<Bank>>({
 });
 
 const fetchData = async() => {
-  const response = await daftarBank(
-    {
-      search: search.value,
-      perpage: itemsPerPage,
-      pageNumber: currentPage.value
-    });
-  totalPages.value = Math.ceil(response.total / itemsPerPage)
-  dataBank.value = response.data;
-  total.value = response.total;
+  try {
+    const response = await daftarBank(
+      {
+        search: search.value,
+        perpage: itemsPerPage,
+        pageNumber: currentPage.value
+      });
+
+    totalPages.value = Math.ceil(response.total / itemsPerPage)
+    dataBank.value = response.data;
+    total.value = response.total;
+  } catch (error) {
+    displayNotification('Terjadi kesalahan saat mengambil data.', 'error');
+  }
 }
 
 const openModal = (bank?: Bank) => {
@@ -123,7 +128,6 @@ const deleteData = async (id: number) => {
         displayNotification(response.error_msg);
         fetchData();
       } catch (error) {
-        console.error('Error deleting data:', error);
         displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
       }
     }

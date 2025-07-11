@@ -69,14 +69,19 @@ const selectedProviderVisa = ref<Partial<ProviderVisa>>({
 });
 
 const fetchData = async() => {
-  const response = await daftarProviderVisa({
-    search: search.value,
-    perpage: itemsPerPage,
-    pageNumber: currentPage.value
-  });
-  totalPages.value = Math.ceil(response.total / itemsPerPage)
-  dataProviderVisa.value = response.data;
-  total.value = response.total;
+  try {
+    const response = await daftarProviderVisa({
+      search: search.value,
+      perpage: itemsPerPage,
+      pageNumber: currentPage.value
+    });
+
+    totalPages.value = Math.ceil(response.total / itemsPerPage);
+    dataProviderVisa.value = response.data;
+    total.value = response.total;
+  } catch (error) {
+    displayNotification('Terjadi kesalahan saat mengambil data.', 'error');
+  }
 }
 
 const openModal = (provider_visa?: ProviderVisa) => {
@@ -119,7 +124,6 @@ const deleteData = async (id: number) => {
         displayNotification(response.error_msg);
         fetchData();
       } catch (error) {
-        console.error('Error deleting data:', error);
         displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
       }
     }

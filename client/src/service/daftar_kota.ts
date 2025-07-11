@@ -39,4 +39,3 @@ export const deleteKota = async (id : number) => {
     throw error;
   }
 };
-// deleteKota

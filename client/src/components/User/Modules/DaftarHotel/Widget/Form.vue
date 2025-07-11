@@ -65,8 +65,7 @@ const fetchDataKota = async () => {
     kotaList.value = response.data
   } catch (error) {
     emit('close')
-    emit('status', { error: true, err_msg: (error.response.data?.err_msg || error.response.data?.message) || 'Terjadi kesalahan saat mengambil data bank.' });
-    console.error('Gagal mengambil data bank:', error)
+    emit('status', { error: true, err_msg: (error.response.data?.err_msg || error.response.data?.message) || 'Terjadi kesalahan saat mengambil data kota.' });
   }
 }
 

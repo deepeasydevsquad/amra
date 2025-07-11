@@ -39,4 +39,3 @@ export const deleteAirlines = async (id : number) => {
     throw error;
   }
 };
-// deleteAirlines

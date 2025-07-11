@@ -69,10 +69,20 @@ const selectedFasilitas = ref<Partial<Fasilitas>>({
 });
 
 const fetchData = async() => {
-  const response = await daftarFasilitas({search: search.value, perpage: itemsPerPage, pageNumber: currentPage.value});
-  totalPages.value = Math.ceil(response.total / itemsPerPage)
-  dataFasilitas.value = response.data;
-  total.value = response.total;
+  try {
+    const response = await daftarFasilitas(
+      {
+        search: search.value,
+        perpage: itemsPerPage,
+        pageNumber: currentPage.value
+      });
+
+    totalPages.value = Math.ceil(response.total / itemsPerPage)
+    dataFasilitas.value = response.data;
+    total.value = response.total;
+  } catch (error) {
+    displayNotification('Terjadi kesalahan saat mengambil data.', 'error');
+  }
 }
 
 const openModal = (fasilitas?: Fasilitas) => {
@@ -115,7 +125,6 @@ const deleteData = async (id: number) => {
         displayNotification(response.error_msg);
         fetchData();
       } catch (error) {
-        console.error('Error deleting data:', error);
         displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
       }
     }

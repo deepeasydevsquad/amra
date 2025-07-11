@@ -70,14 +70,19 @@ const selectedAsuransi = ref<Partial<Asuransi>>({
 });
 
 const fetchData = async() => {
-  const response = await daftarAsuransi({
-    search: search.value,
-    perpage: itemsPerPage,
-    pageNumber: currentPage.value
-  });
-  totalPages.value = Math.ceil(response.total / itemsPerPage)
-  dataAsuransi.value = response.data;
-  total.value = response.total;
+  try {
+    const response = await daftarAsuransi({
+      search: search.value,
+      perpage: itemsPerPage,
+      pageNumber: currentPage.value
+    });
+
+    totalPages.value = Math.ceil(response.total / itemsPerPage)
+    dataAsuransi.value = response.data;
+    total.value = response.total;
+  } catch (error) {
+    displayNotification('Terjadi kesalahan saat mengambil data.', 'error');
+  }
 }
 
 const openModal = (asuransi?: Asuransi) => {
@@ -120,7 +125,6 @@ const deleteData = async (id: number) => {
         displayNotification(response.error_msg);
         fetchData();
       } catch (error) {
-        console.error('Error deleting data:', error);
         displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
       }
     }
