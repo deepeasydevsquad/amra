@@ -1,139 +1,89 @@
-<template>
-  <div class="container mx-auto p-4">
-    <!-- Pencarian & Filter -->
-    <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-      <div class="col-span-1 md:col-span-1 flex items-center">
-        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Nama atau Invoice"
-          class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-        />
-      </div>
-      <input
-        v-model="filters.tanggal_awal"
-        type="date"
-        class="text-gray-700 px-3 py-2 border rounded-lg shadow-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <input
-        v-model="filters.tanggal_akhir"
-        type="date"
-        class="text-gray-700 px-3 py-2 border rounded-lg shadow-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-    </div> -->
-    <div class="flex justify-between mb-4">
-      <div class="inline-flex rounded-md shadow-xs" role="group"></div>
-      <div class="flex items-center">
-        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
-        <div class="inline-flex rounded-md shadow-xs" role="group">
-          <input v-model="searchQuery" type="text" placeholder="Nama atau Invoice" class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 mr-5"/>
-          <input v-model="filters.tanggal_awal" type="date" class="text-gray-700 px-3 py-2 border shadow-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-s-lg"/>
-          <input v-model="filters.tanggal_akhir" type="date" class="text-gray-700 px-3 py-2 border rounded-e-lg shadow-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-        </div>
-      </div>
-    </div>
-
-    <!-- Loading State -->
-    <div v-if="loading" class="text-center py-4">
-      <span class="text-gray-500">Loading...</span>
-    </div>
-
-    <!-- Error State -->
-    <div v-else-if="error" class="text-center py-4">
-      <span class="text-red-500">{{ error }}</span>
-    </div>
-
-    <!-- Tabel System Log -->
-    <div v-else class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
-      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Ne Registrasi / Invoice</th>
-            <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Info Jamaah</th>
-            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Biaya</th>
-            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Status Biaya</th>
-            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Penerima</th>
-            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Tanggal Transaksi</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-          <tr v-if="paginatedRiwayat.length === 0">
-            <td colspan="6" class="px-6 py-4 text-center text-gray-500">Data tidak ada</td>
-          </tr>
-          <tr
-            v-for="riwayat in paginatedRiwayat"
-            :key="riwayat.invoice"
-            class="hover:bg-gray-50 transition-colors"
-          >
-            <td class="px-6 py-4 text-center font-bold">
-              {{ riwayat.register_number }}/<br>{{ riwayat.invoice }}
-            </td>
-            <td class="px-6 py-4 text-center">{{ riwayat.nama_jamaah }}<br>(Identitas: {{ riwayat.nomor_identitas }})</td>
-            <td class="px-6 py-4 text-center">{{ formatIDR(riwayat.nominal) }}</td>
-            <td class="px-6 py-4 text-center">{{ riwayat.status }}</td>
-            <td class="px-6 py-4 text-center">{{ riwayat.petugas }}</td>
-            <td class="px-6 py-4 text-center">{{ formatDate(riwayat.tanggal_transaksi) }}</td>
-          </tr>
-        </tbody>
-        <tfoot class="bg-gray-100 font-bold">
-          <tr>
-            <td class="px-4 py-4 text-left border min-h-[200px]"  :colspan="6">
-              <nav class="flex mt-0">
-                <ul class="inline-flex items-center -space-x-px">
-                  <!-- Tombol Previous -->
-                  <li>
-                    <button
-                      @click="prevPage"
-                      :disabled="currentPage === 1"
-                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                  </li>
-                  <!-- Nomor Halaman -->
-                  <li v-for="page in pages" :key="page">
-                    <button
-                      @click="pageNow(page)"
-                      class="px-3 py-2 leading-tight border"
-                      :class="
-                        currentPage === page
-                          ? 'text-white bg-[#333a48] border-[#333a48]'
-                          : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'
-                      "
-                    >
-                      {{ page }}
-                    </button>
-                  </li>
-                  <!-- Tombol Next -->
-                  <li>
-                    <button
-                      @click="nextPage"
-                      :disabled="currentPage === totalPages"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { getRiwayatPeminjaman } from '@/service/riwayat_peminjaman'
+import { paramCabang } from '@/service/param_cabang'
+import Pagination from '@/components/Pagination/Pagination.vue'
+
+interface filterCabang {
+  id: number
+  name: string
+}
+
+//filter cabang
+
+const fetchFilterData = async () => {
+  const response = await paramCabang()
+  optionFilterCabang.value = response.data
+  selectedOptionCabang.value = response.data[0].id
+  await fetchRiwayatPeminjaman()
+}
+
+interface RiwayatPeminjamanItem {
+  nama_jamaah: string
+  nomor_identitas: string
+  register_number: string
+  invoice: string
+  nominal: number
+  petugas: string
+  status: string
+  tanggal_transaksi: string
+}
 
 // State utama
-const riwayat = ref<any[]>([])
+const riwayat = ref<RiwayatPeminjamanItem[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
 const searchQuery = ref('')
+const selectedOptionCabang = ref(0)
+const optionFilterCabang = ref<filterCabang[]>([])
+const search = ref('')
+const currentPage = ref(1)
+const totalPages = ref(0)
+const totalColumns = ref(6)
+const itemsPerPage = ref(10)
+const totalItems = ref(0)
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+    fetchRiwayatPeminjaman()
+  }
+}
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--
+    fetchRiwayatPeminjaman()
+  }
+}
+
+const goToPage = (page: number) => {
+  currentPage.value = page
+  fetchRiwayatPeminjaman()
+}
+
+const visiblePages = computed(() => {
+  const pagesToShow = 5
+  const total = totalPages.value
+  const current = currentPage.value
+  let start = Math.max(1, current - Math.floor(pagesToShow / 2))
+  let end = Math.min(total, start + pagesToShow - 1)
+
+  if (end - start < pagesToShow - 1) {
+    start = Math.max(1, end - pagesToShow + 1)
+  }
+
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i)
+})
+
+const pageNow = (page: number) => {
+  currentPage.value = page
+  fetchRiwayatPeminjaman()
+}
+
+const pages = computed(() => {
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1)
+})
 
 // Filter tanggal
 const filters = ref({
@@ -142,16 +92,21 @@ const filters = ref({
 })
 
 // Pagination
-const currentPage = ref(1)
-const itemsPerPage = 100
 
 // Ambil data
 const fetchRiwayatPeminjaman = async () => {
   try {
     loading.value = true
     error.value = null
-    const response = await getRiwayatPeminjaman()
+    const response = await getRiwayatPeminjaman({
+      search: searchQuery.value,
+      perpage: itemsPerPage.value,
+      pageNumber: currentPage.value,
+      cabang: selectedOptionCabang.value,
+    })
     riwayat.value = response.data
+    totalItems.value = response.total || response.data.length || 0
+    totalPages.value = Math.ceil(totalItems.value / itemsPerPage.value) || 1
   } catch (err) {
     error.value = 'Gagal mengambil data riwayat peminjaman. Silakan coba lagi.'
     console.error('Error fetching system logs:', err)
@@ -200,27 +155,128 @@ const filteredRiwayat = computed(() => {
   })
 })
 
-// Pagination logic
-const totalPages = computed(() => Math.ceil(filteredRiwayat.value.length / itemsPerPage))
-const paginatedRiwayat = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  const end = start + itemsPerPage
-  return filteredRiwayat.value.slice(start, end)
-})
-const pages = computed(() => Array.from({ length: totalPages.value }, (_, i) => i + 1))
-const pageNow = (page: number) => (currentPage.value = page)
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) currentPage.value++
-}
-const prevPage = () => {
-  if (currentPage.value > 1) currentPage.value--
-}
-
 onMounted(() => {
-  fetchRiwayatPeminjaman()
+  fetchFilterData()
 })
 </script>
 
-<style scoped>
-/* Optional styling */
-</style>
+<template>
+  <div class="container mx-auto p-4">
+    <div class="flex justify-between mb-4">
+      <div class="inline-flex rounded-md shadow-xs" role="group"></div>
+      <div class="flex items-center">
+        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
+        <div class="flex flex-wrap items-center gap-4">
+          <!-- Input Pencarian -->
+
+          <!-- Tanggal Awal -->
+          <input
+            v-model="filters.tanggal_awal"
+            @change="fetchRiwayatPeminjaman"
+            type="date"
+            class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+
+          <!-- Tanggal Akhir -->
+          <input
+            v-model="filters.tanggal_akhir"
+            @change="fetchRiwayatPeminjaman"
+            type="date"
+            class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+
+          <!-- Filter Cabang -->
+          <select
+            v-model="selectedOptionCabang"
+            @change="fetchRiwayatPeminjaman"
+            class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none w-52"
+          >
+            <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+              {{ optionC.name }}
+            </option>
+          </select>
+          <input
+            v-model="searchQuery"
+            @input="fetchRiwayatPeminjaman"
+            type="text"
+            placeholder="Nama atau Invoice"
+            class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none w-64"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div v-if="loading" class="text-center py-4">
+      <span class="text-gray-500">Loading...</span>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="text-center py-4">
+      <span class="text-red-500">{{ error }}</span>
+    </div>
+
+    <!-- Tabel System Log -->
+    <div v-else class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
+      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">
+              Ne Registrasi / Invoice
+            </th>
+            <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Info Jamaah</th>
+            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Biaya</th>
+            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Status Biaya</th>
+            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Penerima</th>
+            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">
+              Tanggal Transaksi
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          <tr v-if="filteredRiwayat.length === 0">
+            <td colspan="6" class="px-6 py-4 text-center text-gray-500">Data tidak ada</td>
+          </tr>
+          <tr
+            v-for="riwayat in filteredRiwayat"
+            :key="riwayat.invoice"
+            class="hover:bg-gray-50 transition-colors"
+          >
+            <td class="px-6 py-4 text-center font-bold">
+              {{ riwayat.register_number }}/<br />{{ riwayat.invoice }}
+            </td>
+            <td class="px-6 py-4 text-left">
+              <div class="space-y-1">
+                <div class="grid grid-cols-3 gap-2">
+                  <span class="font-medium text-gray-600">Nama</span>
+                  <span class="col-span-2">: {{ riwayat.nama_jamaah }}</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                  <span class="font-medium text-gray-600">Identitas</span>
+                  <span class="col-span-2">: {{ riwayat.nomor_identitas }}</span>
+                </div>
+              </div>
+            </td>
+
+            <td class="px-6 py-4 text-center">{{ formatIDR(riwayat.nominal) }}</td>
+            <td class="px-6 py-4 text-center">{{ riwayat.status }}</td>
+            <td class="px-6 py-4 text-center">{{ riwayat.petugas }}</td>
+            <td class="px-6 py-4 text-center">{{ formatDate(riwayat.tanggal_transaksi) }}</td>
+          </tr>
+        </tbody>
+        <tfoot class="bg-gray-100 font-bold">
+          <Pagination
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            :pages="visiblePages"
+            :total-columns="totalColumns"
+            :total-row="totalItems"
+            @prev-page="prevPage"
+            @next-page="nextPage"
+            @page-now="goToPage"
+          />
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</template>
