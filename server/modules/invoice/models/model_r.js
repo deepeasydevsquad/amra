@@ -42,8 +42,8 @@ const {
   Transport_transaction,
   Transport_transaction_detail,
   Mst_mobil,
-  Kas_keluar_masuk, 
-  Jurnal
+  Kas_keluar_masuk,
+  Jurnal,
 } = require("../../../models");
 const { Op } = require("sequelize");
 const {
@@ -52,7 +52,7 @@ const {
   getCabang,
 } = require("../../../helper/companyHelper");
 
-const{ convertToRP } = require("../../../helper/currencyHelper");
+const { convertToRP } = require("../../../helper/currencyHelper");
 
 class Model_r {
   constructor(req) {
@@ -73,8 +73,8 @@ class Model_r {
 
   async get_akun_secondary_name(company_id) {
     var data = {};
-    await Akun_secondary.findAll({ 
-      where : { company_id : company_id }
+    await Akun_secondary.findAll({
+      where: { company_id: company_id },
     }).then(async (value) => {
       await Promise.all(
         await value.map(async (e) => {
@@ -91,18 +91,17 @@ class Model_r {
     const list_akun = await this.get_akun_secondary_name(this.company_id);
 
     try {
-
       var data = {};
       await Kas_keluar_masuk.findOne({
-        where: { invoice: this.req.params.invoice}, // pastikan ini berdasarkan division_id
+        where: { invoice: this.req.params.invoice }, // pastikan ini berdasarkan division_id
         include: [
           {
             required: true,
             model: Division,
-            where : {
-              company_id: this.company_id
-            }
-          }
+            where: {
+              company_id: this.company_id,
+            },
+          },
         ],
       }).then(async (e) => {
         if (e) {
@@ -112,27 +111,31 @@ class Model_r {
             dibayar_diterima: e.dibayar_diterima,
             petugas: e.petugas,
             status_kwitansi: e.status_kwitansi,
-            tanggal_transaksi: moment(e.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+            tanggal_transaksi: moment(e.createdAt).format(
+              "YYYY-MM-DD HH:mm:ss"
+            ),
             details: [],
-          }
+          };
         }
       });
       // filter
-      if( Object.keys(data).length > 0 ) {
+      if (Object.keys(data).length > 0) {
         var details = [];
         await Jurnal.findAll({
-          where : { 
-            source  : 'kaskeluarmasuk:invoice:' + this.req.params.invoice ,
+          where: {
+            source: "kaskeluarmasuk:invoice:" + this.req.params.invoice,
           },
         }).then(async (value) => {
           await Promise.all(
             await value.map(async (e) => {
-              details.push({ 
-                  ref: e.ref, 
-                  ket: e.ket, 
-                  akun_debet: e.akun_debet + `<br><b>[${list_akun[e.akun_debet]}]</b>`, 
-                  akun_kredit: e.akun_kredit + `<br><b>[${list_akun[e.akun_kredit]}]</b>`, 
-                  saldo: await convertToRP(e.saldo) 
+              details.push({
+                ref: e.ref,
+                ket: e.ket,
+                akun_debet:
+                  e.akun_debet + `<br><b>[${list_akun[e.akun_debet]}]</b>`,
+                akun_kredit:
+                  e.akun_kredit + `<br><b>[${list_akun[e.akun_kredit]}]</b>`,
+                saldo: await convertToRP(e.saldo),
               });
             })
           );
@@ -143,11 +146,10 @@ class Model_r {
 
       return data;
     } catch (error) {
-
       console.log("------XXX-----");
       console.log(error);
       console.log("------XXX-----");
-      return {}
+      return {};
     }
   }
 
@@ -201,7 +203,9 @@ class Model_r {
 
     if (division) {
       const invoiceLogo = division.Company?.invoice_logo;
-      const logoPath = invoiceLogo ? path.resolve(__dirname, "../../../uploads", invoiceLogo) : null;
+      const logoPath = invoiceLogo
+        ? path.resolve(__dirname, "../../../uploads", invoiceLogo)
+        : null;
       const exists = invoiceLogo && fs.existsSync(logoPath);
 
       data.logo = exists ? invoiceLogo : "default.png";
@@ -210,7 +214,8 @@ class Model_r {
       data.address = division.address ?? "-";
       data.pos_code = division.pos_code ?? "-";
       data.email = division.Company?.email ?? "-";
-      data.whatsapp_company_number = division.Company?.whatsapp_company_number ?? "-";
+      data.whatsapp_company_number =
+        division.Company?.whatsapp_company_number ?? "-";
     }
 
     console.log(data);
@@ -225,7 +230,7 @@ class Model_r {
 
       await Deposit.findOne({
         where: {
-          company_id: this.company_id,
+          division_id: this.division_id,
           invoice: this.req.params.invoice,
         },
         include: {
