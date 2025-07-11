@@ -69,6 +69,7 @@ module.exports = (sequelize, DataTypes) => {
     division_id: DataTypes.INTEGER,
     nomor_register: DataTypes.STRING,
     total_transaksi: DataTypes.INTEGER,
+    paket_id: DataTypes.INTEGER,
     status: DataTypes.ENUM(['active', 'refund', 'cancel'])
   }, {
     sequelize,
