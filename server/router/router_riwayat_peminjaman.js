@@ -10,6 +10,7 @@ router.post(
   "/riwayat_peminjaman",
   authenticateToken,
   [
+    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong."),
     body("pageNumber").trim(),
     body("perpage")
       .trim()
