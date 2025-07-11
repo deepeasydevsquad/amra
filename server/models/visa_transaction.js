@@ -25,7 +25,8 @@ module.exports = (sequelize, DataTypes) => {
     invoice: DataTypes.STRING,
     petugas: DataTypes.STRING,
     payer: DataTypes.STRING,
-    payer_identity: DataTypes.STRING
+    payer_identity: DataTypes.STRING,
+    paket_id: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'Visa_transaction',

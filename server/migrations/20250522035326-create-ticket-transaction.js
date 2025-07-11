@@ -28,6 +28,9 @@ module.exports = {
         values: ['active', 'refund', 'cancel'],
         defaultValue : "active"
       },
+      paket_id: {
+        type: Sequelize.INTEGER,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

@@ -32,6 +32,9 @@ module.exports = {
       address: {
         type: Sequelize.TEXT
       },
+      paket_id: {
+        type: Sequelize.INTEGER,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

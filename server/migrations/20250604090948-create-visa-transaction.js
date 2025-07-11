@@ -29,6 +29,9 @@ module.exports = {
       payer_identity: {
         type: Sequelize.STRING
       },
+      paket_id: {
+        type: Sequelize.INTEGER,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
