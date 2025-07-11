@@ -5,7 +5,7 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 const controllers = {};
 
 // **Mendapatkan daftar provider_visa**
-controllers.get_daftar_provider_visa = async (req, res) => {
+controllers.getDaftarProviderVisa = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
