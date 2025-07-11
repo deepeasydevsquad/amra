@@ -186,22 +186,26 @@ onMounted(() => {
           />
 
           <!-- Filter Cabang -->
-          <select
-            v-model="selectedOptionCabang"
-            @change="fetchRiwayatPeminjaman"
-            class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none w-52"
-          >
-            <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
-              {{ optionC.name }}
-            </option>
-          </select>
-          <input
-            v-model="searchQuery"
-            @input="fetchRiwayatPeminjaman"
-            type="text"
-            placeholder="Nama atau Invoice"
-            class="px-3 py-2 border border-gray-300 rounded-lg shadow-sm text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none w-64"
-          />
+          <div class="flex">
+            <input
+              v-model="searchQuery"
+              @input="fetchRiwayatPeminjaman"
+              type="text"
+              placeholder="Nama atau Invoice"
+              class="w-64 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            />
+            <select
+              v-model="selectedOptionCabang"
+              @change="fetchRiwayatPeminjaman"
+              class="w-60 px-3 py-2 text-sm bg-white border border-l-0 border-gray-300 text-gray-700 rounded-e-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            >
+              <option value="">Semua Cabang</option>
+              <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+                {{ optionC.name }}
+              </option>
+            </select>
+          </div>
+
         </div>
       </div>
     </div>
