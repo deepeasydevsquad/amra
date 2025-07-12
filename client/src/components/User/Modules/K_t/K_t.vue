@@ -126,15 +126,7 @@ onMounted(() => {
         Tutup Paket
       </button>
       <div class="flex items-center">
-        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input
-          type="text"
-          id="search"
-          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-          v-model="search"
-          @change="fetchData()"
-          placeholder="Cari Jamaah..."
-        />
+        <label for="search" class="block pt-2 text-base font-medium text-gray-700 mr-2">Paket Umrah Keren</label>
       </div>
     </div>
 
@@ -144,17 +136,17 @@ onMounted(() => {
           <tr>
             <td class="w-[25%] px-6 py-2 border-b font-medium text-gray-900 text-start">RINCIAN KEGIATAN ANGGARAN PAKET</td>
             <td class="w-[2%] px-0 py-2 border-b font-medium text-gray-900 text-start">:</td>
-            <td class="px-0 py-2 border-b font-medium text-gray-900 text-start">123123</td>
+            <td class="px-0 py-2 border-b font-medium text-gray-900 text-start">Rp 300.000.000,-</td>
           </tr>
           <tr>
             <td class="px-6 py-2 border-b font-medium text-gray-900 text-start">RINCIAN AKTUALISASI BELANJA PAKET</td>
             <td class="px-0 py-2 border-b font-medium text-gray-900 text-start">:</td>
-            <td class="px-0 py-2 border-b font-medium text-gray-900 text-start">123123</td>
+            <td class="px-0 py-2 border-b font-medium text-gray-900 text-start">Rp 300.000.000,-</td>
           </tr>
           <tr>
             <td class="px-6 py-2 font-medium text-gray-900 text-start">RINCIAN KEUNTUNGAN PROGRAM PAKET</td>
             <td class="px-0 py-2 font-medium text-gray-900 text-start">:</td>
-            <td class="px-0 py-2 font-medium text-gray-900 text-start">123123</td>
+            <td class="px-0 py-2 font-medium text-gray-900 text-start">Rp 300.000.000,-</td>
           </tr>
         </tbody>
       </table>
