@@ -20,6 +20,18 @@ router.post(
 router.post(
   "/pembayaran_fee_agen/daftar_pembayaran_fee_agen",
   authenticateToken,
+  [
+    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong."),
+    body("pageNumber")
+      .trim()
+      .notEmpty()
+      .withMessage("Page Number tidak boleh kosong."),
+    body("perpage")
+      .trim()
+      .notEmpty()
+      .withMessage("Jumlah Per Page tidak boleh kosong."),
+    body("search").trim(),
+  ],
   controllers.daftar_pembayaran_fee_agen
 );
 
@@ -35,9 +47,15 @@ router.post(
   controllers.detail_pembayaran_fee
 );
 
-router.get(
+router.post(
   "/pembayaran_fee_agen/data_agen",
   authenticateToken,
+  [
+    body("division_id")
+      .trim()
+      .notEmpty()
+      .withMessage("Cabang tidak boleh kosong."),
+  ],
   controllers.data_agen
 );
 
@@ -45,6 +63,10 @@ router.post(
   "/pembayaran_fee_agen/add_pembayaran_fee",
   authenticateToken,
   [
+    body("division_id")
+      .trim()
+      .notEmpty()
+      .withMessage("Cabang tidak boleh kosong."),
     body("agen_id").notEmpty().withMessage("Agen ID wajib diisi."),
 
     body("aplicant_name")

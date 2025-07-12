@@ -29,16 +29,46 @@ class Model_r {
 
   async daftar_pembayaran_fee_agen() {
     await this.initialize();
+    const { body } = this.req;
+
+    const limit = parseInt(body.perpage, 10) || 10;
+    const page =
+      parseInt(body.pageNumber, 10) > 0 ? parseInt(body.pageNumber, 10) : 1;
+    const offset = (page - 1) * limit;
+
+    let whereFee = {};
+    let whereAgen = {};
+
+    // ✅ Filter cabang
+    if (body.cabang) {
+      whereFee = {
+        ...whereFee,
+        division_id: body.cabang,
+      };
+    }
+
+    // ✅ Filter search
+    if (body.search) {
+      whereAgen = {
+        ...whereAgen,
+        [Op.or]: [
+          { fullname: { [Op.like]: `%${body.search}%` } },
+          { "$Member.fullname$": { [Op.like]: `%${body.search}%` } },
+        ],
+      };
+    }
 
     try {
-      const sql = await Agen.findAll({
+      const result = await Agen.findAndCountAll({
+        distinct: true,
+        limit,
+        offset,
+        where: whereAgen,
         include: [
           {
-            required: true,
             model: Pembayaran_fee_agen,
-            where: {
-              company_id: this.company_id,
-            },
+            required: true,
+            where: whereFee,
             attributes: [
               "id",
               "invoice",
@@ -49,21 +79,22 @@ class Model_r {
             ],
           },
           {
-            required: true,
             model: Member,
+            required: true,
             attributes: ["fullname"],
           },
         ],
+        order: [["id", "DESC"]],
       });
 
       const data = await Promise.all(
-        sql.flatMap((item) => {
+        result.rows.flatMap((item) => {
           return item.Pembayaran_fee_agens.map(async (pembayaran) => ({
             id: item.id,
             name: item.fullname || (item.Member?.fullname ?? "-"),
             id_pembayaran: pembayaran.id || "-",
             invoice: pembayaran.invoice || "-",
-            nominal: await convertToRP(pembayaran.nominal), // ✅ now works
+            nominal: await convertToRP(pembayaran.nominal),
             applicant_name: pembayaran.applicant_name || "-",
             applicant_identity: pembayaran.applicant_identity || "-",
             penerima: pembayaran.penerima || "-",
@@ -71,10 +102,10 @@ class Model_r {
         })
       );
 
-      return data;
+      return { data, total: result.count };
     } catch (error) {
-      console.error("Error daftar pembayaran fee agen:", error);
-      throw error;
+      console.error("Error daftar_pembayaran_fee_agen:", error);
+      return { data: [], total: 0 };
     }
   }
 
@@ -85,7 +116,6 @@ class Model_r {
       const sql = await Fee_agen.findAll({
         where: {
           pembayaran_fee_agen_id: body.id_pembayaran,
-          company_id: this.company_id,
         },
         attributes: ["invoice", "nominal", "status_bayar", "info"],
       });
@@ -111,6 +141,7 @@ class Model_r {
 
   async daftar_agen() {
     await this.initialize();
+    const body = this.req.body;
     try {
       const sql = await Agen.findAll({
         attributes: ["id"],
@@ -119,7 +150,7 @@ class Model_r {
             required: true,
             model: Member,
             where: {
-              division_id: this.division,
+              division_id: body.division_id,
             },
             attributes: ["fullname"],
           },

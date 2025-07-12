@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Pembayaran_fee_agen extends Model {
     /**
@@ -11,29 +9,32 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Pembayaran_fee_agen.belongsTo(models.Company, {
-        foreignKey: "company_id",
+      Pembayaran_fee_agen.belongsTo(models.Division, {
+        foreignKey: "division_id",
       });
       Pembayaran_fee_agen.belongsTo(models.Agen, {
         foreignKey: "agen_id",
       });
       Pembayaran_fee_agen.hasMany(models.Fee_agen, {
         foreignKey: "pembayaran_fee_agen_id",
-        onDelete: 'CASCADE',
+        onDelete: "CASCADE",
       });
     }
   }
-  Pembayaran_fee_agen.init({
-    company_id: DataTypes.INTEGER,
-    agen_id: DataTypes.INTEGER,
-    invoice: DataTypes.STRING,
-    nominal: DataTypes.INTEGER,
-    applicant_name: DataTypes.STRING,
-    applicant_identity: DataTypes.STRING,
-    penerima: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'Pembayaran_fee_agen',
-  });
+  Pembayaran_fee_agen.init(
+    {
+      division_id: DataTypes.INTEGER,
+      agen_id: DataTypes.INTEGER,
+      invoice: DataTypes.STRING,
+      nominal: DataTypes.INTEGER,
+      applicant_name: DataTypes.STRING,
+      applicant_identity: DataTypes.STRING,
+      penerima: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      modelName: "Pembayaran_fee_agen",
+    }
+  );
   return Pembayaran_fee_agen;
 };
