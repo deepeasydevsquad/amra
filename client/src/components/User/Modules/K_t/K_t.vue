@@ -164,13 +164,12 @@ onMounted(() => {
         <thead class="bg-gray-100">
           <tr>
             <th class="w-[3%] px-6 py-3 font-medium text-gray-900 text-center">No</th>
-            <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Uraian</th>
-            <th class="w-[3%] px-6 py-3 font-medium text-gray-900 text-center">Qt</th>
+            <th class="w-[35%] px-6 py-3 font-medium text-gray-900 text-center">Uraian</th>
+            <th class="w-[8%] px-6 py-3 font-medium text-gray-900 text-center">Qt</th>
             <th class="w-[12%] px-6 py-3 font-medium text-gray-900 text-center">Biaya</th>
             <th class="w-[12%] px-6 py-3 font-medium text-gray-900 text-center">Tot. Biaya Mahram</th>
             <th class="w-[12%] px-6 py-3 font-medium text-gray-900 text-center">Tot. Diskon</th>
-            <th class="w-[13%] px-6 py-3 font-medium text-gray-900 text-center">Tot. Biaya</th>
-            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
+            <th class="w-[18%] px-6 py-3 font-medium text-gray-900 text-center">Tot. Biaya</th>
           </tr>
         </thead>
         <tbody>
@@ -181,8 +180,7 @@ onMounted(() => {
             <td></td>
             <td></td>
             <td></td>
-            <td class="px-0 py-3 font-bold text-gray-900 text-right">Rp 30.000.000,-</td>
-            <td class="px-0 py-3 font-bold text-gray-900 text-center">-</td>
+            <td class="px-6 py-3 font-bold text-gray-900 text-right">Rp 30.000.000,-</td>
           </tr>
           <tr>
             <td class="px-0 py-3 font-medium text-gray-900 text-center">1</td>
@@ -191,8 +189,7 @@ onMounted(() => {
             <td class="px-0 py-3 font-medium text-gray-900 text-right">Rp 30.000.000,-</td>
             <td class="px-0 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
             <td class="px-0 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-right">Rp 30.000.000,-</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center">-</td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 30.000.000,-</td>
           </tr>
         </tbody>
       </table>
@@ -203,37 +200,87 @@ onMounted(() => {
         <tbody>
           <tr class="border-b bg-gray-50 font-bold">
             <td class="w-[3%] px-6 py-3 font-bold text-gray-900 text-center">A.</td>
-            <td colspan="5" class="px-0 py-3 font-bold text-gray-900 text-left">KEBERANGKATAN</td>
-            <td class="w-[13%] px-0 py-3 font-bold text-gray-900 text-right">Rp 30.000.000,-</td>
-            <td class="w-[15%] px-0 py-3 font-bold text-gray-900 text-center">-</td>
+            <td class="w-[35%] px-0 py-3 font-bold text-gray-900 text-left" >KEBERANGKATAN</td>
+            <th class="w-[8%] px-0 py-3 font-medium text-gray-900 text-center" ></th>
+            <th colspan="3" class="w-[41%] px-6 py-3 font-medium text-gray-900 text-center" ></th>
+            <td class="w-[13%] px-6 py-3 font-bold text-gray-900 text-right">Rp 30.000.000,-</td>
           </tr>
           <tr class="border-b">
             <td class="px-6 py-3 font-medium text-gray-900 text-center">1</td>
-            <td colspan="5" class="px-0 py-3 font-medium text-gray-900 text-left">Pembayaran Jamaah</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-right">Rp 30.000.000,-</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center">-</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-left">Pembayaran Jamaah</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" ></td>
+            <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 30.000.000,-</td>
           </tr>
           <tr class="border-b">
             <td class="px-6 py-3 font-medium text-gray-900 text-center">2</td>
-            <td colspan="5" class="px-0 py-3 font-medium text-gray-900 text-left">Diskon</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center">-</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-left">Diskon</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" ></td>
+            <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
           </tr>
           <tr class="border-b">
             <td class="px-6 py-3 font-medium text-gray-900 text-center">3</td>
-            <td colspan="5" class="px-0 py-3 font-medium text-gray-900 text-left">Piutang Jamaah</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center">-</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-left">Piutang Jamaah</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" ></td>
+            <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
           </tr>
           <tr class="border-b bg-gray-50">
             <td class="px-6 py-3 font-bold text-gray-900 text-center">B.</td>
-            <td colspan="5" class="px-0 py-3 font-bold text-gray-900 text-left">AKTUALISASI KEGIATAN ANGGARAN</td>
-            <td class="px-0 py-3 font-bold text-gray-900 text-right">Rp 30.000.000,-</td>
-            <td class="px-0 py-3 font-bold text-gray-900 text-center">
-              <div class="flex justify-center">
-                <LightButton><IconPlus/></LightButton>
-              </div>
-            </td>
+            <td class="px-0 py-3 font-bold text-gray-900 text-left">AKTUALISASI KEGIATAN ANGGARAN</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" ></td>
+            <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
+            <td class="px-6 py-3 font-bold text-gray-900 text-right">Rp 30.000.000,-</td>
+          </tr>
+          <tr class="border-b">
+            <td class="px-6 py-3 font-medium text-gray-900 text-center">1</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-left">Fee Agen</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" >10 Orang</td>
+            <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
+          </tr>
+          <tr class="border-b">
+            <td class="px-6 py-3 font-medium text-gray-900 text-center">2</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-left">Biaya Fasilitas</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" >1000 Fasilitas</td>
+            <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
+          </tr>
+          <tr class="border-b">
+            <td class="px-6 py-3 font-medium text-gray-900 text-center">3</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-left">Biaya Tiket</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" >1 Tiket</td>
+            <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
+          </tr>
+          <tr class="border-b">
+            <td class="px-6 py-3 font-medium text-gray-900 text-center">4</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-left">Biaya Visa</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" >1 Unit</td>
+            <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
+          </tr>
+          <tr class="border-b">
+            <td class="px-6 py-3 font-medium text-gray-900 text-center">5</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-left">Biaya Hotel</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" >100 Unit</td>
+            <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
+          </tr>
+          <tr class="border-b">
+            <td class="px-6 py-3 font-medium text-gray-900 text-center">6</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-left">Biaya Transport</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" >1 Unit</td>
+            <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
+          </tr>
+          <tr class="border-b">
+            <td class="px-6 py-3 font-medium text-gray-900 text-center">7</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-left">Biaya Passport</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" >1 unit</td>
+            <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
           </tr>
         </tbody>
       </table>

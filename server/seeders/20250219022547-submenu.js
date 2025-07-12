@@ -37,7 +37,7 @@ module.exports = {
       { menu_id : menus[3].id, name: 'Whatsapp', path: 'whatsapp', tab:`[{"id":"${tabs[48].id}"},{"id":"${tabs[49].id}"},{"id":"${tabs[50].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[3].id, name: 'Surat Menyurat', path: 'surat_menyurat', tab:`[{"id":"${tabs[51].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[3].id, name: 'PPOB', path: 'ppob', tab:`[{"id":"${tabs[55].id}"},{"id":"${tabs[60].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
-      { menu_id : menus[4].id, name: 'Mobile', path: 'mobile', tab:'',  createdAt: new Date(), updatedAt: new Date() },
+      { menu_id : menus[4].id, name: 'Mobile', path: 'mobile', tab:`[{"id":"${tabs[61].id}"},{"id":"${tabs[62].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[5].id, name: 'Supplier', path: 'supplier', tab:`[{"id":"${tabs[11].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[5].id, name: 'Bank', path: 'bank', tab:`[{"id":"${tabs[6].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[5].id, name: 'Airlines', path: 'airlines', tab:`[{"id":"${tabs[7].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
@@ -61,6 +61,7 @@ module.exports = {
       { menu_id : menus[7].id, name: 'Grup Pengguna', path: 'grup_pengguna', tab:`[{"id":"${tabs[31].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[7].id, name: 'Pengguna', path: 'pengguna', tab:`[{"id":"${tabs[32].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[7].id, name: 'System Log', path: 'system_log', tab:`[{"id":"${tabs[29].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
+      { menu_id : menus[7].id, name: 'Saldo Perusahaan', path: 'saldo_perusahaan', tab:`[{"id":"${tabs[63].id}"},{"id":"${tabs[64].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
     ], {});
   },
 

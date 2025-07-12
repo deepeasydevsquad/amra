@@ -65,7 +65,10 @@ module.exports = {
       { name: 'Daftar Item Fasilitas', icon : 'fas fa-clipboard-check', path: 'daftar_item_fasilitas', desc:'Fitur ini menampilkan seluruh item stok fasilitas.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Riwayat Pembayaran Gaji Staff', icon : 'fas fa-money-check-alt', path: 'riwayat_pembayaran_gaji_staff', desc:'Fitur ini merupakan fitur untuk melakukan pembayaran gaji para Staff.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Daftar Produk PPOB', icon : 'fas fa-clipboard-check', path: 'daftar_produk_ppob', desc:'Fitur ini menampilkan daftar produk dari ppob.',  createdAt: new Date(), updatedAt: new Date() },
-      { name: 'Request Deposit Saldo Member', icon : 'fas fa-clipboard-check', path: 'request_deposit_saldo_member', desc:'Fitur ini menampilkan daftar produk dari ppob.',  createdAt: new Date(), updatedAt: new Date() },
+      { name: 'Permintaan Deposit Member', icon : 'fas fa-clipboard-check', path: 'permintaan_deposit_member', desc:'Fitur ini menampilkan daftar permintaan deposit saldo member.',  createdAt: new Date(), updatedAt: new Date() },
+      { name: 'Headline', icon : 'fas fa-clipboard-check', path: 'headline', desc:'Fitur ini menampilkan daftar headline.',  createdAt: new Date(), updatedAt: new Date() },
+      { name: 'Riwayat Tambah Saldo Perusahaan', icon : 'fas fa-clipboard-check', path: 'riwayat_tambah_saldo_perusahaan', desc:'Fitur ini menampilkan riwayat permintaan penambahan saldo perusahaan yang pernah dilakukan.',  createdAt: new Date(), updatedAt: new Date() },
+      { name: 'Riwayat Mutasi Saldo Perusahaan', icon : 'fas fa-clipboard-check', path: 'riwayat_mutasi_saldo_perusahaan', desc:'Fitur ini menampilkan riwayat mutasi saldo perusahaan yang pernah dilakukan.',  createdAt: new Date(), updatedAt: new Date() },
     ], {});
   },
 
