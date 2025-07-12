@@ -32,7 +32,7 @@ const optionFilterCabang = ref<filterCabang[]>([])
 const search = ref('')
 const itemsPerPage = ref(10)
 const totalItems = ref(0)
-const formCabangId = ref<number | null>(null)
+const formCabangId = ref<number | 0>(0)
 const errors = ref<Record<string, string>>({})
 
 import {
@@ -50,8 +50,8 @@ const validateForm = (): boolean => {
   let isValid = true
   errors.value = {}
 
-  if (!formCabangId.value) {
-    errors.value.cabang = 'Cabang harus dipilih.'
+  if (formCabangId.value == 0) {
+    errors.value.cabang = 'Anda wajib memilih salah satu Cabang.'
     isValid = false
   }
 
@@ -65,7 +65,7 @@ const validateForm = (): boolean => {
     isValid = false
   }
 
-  if (!selectedAgenId.value) {
+  if (selectedAgenId.value == 0) {
     errors.value.agen = 'Agen harus dipilih.'
     isValid = false
   }
@@ -85,7 +85,13 @@ interface filterCabang {
 
 const fetchFilterData = async () => {
   const response = await paramCabang()
-  optionFilterCabang.value = response.data
+  optionFilterCabang.value = [
+    { id: 0, name: 'Pilih Cabang' },
+    ...response.data.map((item: any) => ({
+      id: item.id,
+      name: `${item.name}`,
+    })),
+  ];
   selectedOptionCabang.value = response.data[0]?.id || 0
 
   await get_data_agen()
@@ -135,7 +141,7 @@ onMounted(() => {
   fetchFilterData()
 })
 
-const selectedAgenId = ref<string | number>('') // v-model di select
+const selectedAgenId = ref<number>(0) // v-model di select
 
 const get_data_agen = async (cabangId?: number) => {
   try {
@@ -143,10 +149,15 @@ const get_data_agen = async (cabangId?: number) => {
       division_id: cabangId || selectedOptionCabang.value,
     })
 
-    agenOptions.value = response.map((agen: any) => ({
-      id: agen.id,
-      name: agen.name || agen.fullname,
-    }))
+    agenOptions.value = [
+    { id: 0, name: 'Pilih Agen' },
+    ...response.map((item: any) => ({
+      id: item.id,
+      name: `${item.name} `,
+    })),
+  ];
+
+  selectedAgenId.value = 0;
   } catch (error) {
     console.error(error)
   }
@@ -177,7 +188,7 @@ const fetchFeeByAgen = async (agenId: string | number) => {
 }
 
 const resetForm = () => {
-  formCabangId.value = null
+  formCabangId.value = 0
   selectedAgenId.value = ''
   feeList.value = []
   selectedFees.value = []
@@ -457,7 +468,7 @@ const cetak_invoice = (invoice: string) => {
     "
     @submit="submitForm()"
     :submitLabel="'Bayar'"
-    :width="'w-1/3'"
+    :width="'w-1/4'"
     :label="'Bayar Fee Agen'"
   >
     <SelectField
@@ -467,6 +478,7 @@ const cetak_invoice = (invoice: string) => {
       id="division"
       :options="optionFilterCabang"
       :error="errors.cabang"
+      class=" mb-3"
     />
 
     <InputText
@@ -474,6 +486,7 @@ const cetak_invoice = (invoice: string) => {
       label="Nama Pemohon"
       placeholder="Masukkan nama pemohon"
       :error="errors.nama"
+      class=" mb-3"
     />
 
     <InputText
@@ -481,6 +494,7 @@ const cetak_invoice = (invoice: string) => {
       label="Identitas Pemohon"
       placeholder="Masukkan identitas pemohon"
       :error="errors.identitas"
+      class=" mb-3"
     />
 
     <SelectField
