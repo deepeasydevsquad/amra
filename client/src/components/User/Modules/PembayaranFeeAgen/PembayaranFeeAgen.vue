@@ -13,15 +13,7 @@ import IconDetail from '@/components/Icons/IconDetail.vue'
 import CetakIcon from '@/components/Icons/CetakIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 import { ref, watch, computed, onMounted } from 'vue'
-
-import {
-  daftar_agen,
-  daftar_fee,
-  daftar_pembayaran,
-  detail_fee,
-  add_pembayaran_fee,
-} from '@/service/pembayaran_fee_agen'
-import { on } from 'events'
+import { paramCabang } from '@/service/param_cabang'
 
 const showModalDetail = ref(false)
 const showModal = ref(false)
@@ -35,6 +27,68 @@ const confirmMessage = ref('')
 const confirmTitle = ref('')
 const confirmAction = ref<(() => void) | null>(null)
 const timeoutId = ref<number | null>(null)
+const selectedOptionCabang = ref(0)
+const optionFilterCabang = ref<filterCabang[]>([])
+const search = ref('')
+const itemsPerPage = ref(10)
+const totalItems = ref(0)
+const formCabangId = ref<number | null>(null)
+const errors = ref<Record<string, string>>({})
+
+import {
+  daftar_agen,
+  daftar_fee,
+  daftar_pembayaran,
+  detail_fee,
+  add_pembayaran_fee,
+} from '@/service/pembayaran_fee_agen'
+import { on } from 'events'
+
+const validateForm = (): boolean => {
+  let isValid = true
+  errors.value = {}
+
+  if (!formCabangId.value) {
+    errors.value.cabang = 'Cabang harus dipilih.'
+    isValid = false
+  }
+
+  if (!applicantName.value.trim()) {
+    errors.value.nama = 'Nama pemohon wajib diisi.'
+    isValid = false
+  }
+
+  if (!applicantIdentity.value.trim()) {
+    errors.value.identitas = 'Identitas pemohon wajib diisi.'
+    isValid = false
+  }
+
+  if (!selectedAgenId.value) {
+    errors.value.agen = 'Agen harus dipilih.'
+    isValid = false
+  }
+
+  if (selectedFees.value.length === 0) {
+    errors.value.fee = 'Minimal satu fee harus dipilih.'
+    isValid = false
+  }
+
+  return isValid
+}
+
+interface filterCabang {
+  id: number
+  name: string
+}
+
+const fetchFilterData = async () => {
+  const response = await paramCabang()
+  optionFilterCabang.value = response.data
+  selectedOptionCabang.value = response.data[0]?.id || 0
+
+  await get_data_agen()
+  await fetch_data_pembayaran_fee_agen()
+}
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message
@@ -76,22 +130,21 @@ const handlePageNow = (page: number) => {
 
 onMounted(() => {
   get_data_agen()
-  fetch_data_pembayaran_fee_agen()
+  fetchFilterData()
 })
 
 const selectedAgenId = ref<string | number>('') // v-model di select
 
-const get_data_agen = async () => {
+const get_data_agen = async (cabangId?: number) => {
   try {
-    const response = await daftar_agen()
+    const response = await daftar_agen({
+      division_id: cabangId || selectedOptionCabang.value,
+    })
 
-    // Ubah ke format SelectField
     agenOptions.value = response.map((agen: any) => ({
       id: agen.id,
-      name: agen.name || agen.nama || agen.fullname, // tergantung field dari backend
+      name: agen.name || agen.fullname,
     }))
-
-    console.log('agenOptions:', agenOptions.value)
   } catch (error) {
     console.error(error)
   }
@@ -122,21 +175,38 @@ const fetchFeeByAgen = async (agenId: string | number) => {
 }
 
 const resetForm = () => {
+  formCabangId.value = null
   selectedAgenId.value = ''
   feeList.value = []
   selectedFees.value = []
 }
 
+watch(formCabangId, async (val) => {
+  if (!val) return
+  selectedAgenId.value = ''
+  feeList.value = []
+  await get_data_agen(val)
+})
+
 watch(selectedAgenId, (val) => {
-  if (val) fetchFeeByAgen(val)
+  if (val) {
+    fetchFeeByAgen(val)
+  }
 })
 
 const data = ref<any[]>([]) // array kosong
 
 const fetch_data_pembayaran_fee_agen = async () => {
   try {
-    const response = await daftar_pembayaran()
-    data.value = response
+    const response = await daftar_pembayaran({
+      search: searchQuery.value,
+      perpage: itemsPerPage.value,
+      pageNumber: currentPage.value,
+      cabang: selectedOptionCabang.value,
+    })
+    data.value = response.data
+    totalItems.value = response.total || response.data.length || 0
+    totalPages.value = Math.ceil(totalItems.value / itemsPerPage.value)
   } catch (error) {
     console.error(error)
   }
@@ -173,8 +243,10 @@ const applicantIdentity = ref('')
 const latestInvoice = ref<string | null>(null)
 
 const submitForm = async () => {
+  if (!validateForm()) return
   try {
     const payload = {
+      division_id: formCabangId.value,
       agen_id: selectedAgenId.value,
       aplicant_name: applicantName.value,
       applicant_identity: applicantIdentity.value,
@@ -229,15 +301,24 @@ const cetak_invoice = (invoice: string) => {
         Bayar Fee Agen
       </PrimaryButton>
 
-      <div class="flex items-center">
+      <div class="flex items-center gap-0">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
           v-model="searchQuery"
           type="text"
           id="search"
-          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder:text-gray-400"
+          class="w-64 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
           placeholder="Cari Pembayaran..."
         />
+        <select
+          v-model="selectedOptionCabang"
+          @change="fetch_data_pembayaran_fee_agen"
+          class="w-60 px-3 py-2 text-sm bg-white border border-l-0 border-gray-300 text-gray-700 rounded-e-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+        >
+          <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+            {{ optionC.name }}
+          </option>
+        </select>
       </div>
     </div>
 
@@ -246,17 +327,29 @@ const cetak_invoice = (invoice: string) => {
         <thead class="bg-gray-100">
           <tr>
             <th class="px-6 py-3 font-medium text-gray-900 text-center w-[20%]">Nomor Invoice</th>
-            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">Total Pembayaran</th>
-            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[25%]">Penerima Pembayaran</th>
-            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[25%]">Petugas Pembayaran</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">
+              Total Pembayaran
+            </th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[25%]">
+              Penerima Pembayaran
+            </th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[25%]">
+              Petugas Pembayaran
+            </th>
             <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
           <tr v-if="filteredData.length === 0">
-            <td colspan="5" class="px-6 py-4 text-center text-gray-500">Riwayat Pembayaran Fee Agen Tidak Ditemukan</td>
+            <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+              Riwayat Pembayaran Fee Agen Tidak Ditemukan
+            </td>
           </tr>
-          <tr v-for="pembayaran in filteredData" :key="pembayaran.id" class="hover:bg-gray-50 transition-colors" >
+          <tr
+            v-for="pembayaran in filteredData"
+            :key="pembayaran.id"
+            class="hover:bg-gray-50 transition-colors"
+          >
             <td class="px-6 py-4 text-center">{{ pembayaran.invoice }}</td>
             <td class="px-6 py-4 text-center">{{ pembayaran.nominal }}</td>
             <td class="px-6 py-4 text-center">{{ pembayaran.applicant_name }}</td>
@@ -272,12 +365,13 @@ const cetak_invoice = (invoice: string) => {
           </tr>
         </tbody>
       </table>
-      <table class="w-full">
+      <table class="w-full text-gray-500">
         <Pagination
           :currentPage="currentPage"
           :totalPages="totalPages"
           :pages="pages"
           :totalColumns="totalColumns"
+          :total-row="totalItems"
           @prev-page="handlePrev"
           @next-page="handleNext"
           @page-now="handlePageNow"
@@ -374,18 +468,27 @@ const cetak_invoice = (invoice: string) => {
     :width="'w-1/3'"
     :label="'Bayar Fee Agen'"
   >
+    <SelectField
+      v-model="formCabangId"
+      label="Pilih Cabang"
+      placeholder="Pilih Cabang"
+      id="division"
+      :options="optionFilterCabang"
+      :error="errors.cabang"
+    />
+
     <InputText
       v-model="applicantName"
       label="Nama Pemohon"
       placeholder="Masukkan nama pemohon"
-      id=""
+      :error="errors.nama"
     />
 
     <InputText
       v-model="applicantIdentity"
       label="Identitas Pemohon"
       placeholder="Masukkan identitas pemohon"
-      id=""
+      :error="errors.identitas"
     />
 
     <SelectField
@@ -394,10 +497,15 @@ const cetak_invoice = (invoice: string) => {
       placeholder="Pilih Agen"
       id="name"
       :options="agenOptions"
+      :error="errors.agen"
     />
 
     <div v-if="feeList.length" class="space-y-2 mt-4">
       <p class="font-semibold text-gray-700">Rincian Fee Belum Dibayar:</p>
+
+      <p v-if="errors.fee" class="text-sm text-red-600 font-medium -mt-2">
+        {{ errors.fee }}
+      </p>
 
       <div
         v-for="fee in feeList"

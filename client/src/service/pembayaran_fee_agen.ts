@@ -2,7 +2,7 @@ import api from "./api"; // Import service API
 
 export const daftar_agen = async (param : any) => {
   try {
-    const response = await api.get("/pembayaran_fee_agen/data_agen", param); // Kirim data ke backend
+    const response = await api.post("/pembayaran_fee_agen/data_agen", param); // Kirim data ke backend
     return response.data; // Kembalikan data hasil request
   } catch (error) {
     console.error("Gagal mengambil data Agen:", error);
