@@ -77,6 +77,7 @@ class Model_cud {
     const [inRiwayat, inRefund, inDeposit, inPaketPaymentHistory] = await Promise.all([
       Riwayat_tabungan.findOne({
         where: { invoice },
+        attributes: ['id'],
         include: [{
           model: Tabungan,
           include: [{
@@ -87,6 +88,7 @@ class Model_cud {
       }),
       Refund_tabungan.findOne({
         where: { invoice },
+        attributes: ['id'],
         include: [{
           model: Tabungan,
           include: [{
@@ -95,12 +97,23 @@ class Model_cud {
           }],
         }],
       }),
-      Deposit.findOne({ where: { invoice, company_id: this.company_id } }),
+      Deposit.findOne({ 
+        where: { invoice },
+        attributes: ['id'],
+        include: [{
+          model: Division,
+          where: { company_id: this.company_id },
+        }]
+      }),
       Paket_transaction_payment_history.findOne({ 
         where: { invoice },
+        attributes: ['id'],
         include: [{
           model: Paket_transaction,
-          where: { division_id: this.division_id },
+          include: [{
+            model: Division,
+            where: { company_id: this.company_id },
+          }]
         }],
       }),
     ]);

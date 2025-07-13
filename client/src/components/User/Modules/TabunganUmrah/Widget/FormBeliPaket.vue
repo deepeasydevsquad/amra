@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import SearchableCheckboxList from '@/components/User/Modules/TabunganUmrah/Particle/SearchableCheckboxList.vue'
 import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confirmation.vue'
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
@@ -8,7 +7,8 @@ import { getInfoPaketPembelian, pembelianPaketTabunganUmrah  } from '@/service/t
 
 const props = defineProps<{
   isFormBeliPaketUmrahOpen: boolean;
-  tabunganId: number | null;
+  tabunganId: number;
+  cabangId: number;
 }>()
 const emit = defineEmits<{
   (e: 'close'): void
@@ -33,7 +33,7 @@ interface Mst_paket {
 }
 
 // State
-const Mst_paket_type = ref<Mst_paket | null>(null)
+const Mst_paket_type = ref<Mst_paket | null>()
 
 const isLoading = ref(false)
 const showNotification = ref(false)
@@ -76,21 +76,28 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 
 // Function: Ambil data awal
 const fetchData = async () => {
+  if (!props.tabunganId || !props.cabangId) {
+    displayNotification('ID tabungan atau cabang tidak ditemukan, silakan keluar dan masuk kembali.', 'error')
+    return
+  }
+
   try {
     isLoading.value = true
-    console.log('Fetching data...')
-    console.log(props.tabunganId)
-    const Mst_paket_typeResponse = await getInfoPaketPembelian(props.tabunganId || 0)
+    const Mst_paket_typeResponse = await getInfoPaketPembelian(props.tabunganId)
 
     Mst_paket_type.value = Mst_paket_typeResponse.data || []
-    console.log(Mst_paket_type.value)
     if (Mst_paket_type.value.tipe_paket.length === 0) {
-      emit('status', { error: true, err_msg: 'Tidak ada data tipe paket ditemukan.' })
+      emit('status', { error: true, err_msg: Mst_paket_typeResponse.error_msg || 'Tidak ada data tipe paket ditemukan.' })
       emit('close')
       return
     }
   } catch (error) {
-    displayNotification('Failed to fetch data', 'error')
+    displayNotification(
+      error?.response?.data?.error_msg ||
+      error?.response?.data?.message ||
+      'Terjadi kesalahan dalam menyimpan data',
+      'error'
+    )
   } finally {
     isLoading.value = false
   }
@@ -108,6 +115,10 @@ const validateForm = () => {
     isValid = false
   }
 
+  if (!props.cabangId || !props.tabunganId) {
+    displayNotification('ID tabungan atau cabang tidak ditemukan, silakan keluar dan masuk kembali.', 'error')
+    isValid = false
+  }
 
   return isValid
 }
@@ -124,22 +135,23 @@ const saveData = async () => {
         isLoading.value = true
         const payload = {
           id: props.tabunganId,
+          division_id: props.cabangId,
           target_paket_id: Mst_paket_type.value?.target_paket_id,
           tipe_paket_id: form.tipe_paket_id
         }
-        console.log(payload)
 
         const response = await pembelianPaketTabunganUmrah(payload)
-        console.log(response)
-        showConfirmDialog.value = false
+        emit('close')
+        emit('status', { error: false, err_msg: response.error_msg || 'Pembelian paket tabungan umrah berhasil' })
       } catch (error) {
-        showConfirmDialog.value = false
-        const errorMessage = error?.response?.data?.error_msg ? error.response.data.error_msg : 'Terjadi kesalahan saat menyimpan data'
-        displayNotification(errorMessage, error?.response?.data?.error ? 'error' : 'success')
+        displayNotification(
+          error?.response?.data?.error_msg ||
+          error?.response?.data?.message ||
+          'Terjadi kesalahan dalam menyimpan data',
+          'error'
+        )
       } finally {
         isLoading.value = false
-        emit('status', { error: false, err_msg: 'Pembelian paket tabungan umrah berhasil' })
-        emit('close')
       }
     }
   )

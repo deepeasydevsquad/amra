@@ -48,7 +48,7 @@ const errors = ref({
 })
 
 const form = reactive({
-  id: props.tabunganId ?? null,
+  id: props.tabunganId,
   barangList: [''] as string[],
   receiver_returned: '',
   receiver_returned_identity: '',
@@ -85,8 +85,6 @@ const fetchData = async () => {
   try {
     isLoading.value = true
     const response = await getInfoPengembalianBarang(props.tabunganId)
-
-    console.log(response)
 
     if (response.error) {
       displayNotification(response.data.error_msg, 'error')
@@ -155,23 +153,21 @@ const onItemSelect = (item: RiwayatHandoverBarang) => {
   if (item.status === 'dikembalikan') {
     displayNotification('Barang sudah dikembalikan dan tidak bisa dipilih.', 'error')
 
-    // Hapus dari selected jika sempat tercentang
     selectedItems.value = selectedItems.value.filter(id => id !== item.id)
   }
 }
 
-
 // Placeholder submit function
-async function saveData() {
+const saveData = async () => {
   if (!validateForm()) return
 
   showConfirmation(
     'Konfirmasi Terima Barang',
     'Apakah Anda yakin ingin menyimpan data serah terima barang ini?',
     async () => {
-      isLoading.value = true
 
       try {
+        isLoading.value = true
         const payload = {
           id: form.id,
           selectedItems: selectedItems.value,
@@ -195,8 +191,12 @@ async function saveData() {
         emit('status', { error: false, err_msg: 'Data handover barang berhasil diserahkan' })
         emit('close')
       } catch (error) {
-        displayNotification('Gagal menyimpan data handover barang', 'error')
-        emit('status', { error: true, err_msg: error.message })
+        displayNotification(
+          error?.response?.data?.error_msg ||
+          error?.response?.data?.message ||
+          'Terjadi kesalahan dalam menyimpan data',
+          'error'
+        )
       } finally {
         isLoading.value = false
       }

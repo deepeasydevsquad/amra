@@ -9,16 +9,16 @@ import { getPaket, updateTabunganUmrah, getInfoUpdateTabunganUmrah } from '@/ser
 
 const props = defineProps<{
   isFormUpdateOpen: boolean;
-  tabunganId: number | null;
+  tabunganId: number;
+  cabangId: number;
 }>()
 
 const emit = defineEmits<{
   (e: 'close'): void
-  (e: 'success'): void
+  (e: 'status', payload: {error: boolean, err_msg?: string}): void
 }>()
 
 // Interfaces
-interface ErrorFields { id?: string; target_paket_id?: string }
 interface Paket { id: number; name: string; price: number; hari_tersisa: string }
 interface dataTabungan {
   id: number;
@@ -33,7 +33,6 @@ interface dataTabungan {
   };
 }
 
-
 // State
 const PaketList = ref<Paket[]>([])
 const dataTabungan = ref<dataTabungan>()
@@ -46,10 +45,6 @@ const showConfirmDialog = ref<boolean>(false);
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
-
-const errors = ref<ErrorFields>({
-  id: '',
-})
 
 const form = reactive({
   id: props.tabunganId ?? null,
@@ -78,11 +73,15 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 
 // Function: Ambil data awal
 const fetchData = async () => {
+  if (!props.cabangId || !props.tabunganId) {
+    displayNotification('ID tabungan atau cabang tidak ditemukan, silakan keluar dan masuk kembali.', 'error')
+    return
+  }
   try {
     isLoading.value = true
     const [paketResponse, dataTabunganResponse] = await Promise.all([
-      getPaket(),
-      getInfoUpdateTabunganUmrah(props.tabunganId ?? 0),
+      getPaket(props.cabangId),
+      getInfoUpdateTabunganUmrah(props.tabunganId),
     ]);
     if (paketResponse.data) {
       PaketList.value = [{ id: null, name: 'Pilih Paket' }, ...paketResponse.data]
@@ -92,11 +91,8 @@ const fetchData = async () => {
       form.target_paket_id = dataTabungan.value?.target_paket_id ?? null;
     }
 
-    console.debug('Paket List:', PaketList.value)
-    console.debug('Data Tabungan:', dataTabungan.value)
-
   } catch (error) {
-    displayNotification('Failed to fetch data', 'error')
+    displayNotification(error?.response?.data?.error_msg || 'Terjadi kesalahan dalam mengambil data tabungan', 'error')
   } finally {
     isLoading.value = false
   }
@@ -105,12 +101,14 @@ const fetchData = async () => {
 // Function: Validasi form
 const validateForm = (): boolean => {
   let isValid = true
-  errors.value = {
-    id: '',
-  }
 
   if (!form.id) {
-    errors.value.id = 'ID Tabungan Umrah wajib diisi'
+    displayNotification('ID tabungan tidak ditemukan, silakan keluar dan masuk kembali.', 'error')
+    isValid = false
+  }
+
+  if (!props.cabangId) {
+    displayNotification('ID cabang tidak ditemukan, silakan keluar dan masuk kembali.', 'error')
     isValid = false
   }
 
@@ -130,19 +128,23 @@ const saveData = async () => {
         const payload: {
           id: number;
           target_id: number | null;
+          division_id: number;
         } = {
-          id: props.tabunganId || 0,
+          id: props.tabunganId,
+          division_id: props.cabangId,
           target_id: form.target_paket_id ?? null,
         }
 
-        console.debug(payload)
-
-        await updateTabunganUmrah(payload)
-        emit('success')
+        const response = await updateTabunganUmrah(payload)
         emit('close')
+        emit('status', { error: false, err_msg: response.error_msg || 'Update target berhasil disimpan' })
       } catch (error) {
-        console.error(error)
-        displayNotification(error?.response?.data?.error_msg, 'error')
+        displayNotification(
+          error?.response?.data?.error_msg ||
+          error?.response?.data?.message ||
+          'Terjadi kesalahan dalam menyimpan data',
+          'error'
+        )
       } finally {
         isLoading.value = false
       }
@@ -177,7 +179,7 @@ watch(
 
     try {
       isLoading.value = true
-      const paketResponse = await getPaket();
+      const paketResponse = await getPaket(props.cabangId ?? 0);
       const paket = paketResponse.data?.find((p : Paket) => p.id === newTargetPaketId);
 
       if (paket) {
@@ -187,7 +189,7 @@ watch(
         hari_tersisa.value = paket.hari_tersisa || '';
       }
     } catch (error) {
-      console.error('Failed to fetch paket:', error);
+      displayNotification(error?.response?.data?.error_msg || 'Terjadi kesalahan dalam mengambil data paket', 'error')
     } finally {
       isLoading.value = false
     }
@@ -217,7 +219,6 @@ watch(
                   :options="PaketList"
                   label="Target Paket"
                   placeholder="Pilih Target Paket"
-                  :error="errors.target_paket_id"
                 />
               </div>
               <!-- Data Member -->

@@ -7,12 +7,13 @@ import { getPetugasTabunganUmrah } from '@/service/tabungan_umrah'
 
 const props = defineProps<{
   isFormCetakDataJamaahOpen: boolean;
-  tabunganId: number | null;
+  tabunganId: number;
+  cabangId: number;
 }>()
 
 const emit = defineEmits<{
   (e: 'close'): void
-  (e: 'success'): void
+  (e: 'status', payload: {error: boolean, err_msg?: string}): void
 }>()
 
 // Interfaces
@@ -41,7 +42,7 @@ const errors = ref({
 });
 
 const form = reactive({
-  id: props.tabunganId ?? null,
+  id: props.tabunganId,
   petugas_id: '', // <- ini akan menyimpan "admin-1", "agen-4", dll
 });
 
@@ -67,12 +68,22 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 
 // Function: Ambil data awal
 const fetchData = async () => {
+  if (!props.tabunganId || !props.cabangId) {
+    displayNotification('ID tabungan atau cabang tidak ditemukan, silakan keluar dan masuk kembali.', 'error')
+    return
+  }
+
   try {
     isLoading.value = true;
-    const petugas = await getPetugasTabunganUmrah(props.tabunganId || 0);
+    const petugas = await getPetugasTabunganUmrah(props.cabangId);
     PetugasOption.value = petugas.data;
   } catch (error) {
-    displayNotification('Failed to fetch data', 'error')
+    displayNotification(
+      error?.response?.data?.error_msg ||
+      error?.response?.data?.message ||
+      'Terjadi kesalahan dalam menyimpan data',
+      'error'
+    )
   } finally {
     isLoading.value = false;
   }
@@ -116,10 +127,8 @@ const cetakDataJamaah = async () => {
         isLoading.value = true
         const url = `/daftar-tabungan-umrah/cetak-data-jamaah/${props.tabunganId}/cetak?petugasId=${form.petugas_id}`;
         window.open(url, '_blank');
-        showConfirmDialog.value = false
       } catch (error) {
-        console.error(error)
-        displayNotification(error?.response?.data?.error_msg, 'error')
+        displayNotification(error?.response?.data?.error_msg || 'Terjadi kesalahan dalam mencetak data jamaah', 'error')
       } finally {
         isLoading.value = false
       }
@@ -130,11 +139,9 @@ const cetakDataJamaah = async () => {
 onMounted(() => {
   fetchData()
   window.addEventListener('message', (event) => {
-    console.log('Pesan dari child:', event.data); // debug
-    if (event.data?.event === 'sukses') {
-      displayNotification(event.data.message, 'success');
-    } else if (event.data?.event === 'gagal') {
-      displayNotification(event.data.message, 'error');
+    if (event.data?.event === 'sukses' || event.data?.event === 'gagal') {
+      emit('status', { error: event.data.event === 'gagal', err_msg: event.data.message });
+      emit('close');
     }
   });
 })

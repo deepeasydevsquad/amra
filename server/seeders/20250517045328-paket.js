@@ -71,7 +71,7 @@ module.exports = {
         updatedAt: new Date() 
       },
       { 
-        division_id: 1, 
+        division_id: 2, 
         jenis_kegiatan: 'umrah',
         kode: 'FFGGHH',
         photo: '/uploads/daftar_paket/1746170299194.jpg',
@@ -170,7 +170,7 @@ module.exports = {
         updatedAt: new Date() 
       },
       { 
-        division_id: 1, 
+        division_id: 2, 
         jenis_kegiatan: 'umrah',
         kode: 'GGRREE',
         photo: '/uploads/daftar_paket/1746170299194.jpg',

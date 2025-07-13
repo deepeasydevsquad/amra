@@ -24,7 +24,7 @@ const emit = defineEmits<{
   </div>
   <div v-if="props.isFormOpsiHandoverBarangOpen && !isLoading" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="flex min-h-screen items-end justify-center px-6 pt-6 pb-20 text-center sm:block sm:p-0">
-      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="$emit('close')"></div>
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="emit('close')"></div>
       <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
       <div class="relative p-6 inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl sm:align-middle">
         <div class="mb-4">
@@ -34,10 +34,10 @@ const emit = defineEmits<{
           <h4 class="text-md flex medium leading-6 text-gray-600">Silahkan pilih jenis handover atau pengembalian barang jamaah</h4>
         </div>
         <div class="bg-gray-50 pb-3 pt-6 sm:flex sm:flex-row-reverse sm:px-0 gap-2 text-sm">
-          <PrimaryButton @click="$emit('pengembalian-barang', props.tabunganId)">PENGEMBALIAN BARANG JAMAAH</PrimaryButton>
-          <PrimaryButton @click="$emit('terima-barang', props.tabunganId)">HANDOVER BARANG JAMAAH</PrimaryButton>
+          <PrimaryButton @click="emit('pengembalian-barang', props.tabunganId)">PENGEMBALIAN BARANG JAMAAH</PrimaryButton>
+          <PrimaryButton @click="emit('terima-barang', props.tabunganId)">HANDOVER BARANG JAMAAH</PrimaryButton>
           <button
-            @click="$emit('close')"
+            @click="emit('close')"
             class=" mt-3 inline-flex w-full justify-center rounded-md border border-gray-400 bg-gray-200 px-4 py-2 text-base font-medium text-gray-800 shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
           >
             BATAL

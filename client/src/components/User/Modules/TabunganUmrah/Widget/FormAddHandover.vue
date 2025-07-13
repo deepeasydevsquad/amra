@@ -88,6 +88,11 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 
 // Function: Ambil data awal
 const fetchData = async () => {
+  if (!props.tabunganId) {
+    displayNotification('ID tabungan tidak ditemukan, silakan keluar dan masuk kembali.', 'error')
+    return
+  }
+
   try {
     isLoading.value = true
     const [Mst_paketResponse, handoverFasilitasResponse] = await Promise.all([
@@ -118,6 +123,11 @@ const validateForm = () => {
     detail_fasilitas: '',
   }
 
+  if (!props.tabunganId) {
+    displayNotification('ID tabungan tidak ditemukan, silakan keluar dan masuk kembali.', 'error')
+    isValid = false
+  }
+
   if (!form.nama_penerima) {
     errors.value.nama_penerima = 'Nama penerima harus diisi'
     isValid = false
@@ -134,7 +144,6 @@ const validateForm = () => {
   }
 
   if (form.detail_fasilitas.some((item: any) => typeof item !== 'string' || !Mst_paket.value.find((paket) => paket.id === Number(item)))) {
-    console.log(form.detail_fasilitas)
     errors.value.detail_fasilitas = 'Fasilitas tidak valid, pastikan Anda memilih fasilitas yang benar'
     isValid = false
   }
@@ -163,20 +172,23 @@ const saveData = async () => {
           nomor_identitas_penerima: form.nomor_identitas_penerima,
           detail_fasilitas: form.detail_fasilitas,
         }
-        console.log(payload)
 
         const response = await addHandoverFasilitas(payload)
-        console.log(response)
         if (response.data === null) {
           displayNotification('Nomor invoice tidak tersedia', 'error')
           return
         }
         window.open(`/kwitansi-handover-fasilitas/${response.data.invoice}`, '_blank')
         emit('close')
+        emit('status', { error: false, err_msg: response.error_msg || 'Handover fasilitas berhasil disimpan' })
       } catch (error) {
-        const errorMessage = error?.response?.data?.error_msg ? error.response.data.error_msg : 'Terjadi kesalahan saat menyimpan data'
+        displayNotification(
+          error?.response?.data?.error_msg ||
+          error?.response?.data?.message ||
+          'Terjadi kesalahan dalam menyimpan data',
+          'error'
+        )
         showConfirmDialog.value = false
-        displayNotification(errorMessage, error?.response?.data?.error ? 'error' : 'success')
       } finally {
         isLoading.value = false
       }

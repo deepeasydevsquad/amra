@@ -1,6 +1,7 @@
 const {
     Op,
     Jamaah,
+    Division,
     Paket,
     Paket_price,
     Mst_paket_type,
@@ -14,14 +15,28 @@ const {
     Level_keagenan,
 } = require("../models");
 
-const { getCompanyIdByCode, getCabang } = require("../helper/companyHelper");
+const { getCompanyIdByCode, tipe } = require("../helper/companyHelper");
     
 const validation = {};
 
+const getDivisionId = async (req) => {
+    const userType = await tipe(req);
+    console.log("req body: ", req.body);
+    console.log("User tipe: ", userType);
+    if (userType === "administrator") {
+        return req.body.division_id;
+    } else if (userType === "staff") {
+        const token = this.req.headers["authorization"]?.split(" ")[1];
+        const decoded = token ? jwt.decode(token) : null;
+        return decoded?.division_id; 
+    } else {
+        throw new Error("Role pengguna tidak valid.");
+    }
+}
+
 validation.check_id_tabungan = async ( value, { req } ) => {
     try {
-        const division_id = await getCabang(req);
-        var check = await Tabungan.findOne({where: { id : value, division_id : division_id }});
+        var check = await Tabungan.findOne({where: { id : value }});
         if (!check) {
             console.debug(`ID Tabungan tidak terdaftar di pangkalan data`);
             throw new Error("ID Tabungan tidak terdaftar di pangkalan data");
@@ -47,7 +62,7 @@ validation.check_sumber_dana = async ( value, { req } ) => {
 
 validation.check_id_jamaah = async (value, { req }) => {
     try {
-        const division_id = await getCabang(req);
+        const division_id = await getDivisionId(req);
         const jamaah = await Jamaah.findOne({ where: { id: value, division_id }, attributes: ["id"] });
         if (!jamaah) {
             console.debug(`ID Jamaah tidak terdaftar di pangkalan data`);
@@ -77,8 +92,7 @@ validation.check_id_jamaah = async (value, { req }) => {
 
 validation.check_id_target_paket = async (value, { req }) => {
     try {
-        const division_id = await getCabang(req);
-        console.log(value);
+        const division_id = await getDivisionId(req);
 
         const paket = await Paket.findOne({ where: { id: value, division_id }, attributes: ["id"] });
         if (!paket) {
@@ -111,10 +125,25 @@ validation.check_id_target_paket = async (value, { req }) => {
     }
 }
 
+validation.check_id_cabang = async (value, { req }) => {
+    try {
+        const cabang = await Division.findOne({ where: { id: value }, attributes: ["id"] });
+        if (!cabang) {
+            console.debug(`ID Cabang tidak terdaftar di pangkalan data`);
+            throw new Error("ID Cabang tidak terdaftar di pangkalan data");
+        }
+        
+        return true;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
 validation.check_id_paket = async (value, { req }) => {
     try {
         const body = req.body;
-        const division_id = await getCabang(req);
+        const division_id = await getDivisionId(req);
         const isUpdate = !!body.id; // TRUE kalau update, FALSE kalau add
 
         // Jika proses update, cek apakah sudah pernah handover
@@ -172,7 +201,7 @@ validation.check_id_paket = async (value, { req }) => {
 
 validation.check_saldo_deposit_dan_biaya = async (value, { req }) => {
     try {
-        const division_id = await getCabang(req);
+        const division_id = await getDivisionId(req);
 
         if (req.body.sumber_dana !== "deposit") {
             console.debug(`Skip validasi, sumber dana tidak deposit`);
@@ -228,7 +257,7 @@ validation.check_saldo_deposit_dan_biaya = async (value, { req }) => {
 
 validation.check_refund_nominal = async (value, { req }) => {
     try {
-        const division_id = await getCabang(req);
+        const division_id = await getDivisionId(req);
         const tabungan = await Tabungan.findOne({
             where: { id: req.body.id, division_id: division_id },
             include: {
