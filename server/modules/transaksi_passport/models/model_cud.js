@@ -26,29 +26,16 @@ class Model_cud {
 
   //Menentukan nama petugas berdasarkan role dari token JWT.
   async petugas() {
-    console.log("DEBUG [petugas]: Memulai fungsi petugas...");
-
     const role = await tipe(this.req);
-    console.log("DEBUG [petugas]: Role/Tipe yang didapat dari helper =>", role);
 
-    console.log(
-      "DEBUG [petugas]: Company ID yang digunakan =>",
-      this.company_id
-    );
     if (!this.company_id) {
       console.error("DEBUG [petugas]: GAGAL KARENA company_id KOSONG!");
       return "Error: Company ID tidak ditemukan";
     }
 
     if (role === "administrator") {
-      console.log(
-        "DEBUG [petugas]: Mencari data company sebagai administrator..."
-      );
       const company = await Company.findOne({ where: { id: this.company_id } });
-      console.log(
-        "DEBUG [petugas]: Hasil pencarian company =>",
-        company ? company.toJSON() : null
-      );
+
       return company?.company_name ?? "Unknown Company";
     }
 
@@ -58,23 +45,33 @@ class Model_cud {
         where: { company_id: this.company_id, role: "staff" },
         order: [["id", "DESC"]],
       });
-      console.log(
-        "DEBUG [petugas]: Hasil pencarian member =>",
-        member ? member.toJSON() : null
-      );
       return member?.fullname ?? "Unknown Staff";
     }
 
-    console.log(
-      "DEBUG [petugas]: Role tidak dikenali, mengembalikan nilai default."
-    );
     return "Tipe user tidak diketahui";
+  }
+
+  async generate_invoice() {
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const randomLetters = () => {
+      return (
+        letters[Math.floor(Math.random() * 26)] +
+        letters[Math.floor(Math.random() * 26)]
+      );
+    };
+
+    const randomNumbers = () => {
+      return Math.floor(10 + Math.random() * 90);
+    };
+
+    return `${randomLetters()}${randomNumbers()}`;
   }
 
   async add() {
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
+    const invoice = await this.generate_invoice();
 
     try {
       const namaPetugas = await this.petugas();
@@ -83,18 +80,9 @@ class Model_cud {
           `Gagal menentukan petugas yang valid. Diterima: ${namaPetugas}`
         );
       }
-
-      console.log("[DEBUG MODEL_CUD] Creating Passport_transaction with:", {
-        invoice: body.invoice,
-        company_id: this.company_id,
-        petugas: namaPetugas,
-        payer: body.payer,
-        payer_identity: body.payer_identity,
-      });
-
       const newTransaction = await Passport_transaction.create(
         {
-          invoice: body.invoice,
+          invoice: invoice,
           company_id: this.company_id,
           petugas: namaPetugas,
           payer: body.payer,
@@ -106,28 +94,9 @@ class Model_cud {
       );
 
       const newTransactionId = newTransaction.id;
-      console.log(
-        "[DEBUG MODEL_CUD] New Passport_transaction ID:",
-        newTransactionId
-      );
 
       if (body.passport_details && Array.isArray(body.passport_details)) {
         for (const detail of body.passport_details) {
-          console.log(
-            "[DEBUG MODEL_CUD] Creating Passport_transaction_detail with:",
-            {
-              passport_transaction_id: newTransactionId,
-              name: detail.name,
-              identity_number: detail.identity_number,
-              birth_place: detail.birth_place,
-              birth_date: detail.birth_date,
-              kk_number: detail.kk_number,
-              address: detail.address,
-              mst_kota_id: detail.city,
-              price: detail.price,
-            }
-          );
-
           await Passport_transaction_detail.create(
             {
               passport_transaction_id: newTransactionId,
