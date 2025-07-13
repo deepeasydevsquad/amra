@@ -25,7 +25,7 @@ const search = ref('')
 const filter = ref('belum_ada_transaksi')
 const totalPages = ref(0)
 const totalColumns = ref(6)
-const totalRow = ref(0);
+const totalRow = ref(0)
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
@@ -132,6 +132,7 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
 }
 
 const handleSaveSuccess = (message: string) => {
+  isFormOpen.value = false
   displayNotification(message, 'success')
   fetchData()
 }
@@ -209,6 +210,10 @@ onMounted(async () => {
   await fetchData()
   // totalColumns.value = document.querySelectorAll('thead th').length
 })
+
+const closeModal = () => {
+  isFormOpen.value = false
+}
 </script>
 
 <template>
@@ -238,10 +243,12 @@ onMounted(async () => {
           <tr>
             <th class="w-[10%] px-6 py-3 text-gray-900 font-medium text-center">Nomor Invoice</th>
             <th class="w-[25%] px-6 py-3 text-gray-900 font-medium text-center">Info Pembayar</th>
-            <th class="w-[30%] px-6 py-3 text-gray-900 font-medium text-center">Info Tansaksi Passport</th>
+            <th class="w-[30%] px-6 py-3 text-gray-900 font-medium text-center">
+              Info Tansaksi Passport
+            </th>
             <th class="w-[15%] px-6 py-3 text-gray-900 font-medium text-center">Total</th>
             <th class="w-[15%] px-6 py-3 text-gray-900 font-medium text-center">Tanggal</th>
-            <th class="w-[5%]  px-6 py-3 text-gray-900 font-medium text-center">Aksi</th>
+            <th class="w-[5%] px-6 py-3 text-gray-900 font-medium text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -273,34 +280,46 @@ onMounted(async () => {
                   <div>No. KK</div>
                   <div>: {{ item.kk_number }}</div>
                   <div>TTL</div>
-                  <div>: {{ item.birth_place }}
+                  <div>
+                    : {{ item.birth_place }}
                     {{
-                    new Date(item.birth_date).toLocaleDateString('id-ID', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                    })
-                  }}
+                      new Date(item.birth_date).toLocaleDateString('id-ID', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })
+                    }}
                   </div>
                 </div>
               </div>
             </td>
             <td class="px-6 py-4 text-center">Rp. {{ item.price.toLocaleString() }}</td>
-            <td class="px-6 py-2 text-sm text-center">{{ new Date(item.createdAt).toLocaleDateString('id-ID') }}</td>
+            <td class="px-6 py-2 text-sm text-center">
+              {{ new Date(item.createdAt).toLocaleDateString('id-ID') }}
+            </td>
             <td class="px-6 py-4 text-center align-top">
               <div class="flex flex-col items-center gap-2">
                 <LightButton title="Cetak Kwitansi" @click="openCetakKwitansi(item.invoice)">
-                <CetakIcon class="h-4 w-4 text-gray-600" />
-              </LightButton>
-              <DangerButton title="Delete" @click="handleDelete(item.id)">
-                <DeleteIcon class="w-5 h-5" />
-              </DangerButton>
+                  <CetakIcon class="h-4 w-4 text-gray-600" />
+                </LightButton>
+                <DangerButton title="Delete" @click="handleDelete(item.id)">
+                  <DeleteIcon class="w-5 h-5" />
+                </DangerButton>
               </div>
             </td>
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" :totalRow="totalRow" />
+          <Pagination
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            :pages="pages"
+            :total-columns="totalColumns"
+            @prev-page="prevPage"
+            @next-page="nextPage"
+            @page-now="pageNow"
+            :totalRow="totalRow"
+          />
         </tfoot>
       </table>
     </div>
@@ -350,7 +369,7 @@ onMounted(async () => {
       <FormAdd
         v-if="isFormOpen"
         :isFormOpen="isFormOpen"
-        @close="((isFormOpen = false), fetchData())"
+        @cancel="closeModal"
         @save-success="handleSaveSuccess"
       />
     </transition>

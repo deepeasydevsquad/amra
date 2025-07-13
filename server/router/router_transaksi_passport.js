@@ -27,11 +27,6 @@ router.post(
   "/daftar-transaksi-passport/add-new",
   authenticateToken,
   [
-    body("invoice", "Invoice tidak boleh kosong.")
-      .notEmpty()
-      .trim()
-      .custom(validation.check_invoice_unique),
-
     body("payer", "Nama Pelanggan tidak boleh kosong.")
       .notEmpty()
       .trim()
