@@ -1,24 +1,24 @@
 const express = require("express");
-const { body, param } = require("express-validator");
-const controllers = require("../modules/daftar_kostumer_paket_la/controllers/index");
+const { body } = require("express-validator");
+const controllers = require("../modules/kostumer/controllers/index");
 const { authenticateToken } = require("../middleware/authenticateToken");
-const validation = require("../validation/daftar_kostumer_paket_la");
+const validation = require("../validation/kostumer");
 
 const router = express.Router();
 
 router.post(
-  "/daftar_kostumer_paket_la/list",
+  "/kostumer/list",
   authenticateToken,  
   [
     body("pageNumber").trim(),
     body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
   ],
-  controllers.get_daftar_kostumer_paket_la
+  controllers.getDaftarKostumer
 );
 
 router.post(
-  "/daftar_kostumer_paket_la/",
+  "/kostumer/add",
   authenticateToken,
   [
     body("name").trim().notEmpty().withMessage("Nama Kota tidak boleh kosong."),
@@ -29,10 +29,10 @@ router.post(
 );
 
 router.post(
-  "/daftar_kostumer_paket_la/update",
+  "/kostumer/update",
   authenticateToken,
   [
-    body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").custom(validation.check_id_kostumer_paket_la),
+    body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").custom(validation.check_id_kostumer),
     body("name").trim().notEmpty().withMessage("Nama Kota tidak boleh kosong."),
     body("mobile_number").trim().notEmpty().withMessage("Nomor Telepon tidak boleh kosong."),
     body("address").trim().notEmpty().withMessage("Alamat tidak boleh kosong."),
@@ -41,9 +41,9 @@ router.post(
 );
 
 router.post(
-  "/daftar_kostumer_paket_la/delete",
+  "/kostumer/delete",
   authenticateToken,
-  [body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").isInt().withMessage("ID Kota harus berupa angka.").custom(validation.check_id_kostumer_paket_la)],
+  [body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").isInt().withMessage("ID Kota harus berupa angka.").custom(validation.check_id_kostumer)],
   controllers.delete
 );
 

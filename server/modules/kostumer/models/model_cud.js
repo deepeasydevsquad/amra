@@ -1,5 +1,5 @@
-const { sequelize, Kostumer_paket_la } = require("../../../models");
-const Model_r = require("../models/model_r");
+const { sequelize, Kostumer } = require("../../../models");
+const Model_r = require("./model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
 const moment = require("moment");
@@ -12,21 +12,18 @@ class Model_cud {
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
-    // initialize transaction
     this.t = await sequelize.transaction();
     this.state = true;
   }
 
-  // Tambah kostumer paket la
+  // Tambah kostumer
   async add() {
-    // initialize dependensi properties
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
     try {
-      // insert process
-      const insert = await Kostumer_paket_la.create(
+      const insert = await Kostumer.create(
         {
           company_id: this.company_id,
           name: body.name,
@@ -39,27 +36,27 @@ class Model_cud {
           transaction: this.t,
         }
       );
-      // write log message
-      this.message = `Menambahkan kostumer paket la Baru dengan Nama kostumer paket la : ${body.name} dan ID kostumer paket la : ${insert.id}`;
+
+      this.message = `Menambahkan kostumer Baru dengan Nama kostumer: ${body.name} dan ID kostumer: ${insert.id}`;
     } catch (error) {
+      console.log("-------ZZZZ");
+      console.log(error);
+      console.log("-------ZZZZ");
+
       this.state = false;
     }
   }
 
-  // Edit kostumer paket la
+  // Edit kostumer
   async update() {
-    // initialize general property
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
-    // update process
     try {
-      // call object
       const model_r = new Model_r(this.req);
-      // get info kostumer paket la
-      const infoKostumerPaketLA = await model_r.infoKostumerPaketLA(body.id, this.company_id);
-      // update data kostumer paket la
-      await Kostumer_paket_la.update(
+      const infokostumer = await model_r.infokostumer(body.id, this.company_id);
+
+      await Kostumer.update(
         {
           name: body.name,
           mobile_number: body.mobile_number,
@@ -73,25 +70,22 @@ class Model_cud {
           transaction: this.t,
         }
       );
-      // write log message
-      this.message = `Memperbaharui Data kostumer paket la dengan Nama kostumer paket la ${infoKostumerPaketLA.name} dan ID kostumer paket la : ${body.id} menjadi Nama kostumer paket la ${body.name}`;
+
+      this.message = `Memperbaharui Data kostumer dengan Nama kostumer ${infokostumer.name} dan ID kostumer: ${body.id} menjadi Nama kostumer ${body.name}`;
     } catch (error) {
       this.state = false;
     }
   }
 
-  // Hapus kostumer paket la
+  // Hapus kostumer
   async delete() {
-    // initialize dependensi properties
     await this.initialize();
     const body = this.req.body;
     try {
-      // call object
       const model_r = new Model_r(this.req);
-      // get info kostumer paket la
-      const infoKostumerPaketLA = await model_r.infoKostumerPaketLA(body.id, this.company_id);
-      // delete process
-      await Kostumer_paket_la.destroy(
+      const infokostumer = await model_r.infokostumer(body.id, this.company_id);
+
+      await Kostumer.destroy(
         {
           where: {
             id: body.id,
@@ -102,8 +96,8 @@ class Model_cud {
           transaction: this.t,
         }
       );
-      // write log message
-      this.message = `Menghapus kostumer paket la dengan Nama kostumer paket la : ${infoKostumerPaketLA.name} dan ID kostumer paket la : ${infoKostumerPaketLA.id}`;
+
+      this.message = `Menghapus kostumer dengan Nama kostumer: ${infokostumer.name} dan ID kostumer: ${infokostumer.id}`;
     } catch (error) {
       this.state = false;
     }

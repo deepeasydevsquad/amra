@@ -26,13 +26,13 @@
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700">Keterangan</label>
               <p class="text-sm font-normal text-gray-600">
-                Anda hanya dapat membaca informasi kostumer, untuk mengubah informasi kostumer silahkan pergi ke halaman Kostumer Paket LA.
+                Anda hanya dapat membaca informasi kostumer, untuk mengubah informasi kostumer silahkan pergi ke halaman Kostumer.
               </p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Nama Kostumer</label>
               <select
-                v-model="selectedPaketLA.kostumer_paket_la_id"
+                v-model="selectedPaketLA.kostumer_id"
                 @change="updateClientInfo"
                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
               >
@@ -54,7 +54,7 @@
               <p v-if="errors.discount" class="mt-1 text-sm text-red-600">{{ errors.discount }}</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">Jumlah Jamaah</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Jamaah</label>
               <input
                 v-model="selectedPaketLA.total_jamaah"
                 type="number"
@@ -64,7 +64,7 @@
               <p v-if="errors.total_jamaah" class="mt-1 text-sm text-red-600">{{ errors.total_jamaah }}</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">Tanggal Keberangkatan</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Keberangkatan</label>
               <input
                 v-model="selectedPaketLA.departure_date"
                 type="date"
@@ -73,7 +73,7 @@
               <p v-if="errors.departure_date" class="mt-1 text-sm text-red-600">{{ errors.departure_date }}</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">Tanggal Kepulangan</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Kepulangan</label>
               <input
                 v-model="selectedPaketLA.arrival_date"
                 type="date"
@@ -104,7 +104,7 @@
 
 <script>
 import { ref, watch, onMounted } from "vue";
-import { daftarKostumerPaketLA } from "@/service/kostumer";
+import { daftarKostumer } from "@/service/daftar_paket_la";
 
 export default {
   props: {
@@ -118,16 +118,12 @@ export default {
     // Ambil data pelanggan dari API
     const fetchData = async () => {
       try {
-        const responseKostumer = await daftarKostumerPaketLA({
-          search: "",
-          perpage: 100,
-          pageNumber: 1,
-        });
+        const responseKostumer = await daftarKostumer();
         dataKostumer.value = responseKostumer.data || [];
 
-        // Jika data tidak ada alias undefined (buat data baru), maka data kostumer_paket_la_id bernilai 0
-        if (!props.selectedPaketLA.kostumer_paket_la_id) {
-          props.selectedPaketLA.kostumer_paket_la_id = 0
+        // Jika data tidak ada alias undefined (buat data baru), maka data kostumer_id bernilai 0
+        if (!props.selectedPaketLA.kostumer_id) {
+          props.selectedPaketLA.kostumer_id = 0
         }
 
       } catch (error) {
@@ -137,14 +133,14 @@ export default {
 
     onMounted(fetchData);
 
-    // Fungsi untuk update info pelanggan berdasarkan kostumer_paket_la_id
+    // Fungsi untuk update info pelanggan berdasarkan kostumer_id
     const updateClientInfo = () => {
       console.log("Props Selected PaketLA:", props.selectedPaketLA);
       console.log("Data Kostumer (Array):", dataKostumer.value);
 
-      const clientId = typeof props.selectedPaketLA.kostumer_paket_la_id === "object"
-        ? props.selectedPaketLA.kostumer_paket_la_id.id
-        : props.selectedPaketLA.kostumer_paket_la_id;
+      const clientId = typeof props.selectedPaketLA.kostumer_id === "object"
+        ? props.selectedPaketLA.kostumer_id.id
+        : props.selectedPaketLA.kostumer_id;
 
       const selectedClient = dataKostumer.value.find(client => client.id === clientId);
       console.log("Client Ditemukan:", selectedClient || "Tidak ditemukan!");
@@ -160,9 +156,9 @@ export default {
       }
     };
 
-    // Watch perubahan kostumer_paket_la_id agar update client_name
+    // Watch perubahan kostumer_id agar update client_name
     watch(
-      () => props.selectedPaketLA.kostumer_paket_la_id,
+      () => props.selectedPaketLA.kostumer_id,
       () => updateClientInfo()
     );
 
@@ -170,7 +166,7 @@ export default {
     watch(
       () => props.isModalOpen,
       (newVal) => {
-        if (newVal && props.selectedPaketLA?.kostumer_paket_la_id) {
+        if (newVal && props.selectedPaketLA?.kostumer_id) {
           updateClientInfo();
         }
       }

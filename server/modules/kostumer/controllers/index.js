@@ -4,20 +4,20 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 
 const controllers = {};
 
-// **Mendapatkan daftar kostumer_paket_la**
-controllers.get_daftar_kostumer_paket_la = async (req, res) => {
+// **Mendapatkan daftar kostumer**
+controllers.getDaftarKostumer = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_r = new Model_r(req);
-    const feedBack = await model_r.daftar_kostumer_paket_la(); // Ambil daftar kostumer_paket_la dari model
+    const feedBack = await model_r.daftar_kostumer(); // Ambil daftar kostumer dari model
     res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
   } catch (error) {
     handleServerError(res, error.message);
   }
 };
 
-// **Menambahkan kostumer_paket_la baru**
+// **Menambahkan kostumer baru**
 controllers.add = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -41,7 +41,7 @@ controllers.add = async (req, res) => {
   }
 };
 
-// **Update kostumer_paket_la**
+// **Update kostumer**
 controllers.update = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -67,7 +67,7 @@ controllers.update = async (req, res) => {
   }
 };
 
-// **Hapus kostumer_paket_la**
+// **Hapus kostumer**
 controllers.delete = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 

@@ -2,7 +2,6 @@ const { sequelize, Paket_la } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCabang } = require("../../../helper/companyHelper");
-// const { getKostumerPaketLAById } = require("../../../helper/kostumerpaketlaHelper");
 const moment = require("moment");
 
 class Model_cud {
@@ -47,7 +46,7 @@ class Model_cud {
         {
           division_id: this.division_id,
           register_number: register_number,
-          kostumer_paket_la_id: body.kostumer_paket_la_id,
+          kostumer_id: body.kostumer_id,
           client_name: body.client_name,
           client_hp_number: body.client_hp_number,
           client_address: body.client_address,
@@ -87,7 +86,7 @@ class Model_cud {
       // update data  paket la
       await Paket_la.update(
         {
-          kostumer_paket_la_id: body.kostumer_paket_la_id,
+          kostumer_id: body.kostumer_id,
           client_name: body.client_name,
           client_hp_number: body.client_hp_number,
           client_address: body.client_address,

@@ -1,20 +1,22 @@
-const { Op, Paket_la, Paket_la_transaction } = require("../../../models");
-const { getCabang } = require("../../../helper/companyHelper");
+const { Op, Paket_la, Paket_la_transaction, Kostumer } = require("../../../models");
+const { getCabang, getCompanyIdByCode } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
 
 class Model_r {
   constructor(req) {
     this.req = req;
+    this.company_id;
     this.division_id;
   }
 
+
   async initialize() {
+    this.company_id = await getCompanyIdByCode(this.req);
     this.division_id = await getCabang(this.req);
   }
 
   async daftar_paket_la() {
-    // initialize dependensi properties
     await this.initialize();
 
     const body = this.req.body;
@@ -44,7 +46,7 @@ class Model_r {
       "id",
       "division_id",
       "register_number",
-      "kostumer_paket_la_id",
+      "kostumer_id",
       "client_name",
       "client_hp_number",
       "client_address",
@@ -85,7 +87,7 @@ class Model_r {
             data.push({
               id: e.id,
               register_number: e.register_number,
-              kostumer_paket_la_id: e.kostumer_paket_la_id,
+              kostumer_id: e.kostumer_id,
               client_name: e.client_name,
               client_hp_number: e.client_hp_number,
               client_address: e.client_address,
@@ -114,6 +116,36 @@ class Model_r {
     }
   }
 
+  async daftar_kostumer() {
+    await this.initialize();
+    
+    try {
+      const dataKostumer = await Kostumer.findAndCountAll({
+        where: {
+          company_id: this.company_id
+        }
+      })
+      let data = []
+      await Promise.all(
+        dataKostumer.rows.map(async (e) => {
+          data.push({
+            id: e.id,
+            name: e.name,
+            mobile_number: e.mobile_number,
+            address: e.address
+          })
+        })
+      )
+      return { 
+        data: data, 
+        total: dataKostumer.count
+      }
+    } catch (error) {
+      console.log("Error in daftar_kostumer: ", error)
+      return {}
+    }
+  }
+
   async infoPaketLA(id, division_id) {
     try {
       var data = {};
@@ -124,7 +156,7 @@ class Model_r {
               data["id"] = e.id;
               data["division_id"] = e.division_id;
               data["register_number"] = e.register_number;
-              data["kostumer_paket_la_id"] = e.kostumer_paket_la_id;
+              data["kostumer_id"] = e.kostumer_id;
               data["client_name"] = e.client_name;
               data["client_hp_number"] = e.client_hp_number;
               data["client_address"] = e.client_address;
