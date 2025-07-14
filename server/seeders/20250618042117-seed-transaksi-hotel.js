@@ -11,8 +11,7 @@ module.exports = {
         company_id: 1,
         invoice: "INV-HOTEL-" + Date.now(), // biar unik
         petugas: "Admin",
-        payer: "Tuan Muda",
-        payer_identity: "ID123456789",
+        kostumer_id: 1,
         createdAt: now,
         updatedAt: now,
       },

@@ -23,11 +23,13 @@ module.exports = {
       petugas: {
         type: Sequelize.STRING
       },
-      payer: {
-        type: Sequelize.STRING
-      },
-      payer_identity: {
-        type: Sequelize.STRING
+      kostumer_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Kostumers",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
       },
       paket_id: {
         type: Sequelize.INTEGER,

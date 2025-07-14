@@ -18,14 +18,16 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "visa_transaction_id",
         onDelete: "CASCADE",
       });
+      Visa_transaction.belongsTo(models.Kostumer, {
+        foreignKey: "kostumer_id",
+      });
     }
   }
   Visa_transaction.init({
     company_id: DataTypes.INTEGER,
     invoice: DataTypes.STRING,
     petugas: DataTypes.STRING,
-    payer: DataTypes.STRING,
-    payer_identity: DataTypes.STRING,
+    kostumer_id: DataTypes.INTEGER,
     paket_id: DataTypes.INTEGER,
   }, {
     sequelize,

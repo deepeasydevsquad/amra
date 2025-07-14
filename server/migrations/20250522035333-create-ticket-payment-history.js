@@ -23,11 +23,13 @@ module.exports = {
       invoice: {
         type: Sequelize.STRING
       },
-      costumer_name: {
-        type: Sequelize.STRING
-      },
-      costumer_identity: {
-        type: Sequelize.STRING
+      kostumer_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Kostumers",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
       },
       status: {
         type: Sequelize.ENUM,

@@ -8,8 +8,7 @@ module.exports = {
         company_id: 1,
         invoice: 'ER21DH',
         petugas: 'Sony Kurniawan',
-        payer: 'Ilham',
-        payer_identity: '171273512123',
+        kostumer_id: 1,
         createdAt: new Date(), 
         updatedAt: new Date() 
       },

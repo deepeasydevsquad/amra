@@ -7,8 +7,7 @@ module.exports = {
         company_id: 1, // sesuaikan dengan ID company yang ada
         invoice: "AB12",
         petugas: "Sony Kurniawan",
-        payer: "Tuan Muda",
-        payer_identity: "1234567890",
+        kostumer_id: 1,
         address: "Jalan Kenangan No.88",
         createdAt: new Date(),
         updatedAt: new Date(),

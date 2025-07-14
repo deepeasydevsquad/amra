@@ -18,6 +18,26 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "kostumer_id",
         onDelete: 'CASCADE',
       });
+      Kostumer.hasMany(models.Transport_transaction, {
+        foreignKey: "kostumer_id",
+        onDelete: 'CASCADE',
+      });
+      Kostumer.hasMany(models.Hotel_transaction, {
+        foreignKey: "kostumer_id",
+        onDelete: 'CASCADE',
+      });
+      Kostumer.hasMany(models.Passport_transaction, {
+        foreignKey: "kostumer_id",
+        onDelete: 'CASCADE',
+      });
+      Kostumer.hasMany(models.Visa_transaction, {
+        foreignKey: "kostumer_id",
+        onDelete: 'CASCADE',
+      });
+      Kostumer.hasMany(models.Ticket_payment_history, {
+        foreignKey: "kostumer_id",
+        onDelete: 'CASCADE',
+      });
     }
   }
   Kostumer.init({

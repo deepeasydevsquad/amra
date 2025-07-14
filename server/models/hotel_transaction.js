@@ -14,6 +14,9 @@ module.exports = (sequelize, DataTypes) => {
       Hotel_transaction.belongsTo(models.Company, {
         foreignKey: "company_id",
       });
+      Hotel_transaction.belongsTo(models.Kostumer, {
+        foreignKey: "kostumer_id",
+      });
       Hotel_transaction.hasMany(models.Hotel_transaction_detail, {
         foreignKey: "hotel_transaction_id",
         onDelete: 'CASCADE',
@@ -24,8 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     company_id: DataTypes.INTEGER,
     invoice: DataTypes.STRING,
     petugas: DataTypes.STRING,
-    payer: DataTypes.STRING,
-    payer_identity: DataTypes.STRING,
+    kostumer_id: DataTypes.INTEGER,
     paket_id: DataTypes.INTEGER,
   }, {
     sequelize,
