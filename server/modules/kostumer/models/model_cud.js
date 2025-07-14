@@ -39,6 +39,10 @@ class Model_cud {
 
       this.message = `Menambahkan kostumer Baru dengan Nama kostumer: ${body.name} dan ID kostumer: ${insert.id}`;
     } catch (error) {
+      console.log("-------ZZZZ");
+      console.log(error);
+      console.log("-------ZZZZ");
+
       this.state = false;
     }
   }
