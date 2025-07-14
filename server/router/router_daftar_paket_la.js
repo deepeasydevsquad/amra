@@ -28,7 +28,7 @@ router.post(
   "/daftar-paket-la/add",
   authenticateToken,
   [
-    body("kostumer_paket_la_id").trim().notEmpty().withMessage("ID Kostumer paket la tidak boleh kosong."),
+    body("kostumer_id").trim().notEmpty().withMessage("ID Kostumer paket la tidak boleh kosong."),
     body("client_name").trim().notEmpty().withMessage("Nama Kostumer tidak boleh kosong."),
     body("client_hp_number").trim().notEmpty().withMessage("Nomor HP Kostumer tidak boleh kosong."),
     body("client_address").trim().notEmpty().withMessage("Alamat Kostumer tidak boleh kosong."),

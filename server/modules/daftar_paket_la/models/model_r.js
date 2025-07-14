@@ -17,7 +17,6 @@ class Model_r {
   }
 
   async daftar_paket_la() {
-    // initialize dependensi properties
     await this.initialize();
 
     const body = this.req.body;
@@ -47,7 +46,7 @@ class Model_r {
       "id",
       "division_id",
       "register_number",
-      "kostumer_paket_la_id",
+      "kostumer_id",
       "client_name",
       "client_hp_number",
       "client_address",
@@ -88,7 +87,7 @@ class Model_r {
             data.push({
               id: e.id,
               register_number: e.register_number,
-              kostumer_paket_la_id: e.kostumer_paket_la_id,
+              kostumer_id: e.kostumer_id,
               client_name: e.client_name,
               client_hp_number: e.client_hp_number,
               client_address: e.client_address,
@@ -157,7 +156,7 @@ class Model_r {
               data["id"] = e.id;
               data["division_id"] = e.division_id;
               data["register_number"] = e.register_number;
-              data["kostumer_paket_la_id"] = e.kostumer_paket_la_id;
+              data["kostumer_id"] = e.kostumer_id;
               data["client_name"] = e.client_name;
               data["client_hp_number"] = e.client_hp_number;
               data["client_address"] = e.client_address;

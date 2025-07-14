@@ -74,7 +74,7 @@ class Model_r {
     }
   }
 
-  async infoKostumerPaketLA(id) {
+  async infokostumer(id) {
     try {
       var data = {};
       await Kostumer.findOne({

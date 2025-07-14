@@ -45,7 +45,7 @@
             </button>
             <!-- Tambahkan pengecekan submitLabel -->
             <PrimaryButton v-if="submitLabel" type="submit" @click="handleSubmit">
-              <IconPlus></IconPlus>
+              <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
               {{ submitLabel }}
             </PrimaryButton>
           </div>

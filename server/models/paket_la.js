@@ -14,8 +14,8 @@ module.exports = (sequelize, DataTypes) => {
       Paket_la.belongsTo(models.Division, {
         foreignKey: "division_id",
       });
-      Paket_la.belongsTo(models.Kostumer_paket_la, {
-        foreignKey: "kostumer_paket_la_id",
+      Paket_la.belongsTo(models.Kostumer, {
+        foreignKey: "kostumer_id",
       });
       Paket_la.hasMany(models.Fasilitas_paket_la, {
         foreignKey: "paket_la_id",
@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
   Paket_la.init({
     division_id: DataTypes.INTEGER,
     register_number: DataTypes.STRING,
-    kostumer_paket_la_id: DataTypes.INTEGER,
+    kostumer_id: DataTypes.INTEGER,
     client_name: DataTypes.STRING,
     client_hp_number: DataTypes.STRING,
     client_address: DataTypes.STRING,

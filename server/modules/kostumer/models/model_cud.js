@@ -37,7 +37,7 @@ class Model_cud {
         }
       );
 
-      this.message = `Menambahkan kostumer Baru dengan Nama kostumer : ${body.name} dan ID kostumer : ${insert.id}`;
+      this.message = `Menambahkan kostumer Baru dengan Nama kostumer: ${body.name} dan ID kostumer: ${insert.id}`;
     } catch (error) {
       this.state = false;
     }
@@ -50,7 +50,7 @@ class Model_cud {
     const body = this.req.body;
     try {
       const model_r = new Model_r(this.req);
-      const infoKostumerPaketLA = await model_r.infoKostumerPaketLA(body.id, this.company_id);
+      const infokostumer = await model_r.infokostumer(body.id, this.company_id);
 
       await Kostumer.update(
         {
@@ -67,7 +67,7 @@ class Model_cud {
         }
       );
 
-      this.message = `Memperbaharui Data kostumer dengan Nama kostumer ${infoKostumerPaketLA.name} dan ID kostumer : ${body.id} menjadi Nama kostumer ${body.name}`;
+      this.message = `Memperbaharui Data kostumer dengan Nama kostumer ${infokostumer.name} dan ID kostumer: ${body.id} menjadi Nama kostumer ${body.name}`;
     } catch (error) {
       this.state = false;
     }
@@ -79,7 +79,7 @@ class Model_cud {
     const body = this.req.body;
     try {
       const model_r = new Model_r(this.req);
-      const infoKostumerPaketLA = await model_r.infoKostumerPaketLA(body.id, this.company_id);
+      const infokostumer = await model_r.infokostumer(body.id, this.company_id);
 
       await Kostumer.destroy(
         {
@@ -93,7 +93,7 @@ class Model_cud {
         }
       );
 
-      this.message = `Menghapus kostumer dengan Nama kostumer : ${infoKostumerPaketLA.name} dan ID kostumer : ${infoKostumerPaketLA.id}`;
+      this.message = `Menghapus kostumer dengan Nama kostumer: ${infokostumer.name} dan ID kostumer: ${infokostumer.id}`;
     } catch (error) {
       this.state = false;
     }

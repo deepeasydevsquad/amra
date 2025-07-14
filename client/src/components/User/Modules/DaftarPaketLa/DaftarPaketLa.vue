@@ -53,7 +53,7 @@ const pages = computed(() => {
 interface PaketLA {
   id: number;
   register_number: string;
-  kostumer_paket_la_id: number;
+  kostumer_id: number;
   client_name: string;
   client_hp_number: string;
   client_address: string;

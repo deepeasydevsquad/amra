@@ -4,6 +4,7 @@ import DeleteIcon from '@/components/User/Modules/Kostumer/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/Kostumer/Icon/EditIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 // import element
+import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import DangerButton from '@/components/User/Modules/Kostumer/Particle/DangerButton.vue'
 import Notification from '@/components/User/Modules/Kostumer/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/Kostumer/Particle/Confirmation.vue'
@@ -15,7 +16,7 @@ import { daftarList, add, edit, deleteKostumer } from '@/service/kostumer' // Im
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 
-const itemsPerPage = 100 // Jumlah kostumerpaketla per halaman
+const itemsPerPage = 100 // Jumlah kostumer per halaman
 const currentPage = ref(1)
 const search = ref('')
 const totalPages = ref(0)
@@ -93,8 +94,8 @@ const fetchData = async () => {
   total.value = response.total
 }
 
-const openModal = (kostumerpaketla?: Kostumer) => {
-  selectedKostumer.value = kostumerpaketla ? { ...kostumerpaketla } : { name: '', mobile_number: '', address: '' }
+const openModal = (kostumer?: Kostumer) => {
+  selectedKostumer.value = kostumer ? { ...kostumer } : { name: '', mobile_number: '', address: '' }
   isModalOpen.value = true
 }
 
@@ -200,14 +201,12 @@ const deleteData = async (id: number) => {
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
-      <button
+      <PrimaryButton
         @click="openModal()"
-        class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
+      >
+        <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
         Tambah Kostumer
-      </button>
+      </PrimaryButton>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
@@ -234,16 +233,16 @@ const deleteData = async (id: number) => {
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
           <template v-if="dataKostumer && dataKostumer.length > 0">
-            <tr v-for="kostumerpaketla in dataKostumer" :key="kostumerpaketla.id" class="hover:bg-gray-50">
-              <td class="px-6 py-4 text-center">{{ kostumerpaketla.name }}</td>
-              <td class="px-6 py-4 text-center">{{ kostumerpaketla.mobile_number }}</td>
-              <td class="px-6 py-4 text-center">{{ kostumerpaketla.address }}</td>
+            <tr v-for="kostumer in dataKostumer" :key="kostumer.id" class="hover:bg-gray-50">
+              <td class="px-6 py-4 text-center">{{ kostumer.name }}</td>
+              <td class="px-6 py-4 text-center">{{ kostumer.mobile_number }}</td>
+              <td class="px-6 py-4 text-center">{{ kostumer.address }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
-                  <LightButton @click="openModal(kostumerpaketla)">
+                  <LightButton @click="openModal(kostumer)">
                     <EditIcon></EditIcon>
                   </LightButton>
-                  <DangerButton @click="deleteData(kostumerpaketla.id)">
+                  <DangerButton @click="deleteData(kostumer.id)">
                     <DeleteIcon></DeleteIcon>
                   </DangerButton>
                 </div>
