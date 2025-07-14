@@ -11,6 +11,7 @@ import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 
 // import element
+import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import LightButton from '@/components/Button/LightButton.vue'
 import DangerButton from "@/components/Button/DangerButton.vue"
 import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue'
@@ -31,12 +32,15 @@ import DaftarTransaksiPaket from '@/components/User/Modules/DaftarTransaksiPaket
 
 // import API
 import { daftar_tabungan_umrah, deleteTabunganUmrah, cekKwitansiTabunganUmrah } from '@/service/tabungan_umrah'
+import { paramCabang } from '@/service/param_cabang'
 import { ref, onMounted, computed } from 'vue';
 
 const itemsPerPage = 100; // Jumlah paket_la per halaman
 const currentPage = ref(1);
 const search = ref('');
 const filter = ref('belum_beli_paket'); // Default filter
+const filterCabang = ref(0)
+const optionFilterCabang = ref<filterCabang[]>([]);
 const totalPages = ref(0);
 
 const nextPage = () => {
@@ -62,6 +66,11 @@ const pageNow = (page : number) => {
 const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
 });
+
+interface filterCabang {
+  id: number
+  name: string
+}
 
 interface TabunganUmrah {
   id: number;
@@ -98,6 +107,7 @@ interface TabunganUmrah {
 
 const timeoutId = ref<number | null>(null);
 const dataTabunganUmrah = ref<TabunganUmrah[]>([]);
+const total = ref<number>(0);
 const tabunganId = ref<number>(0);
 const paketId = ref<number>(0);
 const dataSearch = ref<string | null>(null);
@@ -120,7 +130,7 @@ const notificationType = ref<'success' | 'error'>('success');
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
-const totalColumns = ref(7); // Default 3 kolom
+const totalColumns = ref(3); // Default 3 kolom
 
 const fetchData = async () => {
   try {
@@ -128,6 +138,7 @@ const fetchData = async () => {
     const response = await daftar_tabungan_umrah({
         search: search.value,
         filter: filter.value,
+        filterCabang: filterCabang.value,
         perpage: itemsPerPage,
         pageNumber: currentPage.value,
     });
@@ -138,22 +149,30 @@ const fetchData = async () => {
     }
 
     totalPages.value = Math.ceil(response.total / itemsPerPage);
-    dataTabunganUmrah.value = response.data || []; // Ensure it assigns an array
-
-
+    dataTabunganUmrah.value = response.data || [];
+    total.value = response.total;
 
   } catch (error) {
-      console.error('Error fetching data:', error);
-      displayNotification('Gagal mengambil data.', 'error');
+    displayNotification(error.response.data.error_msg || 'Terjadi kesalahan saat memuat data.', 'error');
   } finally {
     isLoading.value = false
   }
 };
 
+const fetchDataCabang = async () => {
+  const response = await paramCabang()
+  optionFilterCabang.value = response.data
+  filterCabang.value = response.data[0].id
+  await fetchData()
+}
+
+const tabelutama = ref<HTMLTableElement | null>(null)
+
 onMounted(async () => {
-  await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-  totalColumns.value = document.querySelectorAll("thead th").length;
-});
+  await fetchData();
+  await fetchDataCabang();
+  totalColumns.value = tabelutama.value?.querySelectorAll(':scope > thead > tr > th:not(.hidden)').length
+})
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message;
@@ -230,14 +249,20 @@ const deleteData = async (id: number) => {
     'Konfirmasi Hapus',
     'Apakah Anda yakin ingin menghapus data ini?',
     async () => {
+      isLoading.value = true;
       try {
-        await deleteTabunganUmrah(id);
-        showConfirmDialog.value = false;
-        displayNotification("Operasi berhasil!", "success");
+        const response = await deleteTabunganUmrah(id, filterCabang.value);
+        displayNotification(response.error_msg || 'Tabungan umrah berhasil dihapus!', 'success');
         fetchData();
       } catch (error) {
-        console.error('Error deleting data:', error);
-        displayNotification(error?.response?.data?.error_msg, 'error');
+        displayNotification(
+          error?.response?.data?.error_msg ||
+          error?.response?.data?.message ||
+          'Terjadi kesalahan dalam menyimpan data',
+          'error'
+        );
+      } finally {
+        isLoading.value = false;
       }
     }
   );
@@ -254,8 +279,7 @@ const cetakKwitansi = async (invoice: string) => {
     const url = `/kwitansi-tabungan-umrah/${invoice}`
     window.open(url, '_blank', 'noopener,noreferrer,width=800,height=600,scrollbars=yes')
   } catch (error) {
-    console.error('Error printing invoice:', error)
-    displayNotification('Terjadi kesalahan saat membuka invoice.', 'error')
+    displayNotification(error.response.data.error_msg || 'Terjadi kesalahan saat membuka invoice.', 'error')
   }
 }
 </script>
@@ -267,20 +291,18 @@ const cetakKwitansi = async (invoice: string) => {
     </div>
     <div v-else-if="dataTabunganUmrah" class="container mx-auto">
       <div class="flex justify-between mb-4">
-        <button
+        <PrimaryButton
           @click="openFormAdd()"
-          class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
+        >
+          <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
           Tabungan Umrah
-        </button>
+        </PrimaryButton>
 
         <div class="flex items-center">
           <label for="filter" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
           <select
             id="filter"
-            class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            class="block w-64 px-3 py-2 text-gray-700 bg-white border rounded-s-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
             v-model="filter"
             @change="fetchData()"
           >
@@ -288,16 +310,25 @@ const cetakKwitansi = async (invoice: string) => {
             <option value="sudah_beli_paket">Sudah Beli Paket</option>
             <option value="batal_berangkat">Batal Berangkat</option>
           </select>
+          <select
+            v-model="filterCabang"
+            @change="fetchData()"
+            class="block w-64 border-t border-b border-e bg-white border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            >
+            <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+              {{ optionC.name }}
+            </option>
+          </select>
 
           <div class="flex items-center ml-4">
             <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
             <input
               type="text"
               id="search"
-              class="block w-90 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder:text-gray-400"
+              class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder:text-gray-400"
               v-model="search"
               @change="fetchData()"
-              placeholder="Nama Paket/Kode Paket"
+              placeholder="Cari jamaah atau paket..."
             />
           </div>
         </div>
@@ -305,7 +336,7 @@ const cetakKwitansi = async (invoice: string) => {
 
       <!-- Table data -->
       <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
-        <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
+        <table ref="tabelutama" class="w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead class="bg-gray-100">
             <tr>
               <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Info Jamaah</th>
@@ -314,122 +345,120 @@ const cetakKwitansi = async (invoice: string) => {
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-            <template v-if="dataTabunganUmrah && dataTabunganUmrah.length > 0">
-              <tr v-for="tabungan in dataTabunganUmrah" :key="tabungan.id" class="hover:bg-gray-100">
-                <td class="px-6 align-top">
-                  <table class="w-full">
-                    <tr v-for="(label, value) in {
-                        'Nama Jamaah': tabungan.member.fullname,
-                        'Nomor Identitas': tabungan.member.identity_number,
-                        'Tempat / Tgl Lahir': `${tabungan.member.birth_place} / ${tabungan.member.birth_date}`,
-                        'Nama Agen': tabungan.agen ? `${tabungan.agen.fullname} (Level : ${tabungan.agen.level})` : '-',
-                        'Nama Target Paket': tabungan.target_paket_name || 'Target Paket Tidak Ditemukan'
-                        }" :key="label" class="border-gray-200 hover:bg-gray-200">
-                      <td class="py-1.5">{{ value }}</td>
-                      <td class="pl-8 pr-2">:</td>
-                      <td class="text-right space-y-2 text-sm py-1">{{ label }}</td>
-                    </tr>
-                  </table>
-                </td>
-                <td class="px-6 py-3 align-top">
-                  <div class="text-sm text-gray-800 space-y-2">
-                    <div class="flex items-start ">
-                      <span class="w-40 font-semibold">Total Tabungan</span>
-                      <span class="px-2">:</span>
-                      <span class="font-bold">Rp {{ tabungan.total_tabungan.toLocaleString() }}</span>
-                    </div>
+            <tr v-if="dataTabunganUmrah && dataTabunganUmrah.length > 0" v-for="tabungan in dataTabunganUmrah" :key="tabungan.id" class="hover:bg-gray-100">
+              <td class="px-6 align-top">
+                <table class="w-full">
+                  <tr v-for="(label, value) in {
+                      'Nama Jamaah': tabungan.member.fullname,
+                      'Nomor Identitas': tabungan.member.identity_number,
+                      'Tempat / Tgl Lahir': `${tabungan.member.birth_place} / ${tabungan.member.birth_date}`,
+                      'Nama Agen': tabungan.agen ? `${tabungan.agen.fullname} (Level : ${tabungan.agen.level})` : '-',
+                      'Nama Target Paket': tabungan.target_paket_name || 'Target Paket Tidak Ditemukan'
+                      }" :key="label" class="border-gray-200 hover:bg-gray-200">
+                    <td class="py-1.5">{{ value }}</td>
+                    <td class="pl-8 pr-2">:</td>
+                    <td class="text-right space-y-2 text-sm py-1">{{ label }}</td>
+                  </tr>
+                </table>
+              </td>
+              <td class="px-6 py-3 align-top">
+                <div class="text-sm text-gray-800 space-y-2">
+                  <div class="flex items-start ">
+                    <span class="w-40 font-semibold">Total Tabungan</span>
+                    <span class="px-2">:</span>
+                    <span class="font-bold">Rp {{ tabungan.total_tabungan.toLocaleString() }}</span>
                   </div>
-                  <div class="mt-4 border-t pt-2">
-                    <div class="rounded-t bg-gray-200 px-2 py-2 font-semibold text-center">
-                      Riwayat Tabungan Umrah
+                </div>
+                <div class="mt-4 border-t pt-2">
+                  <div class="rounded-t bg-gray-200 px-2 py-2 font-semibold text-center">
+                    Riwayat Tabungan Umrah
+                  </div>
+                  <template v-if="tabungan.riwayat_tabungan.length" >
+                    <div class="max-h-[340px] overflow-y-auto">
+                      <table class="w-full mb-4 text-xs text-center text-gray-700 border">
+                        <thead class="bg-gray-50 border-b">
+                          <tr>
+                            <th class="p-2 border w-[7%] text-sm">#</th>
+                            <th class="p-2 border w-[13%] text-sm">Invoice</th>
+                            <th class="p-2 border w-[23%] text-sm">Biaya</th>
+                            <th class="p-2 border w-[26%] text-sm">Tanggal Transaksi</th>
+                            <th class="p-2 border w-[25%] text-sm">Penerima</th>
+                            <th class="p-2 border w-[5%] text-sm">Aksi</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(riwayat, index) in tabungan.riwayat_tabungan" :key="index" class="border-t hover:bg-gray-200 text-sm">
+                            <td class="p-2 border">{{ index + 1 }}</td>
+                            <td class="p-2 border">{{ riwayat.invoice }}</td>
+                            <td class="p-2 border">Rp {{ riwayat.nominal_tabungan.toLocaleString() }},-</td>
+                            <td class="p-2 border">{{ riwayat.transaksi }}</td>
+                            <td class="p-2 border">{{ riwayat.penerima }}</td>
+                            <td class="p-2 border">
+                              <button class="rounded bg-gray-200 p-2 hover:bg-gray-300" @click.prevent="cetakKwitansi(riwayat.invoice)">
+                                <CetakIcon class="h-4 w-4 text-gray-600" />
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
-                    <template v-if="tabungan.riwayat_tabungan.length" >
-                      <div class="max-h-[340px] overflow-y-auto">
-                        <table class="w-full mb-4 text-xs text-center text-gray-700 border">
-                          <thead class="bg-gray-50 border-b">
-                            <tr>
-                              <th class="p-2 border w-[7%] text-sm">#</th>
-                              <th class="p-2 border w-[13%] text-sm">Invoice</th>
-                              <th class="p-2 border w-[23%] text-sm">Biaya</th>
-                              <th class="p-2 border w-[26%] text-sm">Tanggal Transaksi</th>
-                              <th class="p-2 border w-[25%] text-sm">Penerima</th>
-                              <th class="p-2 border w-[5%] text-sm">Aksi</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr v-for="(riwayat, index) in tabungan.riwayat_tabungan" :key="index" class="border-t hover:bg-gray-200 text-sm">
-                              <td class="p-2 border">{{ index + 1 }}</td>
-                              <td class="p-2 border">{{ riwayat.invoice }}</td>
-                              <td class="p-2 border">Rp {{ riwayat.nominal_tabungan.toLocaleString() }},-</td>
-                              <td class="p-2 border">{{ riwayat.transaksi }}</td>
-                              <td class="p-2 border">{{ riwayat.penerima }}</td>
-                              <td class="p-2 border">
-                                <button class="rounded bg-gray-200 p-2 hover:bg-gray-300" @click.prevent="cetakKwitansi(riwayat.invoice)">
-                                  <CetakIcon class="h-4 w-4 text-gray-600" />
-                                </button>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
+                  </template>
+                  <template v-else>
+                    <p class="text-gray-500 text-xs italic mt-2 text-center mb-2">Daftar Riwayat Tabungan Umrah Tidak Ditemukan</p>
+                  </template>
+                  <div class="rounded-t bg-gray-200 px-2 py-2 font-semibold text-center">
+                    Riwayat Handover Fasilitas
+                  </div>
+                  <template v-if="tabungan.riwayat_handover_fasilitas.length" >
+                    <!-- Detail Fasilitas -->
+                    <div>
+                      <div class="border border-gray-200 p-4 rounded flex flex-wrap gap-3">
+                        <span
+                          v-for="(item, index) in tabungan.riwayat_handover_fasilitas || []"
+                          :key="index"
+                          class="border border-black px-4 py-2 rounded hover:bg-gray-100 transition"
+                        >
+                          {{ (index + 1) + '# ' + item.name }}
+                        </span>
                       </div>
-                    </template>
-                    <template v-else>
-                      <p class="text-gray-500 text-xs italic mt-2 text-center mb-2">Daftar Riwayat Tabungan Umrah Tidak Ditemukan</p>
-                    </template>
-                    <div class="rounded-t bg-gray-200 px-2 py-2 font-semibold text-center">
-                      Riwayat Handover Fasilitas
                     </div>
-                    <template v-if="tabungan.riwayat_handover_fasilitas.length" >
-                      <!-- Detail Fasilitas -->
-                      <div>
-                        <div class="border border-gray-200 p-4 rounded flex flex-wrap gap-3">
-                          <span
-                            v-for="(item, index) in tabungan.riwayat_handover_fasilitas || []"
-                            :key="index"
-                            class="border border-black px-4 py-2 rounded hover:bg-gray-100 transition"
-                          >
-                            {{ (index + 1) + '# ' + item.name }}
-                          </span>
-                        </div>
-                      </div>
-                    </template>
-                    <template v-else>
-                      <p class="text-gray-500 text-md italic mt-2 text-center mb-2">Daftar Handover Fasilitas Tidak Ditemukan</p>
-                    </template>
-                  </div>
-                </td>
-                <td v-if="filter !== 'sudah_beli_paket' && filter !== 'batal_berangkat'" class="px-6 py-4 text-center grid grid-cols-2 gap-2">
-                  <div class="grid ">
-                    <LightButton col-span-1 title="Cetak Data Jamaah" @click="openFormCetakDataJamaah(tabungan)">
-                      <CetakIcon class="h-4 w-4 text-gray-600" />
+                  </template>
+                  <template v-else>
+                    <p class="text-gray-500 text-md italic mt-2 text-center mb-2">Daftar Handover Fasilitas Tidak Ditemukan</p>
+                  </template>
+                </div>
+              </td>
+              <td v-if="filter !== 'sudah_beli_paket' && filter !== 'batal_berangkat'" class="px-6 py-4 text-center grid grid-cols-2 gap-2">
+                <div class="grid ">
+                  <LightButton col-span-1 title="Cetak Data Jamaah" @click="openFormCetakDataJamaah(tabungan)">
+                    <CetakIcon class="h-4 w-4 text-gray-600" />
+                  </LightButton>
+                  <LightButton col-span-1 title="Update Target Paket" @click="openFormUpdate(tabungan)">
+                    <EditIcon class="h-4 w-4 text-gray-600" />
+                  </LightButton>
+                  <LightButton col-span-1 title="Refund Tabungan" @click="openFormRefund(tabungan)">
+                    <RefundIcon class="h-4 w-4 text-gray-600" />
+                  </LightButton>
+                  <LightButton col-span-1 title="Menabung" @click="openFormMenabung(tabungan)">
+                    <NabungIcon class="h-4 w-4 text-gray-600" />
+                  </LightButton>
+                  <LightButton col-span-1 title="Handover Fasilitas" @click="openFormAddHandover(tabungan)">
+                    <HandoverIcon class="h-4 w-4 text-gray-600" />
+                  </LightButton>
+                  <LightButton col-span-1 title="Handover Barang" @click="openFormOpsiHandoverBarang(tabungan)">
+                    <HandoverBarangIcon class="h-4 w-4 text-gray-600" />
+                  </LightButton>
+                  <template v-if="tabungan.status_paket">
+                    <LightButton col-span-1 title="Beli Paket Umrah" @click="openFormBeliPaketUmrah(tabungan)">
+                      <BeliPaketIcon class="h-4 w-4 text-gray-600" />
                     </LightButton>
-                    <LightButton col-span-1 title="Update Target Paket" @click="openFormUpdate(tabungan)">
-                      <EditIcon class="h-4 w-4 text-gray-600" />
-                    </LightButton>
-                    <LightButton col-span-1 title="Refund Tabungan" @click="openFormRefund(tabungan)">
-                      <RefundIcon class="h-4 w-4 text-gray-600" />
-                    </LightButton>
-                    <LightButton col-span-1 title="Menabung" @click="openFormMenabung(tabungan)">
-                      <NabungIcon class="h-4 w-4 text-gray-600" />
-                    </LightButton>
-                    <LightButton col-span-1 title="Handover Fasilitas" @click="openFormAddHandover(tabungan)">
-                      <HandoverIcon class="h-4 w-4 text-gray-600" />
-                    </LightButton>
-                    <LightButton col-span-1 title="Handover Barang" @click="openFormOpsiHandoverBarang(tabungan)">
-                      <HandoverBarangIcon class="h-4 w-4 text-gray-600" />
-                    </LightButton>
-                    <template v-if="tabungan.status_paket">
-                      <LightButton col-span-1 title="Beli Paket Umrah" @click="openFormBeliPaketUmrah(tabungan)">
-                        <BeliPaketIcon class="h-4 w-4 text-gray-600" />
-                      </LightButton>
-                    </template>
-                    <DangerButton title="Hapus Tabungan" @click="deleteData(tabungan.id)">
-                      <DeleteIcon></DeleteIcon>
-                    </DangerButton>
-                  </div>
-                </td>
-              </tr>
-            </template>
+                  </template>
+                  <DangerButton title="Hapus Tabungan" @click="deleteData(tabungan.id)">
+                    <DeleteIcon></DeleteIcon>
+                  </DangerButton>
+                </div>
+              </td>
+            </tr>
             <tr v-else>
               <td :colspan="filter === 'sudah_beli_paket' ? 2 : 3" class="px-6 py-4 text-center text-sm text-gray-600">
                 Daftar Tabungan Umrah Tidak Ditemukan.
@@ -437,7 +466,16 @@ const cetakKwitansi = async (invoice: string) => {
             </tr>
           </tbody>
           <tfoot class="bg-gray-100 font-bold">
-            <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" />
+            <Pagination
+              :current-page="currentPage"
+              :total-pages="totalPages"
+              :pages="pages"
+              :total-columns="totalColumns"
+              :total-row="total"
+              @prev-page="prevPage"
+              @next-page="nextPage"
+              @page-now="pageNow"
+            />
           </tfoot>
         </table>
       </div>
@@ -456,8 +494,10 @@ const cetakKwitansi = async (invoice: string) => {
     <FormAdd
       v-if="isFormOpen"
       :isFormOpen="isFormOpen"
+      :cabang-id="filterCabang"
       @close="isFormOpen = false; fetchData()"
-      />
+      @status="(payload) => displayNotification(payload.err_msg || 'Tabungan Umrah gagal ditambahkan', payload.error ? 'error' : 'success')"
+    />
   </transition>
 
   <!-- Form Update -->
@@ -472,9 +512,10 @@ const cetakKwitansi = async (invoice: string) => {
     <FormUpdate
       v-if="isFormUpdateOpen"
       :isFormUpdateOpen="isFormUpdateOpen"
-      :tabunganId="tabunganId"
+      :tabungan-id="tabunganId"
+      :cabang-id="filterCabang"
       @close="isFormUpdateOpen = false; fetchData()"
-      @success="displayNotification('Target Paket Tabungan Umrah berhasil diupdate', 'success')"
+      @status="(payload) => displayNotification(payload.err_msg || 'Target Paket Tabungan Umrah gagal diupdate', payload.error ? 'error' : 'success')"
       />
   </transition>
 
@@ -491,8 +532,9 @@ const cetakKwitansi = async (invoice: string) => {
       v-if="isFormMenabungOpen"
       :isFormMenabungOpen="isFormMenabungOpen"
       :tabunganId="tabunganId"
+      :cabang-id="filterCabang"
       @close="isFormMenabungOpen = false; fetchData()"
-      @success="displayNotification('Menabung Tabungan Umrah berhasil ditambahkan', 'success')"
+      @status="(payload) => displayNotification(payload.err_msg || 'Menabung Tabungan Umrah gagal ditambahkan', payload.error ? 'error' : 'success')"
       />
   </transition>
 
@@ -509,8 +551,9 @@ const cetakKwitansi = async (invoice: string) => {
       v-if="isFormRefundOpen"
       :isFormRefundOpen="isFormRefundOpen"
       :tabunganId="tabunganId"
+      :cabang-id="filterCabang"
       @close="isFormRefundOpen = false; fetchData()"
-      @success="displayNotification('Tabungan Umrah berhasil direfund', 'success')"
+      @status="(payload) => displayNotification(payload.err_msg || 'Tabungan Umrah gagal direfund', payload.error ? 'error' : 'success')"
       />
   </transition>
 
@@ -545,8 +588,9 @@ const cetakKwitansi = async (invoice: string) => {
       v-if="isFormCetakDataJamaahOpen"
       :isFormCetakDataJamaahOpen="isFormCetakDataJamaahOpen"
       :tabunganId="tabunganId"
+      :cabang-id="filterCabang"
       @close="isFormCetakDataJamaahOpen = false; fetchData()"
-      @success="displayNotification('Jamaah berhasil dicetak', 'success')"
+      @status="(payload) => displayNotification(payload.err_msg || 'Jamaah gagal dicetak', payload.error ? 'error' : 'success')"
       />
   </transition>
 
@@ -618,6 +662,7 @@ const cetakKwitansi = async (invoice: string) => {
       v-if="isFormBeliPaketUmrahOpen"
       :isFormBeliPaketUmrahOpen="isFormBeliPaketUmrahOpen"
       :tabunganId="tabunganId"
+      :cabangId="filterCabang"
       @close="isFormBeliPaketUmrahOpen = false; fetchData()"
       @status="(payload) => {
         displayNotification(payload.err_msg || 'Paket Umrah gagal dibeli', payload.error ? 'error' : 'success')
@@ -645,7 +690,7 @@ const cetakKwitansi = async (invoice: string) => {
     :confirmTitle="confirmTitle"
     :confirmMessage="confirmMessage"
   >
-    <button @click="confirmAction && confirmAction()" class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">
+    <button @click="confirmAction && confirmAction(); showConfirmDialog = false" class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">
       Ya
     </button>
     <button @click="showConfirmDialog = false" class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">

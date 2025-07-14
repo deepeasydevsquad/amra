@@ -8,17 +8,17 @@ import { MenabungTabunganUmrah, getInfoMenabungTabunganUmrah } from '@/service/t
 
 const props = defineProps<{
   isFormMenabungOpen: boolean,
-  tabunganId: number | null,
+  tabunganId: number,
+  cabangId: number
 }>()
 
 const emit = defineEmits<{
   (e: 'close'): void
-  (e: 'success'): void
+  (e: 'status', payload: {error: boolean, err_msg?: string}): void
 }>()
 
 // Interfaces
 interface ErrorFields {
-  id?: string;
   sumber_dana: string;
   biaya_deposit: string;
   info_deposit: string;
@@ -46,14 +46,12 @@ const confirmTitle = ref<string>('Konfirmasi');
 const confirmAction = ref<(() => void) | null>(null);
 
 const errors = ref<ErrorFields>({
-  id: '',
   sumber_dana: '',
   biaya_deposit: '',
   info_deposit: '',
 })
 
 const form = reactive({
-  id: props.tabunganId ?? null,
   sumber_dana: 'cash',
   biaya_deposit: 0,
   info_deposit: '',
@@ -80,15 +78,17 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 
 // Function: Fetch Data
 const fetchData = async () => {
-  if (!props.tabunganId) return
-  isLoading.value = true
+  if (!props.tabunganId) {
+    displayNotification('ID tabungan tidak ditemukan, silakan keluar dan masuk kembali.', 'error')
+    return
+  }
+
   try {
+    isLoading.value = true
     const response = await getInfoMenabungTabunganUmrah(props.tabunganId)
     dataTabungan.value = response.data
-    console.debug('Data Tabungan:', dataTabungan.value)
   } catch (error) {
-    console.error(error)
-    displayNotification(error?.response?.data?.error_msg, 'error')
+    displayNotification(error?.response?.data?.error_msg || 'Terjadi kesalahan dalam mengambil data tabungan', 'error')
   } finally {
     isLoading.value = false
   }
@@ -98,10 +98,14 @@ const fetchData = async () => {
 const validateForm = (): boolean => {
   let isValid = true
   errors.value = {
-    id: '',
     sumber_dana: '',
     biaya_deposit: '',
     info_deposit: '',
+  }
+
+  if (!props.tabunganId || !props.cabangId) {
+    displayNotification('ID tabungan atau cabang tidak ditemukan, silakan keluar dan masuk kembali.', 'error')
+    isValid = false
   }
 
   if (!form.sumber_dana) {
@@ -125,34 +129,36 @@ const validateForm = (): boolean => {
 // Save Data
 const saveData = async () => {
   if (!validateForm()) return
-  isLoading.value = true
   showConfirmation(
     'Konfirmasi Menabung Tabungan Umrah',
     `Apakah Anda yakin ingin menabung sebesar ${formatPrice(form.biaya_deposit)}?`,
     async () => {
-      if (!confirmAction.value) return
       try {
-        console.debug('Saving data with payload:', form)
+        isLoading.value = true
         const payload: {
           id: number;
+          division_id: number;
           sumber_dana: string;
           biaya_deposit: number;
           info_deposit: string;
         } = {
-          id: props.tabunganId || 0,
+          id: props.tabunganId,
+          division_id: props.cabangId,
           sumber_dana: form.sumber_dana,
           biaya_deposit: form.biaya_deposit,
           info_deposit: form.info_deposit
         }
 
-        console.debug(payload)
-
-        await MenabungTabunganUmrah(payload)
-        emit('success')
+        const response = await MenabungTabunganUmrah(payload)
         emit('close')
+        emit('status', { error: false, err_msg: response.error_msg || 'Menabung berhasil disimpan' })
       } catch (error) {
-        console.error(error)
-        displayNotification(error?.response?.data?.error_msg, 'error')
+        displayNotification(
+          error?.response?.data?.error_msg ||
+          error?.response?.data?.message ||
+          'Terjadi kesalahan dalam menyimpan data',
+          'error'
+        )
       } finally {
         isLoading.value = false
       }

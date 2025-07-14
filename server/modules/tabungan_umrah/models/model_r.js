@@ -43,6 +43,20 @@ class Model_r {
     this.division_id = await getCabang(this.req);
   }
 
+  async getDivisionId() {
+    const userType = await tipe(this.req);
+    if (userType === "administrator") {
+      return this.req.body.division_id;
+    } else if (userType === "staff") {
+      const decoded = jwt.decode(
+        this.req.headers["authorization"]?.split(" ")[1]
+      );
+      return decoded?.division_id;
+    } else {
+      throw new Error("Role pengguna tidak valid.");
+    }
+  }
+
   async penerima() {
     this.tipe = await tipe(this.req);
 
@@ -65,7 +79,7 @@ class Model_r {
   }
 
   // Fungsi untuk ambil ID jamaah dari pencarian
-  async getJamaahIdsFromSearch(searchTerm) {
+  async getJamaahIdsFromSearch(searchTerm, division_id) {
     const jamaahIds = await Jamaah.findAll({
       attributes: ['id'],
       where: {
@@ -73,12 +87,30 @@ class Model_r {
           { '$Member.fullname$': { [Op.like]: `%${searchTerm}%` } },
           { '$Member.identity_number$': { [Op.like]: `%${searchTerm}%` } },
         ],
+        division_id: division_id
       },
       include: [{ model: Member }],
       raw: true,
     });
 
     return jamaahIds.map((j) => j.id);
+  }
+
+  // Fungsi untuk ambil ID Paket dari pencarian
+  async getPaketIdsFromSearch(searchTerm, division_id) {
+    const paketIds = await Paket.findAll({
+      attributes: ['id'],
+      where: {
+        [Op.or]: [
+          { name: { [Op.like]: `%${searchTerm}%` } },
+          { kode: { [Op.like]: `%${searchTerm}%` } },
+        ],
+        division_id: division_id
+      },
+      raw: true,
+    });
+
+    return paketIds.map((j) => j.id);
   }
 
     // Mengambil data paket
@@ -109,7 +141,7 @@ class Model_r {
   async getRiwayatTabungan(tabungan_id) {
     const list = await Riwayat_tabungan.findAll({
       where: { tabungan_id },
-      order: [["createdAt", "DESC"]],
+      order: [["id", "ASC"]],
     });
 
     return list.map((r) => ({
@@ -210,9 +242,10 @@ class Model_r {
     const offset = (pageNumber - 1) * perpage;
     const search = body.search || "";
     const filter = body.filter || "belum_beli_paket";
+    const filterCabang = body.filterCabang || null;
 
-    let where = { division_id: this.division_id };
-
+    let where = {}
+    
     if (filter === "belum_beli_paket") {
       where = { ...where, paket_transaction_id: null, batal_berangkat: "tidak" };
     } else if (filter === "sudah_beli_paket") {
@@ -220,10 +253,35 @@ class Model_r {
     } else if (filter === "batal_berangkat") {
       where = { ...where, batal_berangkat: "ya" };
     }
+    
+    if (filterCabang) {
+      where = { ...where, division_id: filterCabang };
+    } else {
+      where = { ...where, division_id: this.division_id};
+    }
 
     if (search) {
-      const jamaahIds = await this.getJamaahIdsFromSearch(search);
-      where = { ...where, jamaah_id: { [Op.in]: jamaahIds } };
+      const jamaahIds = await this.getJamaahIdsFromSearch(search, filterCabang);
+      const paketIds = await this.getPaketIdsFromSearch(search, filterCabang);
+
+      if (jamaahIds.length > 0 || paketIds.length > 0) {
+        const orConditions = [];
+        if (jamaahIds.length > 0) {
+          orConditions.push({ jamaah_id: { [Op.in]: jamaahIds } });
+        }
+        if (paketIds.length > 0) {
+          orConditions.push({ target_paket_id: { [Op.in]: paketIds } });
+        }
+        where = {
+          ...where,
+          [Op.or]: orConditions,
+        };
+      } else {
+        where = {
+          ...where,
+          id: null,
+        };
+      }
     }
 
     const sql = {
@@ -257,17 +315,18 @@ class Model_r {
       };
     } catch (error) {
       console.log("Error in daftar_tabungan_umrah:", error);
-      return {};
+      return { data: [], total: 0};
     }
   }
 
   async getJamaahTabunganUmrah() {
     await this.initialize();
+    const division_id = await this.getDivisionId();
     try {
 
       const jamaah = await Jamaah.findAll({
         where: {
-          division_id: this.division_id,
+          division_id: division_id,
         },
         attributes: ["id", "agen_id"],
         include: [{
@@ -279,7 +338,7 @@ class Model_r {
       const tabunganAktif = await Tabungan.findAll({
         where: {
           status: "active",
-          division_id: this.division_id,
+          division_id: division_id,
         },
         attributes: ["jamaah_id"],
         raw: true,
@@ -301,23 +360,25 @@ class Model_r {
       return {
         data: [],
         total: 0,
-        error: error.message,
       };
     }
   }
   
   async getPaketTabunganUmrah () {
+    const body = this.req.body;
+    const division_id = await this.getDivisionId();
     try {
       await this.initialize();
       var data = {};
       const paket = await Paket.findAll({
         where: {
-          division_id: this.division_id,
+          division_id: division_id,
           departure_date: {
             [Op.gt]: moment().format('YYYY-MM-DD'),
           },
         },
         attributes: ["id", "name", "departure_date", "quota_jamaah"],
+        order: [["createdAt", "DESC"]],
       });
 
       const paketPrices = await Paket_price.findAll({
@@ -330,7 +391,7 @@ class Model_r {
       });
 
       if (paket) {
-        data["data"] = await Promise.all(paket.map(async e => {
+        data = await Promise.all(paket.map(async e => {
           const hargaSemua = paketPrices
             .filter(p => p.paket_id === e.id)
             .reduce((total, current) => total + Number(current.price), 0);
@@ -344,7 +405,7 @@ class Model_r {
           const countPaketTransaction = await Paket_transaction.count({
             where: {
               paket_id: e.id,
-              division_id: this.division_id,
+              division_id: division_id,
             }
           });
 
@@ -358,7 +419,7 @@ class Model_r {
         }));
       }
 
-      return data;
+      return {data, total: paket.length};
 
     } catch (error) {
       console.log("Error in getPaketTabunganUmrah:", error);
@@ -389,15 +450,14 @@ class Model_r {
       });
 
       if (agen) {
-        data["data"] = {
+        data = {
           id: agen.id,
           name: agen.Member.fullname,
           default_fee: Number(agen.Level_keagenan.default_fee)
         };
       }
 
-      return data;
-
+      return {data, total: 1};
     } catch (error) {
       console.log("Error in getAgenById:", error);
       return {};
@@ -508,18 +568,21 @@ class Model_r {
   async getPetugasTabunganUmrah() {
     try {
       await this.initialize();
-      const body = this.req.body; // Buat jaga jaga seandai dibutuhkan 
+      const division_id = await this.getDivisionId() || this.division_id;
 
-      const data = [];      
-      data.push({
-        id: `admin-${this.company_id}`,
-        label: `Administrator ${await this.penerima()} (Administrator)`,
-        type: "admin",
-      });
+      const data = [];
+      const userType = await tipe(this.req);
+      if (userType === "administrator") {
+        data.push({
+          id: `admin-${this.company_id}`,
+          label: `Administrator ${await this.penerima()} (Administrator)`,
+          type: "admin",
+        });
+      }
       
       // Tambahkan user Staff dan pegawai
       const users = await User.findAll({
-        where: { division_id: this.division_id },
+        where: { division_id: division_id },
         attributes: ["id"],
         include: [{
           model: Member,
@@ -566,7 +629,7 @@ class Model_r {
     let division = null;
     await Division.findOne({
       attributes: ["name", "pos_code", "address"], // ambil dari Division
-      where: { id: this.division_id }, // pastikan ini berdasarkan division_id
+      where: { id: this.division_id }, // pastikan ini berdasarkan division_id company
       include: [
         {
           required: true,
@@ -825,7 +888,8 @@ class Model_r {
       data["telephone_keluarga"] = tabungan.Jamaah?.telephone_keluarga ? tabungan.Jamaah.telephone_keluarga : "-";
 
       return {
-        data
+        data,
+        total: 1
       };
     } catch (error) {
       console.log("Error in getCetakDataJamaahTabunganUmrah:", error);
@@ -869,9 +933,7 @@ class Model_r {
           : "-"
       } : {};
 
-      console.log(data);
-
-      return {data};
+      return {data, total: data.length};
     } catch (error) {
         console.log("error in getInfoUpdateTabunganUmrah", error);
         return {};
@@ -896,7 +958,7 @@ class Model_r {
       };
       data = dataTabungan;
 
-      return {data};
+      return {data, total: data.length};
     } catch (error) {
         console.log("error in getInfoRefundTabunganUmrah", error);
         return {};
@@ -924,7 +986,7 @@ class Model_r {
       };
       data = dataTabungan;
 
-      return {data};
+      return {data, total: data.length};
     } catch (error) {
         console.log("Error in getInfoMenabungTabunganUmrah:", error);
         return {};
@@ -972,7 +1034,7 @@ class Model_r {
         status: item.status,
       }));
 
-      return {data};
+      return {data, total: data.length};
     } catch (error) {
       console.log("Error in getInfoPengembalianHandoverBarang:", error);
       return {};
@@ -1007,7 +1069,7 @@ class Model_r {
         price: item.price,
       }));
 
-      return { data };
+      return { data, total: data.length };
     } catch (error) {
       console.log("Error in getInfoPengembalianHandoverBarang:", error);
       return {};

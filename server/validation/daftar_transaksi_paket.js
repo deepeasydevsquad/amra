@@ -8,10 +8,7 @@ const { getCabang } = require("../helper/companyHelper");
 const validation = {};
 
 validation.check_id_paket = async (value, { req }) => {
-    const division_id = await getCabang(req);
-    console.log(division_id);
-    console.log(value);
-    var check = Paket.findOne({ where: { id : value, division_id : division_id }});
+    var check = Paket.findOne({ where: { id : value }});
     if (!check) {
         throw new Error("ID Paket tidak terdaftar dipangkalan data");
     }

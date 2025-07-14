@@ -151,8 +151,12 @@ async function saveData() {
         emit('status', { error: false, err_msg: 'Data handover barang berhasil diserahkan' })
         emit('close')
       } catch (error) {
-        displayNotification('Gagal menyimpan data handover barang', 'error')
-        emit('status', { error: true, err_msg: error.response.data.error_msg })
+        displayNotification(
+          error?.response?.data?.error_msg ||
+          error?.response?.data?.message ||
+          'Terjadi kesalahan dalam menyimpan data',
+          'error'
+        )
       } finally {
         isLoading.value = false
       }
@@ -162,7 +166,6 @@ async function saveData() {
 </script>
 
 <template>
-  <!-- Loading Spinner -->
   <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
     <div class="animate-spin h-6 w-6 border-4 border-white border-t-transparent rounded-full"></div>
   </div>

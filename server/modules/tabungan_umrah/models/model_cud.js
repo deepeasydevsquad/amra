@@ -27,7 +27,6 @@ const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
 const moment = require("moment");
 const { getJamaahInfo } = require("../../../helper/JamaahHelper");
-const { where } = require("sequelize");
 
 class Model_cud {
   constructor(req) {
@@ -39,7 +38,6 @@ class Model_cud {
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
     this.division_id = await getCabang(this.req);
-    // initialize transaction
     this.t = await sequelize.transaction();
     this.state = true;
   }
@@ -53,7 +51,6 @@ class Model_cud {
       });
       return company?.company_name ?? "Unknown Company";
     }
-
     if (this.tipe === "staff") {
       const member = await Member.findOne({
         where: { company_id: this.company_id },
@@ -86,6 +83,7 @@ class Model_cud {
     const [inRiwayat, inRefund, inDeposit, inPaketPaymentHistory] = await Promise.all([
       Riwayat_tabungan.findOne({
         where: { invoice },
+        attributes: ['id'],
         include: [{
           model: Tabungan,
           include: [{
@@ -96,6 +94,7 @@ class Model_cud {
       }),
       Refund_tabungan.findOne({
         where: { invoice },
+        attributes: ['id'],
         include: [{
           model: Tabungan,
           include: [{
@@ -104,12 +103,23 @@ class Model_cud {
           }],
         }],
       }),
-      Deposit.findOne({ where: { invoice, company_id: this.company_id } }),
+      Deposit.findOne({ 
+        where: { invoice },
+        attributes: ['id'],
+        include: [{
+          model: Division,
+          where: { company_id: this.company_id },
+        }]
+      }),
       Paket_transaction_payment_history.findOne({ 
         where: { invoice },
+        attributes: ['id'],
         include: [{
           model: Paket_transaction,
-          where: { division_id: this.division_id },
+          include: [{
+            model: Division,
+            where: { company_id: this.company_id },
+          }]
         }],
       }),
     ]);
@@ -192,6 +202,20 @@ class Model_cud {
     } while (exists);
     return invoice;
   }
+
+  async getDivisionId() {
+    const userType = await tipe(this.req);
+    if (userType === "administrator") {
+      return this.req.body.division_id;
+    } else if (userType === "staff") {
+      const decoded = jwt.decode(
+        this.req.headers["authorization"]?.split(" ")[1]
+      );
+      return decoded?.division_id;
+    } else {
+      throw new Error("Role pengguna tidak valid.");
+    }
+  }
   
   // === CREATE ===
   async add() {
@@ -204,29 +228,21 @@ class Model_cud {
       do {
         invoiceTabungan = await this.generateInvoice();
         invoiceDeposit = await this.generateInvoice();
-      } while (invoiceTabungan === invoiceDeposit); // pastikan invoice tabungan dan deposit tidak sama
+      } while (invoiceTabungan === invoiceDeposit);
       
       const penerima = await this.penerima();
+      const division_id = await this.getDivisionId();
       const jamaah = await getJamaahInfo(body.jamaah_id);
-
-      console.log("Data Body:", body);
-      console.log("Company ID:", this.company_id);
-      console.log("Division ID:", this.division_id);
-      console.log("Invoice Tabungan:", invoiceTabungan);
-      console.log("Invoice Deposit:", invoiceDeposit);
 
       // === 1. Insert ke tabel TABUNGAN ===
       const tabungan = await Tabungan.create({
-        division_id: this.division_id,
+        division_id: division_id,
         jamaah_id: body.jamaah_id,
         target_paket_id: body.target_id,
         total_tabungan: body.biaya_deposit,
         status: 'active',
         fee_agen_id: null,
         batal_berangkat: 'tidak',
-        transaksi_paket_id: body.transaksi_paket_id || null,
-        sisa_pembelian: body.sisa_pembelian || 0,
-        invoice_sisa_deposit: null,
         createdAt: dateNow,
         updatedAt: dateNow,
       }, { transaction: this.t });
@@ -275,7 +291,7 @@ class Model_cud {
       if (sumberDana === "deposit") {
         // === Insert ke tabel DEPOSIT (log pengurangan) ===
         await Deposit.create({
-          company_id: this.company_id,
+          division_id: division_id,
           member_id: member.id,
           invoice: invoiceDeposit,
           nominal: -Number(body.biaya_deposit),
@@ -307,6 +323,7 @@ class Model_cud {
       this.message = `Data tabungan berhasil disimpan dengan invoice: ${invoiceTabungan}`;
       return invoiceTabungan;
     } catch (error) {
+      console.log("Error in add():", error)
       this.state = false;
     }
   }
@@ -318,26 +335,25 @@ class Model_cud {
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
     
     try {
-      // call object
       const model_r = new Model_r(this.req);
-      // get info tabungan
-      const infoTabungan = await model_r.infoTabungan(body.id, this.division_id);
+      const infoTabungan = await model_r.infoTabungan(body.id);
 
       let invoiceTabungan, invoiceDeposit;
       do {
         invoiceTabungan = await this.generateInvoice();
         invoiceDeposit = await this.generateInvoice();
-      } while (invoiceTabungan === invoiceDeposit); // pastikan invoice tabungan dan deposit tidak sama
+      } while (invoiceTabungan === invoiceDeposit);
 
       const penerima = await this.penerima();
+      const division_id = await this.getDivisionId();
 
       console.log("Data Body:", body);
       console.log("Company ID:", this.company_id);
-      console.log("Division ID:", this.division_id);
+      console.log("Division ID:", division_id);
       console.log("Invoice Tabungan:", invoiceTabungan);
       console.log("Invoice Deposit:", invoiceDeposit);
 
-      const tabungan = await Tabungan.findOne({ where: { id: body.id, division_id: this.division_id } });
+      const tabungan = await Tabungan.findOne({ where: { id: body.id, division_id: division_id } });
 
       tabungan.update({
         total_tabungan: (infoTabungan.total_tabungan || 0) + Number(body.biaya_deposit),
@@ -367,7 +383,7 @@ class Model_cud {
 
         // === Insert ke tabel DEPOSIT (log pengurangan) ===
         await Deposit.create({
-          company_id: this.company_id,
+          division_id: division_id,
           member_id: member.id,
           invoice: invoiceDeposit,
           nominal: -Number(body.biaya_deposit),
@@ -409,24 +425,23 @@ class Model_cud {
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
     
     try {
-      // call object
       const model_r = new Model_r(this.req);
-      // get info tabungan
-      const infoTabungan = await model_r.infoTabungan(body.id, this.division_id);
+      const infoTabungan = await model_r.infoTabungan(body.id);
       const penerima = await this.penerima();
+      const division_id = await this.getDivisionId();
 
       let invoiceTabungan, invoiceRefund;
       do {
         invoiceTabungan = await this.generateInvoice();
         invoiceRefund = await this.generateInvoice();
-      } while (invoiceTabungan === invoiceRefund); // pastikan invoice tabungan dan deposit tidak sama
+      } while (invoiceTabungan === invoiceRefund);
 
       console.log("Data Body:", body);
       console.log("Company ID:", this.company_id);
-      console.log("Division ID:", this.division_id);
+      console.log("Division ID:", division_id);
       console.log("Invoice Refund:", invoiceRefund);
 
-      const tabungan = await Tabungan.findOne({ where: { id: body.id, division_id: this.division_id } });
+      const tabungan = await Tabungan.findOne({ where: { id: body.id, division_id: division_id } });
 
       tabungan.update({
         total_tabungan: (infoTabungan.total_tabungan || 0) - Number(body.refund_nominal),
@@ -486,9 +501,10 @@ class Model_cud {
     await this.initialize();
     const body = this.req.body;
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+    const division_id = await this.getDivisionId();
 
     try {
-      const tabungan = await Tabungan.findOne({ where: { id: body.id, division_id: this.division_id } });
+      const tabungan = await Tabungan.findOne({ where: { id: body.id, division_id: division_id  } });
 
       await tabungan.update({
         target_paket_id: body.target_id || null,
@@ -547,10 +563,8 @@ class Model_cud {
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
 
     try {
-      // call object
       const model_r = new Model_r(this.req);
-      // get info tabungan
-      const infoTabungan = await model_r.infoTabungan(body.id, this.division_id);
+      const infoTabungan = await model_r.infoTabungan(body.id);
       const penerima = await this.penerima();
       const invoice_handover = await this.generateInvoiceHandover();
 
@@ -589,10 +603,8 @@ class Model_cud {
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
 
     try {
-      // call object
       const model_r = new Model_r(this.req);
-      // get info tabungan
-      const infoTabungan = await model_r.infoTabungan(body.id, this.division_id);
+      const infoTabungan = await model_r.infoTabungan(body.id);
       const penerima = await this.penerima();
       const invoice_returned = await this.generateInvoiceHandover();
 
@@ -643,9 +655,10 @@ class Model_cud {
 
     try {
       const model_r = new Model_r(this.req);
-      const infoTabungan = await model_r.infoTabungan(body.id, this.division_id);
+      const infoTabungan = await model_r.infoTabungan(body.id);
       const totalTabungan = parseInt(infoTabungan.total_tabungan);
       const penerima = await this.penerima();
+      const division_id = await this.getDivisionId()
       let invoiceSet = new Set();
 
       let invoiceDepositReturned, invoiceDeposit, invoiceRiwayatTabungan, invoicePaketTransactionPaymentHistory;
@@ -676,7 +689,7 @@ class Model_cud {
       console.groupCollapsed("========== GEN1 Pembelian Paket Tabungan Umrah ==========");
       console.log("Body:", body);
       console.log("Company ID:", this.company_id);
-      console.log("Division ID:", this.division_id);
+      console.log("Division ID:", division_id);
       console.log("Invoice Deposit:", invoiceDeposit);
       console.log("Invoice Riwayat Tabungan:", invoiceRiwayatTabungan);
       console.log("Invoice Paket Transaction Payment History:", invoicePaketTransactionPaymentHistory);
@@ -710,7 +723,7 @@ class Model_cud {
         }),
         updated_at: dateNow
       }, {
-        where: { id: infoTabungan.jamaah.member_id, division_id: this.division_id },
+        where: { id: infoTabungan.jamaah.member_id, division_id: division_id },
         transaction: this.t
       });
 
@@ -724,8 +737,8 @@ class Model_cud {
       // === 2. Insert Deposit ===
       let depositTabungan = null;
       if (sisaPembelian > 0) {        
-        const depositTabungan = await Deposit.create({
-          company_id: this.company_id,
+        depositTabungan = await Deposit.create({
+          division_id: division_id,
           member_id: infoTabungan.jamaah.member_id,
           invoice: invoiceDeposit,
           nominal: sisaPembelian,
@@ -748,7 +761,7 @@ class Model_cud {
 
       // === 3. Insert Paket Transaction ===
       const paketTransaction = await Paket_transaction.create({
-        division_id: this.division_id,
+        division_id: division_id,
         jamaah_id: infoTabungan.jamaah.id,
         fee_agen_id: infoTabungan.fee_agen_id,
         paket_id: body.target_paket_id,
@@ -780,7 +793,7 @@ class Model_cud {
         invoice_sisa_deposit: sisaPembelian > 0 ? invoiceDeposit : null,
         updated_at: dateNow
       }, {
-        where: { id: body.id, division_id: this.division_id },
+        where: { id: body.id, division_id: division_id },
         transaction: this.t,
       });
 
@@ -920,10 +933,8 @@ class Model_cud {
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
 
     try {
-      // call object
       const model_r = new Model_r(this.req);
-      // get info tabungan
-      const infoTabungan = await model_r.infoTabungan(body.id, this.company_id);
+      const infoTabungan = await model_r.infoTabungan(body.id);
 
       const tabungan = await Tabungan.findOne({
         where: { id: body.id },
@@ -959,9 +970,10 @@ class Model_cud {
       // 2. Buat catatan log deposit (pengembalian) //dihapus aja
       const invoiceDeposit = await this.generateInvoice();
       const penerima = await this.penerima();
+      const division_id = await this.getDivisionId();
 
       await Deposit.create({
-        company_id: this.company_id,
+        division_id: division_id,
         member_id: member.id,
         invoice: invoiceDeposit,
         nominal: nominalTerakhir,

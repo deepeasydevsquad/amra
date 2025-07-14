@@ -85,7 +85,7 @@ const saveData = async () => {
       }
       emit('close')
     } catch (error) {
-      emit('status', { error: true, err_msg: (error.response?.data?.err_msg || error.response?.data?.message) || 'Terjadi kesalahan saat menyimpan data.' });
+      emit('status', { error: true, err_msg: (error?.response?.data?.error_msg || error.response?.data?.message) || 'Terjadi kesalahan saat menyimpan data.' });
       showConfirmDialog.value = false;
     }
   };

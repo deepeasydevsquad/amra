@@ -8,19 +8,18 @@ import { RefundTabunganUmrah, getInfoRefundTabunganUmrah } from '@/service/tabun
 
 const props = defineProps<{
   isFormRefundOpen: boolean;
-  tabunganId: number | null;
+  tabunganId: number;
+  cabangId: number;
 }>()
 
 const emit = defineEmits<{
   (e: 'close'): void
-  (e: 'success'): void
+  (e: 'status', payload: {error: boolean, err_msg?: string}): void
 }>()
 
 // Interfaces
 interface ErrorFields {
-  id?: string;
   refund_nominal?: string;
-  batal_berangkat?: string;
 }
 interface dataTabungan {
   id: number;
@@ -40,18 +39,15 @@ const notificationType = ref('')
 const timeoutId = ref<number | null>(null)
 
 const errors = ref<ErrorFields>({
-  id: '',
   refund_nominal: '',
 })
 
 interface RefundForm {
-  id: number | null;
   refund_nominal: number;
   batal_berangkat: boolean;
 }
 
 const form = reactive<RefundForm>({
-  id: props.tabunganId ?? null,
   refund_nominal: 0,
   batal_berangkat: false,
 })
@@ -68,15 +64,18 @@ showNotification.value = false
 }
 
 const fetchData = async () => {
-  if (!props.tabunganId) return
-  isLoading.value = true
+  if (!props.tabunganId) {
+    displayNotification('ID tabungan tidak ditemukan, silakan keluar dan masuk kembali.', 'error')
+    return
+  }
+
   try {
+    isLoading.value = true
     const response = await getInfoRefundTabunganUmrah(props.tabunganId)
     dataTabungan.value = response.data
     form.batal_berangkat = dataTabungan.value?.batal_berangkat;
   } catch (error) {
-    console.error(error)
-    displayNotification(error?.response?.data?.error_msg || 'Gagal mengambil data tabungan', 'error')
+    displayNotification(error?.response?.data?.error_msg || 'Terjadi kesalahan dalam mengambil data', 'error')
   } finally {
     isLoading.value = false
   }
@@ -96,13 +95,16 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 const validateForm = (): boolean => {
   let isValid = true
   errors.value = {
-    id: '',
     refund_nominal: '',
-    batal_berangkat: '',
   }
 
-  if (!form.id) {
-    errors.value.id = 'ID Tabungan Umrah wajib diisi'
+  if (!props.tabunganId) {
+    displayNotification('ID tabungan tidak ditemukan, silakan keluar dan masuk kembali.', 'error')
+    isValid = false
+  }
+
+  if (!props.cabangId) {
+    displayNotification('ID cabang tidak ditemukan, silakan keluar dan masuk kembali.', 'error')
     isValid = false
   }
 
@@ -111,7 +113,7 @@ const validateForm = (): boolean => {
     isValid = false
   }
 
-  if (form.refund_nominal > dataTabungan.value?.total_tabungan) {
+  if (form.refund_nominal > (dataTabungan.value?.total_tabungan || 0)) {
     displayNotification('Nominal Refund tidak boleh lebih besar dari total tabungan', 'error')
     isValid = false
   }
@@ -130,23 +132,28 @@ const saveData = async () => {
         isLoading.value = true
         const payload: {
           id: number;
+          division_id: number;
           refund_nominal: number
           batal_berangkat: number
         } = {
-          id: props.tabunganId || 0,
+          id: props.tabunganId,
+          division_id: props.cabangId,
           refund_nominal: form.refund_nominal,
           batal_berangkat: form.batal_berangkat ? 1 : 0,
         }
 
-        console.debug("Payload:", payload)
-        await RefundTabunganUmrah(payload)
+        const response = await RefundTabunganUmrah(payload)
+        emit('close')
+        emit('status', { error: false, err_msg: response.error_msg || 'Refund berhasil disimpan' })
       } catch (error) {
-        console.error(error)
-        displayNotification(error?.response?.data?.error_msg, 'error')
+        displayNotification(
+          error?.response?.data?.error_msg ||
+          error?.response?.data?.message ||
+          'Terjadi kesalahan dalam menyimpan data',
+          'error'
+        )
       } finally {
         isLoading.value = false
-        emit('success')
-        emit('close')
       }
     }
   )

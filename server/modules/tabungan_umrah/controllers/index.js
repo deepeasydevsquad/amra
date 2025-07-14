@@ -10,7 +10,7 @@ controllers.getDaftarTabunganUmrah = async (req, res) => {
 
   try {
     const model_r = new Model_r(req);
-    const feedBack = await model_r.daftar_tabungan_umrah(); // Ambil daftar tabungan dari model
+    const feedBack = await model_r.daftar_tabungan_umrah(); 
     res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
   } catch (error) {
     handleServerError(res, error.message);
@@ -28,13 +28,13 @@ controllers.add = async (req, res) => {
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Tabungan Umrah Baru berhasil ditambahkan.',
+        error_msg: 'Tabungan Umrah berhasil ditambahkan.',
         data: { invoice: invoice },
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Tabungan Umrah Baru Gagal Ditambahkan.',
+        error_msg: 'Tabungan Umrah gagal ditambahkan.',
       });
     }
   } catch (error) {
@@ -58,7 +58,7 @@ controllers.addHandoverBarang = async (req, res) => {
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Handover Barang Gagal Ditambahkan.',
+        error_msg: 'Handover Barang gagal ditambahkan.',
       });
     }
   } catch (error) {
@@ -82,7 +82,7 @@ controllers.pengembalianHandoverBarang = async (req, res) => {
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Pengembalian Handover Barang Gagal Ditambahkan.',
+        error_msg: 'Pengembalian Handover Barang gagal ditambahkan.',
       });
     }
   } catch (error) {
@@ -106,7 +106,7 @@ controllers.Menabung = async (req, res) => {
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Menabung Tabungan Umrah Gagal Ditambahkan.',
+        error_msg: 'Menabung Tabungan Umrah gagal ditambahkan.',
       });
     }
   } catch (error) {
@@ -153,7 +153,7 @@ controllers.Refund = async (req, res) => {
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Refund Tabungan Umrah Gagal Ditambahkan.',
+        error_msg: 'Refund Tabungan Umrah gagal ditambahkan.',
       });
     }
   } catch (error) {
@@ -227,7 +227,7 @@ controllers.addHandoverFasilitas = async (req, res) => {
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Handover Fasilitas Tabungan Umrah Gagal Ditambahkan.',
+        error_msg: 'Handover Fasilitas Tabungan Umrah gagal ditambahkan.',
       });
     }
   } catch (error) {
@@ -252,7 +252,7 @@ controllers.delete = async (req, res) => {
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Tabungan Umrah Gagal Dihapus.',
+        error_msg: 'Tabungan Umrah gagal dihapus.',
       });
     }
   } catch (error) {

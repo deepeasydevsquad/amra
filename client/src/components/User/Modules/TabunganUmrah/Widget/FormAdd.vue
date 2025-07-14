@@ -5,13 +5,22 @@ import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
 import { onMounted, reactive, ref, watch } from 'vue'
 import { getJamaah, getPaket, getAgen, addTabunganUmrah } from '@/service/tabungan_umrah'
+import { paramCabang } from '@/service/param_cabang';
 
-const props = defineProps<{ isFormOpen: boolean }>()
-const emit = defineEmits<{ (e: 'close'): void }>()
+const props = defineProps<{
+  isFormOpen: boolean,
+  cabangId: number,
+}>();
+
+const emit = defineEmits<{
+  (e: 'close'): void
+  (e: 'status', payload: {error: boolean, err_msg?: string}): void
+}>()
 
 // Interfaces
 interface ErrorFields {
   jamaah_id?: string;
+  cabang_id?: string;
   sumber_dana?: string;
   biaya_deposit?: string;
   info_deposit?: string;
@@ -19,8 +28,10 @@ interface ErrorFields {
 interface Jamaah { id: number; name: string; agen_id: number | null }
 interface Paket { id: number; name: string }
 interface Agen { id: number; name: string, default_fee: number }
+interface Cabang { id: number; name: string }
 
 // State
+const optionCabang = ref<Cabang[]>([])
 const JamaahList = ref<Jamaah[]>([])
 const PaketList = ref<Paket[]>([])
 const AgenDetail = ref<Agen | null>(null) // <- Diganti dari AgenList
@@ -33,6 +44,7 @@ const timeoutId = ref<number | null>(null)
 
 const errors = ref<ErrorFields>({
   jamaah_id: '',
+  cabang_id: '',
   sumber_dana: '',
   biaya_deposit: '',
   info_deposit: '',
@@ -41,6 +53,7 @@ const errors = ref<ErrorFields>({
 const form = reactive({
   jamaah_id: 0,
   target_id: null,
+  cabang_id: props.cabangId,
   sumber_dana: '',
   biaya_deposit: 0,
   info_deposit: '',
@@ -61,16 +74,11 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
 const fetchData = async () => {
   try {
     isLoading.value = true
-    const [jamaahResponse, paketResponse] = await Promise.all([
-      getJamaah(),
-      getPaket()
-    ])
-
-    JamaahList.value = jamaahResponse.data
-    PaketList.value = [{ id: null, name: 'Pilih Paket' }, ...paketResponse.data]
+    const cabangRespoonse = await paramCabang()
+    optionCabang.value = cabangRespoonse.data
     checkAndFetchAgen(form.jamaah_id) // kalau sudah ada isi default
   } catch (error) {
-    displayNotification('Gagal mengambil data', 'error')
+    displayNotification(error?.response?.data?.error_msg || 'Terjadi kesalahan dalam mengambil data', 'error')
   } finally {
     isLoading.value = false
   }
@@ -79,18 +87,40 @@ const fetchData = async () => {
 // Function: Ambil data agen dari jamaah terpilih
 const checkAndFetchAgen = async (jamaahId: number) => {
   const selected = JamaahList.value.find(j => j.id === jamaahId)
-  console.log('Selected Jamaah:', selected)
   if (selected?.agen_id) {
     try {
-      console.log('Agen ID:', selected.agen_id)
       const agenRes = await getAgen(selected.agen_id)
       AgenDetail.value = agenRes.data
     } catch (err) {
       AgenDetail.value = null
-      displayNotification('Gagal mengambil data agen', 'error')
+      displayNotification('Terjadi kesalahan dalam mengambil data agen', 'error')
     }
   } else {
     AgenDetail.value = null
+  }
+}
+const fetchDataJamaah = async (division_id: number) => {
+  try {
+    isLoading.value = true;
+    const response = await getJamaah(division_id);
+    JamaahList.value = response.data;
+  } catch (error) {
+    displayNotification('Terjadi kesalahan dalam mengambil data jamaah', 'error');
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const fetchDataPaket = async (division_id: number) => {
+  try {
+    isLoading.value = true;
+    const response = await getPaket(division_id);
+    PaketList.value = [{ id: null, name: 'Pilih Paket' }, ...response?.data];
+  } catch (error) {
+    console.log(error)
+    displayNotification('Terjadi kesalahan dalam mengambil data paket', 'error');
+  } finally {
+    isLoading.value = false;
   }
 }
 
@@ -100,12 +130,17 @@ const validateForm = () => {
   errors.value = {
     jamaah_id: '',
     sumber_dana: '',
+    cabang_id: '',
     biaya_deposit: '',
     info_deposit: '',
   }
 
   if (!form.jamaah_id) {
     errors.value.jamaah_id = 'Nama Jamaah wajib dipilih'
+    isValid = false
+  }
+  if (!form.cabang_id) {
+    errors.value.cabang_id = 'Cabang wajib dipilih'
     isValid = false
   }
   if (!form.sumber_dana) {
@@ -124,7 +159,6 @@ const validateForm = () => {
   return isValid
 }
 
-// Save Data (contoh)
 const saveData = async () => {
   if (!validateForm()) return
 
@@ -133,12 +167,14 @@ const saveData = async () => {
     const payload: {
       jamaah_id: number;
       target_id: number | null;
+      division_id: number;
       sumber_dana: string;
       biaya_deposit: number;
       info_deposit?: string;
     } = {
       jamaah_id: form.jamaah_id,
       target_id: form.target_id,
+      division_id: form.cabang_id,
       sumber_dana: form.sumber_dana,
       biaya_deposit: form.biaya_deposit,
       info_deposit: form.info_deposit
@@ -149,32 +185,66 @@ const saveData = async () => {
     const response = await addTabunganUmrah(payload)
     window.open(`/kwitansi-tabungan-umrah/${response.data.invoice}`, '_blank')
     emit('close')
+    emit('status', { error: false, err_msg: response.error_msg || 'Tabungan berhasil disimpan' })
   } catch (error) {
-    console.error('Error saving data:', error)
-    displayNotification(error?.response?.data?.message, 'error')
+    displayNotification(
+      error?.response?.data?.error_msg ||
+      error?.response?.data?.message ||
+      'Terjadi kesalahan dalam menyimpan data',
+      'error'
+    )
   } finally {
     isLoading.value = false
   }
 }
 
-// Watcher: Saat jamaah_id berubah, cek apakah ada agen_id
-watch(() => form.jamaah_id, async (newId) => {
-  if (newId) {
-    isLoading.value = true
+// Watcher 1: Saat jamaah_id berubah, fetch data agen
+watch(() => form.jamaah_id, async (newJamaahId) => {
+  if (newJamaahId) {
+    isLoading.value = true;
     try {
-      await checkAndFetchAgen(newId)
+      await checkAndFetchAgen(newJamaahId);
     } catch (err) {
-      AgenDetail.value = null
-      displayNotification('Gagal mengambil data agen', 'error')
+      AgenDetail.value = null;
+      displayNotification('Terjadi kesalahan dalam mengambil data agen', 'error');
     } finally {
-      isLoading.value = false
+      isLoading.value = false;
     }
   } else {
-    AgenDetail.value = null
+    AgenDetail.value = null;
   }
-})
+});
 
-onMounted(() => { fetchData() })
+// Watcher 2: Saat cabang_id berubah, kosongkan jamaah_id serta paket_id dan fetch data baru
+watch(() => form.cabang_id, async (newCabangId) => {
+  if (newCabangId) {
+    form.jamaah_id = 0;
+    form.target_id = null;
+    AgenDetail.value = null;
+
+    isLoading.value = true;
+    try {
+      await fetchDataJamaah(newCabangId);
+      await fetchDataPaket(newCabangId);
+    } catch (err) {
+      displayNotification('Terjadi kesalahan dalam mengambil data jamaah', 'error');
+    } finally {
+      isLoading.value = false;
+    }
+  } else {
+    form.jamaah_id = 0;
+    form.target_id = null;
+    AgenDetail.value = null;
+  }
+});
+
+onMounted(async() => {
+  await Promise.all([
+    fetchData(),
+    fetchDataJamaah(props.cabangId),
+    fetchDataPaket(props.cabangId),
+  ])
+})
 
 // Fungsi format harga (Rp, titik ribuan)
 const formatPrice = (value: number | string): string => {
@@ -209,12 +279,22 @@ const unformatPrice = (formatted: string): number => { return parseInt(formatted
           <div class="space-y-4 text-gray-800">
             <div>
               <SearchableSelect
+                v-model="form.cabang_id"
+                :options="optionCabang"
+                label="Cabang"
+                placeholder="Pilih Cabang"
+                :error="errors.cabang_id"
+                :required="true"
+              />
+            </div>
+            <div>
+              <SearchableSelect
                 v-model="form.jamaah_id"
                 :options="JamaahList"
                 label="Nama Jamaah"
                 placeholder="Pilih Jamaah"
                 :error="errors.jamaah_id"
-                required="true"
+                :required="true"
               />
             </div>
             <div>
@@ -242,7 +322,7 @@ const unformatPrice = (formatted: string): number => { return parseInt(formatted
               <p v-if="errors.sumber_dana" class="mt-1 text-sm text-red-600">{{ errors.sumber_dana }}</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 Biaya Tabungan
                 <span class="text-red-600">*</span>
               </label>
@@ -256,7 +336,7 @@ const unformatPrice = (formatted: string): number => { return parseInt(formatted
               <p v-if="errors.biaya_deposit" class="mt-1 text-sm text-red-600">{{ errors.biaya_deposit }}</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 Informasi Tabungan
                 <span class="text-red-600">*</span>
               </label>

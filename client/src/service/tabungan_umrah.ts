@@ -10,9 +10,9 @@ export const cekKwitansiTabunganUmrah = async (invoice: string) => {
   }
 };
 
-export const getJamaah = async () => {
+export const getJamaah = async (division_id: number) => {
   try {
-    const response = await api.get("/daftar-tabungan-umrah/get-jamaah-tabungan-umrah/list");
+    const response = await api.post("/daftar-tabungan-umrah/get-jamaah-tabungan-umrah/list", {division_id});
     return response.data;
   } catch (error) {
     console.error("Gagal mengambil daftar jamaah:", error);
@@ -20,9 +20,9 @@ export const getJamaah = async () => {
   }
 };
 
-export const getPaket = async () => {
+export const getPaket = async (division_id: number) => {
   try {
-    const response = await api.get("/daftar-tabungan-umrah/get-paket-tabungan-umrah/list");
+    const response = await api.post("/daftar-tabungan-umrah/get-paket-tabungan-umrah/list", {division_id});
     return response.data;
   } catch (error) {
     console.error("Gagal mengambil daftar paket:", error);
@@ -70,9 +70,9 @@ export const getInfoPengembalianBarang = async (id: number) => {
   }
 };
 
-export const getPetugasTabunganUmrah = async (id: number) => {
+export const getPetugasTabunganUmrah = async (division_id: number) => {
   try {
-    const response = await api.post("/daftar-tabungan-umrah/get-petugas-tabungan-umrah", { id });
+    const response = await api.post("/daftar-tabungan-umrah/get-petugas-tabungan-umrah", { division_id });
     return response.data;
   } catch (error) {
     console.error("Gagal mengambil daftar petugas:", error);
@@ -220,9 +220,9 @@ export const pengembalianHandoverBarang = async (param: any) => {
   }
 }
 
-export const deleteTabunganUmrah = async (id : number) => {
+export const deleteTabunganUmrah = async (id : number, division_id: number) => {
   try {
-    const response = await api.post("/daftar-tabungan-umrah/delete-tabungan-umrah",{ id : id});
+    const response = await api.post("/daftar-tabungan-umrah/delete-tabungan-umrah",{ id : id, division_id : division_id });
     return response.data;
   } catch (error) {
     console.error("Gagal menghapus tabungan umrah:", error);

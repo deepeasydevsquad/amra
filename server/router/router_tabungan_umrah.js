@@ -6,14 +6,28 @@ const validation = require("../validation/tabungan_umrah");
 
 const router = express.Router();
 
-router.get(
+router.post(
   "/daftar-tabungan-umrah/get-jamaah-tabungan-umrah/list",
+  [
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("Cabang tidak boleh kosong.")
+      .isInt().withMessage("Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
+  ],
   authenticateToken,
   controllers.getJamaahTabunganUmrah
 );
 
-router.get(
+router.post(
   "/daftar-tabungan-umrah/get-paket-tabungan-umrah/list",
+  [
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("Cabang tidak boleh kosong.")
+      .isInt().withMessage("Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
+  ],
   authenticateToken,
   controllers.getPaketTabunganUmrah
 );
@@ -45,6 +59,7 @@ router.post(
 
 router.post(
   "/daftar-tabungan-umrah/get-handover-fasilitas",
+  authenticateToken,
   [
     body("id")
       .trim()
@@ -52,7 +67,6 @@ router.post(
       .isInt().withMessage("ID Tabungan Umrah harus berupa angka.")
       .custom(validation.check_id_tabungan),
   ],
-  authenticateToken,
   controllers.getHandoverFasilitasById
 );
 
@@ -64,6 +78,7 @@ router.post(
     body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
     body("filter").trim(),
+    body("filterCabang").trim().notEmpty().withMessage("Filter Cabang tidak boleh kosong."),
   ],
   controllers.getDaftarTabunganUmrah
 );
@@ -100,6 +115,11 @@ router.post(
       .notEmpty().withMessage("Tipe Paket tidak boleh kosong.")
       .isInt().withMessage("Tipe Paket harus berupa angka.")
       .custom(validation.check_id_tipe_paket),
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("Cabang tidak boleh kosong.")
+      .isInt().withMessage("Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
   ],
   controllers.pembelianPaketTabunganUmrah
 );
@@ -108,11 +128,11 @@ router.post(
   "/daftar-tabungan-umrah/get-petugas-tabungan-umrah",
   authenticateToken,
   [
-    body("id")
+    body("division_id")
       .trim()
-      .notEmpty().withMessage("ID Tabungan Umrah tidak boleh kosong.")
-      .isInt().withMessage("ID Tabungan Umrah harus berupa angka.")
-      .custom(validation.check_id_tabungan)
+      .notEmpty().withMessage("Cabang tidak boleh kosong.")
+      .isInt().withMessage("Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
   ],
   controllers.getPetugasTabunganUmrah
 );
@@ -147,6 +167,11 @@ router.post(
       .optional({ checkFalsy: true })
       .isInt().withMessage("Target ID harus berupa angka.")
       .custom(validation.check_id_paket),
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("Cabang tidak boleh kosong.")
+      .isInt().withMessage("Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
     body("sumber_dana")
       .trim()
       .notEmpty().withMessage("Sumber Dana tidak boleh kosong.")
@@ -176,6 +201,11 @@ router.post(
     body("target_id")
       .trim()
       .custom(validation.check_id_paket),
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("Cabang tidak boleh kosong.")
+      .isInt().withMessage("Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
   ],
   controllers.updateTargetPaket
 )
@@ -215,6 +245,11 @@ router.post(
         return true;
       })
       .custom(validation.check_saldo_deposit_dan_biaya),
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("Cabang tidak boleh kosong.")
+      .isInt().withMessage("Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
     body("info_deposit")
       .trim()
   ],
@@ -252,6 +287,11 @@ router.post(
         return true;
       })
       .custom(validation.check_refund_nominal),
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("Cabang tidak boleh kosong.")
+      .isInt().withMessage("Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
     body("batal_berangkat")
       .trim()
       .isBoolean().withMessage("Batal Berangkat harus berupa ya atau tidak."),
@@ -385,6 +425,11 @@ router.post(
       .notEmpty().withMessage("ID Tabungan Umrah tidak boleh kosong.")
       .isInt().withMessage("ID Tabungan Umrah harus berupa angka.")
       .custom(validation.check_id_tabungan),
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("Cabang tidak boleh kosong.")
+      .isInt().withMessage("Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
   ],
   controllers.delete
 );
