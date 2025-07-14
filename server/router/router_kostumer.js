@@ -43,7 +43,7 @@ router.post(
 router.post(
   "/kostumer/delete",
   authenticateToken,
-  [body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").isInt().withMessage("ID Kota harus berupa angka.").custom(validation.check_id_kostumer_paket_la)],
+  [body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").isInt().withMessage("ID Kota harus berupa angka.").custom(validation.check_id_kostumer)],
   controllers.delete
 );
 
