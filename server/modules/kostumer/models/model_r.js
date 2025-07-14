@@ -1,4 +1,4 @@
-const {Op, Kostumer_paket_la } = require("../../../models");
+const {Op, Kostumer } = require("../../../models");
 const{ getCompanyIdByCode } = require("../../../helper/companyHelper");
 const{ dbList } = require("../../../helper/dbHelper");
 
@@ -12,7 +12,7 @@ class Model_r {
     this.company_id = await getCompanyIdByCode(this.req);
   }
 
-  async daftar_kostumer_paket_la() {
+  async daftar_kostumer() {
     // initialize dependensi properties
     await this.initialize();
 
@@ -46,11 +46,11 @@ class Model_r {
     try {
 
       const query = await dbList(sql);
-      const q = await Kostumer_paket_la.findAndCountAll(query.total);
+      const q = await Kostumer.findAndCountAll(query.total);
       const total = await q.count;
       var data = [];
       if (total > 0) {
-        await Kostumer_paket_la.findAll(query.sql).then(async (value) => {
+        await Kostumer.findAll(query.sql).then(async (value) => {
           await Promise.all(
             await value.map(async (e) => {
               data.push({ 
@@ -74,10 +74,10 @@ class Model_r {
     }
   }
 
-  async infoKostumerPaketLA(id, company_id) {
+  async infoKostumerPaketLA(id) {
     try {
       var data = {};
-      await Kostumer_paket_la.findOne({
+      await Kostumer.findOne({
           where: { id: id },
       }).then(async (e) => {
           if (e) {
@@ -87,7 +87,7 @@ class Model_r {
               data["address"] = e.address;
           }
       });
-     
+      
       return data
     } catch (error) {
       return {}      

@@ -77,7 +77,7 @@ interface Errors {
   arrival_date: string;
 }
 
-const paketlaId = ref<number | null>(null); // Id number untuk form item
+const paketlaId = ref<number>(0); // Id number untuk form item
 const registerNumber = ref<string | null>(null);  // regNumb untuk form KwitansiTerakhir
 const fasilitaspaketla = ref<any[]>([]); // Array untuk menyimpan data fasilitas
 const timeoutId = ref<number | null>(null);

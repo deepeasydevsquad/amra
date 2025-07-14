@@ -6,19 +6,26 @@ const validation = require("../validation/daftar_paket_la");
 
 const router = express.Router();
 
+
+router.get(
+  "/daftar-paket-la/get-daftar-kostumer",
+  authenticateToken,
+  controllers.getDaftarKostumer
+)
+
 router.post(
-  "/daftar_paket_la/list",
+  "/daftar-paket-la/list",
   authenticateToken,
   [
     body("pageNumber").trim(),
     body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
   ],
-  controllers.get_daftar_paket_la
+  controllers.getDaftarPaketLa
 );
 
 router.post(
-  "/daftar_paket_la/",
+  "/daftar-paket-la/add",
   authenticateToken,
   [
     body("kostumer_paket_la_id").trim().notEmpty().withMessage("ID Kostumer paket la tidak boleh kosong."),
@@ -34,7 +41,7 @@ router.post(
 );
 
 router.post(
-  "/daftar_paket_la/update",
+  "/daftar-paket-la/update",
   authenticateToken,
   [
     body("id").trim().notEmpty().withMessage("ID Paket LA tidak boleh kosong.").custom(validation.check_id_paket_la),
@@ -51,7 +58,7 @@ router.post(
 );
 
 router.post(
-  "/daftar_paket_la/delete",
+  "/daftar-paket-la/delete",
   authenticateToken,
   [
     body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").isInt().withMessage("ID Kota harus berupa angka.").custom(validation.check_id_paket_la),

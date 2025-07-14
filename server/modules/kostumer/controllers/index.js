@@ -5,12 +5,12 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 const controllers = {};
 
 // **Mendapatkan daftar kostumer_paket_la**
-controllers.get_daftar_kostumer_paket_la = async (req, res) => {
+controllers.getDaftarKostumer = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const model_r = new Model_r(req);
-    const feedBack = await model_r.daftar_kostumer_paket_la(); // Ambil daftar kostumer_paket_la dari model
+    const feedBack = await model_r.daftar_kostumer(); // Ambil daftar kostumer_paket_la dari model
     res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
   } catch (error) {
     handleServerError(res, error.message);

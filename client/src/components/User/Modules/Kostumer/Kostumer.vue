@@ -5,14 +5,13 @@ import EditIcon from '@/components/User/Modules/Kostumer/Icon/EditIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 // import element
 import DangerButton from '@/components/User/Modules/Kostumer/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/Kostumer/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/Kostumer/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/Kostumer/Particle/Confirmation.vue'
 import LightButton from "@/components/User/Modules/DaftarPaketLa/Particle/LightButton.vue"
 import Form from '@/components/Modal/Form.vue'
 
 // Import service API
-import { list, add, editKostumer, deleteKostumer } from '@/service/kostumer' // Import function POST
+import { daftarList, add, edit, deleteKostumer } from '@/service/kostumer' // Import function POST
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 
@@ -60,6 +59,7 @@ interface Errors {
 
 const timeoutId = ref<number | null>(null)
 const dataKostumer = ref<Kostumer[]>([])
+const total = ref<number>(0)
 const isModalOpen = ref<boolean>(false)
 const showNotification = ref<boolean>(false)
 const showConfirmDialog = ref<boolean>(false)
@@ -70,7 +70,7 @@ const confirmTitle = ref<string>('')
 const confirmAction = ref<(() => void) | null>(null)
 const totalColumns = ref(5) // Default 3 kolom
 
-const selectedKostumerPaketLA = ref<Partial<Kostumer>>({
+const selectedKostumer = ref<Partial<Kostumer>>({
   name: '',
   mobile_number: '',
   address: '',
@@ -83,17 +83,18 @@ const errors = ref<Errors>({
 })
 
 const fetchData = async () => {
-  const response = await daftarKostumerPaketLA({
+  const response = await daftarList({
     search: search.value,
     perpage: itemsPerPage,
     pageNumber: currentPage.value,
   })
   totalPages.value = Math.ceil(response.total / itemsPerPage)
   dataKostumer.value = response.data
+  total.value = response.total
 }
 
 const openModal = (kostumerpaketla?: Kostumer) => {
-  selectedKostumerPaketLA.value = kostumerpaketla ? { ...kostumerpaketla } : { name: '', mobile_number: '', address: '' }
+  selectedKostumer.value = kostumerpaketla ? { ...kostumerpaketla } : { name: '', mobile_number: '', address: '' }
   isModalOpen.value = true
 }
 
@@ -106,17 +107,17 @@ const validateForm = (): boolean => {
   errors.value = { name: '', mobile_number: '', address: '' }
   let isValid = true
 
-  if (!selectedKostumerPaketLA.value.name?.trim()) {
+  if (!selectedKostumer.value.name?.trim()) {
     errors.value.name = 'Nama tidak boleh kosong'
     isValid = false
   }
 
-  if (!selectedKostumerPaketLA.value.mobile_number?.trim()) {
+  if (!selectedKostumer.value.mobile_number?.trim()) {
     errors.value.mobile_number = 'Nomor HP tidak boleh kosong'
     isValid = false
   }
 
-  if (!selectedKostumerPaketLA.value.address?.trim()) {
+  if (!selectedKostumer.value.address?.trim()) {
     errors.value.address = 'Alamat tidak boleh kosong'
     isValid = false
   }
@@ -146,15 +147,15 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 const saveData = async () => {
   if (!validateForm()) return
 
-  const isEdit = !!selectedKostumerPaketLA.value.id
+  const isEdit = !!selectedKostumer.value.id
   const action = async () => {
     try {
       if (isEdit) {
-        const response = await editKostumerPaketLA(selectedKostumerPaketLA.value.id, selectedKostumerPaketLA.value)
+        const response = await edit(selectedKostumer.value.id, selectedKostumer.value)
         showConfirmDialog.value = false
         displayNotification(response.error_msg)
       } else {
-        const response = await addKostumerPaketLA(selectedKostumerPaketLA.value)
+        const response = await add(selectedKostumer.value)
         showConfirmDialog.value = false
         displayNotification(response.error_msg)
       }
@@ -163,7 +164,9 @@ const saveData = async () => {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         displayNotification(
-          error.response?.data?.error_msg || 'Terjadi kesalahan saat menyimpan data.',
+          error.response?.data?.error_msg ||
+          error.response?.data?.message ||
+          'Terjadi kesalahan saat menyimpan data.',
           'error',
         )
       } else {
@@ -181,7 +184,7 @@ const saveData = async () => {
 const deleteData = async (id: number) => {
   showConfirmation('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus data ini?', async () => {
     try {
-      const response = await deleteKostumerPaketLA(id)
+      const response = await deleteKostumer(id)
       showConfirmDialog.value = false
       displayNotification(response.error_msg)
       fetchData()
@@ -223,15 +226,15 @@ const deleteData = async (id: number) => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-100">
           <tr>
-           <th class="w-[50%] px-6 py-3 font-medium text-gray-900 text-center">Nama Kostumer</th>
+            <th class="w-[50%] px-6 py-3 font-medium text-gray-900 text-center">Nama Kostumer</th>
             <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Nomor HP</th>
             <th class="w-[35%] px-6 py-3 font-medium text-gray-900 text-center">Alamat</th>
             <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-          <template v-if="dataKostumerPaketLA && dataKostumerPaketLA.length > 0">
-            <tr v-for="kostumerpaketla in dataKostumerPaketLA" :key="kostumerpaketla.id" class="hover:bg-gray-50">
+          <template v-if="dataKostumer && dataKostumer.length > 0">
+            <tr v-for="kostumerpaketla in dataKostumer" :key="kostumerpaketla.id" class="hover:bg-gray-50">
               <td class="px-6 py-4 text-center">{{ kostumerpaketla.name }}</td>
               <td class="px-6 py-4 text-center">{{ kostumerpaketla.mobile_number }}</td>
               <td class="px-6 py-4 text-center">{{ kostumerpaketla.address }}</td>
@@ -249,7 +252,7 @@ const deleteData = async (id: number) => {
           </template>
           <tr v-else>
             <td colspan="4" class="px-6 py-4 text-center text-base text-gray-600">
-              Daftar kostumer paket la tidak ditemukan.
+              Daftar kostumer paket tidak ditemukan.
             </td>
           </tr>
         </tbody>
@@ -259,6 +262,7 @@ const deleteData = async (id: number) => {
               :total-pages="totalPages"
               :pages="pages"
               :total-columns="totalColumns"
+              :total-row="total"
               @prev-page="prevPage"
               @next-page="nextPage"
               @page-now="pageNow"
@@ -267,12 +271,12 @@ const deleteData = async (id: number) => {
       </table>
     </div>
 
-    <Form :form-status="isModalOpen" :label="selectedKostumerPaketLA.id ? 'Edit Data Kostumer' : 'Tambah Kostumer Baru' " width="sm:w-full sm:max-w-md" @close="isModalOpen = false" @cancel="isModalOpen = false"  @submit="saveData" :submitLabel="selectedKostumerPaketLA.id ? 'SIMPAN PERUBAHAN' : 'TAMBAH'">
+    <Form :form-status="isModalOpen" :label="selectedKostumer.id ? 'Edit Data Kostumer' : 'Tambah Kostumer Baru' " width="sm:w-full sm:max-w-md" @close="isModalOpen = false" @cancel="isModalOpen = false"  @submit="saveData" :submitLabel="selectedKostumer.id ? 'SIMPAN PERUBAHAN' : 'TAMBAH'">
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
           <input
-            v-model="selectedKostumerPaketLA.name"
+            v-model="selectedKostumer.name"
             type="text"
             class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
             placeholder="Nama Kostumer"
@@ -282,7 +286,7 @@ const deleteData = async (id: number) => {
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Nomor HP</label>
           <input
-            v-model="selectedKostumerPaketLA.mobile_number"
+            v-model="selectedKostumer.mobile_number"
             type="text"
             class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
             placeholder="Nomor HP"
@@ -292,7 +296,7 @@ const deleteData = async (id: number) => {
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
           <textarea
-            v-model="selectedKostumerPaketLA.address"
+            v-model="selectedKostumer.address"
             rows="3"
             class="resize-none w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
             placeholder="Alamat"
@@ -304,7 +308,7 @@ const deleteData = async (id: number) => {
 
     <!-- Confirmation Dialog -->
     <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
-      <button @click="confirmAction && confirmAction()"
+      <button @click="confirmAction && confirmAction(); showConfirmDialog = false;"
         class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
       >
         Ya

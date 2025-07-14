@@ -1,15 +1,18 @@
-const { Op, Paket_la, Paket_la_transaction } = require("../../../models");
-const { getCabang } = require("../../../helper/companyHelper");
+const { Op, Paket_la, Paket_la_transaction, Kostumer } = require("../../../models");
+const { getCabang, getCompanyIdByCode } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
 
 class Model_r {
   constructor(req) {
     this.req = req;
+    this.company_id;
     this.division_id;
   }
 
+
   async initialize() {
+    this.company_id = await getCompanyIdByCode(this.req);
     this.division_id = await getCabang(this.req);
   }
 
@@ -111,6 +114,36 @@ class Model_r {
 
     } catch (error) {
       return {};
+    }
+  }
+
+  async daftar_kostumer() {
+    await this.initialize();
+    
+    try {
+      const dataKostumer = await Kostumer.findAndCountAll({
+        where: {
+          company_id: this.company_id
+        }
+      })
+      let data = []
+      await Promise.all(
+        dataKostumer.rows.map(async (e) => {
+          data.push({
+            id: e.id,
+            name: e.name,
+            mobile_number: e.mobile_number,
+            address: e.address
+          })
+        })
+      )
+      return { 
+        data: data, 
+        total: dataKostumer.count
+      }
+    } catch (error) {
+      console.log("Error in daftar_kostumer: ", error)
+      return {}
     }
   }
 
