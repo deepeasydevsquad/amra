@@ -28,7 +28,7 @@ import Supplier from '../../Modules/Supplier/Supplier.vue'
 import Akun from '../../Modules/Akun/Akun.vue'
 import DaftarMember from '../../Modules/Member/DaftarMember.vue'
 import Pengguna from '../../Modules/Pengguna/Pengguna.vue'
-import KostumerPaketLa from '../../Modules/KostumerPaketLa/KostumerPaketLa.vue'
+import Kostumer from '../../Modules/Kostumer/Kostumer.vue'
 import DaftarPaketLa from '../../Modules/DaftarPaketLa/DaftarPaketLa.vue'
 import LevelAgen from '../../Modules/LevelAgen/LevelAgen.vue'
 import DaftarAgen from '../../Modules/DaftarAgen/DaftarAgen.vue'
@@ -79,7 +79,7 @@ const tabComponents = {
   supplier: Supplier,
   akun: Akun,
   daftar_member: DaftarMember,
-  kostumer_paket_la: KostumerPaketLa,
+  kostumer: Kostumer,
   daftar_paket_la: DaftarPaketLa,
   pengguna: Pengguna,
   level_agen: LevelAgen,

@@ -104,7 +104,7 @@
 
 <script>
 import { ref, watch, onMounted } from "vue";
-import { daftarKostumerPaketLA } from "@/service/daftar_kostumer_paket_la";
+import { daftarKostumerPaketLA } from "@/service/kostumer";
 
 export default {
   props: {

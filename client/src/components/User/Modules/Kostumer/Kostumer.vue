@@ -1,18 +1,18 @@
 <script setup lang="ts">
 // Import Icon
-import DeleteIcon from '@/components/User/Modules/KostumerPaketLa/Icon/DeleteIcon.vue'
-import EditIcon from '@/components/User/Modules/KostumerPaketLa/Icon/EditIcon.vue'
+import DeleteIcon from '@/components/User/Modules/Kostumer/Icon/DeleteIcon.vue'
+import EditIcon from '@/components/User/Modules/Kostumer/Icon/EditIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 // import element
-import DangerButton from '@/components/User/Modules/KostumerPaketLa/Particle/DangerButton.vue'
-import EditButton from '@/components/User/Modules/KostumerPaketLa/Particle/EditButton.vue'
-import Notification from '@/components/User/Modules/KostumerPaketLa/Particle/Notification.vue'
-import Confirmation from '@/components/User/Modules/KostumerPaketLa/Particle/Confirmation.vue'
+import DangerButton from '@/components/User/Modules/Kostumer/Particle/DangerButton.vue'
+import EditButton from '@/components/User/Modules/Kostumer/Particle/EditButton.vue'
+import Notification from '@/components/User/Modules/Kostumer/Particle/Notification.vue'
+import Confirmation from '@/components/User/Modules/Kostumer/Particle/Confirmation.vue'
 import LightButton from "@/components/User/Modules/DaftarPaketLa/Particle/LightButton.vue"
 import Form from '@/components/Modal/Form.vue'
 
 // Import service API
-import { daftarKostumerPaketLA, addKostumerPaketLA, editKostumerPaketLA, deleteKostumerPaketLA } from '@/service/daftar_kostumer_paket_la' // Import function POST
+import { list, add, editKostumer, deleteKostumer } from '@/service/kostumer' // Import function POST
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 
@@ -45,7 +45,7 @@ const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1)
 })
 
-interface KostumerPaketLA {
+interface Kostumer {
   id: number
   name: string
   mobile_number: string
@@ -59,7 +59,7 @@ interface Errors {
 }
 
 const timeoutId = ref<number | null>(null)
-const dataKostumerPaketLA = ref<KostumerPaketLA[]>([])
+const dataKostumer = ref<Kostumer[]>([])
 const isModalOpen = ref<boolean>(false)
 const showNotification = ref<boolean>(false)
 const showConfirmDialog = ref<boolean>(false)
@@ -70,7 +70,7 @@ const confirmTitle = ref<string>('')
 const confirmAction = ref<(() => void) | null>(null)
 const totalColumns = ref(5) // Default 3 kolom
 
-const selectedKostumerPaketLA = ref<Partial<KostumerPaketLA>>({
+const selectedKostumerPaketLA = ref<Partial<Kostumer>>({
   name: '',
   mobile_number: '',
   address: '',
@@ -89,10 +89,10 @@ const fetchData = async () => {
     pageNumber: currentPage.value,
   })
   totalPages.value = Math.ceil(response.total / itemsPerPage)
-  dataKostumerPaketLA.value = response.data
+  dataKostumer.value = response.data
 }
 
-const openModal = (kostumerpaketla?: KostumerPaketLA) => {
+const openModal = (kostumerpaketla?: Kostumer) => {
   selectedKostumerPaketLA.value = kostumerpaketla ? { ...kostumerpaketla } : { name: '', mobile_number: '', address: '' }
   isModalOpen.value = true
 }
