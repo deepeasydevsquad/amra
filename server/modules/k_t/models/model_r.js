@@ -1,5 +1,5 @@
 const moment = require("moment");
-const { Paket, Division } = require("../../../models");
+const { Paket, Division, Paket_transaction } = require("../../../models");
 const{ getCompanyIdByCode, tipe, getCabang } = require("../../../helper/companyHelper");
 const{ convertToRP } = require("../../../helper/currencyHelper");
 
@@ -45,15 +45,34 @@ class Model_r {
           data['name'] = e.name;
         })
       );
-      data['total_anggaran'] = 0;
+
+      var total_anggaran = 0;
+      const { rowsTo } = await Paket_transaction.findAndCountAll({ 
+        where : { 
+          paket_id : body.paket_id 
+        }, 
+        include: { 
+          required : true, 
+          model: Division, 
+          where: { company_id: this.company_id}
+        }
+      });
+      var data = {};
+      await Promise.all(
+        await rowsTo.map(async (e) => {
+          // data['name'] = e.name;
+          total_anggaran = total_anggaran + e.price
+        })
+      );
+      data['total_anggaran'] = total_anggaran;
       data['belanja'] = 0;
       data['keuntungan'] = 0;
       return { data: data  };
     } catch (error) {
 
-    console.log("__________________SSSS");
-    console.log(error);
-    console.log("__________________SSSS");
+      console.log("__________________SSSS");
+      console.log(error);
+      console.log("__________________SSSS");
 
       return {};
     }

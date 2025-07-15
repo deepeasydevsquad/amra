@@ -111,7 +111,8 @@ const notificationType = ref<'success' | 'error'>('success');
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
-const totalColumns = ref(5); // Default 3 kolom
+const totalColumns = ref(7); // Default 3 kolom
+const totalRow = ref(0);
 const paket = ref<number>(0);
 
 const fetchData = async () => {
@@ -130,6 +131,7 @@ const fetchData = async () => {
     }
 
     totalPages.value = Math.ceil(response.total / itemsPerPage);
+    totalRow.value = response.total;
     dataPaket.value = response.data || []; // Ensure it assigns an array
 
     isLoading.value = false;
@@ -141,7 +143,7 @@ const fetchData = async () => {
 
 onMounted(async () => {
   await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-  totalColumns.value = document.querySelectorAll("thead th").length;
+  // totalColumns.value = document.querySelectorAll("thead th").length;
 });
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
@@ -273,7 +275,7 @@ const shortText = (teks:string, maxKarakter: number) => {
                   <strong v-else-if="paket.jenis_kegiatan === 'haji_umrah'">HAJI DAN UMRAH</strong>
                   <br>{{ paket.name }}
                 </td>
-                <td class="px-6 py-4">
+                <td class="px-0 py-4">
                   <ul class="list-disc list-inside text-sm">
                     <li v-for="(price, index) in paket.prices" :key="index">
                       {{ price.paket_tipe }}: Rp {{ price.price.toLocaleString() }}
@@ -326,6 +328,7 @@ const shortText = (teks:string, maxKarakter: number) => {
               @prev-page="prevPage"
               @next-page="nextPage"
               @page-now="pageNow"
+              :totalRow = "totalRow"
             />
           </tfoot>
         </table>
