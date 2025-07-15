@@ -7,14 +7,16 @@ import CheckIcon from '@/components/User/Modules/SyaratPaket/icon/CheckIcon.vue'
 import Notification from '@/components/User/Modules/SyaratPaket/particle/Notification.vue'
 
 import LightButton from "@/components/Button/LightButton.vue"
+import DangerButtonSecondary from "@/components/Button/DangerButtonSecondary.vue"
 import IconPlus from '@/components/Icons/IconPlus.vue'
+import DownloadIcon from '@/components/Icons/IconDownload.vue'
+
 
 // import widget
-import Pagination from '@/components/Pagination/Pagination.vue'
+// import Pagination from '@/components/Pagination/Pagination.vue'
 
 import { ref, onMounted, computed } from 'vue'
-import { daftarSyaratPaket } from '@/service/syarat_paket'
-
+import { getInfoPaketKT } from '@/service/k_t.ts'
 const props = defineProps<{
   paketId: number
 }>()
@@ -26,44 +28,20 @@ const search = ref('')
 const totalPages = ref(0)
 const timeoutId = ref<number | null>(null)
 
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++
-    fetchData()
-  }
+
+interface KTData {
+  paket_id: number
+  name: string
+  total_anggaran: number
+  belanja: number
+  keuntungan: number
 }
 
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--
-    fetchData()
-  }
-}
-
-const pageNow = (page: number) => {
-  currentPage.value = page
-  fetchData()
-}
-
-// Generate array angka halaman
-const pages = computed(() => {
-  return Array.from({ length: totalPages.value }, (_, i) => i + 1)
-})
-
-interface SyaratPaket {
-  id: number
-  jamaah_id: number
-  fullname: string
-  identity_number: string
-  gender: string
-  status_syarat: { [key: string]: boolean }
-}
-
-const dataSyaratPaket = ref<SyaratPaket[]>([])
+const data = ref<KTData>({paket_id: 0, name: '', total_anggaran: 0});
 const notificationMessage = ref<string>('')
 const notificationType = ref<'success' | 'error'>('success')
 const showNotification = ref<boolean>(false)
-const totalColumns = ref(3)
+// const totalColumns = ref(3)
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message
@@ -78,23 +56,41 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
 }
 
 const fetchData = async () => {
+
+
+  console.log("~~~~~~~~~~~~~~~~~~~~1");
+  console.log("~~~~~~~~~~~~~~~~~~~~2");
+  console.log("~~~~~~~~~~~~~~~~~~~~3");
+
   try {
     isLoading.value = true
-    const response = await daftarSyaratPaket({
-      paketId: props.paketId,
-      search: search.value,
-      perpage: itemsPerPage,
-      pageNumber: currentPage.value,
+    const response = await getInfoPaketKT({
+      paket_id: props.paketId,
     })
-    dataSyaratPaket.value = response.data
-    console.log(dataSyaratPaket)
-    totalPages.value = Math.ceil(response.total / itemsPerPage)
+    data.value = response.data
+    // console.log(dataSyaratPaket)
+    // totalPages.value = Math.ceil(response.total / itemsPerPage)
   } catch (error) {
     console.error('Error fetching data:', error)
   } finally {
     isLoading.value = false
   }
 }
+
+  const formatRupiah = (angka :any, prefix = "Rp ") => {
+    let numberString = angka.toString().replace(/\D/g, ""),
+      split = numberString.split(","),
+      sisa = split[0].length % 3,
+      rupiah = split[0].substr(0, sisa),
+      ribuan = split[0].substr(sisa).match(/\d{3}/g);
+
+    if (ribuan) {
+      let separator = sisa ? "." : "";
+      rupiah += separator + ribuan.join(".");
+    }
+
+    return prefix + (rupiah || "0");
+  };
 
 onMounted(() => {
   fetchData()
@@ -106,47 +102,32 @@ onMounted(() => {
     <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" >
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400"></div>
     </div>
-    <!-- Tambah data dan Search -->
-    <!-- <div class="flex justify-end mb-4">
-      <div class="flex items-center">
-        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input
-          type="text"
-          id="search"
-          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-          v-model="search"
-          @change="fetchData()"
-          placeholder="Cari Jamaah..."
-        />
-      </div>
-    </div> -->
     <div class="flex justify-between mb-4">
-      <button class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
+      <DangerButtonSecondary>
         <DownloadIcon />
         Tutup Paket
-      </button>
+      </DangerButtonSecondary>
       <div class="flex items-center">
-        <label for="search" class="block pt-2 text-base font-medium text-gray-700 mr-2">Paket Umrah Keren</label>
+        <label for="search" class="block pt-2 text-base font-medium text-gray-700 mr-2">{{ data.name  ?? 'Rp 0' }}</label>
       </div>
     </div>
-
     <div class="overflow-hidden  border border-gray-200">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <tbody>
           <tr>
             <td class="w-[25%] px-6 py-2 border-b font-medium text-gray-900 text-start">RINCIAN KEGIATAN ANGGARAN PAKET</td>
             <td class="w-[2%] px-0 py-2 border-b font-medium text-gray-900 text-start">:</td>
-            <td class="px-0 py-2 border-b font-medium text-gray-900 text-start">Rp 300.000.000,-</td>
+            <td class="px-0 py-2 border-b font-medium text-gray-900 text-start">{{ formatRupiah(data.total_anggaran ?? 0)  ?? 'Rp 0' }}</td>
           </tr>
           <tr>
             <td class="px-6 py-2 border-b font-medium text-gray-900 text-start">RINCIAN AKTUALISASI BELANJA PAKET</td>
             <td class="px-0 py-2 border-b font-medium text-gray-900 text-start">:</td>
-            <td class="px-0 py-2 border-b font-medium text-gray-900 text-start">Rp 300.000.000,-</td>
+            <td class="px-0 py-2 border-b font-medium text-gray-900 text-start">{{ formatRupiah(data.belanja ?? 0)  ?? 'Rp 0' }}</td>
           </tr>
           <tr>
             <td class="px-6 py-2 font-medium text-gray-900 text-start">RINCIAN KEUNTUNGAN PROGRAM PAKET</td>
             <td class="px-0 py-2 font-medium text-gray-900 text-start">:</td>
-            <td class="px-0 py-2 font-medium text-gray-900 text-start">Rp 300.000.000,-</td>
+            <td class="px-0 py-2 font-medium text-gray-900 text-start">{{ formatRupiah(data.keuntungan ?? 0)  ?? 'Rp 0' }}</td>
           </tr>
         </tbody>
       </table>
@@ -172,7 +153,7 @@ onMounted(() => {
             <td></td>
             <td></td>
             <td></td>
-            <td class="px-6 py-3 font-bold text-gray-900 text-right">Rp 30.000.000,-</td>
+            <td class="px-6 py-3 font-bold text-gray-900 text-right">{{ formatRupiah(data.total_anggaran ?? 0)  ?? 'Rp 0' }}</td>
           </tr>
           <tr>
             <td class="px-0 py-3 font-medium text-gray-900 text-center">1</td>
@@ -186,7 +167,6 @@ onMounted(() => {
         </tbody>
       </table>
     </div>
-
     <div class="overflow-hidden  border border-gray-200 mt-10">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <tbody>
@@ -277,64 +257,6 @@ onMounted(() => {
         </tbody>
       </table>
     </div>
-
-    <!-- <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
-      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Jamaah</th>
-            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Jenis Kelamin</th>
-            <th class="w-[60%] px-6 py-3 font-medium text-gray-900 text-center">Syarat-syarat</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-          <template v-if="dataSyaratPaket && dataSyaratPaket.length > 0">
-            <tr v-for="dataSyarat in dataSyaratPaket" :key="dataSyarat.id" class="hover:bg-gray-50">
-              <td class="px-6 py-4 text-center">
-                <p>{{ dataSyarat.fullname }}</p>
-                <p>({{ dataSyarat.identity_number }})</p>
-              </td>
-              <td class="px-6 py-4 text-center">{{ dataSyarat.gender }}</td>
-              <td class="px-6 py-4">
-                <ul class="grid grid-cols-4 gap-2">
-                  <li
-                    v-for="(value, key) in dataSyarat.status_syarat"
-                    :key="key"
-                    class="flex items-center space-x-2"
-                  >
-                    <span v-if="value" class="text-green-500"><CheckIcon class="w-5 h-5" /></span>
-                    <span v-else class="text-red-500"><XIcon class="w-5 h-5" /></span>
-                    <span>{{ key }}</span>
-                  </li>
-                </ul>
-              </td>
-            </tr>
-          </template>
-          <tr v-else>
-            <td :colspan="totalColumns" class="px-6 py-4 text-center text-sm text-gray-600">
-              Daftar Syarat Tidak Ditemukan.
-            </td>
-          </tr>
-        </tbody>
-        <tfoot class="bg-gray-100 font-bold">
-          <Pagination
-            :current-page="currentPage"
-            :total-pages="totalPages"
-            :pages="pages"
-            :total-columns="totalColumns"
-            @prev-page="prevPage"
-            @next-page="nextPage"
-            @page-now="pageNow"
-          />
-        </tfoot>
-      </table>
-    </div> -->
   </div>
-
-  <Notification
-    :showNotification="showNotification"
-    :notificationType="notificationType"
-    :notificationMessage="notificationMessage"
-    @close="showNotification = false"
-  />
+  <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" />
 </template>
