@@ -86,7 +86,7 @@ interface filterCabang {
 const fetchFilterData = async () => {
   const response = await paramCabang()
   optionFilterCabang.value = [
-    { id: 0, name: 'Pilih Cabang' },
+    // { id: 0, name: 'Pilih Cabang' },
     ...response.data.map((item: any) => ({
       id: item.id,
       name: `${item.name}`,
