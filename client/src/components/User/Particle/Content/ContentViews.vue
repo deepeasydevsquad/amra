@@ -57,6 +57,7 @@ import Modal from '../../Modules/Modal/Modal.vue'
 import TransTransport from '../../Modules/TransTransport/TransTransport.vue'
 import RekapitulasiTicket from '../../Modules/RekapitulasiTicket/RekapitulasiTicket.vue'
 import KasKeluarMasuk from '../../Modules/KasKeluarMasuk/KasKeluarMasuk.vue'
+import DaftarPembayaran from '../../Modules/PembayaranGaji/DaftarPembayaran.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -107,7 +108,8 @@ const tabComponents = {
   modal: Modal,
   trans_transport: TransTransport,
   rekapitulasi_tiket: RekapitulasiTicket,
-  kas_keluar_masuk: KasKeluarMasuk
+  kas_keluar_masuk: KasKeluarMasuk,
+  riwayat_pembayaran_gaji_staff: DaftarPembayaran,
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click

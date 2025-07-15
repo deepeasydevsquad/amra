@@ -5,6 +5,7 @@ const {
   Fee_agen,
   Op,
   Kas_keluar_masuk,
+  Pembayaran_gaji,
 } = require("../models");
 
 const helper = {};
@@ -77,6 +78,17 @@ helper.menghasilkan_invoice_kas_keluar_masuk = async (division_id) => {
     check = await Kas_keluar_masuk.findOne({
       where: { invoice: rand, division_id: { [Op.in]: division_id } },
     });
+    if (!check) condition = false;
+  }
+  return rand;
+};
+
+helper.menghasilkan_invoice_pembayaran_gaji = async () => {
+  var rand = 0;
+  let condition = true;
+  while (condition) {
+    rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    check = await Pembayaran_gaji.findOne({ where: { invoice: rand } });
     if (!check) condition = false;
   }
   return rand;
