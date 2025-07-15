@@ -143,7 +143,6 @@ const fetchData = async () => {
 
 onMounted(async () => {
   await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-  // totalColumns.value = document.querySelectorAll("thead th").length;
 });
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
