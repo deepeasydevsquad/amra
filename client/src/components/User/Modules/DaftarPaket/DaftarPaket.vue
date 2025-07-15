@@ -268,7 +268,7 @@ const shortText = (teks:string, maxKarakter: number) => {
             <template v-if="dataPaket && dataPaket.length > 0">
               <tr v-for="paket in dataPaket" :key="paket.id" class="hover:bg-gray-50">
                 <td class="px-6 py-4 text-center">
-                  <strong>{{ paket.kode }}</strong> -
+                  <strong>{{ paket.kode }} id : ({{ paket.id }}) </strong> -
                   <strong v-if="paket.jenis_kegiatan === 'umrah'">UMRAH</strong>
                   <strong v-else-if="paket.jenis_kegiatan === 'haji'">HAJI</strong>
                   <strong v-else-if="paket.jenis_kegiatan === 'haji_umrah'">HAJI DAN UMRAH</strong>

@@ -1,5 +1,9 @@
 const moment = require("moment");
-const { Paket, Division, Paket_transaction } = require("../../../models");
+const { Paket, Division, Paket_transaction, Paket_price, Mst_paket_type, 
+  Visa_transaction, Visa_transaction_detail, Hotel_transaction, Hotel_transaction_detail, 
+  Transport_transaction, Transport_transaction_detail, Passport_transaction, Passport_transaction_detail,
+  Ticket_transaction_detail, Ticket_transaction
+} = require("../../../models");
 const{ getCompanyIdByCode, tipe, getCabang } = require("../../../helper/companyHelper");
 const{ convertToRP } = require("../../../helper/currencyHelper");
 
@@ -29,7 +33,12 @@ class Model_r {
 
     const body = this.req.body;
     try {
-      const { rows } = await Paket.findAndCountAll({ 
+ 
+      var data = {};
+      var paketPrice = {};
+
+      // mengambil informasi paket berdasarkan id
+      const q = await Paket.findAndCountAll({ 
         where : { 
           id : body.paket_id 
         }, 
@@ -39,15 +48,43 @@ class Model_r {
           where: { company_id: this.company_id}
         }
       });
-      var data = {};
+      
       await Promise.all(
-        await rows.map(async (e) => {
+        await q.rows.map(async (e) => {
           data['name'] = e.name;
         })
       );
+      
+      // mengambil informasi tipe paket dan harga dari masing-masing
+      const q2 = await Paket_price.findAndCountAll({ 
+        where : { 
+          paket_id : body.paket_id 
+        },
+        include: [
+          { 
+            required : true, 
+            model: Mst_paket_type, 
+          }, 
+          { 
+            required : true, 
+            model: Paket, 
+            include: {
+              required : true,
+              model: Division,        
+              where: { company_id: this.company_id}
+            }
+          }
+        ] 
+      });
+      await Promise.all(
+        await q2.rows.map(async (e) => {
+          paketPrice = {...paketPrice,...{[e.mst_paket_type_id] : { name: e.Mst_paket_type.name, price: e.price, qt: 0, totalSell: 0 }}}
+        })
+      );
 
+      // mengambil informasi total anggaran
       var total_anggaran = 0;
-      const { rowsTo } = await Paket_transaction.findAndCountAll({ 
+      const q3 = await Paket_transaction.findAndCountAll({ 
         where : { 
           paket_id : body.paket_id 
         }, 
@@ -57,16 +94,135 @@ class Model_r {
           where: { company_id: this.company_id}
         }
       });
-      var data = {};
       await Promise.all(
-        await rowsTo.map(async (e) => {
-          // data['name'] = e.name;
-          total_anggaran = total_anggaran + e.price
+        await q3.rows.map(async (e) => {
+          total_anggaran = total_anggaran + e.price;
+          if( paketPrice[e.mst_paket_type_id] !== undefined) {
+            paketPrice[e.mst_paket_type_id].qt = paketPrice[e.mst_paket_type_id].qt + 1;
+            paketPrice[e.mst_paket_type_id].totalSell = paketPrice[e.mst_paket_type_id].totalSell + e.price;
+          }
         })
       );
+
+      // mengambil informasi total transaksi visa
+      var unit_visa = 0;
+      var total_rupiah_visa = 0;
+      const q4 = await Visa_transaction_detail.findAndCountAll({ 
+        include: {
+          required : true, 
+          model: Visa_transaction, 
+          where: { paket_id: body.paket_id, company_id: this.company_id },
+        }
+      });
+      await Promise.all(
+        await q4.rows.map(async (e) => {
+          unit_visa = unit_visa + 1;
+          total_rupiah_visa = total_rupiah_visa + e.price;
+        })
+      );
+
+      // mengambil informasi total transaksi hotel
+      var unit_hotel = 0;
+      var total_rupiah_hotel = 0;
+      const q5 = await Hotel_transaction_detail.findAndCountAll({ 
+        include: {
+          required : true, 
+          model: Hotel_transaction, 
+          where: { paket_id: body.paket_id, company_id: this.company_id },
+        }
+      });
+      await Promise.all(
+        await q5.rows.map(async (e) => {
+          unit_hotel = unit_hotel + 1;
+          total_rupiah_hotel = total_rupiah_hotel + e.price;
+        })
+      );
+
+      // mengambil informasi total transaksi Transport
+      var unit_transport = 0;
+      var total_rupiah_transport = 0;
+      const q6 = await Transport_transaction_detail.findAndCountAll({ 
+        include: {
+          required : true, 
+          model: Transport_transaction, 
+          where: { paket_id: body.paket_id, company_id: this.company_id },
+        }
+      });
+      await Promise.all(
+        await q6.rows.map(async (e) => {
+          unit_transport = unit_transport + 1;
+          total_rupiah_transport = total_rupiah_transport + e.price;
+        })
+      );
+
+      // mengambil informasi total transaksi Passport
+      var unit_passport = 0;
+      var total_rupiah_passport = 0;
+      const q7 = await Passport_transaction_detail.findAndCountAll({ 
+        include: {
+          required : true, 
+          model: Passport_transaction, 
+          where: { paket_id: body.paket_id, company_id: this.company_id },
+        }
+      });
+      await Promise.all(
+        await q7.rows.map(async (e) => {
+          unit_passport = unit_passport + 1;
+          total_rupiah_passport = total_rupiah_passport + e.price;
+        })
+      );
+
+      // mengambil informasi total transaksi Tiket
+      var unit_tiket = 0;
+      var total_rupiah_tiket = 0;
+      const q8 = await Ticket_transaction_detail.findAndCountAll({ 
+        include: {
+          required : true, 
+          model: Ticket_transaction, 
+          where: { paket_id: body.paket_id },
+          include:{
+            required : true, 
+            model: Division, 
+            where: { company_id: this.company_id }
+          }
+        }
+      });
+      await Promise.all(
+        await q8.rows.map(async (e) => {
+          unit_tiket = unit_tiket + 1;
+          total_rupiah_tiket = total_rupiah_tiket + e.travel_price;
+        })
+      );
+
+      var total_aktualisasi = total_rupiah_visa + total_rupiah_hotel + total_rupiah_transport + total_rupiah_passport + total_rupiah_tiket;
+
       data['total_anggaran'] = total_anggaran;
+      data['paketPrice'] = paketPrice
       data['belanja'] = 0;
-      data['keuntungan'] = 0;
+      data['keuntungan'] = total_anggaran - total_aktualisasi;
+      data['tiket'] = {
+        unit: unit_tiket,
+        total: total_rupiah_tiket,
+      };
+      data['visa'] = {
+        unit: unit_visa,
+        total: total_rupiah_visa,
+      };
+      data['hotel'] = {
+        unit: unit_hotel,
+        total: total_rupiah_hotel,
+      };
+      data['transport'] = {
+        unit: unit_transport,
+        total: total_rupiah_transport,
+      };
+      data['passport'] = {
+        unit: unit_passport,
+        total: total_rupiah_passport,
+      };
+
+      data['total_aktualisasi'] = 0;
+
       return { data: data  };
     } catch (error) {
 

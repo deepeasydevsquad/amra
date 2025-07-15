@@ -211,11 +211,13 @@ class Model_cud {
       const invoicePaketTransactionPaymentHistory = await this.generateInvoice();
       const penerima = await this.penerima();
       const jamaah = await getJamaahInfo(body.jamaah_id);
-      
-      console.log("Data Body:", body);
-      console.log("Company ID:", this.company_id);
-      console.log("Division ID:", this.division_id);
-      console.log("Invoice Tabungan:", invoicePaketTransactionPaymentHistory);
+      console.log("___________AAAA___________");
+      console.log(infoPaket);
+      console.log("___________AAAA___________");
+      // console.log("Data Body:", body);
+      // console.log("Company ID:", this.company_id);
+      // console.log("Division ID:", this.division_id);
+      // console.log("Invoice Tabungan:", invoicePaketTransactionPaymentHistory);
       
       // === 1. Insert ke tabel fee agen ===
       let agenId = null;
@@ -248,7 +250,10 @@ class Model_cud {
         biaya_mahram: infoPaket.mahram_fee,
         createdAt: dateNow,
         updatedAt: dateNow,
-      }, { transaction: this.t });
+      }, 
+      { 
+        transaction: this.t 
+      });
 
       // === 3. Insert ke tabel paket transaction payment history
       await Paket_transaction_payment_history.create({
@@ -258,7 +263,10 @@ class Model_cud {
         penerima: penerima,
         createdAt: dateNow,
         updatedAt: dateNow,
-      }, { transaction: this.t });
+      }, 
+      { 
+        transaction: this.t 
+      });
 
       this.message = `Transaksi paket berhasil ditambahkan dengan invoice: ${invoicePaketTransactionPaymentHistory}`;
       return invoicePaketTransactionPaymentHistory;

@@ -28,16 +28,68 @@ const search = ref('')
 const totalPages = ref(0)
 const timeoutId = ref<number | null>(null)
 
+interface paketPrice {
+  name: string
+  price: number
+  qt: number
+  totalSell: number
+}
+
+interface Visa {
+  unit: number
+  total: number
+}
+
+interface Hotel {
+  unit: number
+  total: number
+}
+
+interface Transport {
+  unit: number
+  total: number
+}
+
+interface Passport {
+  unit: number
+  total: number
+}
+
+interface Tiket {
+  unit: number
+  total: number
+}
 
 interface KTData {
   paket_id: number
   name: string
   total_anggaran: number
   belanja: number
-  keuntungan: number
+  keuntungan: number,
+  total_aktualisasi: number,
+  paketPrice: paketPrice,
+  tiket: Tiket,
+  visa: Visa,
+  hotel: Hotel,
+  transport: Transport,
+  passport: Passport,
 }
 
-const data = ref<KTData>({paket_id: 0, name: '', total_anggaran: 0});
+const data = ref<KTData>({
+  paket_id: 0,
+  name: '',
+  total_anggaran: 0,
+  belanja: 0,
+  keuntungan: 0,
+  total_aktualisasi: 0,
+  paketPrice: {name: '', price: 0, qt: 0, totalSell: 0},
+  visa: {unit: 0, total: 0},
+  hotel: {unit: 0, total: 0},
+  transport: {unit: 0, total: 0},
+  passport: {unit: 0, total: 0},
+  tiket: {unit: 0, total: 0},
+});
+
 const notificationMessage = ref<string>('')
 const notificationType = ref<'success' | 'error'>('success')
 const showNotification = ref<boolean>(false)
@@ -56,20 +108,12 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
 }
 
 const fetchData = async () => {
-
-
-  console.log("~~~~~~~~~~~~~~~~~~~~1");
-  console.log("~~~~~~~~~~~~~~~~~~~~2");
-  console.log("~~~~~~~~~~~~~~~~~~~~3");
-
   try {
     isLoading.value = true
     const response = await getInfoPaketKT({
       paket_id: props.paketId,
     })
     data.value = response.data
-    // console.log(dataSyaratPaket)
-    // totalPages.value = Math.ceil(response.total / itemsPerPage)
   } catch (error) {
     console.error('Error fetching data:', error)
   } finally {
@@ -77,20 +121,20 @@ const fetchData = async () => {
   }
 }
 
-  const formatRupiah = (angka :any, prefix = "Rp ") => {
-    let numberString = angka.toString().replace(/\D/g, ""),
-      split = numberString.split(","),
-      sisa = split[0].length % 3,
-      rupiah = split[0].substr(0, sisa),
-      ribuan = split[0].substr(sisa).match(/\d{3}/g);
+const formatRupiah = (angka :any, prefix = "Rp ") => {
+  let numberString = angka.toString().replace(/\D/g, ""),
+    split = numberString.split(","),
+    sisa = split[0].length % 3,
+    rupiah = split[0].substr(0, sisa),
+    ribuan = split[0].substr(sisa).match(/\d{3}/g);
 
-    if (ribuan) {
-      let separator = sisa ? "." : "";
-      rupiah += separator + ribuan.join(".");
-    }
+  if (ribuan) {
+    let separator = sisa ? "." : "";
+    rupiah += separator + ribuan.join(".");
+  }
 
-    return prefix + (rupiah || "0");
-  };
+  return prefix + (rupiah || "0").trim() + ',-';
+};
 
 onMounted(() => {
   fetchData()
@@ -127,7 +171,7 @@ onMounted(() => {
           <tr>
             <td class="px-6 py-2 font-medium text-gray-900 text-start">RINCIAN KEUNTUNGAN PROGRAM PAKET</td>
             <td class="px-0 py-2 font-medium text-gray-900 text-start">:</td>
-            <td class="px-0 py-2 font-medium text-gray-900 text-start">{{ formatRupiah(data.keuntungan ?? 0)  ?? 'Rp 0' }}</td>
+            <td class="px-0 py-2 font-medium text-gray-900 text-start">{{ formatRupiah(data.keuntungan ?? 0) }}</td>
           </tr>
         </tbody>
       </table>
@@ -155,14 +199,14 @@ onMounted(() => {
             <td></td>
             <td class="px-6 py-3 font-bold text-gray-900 text-right">{{ formatRupiah(data.total_anggaran ?? 0)  ?? 'Rp 0' }}</td>
           </tr>
-          <tr>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center">1</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-left">NORMAL</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center">1</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-right">Rp 30.000.000,-</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
-            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 30.000.000,-</td>
+          <tr v-if="data.paketPrice != undefined" v-for="(item, index) in Object.values(data.paketPrice)" :key="index" class="border-b">
+            <td class="px-0 py-3 font-medium text-gray-900 text-center">{{ index + 1 }}</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-left">{{ item.name }}</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center">{{ item.qt }}</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(item.price ?? 0) }}</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(0) }}</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(0) }}</td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(item.totalSell ?? 0) }}</td>
           </tr>
         </tbody>
       </table>
@@ -175,35 +219,21 @@ onMounted(() => {
             <td class="w-[35%] px-0 py-3 font-bold text-gray-900 text-left" >KEBERANGKATAN</td>
             <th class="w-[8%] px-0 py-3 font-medium text-gray-900 text-center" ></th>
             <th colspan="3" class="w-[41%] px-6 py-3 font-medium text-gray-900 text-center" ></th>
-            <td class="w-[13%] px-6 py-3 font-bold text-gray-900 text-right">Rp 30.000.000,-</td>
+            <td class="w-[13%] px-6 py-3 font-bold text-gray-900 text-right">{{ formatRupiah(data.total_anggaran ?? 0)  ?? 'Rp 0' }}</td>
           </tr>
           <tr class="border-b">
             <td class="px-6 py-3 font-medium text-gray-900 text-center">1</td>
             <td class="px-0 py-3 font-medium text-gray-900 text-left">Pembayaran Jamaah</td>
             <td class="px-0 py-3 font-medium text-gray-900 text-center" ></td>
             <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
-            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 30.000.000,-</td>
-          </tr>
-          <tr class="border-b">
-            <td class="px-6 py-3 font-medium text-gray-900 text-center">2</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-left">Diskon</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center" ></td>
-            <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
-            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
-          </tr>
-          <tr class="border-b">
-            <td class="px-6 py-3 font-medium text-gray-900 text-center">3</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-left">Piutang Jamaah</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center" ></td>
-            <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
-            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(data.total_anggaran ?? 0)  ?? 'Rp 0' }}</td>
           </tr>
           <tr class="border-b bg-gray-50">
             <td class="px-6 py-3 font-bold text-gray-900 text-center">B.</td>
             <td class="px-0 py-3 font-bold text-gray-900 text-left">AKTUALISASI KEGIATAN ANGGARAN</td>
             <td class="px-0 py-3 font-medium text-gray-900 text-center" ></td>
             <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
-            <td class="px-6 py-3 font-bold text-gray-900 text-right">Rp 30.000.000,-</td>
+            <td class="px-6 py-3 font-bold text-gray-900 text-right">{{  formatRupiah(data.total_aktualisasi ?? 0)  }}</td>
           </tr>
           <tr class="border-b">
             <td class="px-6 py-3 font-medium text-gray-900 text-center">1</td>
@@ -222,37 +252,37 @@ onMounted(() => {
           <tr class="border-b">
             <td class="px-6 py-3 font-medium text-gray-900 text-center">3</td>
             <td class="px-0 py-3 font-medium text-gray-900 text-left">Biaya Tiket</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center" >1 Tiket</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" >{{ data.tiket.unit }} Tiket</td>
             <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
-            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(data.tiket.total ?? 0 ) }}</td>
           </tr>
           <tr class="border-b">
             <td class="px-6 py-3 font-medium text-gray-900 text-center">4</td>
             <td class="px-0 py-3 font-medium text-gray-900 text-left">Biaya Visa</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center" >1 Unit</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" >{{ data.visa.unit }} Unit</td>
             <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
-            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(data.visa.total ?? 0 ) }}</td>
           </tr>
           <tr class="border-b">
             <td class="px-6 py-3 font-medium text-gray-900 text-center">5</td>
             <td class="px-0 py-3 font-medium text-gray-900 text-left">Biaya Hotel</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center" >100 Unit</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" >{{ data.hotel.unit }} Unit</td>
             <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
-            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(data.hotel.total ?? 0 ) }}</td>
           </tr>
           <tr class="border-b">
             <td class="px-6 py-3 font-medium text-gray-900 text-center">6</td>
             <td class="px-0 py-3 font-medium text-gray-900 text-left">Biaya Transport</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center" >1 Unit</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" >{{ data.transport.unit }} Unit</td>
             <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
-            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(data.transport.total ?? 0 ) }}</td>
           </tr>
           <tr class="border-b">
             <td class="px-6 py-3 font-medium text-gray-900 text-center">7</td>
             <td class="px-0 py-3 font-medium text-gray-900 text-left">Biaya Passport</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center" >1 unit</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" >{{ data.passport.unit }} unit</td>
             <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
-            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(data.passport.total ?? 0 ) }}</td>
           </tr>
         </tbody>
       </table>

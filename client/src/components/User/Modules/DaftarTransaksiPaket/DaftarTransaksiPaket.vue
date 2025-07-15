@@ -164,6 +164,21 @@ async function deleteData(transpaketId: number) {
   );
 }
 
+const formatRupiah = (angka :any, prefix = "Rp ") => {
+  let numberString = angka.toString().replace(/\D/g, ""),
+    split = numberString.split(","),
+    sisa = split[0].length % 3,
+    rupiah = split[0].substr(0, sisa),
+    ribuan = split[0].substr(sisa).match(/\d{3}/g);
+
+  if (ribuan) {
+    let separator = sisa ? "." : "";
+    rupiah += separator + ribuan.join(".");
+  }
+
+  return prefix + (rupiah || "0");
+};
+
 onMounted(() => {
   fetchData();
 })
@@ -241,12 +256,12 @@ onMounted(() => {
                   <li class="font-bold items-center gap-1">Tanggal Berakhir Visa: {{ dataTransPaket.tanggal_berakhir_visa }}</li>
                 </ul>
               </td>
-              <td class="px-6 py-4 text-center">{{ dataTransPaket.total_price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }) }}</td>
+              <td class="px-6 py-4 text-center">{{  formatRupiah( dataTransPaket.total_price ?? 0) }}</td>
               <td class="px-6 py-4">
                 <ul class="list-disc list-inside text-sm">
-                  <li class="items-center gap-1"> <strong>Biaya Mahram: </strong> <br> {{ dataTransPaket.biaya_mahram.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }) }} </li>
-                  <li class="items-center gap-1"> <strong>Sudah Bayar: </strong> <br> {{ dataTransPaket.total_price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }) }} </li>
-                  <li class="items-center gap-1"> <strong>Sisa: </strong> <br> {{ dataTransPaket.sisa.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }) }} </li>
+                  <li class="items-center gap-1"> <strong>Biaya Mahram: </strong> <br> {{ formatRupiah( dataTransPaket.biaya_mahram ?? 0) }} </li>
+                  <li class="items-center gap-1"> <strong>Sudah Bayar: </strong> <br> {{ formatRupiah(  dataTransPaket.total_price ?? 0) }} </li>
+                  <li class="items-center gap-1"> <strong>Sisa: </strong> <br> {{ formatRupiah( dataTransPaket.sisa ?? 0) }} </li>
                 </ul>
               </td>
               <td class="px-6 py-4 text-center flex gap-2 justify-center">
