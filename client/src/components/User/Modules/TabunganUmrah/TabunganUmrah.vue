@@ -291,50 +291,33 @@ const cetakKwitansi = async (invoice: string) => {
     </div>
     <div v-else-if="dataTabunganUmrah" class="container mx-auto">
       <div class="flex justify-between mb-4">
-        <PrimaryButton
-          @click="openFormAdd()"
-        >
+        <PrimaryButton @click="openFormAdd()" >
           <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
           Tabungan Umrah
         </PrimaryButton>
-
         <div class="flex items-center">
           <label for="filter" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
-          <select
-            id="filter"
+          <div class="flex items-center mx-4">
+            <input type="text" id="search"
+              class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder:text-gray-400"
+              v-model="search" @change="fetchData()" placeholder="Cari jamaah atau paket..." />
+          </div>
+          <select id="filter"
             class="block w-64 px-3 py-2 text-gray-700 bg-white border rounded-s-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-            v-model="filter"
-            @change="fetchData()"
-          >
+            v-model="filter" @change="fetchData()" >
             <option value="belum_beli_paket" selected>Belum Beli Paket</option>
             <option value="sudah_beli_paket">Sudah Beli Paket</option>
             <option value="batal_berangkat">Batal Berangkat</option>
           </select>
-          <select
-            v-model="filterCabang"
-            @change="fetchData()"
+          <select v-model="filterCabang" @change="fetchData()"
             class="block w-64 border-t border-b border-e bg-white border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             >
             <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
               {{ optionC.name }}
             </option>
           </select>
-
-          <div class="flex items-center ml-4">
-            <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-            <input
-              type="text"
-              id="search"
-              class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder:text-gray-400"
-              v-model="search"
-              @change="fetchData()"
-              placeholder="Cari jamaah atau paket..."
-            />
-          </div>
         </div>
       </div>
-
-      <!-- Table data -->
       <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
         <table ref="tabelutama" class="w-full border-collapse bg-white text-left text-sm text-gray-500">
           <thead class="bg-gray-100">
@@ -410,7 +393,6 @@ const cetakKwitansi = async (invoice: string) => {
                     Riwayat Handover Fasilitas
                   </div>
                   <template v-if="tabungan.riwayat_handover_fasilitas.length" >
-                    <!-- Detail Fasilitas -->
                     <div>
                       <div class="border border-gray-200 p-4 rounded flex flex-wrap gap-3">
                         <span

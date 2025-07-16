@@ -364,7 +364,10 @@ class Model_r {
       });
 
       const paketPrice = await Paket_price.findOne({
-        where: { mst_paket_type_id },
+        where: { 
+          paket_id: id, 
+          mst_paket_type_id 
+        },
         attributes: ["price", "mst_paket_type_id"],
         include: [
           {
@@ -388,10 +391,9 @@ class Model_r {
           mst_paket_type_name: paketPrice.Mst_paket_type.name
         };
       }
-
+     
       return data;
     } catch (error) {
-      console.log("Error in infoPaket:", error);
       return {};
     }
   }

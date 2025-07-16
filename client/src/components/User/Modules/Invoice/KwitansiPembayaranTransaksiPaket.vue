@@ -53,7 +53,7 @@ onMounted(async () => {
   <div v-if="isLoading" class="flex justify-center items-center h-screen">
     <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
   </div>
-  <div class="bg-white text-gray-800 max-w-[210mm] mx-auto min-h-[297mm] p-[20mm] font-serif text-xs print:shadow-none print:bg-white print:text-black print:max-w-full">
+   <div class="bg-white max-w-[210mm] mx-auto p-[15mm] font-serif print:p-[10mm] print:m-0 print:shadow-none" style="color: black; font-size: 10pt; text-align: justify; line-height: 1.3">
     <div v-if="!isLoading && data">
       <!-- Header Kwitansi -->
       <Header :data="data"></Header>

@@ -115,7 +115,8 @@ const arr_router = [
   "rekapitulasi_ticket",
   "pembayaran_agen_paket",
   "kas_keluar_masuk",
-  "pembayaran_gaji",
+  "k_t",
+  "pembayaran_gaji"
 ];
 
 const arr = {};

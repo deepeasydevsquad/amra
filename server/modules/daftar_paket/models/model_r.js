@@ -38,9 +38,19 @@ class Model_r {
     await this.initialize();
 
     const body = this.req.body;
-    const pageNumber = parseInt(body.pageNumber) || 1;
-    const perpage = parseInt(body.perpage) || 10;
-    const offset = (pageNumber - 1) * perpage;
+    
+    
+    // const pageNumber = parseInt(body.pageNumber) || 1;
+    // const perpage = parseInt(body.perpage) || 10;
+    // const offset = (pageNumber - 1) * perpage;
+
+    var limit = body.perpage;
+    var page = 1;
+
+    if (body.pageNumber != undefined && body.pageNumber !== '0' ) page = body.pageNumber;
+
+
+
     const search = body.search || "";
     const filter = body.filter || "";
     const today = moment().format('YYYY-MM-DD');
@@ -63,7 +73,7 @@ class Model_r {
       };
     }
 
-    if (search) {
+    if (body.search != undefined && body.search != "") {
       where = {
         ...where,
         [Op.or]: [
@@ -74,7 +84,7 @@ class Model_r {
     }
 
     var sql = {};
-    sql["order"] = [["id", "ASC"]];
+    sql["order"] = [["updatedAt", "DESC"]];
     sql["attributes"] = [
       "id",
       "jenis_kegiatan",
@@ -108,36 +118,38 @@ class Model_r {
       "createdAt",
       "updatedAt"
     ];
-    sql["include"] = [
-      {
-        model: Paket_price,
-        attributes: [
-          "id",
-          "mst_paket_type_id",
-          "price"
-        ],
-        required: false
-      },
-      {
-        model: Mst_provider,
-        attributes: [
-          "id",
-          "name"
-        ],
-        required: false
-      },
-      {
-        model: Mst_asuransi,
-        attributes: [
-          "id",
-          "name"
-        ],
-        required: false
-      }
-    ];
+    // sql["include"] = [
+    //   {
+    //     model: Paket_price,
+    //     attributes: [
+    //       "id",
+    //       "mst_paket_type_id",
+    //       "price"
+    //     ],
+    //     required: false
+    //   },
+    //   {
+    //     model: Mst_provider,
+    //     attributes: [
+    //       "id",
+    //       "name"
+    //     ],
+    //     required: false
+    //   },
+    //   {
+    //     model: Mst_asuransi,
+    //     attributes: [
+    //       "id",
+    //       "name"
+    //     ],
+    //     required: false
+    //   }
+    // ];
     sql["where"] = where;
-    sql["limit"] = perpage;
-    sql["offset"] = offset;
+    // sql["limit"] = perpage;
+    // sql["offset"] = offset;
+    sql["limit"] = limit * 1;
+    sql["offset"] = (page - 1) * limit;
 
     try {
       const query = await dbList(sql);
@@ -146,6 +158,7 @@ class Model_r {
     
       var data = [];
       if (total > 0) {
+        var list_paket_id = [];
         await Paket.findAll(query.sql).then(async (value) => {
           await Promise.all(
             value.map(async (e) => {
@@ -164,21 +177,55 @@ class Model_r {
                 facilities: JSON.parse(e.facilities),
                 departure_time: e.departure_time,
                 arrival_time: e.arrival_time,
-                prices: await Promise.all(
-                  e.Paket_prices.map(async (price) => ({
-                    id: price.id,
-                    paket_tipe: await this.namaTipePaket(price.mst_paket_type_id) || '',
-                    price: price.price
-                  }))
-                ),                
+                prices: [],
                 status: await this.cekDate(e.departure_date),
                 createdAt: moment(e.createdAt).format('YYYY-MM-DD HH:mm:ss'),
                 updatedAt: moment(e.updatedAt).format('YYYY-MM-DD HH:mm:ss')
               });
+
+              list_paket_id.push(e.id);
             })
           );
         });
+
+        console.log("```````````");
+        console.log(list_paket_id);
+        console.log("```````````");
+
+        var list_paket_price = {};
+        await Paket_price.findAll({ where : { paket_id : { [Op.in] : list_paket_id}}, include: {
+          required: true,
+          model: Mst_paket_type,
+          attributes: ['name']
+        } }).then(async (value) => {
+           await Promise.all(
+            value.map(async (e) => {
+              if( list_paket_price[e.paket_id] === undefined ) {
+                list_paket_price = {...list_paket_price,...{[e.paket_id] : [{id: e.price, paket_tipe: e.Mst_paket_type.name, price: e.price}]}};
+              }else{
+                list_paket_price[e.paket_id].push({ id: e.price, paket_tipe: e.Mst_paket_type.name, price: e.price});
+              }
+            })
+          );
+        });
+
+
+         console.log("```Paket Price````````");
+        console.log(list_paket_price);
+        console.log("```Paket Price````````");
+
+
+        for( let x in data ) {
+          if(list_paket_price[data[x].id] !== undefined) {
+            data[x].prices = list_paket_price[data[x].id];
+          }
+        }
       }
+
+
+      console.log("------------data");
+      console.log(data);
+      console.log("------------data");
 
       return {
         data: data,
