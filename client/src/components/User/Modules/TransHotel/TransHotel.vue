@@ -516,7 +516,7 @@ watch(SelectedCabang, async (newCabang) => {
     :width="'w-2/3'"
     :label="'Tambah Transaksi Hotel'"
   >
-    <div class="flex flex-wrap gap-4 pb-3">
+    <div class="flex flex-wrap gap-4 pb-3 mb-5">
       <SelectField
         label="Kostumer"
         v-model="SelectedCustomer"
