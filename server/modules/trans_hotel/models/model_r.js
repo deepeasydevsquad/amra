@@ -60,13 +60,8 @@ class Model_r {
       const sql = {
         limit: parseInt(limit),
         offset: (page - 1) * limit,
-<<<<<<< HEAD
         order: [["updatedAt", "DESC"]],
         where: where,
-=======
-        order: [["id", "ASC"]],
-        where,
->>>>>>> 5ce82c0f3c335113d8f61961e93e912a0881d9fc
         include: [
           {
             model: Kostumer,
