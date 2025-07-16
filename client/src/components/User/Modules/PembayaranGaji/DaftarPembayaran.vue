@@ -185,13 +185,13 @@ const confirmDelete = (id: number) => {
             <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
               Nominal
             </th>
-            <th class="w-[30%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[45%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
               Info Staff
             </th>
             <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
               Cabang
             </th>
-            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[5%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
