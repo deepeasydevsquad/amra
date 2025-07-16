@@ -49,7 +49,7 @@ class Model_r {
       var sql = {
         limit: parseInt(limit),
         offset: (page - 1) * limit,
-        order: [["id", "ASC"]],
+        order: [["updatedAt", "DESC"]],
         where: where,
         include: [
           {
