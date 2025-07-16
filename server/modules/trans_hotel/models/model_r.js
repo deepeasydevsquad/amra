@@ -25,9 +25,23 @@ class Model_r {
     this.company_id = await getCompanyIdByCode(this.req);
   }
 
+  async ambil_nama_paket_bulk(ids) {
+    const paketList = await Paket.findAll({
+      where: { id: { [Op.in]: ids } },
+      attributes: ["id", "name"],
+    });
+
+    const paketMap = {};
+    paketList.forEach((paket) => {
+      paketMap[paket.id] = paket.name;
+    });
+
+    return paketMap;
+  }
+
   async daftar_transaksi_hotel() {
     try {
-      await this.initialize(); // inisialisasi company_id
+      await this.initialize();
 
       const body = this.req.body;
       const limit = body.perpage || 10;
@@ -39,18 +53,20 @@ class Model_r {
       if (body.search) {
         where = {
           ...where,
-          ...{
-            invoice: { [Op.like]: `%${body.search}%` },
-          },
+          invoice: { [Op.like]: `%${body.search}%` },
         };
       }
 
-      // Query utama dengan include Kostumer
-      var sql = {
+      const sql = {
         limit: parseInt(limit),
         offset: (page - 1) * limit,
+<<<<<<< HEAD
         order: [["updatedAt", "DESC"]],
         where: where,
+=======
+        order: [["id", "ASC"]],
+        where,
+>>>>>>> 5ce82c0f3c335113d8f61961e93e912a0881d9fc
         include: [
           {
             model: Kostumer,
@@ -64,30 +80,35 @@ class Model_r {
       let data = [];
 
       if (total > 0) {
-        var listId = [];
-        await Promise.all(
-          await q.rows.map(async (trx) => {
-            data.push({
-              id: trx.id,
-              invoice: trx.invoice,
-              petugas: trx.petugas,
-              // Tambahkan data kostumer dari relasi
-              kostumer_name: trx.Kostumer?.name || "-",
-              tanggal_transaksi: moment(trx.createdAt).format(
-                "YYYY-MM-DD HH:mm:ss"
-              ),
-              total_harga: 0,
-              details: [],
-            });
-            listId.push(trx.id);
-          })
-        );
+        const listId = [];
+        const paketIds = new Set();
 
-        var dataHotel = {};
-        var totalHotel = {};
+        q.rows.forEach((trx) => {
+          listId.push(trx.id);
+          if (trx.paket_id) paketIds.add(trx.paket_id);
 
-        // Query detail TANPA include Kostumer
-        await Hotel_transaction_detail.findAll({
+          data.push({
+            id: trx.id,
+            invoice: trx.invoice,
+            petugas: trx.petugas,
+            paket_id: trx.paket_id || null,
+            kostumer_name: trx.Kostumer?.name || "-",
+            tanggal_transaksi: moment(trx.createdAt).format(
+              "YYYY-MM-DD HH:mm:ss"
+            ),
+            total_harga: 0,
+            details: [],
+          });
+        });
+
+        const paketMap = await this.ambil_nama_paket_bulk([...paketIds]);
+
+        data = data.map((trx) => ({
+          ...trx,
+          paket_name: trx.paket_id ? paketMap[trx.paket_id] || "-" : "-",
+        }));
+
+        const hotelDetails = await Hotel_transaction_detail.findAll({
           where: {
             hotel_transaction_id: { [Op.in]: listId },
           },
@@ -98,58 +119,38 @@ class Model_r {
               attributes: ["name"],
             },
           ],
-        }).then(async (value) => {
-          await Promise.all(
-            await value.map(async (e) => {
-              if (dataHotel[e.hotel_transaction_id] == undefined) {
-                dataHotel = {
-                  ...dataHotel,
-                  ...{
-                    [e.hotel_transaction_id]: [
-                      {
-                        name: e.name,
-                        birth_place: e.birth_place,
-                        birth_date: e.birth_date,
-                        identity_number: e.identity_number,
-                        price: e.price,
-                        check_in: e.check_in,
-                        check_out: e.check_out,
-                        hotel_name: e.Mst_hotel?.name ?? "-",
-                      },
-                    ],
-                  },
-                };
-                totalHotel = {
-                  ...totalHotel,
-                  ...{ [e.hotel_transaction_id]: e.price },
-                };
-              } else {
-                dataHotel[e.hotel_transaction_id].push({
-                  name: e.name,
-                  birth_place: e.birth_place,
-                  birth_date: e.birth_date,
-                  identity_number: e.identity_number,
-                  price: e.price,
-                  check_in: e.check_in,
-                  check_out: e.check_out,
-                  hotel_name: e.Mst_hotel?.name ?? "-",
-                });
-                totalHotel[e.hotel_transaction_id] =
-                  totalHotel[e.hotel_transaction_id] + e.price;
-              }
-            })
-          );
         });
 
-        for (let x in data) {
-          if (dataHotel[data[x].id] !== undefined) {
-            data[x].details = dataHotel[data[x].id];
-            data[x].total_harga = totalHotel[data[x].id];
-          }
-        }
+        const dataHotel = {};
+        const totalHotel = {};
+
+        hotelDetails.forEach((e) => {
+          const trxId = e.hotel_transaction_id;
+          if (!dataHotel[trxId]) dataHotel[trxId] = [];
+          if (!totalHotel[trxId]) totalHotel[trxId] = 0;
+
+          dataHotel[trxId].push({
+            name: e.name,
+            birth_place: e.birth_place,
+            birth_date: e.birth_date,
+            identity_number: e.identity_number,
+            price: e.price,
+            check_in: e.check_in,
+            check_out: e.check_out,
+            hotel_name: e.Mst_hotel?.name ?? "-",
+          });
+
+          totalHotel[trxId] += e.price;
+        });
+
+        data = data.map((trx) => ({
+          ...trx,
+          details: dataHotel[trx.id] || [],
+          total_harga: totalHotel[trx.id] || 0,
+        }));
       }
 
-      return { data: data, total: total };
+      return { data, total };
     } catch (error) {
       console.error("Error in daftar_transaksi_hotel:", error);
       return {};

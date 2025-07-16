@@ -310,8 +310,8 @@ const submitTransaksi = async () => {
     displayNotification(`Transaksi berhasil! Invoice: ${invoice}`, 'success')
 
     // 🧾 Open tab baru buat print kwitansi
-    // const printUrl = `/kwitansi-trans-hotel/${invoice}`
-    // window.open(printUrl, '_blank')
+    const printUrl = `/kwitansi-trans-hotel/${invoice}`
+    window.open(printUrl, '_blank')
 
     await fetchDataTransaksi()
   } catch (error: any) {
@@ -429,6 +429,7 @@ watch(SelectedCabang, async (newCabang) => {
           <tr>
             <th class="px-6 py-3 font-medium text-gray-900 text-center w-[10%]">Invoice</th>
             <th class="px-6 py-3 font-medium text-gray-900 text-center w-[20%]">Nama Costumer</th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">Paket</th>
             <th class="px-6 py-3 font-medium text-gray-900 text-center w-[35%]">
               Info Transaksi Hotel
             </th>
@@ -453,6 +454,8 @@ watch(SelectedCabang, async (newCabang) => {
           >
             <td class="px-6 py-4 text-center align-top">{{ transaksi.invoice }}</td>
             <td class="px-6 py-4 text-center align-top">{{ transaksi.kostumer_name }} <br /></td>
+
+            <td class="px-6 py-4 text-center align-top">{{ transaksi.paket_name }} <br /></td>
             <td class="px-6 py-4 text-left space-y-3">
               <div
                 v-for="(detail, idx) in transaksi.details"
