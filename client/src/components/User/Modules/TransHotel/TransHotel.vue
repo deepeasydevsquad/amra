@@ -69,7 +69,7 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 const pages = computed<number[]>(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1)
 })
-const totalColumns = 6 // karena table punya 5 kolom
+const totalColumns = 7 // karena table punya 5 kolom
 const totalRow = ref(0)
 
 const searchQuery = ref('')
