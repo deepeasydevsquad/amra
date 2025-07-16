@@ -192,9 +192,30 @@ class Model_r {
     await this.initialize();
     try {
 
+      const paketId = this.req.params.paketId;
+
+      // get jamaah in paket transaction
+      var ListJamaahId = [];
+      await Paket_transaction.findAll({
+        where: {
+          paket_id: paketId,
+        }
+      }).then(async (value) => {
+          await Promise.all(
+          value.map(async (e) => {
+            ListJamaahId.push(e.jamaah_id);
+          })
+        );
+      });
+
+      console.log("ListJamaahId", ListJamaahId);
+
       const jamaah = await Jamaah.findAll({
         where: {
           division_id: this.division_id,
+          id: { 
+            [Op.notIn]: ListJamaahId 
+          },
         },
         attributes: ["id", "agen_id"],
         include: [{

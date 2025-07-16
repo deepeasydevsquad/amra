@@ -1,9 +1,9 @@
 import api from "./api";
 
 
-export const getJamaah = async () => {
+export const getJamaah = async (paketId :number) => {
   try {
-    const response = await api.get("/daftar-transaksi-paket/get-jamaah-transaksi-paket/list");
+    const response = await api.get(`/daftar-transaksi-paket/get-jamaah-transaksi-paket/list/${paketId}`);
     return response.data;
   } catch (error) {
     console.error("Gagal mengambil daftar jamaah:", error);

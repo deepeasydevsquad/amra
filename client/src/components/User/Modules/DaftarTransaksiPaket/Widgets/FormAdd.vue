@@ -92,7 +92,7 @@ const fetchData = async () => {
   try {
     isLoading.value = true
     const [jamaahResponse, paketResponse] = await Promise.all([
-      getJamaah(),
+      getJamaah(props.paketId),
       getPaketTypes(props.paketId),
     ])
 

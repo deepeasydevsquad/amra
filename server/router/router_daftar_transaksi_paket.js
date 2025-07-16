@@ -7,7 +7,7 @@ const validation = require("../validation/daftar_transaksi_paket");
 const router = express.Router();
 
 router.get(
-  "/daftar-transaksi-paket/get-jamaah-transaksi-paket/list",
+  "/daftar-transaksi-paket/get-jamaah-transaksi-paket/list/:paketId",
   authenticateToken,
   controllers.getJamaahTransaksiPaket
 )
