@@ -44,9 +44,10 @@ onMounted(async () => {
 </script>
 
 <template>
-
-  <div class="bg-white max-w-[210mm] mx-auto p-[15mm] font-serif print:p-[10mm] print:m-0 print:shadow-none"
-    style="color: black; font-size: 10pt; text-align: justify; line-height: 1.3">
+  <div
+    class="bg-white max-w-[210mm] mx-auto p-[15mm] font-serif print:p-[10mm] print:m-0 print:shadow-none"
+    style="color: black; font-size: 10pt; text-align: justify; line-height: 1.3"
+  >
     <Header v-if="data" :data="data.header" />
 
     <!-- Judul "Detail Transaksi Hotel" & Invoice -->
@@ -64,10 +65,7 @@ onMounted(async () => {
         </div>
         <div class="text-right">
           <div class="font-semibold">DITERIMA DARI</div>
-          <div>
-            {{ data.data[0]?.payer || '-' }}<br />
-            ({{ data.data[0]?.payer_identity || '-' }})
-          </div>
+          <div>{{ data.data[0]?.nama_kostumer || '-' }}<br /></div>
         </div>
       </div>
 
@@ -91,9 +89,7 @@ onMounted(async () => {
             class="border-b border-gray-200"
           >
             <td class="px-4 py-2 align-top whitespace-nowrap">
-              <span>{{ detail.name }}</span
-              ><br />
-              <span>{{ detail.identity_number }}</span>
+              <span>{{ detail.name }}</span>
             </td>
             <td class="px-4 py-2 align-top leading-relaxed">
               <div class="grid grid-cols-[90px_1fr] gap-y-1">
@@ -137,7 +133,7 @@ onMounted(async () => {
         <div class="text-center">
           <div>Penyetor</div>
           <br /><br />
-          <div>({{ data.data[0]?.payer || '-' }})</div>
+          <div>( {{ data.data[0]?.nama_kostumer || '-' }} )</div>
         </div>
       </div>
     </div>

@@ -44,6 +44,7 @@ const {
   Mst_mobil,
   Kas_keluar_masuk,
   Jurnal,
+  Kostumer,
 } = require("../../../models");
 const { Op } = require("sequelize");
 const {
@@ -997,6 +998,11 @@ class Model_r {
               },
             ],
           },
+          {
+            model: Kostumer,
+            required: true,
+            attributes: ["name"],
+          },
         ],
       });
 
@@ -1016,7 +1022,7 @@ class Model_r {
           id: trx.id,
           invoice: trx.invoice,
           payer: trx.payer,
-          payer_identity: trx.payer_identity,
+          nama_kostumer: trx.Kostumer.name,
           petugas: trx.petugas,
           total_harga: total_harga,
           details: detailList.map((d) => ({

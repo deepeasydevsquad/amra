@@ -71,17 +71,17 @@ class Model_cud {
     const body = this.req.body;
     const my_date = moment().format("YYYY-MM-DD HH:mm:ss");
 
-    try {
-      const payerDetail = body.details.find((d) => d.payer === true);
+    console.log("Data Body:", body);
 
+    try {
       // 1. Insert transaksi utama
       const transaksi = await Hotel_transaction.create(
         {
           company_id: this.company_id,
           invoice: invoice,
           petugas: petugas,
-          payer: payerDetail?.name || "-",
-          payer_identity: payerDetail?.identity_number || "-",
+          kostumer_id: body.kostumer_id || "-",
+          paket_id: body.paket_id || null,
           createdAt: my_date,
           updatedAt: my_date,
         },
