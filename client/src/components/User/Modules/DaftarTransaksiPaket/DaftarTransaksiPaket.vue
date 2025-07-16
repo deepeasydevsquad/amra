@@ -92,6 +92,7 @@ const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
 const totalColumns = ref(7);
+const totalRow = ref(0);
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message;
@@ -137,6 +138,7 @@ const fetchData = async () => {
       pageNumber: currentPage.value
     });
     dataPaketTransaction.value = response.data;
+    totalRow.value = response.total;
     totalPages.value = Math.ceil(response.total / itemsPerPage);
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -290,6 +292,7 @@ onMounted(() => {
               @prev-page="prevPage"
               @next-page="nextPage"
               @page-now="pageNow"
+              :totalRow = "totalRow"
             />
           </tfoot>
       </table>

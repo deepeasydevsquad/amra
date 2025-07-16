@@ -24,7 +24,8 @@ const itemsPerPage = 10
 const currentPage = ref(1)
 const search = ref('')
 const totalPages = ref(0)
-const totalColumns = ref(0)
+const totalColumns = ref(5)
+const totalRow = ref(0);
 const isEditFormOpen = ref<boolean>(false)
 const editingKamarId = ref<number | null>(null)
 
@@ -90,6 +91,8 @@ const fetchData = async () => {
       displayNotification(response.error_msg || 'Terjadi kesalahan saat mengambil data', 'error')
       return
     }
+
+    totalRow.value= response.total;
 
     totalPages.value = Math.ceil((response?.total || 0) / itemsPerPage)
     kamarList.value = response?.data || []
@@ -174,7 +177,7 @@ const handleDownload = () => {
 onMounted(async () => {
   await fetchData()
   setTimeout(() => {
-    totalColumns.value = document.querySelectorAll('thead th').length
+    // totalColumns.value = document.querySelectorAll('thead th').length
   }, 0)
 })
 </script>
@@ -297,6 +300,7 @@ onMounted(async () => {
             @prev-page="prevPage"
             @next-page="nextPage"
             @page-now="pageNow"
+            :totalRow = "totalRow"
           />
         </tfoot>
       </table>

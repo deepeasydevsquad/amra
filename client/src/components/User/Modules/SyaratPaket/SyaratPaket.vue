@@ -61,6 +61,7 @@ const notificationMessage = ref<string>('')
 const notificationType = ref<'success' | 'error'>('success')
 const showNotification = ref<boolean>(false)
 const totalColumns = ref(3)
+const totalRow = ref(0);
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message
@@ -84,6 +85,7 @@ const fetchData = async () => {
       pageNumber: currentPage.value,
     })
     dataSyaratPaket.value = response.data
+    totalRow.value = response.total;
     console.log(dataSyaratPaket)
     totalPages.value = Math.ceil(response.total / itemsPerPage)
   } catch (error) {
@@ -169,6 +171,7 @@ onMounted(() => {
             @prev-page="prevPage"
             @next-page="nextPage"
             @page-now="pageNow"
+            :totalRow = "totalRow"
           />
         </tfoot>
       </table>
