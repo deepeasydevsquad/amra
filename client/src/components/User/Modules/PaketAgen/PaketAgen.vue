@@ -21,6 +21,7 @@ import FormPembayaran from '../TransPaket/Particle/FormPembayaran.vue'
 
 const showModalDetail = ref(false)
 const showModal = ref(false)
+const totalRow = ref(0);
 const currentPage = ref(1)
 const totalPages = ref(1)
 const showNotification = ref(false)
@@ -57,6 +58,21 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
   confirmAction.value = action
   showConfirmDialog.value = true
 }
+
+const formatRupiah = (angka :any, prefix = "Rp ") => {
+  let numberString = angka.toString().replace(/\D/g, ""),
+    split = numberString.split(","),
+    sisa = split[0].length % 3,
+    rupiah = split[0].substr(0, sisa),
+    ribuan = split[0].substr(sisa).match(/\d{3}/g);
+
+  if (ribuan) {
+    let separator = sisa ? "." : "";
+    rupiah += separator + ribuan.join(".");
+  }
+
+  return prefix + (rupiah || "0").trim() + ',-';
+};
 
 const pages = computed<number[]>(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1)
@@ -108,7 +124,11 @@ const fetchData = async () => {
   try {
     const response = await get_paket_agen({ paket_id: props.paketId })
     data.value = response.data
-    console.log(data.value)
+    totalRow.value = response.total;
+    console.log("-----response")
+    console.log(response)
+    console.log(totalRow.value)
+    console.log("-----response")
   } catch (error) {
     console.error(error)
   }
@@ -146,7 +166,7 @@ const openModalPembayaran = (id: number) => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-100">
           <tr>
-            <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[30%]">
+            <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[35%]">
               Info Agen
             </th>
             <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[30%]">
@@ -156,7 +176,7 @@ const openModalPembayaran = (id: number) => {
             <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[15%]">
               Sudah Bayar
             </th>
-            <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[10%]">Aksi</th>
+            <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[5%]">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -166,13 +186,9 @@ const openModalPembayaran = (id: number) => {
             </td>
           </tr>
 
-          <tr
-            v-for="item in filteredData"
-            :key="item.agen_id"
-            class="hover:bg-gray-50 transition-colors"
-          >
+          <tr v-for="item in filteredData" :key="item.agen_id" class="hover:bg-gray-50 transition-colors">
             <!-- Info Agen -->
-            <td class="px-4 py-4 border-b text-left align-top">
+            <td class="px-6 py-4 border-b text-left align-top">
               <div class="py-1">
                 <span class="inline-block w-20 font-bold">Nama Agen</span>:
                 {{ item.nama_agen }}
@@ -189,11 +205,7 @@ const openModalPembayaran = (id: number) => {
 
             <!-- Info Jamaah -->
             <td class="px-4 py-2 border-b text-left align-top">
-              <div
-                v-for="jamaah in item.rekrutans"
-                :key="jamaah.id"
-                class="border-b border-gray-100 last:border-none py-2"
-              >
+              <div v-for="jamaah in item.rekrutans" :key="jamaah.id" class="border-b border-gray-100 last:border-none py-2">
                 <div class="py-1">
                   <span class="inline-block w-30 font-bold">Nama Jamaah</span>:
                   {{ jamaah.fullname }}
@@ -204,58 +216,40 @@ const openModalPembayaran = (id: number) => {
                 </div>
               </div>
             </td>
-
             <!-- Fee -->
-            <td class="px-4 py-4 border-b text-left align-top">
+            <td class="px-6 py-4 border-b text-center align-top">
               <div class="py-1">
-                {{ (item.total_belum_lunas ?? 0).toLocaleString() }}
+                {{ formatRupiah(item.total_belum_lunas ?? 0 ) }}
               </div>
             </td>
-
             <!-- Sudah Bayar -->
-            <td class="px-4 py-4 border-b text-left align-top">
+            <td class="px-6 py-4 border-b text-center align-top">
               <div class="py-1">
-                Rp
-                {{ (item.total_lunas ?? 0).toLocaleString() }}
+                {{ formatRupiah(item.total_lunas ?? 0 )   }}
               </div>
             </td>
-
             <!-- Aksi -->
-            <td class="px-4 py-5 border-b text-center align-top">
+            <td class="px-6 py-5 border-b text-center align-top">
               <LightButton @click="openModalPembayaran(item.agen_id)">
                 <i class="pi pi-money-bill"></i>
               </LightButton>
             </td>
           </tr>
         </tbody>
-      </table>
-
-      <table class="w-full bg-gray-50">
-        <Pagination
-          :currentPage="currentPage"
-          :totalPages="totalPages"
-          :pages="pages"
-          :totalColumns="totalColumns"
-          @prev-page="handlePrev"
-          @next-page="handleNext"
-          @page-now="handlePageNow"
-        />
+         <tfoot class="bg-gray-100 font-bold">
+           <Pagination :currentPage="currentPage" :totalPages="totalPages" :pages="pages" :totalColumns="totalColumns" @prev-page="handlePrev" @next-page="handleNext" @page-now="handlePageNow" :totalRow = "totalRow"/>
+        </tfoot>
       </table>
     </div>
   </div>
 
-  <FormPembayaran
-    :formStatus="modalPembayaran"
-    :agen_id="agen_id"
-    @cancel="modalPembayaran = false"
-    @close="modalPembayaran = false"
+  <FormPembayaran :formStatus="modalPembayaran" :agen_id="agen_id" @cancel="modalPembayaran = false" @close="modalPembayaran = false"
     @submitted="
       () => {
         fetchData()
         PembayaranSuccess()
       }
-    "
-  />
+    " />
 
   <Notification
     :showNotification="showNotification"
