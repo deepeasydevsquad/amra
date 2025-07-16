@@ -24,11 +24,29 @@ router.post(
   authenticateToken,
   [
     // body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong."),
-    body("pageNumber").trim().notEmpty().withMessage("Page Number tidak boleh kosong."),
-    body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
+    body("pageNumber")
+      .trim()
+      .notEmpty()
+      .withMessage("Page Number tidak boleh kosong."),
+    body("perpage")
+      .trim()
+      .notEmpty()
+      .withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
   ],
   controllers.daftar_transaksi_hotel
+);
+
+router.post(
+  "/trans_hotel/daftar_paket",
+  authenticateToken,
+  [
+    body("division_id")
+      .trim()
+      .notEmpty()
+      .withMessage("ID  tidak boleh kosong."),
+  ],
+  controllers.daftar_paket
 );
 
 router.get(
@@ -40,6 +58,11 @@ router.get(
   "/trans_hotel/daftar_hotel",
   authenticateToken,
   controllers.daftar_hotel
+);
+router.get(
+  "/trans_hotel/daftar_customer",
+  authenticateToken,
+  controllers.daftar_customer
 );
 
 module.exports = router;

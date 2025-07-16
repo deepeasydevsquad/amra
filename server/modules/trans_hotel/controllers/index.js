@@ -58,12 +58,20 @@ exports.hapus_transaksi_hotel = async (req, res) => {
 };
 
 exports.daftar_transaksi_hotel = async (req, res) => {
-  
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
     const data = await new Model_r(req).daftar_transaksi_hotel();
-    res.status(200).json({error: false, data : data.data, total: data.total });
+    res.status(200).json({ error: false, data: data.data, total: data.total });
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
+exports.daftar_paket = async (req, res) => {
+  try {
+    const data = await new Model_r(req).daftar_paket();
+    res.status(200).json(data);
   } catch (error) {
     handleServerError(res, error.message);
   }
@@ -72,6 +80,15 @@ exports.daftar_transaksi_hotel = async (req, res) => {
 exports.daftar_kota = async (req, res) => {
   try {
     const data = await new Model_r(req).daftar_kota();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
+exports.daftar_customer = async (req, res) => {
+  try {
+    const data = await new Model_r(req).daftar_kostumer();
     res.status(200).json(data);
   } catch (error) {
     handleServerError(res, error.message);

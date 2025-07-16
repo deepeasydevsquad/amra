@@ -50,3 +50,23 @@ export const hapus_transaksi = async (param : any) => {
         throw error;
     }
 }
+
+export const daftar_paket = async (param : any) => {
+    try {
+        const response = await api.post("/trans_hotel/daftar_paket", param);
+        return response.data;
+    } catch (error) {
+        console.error("Gagal menambahkan tiket:", error);
+        throw error;
+    }
+}
+
+export const daftar_customer = async () => {
+    try {
+        const response = await api.get("/trans_hotel/daftar_customer", );
+        return response.data;
+    } catch (error) {
+        console.error("Gagal menambahkan tiket:", error);
+        throw error;
+    }
+}
