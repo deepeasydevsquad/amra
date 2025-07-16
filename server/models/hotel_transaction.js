@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Hotel_transaction extends Model {
     /**
@@ -19,19 +17,22 @@ module.exports = (sequelize, DataTypes) => {
       });
       Hotel_transaction.hasMany(models.Hotel_transaction_detail, {
         foreignKey: "hotel_transaction_id",
-        onDelete: 'CASCADE',
+        onDelete: "CASCADE",
       });
     }
   }
-  Hotel_transaction.init({
-    company_id: DataTypes.INTEGER,
-    invoice: DataTypes.STRING,
-    petugas: DataTypes.STRING,
-    kostumer_id: DataTypes.INTEGER,
-    paket_id: DataTypes.INTEGER,
-  }, {
-    sequelize,
-    modelName: 'Hotel_transaction',
-  });
+  Hotel_transaction.init(
+    {
+      company_id: DataTypes.INTEGER,
+      invoice: DataTypes.STRING,
+      petugas: DataTypes.STRING,
+      kostumer_id: DataTypes.INTEGER,
+      paket_id: DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      modelName: "Hotel_transaction",
+    }
+  );
   return Hotel_transaction;
 };
