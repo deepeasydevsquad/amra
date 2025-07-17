@@ -18,6 +18,7 @@ const itemsPerPage = 100; // Jumlah tipe_paket per halaman
 const currentPage = ref(1);
 const search = ref("");
 const totalPages = ref(0);
+const totalRow = ref(0);
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
@@ -62,7 +63,7 @@ const notificationType = ref<'success' | 'error'>('success');
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
-const totalColumns = ref(3); // Default 3 kolom
+const totalColumns = ref(2); // Default 3 kolom
 
 const selectedTipePaket = ref<Partial<TipePaket>>({
   name: '',
@@ -76,6 +77,7 @@ const fetchData = async () => {
   try {
     const response = await daftarTipePaket({ search: search.value, perpage: itemsPerPage, pageNumber: currentPage.value });
     totalPages.value = Math.ceil(response.total / itemsPerPage)
+    totalRow.value = response.total;
     dataTipePaket.value = response.data;
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -93,7 +95,7 @@ const openModal = (tipe_paket?: TipePaket) => {
 
 onMounted(async () => {
   await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-  totalColumns.value = document.querySelectorAll("thead th").length;
+  // totalColumns.value = document.querySelectorAll("thead th").length;
 });
 
 const validateForm = (): boolean => {
@@ -229,7 +231,7 @@ const deleteData = async (id: number) => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" />
+          <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" :totalRow = "totalRow" />
         </tfoot>
       </table>
     </div>
