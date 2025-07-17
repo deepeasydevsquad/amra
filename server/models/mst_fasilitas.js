@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "mst_fasilitas_id",
         onDelete: 'CASCADE',
       });
+      Mst_fasilitas.hasMany(models.Item_fasilitas, {
+        foreignKey: "mst_fasilitas_id",
+        onDelete: 'CASCADE',
+      });
     }
   }
   Mst_fasilitas.init({
