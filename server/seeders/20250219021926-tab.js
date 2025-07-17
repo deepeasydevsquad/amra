@@ -69,6 +69,7 @@ module.exports = {
       { name: 'Headline', icon : 'fas fa-clipboard-check', path: 'headline', desc:'Fitur ini menampilkan daftar headline.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Riwayat Tambah Saldo Perusahaan', icon : 'fas fa-clipboard-check', path: 'riwayat_tambah_saldo_perusahaan', desc:'Fitur ini menampilkan riwayat permintaan penambahan saldo perusahaan yang pernah dilakukan.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Riwayat Mutasi Saldo Perusahaan', icon : 'fas fa-clipboard-check', path: 'riwayat_mutasi_saldo_perusahaan', desc:'Fitur ini menampilkan riwayat mutasi saldo perusahaan yang pernah dilakukan.',  createdAt: new Date(), updatedAt: new Date() },
+      { name: 'Trans. Fasilitas', icon : 'fas fa-building', path: 'trans_fasilitas', desc:'Fitur ini berfungsi untuk menyimpan transasksi fasilitas.',  createdAt: new Date(), updatedAt: new Date() },
     ], {});
   },
 
