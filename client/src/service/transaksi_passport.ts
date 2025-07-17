@@ -13,6 +13,26 @@ export const getDaftarTransaksiPassport = async (param: any) => {
   }
 }
 
+export const daftar_kostumer = async () => {
+  try {
+    const response = await api.get(`/transaksi-passport/daftar-kostumer`, )
+    return response.data
+  } catch (error) {
+    console.error('Gagal mengambil daftar transaksi passport:', error)
+    throw error
+  }
+}
+
+export const daftar_paket = async (param: any) => {
+  try {
+    const response = await api.post(`/transaksi-passport/daftar-paket`, param)
+    return response.data
+  } catch (error) {
+    console.error('Gagal mengambil daftar transaksi passport:', error)
+    throw error
+  }
+}
+
 export const getCityList = async () => {
   try {
     const response = await api.get('/transaksi-passport/get-all-cities')

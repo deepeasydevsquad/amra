@@ -1072,6 +1072,11 @@ class Model_r {
               },
             ],
           },
+          {
+            model: Kostumer,
+            required: true,
+            attributes: ["name"],
+          },
         ],
       });
 
@@ -1112,8 +1117,7 @@ class Model_r {
         ...data,
         invoice: transaksi.invoice,
         petugas: transaksi.petugas,
-        payer: transaksi.payer,
-        payer_identity: transaksi.payer_identity,
+        nama_kostumer: transaksi.Kostumer.name,
         createdAt: transaksi.createdAt,
         details: invoiceDetails,
         total_price: totalPrice,

@@ -27,19 +27,10 @@ router.post(
   "/daftar-transaksi-passport/add-new",
   authenticateToken,
   [
-    body("payer", "Nama Pelanggan tidak boleh kosong.")
+    body("kostumer_id")
       .notEmpty()
       .trim()
-      .isLength({ min: 2, max: 100 })
-      .withMessage("Nama pelanggan harus 2-100 karakter"),
-
-    body("payer_identity", "Nomor Identitas tidak boleh kosong.")
-      .notEmpty()
-      .trim()
-      .isLength({ min: 10, max: 20 })
-      .withMessage("Nomor identitas harus 10-20 karakter")
-      .custom(validation.check_identity_number_unique),
-
+      .withMessage("Kostumer tidak boleh kosong."),
     body(
       "passport_details",
       "Detail passport harus berupa array dan tidak boleh kosong."
@@ -95,6 +86,19 @@ router.get(
   "/transaksi-passport/get-all-cities",
   authenticateToken,
   controllers.getAllCities
+);
+
+router.post(
+  "/transaksi-passport/daftar-paket",
+  authenticateToken,
+  [body("division_id").notEmpty().withMessage("ID Divisi tidak boleh kosong.")],
+  controllers.daftar_paket
+);
+
+router.get(
+  "/transaksi-passport/daftar-kostumer",
+  authenticateToken,
+  controllers.daftar_kostumer
 );
 
 router.delete(

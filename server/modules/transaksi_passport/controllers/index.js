@@ -80,4 +80,24 @@ controllers.deleteTransaksiPassport = async (req, res) => {
   }
 };
 
+controllers.daftar_paket = async (req, res) => {
+  try {
+    const model = new Model_r(req);
+    const cities = await model.daftar_paket();
+    res.status(200).json({ success: true, data: cities });
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
+controllers.daftar_kostumer = async (req, res) => {
+  try {
+    const model = new Model_r(req);
+    const cities = await model.daftar_kostumer();
+    res.status(200).json({ success: true, data: cities });
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
 module.exports = controllers;

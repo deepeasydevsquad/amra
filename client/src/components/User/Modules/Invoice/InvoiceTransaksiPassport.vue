@@ -113,8 +113,7 @@ const formatDate = (dateString: string) => {
         <p><span class="font-semibold">INVOICE:</span> {{ data.invoice }}</p>
         <br />
         <p><span class="font-semibold">DITERIMA DARI</span></p>
-        <p>{{ data.payer }}</p>
-        <P> ( {{ data.payer_identity }} )</P>
+        <p>{{ data.nama_kostumer }}</p>
       </div>
     </div>
 
@@ -178,7 +177,7 @@ const formatDate = (dateString: string) => {
       <div class="text-center">
         <p class="mb-16">Penyetor</p>
         <div class="border-t border-gray-800 pt-1">
-          <p>({{ data.payer }})</p>
+          <p>( {{ data.nama_kostumer }} )</p>
         </div>
       </div>
     </div>
