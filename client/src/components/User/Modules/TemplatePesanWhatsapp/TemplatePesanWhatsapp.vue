@@ -329,6 +329,7 @@ const deleteData = async (id: number) => {
         label="Nama"
         placeholder="Masukan Nama Template"
         id="name"
+        class="mb-4"
       />
 
       <SelectField
@@ -346,6 +347,7 @@ const deleteData = async (id: number) => {
           { id: 'jamaah_tabungan_umrah', name: 'Jamaah Tabungan Umrah' },
           { id: 'jamaah_utang_koperasi', name: 'Jamaah Utang Koperasi' },
         ]"
+        class="mb-4"
       />
 
       <InputReadonly
@@ -353,6 +355,7 @@ const deleteData = async (id: number) => {
         :value="variableDisplay"
         label="Variabel Otomatis"
         id="variable"
+        class="mb-4"
       />
 
       <TextArea
@@ -362,6 +365,7 @@ const deleteData = async (id: number) => {
         id="message"
         placeholder="Tulis isi pesan WhatsApp..."
         :note="'Kamu bisa pakai variabel seperti yang ditampilkan di atas.'"
+        class="mb-4"
       />
     </Form>
 

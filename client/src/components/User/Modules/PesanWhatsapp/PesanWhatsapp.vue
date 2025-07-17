@@ -294,7 +294,7 @@ const deleteData = async (id: number) => {
     :width="'w-1/3'"
     :label="'Tambah Pesan'"
   >
-    <InputReadonly :value="data_pesan.nomor_asal" label="Nomor Asal" id="nomor_asal" />
+    <InputReadonly :value="data_pesan.nomor_asal" label="Nomor Asal" id="nomor_asal" class="mb-4" />
 
     <SelectField
       v-model="data_pesan.type"
@@ -311,6 +311,7 @@ const deleteData = async (id: number) => {
         { id: 'jamaah_tabungan_umrah', name: 'Jamaah Tabungan Umrah' },
         { id: 'jamaah_utang_koperasi', name: 'Jamaah Utang Koperasi' },
       ]"
+      class="mb-4"
     />
 
     <!-- TAMPILKAN JUMLAH NOMOR jika type-nya bukan pesan_biasa -->
@@ -319,6 +320,7 @@ const deleteData = async (id: number) => {
       :value="data_pesan.jumlah_nomor"
       label="Jumlah Nomor Tujuan"
       id="jumlah_nomor"
+      class="mb-4"
     />
 
     <!-- TAMPILKAN NOMOR TUJUAN jika type-nya adalah pesan_biasa -->
@@ -329,6 +331,7 @@ const deleteData = async (id: number) => {
       placeholder="Masukan Nomor Tujuan"
       id="nomor_tujuan"
       note="pisahkan dengan koma jika terdapat lebih dari satu nomor tujuan"
+      class="mb-4"
     />
 
     <SelectField
@@ -337,6 +340,7 @@ const deleteData = async (id: number) => {
       placeholder="Pilih Template"
       id="whatsapp_template_id"
       :options="templateOptions"
+      class="mb-4"
     />
 
     <TextArea
@@ -344,6 +348,7 @@ const deleteData = async (id: number) => {
       label="Isi Pesan"
       id="message"
       placeholder="Tulis isi pesan WhatsApp..."
+      class="mb-4"
     />
   </Form>
 

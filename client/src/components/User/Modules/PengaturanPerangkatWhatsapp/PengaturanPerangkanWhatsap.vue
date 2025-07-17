@@ -194,7 +194,7 @@ const handleCancel = () => {
     @cancel="handleCancel()"
     @submit="handleSave()"
     :submitLabel="'Simpan'"
-    :width="'w-1/3'"
+    :width="'w-1/4'"
     :label="'Konfigurasi Perangkat'"
   >
     <InputText
@@ -202,18 +202,21 @@ const handleCancel = () => {
       label="API KEY"
       placeholder="Masukan Api Key"
       id="api_key"
+      class="mb-4"
     />
     <InputText
       v-model="wapisender_key.device_key"
       label="DEVICE KEY"
       placeholder="Masukan Device Key"
       id="device_key"
+      class="mb-4"
     />
     <InputText
       v-model="wapisender_key.whatsapp_device_number"
       label="NOMOR WHATSAPP"
       placeholder="Masukan Nomor Whatsapp"
       id="whatsapp_number"
+      class="mb-4"
     />
   </Form>
 
