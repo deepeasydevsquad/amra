@@ -3,6 +3,8 @@ const {
   Transport_transaction_detail,
   Mst_mobil,
   sequelize,
+  Paket,
+  Kostumer,
 } = require("../../../models");
 const moment = require("moment");
 const { Op, where } = require("sequelize");
@@ -19,59 +21,129 @@ class Model_r {
     this.company_id = await getCompanyIdByCode(this.req);
   }
 
+  async ambil_nama_paket_bulk(ids) {
+    const paketList = await Paket.findAll({
+      where: { id: { [Op.in]: ids } },
+      attributes: ["id", "name"],
+    });
+
+    const paketMap = {};
+    paketList.forEach((paket) => {
+      paketMap[paket.id] = paket.name;
+    });
+
+    return paketMap;
+  }
   async daftar_transaksi_transport() {
-    await this.initialize(); // inisialisasi this.company_id
+    await this.initialize(); // set this.company_id
 
     try {
-      const list = await Transport_transaction.findAll({
-        where: {
-          company_id: this.company_id,
-        },
+      const body = this.req.body;
+      const limit = parseInt(body.perpage) || 10;
+      const page =
+        body.pageNumber && body.pageNumber !== "0"
+          ? parseInt(body.pageNumber)
+          : 1;
+
+      let where = { company_id: this.company_id };
+
+      if (body.search) {
+        where = {
+          ...where,
+          invoice: { [Op.like]: `%${body.search}%` },
+        };
+      }
+
+      const sql = {
+        limit,
+        offset: (page - 1) * limit,
+        order: [["createdAt", "DESC"]],
+        where,
         include: [
           {
-            model: Transport_transaction_detail,
-            attributes: ["car_number", "price"],
-            include: [
-              {
-                model: Mst_mobil,
-                attributes: ["name"],
-              },
-            ],
+            model: Kostumer,
+            attributes: ["name"],
           },
         ],
-        order: [["createdAt", "DESC"]],
-      });
+      };
 
-      // Format data biar rapi
-      const hasil = list.map((trx) => {
-        const details = trx.Transport_transaction_details || [];
+      const q = await Transport_transaction.findAndCountAll(sql);
+      const total = q.count;
+      let data = [];
 
-        const total_price = details.reduce((acc, d) => acc + (d.price || 0), 0);
+      if (total > 0) {
+        const listId = [];
+        const paketIds = new Set();
 
-        const detail_mobil = details.map((d) => ({
-          car_number: d.car_number || "-",
-          price: d.price || 0,
-          nama_mobil: d.Mst_mobil?.name || "-",
+        q.rows.forEach((trx) => {
+          listId.push(trx.id);
+          if (trx.paket_id) paketIds.add(trx.paket_id);
+
+          data.push({
+            id: trx.id,
+            invoice: trx.invoice,
+            petugas: trx.petugas,
+            paket_id: trx.paket_id || null,
+            kostumer_name: trx.Kostumer?.name || "-",
+            tanggal_transaksi: moment(trx.createdAt).format(
+              "YYYY-MM-DD HH:mm:ss"
+            ),
+            total_price: 0,
+            detail_mobil: [],
+          });
+        });
+
+        // ambil nama paket
+        const paketMap = await this.ambil_nama_paket_bulk([...paketIds]);
+
+        // gabungin nama paket
+        data = data.map((trx) => ({
+          ...trx,
+          paket_name: trx.paket_id ? paketMap[trx.paket_id] || "-" : "-",
         }));
 
-        return {
-          id: trx.id,
-          invoice: trx.invoice,
-          payer: trx.payer,
-          payer_identity: trx.payer_identity,
-          petugas: trx.petugas,
-          tanggal_transaksi: moment(trx.createdAt).format(
-            "YYYY-MM-DD HH:mm:ss"
-          ),
-          total_price,
-          detail_mobil,
-        };
-      });
+        // ambil detail mobil
+        const mobilDetails = await Transport_transaction_detail.findAll({
+          where: {
+            transport_transaction_id: { [Op.in]: listId },
+          },
+          include: [
+            {
+              model: Mst_mobil,
+              required: true,
+              attributes: ["name"],
+            },
+          ],
+        });
 
-      return hasil;
+        const dataMobil = {};
+        const totalMobil = {};
+
+        mobilDetails.forEach((d) => {
+          const trxId = d.transport_transaction_id;
+          if (!dataMobil[trxId]) dataMobil[trxId] = [];
+          if (!totalMobil[trxId]) totalMobil[trxId] = 0;
+
+          dataMobil[trxId].push({
+            car_number: d.car_number || "-",
+            price: d.price || 0,
+            nama_mobil: d.Mst_mobil?.name || "-",
+          });
+
+          totalMobil[trxId] += d.price || 0;
+        });
+
+        data = data.map((trx) => ({
+          ...trx,
+          detail_mobil: dataMobil[trx.id] || [],
+          total_price: totalMobil[trx.id] || 0,
+        }));
+      }
+
+      return { data, total };
     } catch (err) {
       console.error("❌ Gagal ambil data transaksi transport:", err);
-      return [];
+      return { data: [], total: 0 };
     }
   }
 
@@ -92,6 +164,43 @@ class Model_r {
     } catch (error) {
       return [];
       console.log(error);
+    }
+  }
+
+  async daftar_kostumer() {
+    try {
+      await this.initialize(); // inisialisasi company_id
+      const sql = await Kostumer.findAll({
+        where: { company_id: this.company_id },
+      });
+
+      const data = sql.map((d) => ({
+        id: d.id,
+        name: d.name,
+      }));
+      return data;
+    } catch (error) {
+      console.error("Gagal ambil daftar kostumer:", error);
+      return [];
+    }
+  }
+
+  async daftar_paket() {
+    const body = this.req.body;
+    try {
+      const sql = await Paket.findAll({
+        where: { division_id: body.division_id },
+      });
+
+      const data = sql.map((d) => ({
+        id: d.id,
+        name: d.name,
+      }));
+
+      return data;
+    } catch (error) {
+      console.error("Gagal ambil daftar kostumer:", error);
+      return [];
     }
   }
 }

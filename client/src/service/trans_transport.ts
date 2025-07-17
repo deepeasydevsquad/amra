@@ -39,3 +39,22 @@ export const daftar_mobil = async (param : any) => {
         throw error;
     }
 }
+
+export const daftar_paket = async (param : any) => {
+    try {
+        const response = await api.post("/trans_transport/daftar_paket", param);
+        return response.data;
+    } catch (error) {
+        console.error("Gagal menambahkan tiket:", error);
+        throw error;
+    }
+}
+
+export const daftar_kostumer = async () => {
+    try {
+        const response = await api.get("/trans_transport/daftar_customer");
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}

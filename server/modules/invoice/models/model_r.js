@@ -1348,6 +1348,11 @@ class Model_r {
               },
             ],
           },
+          {
+            model: Kostumer,
+            required: true,
+            attributes: ["name"],
+          },
         ],
         order: [["createdAt", "DESC"]],
       });
@@ -1375,8 +1380,7 @@ class Model_r {
 
       const data = {
         invoice: transaksi.invoice,
-        payer: transaksi.payer,
-        payer_identity: transaksi.payer_identity,
+        nama_kostumer: transaksi.Kostumer.name,
         petugas: transaksi.petugas,
         total_price,
         detail_mobil,
