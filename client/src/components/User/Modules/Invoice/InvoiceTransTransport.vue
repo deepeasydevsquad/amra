@@ -62,10 +62,7 @@ onMounted(async () => {
         </div>
         <div class="text-right">
           <div class="font-semibold">DITERIMA DARI</div>
-          <div>
-            {{ data.payer || '-' }}<br />
-            ({{ data.payer_identity || '-' }})
-          </div>
+          <div>{{ data.nama_kostumer || '-' }}<br /></div>
         </div>
       </div>
 
@@ -109,7 +106,7 @@ onMounted(async () => {
         <div class="text-center">
           <div>Penyetor</div>
           <br /><br />
-          <div>({{ data.payer || '-' }})</div>
+          <div>({{ data.nama_kostumer || '-' }})</div>
         </div>
       </div>
     </div>

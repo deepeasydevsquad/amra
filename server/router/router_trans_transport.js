@@ -9,11 +9,7 @@ router.post(
   "/trans_transport/add_transaksi",
   authenticateToken,
   [
-    body("name").notEmpty().withMessage("Nama wajib diisi"),
-    body("identity_number")
-      .notEmpty()
-      .withMessage("Nomor identitas wajib diisi"),
-    body("address").notEmpty().withMessage("Alamat wajib diisi"),
+    body("kostumer_id").notEmpty().withMessage("kostumer wajib diisi"),
 
     // Validasi array details wajib ada dan minimal 1
     body("details")
@@ -45,10 +41,28 @@ router.post(
   controllers.daftar_transaksi_transport
 );
 
+router.post(
+  "/trans_transport/daftar_paket",
+  authenticateToken,
+  [
+    body("division_id")
+      .trim()
+      .notEmpty()
+      .withMessage("ID  tidak boleh kosong."),
+  ],
+  controllers.daftar_paket
+);
+
 router.get(
   "/trans_transport/daftar_mobil",
   authenticateToken,
   controllers.daftar_mobil
+);
+
+router.get(
+  "/trans_transport/daftar_customer",
+  authenticateToken,
+  controllers.daftar_customer
 );
 
 module.exports = router;
