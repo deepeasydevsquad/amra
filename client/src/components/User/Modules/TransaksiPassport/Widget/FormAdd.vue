@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { defineProps, defineEmits, computed } from 'vue'
+import { defineProps, defineEmits, computed, watch } from 'vue'
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
-import { addTransaksiPassport, getCityList } from '@/service/transaksi_passport'
+import { paramCabang } from '@/service/param_cabang'
+import {
+  addTransaksiPassport,
+  getCityList,
+  daftar_kostumer,
+  daftar_paket,
+} from '@/service/transaksi_passport'
 import { onMounted, ref } from 'vue'
 import Form from '@/components/Modal/FormEditProfile.vue'
 import InputText from '@/components/Form/InputText.vue'
@@ -16,6 +22,7 @@ const props = defineProps<{ isFormOpen: boolean }>()
 const emit = defineEmits<{
   (e: 'cancel'): void
   (e: 'save-success', message: string): void
+  (e: 'error', message: string): void
 }>()
 
 const handleCancel = () => {
@@ -64,7 +71,12 @@ const fetch_kota = async () => {
     console.error('error getCityList:', error)
   }
 }
-onMounted(fetch_kota)
+
+onMounted(async () => {
+  await fetch_kota()
+  await fetchCabang()
+  await fetchCustomer()
+})
 
 const cityOptions = computed(() => [
   { id: '', name: 'Pilih Kota' }, // ini buat default/null
@@ -79,11 +91,9 @@ const payerIndex = ref<number | null>(0) // default ke index pertama, bisa null 
 const handleSubmit = async () => {
   if (!validateForm()) return
 
-  const payerData = formList.value[payerIndex.value!]
-
   const payload = {
-    payer: payerData.name,
-    payer_identity: payerData.identity,
+    kostumer_id: SelectedCustomer.value,
+    paket_id: SelectedPaket.value,
     passport_details: formList.value.map((item) => ({
       name: item.name,
       identity_number: item.identity,
@@ -99,9 +109,14 @@ const handleSubmit = async () => {
   try {
     const res = await addTransaksiPassport(payload)
     emit('save-success', 'Berhasil tambah transaksi passport!')
-  } catch (err) {
+  } catch (err: any) {
     console.error('Gagal kirim transaksi:', err)
-    alert('Gagal menyimpan transaksi, coba lagi.')
+
+    // Ambil pesan error dari response kalau ada
+    const message =
+      err?.response?.data?.message || err?.message || 'Terjadi kesalahan saat kirim data'
+
+    emit('error', message)
   }
 }
 
@@ -162,13 +177,62 @@ const validateForm = (): boolean => {
     }
   })
 
-  if (payerIndex.value === null || formList.value[payerIndex.value] === undefined) {
-    alert('Silakan pilih siapa yang membayar dulu!')
-    isValid = false
-  }
-
   return isValid
 }
+
+interface costumer {
+  id: number
+  name: string
+}
+
+const customerOption = ref<costumer[]>([])
+const SelectedCustomer = ref(0)
+const fetchCustomer = async () => {
+  try {
+    const response = await daftar_kostumer()
+    customerOption.value = [{ id: 0, name: 'Pilih Kostumer' }, ...response.data]
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+interface cabang {
+  id: number
+  name: string
+}
+const cabangOption = ref<cabang[]>([])
+const SelectedCabang = ref(0)
+const fetchCabang = async () => {
+  try {
+    const response = await paramCabang()
+    cabangOption.value = [{ id: 0, name: 'Pilih Cabang' }, ...response.data]
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+interface paket {
+  id: number
+  name: string
+}
+const paketOption = ref<paket[]>([{ id: 0, name: 'Pilih Paket' }]) // Tambahkan opsi default
+const SelectedPaket = ref(0)
+const fetchPaket = async () => {
+  try {
+    const response = await daftar_paket({
+      division_id: SelectedCabang.value,
+    })
+    paketOption.value = [{ id: 0, name: 'Pilih Paket' }, ...response.data]
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+watch(SelectedCabang, async (newCabang) => {
+  if (newCabang) {
+    await fetchPaket()
+  }
+})
 </script>
 
 <template>
@@ -180,6 +244,27 @@ const validateForm = (): boolean => {
     @cancel="handleCancel"
     @submit="handleSubmit"
   >
+    <div class="flex flex-wrap gap-4 pb-3 mb-5">
+      <SelectField
+        label="Kostumer"
+        v-model="SelectedCustomer"
+        :options="customerOption"
+        class="flex-1 min-w-[200px]"
+      />
+      <SelectField
+        label="Cabang"
+        v-model="SelectedCabang"
+        :options="cabangOption"
+        class="flex-1 min-w-[200px]"
+      />
+      <SelectField
+        label="Paket"
+        v-model="SelectedPaket"
+        :options="paketOption"
+        class="flex-1 min-w-[200px]"
+      />
+    </div>
+
     <table class="table-auto w-full">
       <thead class="bg-gray-100 text-sm text-gray-700">
         <tr class="text-center">
@@ -252,16 +337,6 @@ const validateForm = (): boolean => {
             <DangerButton @click="formList.splice(index, 1)">
               <DeleteIcon />
             </DangerButton>
-            <label class="inline-flex items-center mt-2">
-              <input
-                type="radio"
-                :name="'payer'"
-                class="form-radio text-blue-600"
-                :value="index"
-                v-model="payerIndex"
-              />
-              <span class="ml-2 text-sm">Pembayar</span>
-            </label>
           </td>
         </tr>
       </tbody>

@@ -66,28 +66,31 @@ interface TransaksiPassport {
   id: number
   invoice: string
   petugas: string
-  payer: string
-  payer_identity: string
-  name: string
-  identity_number: string
-  birth_place: string
-  birth_date: string
-  kk_number: string
-  address: string
-  price: number
+  kostumer_name: string
   createdAt: string
+  detail: {
+    name: string
+    identity_number: string
+    birth_place: string
+    birth_date: string
+    kk_number: string
+    address: string
+    price: number
+  }[]
+}
+
+const formatTanggal = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('id-ID', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  })
 }
 
 const fetchData = async () => {
   try {
     isLoading.value = true
-
-    console.log('Fetching data with params:', {
-      search: search.value,
-      filter: filter.value,
-      perpage: itemsPerPage,
-      pageNumber: currentPage.value,
-    })
 
     const response = await getDaftarTransaksiPassport({
       search: search.value,
@@ -95,7 +98,6 @@ const fetchData = async () => {
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
     })
-    console.log('Fetch response:', response)
 
     if (response && response.error) {
       displayNotification(response.error_msg || 'Terjadi kesalahan saat mengambil data', 'error')
@@ -103,14 +105,11 @@ const fetchData = async () => {
     }
 
     totalPages.value = Math.ceil((response?.total || 0) / itemsPerPage)
+    totalRow.value = response.total
     TransaksiPassport.value = response?.data || []
 
     totalRow.value = response.total
-
-    console.log('Fetched data:', response?.data)
   } catch (error) {
-    console.error('Error fetching data:', error)
-
     if (error instanceof TypeError && error.message.includes('fetch')) {
       displayNotification('Gagal terhubung ke server. Periksa koneksi internet Anda.', 'error')
     } else if (error instanceof Error) {
@@ -137,6 +136,12 @@ const handleSaveSuccess = (message: string) => {
   fetchData()
 }
 
+const handleSaveFailed = (message: string) => {
+  isFormOpen.value = false
+  displayNotification(message, 'error')
+  fetchData()
+}
+
 const showConfirmation = (title: string, message: string, action: () => void) => {
   confirmTitle.value = title
   confirmMessage.value = message
@@ -147,11 +152,7 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 // Placeholder untuk handle delete dan cetak kwitansi
 const deleteItem = async (id: number) => {
   try {
-    console.log('Attempting to delete item with ID:', id)
-
     const response = await deleteTransaksiPassport(id)
-
-    console.log('Delete response:', response)
 
     if (response && response.error) {
       displayNotification(response.error_msg || 'Terjadi kesalahan saat menghapus data', 'error')
@@ -214,6 +215,19 @@ onMounted(async () => {
 const closeModal = () => {
   isFormOpen.value = false
 }
+
+const formatDate = (dateStr: string): string => {
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('id-ID', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+}
+
+const formatPrice = (num: number): string => {
+  return num.toLocaleString('id-ID')
+}
 </script>
 
 <template>
@@ -253,50 +267,58 @@ const closeModal = () => {
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
           <tr v-if="isLoading">
-            <td colspan="6" class="px-6 py-6 text-center">
+            <td colspan="6" class="px-6 py-6 text-center align-top">
               <div class="flex justify-center items-center py-8">
                 <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
               </div>
             </td>
           </tr>
           <tr v-else-if="TransaksiPassport.length === 0">
-            <td colspan="6" class="px-6 py-6 text-center text-gray-500">
+            <td colspan="6" class="px-6 py-6 text-center text-gray-500 align-top">
               {{ search ? 'Data tidak ditemukan' : 'Transaksi Passport Tidak Ditemukan' }}
             </td>
           </tr>
           <tr v-for="item in TransaksiPassport" :key="item.id" class="hover:bg-gray-50 transition">
-            <td class="px-6 py-4 text-center">{{ item.invoice }}</td>
-            <td class="px-6 py-4 text-center">
-              {{ item.payer }}<br />
-              <span class="text-sm text-gray-500">{{ item.payer_identity }}</span>
+            <td class="px-6 py-4 text-center align-top">{{ item.invoice }}</td>
+            <td class="px-6 py-4 text-center align-top">
+              {{ item.kostumer_name }}
             </td>
             <td class="px-6 py-4">
-              <div class="text-sm leading-5 space-y-1">
-                <div class="grid grid-cols-[120px_1fr] gap-y-1 items-start">
-                  <div>Nama</div>
-                  <div>: {{ item.name }}</div>
-                  <div>No ID</div>
-                  <div>: {{ item.identity_number }}</div>
-                  <div>No. KK</div>
-                  <div>: {{ item.kk_number }}</div>
-                  <div>TTL</div>
-                  <div>
-                    : {{ item.birth_place }}
-                    {{
-                      new Date(item.birth_date).toLocaleDateString('id-ID', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                      })
-                    }}
+              <div
+                v-for="(detail, i) in item.details"
+                :key="i"
+                class="mb-2 border-b border-dashed border-gray-200 pb-2 last:border-0 last:pb-0"
+              >
+                <div class="text-sm leading-5 space-y-1">
+                  <div class="grid grid-cols-[120px_1fr] gap-y-1 items-start">
+                    <div>Nama</div>
+                    <div>: {{ detail.name }}</div>
+                    <div>No ID</div>
+                    <div>: {{ detail.identity_number }}</div>
+                    <div>No. KK</div>
+                    <div>: {{ detail.kk_number }}</div>
+                    <div>Tempat Lahir</div>
+                    <div>: {{ detail.birth_place }}</div>
+                    <div>Tanggal Lahir</div>
+                    <div>: {{ formatDate(detail.birth_date) }}</div>
+                    <div>Harga</div>
+                    <div>: Rp. {{ formatPrice(detail.price) }}</div>
                   </div>
                 </div>
               </div>
             </td>
-            <td class="px-6 py-4 text-center">Rp. {{ item.price.toLocaleString() }}</td>
-            <td class="px-6 py-2 text-sm text-center">
-              {{ new Date(item.createdAt).toLocaleDateString('id-ID') }}
+
+            <td class="px-6 py-4 text-center align-top">
+              Rp.
+              {{
+                formatPrice(item.details.reduce((total, detail) => total + (detail.price || 0), 0))
+              }}
             </td>
+
+            <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap align-top">
+              {{ formatTanggal(item.createdAt) }}
+            </td>
+
             <td class="px-6 py-4 text-center align-top">
               <div class="flex flex-col items-center gap-2">
                 <LightButton title="Cetak Kwitansi" @click="openCetakKwitansi(item.invoice)">
@@ -371,6 +393,7 @@ const closeModal = () => {
         :isFormOpen="isFormOpen"
         @cancel="closeModal"
         @save-success="handleSaveSuccess"
+        @error="handleSaveFailed"
       />
     </transition>
   </div>

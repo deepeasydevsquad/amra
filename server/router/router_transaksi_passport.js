@@ -27,19 +27,10 @@ router.post(
   "/daftar-transaksi-passport/add-new",
   authenticateToken,
   [
-    body("payer", "Nama Pelanggan tidak boleh kosong.")
+    body("kostumer_id")
       .notEmpty()
       .trim()
-      .isLength({ min: 2, max: 100 })
-      .withMessage("Nama pelanggan harus 2-100 karakter"),
-
-    body("payer_identity", "Nomor Identitas tidak boleh kosong.")
-      .notEmpty()
-      .trim()
-      .isLength({ min: 10, max: 20 })
-      .withMessage("Nomor identitas harus 10-20 karakter")
-      .custom(validation.check_identity_number_unique),
-
+      .withMessage("Kostumer tidak boleh kosong."),
     body(
       "passport_details",
       "Detail passport harus berupa array dan tidak boleh kosong."
@@ -49,33 +40,23 @@ router.post(
 
     body("passport_details.*.name", "Nama pelanggan wajib diisi.")
       .notEmpty()
-      .trim()
-      .isLength({ min: 2, max: 100 })
-      .withMessage("Nama pelanggan harus 2-100 karakter"),
+      .trim(),
     body("passport_details.*.identity_number", "Nomor Identitas wajib diisi.")
       .notEmpty()
-      .trim()
-      .isLength({ min: 10, max: 20 })
-      .withMessage("Nomor identitas harus 10-20 karakter"),
-    body("passport_details.*.kk_number", "Nomor KK wajib diisi.")
+      .trim(),
+      body("passport_details.*.kk_number", "Nomor KK wajib diisi.")
       .notEmpty()
-      .trim()
-      .isLength({ min: 6, max: 20 })
-      .withMessage("Nomor KK harus 6-20 karakter"),
+      .trim(),
     body("passport_details.*.birth_place", "Tempat Lahir wajib diisi.")
       .notEmpty()
-      .trim()
-      .isLength({ min: 2, max: 50 })
-      .withMessage("Tempat lahir harus 2-50 karakter"),
+      .trim(),
     body("passport_details.*.birth_date", "Tanggal Lahir tidak valid.")
       .isISO8601()
       .toDate()
       .custom(validation.check_birth_date),
     body("passport_details.*.address", "Alamat wajib diisi.")
       .notEmpty()
-      .trim()
-      .isLength({ min: 10, max: 200 })
-      .withMessage("Alamat harus 10-200 karakter"),
+      .trim(),
     body("passport_details.*.city", "Kota wajib dipilih.")
       .notEmpty()
       .isInt({ min: 1 })
@@ -95,6 +76,19 @@ router.get(
   "/transaksi-passport/get-all-cities",
   authenticateToken,
   controllers.getAllCities
+);
+
+router.post(
+  "/transaksi-passport/daftar-paket",
+  authenticateToken,
+  [body("division_id").notEmpty().withMessage("ID Divisi tidak boleh kosong.")],
+  controllers.daftar_paket
+);
+
+router.get(
+  "/transaksi-passport/daftar-kostumer",
+  authenticateToken,
+  controllers.daftar_kostumer
 );
 
 router.delete(

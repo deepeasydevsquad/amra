@@ -6,6 +6,8 @@ const {
   Passport_transaction_detail,
   Mst_kota,
   Mst_visa_request_type,
+  Kostumer,
+  Paket,
 } = require("../../../models");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
@@ -23,100 +25,117 @@ class model_r {
     }
   }
 
+  async ambil_nama_paket_bulk(ids) {
+    const paketList = await Paket.findAll({
+      where: { id: { [Op.in]: ids } },
+      attributes: ["id", "name"],
+    });
+
+    const paketMap = {};
+    paketList.forEach((paket) => {
+      paketMap[paket.id] = paket.name;
+    });
+
+    return paketMap;
+  }
+
   async daftar_transaksi_passport() {
-    await this.initialize();
-
-    const body = this.req.body;
-    var limit = body.perpage;
-    var page = 1;
-
-    if (body.pageNumber != undefined && body.pageNumber !== "0")
-      page = body.pageNumber;
-
-    var where = { company_id: this.company_id };
-
-    if (body.search != undefined && body.search != "") {
-      where = {
-        ...where,
-        ...{
-          [Op.or]: [{ invoice: { [Op.like]: "%" + body.search + "%" } }],
-        },
-      };
-    }
-
-    console.log(
-      "================ Get Daftar Transaksi Passport ================"
-    );
-    console.log(body);
-    console.log(where);
-    console.log(
-      "================ Get Daftar Transaksi Passport ================"
-    );
-
-    var sql = {};
-    sql["limit"] = limit * 1;
-    sql["offset"] = (page - 1) * limit;
-    sql["order"] = [["id", "ASC"]];
-    sql["attributes"] = [
-      "id",
-      "invoice",
-      "petugas",
-      "payer",
-      "payer_identity",
-      "createdAt",
-      "updatedAt",
-    ];
-    sql["where"] = where;
-    sql["include"] = {
-      required: true,
-      model: Passport_transaction_detail,
-      attributes: [
-        "name",
-        "identity_number",
-        "birth_place",
-        "birth_date",
-        "kk_number",
-        "address",
-        "price",
-      ],
-    };
-
     try {
-      const query = await dbList(sql);
-      const q = await Passport_transaction.findAndCountAll(query.total);
-      const total = await q.count;
-      var data = [];
-      if (total > 0) {
-        await Passport_transaction.findAll(query.sql).then(async (value) => {
-          await Promise.all(
-            await value.map(async (e) => {
-              data.push({
-                id: e.id,
-                invoice: e.invoice,
-                petugas: e.petugas,
-                payer: e.payer,
-                payer_identity: e.payer_identity,
-                createdAt: moment(e.createdAt).format("YYYY-MM-DD HH:mm:ss"),
-                name: e.Passport_transaction_details[0].name,
-                identity_number:
-                  e.Passport_transaction_details[0].identity_number,
-                birth_place: e.Passport_transaction_details[0].birth_place,
-                birth_date: e.Passport_transaction_details[0].birth_date,
-                kk_number: e.Passport_transaction_details[0].kk_number,
-                address: e.Passport_transaction_details[0].address,
-                price: e.Passport_transaction_details[0].price,
-              });
-            })
-          );
-        });
+      await this.initialize(); // init company_id
+
+      const body = this.req.body;
+      const limit = body.perpage || 10;
+      const page =
+        body.pageNumber && body.pageNumber !== "0" ? body.pageNumber : 1;
+
+      let where = { company_id: this.company_id };
+
+      if (body.search) {
+        where = {
+          ...where,
+          invoice: { [Op.like]: `%${body.search}%` },
+        };
       }
 
-      return {
-        data: data,
-        total: total,
+      const sql = {
+        limit: parseInt(limit),
+        offset: (page - 1) * limit,
+        order: [["updatedAt", "DESC"]],
+        where,
+        include: [
+          {
+            model: Kostumer,
+            attributes: ["name"],
+          },
+        ],
       };
+
+      const q = await Passport_transaction.findAndCountAll(sql);
+      const total = q.count;
+      let data = [];
+
+      if (total > 0) {
+        const rows = q.rows;
+
+        const listId = rows.map((trx) => trx.id);
+        const paketIds = rows.map((trx) => trx.paket_id).filter(Boolean);
+
+        // ambil nama-nama paket secara bulk
+        const paketMap = await this.ambil_nama_paket_bulk(paketIds);
+
+        // isi data dasar transaksi
+        data = rows.map((trx) => ({
+          id: trx.id,
+          invoice: trx.invoice,
+          petugas: trx.petugas,
+          kostumer_name: trx.kostumer_id ? trx.Kostumer.name : "-",
+          tanggal_transaksi: moment(trx.createdAt).format(
+            "YYYY-MM-DD HH:mm:ss"
+          ),
+          total_harga: 0,
+          paket_name: trx.paket_id ? paketMap[trx.paket_id] || "-" : "-",
+          details: [],
+          createdAt: trx.createdAt,
+        }));
+
+        // ambil semua detail transaksi (pelanggan)
+        const detailPassport = await Passport_transaction_detail.findAll({
+          where: {
+            passport_transaction_id: { [Op.in]: listId },
+          },
+        });
+
+        const dataDetail = {};
+        const totalDetail = {};
+
+        detailPassport.forEach((e) => {
+          const trxId = e.passport_transaction_id;
+          if (!dataDetail[trxId]) dataDetail[trxId] = [];
+          if (!totalDetail[trxId]) totalDetail[trxId] = 0;
+
+          dataDetail[trxId].push({
+            name: e.name,
+            identity_number: e.identity_number,
+            kk_number: e.kk_number,
+            birth_place: e.birth_place,
+            birth_date: e.birth_date,
+            price: e.price,
+          });
+
+          totalDetail[trxId] += e.price;
+        });
+
+        // masukin detail & total harga ke masing-masing transaksi
+        data = data.map((trx) => ({
+          ...trx,
+          details: dataDetail[trx.id] || [],
+          total_harga: totalDetail[trx.id] || 0,
+        }));
+      }
+
+      return { data, total };
     } catch (error) {
-      console.error("Error di daftar_transaksi_passport:", error);
+      console.error("Error in daftar_transaksi_passport:", error);
       return {};
     }
   }
@@ -139,6 +158,43 @@ class model_r {
     } catch (error) {
       console.error("Error di Model_r saat mengambil getAllCities:", error);
       throw error;
+    }
+  }
+
+  async daftar_kostumer() {
+    try {
+      await this.initialize(); // inisialisasi company_id
+      const sql = await Kostumer.findAll({
+        where: { company_id: this.company_id },
+      });
+
+      const data = sql.map((d) => ({
+        id: d.id,
+        name: d.name,
+      }));
+      return data;
+    } catch (error) {
+      console.error("Gagal ambil daftar kostumer:", error);
+      return [];
+    }
+  }
+
+  async daftar_paket() {
+    const body = this.req.body;
+    try {
+      const sql = await Paket.findAll({
+        where: { division_id: body.division_id },
+      });
+
+      const data = sql.map((d) => ({
+        id: d.id,
+        name: d.name,
+      }));
+
+      return data;
+    } catch (error) {
+      console.error("Gagal ambil daftar kostumer:", error);
+      return [];
     }
   }
 }
