@@ -100,23 +100,14 @@ class Model_cud {
         throw new Error("Data details kosong.");
       }
 
-      // Cari yang bayar (status_pembayaran === true)
-      const paidList = body.details.filter((d) => d.status_pembayaran === true);
-
-      if (paidList.length === 0) {
-        throw new Error("Tidak ada data dengan status pembayaran true.");
-      }
-
-      const payer = paidList[0]; // jadikan yang pertama sebagai payer utama
-
       // Insert ke Visa_transaction
       const transaksi = await Visa_transaction.create(
         {
           invoice,
           company_id: this.company_id,
           petugas,
-          payer: payer.name || "-",
-          payer_identity: payer.identity_number || "-",
+          kostumer_id: body.kostumer_id,
+          paket_id: body.paket_id,
           createdAt: myDate,
           updatedAt: myDate,
         },
@@ -125,7 +116,7 @@ class Model_cud {
 
       // Insert ke Visa_transaction_detail
       const detailData = await Promise.all(
-        paidList.map(async (d) => {
+        body.details.map(async (d) => {
           return {
             visa_transaction_id: transaksi.id,
             mst_visa_request_type_id: d.jenis_visa,

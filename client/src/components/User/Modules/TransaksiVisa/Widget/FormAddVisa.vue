@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import FormEditProfile from '@/components/Modal/FormEditProfile.vue'
 import InputText from '@/components/Form/InputText.vue'
 import InputDate from '@/components/Form/InputDate.vue'
@@ -10,7 +10,14 @@ import Notification from '@/components/Modal/Notification.vue'
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import DangerButton from '@/components/Button/DangerButton.vue'
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
-import { getCityList, getVisaTypesList, addTransaksiVisa } from '@/service/transaksi_visa'
+import { paramCabang } from '@/service/param_cabang'
+import {
+  getCityList,
+  getVisaTypesList,
+  addTransaksiVisa,
+  daftar_kostumer,
+  daftar_paket,
+} from '@/service/transaksi_visa'
 
 // Props & Emit
 const props = defineProps<{ formStatus: boolean }>()
@@ -49,12 +56,13 @@ const rows = ref([
     origin_country: '',
     phone: '',
     price: 0,
-    is_payer: false,
   },
 ])
 
 // Get options
 onMounted(async () => {
+  await fetchCabang()
+  await fetchCustomer()
   try {
     const visa = await getVisaTypesList()
     const city = await getCityList()
@@ -98,7 +106,6 @@ const addRow = () => {
     origin_country: '',
     phone: '',
     price: 0,
-    is_payer: false,
   })
 }
 
@@ -110,14 +117,10 @@ const removeRow = (index: number) => {
 // Submit
 const submit = async () => {
   const validData = rows.value.filter((r) => r.name && r.identity_number)
-  const payer = rows.value.find((r) => r.is_payer)
-
-  if (!payer) {
-    emit('notify', { type: 'error', message: 'Pilih salah satu pembayar' })
-    return
-  }
 
   const payload = {
+    paket_id: SelectedPaket.value,
+    kostumer_id: SelectedCustomer.value,
     details: validData.map((r) => ({
       name: r.name,
       identity_number: r.identity_number,
@@ -138,7 +141,6 @@ const submit = async () => {
       origin_country: r.origin_country,
       phone: r.phone,
       price: r.price,
-      status_pembayaran: r.is_payer || false,
     })),
   }
   console.log(payload)
@@ -149,7 +151,8 @@ const submit = async () => {
     resetForm()
   } catch (err: any) {
     console.error('❌ Gagal kirim transaksi:', err)
-    emit('notify', { type: 'error', message: err.message || 'Gagal menyimpan transaksi visa.' })
+    const message = err.response.data.message
+    emit('notify', message)
   }
 }
 
@@ -175,10 +178,63 @@ const resetForm = () => {
       origin_country: '',
       phone: '',
       price: 0,
-      is_payer: false,
     },
   ]
 }
+
+interface costumer {
+  id: number
+  name: string
+}
+
+const customerOption = ref<costumer[]>([])
+const SelectedCustomer = ref(0)
+const fetchCustomer = async () => {
+  try {
+    const response = await daftar_kostumer()
+    customerOption.value = [{ id: 0, name: 'Pilih Kostumer' }, ...response]
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+interface cabang {
+  id: number
+  name: string
+}
+const cabangOption = ref<cabang[]>([])
+const SelectedCabang = ref(0)
+const fetchCabang = async () => {
+  try {
+    const response = await paramCabang()
+    cabangOption.value = [{ id: 0, name: 'Pilih Cabang' }, ...response.data]
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+interface paket {
+  id: number
+  name: string
+}
+const paketOption = ref<paket[]>([{ id: 0, name: 'Pilih Paket' }]) // Tambahkan opsi default
+const SelectedPaket = ref(0)
+const fetchPaket = async () => {
+  try {
+    const response = await daftar_paket({
+      division_id: SelectedCabang.value,
+    })
+    paketOption.value = [{ id: 0, name: 'Pilih Paket' }, ...response]
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+watch(SelectedCabang, async (newCabang) => {
+  if (newCabang) {
+    await fetchPaket()
+  }
+})
 </script>
 
 <template>
@@ -190,6 +246,26 @@ const resetForm = () => {
     @cancel="emit('cancel') || resetForm()"
     @submit="submit"
   >
+    <div class="flex flex-wrap gap-4 pb-3 mb-5">
+      <SelectField
+        label="Kostumer"
+        v-model="SelectedCustomer"
+        :options="customerOption"
+        class="flex-1 min-w-[200px]"
+      />
+      <SelectField
+        label="Cabang"
+        v-model="SelectedCabang"
+        :options="cabangOption"
+        class="flex-1 min-w-[200px]"
+      />
+      <SelectField
+        label="Paket"
+        v-model="SelectedPaket"
+        :options="paketOption"
+        class="flex-1 min-w-[200px]"
+      />
+    </div>
     <table class="w-full border-collapse bg-white text-left text-sm text-gray-700">
       <thead class="bg-gray-50">
         <tr>
@@ -293,14 +369,6 @@ const resetForm = () => {
           <td class="px-6 py-4 align-top">
             <div class="flex flex-col items-center gap-2">
               <DangerButton @click="removeRow(i)"><DeleteIcon /></DangerButton>
-              <label class="flex items-center gap-2 mt-2 text-sm text-gray-700">
-                <input
-                  type="checkbox"
-                  v-model="row.is_payer"
-                  class="w-5 h-5 border-gray-300 text-gray-600 rounded focus:ring-gray-500"
-                />
-                Pembayar
-              </label>
             </div>
           </td>
         </tr>
