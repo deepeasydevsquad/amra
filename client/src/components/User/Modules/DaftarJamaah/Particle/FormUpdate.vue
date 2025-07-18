@@ -392,7 +392,7 @@ const validateForm = (): boolean => {
     value === null ? null : !isNaN(new Date(value).getTime()) ? null : `${label} harus berupa tanggal yang valid`;
 
   const fieldValidators: Record<string, ValidatorFn[]> = {
-    password: [required('Password'), isString('Password')],
+    password: [isString('Password')],
     fullname: [required('Nama'), isString('Nama')],
     identity_number: [required('Nomor identitas'), isNumber('Nomor identitas')],
     identity_type: [required('Jenis identitas'), isString('Jenis identitas')],
@@ -441,7 +441,7 @@ const validateForm = (): boolean => {
 
   const passwordRegex = new RegExp('^[a-zA-Z0-9]{6,}$');
 
-  if (!passwordRegex.test(formData.value.password)) {
+  if (formData.value.password && !passwordRegex.test(formData.value.password)) {
     errors.value.password = 'Password minimal 6 karakter dan hanya boleh berisi alphanumeric';
     isValid = false;
   }
@@ -575,12 +575,21 @@ const saveData = async () => {
       err_msg: response.error_msg || response.message || 'Data jamaah berhasil disimpan'
     })
   } catch (error: any) {
-    displayNotification(
-      error?.response?.data?.error_msg ||
-      error?.response?.data?.message ||
-      'Terjadi kesalahan dalam menyimpan data',
-      'error'
-    )
+    if (error?.response?.data?.errors) {
+      const errors = error.response.data.errors;
+      let errMsg = '';
+      for (const err of errors) {
+        errMsg += `${err.msg}\n`;
+      }
+      displayNotification(errMsg, 'error');
+    } else {
+      displayNotification(
+        error?.response?.data?.error_msg ||
+        error?.response?.data?.message ||
+        'Terjadi kesalahan dalam menyimpan data',
+        'error'
+      )
+    }
   } finally {
     isLoading.value = false
   }

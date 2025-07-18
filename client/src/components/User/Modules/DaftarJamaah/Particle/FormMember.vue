@@ -528,12 +528,21 @@ const saveData = async () => {
       err_msg: response.error_msg || response.message || 'Data jamaah berhasil disimpan'
     })
   } catch (error: any) {
-    displayNotification(
-      error?.response?.data?.error_msg ||
-      error?.response?.data?.message ||
-      'Terjadi kesalahan dalam menyimpan data',
-      'error'
-    )
+    if (error?.response?.data?.errors) {
+      const errors = error.response.data.errors;
+      let errMsg = '';
+      for (const err of errors) {
+        errMsg += `${err.msg}\n`;
+      }
+      displayNotification(errMsg, 'error');
+    } else {
+      displayNotification(
+        error?.response?.data?.error_msg ||
+        error?.response?.data?.message ||
+        'Terjadi kesalahan dalam menyimpan data',
+        'error'
+      )
+    }
   } finally {
     isLoading.value = false
   }

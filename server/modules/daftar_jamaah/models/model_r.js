@@ -43,13 +43,6 @@ class Model_r {
     }
   }
 
-  async getPasswordMember(member_id) {
-    const member = await Member.findByPk(member_id, {
-      attributes: ["password"],
-    });
-    return member;
-  }
-
   async getInfoMember() {
     try {
       const division_id = await this.getDivisionId();

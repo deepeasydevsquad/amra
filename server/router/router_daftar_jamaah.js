@@ -146,7 +146,7 @@ router.post(
         return true;
       }),
     body("title").notEmpty().withMessage("Title wajib diisi"),
-    body("nama_ayah").notEmpty().withMessage("Nama ayah wajib diisi"),
+    body("nama_ayah").optional(),
     body("nama_passport").optional(),
     body("nomor_passport").optional(),
     body("tanggal_di_keluarkan_passport").optional(),
@@ -238,7 +238,7 @@ router.post(
         return true;
       }),
     body("title").notEmpty().withMessage("Title wajib diisi"),
-    body("nama_ayah").notEmpty().withMessage("Nama ayah wajib diisi"),
+    body("nama_ayah").optional(),
     body("nama_passport").optional(),
     body("nomor_passport").optional(),
     body("tanggal_di_keluarkan_passport").optional(),

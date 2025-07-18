@@ -174,20 +174,25 @@ class Model_cud {
       }
 
       // 2. Update data Member
-      await existingMember.update(
-        {
-          fullname: body.fullname,
-          identity_number: body.identity_number,
-          identity_type: body.identity_type,
-          gender: body.gender,
-          birth_place: body.birth_place,
-          birth_date: body.birth_date,
-          whatsapp_number: body.whatsapp_number,
-          photo: body.photoPath ?? existingMember.photo,
-          updatedAt: myDate,
-        },
-        { transaction: this.t }
-      );
+      const updateData = {
+        fullname: body.fullname,
+        identity_number: body.identity_number,
+        identity_type: body.identity_type,
+        gender: body.gender,
+        birth_place: body.birth_place,
+        birth_date: body.birth_date,
+        whatsapp_number: body.whatsapp_number,
+        photo: body.photoPath ?? existingMember.photo,
+        updatedAt: myDate,
+      };
+
+      if (body.password) {
+        const salt = await bcrypt.genSalt(10); // Generate salt
+        const hashedPassword = await bcrypt.hash(body.password, salt); // Hash password baru
+        updateData['password'] = hashedPassword;
+      }
+
+      await existingMember.update(updateData, { transaction: this.t });
 
       // 3. Update data Jamaah
       const existingJamaah = await Jamaah.findOne({

@@ -1,8 +1,5 @@
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
-const bcrypt = require("bcryptjs");
-const fs = require("fs");
-const path = require("path");
 const {
   handleServerError,
   handleValidationErrors,
@@ -105,43 +102,6 @@ exports.getInfoUpdate = async (req, res) => {
 
 exports.editJamaah = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
-
-  const model_r = new Model_r(req);
-  const response = await model_r.getPasswordMember(req.body.member_id);
-
-  const { password, confirm_password } = req.body;
-  if (password || confirm_password) {
-    if (password !== confirm_password) {
-      if (req.body.photoPath) {
-        const filePath = path.join(__dirname, `../../../uploads/member/${req.body.photoPath}`);
-        console.log(filePath)
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-          console.log("File dihapus:", filePath);
-        }
-      }
-      return res.status(400).json({
-        error: true,
-        error_msg: 'Password tidak sama dengan konfirmasi password.',
-      });
-    }
-
-    const isSamePassword = await bcrypt.compare(password, response.password);
-    if (!isSamePassword) {
-      if (req.body.photoPath) {
-        const filePath = path.join(__dirname, `../../../uploads/member/${req.body.photoPath}`);
-        console.log(filePath)
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-          console.log("File dihapus:", filePath);
-        }
-      }
-      return res.status(400).json({
-        error: true,
-        error_msg: 'Password tidak sama dengan password sebelumnya.',
-      });
-    }
-  }
 
   try {
     const model_cud = new Model_cud(req);
