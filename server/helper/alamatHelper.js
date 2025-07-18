@@ -35,9 +35,13 @@ alamatHelper.getAlamatInfo = async (kelurahan_id) => {
 
         return kelurahan
             ? {
+                kelurahan_id: kelurahan.id,
                 kelurahan_name: kelurahan.name,
+                kecamatan_id: kelurahan.Kecamatan.id,
                 kecamatan_name: kelurahan.Kecamatan.name,
+                kabupaten_kota_id: kelurahan.Kecamatan.Kabupaten_kotum?.id,
                 kabupaten_kota_name: kelurahan.Kecamatan.Kabupaten_kotum?.name,
+                provinsi_id: kelurahan.Kecamatan.Kabupaten_kotum?.Provinsi?.id,
                 provinsi_name: kelurahan.Kecamatan.Kabupaten_kotum?.Provinsi?.name,
             } : null;
     } catch (error) {

@@ -44,6 +44,9 @@ module.exports = {
         },
         onDelete: 'CASCADE',
       },
+      address: {
+        type: Sequelize.TEXT
+      },
       title: {
         type: Sequelize.ENUM,
         values: ["tuan", "nona", "nyonya"],
@@ -70,6 +73,9 @@ module.exports = {
         type: Sequelize.STRING
       },
       nomor_telephone: {
+        type: Sequelize.STRING
+      },
+      email: {
         type: Sequelize.STRING
       },
       pengalaman_haji: {

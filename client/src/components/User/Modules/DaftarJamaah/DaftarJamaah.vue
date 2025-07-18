@@ -1,3 +1,210 @@
+<script setup lang="ts">
+import IconDownload from '@/components/Icons/IconDownload.vue'
+import Confirmation from '@/components/User/Modules/DaftarJamaah/Particle/Confirmation.vue'
+import Notification from '@/components/User/Modules/DaftarJamaah/Particle/Notification.vue'
+import DeleteIcon from '@/components/User/Modules/DaftarJamaah/Icon/DeleteIcon.vue'
+import EditIcon from '@/components/User/Modules/DaftarJamaah/Icon/EditIcon.vue'
+import LightButton from '@/components/Button/LightButton.vue'
+import PrimaryButton from '@/components/Button/PrimaryButton.vue'
+import DangerButton from '@/components/Button/DangerButton.vue'
+import Pagination from '@/components/Pagination/Pagination.vue'
+
+import FormAddNew from '@/components/User/Modules/DaftarJamaah/Particle/FormAddNew.vue'
+import FormAddMember from '@/components/User/Modules/DaftarJamaah/Particle/FormAddMember.vue'
+import FormMember from '@/components/User/Modules/DaftarJamaah/Particle/FormMember.vue'
+import FormUpdate from '@/components/User/Modules/DaftarJamaah/Particle/FormUpdate.vue'
+import ModalConfirm from '@/components/User/Modules/DaftarJamaah/Particle/ModalConfirm.vue'
+
+import { ref, computed, onMounted } from 'vue'
+import { daftarJamaah, deleteJamaah, getDownloadJamaah } from '@/service/daftar_jamaah'
+import { paramCabang } from '@/service/param_cabang'
+import { open } from 'fs'
+
+const itemsPerPage = 100; // Jumlah paket_la per halaman
+const currentPage = ref(1);
+const search = ref('');
+const filterCabang = ref(0)
+const optionFilterCabang = ref<filterCabang[]>([]);
+const totalPages = ref(0);
+const totalColumns = ref(3); // Default 3 kolom
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    fetchData()
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    fetchData()
+  }
+};
+
+const pageNow = (page : number) => {
+  currentPage.value = page
+  fetchData()
+}
+
+const pages = computed(() => {
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+});
+
+interface filterCabang {
+  id: number
+  name: string
+}
+
+interface Jamaah {
+  id: number;
+  identity_number: string;
+  nomor_passport: string;
+  fullname: string;
+  birth_place: string;
+  birth_date: string;
+}
+
+const timeoutId = ref<number | null>(null);
+const dataJamaah = ref<Jamaah[]>([]);
+const jamaahId = ref<number>(0);
+const memberId = ref<number>(0);
+const total = ref<number>(0);
+const isLoading = ref<boolean>(false);
+const isModalConfirmOpen = ref<boolean>(false);
+const isFormAddMemberOpen = ref<boolean>(false);
+const isFormAddOpen = ref<boolean>(false);
+const isFormMemberOpen = ref<boolean>(false);
+const isFormUpdateOpen = ref<boolean>(false);
+const showConfirmDialog = ref<boolean>(false);
+const showNotification = ref<boolean>(false);
+const notificationMessage = ref<string>('');
+const notificationType = ref<'success' | 'error'>('success');
+const confirmMessage = ref<string>('');
+const confirmTitle = ref<string>('');
+const confirmAction = ref<(() => void) | null>(null);
+
+const fetchData = async () => {
+  try {
+    isLoading.value = true
+    const response = await daftarJamaah({
+        search: search.value,
+        filterCabang: filterCabang.value,
+        perpage: itemsPerPage,
+        pageNumber: currentPage.value,
+    });
+
+    if (response.data.error || response.error) {
+        displayNotification(response.error_msg, "error");
+        return;
+    }
+
+    totalPages.value = Math.ceil(response.total / itemsPerPage);
+    dataJamaah.value = response.data || [];
+    total.value = response.total;
+
+  } catch (error) {
+    displayNotification(error.response.data.error_msg || 'Terjadi kesalahan saat memuat data.', 'error');
+  } finally {
+    isLoading.value = false
+  }
+};
+
+const fetchDataCabang = async () => {
+  const response = await paramCabang()
+  optionFilterCabang.value = response.data
+  filterCabang.value = response.data[0].id
+}
+
+const tabelutama = ref<HTMLTableElement | null>(null)
+
+onMounted(async () => {
+  await fetchDataCabang();
+  await fetchData();
+  totalColumns.value = tabelutama.value?.querySelectorAll(':scope > thead > tr > th:not(.hidden)').length
+})
+
+const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
+  notificationMessage.value = message;
+  notificationType.value = type;
+  showNotification.value = true;
+
+  if (timeoutId.value) clearTimeout(timeoutId.value);
+
+  timeoutId.value = window.setTimeout(() => {
+    showNotification.value = false;
+  }, 3000);
+};
+
+const showConfirmation = (title: string, message: string, action: () => void) => {
+  confirmTitle.value = title;
+  confirmMessage.value = message;
+  confirmAction.value = action;
+  showConfirmDialog.value = true;
+};
+
+const openModalConfirm = () => {
+  isModalConfirmOpen.value = true;
+}
+
+const openFormAdd = () => {
+  isFormAddOpen.value = true;
+}
+
+const openFormAddMember = () => {
+  isFormAddMemberOpen.value = true;
+}
+
+const openFormMember = (id: number) => {
+  memberId.value = id
+  console.log(memberId.value)
+  isFormMemberOpen.value = true;
+}
+
+const downloadJamaah = async () => {
+  try {
+    const response = await getDownloadJamaah(filterCabang.value)
+    console.log('Downloaded data:', response)
+  } catch (error) {
+    console.error('Error fetching Jamaah:', error)
+  }
+}
+
+
+const handleFormUpdate = (id: number) => {
+  jamaahId.value = id
+  isFormUpdateOpen.value = true
+}
+
+const deleteData = async (jamaahId: number) => {
+  showConfirmation(
+    'Konfirmasi Hapus',
+    'Apakah Anda yakin ingin menghapus data ini?',
+    async () => {
+      isLoading.value = true;
+      try {
+        const response = await deleteJamaah({
+          id: jamaahId,
+          division_id: filterCabang.value, // ✅
+        });
+        displayNotification(response.error_msg || response.message || 'Tabungan umrah berhasil dihapus!', 'success');
+        fetchData();
+      } catch (error) {
+        displayNotification(
+          error?.response?.data?.error_msg ||
+          error?.response?.data?.message ||
+          'Terjadi kesalahan dalam menghapus data',
+          'error'
+        );
+      } finally {
+        isLoading.value = false;
+      }
+    }
+  );
+};
+</script>
+
+
 <template>
   <div class="container mx-auto p-4">
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
@@ -5,55 +212,47 @@
       <!-- Wrap tombol-tombol dalam satu flex container -->
       <div class="flex flex-wrap items-center gap-2">
         <!-- Button Tambah Jamaah -->
-        <button
-          @click="ConfirmJamaahModal()"
-          class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
+        <PrimaryButton
+          @click="openModalConfirm()"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M18 9v6m3-3h-6m-4 4a4 4 0 100-8 4 4 0 000 8zm0 0c-2.21 0-4 1.79-4 4v1h8v-1c0-2.21-1.79-4-4-4z"
-            />
-          </svg>
+          <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
           Tambah Jamaah
-        </button>
+        </PrimaryButton>
 
         <!-- Button Download -->
-        <button
-          @click="download_Jamaah()"
-          class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2"
+        <PrimaryButton
+          @click="downloadJamaah()"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"
-            />
-          </svg>
+          <IconDownload />
           Download Data Jamaah
-        </button>
+        </PrimaryButton>
       </div>
 
       <!-- Search Input -->
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+        <label for="filter" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
+        <select
+          v-model="filterCabang"
+          @change="fetchData()"
+          class="block w-64 border-t border-b border-e bg-white border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+            {{ optionC.name }}
+          </option>
+        </select>
         <label for="search" class="text-sm font-medium text-gray-700">Search</label>
         <input
           type="text"
           id="search"
           class="w-full sm:w-72 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-          v-model="searchQuery"
-          @input="handleSearch"
+          v-model="search"
+          @change="fetchData()"
           placeholder="Cari berdasarkan nama..."
         />
       </div>
     </div>
-    <!-- Tes -->
-    <!-- Deposit Table -->
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md mb-5">
-      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
+      <table ref="tabelutama" class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-100">
           <tr>
             <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Nomor Identitas</th>
@@ -74,167 +273,94 @@
           </tr>
 
           <!-- Empty State -->
-          <tr v-else-if="jamaah.length === 0">
+          <tr v-else-if="dataJamaah.length === 0">
             <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-600">
-              {{ searchQuery ? 'Hasil pencarian tidak ditemukan' : 'Daftar Jamaah Tidak Ditemukan' }}
+              {{ search ? 'Hasil pencarian tidak ditemukan' : 'Daftar Jamaah Tidak Ditemukan' }}
             </td>
           </tr>
 
           <!-- Data Jamaah -->
-          <tr v-for="jamaahs in jamaah" :key="jamaahs.id" class="hover:bg-gray-50 transition-colors" >
-            <td class="px-6 py-4 text-center">{{ jamaahs.nomor_identitas || '-' }}</td>
-            <td class="px-6 py-4 text-center">{{ jamaahs.nama_jamaah || '-' }}</td>
+          <tr v-for="jamaahs in dataJamaah" :key="jamaahs.id" class="hover:bg-gray-50 transition-colors" >
+            <td class="px-6 py-4 text-center">{{ jamaahs.identity_number || '-' }}</td>
+            <td class="px-6 py-4 text-center">{{ jamaahs.fullname || '-' }}</td>
             <td class="px-6 py-4 text-center">{{ jamaahs.nomor_passport || '-' }}</td>
-            <td class="px-6 py-4 text-center">{{ jamaahs.tempat_tanggal_lahir || '-' }}</td>
+            <td class="px-6 py-4 text-center">{{ `${jamaahs.birth_place} / ${jamaahs.birth_date}` || '-' }}</td>
             <td class="px-6 py-4 text-center">
               <div class="flex justify-center gap-2">
-                <LightButton @click="handleFormUpdate(jamaahs)" title="Edit Jamaah"><EditIcon /></LightButton>
-
-                <DangerButton @click="confirmDelete(jamaahs.id)" title="Print Invoice">
+                <LightButton @click="handleFormUpdate(jamaahs.id)" title="Edit Jamaah"><EditIcon /></LightButton>
+                <DangerButton @click="deleteData(jamaahs.id)" title="Print Invoice">
                   <DeleteIcon />
                 </DangerButton>
-                <!-- <EditButton @click="handleFormUpdate(jamaahs)" title="Edit Jamaah">
-                  <EditIcon />
-                </EditButton> -->
               </div>
             </td>
           </tr>
         </tbody>
-
-        <!-- Pagination Footer -->
         <tfoot class="bg-gray-100 font-bold">
-          <tr>
-            <td class="px-4 py-4 text-left border min-h-[200px]" colspan="5">
-              <nav class="flex mt-0">
-                <ul class="inline-flex items-center -space-x-px">
-                  <!-- Previous Button -->
-                  <li>
-                    <button
-                      @click="prevPage"
-                      :disabled="currentPage === 1"
-                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                  </li>
-
-                  <!-- First Page -->
-                  <li v-if="currentPage > Math.floor(maxVisiblePages / 2) + 1">
-                    <button
-                      @click="goToPage(1)"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                    >
-                      1
-                    </button>
-                  </li>
-                  <li v-if="currentPage > Math.floor(maxVisiblePages / 2) + 1" class="px-2 py-2">
-                    ...
-                  </li>
-
-                  <!-- Page Numbers -->
-                  <li
-                    v-for="page in visiblePages"
-                    :key="page"
-                    v-if="jamaah.length > 0 && !isLoading"
-                  >
-                    <button
-                      @click="goToPage(page)"
-                      class="px-3 py-2 leading-tight border"
-                      :class="{
-                        'text-white bg-[#333a48] border-[#333a48]': currentPage === page,
-                        'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700':
-                          currentPage !== page,
-                      }"
-                    >
-                      {{ page }}
-                    </button>
-                  </li>
-
-                  <!-- Last Page -->
-                  <li
-                    v-if="currentPage < totalPages - Math.floor(maxVisiblePages / 2)"
-                    class="px-2 py-2"
-                  >
-                    ...
-                  </li>
-                  <li v-if="currentPage < totalPages - Math.floor(maxVisiblePages / 2)">
-                    <button
-                      @click="goToPage(totalPages)"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                    >
-                      {{ totalPages }}
-                    </button>
-                  </li>
-
-                  <!-- Next Button -->
-                  <li>
-                    <button
-                      @click="nextPage"
-                      :disabled="currentPage === totalPages"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </td>
-          </tr>
+          <Pagination
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            :pages="pages"
+            :total-columns="totalColumns"
+            :total-row="total"
+            @prev-page="prevPage"
+            @next-page="nextPage"
+            @page-now="pageNow"
+          />
         </tfoot>
       </table>
     </div>
   </div>
 
-  <FormAddNew v-if="showFormAdd" :defaultData="selectedMemberData" @close="showFormAdd = false" @next="handleNext" />
-
-<FormAddNew
-  v-if="showFormAdd"
-  :defaultData="selectedMemberData"
-  @close="showFormAdd = false"
-  @success="handleJamaahSuccess"
-/>
-
-
-  <FormAddMember
-  v-if="showFormAddMember"
-  @close = 'showFormAddMember = false'
-  @next="handleNextStep"
+  <FormAddNew
+    v-if="isFormAddOpen"
+    :is-form-add-open="isFormAddOpen"
+    :cabang-id="filterCabang"
+    @close="isFormAddOpen = false; fetchData()"
+    @status="(payload) => displayNotification(payload.err_msg || 'Jamaah gagal ditambahkan', payload.error ? 'error' : 'success')"
   />
 
-<FormMember
-  v-if="showFormMember"
-  :defaultData="selectedMemberData"
-  @close="showFormMember = false"
-  @success="handleJamaahSuccess"
-/>
+  <FormUpdate
+    v-if="isFormUpdateOpen"
+    :is-form-update-open="isFormUpdateOpen"
+    :cabang-id="filterCabang"
+    :jamaah-id="jamaahId"
+    @close="isFormUpdateOpen = false; fetchData()"
+    @status="(payload) => displayNotification(payload.err_msg || 'Jamaah gagal diupdate', payload.error ? 'error' : 'success')"
+  />
 
-<FormUpdate v-if="ShowFormUpdate"
- :jamaah="selectedJamaah"
-@close="ShowFormUpdate = false"
-@update="updateSuccess"
-/>
+  <FormAddMember
+    v-if="isFormAddMemberOpen"
+    :is-form-add-member-open="isFormAddMemberOpen"
+    :cabang-id="filterCabang"
+    @add-member="openFormMember($event.memberId); isFormAddMemberOpen = false"
+    @close="isFormAddMemberOpen = false; fetchData()"
+    @status="(payload) => displayNotification(payload.err_msg || 'Jamaah dari Member gagal ditambahkan', payload.error ? 'error' : 'success')"
+  />
+
+  <FormMember
+    v-if="isFormMemberOpen"
+    :is-form-member-open="isFormMemberOpen"
+    :cabang-id="filterCabang"
+    :member-id="memberId"
+    @close="isFormMemberOpen = false; fetchData()"
+    @status="(payload) => displayNotification(payload.err_msg || 'Jamaah dari Member gagal ditambahkan', payload.error ? 'error' : 'success')"
+  />
 
   <!-- Delete Confirmation Modal -->
   <Confirmation
-    :showConfirmDialog="showDeleteConfirmDialog"
-    confirmTitle="Konfirmasi Hapus"
-    confirmMessage="Apakah Anda yakin ingin menghapus Jamaah ini?"
+    :showConfirmDialog="showConfirmDialog"
+    :confirmTitle="confirmTitle"
+    :confirmMessage="confirmMessage"
   >
-    <button
-      @click="executeDelete"
-      class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
-    >
+    <button @click="confirmAction && confirmAction(); showConfirmDialog = false" class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">
       Ya
     </button>
-    <button
-      @click="showDeleteConfirmDialog = false"
-      class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-    >
+    <button @click="showConfirmDialog = false" class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
       Tidak
     </button>
   </Confirmation>
 
-  <!-- Notification Component -->
+  <!-- Notification -->
   <Notification
     :showNotification="showNotification"
     :notificationType="notificationType"
@@ -242,259 +368,10 @@
     @close="showNotification = false"
   />
 
-
-
- <ModalConfirm ref="jamaahModal" @pilih-baru="handleNewJamaah" @pilih-member="handleFromMember" />
+  <ModalConfirm
+    :is-modal-confirm-open="isModalConfirmOpen"
+    @close="isModalConfirmOpen = false"
+    @pilih-baru="isModalConfirmOpen = false; openFormAdd()"
+    @pilih-member="isModalConfirmOpen = false; openFormAddMember()"
+  />
 </template>
-
-<script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { daftarJamaah, deleteJamaah, downloadJamaah } from '@/service/daftar_jamaah.ts'
-import Confirmation from '@/components/User/Modules/DaftarJamaah/Particle/Confirmation.vue'
-import Notification from '@/components/User/Modules/DaftarJamaah/Particle/Notification.vue'
-import DeleteIcon from '@/components/User/Modules/DaftarJamaah/Icon/DeleteIcon.vue'
-// import DangerButton from '@/components/User/Modules/DaftarJamaah/Particle/DangerButton.vue'
-import EditIcon from '@/components/User/Modules/DaftarJamaah/Icon/EditIcon.vue'
-import EditButton from '@/components/User/Modules/DaftarJamaah/Particle/EditButton.vue'
-import ModalConfirm from '@/components/User/Modules/DaftarJamaah/Particle/ModalConfirm.vue'
-import FormAddNew from '@/components/User/Modules/DaftarJamaah/Particle/FormAddNew.vue'
-import FormAddMember from '@/components/User/Modules/DaftarJamaah/Particle/FormAddMember.vue'
-import FormMember from '@/components/User/Modules/DaftarJamaah/Particle/FormMember.vue'
-import FormUpdate from '@/components/User/Modules/DaftarJamaah/Particle/FormUpdate.vue'
-import LightButton from "@/components/Button/LightButton.vue"
-import DangerButton from '@/components/Button/DangerButton.vue'
-
-
-
-const download_Jamaah = async () => {
-  try {
-    const response = await downloadJamaah()
-    console.log('Downloaded data:', response)
-  } catch (error) {
-    console.error('Error fetching Jamaah:', error)
-  }
-}
-
-const ShowFormUpdate = ref(false)
-const selectedJamaah = ref(null) // <-- buat simpen data jamaah yg mau diedit
-
-const handleFormUpdate = async (jamaah: any) => {
-  selectedJamaah.value = jamaah
-  ShowFormUpdate.value = true
-}
-
-
-interface Jamaah {
-  id: number;
-  nomor_identitas: string;
-  nama_jamaah: string;
-  nomor_passport: string;
-  tempat_tanggal_lahir: string;
-}
-
-interface JamaahIdToDelete {
-  id: number;
-}
-
-
-// Reactive State
-const jamaah = ref<Jamaah[]>([]);
-const searchQuery = ref('')
-const currentPage = ref(1)
-const totalPages = ref(1)
-const totalItems = ref(0)
-const itemsPerPage = ref(10)
-const maxVisiblePages = 5
-const isLoading = ref(false)
-const showDeleteConfirmDialog = ref(false)
-
-// Notification State
-const showNotification = ref(false)
-const notificationMessage = ref('')
-const notificationType = ref<'success' | 'error'>('success')
-const timeoutId = ref<number | null>(null)
-const searchTimeout = ref<number | null>(null)
-
-const showFormAdd = ref(false)
-const showFormAddMember = ref(false)
-const jamaahModal = ref()
-
-
-const jamaahIdToDelete = ref<number | null>(null);
-
-const confirmDelete = (id: number) => {
-  jamaahIdToDelete.value = id
-  showDeleteConfirmDialog.value = true
-}
-
-
-const executeDelete = async () => {
-  if (!jamaahIdToDelete.value) return // Pastikan jamaahIdToDelete terisi
-
-  try {
-    // Kirimkan jamaahIdToDelete sebagai member_id ke API
-    const response = await deleteJamaah({ member_id: jamaahIdToDelete.value })
-    displayNotification(response.error_msg || 'Jamaah berhasil dihapus', 'success')
-
-    fetchJamaah() // Refresh data jamaah
-  } catch (error) {
-    console.error('Gagal menghapus Jamaah:', error)
-    displayNotification('Gagal menghapus Jamaah', 'error')
-  } finally {
-    showDeleteConfirmDialog.value = false
-    jamaahIdToDelete.value = null // Reset jamaahIdToDelete setelah selesai
-  }
-}
-
-
-function ConfirmJamaahModal() {
-  jamaahModal.value?.openModal()
-}
-function handleNewJamaah() {
-  showFormAdd.value = true
-  showFormAddMember.value = false  // Pastikan hanya satu form yang ditampilkan
-}
-
-function handleFromMember() {
-   console.log('Modal pilih member dipilih');
-  showFormAddMember.value = true
-  showFormAdd.value = false  // Pastikan hanya satu form yang ditampilkan
-}
-
-const updateSuccess = async (data: any) => {
-  ShowFormUpdate.value = false
-  fetchJamaah()
-  displayNotification('Jamaah berhasil di update', 'success')
-}
-
-const handleJamaahSuccess = () => {
-  showFormAdd.value = false
-  showFormMember.value = false
-  fetchJamaah() // Refresh data
-  displayNotification('Jamaah berhasil ditambahkan', 'success')
-}
-
-const showFormMember = ref(false)
-const selectedMemberData = ref(null)
-
-const handleNextStep = (formData: any) => {
-  if (!formData) {
-    displayNotification("Data tidak valid", "error");
-    return;
-  }
-
-  // Setelah validasi sukses, simpan data yang dipilih dan lanjutkan ke FormMember
-  selectedMemberData.value = formData; // Isi data yang dipilih
-  showFormAddMember.value = false;  // Sembunyikan FormAddNew
-  showFormMember.value = true;  // Tampilkan FormMember
-};
-
-
-// Computed Properties
-const visiblePages = computed(() => {
-  const pages = []
-  const halfVisible = Math.floor(maxVisiblePages / 2)
-
-  let startPage = currentPage.value - halfVisible
-  let endPage = currentPage.value + halfVisible
-
-  // Adjust if we're near the start
-  if (startPage < 1) {
-    startPage = 1
-    endPage = Math.min(maxVisiblePages, totalPages.value)
-  }
-
-  // Adjust if we're near the end
-  if (endPage > totalPages.value) {
-    endPage = totalPages.value
-    startPage = Math.max(1, endPage - maxVisiblePages + 1)
-  }
-
-  for (let i = startPage; i <= endPage; i++) {
-    pages.push(i)
-  }
-
-  return pages
-})
-
-const fetchJamaah = async () => {
-  isLoading.value = true
-  try {
-    const response = await daftarJamaah({
-      pageNumber: currentPage.value,
-      search: searchQuery.value,
-      perpage: itemsPerPage.value,
-    })
-
-    jamaah.value = response.data || []
-    console.log('Data jamaah:', jamaah.value)
-    totalItems.value = response.total || 0
-    totalPages.value = Math.ceil(totalItems.value / itemsPerPage.value) || 1
-
-    // Adjust current page if it's out of bounds
-    if (currentPage.value > totalPages.value && totalPages.value > 0) {
-      currentPage.value = totalPages.value
-      await fetchJamaah() // Refetch with corrected page
-      return
-    }
-  } catch (error) {
-    console.error('Gagal memuat data Jamaah:', error)
-    displayNotification('Gagal memuat data Jamaah', 'error')
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const handleSearch = () => {
-  // Reset to first page when searching
-  currentPage.value = 1
-
-  // Debounce the search input
-  // if (searchTimeout.value) {
-  //   clearTimeout(searchTimeout.value)
-  // }
-
-  fetchJamaah()
-
-  // searchTimeout.value = window.setTimeout(() => {
-
-  // }, 500)
-}
-
-const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
-  notificationMessage.value = message
-  notificationType.value = type
-  showNotification.value = true
-  resetNotificationTimeout()
-}
-
-const resetNotificationTimeout = () => {
-  if (timeoutId.value) clearTimeout(timeoutId.value)
-  timeoutId.value = window.setTimeout(() => {
-    showNotification.value = false
-  }, 3000)
-}
-
-// Pagination Methods
-const goToPage = (page: number) => {
-  if (page >= 1 && page <= totalPages.value && page !== currentPage.value) {
-    currentPage.value = page
-    fetchJamaah()
-  }
-}
-
-const nextPage = () => goToPage(currentPage.value + 1)
-const prevPage = () => goToPage(currentPage.value - 1)
-
-
-
-// Lifecycle Hooks
-onMounted(() => {
-  fetchJamaah()
-})
-
-onUnmounted(() => {
-  if (timeoutId.value) clearTimeout(timeoutId.value)
-  if (searchTimeout.value) clearTimeout(searchTimeout.value)
-})
-</script>

@@ -21,8 +21,6 @@ const validation = {};
 
 const getDivisionId = async (req) => {
     const userType = await tipe(req);
-    console.log("req body: ", req.body);
-    console.log("User tipe: ", userType);
     if (userType === "administrator") {
         return req.body.division_id;
     } else if (userType === "staff") {

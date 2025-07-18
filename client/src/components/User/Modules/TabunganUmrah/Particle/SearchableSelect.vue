@@ -10,6 +10,7 @@ const props = defineProps<{
   nameField?: string;
   required?: boolean;
   error?: string;
+  disabled?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -40,10 +41,12 @@ const selectedOption = computed(() => {
 });
 
 const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value;
-  if (showDropdown.value) {
-    // Reset search when opening dropdown
-    searchQuery.value = '';
+  if (!props.disabled) {
+    showDropdown.value = !showDropdown.value;
+    if (showDropdown.value) {
+      // Reset search when opening dropdown
+      searchQuery.value = '';
+    }
   }
 };
 
@@ -80,16 +83,19 @@ onUnmounted(() => {
     <!-- Selected value display -->
     <div
       @click="toggleDropdown"
-      class="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 cursor-pointer bg-white"
+      :class="[
+        'w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white transition-all duration-200',
+        {'cursor-pointer': !props.disabled}, { 'cursor-default opacity-50': props.disabled }
+      ]"
     >
       <span v-if="selectedOption" class="text-gray-700">
         {{ selectedOption[nameField] }}
       </span>
-      <span v-else class="text-gray-500">
+      <span v-else class="text-gray-600">
         {{ placeholder || `Pilih ${label}` }}
       </span>
       <svg
-        class="w-5 h-5 text-gray-400"
+        class="w-5 h-5 text-gray-400 transition-transform duration-200 ease-in-out"
         :class="{ 'transform rotate-180': showDropdown }"
         fill="none"
         stroke="currentColor"
@@ -105,13 +111,14 @@ onUnmounted(() => {
     <!-- Dropdown -->
     <div
       v-if="showDropdown"
-      class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+      class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto"
     >
       <!-- Search input -->
       <div class="p-2 border-b border-gray-200">
         <input
           v-model="searchQuery"
           type="text"
+          :disabled="props.disabled"
           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
           :placeholder="`Cari ${label}...`"
           @click.stop
@@ -123,9 +130,9 @@ onUnmounted(() => {
         <div
           v-for="option in filteredOptions"
           :key="option[idField]"
-          @click="selectOption(option)"
+          @click="!props.disabled && selectOption(option)"
           class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-          :class="{ 'bg-blue-50': option[idField] === modelValue }"
+          :class="{ 'bg-blue-50': option[idField] === modelValue, 'pointer-events-none opacity-50': props.disabled }"
         >
           {{ option[nameField] }}
         </div>

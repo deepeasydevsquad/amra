@@ -1,8 +1,8 @@
 import api from "./api";
 
-export const daftarProvinsi = async (param : any) => {
+export const daftarProvinsi = async () => {
   try {
-    const response = await api.post("/get-provinsi", param);
+    const response = await api.get("/get-provinsi");
     return response.data;
   } catch (error) {
     console.error("error", error);
@@ -10,7 +10,7 @@ export const daftarProvinsi = async (param : any) => {
   }
 };
 
-export const daftarKabupaten = async (param : any) => {
+export const daftarKabupaten = async (param: any) => {
   try {
     const response = await api.post("/get-kabupaten", param);
     return response.data;
@@ -20,7 +20,7 @@ export const daftarKabupaten = async (param : any) => {
   }
 };
 
-export const daftarKecamatan = async (param : any) => {
+export const daftarKecamatan = async (param: any) => {
   try {
     const response = await api.post("/get-kecamatan", param);
     return response.data;
@@ -30,7 +30,7 @@ export const daftarKecamatan = async (param : any) => {
   }
 };
 
-export const daftarKelurahan = async (param : any) => {
+export const daftarKelurahan = async (param: any) => {
   try {
     const response = await api.post("/get-kelurahan", param);
     return response.data;
@@ -40,9 +40,9 @@ export const daftarKelurahan = async (param : any) => {
   }
 };
 
-export const daftarMahram = async (param : any) => {
+export const daftarMahram = async () => {
   try {
-    const response = await api.post("/get-mahram", param);
+    const response = await api.get("/get-mahram");
     return response.data;
   } catch (error) {
     console.error("error", error);
@@ -50,9 +50,9 @@ export const daftarMahram = async (param : any) => {
   }
 };
 
-export const daftarPekerjaan = async (param : any) => {
+export const daftarPekerjaan = async () => {
   try {
-    const response = await api.post("/get-pekerjaan", param);
+    const response = await api.get("/get-pekerjaan");
     return response.data;
   } catch (error) {
     console.error("error", error);
@@ -60,9 +60,9 @@ export const daftarPekerjaan = async (param : any) => {
   }
 };
 
-export const daftarPendidikan = async (param : any) => {
+export const daftarPendidikan = async () => {
   try {
-    const response = await api.post("/get-pendidikan", param);
+    const response = await api.get("/get-pendidikan");
     return response.data;
   } catch (error) {
     console.error("error", error);
@@ -70,9 +70,9 @@ export const daftarPendidikan = async (param : any) => {
   }
 };
 
-export const daftarPengalaman = async (param : any) => {
+export const daftarPengalaman = async () => {
   try {
-    const response = await api.post("/get-pengalaman", param);
+    const response = await api.get("/get-pengalaman");
     return response.data;
   } catch (error) {
     console.error("error", error);
@@ -82,7 +82,7 @@ export const daftarPengalaman = async (param : any) => {
 
 export const daftarKota = async () => {
   try {
-    const response = await api.post("/get-kota");
+    const response = await api.get("/get-kota");
     return response.data;
   } catch (error) {
     console.error("error", error);
@@ -92,7 +92,7 @@ export const daftarKota = async () => {
 
 export const daftarAirlines = async () => {
   try {
-    const response = await api.post("/get-airlines");
+    const response = await api.get("/get-airlines");
     return response.data;
   } catch (error) {
     console.error("error", error);
@@ -102,7 +102,7 @@ export const daftarAirlines = async () => {
 
 export const daftarAsuransi = async () => {
   try {
-    const response = await api.post("/get-asuransi");
+    const response = await api.get("/get-asuransi");
     return response.data;
   } catch (error) {
     console.error("error", error);
@@ -112,7 +112,7 @@ export const daftarAsuransi = async () => {
 
 export const daftarHotel = async () => {
   try {
-    const response = await api.post("/get-hotel");
+    const response = await api.get("/get-hotel");
     console.log("response", response);
     return response.data;
   } catch (error) {
@@ -123,7 +123,7 @@ export const daftarHotel = async () => {
 
 export const daftarBandara = async () => {
   try {
-    const response = await api.post("/get-bandara");
+    const response = await api.get("/get-bandara");
     return response.data;
   } catch (error) {
     console.error("error", error);
@@ -133,7 +133,7 @@ export const daftarBandara = async () => {
 
 export const daftarTipePaket = async () => {
   try {
-    const response = await api.post("/get-tipe-paket");
+    const response = await api.get("/get-tipe-paket");
     return response.data;
   } catch (error) {
     console.error("error", error);
@@ -143,7 +143,7 @@ export const daftarTipePaket = async () => {
 
 export const daftarFasilitas = async () => {
   try {
-    const response = await api.post("/get-fasilitas");
+    const response = await api.get("/get-fasilitas");
     return response.data;
   } catch (error) {
     console.error("error", error);
@@ -153,7 +153,7 @@ export const daftarFasilitas = async () => {
 
 export const daftarProviderVisa = async () => {
   try {
-    const response = await api.post("/get-provider-visa");
+    const response = await api.get("/get-provider-visa");
     return response.data;
   } catch (error) {
     console.error("error", error);

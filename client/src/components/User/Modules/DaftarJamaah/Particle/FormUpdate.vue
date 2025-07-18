@@ -1,902 +1,23 @@
-<template>
-  <!-- Modal Backdrop -->
-  <div
-    class="fixed inset-0 z-50 bg-black bg-opacity-50 overflow-y-auto flex items-start justify-center p-4 pt-32"
-  >
-    <!-- Modal Container -->
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-      <!-- Modal Header -->
-      <div class="sticky top-0 bg-white z-10 border-b p-6">
-        <h2 class="text-2xl font-bold text-gray-700 text-center">Form Update Data Jamaah</h2>
-      </div>
-
-      <!-- Modal Content -->
-      <div class="p-6">
-        <form @submit.prevent="handleSubmit" class="space-y-8">
-          <!-- Section 1: Identitas Diri -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2">
-              <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Identitas Diri</h3>
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Title*</label>
-              <select v-model="formData.title" class="input" required>
-                <option value="">Pilih Title</option>
-                <option value="tuan">Tuan</option>
-                <option value="nona">Nona</option>
-                <option value="nyonya">Nyonya</option>
-              </select>
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Nama Jamaah*</label>
-              <input
-                v-model="formData.fullname"
-                type="text"
-                class="input"
-                placeholder="Masukkan nama lengkap"
-                required
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Nama Passport</label>
-              <input
-                v-model="formData.nama_passport"
-                type="text"
-                class="input"
-                placeholder="Nama di passport"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Nomor Identitas*</label>
-              <input
-                v-model="formData.identity_number"
-                type="text"
-                class="input"
-                placeholder="NIK/KTP"
-                required
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Jenis Identitas*</label>
-              <select v-model="formData.identity_type" class="input" required>
-                <option value="">Pilih jenis</option>
-                <option value="ktp">KTP</option>
-                <option value="passport">Passport</option>
-                <option value="kitas">KITAS</option>
-              </select>
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Kewarganegaraan*</label>
-              <select v-model="formData.kewarganegaraan" class="input" required>
-                <option value="">Pilih negara</option>
-                <option value="wni">WNI</option>
-                <option value="wna">WNA</option>
-              </select>
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Jenis Kelamin*</label>
-              <select v-model="formData.gender" class="input" required>
-                <option value="">Pilih jenis kelamin</option>
-                <option value="laki_laki">Laki-laki</option>
-                <option value="perempuan">Perempuan</option>
-              </select>
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Golongan Darah</label>
-              <select v-model="formData.blood_type" class="input">
-                <option value="">Pilih golongan darah</option>
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="AB">AB</option>
-                <option value="O">O</option>
-              </select>
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Tempat Lahir*</label>
-              <input
-                v-model="formData.birth_place"
-                type="text"
-                class="input"
-                placeholder="Kota kelahiran"
-                required
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Tanggal Lahir*</label>
-              <input v-model="formData.birth_date" type="date" class="input" required />
-            </div>
-          </div>
-
-          <!-- Section 2: Kontak dan Alamat -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2">
-              <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Kontak dan Alamat</h3>
-            </div>
-
-            <div class="md:col-span-2 space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Alamat Lengkap*</label>
-              <textarea
-                v-model="formData.alamat"
-                class="input h-24"
-                placeholder="Jl. Nama Jalan No. XX"
-                required
-              ></textarea>
-            </div>
-
-            <div class="relative space-y-2">
-  <label class="block text-sm font-medium text-gray-700">Provinsi*</label>
-
-  <!-- Trigger (kelihatan seperti select box) -->
-  <div
-    class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
-    @click="isOpenProvinsi = !isOpenProvinsi"
-  >
-    <span>{{ selectedProvinsi?.name || '-- Pilih Provinsi --' }}</span>
-    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-    </svg>
-  </div>
-
-  <!-- Dropdown -->
-  <div
-    v-if="isOpenProvinsi"
-    class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-  >
-    <input
-      type="text"
-      class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
-      v-model="searchProvinsi"
-      placeholder="Cari provinsi..."
-      @blur="blurDropdown('isOpenProvinsi')"
-      @click.stop
-    />
-    <ul>
-      <li
-        v-for="provinsi in filteredProvinsi"
-        :key="provinsi.id"
-        @mousedown.prevent="selectProvinsi(provinsi)"
-        class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
-      >
-        {{ provinsi.name }}
-      </li>
-      <li v-if="filteredProvinsi.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
-    </ul>
-  </div>
-</div>
-
-
-            <div class="relative space-y-2">
-  <label class="block text-sm font-medium text-gray-700">Kabupaten/Kota*</label>
-
-  <!-- Trigger -->
-  <div
-    class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
-    :class="{ 'opacity-50 cursor-not-allowed': !formData.provinsi_id }"
-    @click="formData.provinsi_id && (isOpenKabupaten = !isOpenKabupaten)"
-  >
-    <span>
-      {{ selectedKabupaten?.name || '-- Pilih Kabupaten/Kota --' }}
-    </span>
-    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-    </svg>
-  </div>
-
-  <!-- Dropdown -->
-  <div
-    v-if="isOpenKabupaten"
-    class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-  >
-    <input
-      type="text"
-      class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
-      v-model="searchKabupaten"
-      placeholder="Cari Kabupaten/Kota..."
-      @blur="blurDropdown('isOpenKabupaten')"
-      @click.stop
-    />
-    <ul>
-      <li
-        v-for="kabupaten in filteredKabupaten"
-        :key="kabupaten.id"
-        @mousedown.prevent="selectKabupaten(kabupaten)"
-        class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
-      >
-        {{ kabupaten.name }}
-      </li>
-      <li v-if="filteredKabupaten.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
-    </ul>
-  </div>
-</div>
-
-
-            <div class="relative space-y-2">
-  <label class="block text-sm font-medium text-gray-700">Kecamatan*</label>
-
-  <!-- Trigger -->
-  <div
-    class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
-    :class="{ 'opacity-50 cursor-not-allowed': !formData.kabupaten_id }"
-    @click="formData.kabupaten_id && (isOpenKecamatan = !isOpenKecamatan)"
-  >
-    <span>
-      {{ selectedKecamatan?.name || '-- Pilih Kecamatan --' }}
-    </span>
-    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-    </svg>
-  </div>
-
-  <!-- Dropdown -->
-  <div
-    v-if="isOpenKecamatan"
-    class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-  >
-    <input
-      type="text"
-      class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
-      v-model="searchKecamatan"
-      placeholder="Cari Kecamatan..."
-      @blur="blurDropdown('isOpenKecamatan')"
-      @click.stop
-    />
-    <ul>
-      <li
-        v-for="kecamatan in filteredKecamatan"
-        :key="kecamatan.id"
-        @mousedown.prevent="selectKecamatan(kecamatan)"
-        class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
-      >
-        {{ kecamatan.name }}
-      </li>
-      <li v-if="filteredKecamatan.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
-    </ul>
-  </div>
-</div>
-
-
-            <div class="relative space-y-2">
-  <label class="block text-sm font-medium text-gray-700">Kelurahan*</label>
-
-  <!-- Trigger -->
-  <div
-    class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
-    :class="{ 'opacity-50 cursor-not-allowed': !formData.kecamatan_id }"
-    @click="formData.kecamatan_id && (isOpenKelurahan = !isOpenKelurahan)"
-  >
-    <span>
-      {{ selectedKelurahan?.name || '-- Pilih Kelurahan --' }}
-    </span>
-    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-    </svg>
-  </div>
-
-  <!-- Dropdown -->
-  <div
-    v-if="isOpenKelurahan"
-    class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-  >
-    <input
-      type="text"
-      class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
-      v-model="searchKelurahan"
-      placeholder="Cari Kelurahan..."
-      @blur="blurDropdown('isOpenKelurahan')"
-      @click.stop
-    />
-    <ul>
-      <li
-        v-for="kelurahan in filteredKelurahan"
-        :key="kelurahan.id"
-        @mousedown.prevent="selectKelurahan(kelurahan)"
-        class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
-      >
-        {{ kelurahan.name }}
-      </li>
-      <li v-if="filteredKelurahan.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
-    </ul>
-  </div>
-</div>
-
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Kode Pos</label>
-              <input v-model="formData.kode_pos" type="text" class="input" placeholder="40134" />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Telephone*</label>
-              <input
-                v-model="formData.nomor_telephone"
-                type="tel"
-                class="input"
-                placeholder="0812xxxxxx"
-                required
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">WhatsApp</label>
-              <input
-                v-model="formData.whatsapp_number"
-                type="tel"
-                class="input"
-                placeholder="0812xxxxxx"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                v-model="formData.email"
-                type="email"
-                class="input"
-                placeholder="email@contoh.com"
-              />
-            </div>
-          </div>
-
-          <!-- Section 3: Passport -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2">
-              <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Informasi Passport</h3>
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Nomor Passport</label>
-              <input
-                v-model="formData.nomor_passport"
-                type="text"
-                class="input"
-                placeholder="A12345678"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Tempat Dikeluarkan</label>
-              <input
-                v-model="formData.tempat_di_keluarkan_passport"
-                type="text"
-                class="input"
-                placeholder="Kantor imigrasi..."
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Tanggal Dikeluarkan</label>
-              <input v-model="formData.tanggal_di_keluarkan_passport" type="date" class="input" />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Masa Berlaku</label>
-              <input v-model="formData.masa_berlaku_passport" type="date" class="input" />
-            </div>
-          </div>
-
-          <!-- Section 4: Informasi Keluarga -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2">
-              <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Informasi Keluarga</h3>
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Nama Ayah Kandung</label>
-              <input
-                v-model="formData.nama_ayah"
-                type="text"
-                class="input"
-                placeholder="Nama lengkap ayah"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Nama Keluarga</label>
-              <input
-                v-model="formData.nama_keluarga"
-                type="text"
-                class="input"
-                placeholder="Nama keluarga"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Telephone Keluarga</label>
-              <input
-                v-model="formData.telephone_keluarga"
-                type="tel"
-                class="input"
-                placeholder="0812xxxxxx"
-              />
-            </div>
-
-            <div class="md:col-span-2 space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Alamat Keluarga</label>
-              <textarea
-                v-model="formData.alamat_keluarga"
-                class="input h-24"
-                placeholder="Alamat keluarga"
-              ></textarea>
-            </div>
-          </div>
-
-          <!-- Section 5: Informasi Mahram -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2">
-              <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Informasi Mahram</h3>
-            </div>
-
-             <div class="md:col-span-2 space-y-2 relative">
-  <label class="block text-sm font-medium text-gray-700">Nama Mahram</label>
-
-  <!-- Trigger -->
-  <div
-    class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white cursor-pointer flex justify-between items-center"
-    @click="isOpenMahram = !isOpenMahram"
-  >
-    <span>
-      {{ selectedMahram?.fullname || '-- Pilih Mahram --' }}
-    </span>
-    <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-    </svg>
-  </div>
-
-  <!-- Dropdown -->
-  <div
-    v-if="isOpenMahram"
-    class="absolute z-10 w-full bg-white border border-gray-300 rounded-md max-h-60 overflow-auto shadow-md"
-  >
-    <input
-      type="text"
-      class="w-full px-3 py-2 text-sm border-b focus:outline-none text-gray-700"
-      v-model="searchMahram"
-      placeholder="Cari nama mahram..."
-      @blur="blurDropdown('isOpenMahram')"
-      @click.stop
-    />
-    <ul>
-      <li
-        v-for="person in filteredMahram"
-        :key="person.id"
-        @mousedown.prevent="selectMahram(person)"
-        class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700"
-      >
-        {{ person.fullname }}
-      </li>
-      <li v-if="filteredMahram.length === 0" class="px-4 py-2 text-gray-400 text-sm">Tidak ditemukan</li>
-    </ul>
-  </div>
-</div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Jenis Mahram</label>
-              <select v-model="formData.mahram.mst_mahram_type_id" class="input">
-                <option disabled value="0">Pilih jenis mahram</option>
-
-                <option v-for="jenis in mahramOptions" :key="jenis.id" :value="jenis.id">
-                  {{ jenis.name }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Section 6: Informasi Tambahan -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2">
-              <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Informasi Tambahan</h3>
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Status Nikah</label>
-              <select v-model="formData.status_nikah" class="input">
-                <option value="">Pilih status</option>
-                <option value="belum_menikah">Belum Menikah</option>
-                <option value="menikah">Menikah</option>
-                <option value="cerai">Cerai</option>
-              </select>
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Tanggal Nikah</label>
-              <input
-                v-model="formData.tanggal_nikah"
-                type="date"
-                class="input"
-                :disabled="formData.status_nikah !== 'menikah'"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Jumlah Anak</label>
-              <input
-                v-model="formData.jumlah_anak"
-                type="number"
-                class="input"
-                placeholder="Jumlah anak"
-                :disabled="formData.status_nikah !== 'menikah'"
-              />
-            </div>
-          </div>
-
-          <!-- Section 7: Pengalaman Haji/Umrah -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2">
-              <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">
-                Pengalaman Haji/Umrah
-              </h3>
-            </div>
-
-            <div class="space-y-2">
-  <label class="block text-sm font-medium text-gray-700">Pengalaman Haji</label>
-  <select v-model="formData.pengalaman_haji" class="input">
-    <option v-for="item in dataPengalaman" :key="item.id" :value="item.id">
-      {{ item.name }}
-    </option>
-  </select>
-</div>
-
-<div class="space-y-2">
-  <label class="block text-sm font-medium text-gray-700">Tahun Haji</label>
-  <input
-    v-model="formData.tahun_haji"
-    type="text"
-    class="input"
-    placeholder="Tahun haji"
-    :disabled="formData.pengalaman_haji == 1"
-  />
-</div>
-
-<div class="space-y-2">
-  <label class="block text-sm font-medium text-gray-700">Pengalaman Umrah</label>
-  <select v-model="formData.pengalaman_umrah" class="input">
-    <option v-for="item in dataPengalaman" :key="item.id" :value="item.id">
-      {{ item.name }}
-    </option>
-  </select>
-</div>
-
-<div class="space-y-2">
-  <label class="block text-sm font-medium text-gray-700">Tahun Umrah</label>
-  <input
-    v-model="formData.tahun_umrah"
-    type="text"
-    class="input"
-    placeholder="Tahun umrah"
-    :disabled="formData.pengalaman_umrah == 1"
-  />
-</div>
-
-          </div>
-
-          <!-- Section 8: Informasi Pekerjaan -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2">
-              <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Informasi Pekerjaan</h3>
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Pekerjaan</label>
-              <select v-model="formData.mst_pekerjaan_id" class="input">
-                <option value="">Pilih pekerjaan</option>
-                <option v-for="item in pekerjaanList" :key="item.id" :value="item.id">
-                  {{ item.name }}
-                </option>
-              </select>
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Nama Instansi</label>
-              <input
-                v-model="formData.profession_instantion_name"
-                type="text"
-                class="input"
-                placeholder="Nama perusahaan/instansi"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Alamat Instansi</label>
-              <input
-                v-model="formData.profession_instantion_address"
-                type="text"
-                class="input"
-                placeholder="Alamat instansi"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Telephone Instansi</label>
-              <input
-                v-model="formData.profession_instantion_telephone"
-                type="tel"
-                class="input"
-                placeholder="Nomor telepon kantor"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Pendidikan Terakhir</label>
-              <select v-model="formData.last_education" class="input">
-                <option value="">Pilih Pendidikan</option>
-                <option v-for="item in pendidikanList" :key="item.id" :value="item.id">
-                  {{ item.name }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Section 9: Kesehatan -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2">
-              <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Informasi Kesehatan</h3>
-            </div>
-
-            <div class="md:col-span-2 space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Riwayat Penyakit</label>
-              <textarea
-                v-model="formData.desease"
-                class="input h-24"
-                placeholder="Riwayat penyakit yang diderita"
-              ></textarea>
-            </div>
-          </div>
-
-          <!-- Section 10: Agen -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">Agen*</label>
-            <select v-model="formData.agen_id" class="input" required>
-              <option value="">Pilih agen</option>
-              <option v-for="agen in dataAgen" :key="agen.id" :value="agen.id">
-                {{ agen.Member.fullname }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Section 11: Kelengkapan Dokumen -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2">
-              <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">Kelengkapan Dokumen</h3>
-            </div>
-
-            <div class="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="foto4x6"
-                v-model="dokumen.photo_4_6"
-                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label for="foto4x6" class="block text-sm font-medium text-gray-700"
-                >Pas Foto 4x6</label
-              >
-            </div>
-
-            <div class="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="foto3x4"
-                v-model="dokumen.photo_3_4"
-                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label for="foto3x4" class="block text-sm font-medium text-gray-700"
-                >Pas Foto 3x4</label
-              >
-            </div>
-
-            <div class="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="fcPassport"
-                v-model="dokumen.fc_passport"
-                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label for="fcPassport" class="block text-sm font-medium text-gray-700"
-                >FC Passport</label
-              >
-            </div>
-
-            <div class="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="fcKK"
-                v-model="dokumen.fc_kk"
-                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label for="fcKK" class="block text-sm font-medium text-gray-700">FC KK</label>
-            </div>
-
-            <div class="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="fcKTP"
-                v-model="dokumen.fc_ktp"
-                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label for="fcKTP" class="block text-sm font-medium text-gray-700">FC KTP</label>
-            </div>
-
-            <div class="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="bukuNikah"
-                v-model="dokumen.buku_nikah"
-                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label for="bukuNikah" class="block text-sm font-medium text-gray-700"
-                >Buku Nikah</label
-              >
-            </div>
-
-            <div class="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="akteLahir"
-                v-model="dokumen.akte_lahir"
-                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label for="akteLahir" class="block text-sm font-medium text-gray-700"
-                >Akte Kelahiran</label
-              >
-            </div>
-
-            <div class="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="bukuKuning"
-                v-model="dokumen.buku_kuning"
-                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label for="bukuKuning" class="block text-sm font-medium text-gray-700"
-                >Buku Kuning</label
-              >
-            </div>
-          </div>
-
-          <!-- Section 12: Keterangan -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">Keterangan</label>
-            <textarea
-              v-model="formData.keterangan"
-              class="input h-24"
-              placeholder="Catatan tambahan"
-            ></textarea>
-          </div>
-
-          <!-- Section 13: Photo -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">Ambil Photo Jamaah</label>
-            <div class="mt-2 flex items-center gap-4">
-              <div v-if="photoPreview" class="relative">
-                <img
-                  :src="photoPreview"
-                  alt="Preview foto jamaah"
-                  class="h-32 w-32 rounded-lg object-cover border border-gray-300"
-                />
-                <button
-                  @click="removePhoto"
-                  class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                  title="Hapus foto"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <div class="flex flex-col gap-2">
-                <label
-                  class="cursor-pointer bg-blue-600 text-white text-sm py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition duration-200 inline-flex items-center justify-center"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  {{ photoPreview ? 'Ganti Foto' : 'Ambil Foto' }}
-                  <input
-                    type="file"
-                    class="hidden"
-                    accept="image/*"
-                    capture="user"
-                    @change="handlePhotoUpload"
-                    ref="photoInput"
-                  />
-                </label>
-
-                <button
-                  v-if="photoPreview"
-                  @click="openCamera"
-                  class="bg-green-600 text-white text-sm py-2 px-4 rounded-lg font-medium hover:bg-green-700 transition duration-200 inline-flex items-center justify-center"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                    />
-                  </svg>
-                  Ambil Foto Baru
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="mt-6 flex justify-end gap-4">
-            <button
-              type="button"
-              @click="$emit('close')"
-              class="bg-gray-500 text-white py-2 px-6 rounded-xl font-semibold hover:bg-gray-600 transition-colors"
-            >
-              Close
-            </button>
-            <button
-              type="submit"
-              class="bg-indigo-500 text-white py-2 px-6 rounded-xl font-semibold hover:bg-indigo-600 transition-colors"
-              :disabled="isLoading"
-            >
-              <span v-if="isLoading">Menyimpan...</span>
-              <span v-else>Simpan Data Jamaah</span>
-            </button>
-          </div>
-
-          <!-- Error Message -->
-          <div v-if="errorMessage" class="text-red-500 text-sm mt-2">
-            {{ errorMessage }}
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
+import PrimaryButton from '@/components/Button/PrimaryButton.vue'
+import InputFile from '@/components/Form/InputFile.vue';
+import Notification from '@/components/User/Modules/DaftarJamaah/Particle/Notification.vue';
+import SearchableSelect from '@/components/User/Modules/DaftarJamaah/Particle/SearchableSelect.vue'
 
+const BASE_URL = import.meta.env.VITE_APP_API_BASE_URL
 
-import { ref, computed, onMounted, watch } from 'vue'
+const emit = defineEmits<{
+  (e: 'close'): void
+  (e: 'status', payload: { error: boolean, err_msg?: string }): void
+}>()
+
+const props = defineProps<{
+  isFormUpdateOpen: boolean
+  cabangId: number
+  jamaahId: number
+}>()
+
+import { ref, onMounted, watch, computed } from 'vue'
 import {
   daftarProvinsi,
   daftarKabupaten,
@@ -905,87 +26,133 @@ import {
   daftarMahram,
   daftarPekerjaan,
   daftarPendidikan,
-  daftarPengalaman
+  daftarPengalaman,
 } from '@/service/data_master'
 
+import {
+  getInfoUpdate,
+  getAgen,
+  getJamaahNotMember,
+  editJamaah
+} from '@/service/daftar_jamaah'
 
+interface Mahram {
+  mahram_id: number | null
+  mst_mahram_type_id: number | null
+}
 
-import { getMember } from '@/service/member'
+interface FormDataState {
+  photo: File | null
+  fullname: string | null
+  identity_number: string | null
+  identity_type: string
+  gender: string
+  birth_place: string | null
+  birth_date: string | null
+  agen_id: number | null
+  title: string
+  nama_ayah: string | null
+  nama_passport: string | null
+  nomor_passport: string | null
+  tanggal_di_keluarkan_passport: string | null
+  tempat_di_keluarkan_passport: string | null
+  masa_berlaku_passport: string | null
+  kode_pos: string | null
+  whatsapp_number: string | null
+  nomor_telephone: string | null
+  pengalaman_haji: number
+  tahun_haji: string | null
+  pengalaman_umrah: number
+  tahun_umrah: string | null
+  desease: string
+  last_education: string | null
+  blood_type: string
+  mst_pekerjaan_id: number
+  profession_instantion_name: string | null
+  profession_instantion_address: string | null
+  profession_instantion_telephone: string | null
+  nama_keluarga: string | null
+  alamat_keluarga: string | null
+  telephone_keluarga: string | null
+  status_nikah: string
+  tanggal_nikah: string | null
+  kewarganegaraan: string
+  mahram: Mahram[]
+  keterangan: string | null
+  address: string | null
+  provinsi_id: number | null
+  kabupaten_id: number | null
+  kecamatan_id: number | null
+  kelurahan_id: number | null
+  email: string | null
+  password: string
+  confirm_password: string
+}
 
-import { editJamaah } from '@/service/daftar_jamaah'
-
-import { daftarAgen} from '@/service/agen'
-
-
-
-
-const dataPengalaman = ref([])
-const dataPengalamanUmrah = ref('')
-const dataPengalamanHaji = ref('')
-
-const fetchPengalaman = async() => {
-  try{
-    const response = await daftarPengalaman()
-    dataPengalaman.value = response.data
-    console.log('data pengalaman', dataPengalaman.value)
-  }catch(error){
-    console.log('error fetch data Pengalaman', error)
-  }
+interface DokumenState {
+  photo_4_6: boolean
+  photo_3_4: boolean
+  fc_passport: boolean
+  fc_kk: boolean
+  fc_ktp: boolean
+  buku_nikah: boolean
+  akte_lahir: boolean
+  buku_kuning: boolean
 }
 
 // Data Form
-const formData = ref({
-  id: '',
-  fullname: '',
-  identity_number: '',
+const formData = ref<FormDataState>({
+  photo: null,
+  fullname: null,
+  identity_number: null,
   identity_type: 'ktp',
-  gender: '',
-  birth_place: '',
-  birth_date: '',
-  whatsapp_number: '',
-  password: '',
-  kelurahan_id: null,
-  agen_id: '',
-  title: '',
-  nama_ayah: '',
-  nama_passport: '',
-  nomor_passport: '',
-  tanggal_di_keluarkan_passport: '',
-  tempat_di_keluarkan_passport: '',
-  masa_berlaku_passport: '',
-  kode_pos: '',
-  nomor_telephone: '',
-  pengalaman_haji: '' ,
+  gender: 'laki_laki',
+  birth_place: null,
+  birth_date: null,
+  agen_id: null,
+  title: 'tuan',
+  nama_ayah: null,
+  nama_passport: null,
+  nomor_passport: null,
+  tanggal_di_keluarkan_passport: null,
+  tempat_di_keluarkan_passport: null,
+  masa_berlaku_passport: null,
+  kode_pos: null,
+  whatsapp_number: null,
+  nomor_telephone: null,
+  pengalaman_haji: 1,
   tahun_haji: null,
-  pengalaman_umrah: '' ,
+  pengalaman_umrah: 1,
   tahun_umrah: null,
   desease: '',
   last_education: null,
   blood_type: '',
-  mst_pekerjaan_id: null,
-  profession_instantion_name: '',
-  profession_instantion_address: '',
-  profession_instantion_telephone: '',
-  nama_keluarga: '',
-  alamat_keluarga: '',
-  telephone_keluarga: '',
-  status_nikah: '',
+  mst_pekerjaan_id: 8,
+  profession_instantion_name: null,
+  profession_instantion_address: null,
+  profession_instantion_telephone: null,
+  nama_keluarga: null,
+  alamat_keluarga: null,
+  telephone_keluarga: null,
+  status_nikah: 'belum_menikah',
   tanggal_nikah: null,
-  kewarganegaraan: '',
-  mahram: {
-    mahram_id: null,
-    mst_mahram_type_id: 0,
-  },
-  keterangan: '',
-  alamat: '',
+  kewarganegaraan: 'wni',
+  mahram: [
+    {  mahram_id: null, mst_mahram_type_id: null  }
+  ],
+  keterangan: null,
+  address: null,
   provinsi_id: null,
   kabupaten_id: null,
   kecamatan_id: null,
-  email: '',
+  kelurahan_id: null,
+  email: null,
+  password: '',
+  confirm_password:''
 })
 
 // Dokumen (checkbox)
-const dokumen = ref({
+const dokumen = ref<DokumenState>({
   photo_4_6: false,
   photo_3_4: false,
   fc_passport: false,
@@ -997,463 +164,1176 @@ const dokumen = ref({
 })
 
 // State untuk loading dan error
+const isFetchReady = ref(true);
+const showPassword = ref<boolean>(false)
+const showConfirmPassword = ref<boolean>(false)
+const timeoutId = ref<number | null>(null);
 const isLoading = ref(false)
-const errorMessage = ref('')
+const showNotification = ref<boolean>(false);
+const notificationMessage = ref<string>('');
+const notificationType = ref<'success' | 'error'>('success');
 
-// Data Master
-const provinsiList = ref([])
-const kabupatenList = ref([])
-const kecamatanList = ref([])
-const kelurahanList = ref([])
-const mahramOptions = ref([])
-const pekerjaanList = ref([])
-const pendidikanList = ref([])
-const agenList = ref([])
-const memberList = ref([])
+// Data untuk select
+const fileFoto = ref<string | null>(null)
+const fileName = ref<string>('')
+const errors = ref<Record<string, string>>({})
+const provinsi = ref<{ id: number; name: string }[]>([])
+const kabupaten = ref<{ id: number; provinsi_id: number; name: string }[]>([])
+const kecamatan = ref<{ id: number; kabupaten_id: number; name: string }[]>([])
+const kelurahan = ref<{ id: number; kecamatan_id: number; name: string }[]>([])
+const mahram = ref<{ id: number; name: string }[]>([])
+const pekerjaan = ref<{ id: number; name: string }[]>([])
+const pendidikan = ref<{ id: number; name: string }[]>([])
+const pengalaman = ref<{ id: number; name: string }[]>([])
+const member = ref<{ id: number; fullname: string; }[]>([])
+const agen = ref<{ id: number; fullname: string; }[]>([])
 
-// Search dan dropdown state
-const searchProvinsi = ref('')
-const searchKabupaten = ref('')
-const searchKecamatan = ref('')
-const searchKelurahan = ref('')
-const searchMahram = ref('')
-const isOpenProvinsi = ref(false)
-const isOpenKabupaten = ref(false)
-const isOpenKecamatan = ref(false)
-const isOpenKelurahan = ref(false)
-const isOpenMahram = ref(false)
-
-// Photo
-const photoPreview = ref('')
-const photoInput = ref(null)
-
-// Computed untuk filtered data
-const filteredProvinsi = computed(() => {
-  return provinsiList.value.filter((p) =>
-    p.name.toLowerCase().includes(searchProvinsi.value.toLowerCase()),
-  )
-})
-
-const filteredKabupaten = computed(() => {
-  if (!formData.value.provinsi_id) return []
-
-  return kabupatenList.value.filter(
-    (kab) =>
-      kab.provinsi_id === formData.value.provinsi_id &&
-      kab.name.toLowerCase().includes(searchKabupaten.value.toLowerCase()),
-  )
-})
-
-const filteredKecamatan = computed(() => {
-  return kecamatanList.value.filter((p) =>
-    p.name.toLowerCase().includes(searchKecamatan.value.toLowerCase()),
-  )
-})
-
-const filteredKelurahan = computed(() => {
-  return kelurahanList.value.filter((p) =>
-    p.name.toLowerCase().includes(searchKelurahan.value.toLowerCase()),
-  )
-})
-
-const filteredMahram = computed(() => {
-  return memberList.value.filter((p) =>
-    p.fullname.toLowerCase().includes(searchMahram.value.toLowerCase()),
-  )
-})
-
-// Fungsi untuk memilih data dropdown
-
-
-const selectedProvinsi = ref('')
-
-const selectProvinsi = (provinsi) => {
-  formData.value.provinsi_id = provinsi.id
-  searchProvinsi.value = provinsi.name
-  selectedProvinsi.value = provinsi
-  isOpenProvinsi.value = false
-  fetchKabupaten(provinsi.id)
-}
-
-const selectedKabupaten = ref('')
-
-const selectKabupaten = (kabupaten) => {
-  formData.value.kabupaten_id = kabupaten.id
-  searchKabupaten.value = kabupaten.name
-  selectedKabupaten.value = kabupaten
-  isOpenKabupaten.value = false
-  fetchKecamatan(kabupaten.id)
-}
-
-const selectedKecamatan = ref('')
-
-const selectKecamatan = (kecamatan) => {
-  formData.value.kecamatan_id = kecamatan.id
-  searchKecamatan.value = kecamatan.name
-  selectedKecamatan.value = kecamatan
-  isOpenKecamatan.value = false
-  fetchKelurahan(kecamatan.id)
-}
-
-const selectedKelurahan = ref('')
-
-const selectKelurahan = (kelurahan) => {
-  formData.value.kelurahan_id = kelurahan.id
-  searchKelurahan.value = kelurahan.name
-  selectedKelurahan.value = kelurahan
-  isOpenKelurahan.value = false
-}
-
-const selectedMahram = ref('')
-
-const selectMahram = (mahram) => {
-  formData.value.mahram.mahram_id = mahram.id
-  selectedMahram.value = mahram
-  searchMahram.value = mahram.fullname
-  isOpenMahram.value = false
-}
-
-// Fungsi untuk menutup dropdown dengan delay
-const blurDropdown = (dropdownName) => {
-  setTimeout(() => {
-    if (dropdownName === 'isOpenProvinsi') isOpenProvinsi.value = false
-    if (dropdownName === 'isOpenKabupaten') isOpenKabupaten.value = false
-    if (dropdownName === 'isOpenKecamatan') isOpenKecamatan.value = false
-    if (dropdownName === 'isOpenKelurahan') isOpenKelurahan.value = false
-    if (dropdownName === 'isOpenMahram') isOpenMahram.value = false
-  }, 200)
-}
-
-// Fungsi untuk handle upload foto
-const handlePhotoUpload = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      photoPreview.value = e.target.result
-      // Di sini Anda bisa mengupload foto ke server jika diperlukan
-    }
-    reader.readAsDataURL(file)
+const fetchData = async () => {
+  if (!props.cabangId) {
+    displayNotification('ID cabang tidak ditemukan, silakan keluar dan masuk kembali', 'error')
+    return
   }
-}
-
-const removePhoto = () => {
-  photoPreview.value = ''
-  if (photoInput.value) {
-    photoInput.value.value = ''
-  }
-}
-
-const openCamera = () => {
-  if (photoInput.value) {
-    photoInput.value.click()
-  }
-}
-
-// Fungsi untuk fetch data master
-const fetchProvinsi = async () => {
-  try {
-    const response = await daftarProvinsi()
-    provinsiList.value = response.data
-  } catch (error) {
-    console.error('Error fetching provinsi:', error)
-  }
-}
-
-const fetchKabupaten = async (provinsiId) => {
-  try {
-    const response = await daftarKabupaten({ provinsi_id: provinsiId })
-    kabupatenList.value = response.data
-    searchKabupaten.value = ''
-    formData.value.kabupaten_id = null
-    formData.value.kecamatan_id = null
-    formData.value.kelurahan_id = null
-  } catch (error) {
-    console.error('Error fetching kabupaten:', error)
-  }
-}
-
-const fetchKecamatan = async (kabupatenId) => {
-  try {
-    const response = await daftarKecamatan({ kabupaten_id: kabupatenId })
-    kecamatanList.value = response.data
-    searchKecamatan.value = ''
-    formData.value.kecamatan_id = null
-    formData.value.kelurahan_id = null
-  } catch (error) {
-    console.error('Error fetching kecamatan:', error)
-  }
-}
-
-const fetchKelurahan = async (kecamatanId) => {
-  try {
-    const response = await daftarKelurahan({ kecamatan_id: kecamatanId })
-    kelurahanList.value = response.data
-    searchKelurahan.value = ''
-    formData.value.kelurahan_id = null
-  } catch (error) {
-    console.error('Error fetching kelurahan:', error)
-  }
-}
-
-const dataAgen = ref('')
-
-const fetchAgen = async()=>{
-
-  try{
-    const response = await daftarAgen()
-    dataAgen.value = response.data
-    console.log("data agen", dataAgen.value)
-  }catch(error){
-      console.log("error agen", error)
-  }
-}
-
-
-const fetchMahramTypes = async () => {
-  try {
-    const response = await daftarMahram()
-    mahramOptions.value = response.data
-  } catch (error) {
-    console.error('Error fetching mahram types:', error)
-  }
-}
-
-const fetchPekerjaan = async () => {
-  try {
-    const response = await daftarPekerjaan()
-    pekerjaanList.value = response.data
-  } catch (error) {
-    console.error('Error fetching pekerjaan:', error)
-  }
-}
-
-const fetchPendidikan = async () => {
-  try {
-    const response = await daftarPendidikan()
-    pendidikanList.value = response.data
-  } catch (error) {
-    console.error('Error fetching pendidikan:', error)
-  }
-}
-
-
-const fetchMember = async () => {
-  try {
-    const response = await getMember()
-    memberList.value = response.data
-  } catch (error) {
-    console.error('Error fetching member:', error)
-  }
-}
-
-const props = defineProps<{
-  jamaah: any
-}>()
-
-watch(() => props.jamaah, (newVal) => {
-  console.log('🔥 new jamaah:', newVal);
-  console.log('📦 new jamaah (type):', Array.isArray(newVal) ? 'Array' : 'Object');
-
-  if (!newVal) {
-    console.log('🔴 newVal is null or undefined');
-    return;
-  }
-
-  // Sync data with formData
-  if (Array.isArray(newVal)) {
-    const jamaahData = newVal[0];  // Assuming data is in the first item
-formData.value = {
-  ...formData.value,
-  id: newVal.id,
-  birth_date: newVal.birth_date?.slice(0, 10),
-  birth_place: newVal.birth_place,
-  fullname: newVal.nama_jamaah,
-  nama_agen: newVal.nama_agen,
-  identity_number: newVal.nomor_identitas,
-  tempat_tanggal_lahir: newVal.tempat_tanggal_lahir,
-  identity_type: newVal.identity_type,
-  gender: newVal.gender,
-  photo: newVal.photo,
-  nomor_passport: newVal.nomor_passport,
-  whatsapp_number: newVal.whatsapp_number,
-  nama_ayah: newVal.nama_ayah,
-  nama_passport: newVal.nama_passport,
-  tanggal_di_keluarkan_passport: newVal.tanggal_di_keluarkan_passport?.slice(0, 10),
-  tempat_di_keluarkan_passport: newVal.tempat_di_keluarkan_passport,
-  masa_berlaku_passport: newVal.masa_berlaku_passport?.slice(0, 10),
-  kode_pos: newVal.kode_pos,
-  nomor_telephone: newVal.nomor_telephone,
-  pengalaman_haji: newVal.pengalaman_haji,
-  tahun_haji: newVal.tahun_haji,
-  pengalaman_umrah: newVal.pengalaman_umrah,
-  tahun_umrah: newVal.tahun_umrah,
-  desease: newVal.desease,
-  last_education: newVal.last_education,
-  blood_type: newVal.blood_type,
-  photo_4_6: newVal.photo_4_6,
-  photo_3_4: newVal.photo_3_4,
-  fc_passport: newVal.fc_passport,
-  mst_pekerjaan_id: newVal.mst_pekerjaan_id,
-  profession_instantion_name: newVal.profession_instantion_name,
-  profession_instantion_address: newVal.profession_instantion_address,
-  profession_instantion_telephone: newVal.profession_instantion_telephone,
-  fc_kk: newVal.fc_kk === 'ada' ? true : false,
-  fc_ktp: newVal.fc_ktp === 'ada' ? true : false,
-  buku_nikah: newVal.buku_nikah === 'ada' ? true : false,
-  akte_lahir: newVal.akte_lahir === 'ada' ? true : false,
-  buku_kuning: newVal.buku_kuning === 'ada' ? true : false,
-  keterangan: newVal.keterangan,
-  nama_keluarga: newVal.nama_keluarga,
-  alamat_keluarga: newVal.alamat_keluarga,
-  telephone_keluarga: newVal.telephone_keluarga,
-  status_nikah: newVal.status_nikah,
-  tanggal_nikah: newVal.tanggal_nikah,
-  kewarganegaraan: newVal.kewarganegaraan,
-  title: newVal.title,
-};
-
-  } else {
-    // If it's a single object, map directly to formData
-    formData.value = {
-  ...formData.value,
-  id: newVal.id,
-  birth_date: newVal.birth_date?.slice(0, 10),
-  birth_place: newVal.birth_place,
-  fullname: newVal.nama_jamaah,
-  nama_agen: newVal.nama_agen,
-  identity_number: newVal.nomor_identitas,
-  tempat_tanggal_lahir: newVal.tempat_tanggal_lahir,
-  identity_type: newVal.identity_type,
-  gender: newVal.gender,
-  photo: newVal.photo,
-  nomor_passport: newVal.nomor_passport,
-  whatsapp_number: newVal.whatsapp_number,
-  nama_ayah: newVal.nama_ayah,
-  nama_passport: newVal.nama_passport,
-  tanggal_di_keluarkan_passport: newVal.tanggal_di_keluarkan_passport?.slice(0, 10),
-  tempat_di_keluarkan_passport: newVal.tempat_di_keluarkan_passport,
-  masa_berlaku_passport: newVal.masa_berlaku_passport?.slice(0, 10),
-  kode_pos: newVal.kode_pos,
-  nomor_telephone: newVal.nomor_telephone,
-  pengalaman_haji: newVal.pengalaman_haji,
-  tahun_haji: newVal.tahun_haji,
-  pengalaman_umrah: newVal.pengalaman_umrah,
-  tahun_umrah: newVal.tahun_umrah,
-  desease: newVal.desease,
-  last_education: newVal.last_education,
-  blood_type: newVal.blood_type,
-  photo_4_6: newVal.photo_4_6,
-  photo_3_4: newVal.photo_3_4,
-  fc_passport: newVal.fc_passport,
-  mst_pekerjaan_id: newVal.mst_pekerjaan_id,
-  profession_instantion_name: newVal.profession_instantion_name,
-  profession_instantion_address: newVal.profession_instantion_address,
-  profession_instantion_telephone: newVal.profession_instantion_telephone,
-  fc_kk: newVal.fc_kk === 'ada' ? true : false,
-  fc_ktp: newVal.fc_ktp === 'ada' ? true : false,
-  buku_nikah: newVal.buku_nikah === 'ada' ? true : false,
-  akte_lahir: newVal.akte_lahir === 'ada' ? true : false,
-  buku_kuning: newVal.buku_kuning === 'ada' ? true : false,
-  keterangan: newVal.keterangan,
-  nama_keluarga: newVal.nama_keluarga,
-  alamat_keluarga: newVal.alamat_keluarga,
-  telephone_keluarga: newVal.telephone_keluarga,
-  status_nikah: newVal.status_nikah,
-  tanggal_nikah: newVal.tanggal_nikah?.slice(0, 10),
-  kewarganegaraan: newVal.kewarganegaraan,
-  title: newVal.title,
-};
-
-  }
-
-  // Sync dokumen if available
-  if (newVal.dokumen) {
-    dokumen.value = {
-      ...dokumen.value,
-      ...newVal.dokumen
-    };
-  }
-}, { immediate: true });
-
-
-
-const emit = defineEmits(['update'])
-
-
-// Handle submit form
-const handleSubmit = async () => {
-  isLoading.value = true
-  errorMessage.value = ''
 
   try {
-    // Validasi data wajib
-    if (
-      !formData.value.fullname ||
-      !formData.value.identity_number ||
-      !formData.value.nomor_telephone
-    ) {
-      throw new Error('Harap isi semua field yang wajib diisi')
-    }
+    isLoading.value = true
+    const [infoUpdateRes, memberRes, agenRes, mahramRes, pekerjaanRes, pendidikanRes, pengalamanRes] = await Promise.all([
+      getInfoUpdate({ id: props.jamaahId, division_id: props.cabangId }),
+      getJamaahNotMember(props.cabangId),
+      getAgen(props.cabangId),
+      daftarMahram(),
+      daftarPekerjaan(),
+      daftarPendidikan(),
+      daftarPengalaman(),
+    ])
 
-    // Format data dokumen sesuai kebutuhan backend
-    const dokumenPayload = {
-      photo_4_6: dokumen.value.photo_4_6 ? 'ada' : 'tidak_ada',
-      photo_3_4: dokumen.value.photo_3_4 ? 'ada' : 'tidak_ada',
-      fc_passport: dokumen.value.fc_passport ? 'ada' : 'tidak_ada',
-      fc_kk: dokumen.value.fc_kk ? 'ada' : 'tidak_ada',
-      fc_ktp: dokumen.value.fc_ktp ? 'ada' : 'tidak_ada',
-      buku_nikah: dokumen.value.buku_nikah ? 'ada' : 'tidak_ada',
-      akte_lahir: dokumen.value.akte_lahir ? 'ada' : 'tidak_ada',
-      buku_kuning: dokumen.value.buku_kuning ? 'ada' : 'tidak_ada',
-    }
+    formData.value ={ ...formData.value, ... infoUpdateRes.data}
+    const docTypes = [
+      'photo_4_6',
+      'photo_3_4',
+      'fc_passport',
+      'fc_kk',
+      'fc_ktp',
+      'buku_nikah',
+      'akte_lahir',
+      'buku_kuning',
+    ];
 
-    // Gabungkan semua data
-    const payload = {
-      ...formData.value,
-      ...dokumenPayload,
-      // Jika ada field tanggal yang perlu format khusus
-      tanggal_di_keluarkan_passport: formData.value.tanggal_di_keluarkan_passport
-        ? `${formData.value.tanggal_di_keluarkan_passport} 00:00:00`
-        : null,
-      masa_berlaku_passport: formData.value.masa_berlaku_passport
-        ? `${formData.value.masa_berlaku_passport} 00:00:00`
-        : null,
-      // Jika ada photo yang perlu diupload
-      photo: photoPreview.value,
-    }
+    dokumen.value = Object.fromEntries(
+      docTypes.map((type) => [
+        type,
+        infoUpdateRes.data.documents.find((doc: {type: string, value: boolean}) => doc.type === type)?.value === true,
+      ])
+    );
+    fileFoto.value = infoUpdateRes.data.photo
+    member.value = [{id: null, fullname: 'Tidak Ada'}, ...memberRes.data]
+    agen.value = [{id: null, fullname: 'Tidak Ada'}, ...agenRes.data]
+    mahram.value = mahramRes.data
+    pekerjaan.value = pekerjaanRes.data
+    pendidikan.value = pendidikanRes.data
+    pengalaman.value = pengalamanRes.data
 
-    console.log('Data yang akan dikirim:', payload)
-    console.log('FormData Sebelum Kirim:', formData.value)
-    // Uncomment untuk kirim ke API
-    const response = await editJamaah(payload)
-    console.log('Response:', response)
-
-    emit('update')
-    // this.$emit('close') // Uncomment untuk tutup modal setelah submit
-  } catch (error) {
-    console.error('Error submitting form:', error)
-    errorMessage.value = error.message || 'Terjadi kesalahan saat menyimpan data'
+    console.log("data dokument", dokumen.value)
+    console.log("data agen", agen.value)
+    console.log("data member", member.value)
+    console.log("data mahram", mahram.value)
+    console.log("data pekerjaan", pekerjaan.value)
+    console.log("data pendidikan", pendidikan.value)
+    console.log("data pengalaman", pengalaman.value)
+  } catch (error: any) {
+    emit('close')
+    emit('status', {error: true, err_msg: error.response?.data?.error_msg || error.response?.data?.message || 'Terjadi kesalahan dalam mengambil data'})
   } finally {
     isLoading.value = false
   }
 }
 
-// Fetch data master saat komponen mounted
-onMounted(() => {
-  fetchProvinsi()
-  fetchMahramTypes()
-  fetchPekerjaan()
-  fetchPendidikan()
-  fetchPengalaman()
-  fetchMember()
-  fetchAgen()
-  fetchPengalaman()
+const fetchProvinsi = async () => {
+  try {
+    const response = await daftarProvinsi()
+    provinsi.value = response.data
+    console.log("data provinsi", provinsi.value)
+  } catch (error) {
+    displayNotification('Gagal memuat data provinsi', 'error')
+  }
+}
+
+const fetchKabupaten = async () => {
+  try {
+    const response = await daftarKabupaten({
+      provinsi_id: formData.value.provinsi_id
+    })
+    kabupaten.value = response.data
+    console.log("data kabupaten", kabupaten.value)
+  } catch (error) {
+    displayNotification('Gagal memuat data kabupaten', 'error')
+  }
+}
+
+const fetchKecamatan = async () => {
+  try {
+    const response = await daftarKecamatan({
+      kabupaten_id: formData.value.kabupaten_id
+    })
+    kecamatan.value = response.data
+    console.log("data kecamatan", kecamatan.value)
+  } catch (error) {
+    displayNotification('Gagal memuat data kecamatan', 'error')
+  }
+}
+
+const fetchKelurahan = async () => {
+  try {
+    const response = await daftarKelurahan({
+      kecamatan_id: formData.value.kecamatan_id
+    })
+    kelurahan.value = response.data
+    console.log("data kelurahan", kelurahan.value)
+  } catch (error) {
+    displayNotification('Gagal memuat data kelurahan', 'error')
+  }
+}
+
+const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
+  notificationMessage.value = message;
+  notificationType.value = type;
+  showNotification.value = true;
+
+  if (timeoutId.value) clearTimeout(timeoutId.value);
+
+  timeoutId.value = window.setTimeout(() => {
+    showNotification.value = false;
+  }, 3000);
+};
+
+const watcherConfig = [
+  {
+    source: () => formData.value.provinsi_id,
+    reset: ['kabupaten_id', 'kecamatan_id', 'kelurahan_id'],
+    fetch: fetchKabupaten,
+  },
+  {
+    source: () => formData.value.kabupaten_id,
+    reset: ['kecamatan_id', 'kelurahan_id'],
+    fetch: fetchKecamatan,
+  },
+  {
+    source: () => formData.value.kecamatan_id,
+    reset: ['kelurahan_id'],
+    fetch: fetchKelurahan,
+  },
+  {
+    source: () => formData.value.status_nikah,
+    reset: ['tanggal_nikah'],
+  },
+  {
+    source: () => formData.value.pengalaman_haji,
+    reset: ['tahun_haji'],
+  },
+  {
+    source: () => formData.value.pengalaman_umrah,
+    reset: ['tahun_umrah'],
+  },
+  {
+    source: () => formData.value.mst_pekerjaan_id,
+    reset: ['profession_instantion_name', 'profession_instantion_address', 'profession_instantion_telephone'],
+  },
+];
+
+watcherConfig.forEach(({ source, reset, fetch, watchCallback }) => {
+  watch(
+    source,
+    async (newVal, oldVal) => {
+      if (isFetchReady.value && newVal !== oldVal) {
+        reset.forEach((field) => (formData.value[field] = null)); // reset datanya
+        if (newVal && fetch) await fetch(); // Fetch data
+        if (watchCallback) watchCallback(newVal);
+      }
+    },
+    { immediate: true }
+  );
+});
+
+onMounted(async () => {
+  isLoading.value = true
+  isFetchReady.value = false;
+  await fetchData();
+  await fetchProvinsi();
+  await fetchKabupaten();
+  await fetchKecamatan();
+  await fetchKelurahan();
+  isFetchReady.value = true;
+  isLoading.value = false
 })
+
+// Function: Validasi form
+const validateForm = (): boolean => {
+  type ValidatorFn = (value: any) => string | null;
+
+  const required = (label: string): ValidatorFn => (value) =>
+    !value?.toString().trim() ? `${label} tidak boleh kosong` : null;
+  const isEmail = (): ValidatorFn => (value) =>
+    value === null ? null : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? null : 'Format email tidak valid';
+
+  const isValidNumber = (label: string): ValidatorFn => (value) =>
+    value === null ? null : /^08\d{8,}$/.test(value) ? null : `Nomor ${label} tidak valid`;
+
+  const isBeforeToday = (label: string): ValidatorFn => (value) => {
+    const date = new Date(value);
+    return value === null ? null : date && date < new Date() ? null : `${label} harus sebelum hari ini`;
+  };
+
+  const isString = (label: string): ValidatorFn => (value) =>
+    value === null ? null : typeof value === 'string' ? null : `${label} harus berupa teks`;
+
+  const isNumber = (label: string): ValidatorFn => (value) =>
+    value === null ? null : !isNaN(value) ? null : `${label} harus berupa angka`;
+
+  const isDate = (label: string): ValidatorFn => (value) =>
+    value === null ? null : !isNaN(new Date(value).getTime()) ? null : `${label} harus berupa tanggal yang valid`;
+
+  const fieldValidators: Record<string, ValidatorFn[]> = {
+    password: [required('Password'), isString('Password')],
+    fullname: [required('Nama'), isString('Nama')],
+    identity_number: [required('Nomor identitas'), isNumber('Nomor identitas')],
+    identity_type: [required('Jenis identitas'), isString('Jenis identitas')],
+    gender: [required('Jenis kelamin'), isString('Jenis kelamin')],
+    birth_place: [required('Tempat lahir'), isString('Tempat lahir')],
+    birth_date: [required('Tanggal lahir'), isDate('Tanggal lahir'), isBeforeToday('Tanggal lahir')],
+    whatsapp_number: [required('Nomor WhatsApp'), isValidNumber('Whatsapp')],
+    agen_id: [isNumber('Agen')],
+    title: [isString('Titel')],
+    nama_ayah: [isString('Nama Ayah')],
+    nama_passport: [isString('Nama Passport')],
+    nomor_passport: [isNumber('Nomor Passport')],
+    tanggal_di_keluarkan_passport: [isDate('Tanggal Dikeluarkan Passport')],
+    tempat_di_keluarkan_passport: [isString('Tempat Dikeluarkan Passport')],
+    masa_berlaku_passport: [isDate('Masa Berlaku Passport')],
+    kode_pos: [required('Kode Pos'), isNumber('Kode Pos')],
+    nomor_telephone: [required('Nomor Telepon'), isValidNumber('Telepon')],
+    pengalaman_haji: [required('Pengalaman Haji')],
+    tahun_haji: [isNumber('Tahun Haji')],
+    pengalaman_umrah: [required('Pengalaman Umrah')],
+    tahun_umrah: [isNumber('Tahun Umrah')],
+    desease: [isString('Penyakit')],
+    last_education: [required('Pendidikan Terakhir')],
+    blood_type: [isString('Golongan Darah')],
+    mst_pekerjaan_id: [required('Pekerjaan')],
+    profession_instantion_name: [isString('Nama Instansi')],
+    profession_instantion_address: [isString('Alamat Instansi')],
+    profession_instantion_telephone: [isValidNumber('Telepon Instansi')],
+    nama_keluarga: [isString('Nama Keluarga')],
+    alamat_keluarga: [isString('Alamat Keluarga')],
+    telephone_keluarga: [isValidNumber('Telepon Keluarga')],
+    status_nikah: [required('Status Nikah')],
+    tanggal_nikah: [isDate('Tanggal Nikah')],
+    kewarganegaraan: [required('Kewarganegaraan'), isString('Kewarganegaraan')],
+    keterangan: [isString('Keterangan')],
+    address: [required('Alamat')],
+    provinsi_id: [required('Provinsi')],
+    kabupaten_id: [required('Kabupaten')],
+    kecamatan_id: [required('Kecamatan')],
+    kelurahan_id: [required('Kelurahan')],
+    email: [isEmail()],
+  };
+
+  errors.value = {} as Record<keyof typeof formData.value, string>;
+  let isValid = true;
+
+  const passwordRegex = new RegExp('^[a-zA-Z0-9]{6,}$');
+
+  if (!passwordRegex.test(formData.value.password)) {
+    errors.value.password = 'Password minimal 6 karakter dan hanya boleh berisi alphanumeric';
+    isValid = false;
+  }
+
+  if (formData.value.password !== formData.value.confirm_password) {
+    errors.value.confirm_password = 'Password tidak sama atau cocok';
+    isValid = false;
+  }
+
+  if (!props.cabangId) {
+    displayNotification('ID Cabang tidak ditemukan, silahkan keluar dan masuk kembali', 'error');
+    isValid = false;
+  }
+
+  for (const [index, m] of formData.value.mahram.entries()) {
+    if (m.mahram_id && !m.mst_mahram_type_id) {
+      errors.value[`mahram.${index}.mst_mahram_type_id`] = 'Jenis mahram wajib diisi';
+    }
+  }
+
+  // Ini validasi untuk semua fieldValidators yang memiliki validasi
+  for (const field of Object.keys(fieldValidators) as (keyof typeof formData.value)[]) {
+    const validators = fieldValidators[field]!;
+    for (const validate of validators) {
+      const error = validate(formData.value[field]);
+      if (error) {
+        errors.value[field] = error;
+        isValid = false;
+        break;
+      }
+    }
+  }
+
+  if (!isValid) {
+    displayNotification('Terdapat kesalahan dalam input data, silahkan periksa kembali', 'error');
+  }
+
+  return isValid;
+};
+
+// Handle file upload
+const handleFileUpload = (event: Event): void => {
+  const input = event as HTMLInputElement
+  if (input) {
+    const file = input
+
+    // Validasi jenis file
+    if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
+      errors.value.photo = 'File harus berupa JPG, JPEG, atau PNG'
+      fileName.value = ''
+      return
+    }
+
+    // Validasi ukuran file (600KB = 614400 bytes)
+    if (file.size > 614400) {
+      errors.value.photo = 'Ukuran file maksimum 600KB'
+      displayNotification('Ukuran file gambar maksimum 600KB', 'error')
+      fileName.value = ''
+      return
+    }
+
+    fileName.value = file.name
+    formData.value.photo = file
+    console.log(fileName.value)
+    console.log(formData.value.photo)
+  }
+}
+
+const photoPreviewUrl = computed(() => {
+  if (!formData.value.photo && !fileFoto.value) return null;
+  return fileFoto.value
+    ? fileFoto.value = null
+    : URL.createObjectURL(formData.value.photo);
+});
+
+
+const saveData = async () => {
+  if (!validateForm()) return
+
+  const objectToFormData = (
+    obj: Record<string, any>,
+    form: FormData = new FormData(),
+    parentKey = ''
+  ): FormData => {
+    Object.entries(obj).forEach(([key, value]) => {
+      const formKey = parentKey ? `${parentKey}[${key}]` : key
+
+      if (value instanceof Date) {
+        form.append(formKey, value.toISOString())
+      } else if (value instanceof File || value instanceof Blob) {
+        form.append(formKey, value)
+      } else if (Array.isArray(value)) {
+        value.forEach((item, index) => {
+          if (typeof item === 'object' && item !== null) {
+            objectToFormData(item, form, `${formKey}[${index}]`)
+          } else {
+            form.append(`${formKey}[${index}]`, item)
+          }
+        })
+      } else if (typeof value === 'object' && value !== null) {
+        objectToFormData(value, form, formKey)
+      } else if (value !== null && value !== undefined) {
+        form.append(formKey, value)
+      }
+    })
+
+    return form
+  }
+
+  try {
+    isLoading.value = true
+
+    const combinedData = {
+      ...formData.value,
+      division_id: props.cabangId,
+      ...Object.fromEntries(
+        Object.entries(dokumen.value).map(([key, val]) => [key, val ? '1' : '0'])
+      )
+    }
+
+    const formDataToSend = objectToFormData(combinedData)
+
+    console.log('ISI FORMDATA:', Array.from(formDataToSend.entries()))
+
+    const response = await editJamaah(formDataToSend)
+    console.log(response)
+
+    emit('close')
+    emit('status', {
+      error: false,
+      err_msg: response.error_msg || response.message || 'Data jamaah berhasil disimpan'
+    })
+  } catch (error: any) {
+    displayNotification(
+      error?.response?.data?.error_msg ||
+      error?.response?.data?.message ||
+      'Terjadi kesalahan dalam menyimpan data',
+      'error'
+    )
+  } finally {
+    isLoading.value = false
+  }
+}
 </script>
 
-<style scoped>
-.input {
-  @apply w-full border text-gray-700 border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors;
-}
-</style>
+
+<template>
+  <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="animate-spin h-5 w-5 border-b-2 border-white rounded-full"></div>
+  </div>
+  <div v-if="props.isFormUpdateOpen && !isLoading" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex min-h-screen items-end justify-center px-6 pt-6 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+      <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
+      <div class="relative p-6 inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl sm:align-middle">
+        <h1 class="border-b border-gray-200 pb-4 text-2xl flex items-center justify-center font-bold leading-6 text-gray-900 mb-4">
+          Form Edit Jamaah
+        </h1>
+        <div class="bg-white max-h-[68vh] text-gray-800 overflow-y-auto no-scrollbar">
+          <!-- Section 1: Identitas Diri  -->
+          <div class="space-y-3 p-1">
+            <h2 class="text-xl font-semibold">Identitas Diri</h2>
+            <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Title <span class="text-red-500">*</span></label>
+                <select
+                  v-model="formData.title"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  required
+                >
+                  <option value="">Pilih Title</option>
+                  <option value="tuan">Tuan</option>
+                  <option value="nona">Nona</option>
+                  <option value="nyonya">Nyonya</option>
+                </select>
+                <span v-if="errors.title" class="mt-1 text-sm text-red-600">{{ errors.title }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Nama Lengkap <span class="text-red-500">*</span></label>
+                <input
+                  v-model="formData.fullname"
+                  type="text"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Nama Lengkap"
+                  required
+                />
+                <span v-if="errors.fullname" class="mt-1 text-sm text-red-600 ">{{ errors.fullname }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Nama Passport</label>
+                <input
+                  v-model="formData.nama_passport"
+                  type="text"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Nama Passport"
+                />
+                <span v-if="errors.nama_passport" class="mt-1 text-sm text-red-600">{{ errors.nama_passport }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Nomor Identitas <span class="text-red-500">*</span></label>
+                <input
+                  v-model="formData.identity_number"
+                  type="text"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Nomor Identitas (NIK/KTP)"
+                  required
+                />
+                <span v-if="errors.identity_number" class="mt-1 text-sm text-red-600">{{ errors.identity_number }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Jenis Identitas <span class="text-red-500">*</span></label>
+                <select
+                  v-model="formData.identity_type"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  required
+                >
+                  <option value="">Pilih Jenis Identitas</option>
+                  <option value="passport">Passport</option>
+                  <option value="ktp">KTP</option>
+                </select>
+                <span v-if="errors.identity_type" class="mt-1 text-sm text-red-600">{{ errors.identity_type }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Kewarganegaraan <span class="text-red-500">*</span></label>
+                <select
+                  v-model="formData.kewarganegaraan"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  required
+                >
+                  <option value="">Pilih Kewarganegaraan</option>
+                  <option value="wni">WNI</option>
+                  <option value="wna">WNA</option>
+                </select>
+                <span v-if="errors.kewarganegaraan" class="mt-1 text-sm text-red-600">{{ errors.kewarganegaraan }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Jenis Kelamin <span class="text-red-500">*</span></label>
+                <select
+                  v-model="formData.gender"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  required
+                >
+                  <option value="">Pilih Jenis Kelamin</option>
+                  <option value="laki_laki">Laki-laki</option>
+                  <option value="perempuan">Perempuan</option>
+                </select>
+                <span v-if="errors.gender" class="mt-1 text-sm text-red-600 ">{{ errors.gender }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Golongan Darah</label>
+                <select
+                  v-model="formData.blood_type"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  required
+                >
+                  <option value="">Pilih Golongan Darah</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="AB">AB</option>
+                  <option value="O">O</option>
+                </select>
+                <span v-if="errors.blood_type" class="mt-1 text-sm text-red-600 ">{{ errors.blood_type }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Tempat Lahir <span class="text-red-500">*</span></label>
+                <input
+                  v-model="formData.birth_place"
+                  type="text"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Kota kelahiran"
+                  required
+                />
+                <span v-if="errors.birth_place" class="mt-1 text-sm text-red-600">{{ errors.birth_place }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Tanggal Lahir <span class="text-red-500">*</span></label>
+                <input
+                  v-model="formData.birth_date"
+                  type="date"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  required
+                />
+                <span v-if="errors.birth_date" class="mt-1 text-sm text-red-600 ">{{ errors.birth_date }}</span>
+              </div>
+            </div>
+            <!-- Section 2: Kontak dan Alamat  -->
+            <h2 class="text-xl font-semibold">Kontak dan Alamat</h2>
+            <div class="mt-2">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-1">
+                  <SearchableSelect
+                    v-model="formData.provinsi_id"
+                    :options="provinsi"
+                    label="Provinsi"
+                    placeholder="Pilih Provinsi"
+                    idField="id"
+                    nameField="name"
+                    required
+                    :error="errors.provinsi_id"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <SearchableSelect
+                    v-model="formData.kabupaten_id"
+                    :options="kabupaten"
+                    label="Kabupaten"
+                    placeholder="Pilih Kabupaten"
+                    idField="id"
+                    nameField="name"
+                    required
+                    :error="errors.kabupaten_id"
+                    :disabled="!formData.provinsi_id"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <SearchableSelect
+                    v-model="formData.kecamatan_id"
+                    :options="kecamatan"
+                    label="Kecamatan"
+                    placeholder="Pilih Kecamatan"
+                    idField="id"
+                    nameField="name"
+                    required
+                    :error="errors.kecamatan_id"
+                    :disabled="!formData.kabupaten_id"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <SearchableSelect
+                    v-model="formData.kelurahan_id"
+                    :options="kelurahan"
+                    label="Kelurahan"
+                    placeholder="Pilih Kelurahan"
+                    idField="id"
+                    nameField="name"
+                    required
+                    :error="errors.kelurahan_id"
+                    :disabled="!formData.kecamatan_id"
+                  />
+                </div>
+              </div>
+              <div class="space-y-1 pt-2 pb-2">
+                <label class="block w-full text-sm font-medium text-gray-700">Alamat Lengkap <span class="text-red-500">*</span></label>
+                <textarea
+                  v-model="formData.address"
+                  class="resize-none block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Jl. Nama Jalan No. XX"
+                  required
+                ></textarea>
+                <span v-if="errors.address" class="mt-1 text-sm text-red-600">{{ errors.address }}</span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-1">
+                  <label class="block w-full text-sm font-medium text-gray-700">Kode POS <span class="text-red-500">*</span></label>
+                  <input
+                    v-model="formData.kode_pos"
+                    type="text"
+                    class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    placeholder="12345"
+                    required
+                  />
+                  <span v-if="errors.kode_pos" class="mt-1 text-sm text-red-600">{{ errors.kode_pos }}</span>
+                </div>
+                <div class="space-y-1">
+                  <label class="block w-full text-sm font-medium text-gray-700">Nomor Telepon <span class="text-red-500">*</span></label>
+                  <input
+                    v-model="formData.nomor_telephone"
+                    type="text"
+                    class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    placeholder="081234567890"
+                    required
+                  />
+                  <span v-if="errors.nomor_telephone" class="mt-1 text-sm text-red-600">{{ errors.nomor_telephone }}</span>
+                </div>
+                <div class="space-y-1">
+                  <label class="block w-full text-sm font-medium text-gray-700">Nomor Whatsapp <span class="text-red-500">*</span></label>
+                  <input
+                    v-model="formData.whatsapp_number"
+                    type="text"
+                    class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    placeholder="081234567890"
+                    required
+                  />
+                  <span v-if="errors.whatsapp_number" class="mt-1 text-sm text-red-600">{{ errors.whatsapp_number }}</span>
+                </div>
+                <div class="space-y-1">
+                  <label class="block w-full text-sm font-medium text-gray-700">Email</label>
+                  <input
+                    v-model="formData.email"
+                    type="email"
+                    class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                    placeholder="jamaah@example.com"
+                  />
+                  <span v-if="errors.email" class="mt-1 text-sm text-red-600">{{ errors.email }}</span>
+                </div>
+              </div>
+            </div>
+            <!-- Section 3: Informasi Passport -->
+            <h2 class="text-xl font-semibold">Informasi Passport</h2>
+            <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Nomor Passport</label>
+                <input
+                  v-model="formData.nomor_passport"
+                  type="text"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="A1234567"
+                />
+                <span v-if="errors.nomor_passport" class="mt-1 text-sm text-red-600">{{ errors.nomor_passport }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Masa Berlaku Passport</label>
+                <input
+                  v-model="formData.masa_berlaku_passport"
+                  type="date"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                />
+                <span v-if="errors.masa_berlaku_passport" class="mt-1 text-sm text-red-600">{{ errors.masa_berlaku_passport }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Tanggal Dikeluarkan Passport</label>
+                <input
+                  v-model="formData.tanggal_di_keluarkan_passport"
+                  type="date"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                />
+                <span v-if="errors.tanggal_di_keluarkan_passport" class="mt-1 text-sm text-red-600">{{ errors.tanggal_di_keluarkan_passport }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Tempat Dikeluarkan Passport</label>
+                <input
+                  v-model="formData.tempat_di_keluarkan_passport"
+                  type="text"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Tempat dikeluarkan passport"
+                />
+                <span v-if="errors.tempat_di_keluarkan_passport" class="mt-1 text-sm text-red-600">{{ errors.tempat_di_keluarkan_passport }}</span>
+              </div>
+            </div>
+            <!-- Section 4: Informasi Keluarga -->
+            <h2 class="text-xl font-semibold">Informasi Keluarga</h2>
+            <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Nama Ayah Kandung</label>
+                <input
+                  v-model="formData.nama_ayah"
+                  type="text"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Nama Ayah"
+                />
+                <span v-if="errors.nama_ayah" class="mt-1 text-sm text-red-600">{{ errors.nama_ayah }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Nama Keluarga</label>
+                <input
+                  v-model="formData.nama_keluarga"
+                  type="text"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Nama Keluarga"
+                />
+                <span v-if="errors.nama_keluarga" class="mt-1 text-sm text-red-600">{{ errors.nama_keluarga }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Nomor Telepon Keluarga</label>
+                <input
+                  v-model="formData.telephone_keluarga"
+                  type="text"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Nomor Telepon Keluarga"
+                />
+                <span v-if="errors.telephone_keluarga" class="mt-1 text-sm text-red-600">{{ errors.telephone_keluarga }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block w-full text-sm font-medium text-gray-700">Alamat Keluarga</label>
+                <textarea
+                  v-model="formData.alamat_keluarga"
+                  class="resize-none block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Alamat Keluarga"
+                ></textarea>
+                <span v-if="errors.alamat_keluarga" class="mt-1 text-sm text-red-600">{{ errors.alamat_keluarga }}</span>
+              </div>
+            </div>
+            <!-- Section 5: Informasi Mahram -->
+            <h2 class="text-xl font-semibold mb-2">Informasi Mahram</h2>
+
+            <div
+              v-for="(mahramData, index) in formData.mahram"
+              :key="index"
+              class="relative pr-4 pl-4 pt-2 pb-2 border border-gray-300 rounded-lg bg-gray-50 shadow-sm"
+            >
+              <!-- Tombol Hapus -->
+              <button
+                type="button"
+                @click="formData.mahram.splice(index, 1)"
+                class="absolute top-2 right-2 text-red-500 hover:text-red-700 transition"
+                title="Hapus Mahram"
+              >
+                <font-awesome-icon icon="fa-solid fa-times"></font-awesome-icon>
+              </button>
+              <div class="grid grid-cols-1 md:grid-cols-2">
+                <div class="space-y-1 pr-4">
+                  <SearchableSelect
+                    v-model="mahramData.mahram_id"
+                    :options="member"
+                    label="Nama Jamaah"
+                    placeholder="Pilih Nama Jamaah"
+                    idField="id"
+                    nameField="fullname"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <SearchableSelect
+                    v-model="mahramData.mst_mahram_type_id"
+                    :options="mahram"
+                    label="Jenis Mahram"
+                    placeholder="Pilih Jenis Mahram"
+                    idField="id"
+                    nameField="name"
+                    :disabled="!mahramData.mahram_id"
+                  />
+                </div>
+                <template v-if="mahramData.mahram_id && !mahramData.mst_mahram_type_id">
+                  <p class="text-sm text-red-600">
+                    Jenis mahram wajib diisi
+                  </p>
+                </template>
+              </div>
+            </div>
+            <PrimaryButton
+              type="button"
+              @click="formData.mahram.push({ mahram_id: null, mst_mahram_type_id: null })"
+            >
+              <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
+              Tambah Mahram
+            </PrimaryButton>
+            <!-- Section 6: Informasi Tambahan -->
+            <h2 class="text-xl font-semibold">Informasi Tambahan</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="block text-sm font-medium text-gray-700">Status Nikah</label>
+                <select v-model="formData.status_nikah" class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                  <option value="belum_menikah">Belum Menikah</option>
+                  <option value="menikah">Menikah</option>
+                  <option value="janda_duda">Janda Duda</option>
+                </select>
+                <span class="mt-1 text-sm text-red-600" v-if="errors.status_nikah">{{ errors.status_nikah }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block text-sm font-medium text-gray-700">Tanggal Nikah</label>
+                <input
+                  v-model="formData.tanggal_nikah"
+                  type="date"
+                  :class="{ 'opacity-50': formData.status_nikah !== 'menikah' }"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  :disabled="formData.status_nikah !== 'menikah'"
+                />
+                <span class="mt-1 text-sm text-red-600" v-if="errors.tanggal_nikah">{{ errors.tanggal_nikah }}</span>
+              </div>
+            </div>
+            <!-- Section 7: Pengalaman Haji/Umrah -->
+            <h2 class="text-xl font-semibold">Pengalaman Haji/Umrah</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="block text-sm font-medium text-gray-700">Pengalaman Haji</label>
+                <select v-model="formData.pengalaman_haji" class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                  <option v-for="item in pengalaman" :key="item.id" :value="item.id">{{ item.name }}</option>
+                </select>
+                <span class="mt-1 text-sm text-red-600" v-if="errors.pengalaman_haji">{{ errors.pengalaman_haji }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block text-sm font-medium text-gray-700">Tahun Haji</label>
+                <input
+                  v-model="formData.tahun_haji"
+                  type="text"
+                  pattern="[0-9]{4}"
+                  :class="{ 'opacity-50': formData.pengalaman_haji === 1 || formData.pengalaman_haji === null }"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  :disabled="formData.pengalaman_haji === 1 || formData.pengalaman_haji === null"
+                  placeholder="Tahun Haji"
+                />
+                <span class="mt-1 text-sm text-red-600" v-if="errors.tahun_haji">{{ errors.tahun_haji }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block text-sm font-medium text-gray-700">Pengalaman Umrah</label>
+                <select v-model="formData.pengalaman_umrah" class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                  <option v-for="item in pengalaman" :key="item.id" :value="item.id">{{ item.name }}</option>
+                </select>
+                <span class="mt-1 text-sm text-red-600" v-if="errors.pengalaman_umrah">{{ errors.pengalaman_umrah }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block text-sm font-medium text-gray-700">Tahun Umrah</label>
+                <input
+                  v-model="formData.tahun_umrah"
+                  type="text"
+                  pattern="[0-9]{4}"
+                  :class="{ 'opacity-50': formData.pengalaman_umrah === 1 || formData.pengalaman_umrah === null }"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  :disabled="formData.pengalaman_umrah === 1 || formData.pengalaman_umrah === null"
+                  placeholder="Tahun Umrah"
+                />
+                <span class="mt-1 text-sm text-red-600" v-if="errors.tahun_umrah">{{ errors.tahun_umrah }}</span>
+              </div>
+            </div>
+            <!-- Section 8: Informasi Pekerjaan -->
+            <h2 class="text-xl font-semibold">Informasi Pekerjaan</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="block text-sm font-medium text-gray-700">Pekerjaan</label>
+                <select v-model="formData.mst_pekerjaan_id" class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                  <option value="" disabled selected>Pilih pekerjaan</option>
+                  <option v-for="item in pekerjaan" :key="item.id" :value="item.id">{{ item.name }}</option>
+                </select>
+                <span class="mt-1 text-sm text-red-600" v-if="errors.mst_pekerjaan_id">{{ errors.mst_pekerjaan_id }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block text-sm font-medium text-gray-700">Nama Perusahaan</label>
+                <input
+                  v-model="formData.profession_instantion_name"
+                  type="text"
+                  :class="{ 'opacity-50': formData.mst_pekerjaan_id === 8 || formData.mst_pekerjaan_id === null }"
+                  :disabled="formData.mst_pekerjaan_id === 8 || formData.mst_pekerjaan_id === null"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Nama Perusahaan"
+                />
+                <span class="mt-1 text-sm text-red-600" v-if="errors.profession_instantion_name">{{ errors.profession_instantion_name }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block text-sm font-medium text-gray-700">Nomor Telepon Perusahaan</label>
+                <input
+                  v-model="formData.profession_instantion_telephone"
+                  type="text"
+                  :class="{ 'opacity-50': formData.mst_pekerjaan_id === 8 || formData.mst_pekerjaan_id === null }"
+                  :disabled="formData.mst_pekerjaan_id === 8 || formData.mst_pekerjaan_id === null"
+                  class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Nomor Telepon Perusahaan"
+                />
+                <span class="mt-1 text-sm text-red-600" v-if="errors.profession_instantion_telephone">{{ errors.profession_instantion_telephone }}</span>
+              </div>
+              <div class="space-y-1">
+                <label class="block text-sm font-medium text-gray-700">Alamat Perusahaan</label>
+                <textarea
+                  v-model="formData.profession_instantion_address"
+                  :class="{ 'opacity-50': formData.mst_pekerjaan_id === 8 || formData.mst_pekerjaan_id === null }"
+                  :disabled="formData.mst_pekerjaan_id === 8 || formData.mst_pekerjaan_id === null"
+                  class="resize-none block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Alamat Perusahaan"
+                ></textarea>
+                <span class="mt-1 text-sm text-red-600" v-if="errors.profession_instantion_address">{{ errors.profession_instantion_address }}</span>
+              </div>
+            </div>
+            <!-- Section 9: Kesehatan -->
+            <h2 class="text-xl font-semibold">Pendidikan dan Kesehatan</h2>
+            <div class="space-y-1">
+              <SearchableSelect
+                v-model="formData.last_education"
+                :options="pendidikan"
+                label="Pendidikan Terakhir"
+                placeholder="Pilih Pendidikan"
+                idField="id"
+                nameField="name"
+                :error="errors.last_education"
+              />
+            </div>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Riwayat Penyakit</label>
+              <textarea
+                v-model="formData.desease"
+                class="resize-none block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                placeholder="Riwayat penyakit yang diderita"
+                maxlength="255"
+              ></textarea>
+              <span v-if="formData.desease.length >= 255" class="mt-1 text-sm text-red-600">Maksimal 255 karakter</span>
+              <span v-if="errors.desease" class="mt-1 text-sm text-red-600">{{ errors.desease }}</span>
+            </div>
+            <!-- Section 10: Agen -->
+            <h2 class="text-xl font-semibold">Agen</h2>
+            <div class="space-y-1">
+              <SearchableSelect
+                v-model="formData.agen_id"
+                :options="agen"
+                label="Agen"
+                placeholder="Pilih Agen"
+                idField="id"
+                nameField="fullname"
+                :error="errors.agen_id"
+              />
+            </div>
+            <!-- Section 11: Kelengkapan Dokumen -->
+            <h2 class="text-xl font-semibold mb-4">Kelengkapan Dokumen</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="foto4x6"
+                  v-model="dokumen.photo_4_6"
+                  class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label for="foto4x6" class="text-sm font-medium text-gray-700">
+                  Pas Foto 4x6
+                </label>
+              </div>
+              <div class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="foto3x4"
+                  v-model="dokumen.photo_3_4"
+                  class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label for="foto3x4" class="text-sm font-medium text-gray-700">
+                  Pas Foto 3x4
+                </label>
+              </div>
+              <div class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="fcPassport"
+                  v-model="dokumen.fc_passport"
+                  class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label for="fcPassport" class="text-sm font-medium text-gray-700">
+                  FC Passport
+                </label>
+              </div>
+              <div class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="fcKK"
+                  v-model="dokumen.fc_kk"
+                  class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label for="fcKK" class="text-sm font-medium text-gray-700">
+                  FC KK
+                </label>
+              </div>
+              <div class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="fcKTP"
+                  v-model="dokumen.fc_ktp"
+                  class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label for="fcKTP" class="text-sm font-medium text-gray-700">
+                  FC KTP
+                </label>
+              </div>
+              <div class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="bukuNikah"
+                  v-model="dokumen.buku_nikah"
+                  class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label for="bukuNikah" class="text-sm font-medium text-gray-700">
+                  Buku Nikah
+                </label>
+              </div>
+              <div class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="akteLahir"
+                  v-model="dokumen.akte_lahir"
+                  class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label for="akteLahir" class="text-sm font-medium text-gray-700">
+                  Akte Kelahiran
+                </label>
+              </div>
+              <div class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="bukuKuning"
+                  v-model="dokumen.buku_kuning"
+                  class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label for="bukuKuning" class="text-sm font-medium text-gray-700">
+                  Buku Kuning
+                </label>
+              </div>
+            </div>
+            <!-- Section 12: Keterangan dan password -->
+            <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="block text-sm font-medium text-gray-700">Keterangan</label>
+                <textarea
+                  id="keterangan"
+                  v-model="formData.keterangan"
+                  rows="4"
+                  class="resize-none block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="keterangan"
+                ></textarea>
+                <p v-if="errors.keterangan" class="mt-1 text-sm text-red-600">{{ errors.keterangan }}</p>
+              </div>
+              <div class="space-y-2">
+                <div class="space-y-1">
+                  <label class="block text-sm font-medium text-gray-700">Password <span class="text-red-500">*</span></label>
+                  <div class="relative">
+                    <input
+                      :type="showPassword ? 'text' : 'password'"
+                      id="password"
+                      v-model="formData.password"
+                      class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                      placeholder="Password"
+                    />
+                    <button
+                      type="button"
+                      @click="showPassword = !showPassword"
+                      class="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-900"
+                    >
+                      <span v-if="!showPassword">
+                        <font-awesome-icon icon="fa-solid fa-eye-slash"></font-awesome-icon>
+                      </span>
+                      <span v-else>
+                        <font-awesome-icon icon="fa-regular fa-eye"></font-awesome-icon>
+                      </span>
+                    </button>
+                  </div>
+                  <p v-if="errors.password" class="mt-1 text-sm text-red-600">{{ errors.password }}</p>
+                </div>
+                <div class="space-y-1">
+                  <label class="block text-sm font-medium text-gray-700">Konfirmasi Password <span class="text-red-500">*</span></label>
+                  <div class="relative">
+                    <input
+                      :type="showConfirmPassword ? 'text' : 'password'"
+                      id="confirm-password"
+                      v-model="formData.confirm_password"
+                      class="block w-full px-3 py-2 placeholder:text-gray-500 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                      placeholder="Konfirmasi Password"
+                    />
+                    <button
+                      type="button"
+                      @click="showConfirmPassword = !showConfirmPassword"
+                      class="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-900"
+                    >
+                      <span v-if="!showConfirmPassword">
+                        <font-awesome-icon icon="fa-solid fa-eye-slash"></font-awesome-icon>
+                      </span>
+                      <span v-else>
+                        <font-awesome-icon icon="fa-regular fa-eye"></font-awesome-icon>
+                      </span>
+                    </button>
+                  </div>
+                  <p v-if="errors.confirm_password || formData.password !== formData.confirm_password" class="mt-1 text-sm text-red-600">{{ errors.confirm_password || 'Password tidak sama atau cocok' }}</p>
+                </div>
+              </div>
+              <!-- Section 13: Photo -->
+              <div class="space-y-1">
+                <label class="block text-sm font-medium text-gray-700">Photo</label>
+                <InputFile
+                  label_status="false"
+                  id="photo-upload"
+                  :error="errors.photo"
+                  @file-selected="handleFileUpload($event)"
+                  accept=".jpg,.jpeg,.png"
+                  >
+                    <div v-if="fileFoto || photoPreviewUrl" class="mt-2">
+                      <h2 class="text-sm font-medium text-gray-700">Preview</h2>
+                      <img
+                        v-if="fileFoto"
+                        :src="`${BASE_URL}/uploads/member/${fileFoto}`"
+                        alt="photo"
+                        class="h-auto w-32 object-cover rounded-md"
+                      />
+                      <img
+                        v-if="photoPreviewUrl && !fileFoto"
+                        :src="photoPreviewUrl"
+                        alt="photo"
+                        class="h-auto w-32 object-cover rounded-md"
+                      />
+                    </div>
+                </InputFile>
+              </div>
+            </div>
+          </div>
+          <div class="pb-2 pt-4 sm:flex sm:flex-row-reverse sm:px-0 gap-2">
+            <PrimaryButton @click="saveData()">UPDATE JAMAAH</PrimaryButton>
+            <button
+              @click="emit('close')"
+              class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-400 bg-gray-200 px-4 py-2 text-base font-medium text-gray-800 shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+            >
+              BATAL
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Notification -->
+  <Notification
+    :showNotification="showNotification"
+    :notificationType="notificationType"
+    :notificationMessage="notificationMessage"
+    @close="showNotification = false"
+  />
+</template>

@@ -1,6 +1,9 @@
 <template>
   <div>
-    <label v-if="label_status == true" :for="id" class="block text-sm font-medium text-gray-700 mb-2">{{ label }}</label>
+    <label v-if="label_status == true" :for="id" class="block text-sm font-medium text-gray-700 mb-2">
+      {{ label }}
+    </label>
+
     <div class="flex items-center">
       <input
         type="file"
@@ -8,6 +11,7 @@
         :id="id"
         :accept="accept"
         @change="onFileChange"
+        ref="fileInput"
       />
       <label
         :for="id"
@@ -15,12 +19,31 @@
       >
         {{ buttonText }}
       </label>
-      <span class="ml-4 text-gray-500">{{ fileName || 'No file chosen' }}</span>
+
+      <div class="ml-4 flex items-center space-x-2">
+        <span class="text-gray-500 text-sm truncate max-w-[150px]">
+          {{ fileName || 'No file chosen' }}
+        </span>
+        <button
+          v-if="fileName"
+          @click="removeFile"
+          class="text-red-500 hover:text-red-700 text-sm font-bold"
+          title="Hapus file"
+        >
+          ✕
+        </button>
+      </div>
     </div>
+
     <p v-if="error" class="text-red-500 text-sm mt-1">{{ error }}</p>
     <p class="text-xs text-gray-500 mt-2">
       Ukuran maksimum: 600 KB. Tipe file: JPG, JPEG, PNG.
     </p>
+
+    <!-- Slot tambahan jika ada -->
+    <div class="mt-3">
+      <slot></slot>
+    </div>
   </div>
 </template>
 
@@ -28,38 +51,34 @@
 import { ref } from 'vue'
 
 const props = defineProps({
-  id: {
-    type: String,
-    default: 'photo-upload'
-  },
-  label: {
-    type: String,
-    default: 'Upload Photo'
-  },
-  buttonText: {
-    type: String,
-    default: 'Choose File'
-  },
-  accept: {
-    type: String,
-    default: '.jpg,.jpeg,.png'
-  },
-  error: {
-    type: String,
-    default: ''
-  },
-  label_status : { type : Boolean, default : true }
+  id: { type: String, default: 'photo-upload' },
+  label: { type: String, default: 'Upload Photo' },
+  buttonText: { type: String, default: 'Choose File' },
+  accept: { type: String, default: '.jpg,.jpeg,.png' },
+  error: { type: String, default: '' },
+  label_status: { type: Boolean, default: true }
 })
 
 const emit = defineEmits(['file-selected'])
 
 const fileName = ref('')
+const fileInput = ref(null)
 
 function onFileChange(e) {
   const file = e.target.files[0]
   if (file) {
     fileName.value = file.name
     emit('file-selected', file)
+  }
+}
+
+function removeFile() {
+  fileName.value = ''
+  emit('file-selected', null)
+
+  // Reset <input type="file">
+  if (fileInput.value) {
+    fileInput.value.value = ''
   }
 }
 </script>
