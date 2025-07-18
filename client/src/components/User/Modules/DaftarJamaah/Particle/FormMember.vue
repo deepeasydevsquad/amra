@@ -97,6 +97,7 @@ interface DokumenState {
 interface Member {
   id: number
   fullname: string
+  cabang_name: string
   identity_number: string
   whatsapp_number: string
   photo: string
@@ -163,6 +164,7 @@ const dokumen = ref<DokumenState>({
 const memberData = ref<Member>({
   id: 0,
   fullname: '',
+  cabang_name: '',
   identity_number: '',
   whatsapp_number: '',
   photo: '',
@@ -347,11 +349,6 @@ const validateForm = (): boolean => {
 
   const isValidNumber = (label: string): ValidatorFn => (value) =>
     value === null ? null : /^08\d{8,}$/.test(value) ? null : `Nomor ${label} tidak valid`;
-
-  const isBeforeToday = (label: string): ValidatorFn => (value) => {
-    const date = new Date(value);
-    return value === null ? null : date && date < new Date() ? null : `${label} harus sebelum hari ini`;
-  };
 
   const isString = (label: string): ValidatorFn => (value) =>
     value === null ? null : typeof value === 'string' ? null : `${label} harus berupa teks`;
@@ -568,52 +565,59 @@ const saveData = async () => {
 
         <!-- Foto Jamaah -->
         <h3 class="text-lg font-semibold text-gray-700 mb-8 mt-8">Info Member</h3>
-        <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
+        <table class="w-full bg-white text-sm text-gray-700 border border-gray-200 rounded-lg overflow-hidden">
           <tbody>
-            <tr >
-              <td rowspan="6" class="w-[15%] py-1 px-6">
-                <div class="w-full flex justify-center">
-                  <div class="w-40 max-h-[10vw] rounded-lg overflow-hidden border border-gray-300 border-dashed bg-gray-100 flex items-center text-center justify-center">
+            <tr>
+              <td rowspan="7" class="w-[15%] p-4 align-top border-r border-gray-200 bg-gray-50">
+                <div class="flex justify-center items-start">
+                  <div class="w-40 max-h-[10vw] rounded-md overflow-hidden border border-dashed border-gray-300 bg-gray-100 flex items-center justify-center">
                     <img
                       v-if="memberData?.photo"
                       :src="`${BASE_URL}/uploads/member/${memberData?.photo}`"
                       alt="Foto Jamaah"
                       class="object-cover w-full h-full"
                     />
-                    <div v-else class="flex items-center justify-center text-gray-400 text-sm min-h-[10vw]">
-                      <p>No Photo</p>
+                    <div v-else class="text-gray-400 text-sm min-h-[10vw] flex items-center justify-center">
+                      <p>Tidak ada foto</p>
                     </div>
                   </div>
                 </div>
               </td>
-              <td class="w-[15%] px-2 py-2 text-left">Nama</td>
-              <td class="w-[1%] px-2 py-2 text-center ">:</td>
-              <td class="border-b border-dashed border-gray-400 px-2">{{ memberData?.fullname || '-' }}</td>
-            </tr>
-            <tr >
-              <td class="py-2 px-2 text-left">Nomor Identitas</td>
-              <td class="px-2 py-2 text-center">:</td>
-              <td class="border-b border-dashed border-gray-400 px-2">{{ memberData?.identity_number || '-' }}</td>
-            </tr>
-            <tr >
-              <td class="py-2 px-2 text-left">Jenis Kelamin</td>
-              <td class="px-2 py-2 text-center">:</td>
-              <td class="border-b border-dashed border-gray-400 px-2"> {{ memberData?.gender === 'laki_laki' ? 'Laki - Laki' : 'Perempuan' }}</td>
-            </tr>
-            <tr >
-              <td class="py-2 px-2 text-left">No Whatsapp</td>
-              <td class="px-2 py-2 text-center">:</td>
-              <td class="border-b border-dashed border-gray-400 px-2">{{ memberData?.whatsapp_number || '-' }}</td>
+              <td class="w-[15%] px-3 py-2 font-medium text-gray-600">Cabang</td>
+              <td class="w-[1%] px-2 text-center">:</td>
+              <td class="px-3 py-2 border-b border-dashed border-gray-300">{{ memberData?.cabang_name || '-' }}</td>
             </tr>
             <tr>
-              <td class="py-2 px-2 text-left">Tempat Lahir</td>
-              <td class="px-2 py-2 text-center">:</td>
-              <td class="border-b border-dashed border-gray-400 px-2">{{ memberData?.birth_place || '-' }}</td>
+              <td class="px-3 py-2 font-medium text-gray-600">Nama</td>
+              <td class="px-2 text-center">:</td>
+              <td class="px-3 py-2 border-b border-dashed border-gray-300">{{ memberData?.fullname || '-' }}</td>
             </tr>
             <tr>
-              <td class="py-2 px-2 text-left">Tanggal Lahir</td>
-              <td class="px-2 py-2 text-center">:</td>
-              <td class="border-b border-dashed border-gray-400 px-2">{{ memberData?.birth_date || '-' }}</td>
+              <td class="px-3 py-2 font-medium text-gray-600">Nomor Identitas</td>
+              <td class="px-2 text-center">:</td>
+              <td class="px-3 py-2 border-b border-dashed border-gray-300">{{ memberData?.identity_number || '-' }}</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 font-medium text-gray-600">Jenis Kelamin</td>
+              <td class="px-2 text-center">:</td>
+              <td class="px-3 py-2 border-b border-dashed border-gray-300">
+                {{ memberData?.gender === 'laki_laki' ? 'Laki - Laki' : 'Perempuan' }}
+              </td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 font-medium text-gray-600">No Whatsapp</td>
+              <td class="px-2 text-center">:</td>
+              <td class="px-3 py-2 border-b border-dashed border-gray-300">{{ memberData?.whatsapp_number || '-' }}</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 font-medium text-gray-600">Tempat Lahir</td>
+              <td class="px-2 text-center">:</td>
+              <td class="px-3 py-2 border-b border-dashed border-gray-300">{{ memberData?.birth_place || '-' }}</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 font-medium text-gray-600">Tanggal Lahir</td>
+              <td class="px-2 text-center">:</td>
+              <td class="px-3 py-2">{{ memberData?.birth_date || '-' }}</td>
             </tr>
           </tbody>
         </table>

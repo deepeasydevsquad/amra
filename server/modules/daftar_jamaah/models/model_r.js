@@ -66,11 +66,19 @@ class Model_r {
           "birth_date",
           "gender",
         ],
+        include: [
+          {
+            model: Division,
+            required: true,
+            attributes: ["name"],
+          },
+        ],
 
       });
       const data = {
         id: jamaah.id,
         fullname: jamaah.fullname,
+        cabang_name: jamaah.Division.name,
         identity_number: jamaah.identity_number,
         whatsapp_number: jamaah.whatsapp_number,
         photo: jamaah.photo,

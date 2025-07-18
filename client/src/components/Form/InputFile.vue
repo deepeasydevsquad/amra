@@ -24,14 +24,6 @@
         <span class="text-gray-500 text-sm truncate max-w-[150px]">
           {{ fileName || 'No file chosen' }}
         </span>
-        <button
-          v-if="fileName"
-          @click="removeFile"
-          class="text-red-500 hover:text-red-700 text-sm font-bold"
-          title="Hapus file"
-        >
-          ✕
-        </button>
       </div>
     </div>
 
@@ -69,16 +61,6 @@ function onFileChange(e) {
   if (file) {
     fileName.value = file.name
     emit('file-selected', file)
-  }
-}
-
-function removeFile() {
-  fileName.value = ''
-  emit('file-selected', null)
-
-  // Reset <input type="file">
-  if (fileInput.value) {
-    fileInput.value.value = ''
   }
 }
 </script>

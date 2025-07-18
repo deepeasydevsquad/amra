@@ -18,7 +18,6 @@ import ModalConfirm from '@/components/User/Modules/DaftarJamaah/Particle/ModalC
 import { ref, computed, onMounted } from 'vue'
 import { daftarJamaah, deleteJamaah, getDownloadJamaah } from '@/service/daftar_jamaah'
 import { paramCabang } from '@/service/param_cabang'
-import { open } from 'fs'
 
 const itemsPerPage = 100; // Jumlah paket_la per halaman
 const currentPage = ref(1);
@@ -67,6 +66,7 @@ interface Jamaah {
 
 const timeoutId = ref<number | null>(null);
 const dataJamaah = ref<Jamaah[]>([]);
+const divisionId = ref<number>(0);
 const jamaahId = ref<number>(0);
 const memberId = ref<number>(0);
 const total = ref<number>(0);
@@ -103,7 +103,7 @@ const fetchData = async () => {
     dataJamaah.value = response.data || [];
     total.value = response.total;
 
-  } catch (error) {
+  } catch (error : any) {
     displayNotification(error.response.data.error_msg || 'Terjadi kesalahan saat memuat data.', 'error');
   } finally {
     isLoading.value = false
@@ -155,8 +155,9 @@ const openFormAddMember = () => {
   isFormAddMemberOpen.value = true;
 }
 
-const openFormMember = (id: number) => {
-  memberId.value = id
+const openFormMember = (memId: number, divId: number) => {
+  memberId.value = memId
+  divisionId.value = divId
   console.log(memberId.value)
   isFormMemberOpen.value = true;
 }
@@ -332,7 +333,7 @@ const deleteData = async (jamaahId: number) => {
     v-if="isFormAddMemberOpen"
     :is-form-add-member-open="isFormAddMemberOpen"
     :cabang-id="filterCabang"
-    @add-member="openFormMember($event.memberId); isFormAddMemberOpen = false"
+    @add-member="openFormMember($event.memberId, $event.division_id); isFormAddMemberOpen = false"
     @close="isFormAddMemberOpen = false; fetchData()"
     @status="(payload) => displayNotification(payload.err_msg || 'Jamaah dari Member gagal ditambahkan', payload.error ? 'error' : 'success')"
   />
@@ -340,7 +341,7 @@ const deleteData = async (jamaahId: number) => {
   <FormMember
     v-if="isFormMemberOpen"
     :is-form-member-open="isFormMemberOpen"
-    :cabang-id="filterCabang"
+    :cabang-id="divisionId"
     :member-id="memberId"
     @close="isFormMemberOpen = false; fetchData()"
     @status="(payload) => displayNotification(payload.err_msg || 'Jamaah dari Member gagal ditambahkan', payload.error ? 'error' : 'success')"

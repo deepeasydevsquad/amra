@@ -26,6 +26,8 @@ import {
   daftarPengalaman,
 } from '@/service/data_master'
 
+import { paramCabang } from '@/service/param_cabang';
+
 import {
   getAgen,
   getJamaahNotMember,
@@ -39,6 +41,7 @@ interface Mahram {
 
 interface FormDataState {
   photo: File | null
+  division_id: number
   fullname: string | null
   identity_number: string | null
   identity_type: string
@@ -99,6 +102,7 @@ interface DokumenState {
 // Data Form
 const formData = ref<FormDataState>({
   photo: null,
+  division_id: props.cabangId,
   fullname: null,
   identity_number: null,
   identity_type: 'ktp',
@@ -159,6 +163,8 @@ const dokumen = ref<DokumenState>({
   buku_kuning: false,
 })
 
+interface Cabang { id: number; name: string }
+
 // State untuk loading dan error
 const showPassword = ref<boolean>(false)
 const showConfirmPassword = ref<boolean>(false)
@@ -169,8 +175,9 @@ const notificationMessage = ref<string>('');
 const notificationType = ref<'success' | 'error'>('success');
 
 // Data untuk select
-const fileName = ref<string>('')
 const errors = ref<Record<string, string>>({})
+const fileName = ref<string>('')
+const optionCabang = ref<Cabang[]>([])
 const provinsi = ref<{ id: number; name: string }[]>([])
 const kabupaten = ref<{ id: number; provinsi_id: number; name: string }[]>([])
 const kecamatan = ref<{ id: number; kabupaten_id: number; name: string }[]>([])
@@ -190,9 +197,9 @@ const fetchData = async () => {
 
   try {
     isLoading.value = true
-    const [memberRes, agenRes, provinsiRes, mahramRes, pekerjaanRes, pendidikanRes, pengalamanRes] = await Promise.all([
-      getJamaahNotMember(props.cabangId),
-      getAgen(props.cabangId),
+    const [cabangRes, agenRes, provinsiRes, mahramRes, pekerjaanRes, pendidikanRes, pengalamanRes] = await Promise.all([
+      paramCabang(),
+      getAgen(formData.value.division_id),
       daftarProvinsi(),
       daftarMahram(),
       daftarPekerjaan(),
@@ -200,7 +207,7 @@ const fetchData = async () => {
       daftarPengalaman(),
     ])
 
-    member.value = [{id: null, fullname: 'Tidak Ada'}, ...memberRes.data]
+    optionCabang.value = cabangRes.data
     agen.value = [{id: null, fullname: 'Tidak Ada'}, ...agenRes.data]
     provinsi.value = provinsiRes.data
     mahram.value = mahramRes.data
@@ -208,6 +215,8 @@ const fetchData = async () => {
     pendidikan.value = pendidikanRes.data
     pengalaman.value = pengalamanRes.data
 
+    console.log("data cabang", optionCabang.value)
+    console.log("data agen", agen.value)
     console.log("data member", member.value)
     console.log("data provinsi", provinsi.value)
     console.log("data mahram", mahram.value)
@@ -219,6 +228,19 @@ const fetchData = async () => {
     emit('status', {error: true, err_msg: error.response?.data?.error_msg || error.response?.data?.message || 'Terjadi kesalahan dalam mengambil data'})
   } finally {
     isLoading.value = false
+  }
+}
+
+const fetchJamaah = async () => {
+  if (!formData.value.division_id) {
+    displayNotification('ID cabang tidak ditemukan, silakan keluar dan masuk kembali', 'error')
+    return
+  }
+  try {
+    const response = await getJamaahNotMember(formData.value.division_id)
+    member.value = [{id: null, fullname: 'Tidak Ada'}, ...response.data]
+  } catch (error) {
+    displayNotification('Gagal memuat data jamaah mahram', 'error')
   }
 }
 
@@ -302,6 +324,11 @@ const watcherConfig = [
     source: () => formData.value.mst_pekerjaan_id,
     reset: ['profession_instantion_name', 'profession_instantion_address', 'profession_instantion_telephone'],
   },
+  {
+    source: () => formData.value.division_id,
+    reset: [],
+    fetch: fetchJamaah
+  }
 ];
 
 watcherConfig.forEach(({ source, reset, fetch, watchCallback }) => {
@@ -408,7 +435,7 @@ const validateForm = (): boolean => {
     isValid = false;
   }
 
-  if (!props.cabangId) {
+  if (!formData.value.division_id || !props.cabangId) {
     displayNotification('ID Cabang tidak ditemukan, silahkan keluar dan masuk kembali', 'error');
     isValid = false;
   }
@@ -512,7 +539,6 @@ const saveData = async () => {
 
     const combinedData = {
       ...formData.value,
-      division_id: props.cabangId,
       ...Object.fromEntries(
         Object.entries(dokumen.value).map(([key, val]) => [key, val ? '1' : '0'])
       )
@@ -561,6 +587,16 @@ const saveData = async () => {
           <div class="space-y-3 p-1">
             <h2 class="text-xl font-semibold">Identitas Diri</h2>
             <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <SearchableSelect
+                  v-model="formData.division_id"
+                  :options="optionCabang "
+                  label="Cabang"
+                  placeholder="Pilih Cabang"
+                  :error="errors.cabang_id"
+                  required
+                />
+              </div>
               <div class="space-y-1">
                 <label class="block w-full text-sm font-medium text-gray-700">Title <span class="text-red-500">*</span></label>
                 <select
@@ -1252,16 +1288,18 @@ const saveData = async () => {
                   @file-selected="handleFileUpload"
                   accept=".jpg,.jpeg,.png"
                   >
-                    <div v-if="photoPreviewUrl" class="mt-2">
-                      <h2 class="text-sm font-medium text-gray-700">Preview</h2>
-                      <img
-                      v-if="photoPreviewUrl"
-                      :src="photoPreviewUrl"
-                      alt="photo"
-                      class="h-auto w-32 object-cover rounded-md"
-                      />
-                    </div>
                 </InputFile>
+              </div>
+              <div>
+                <div v-if="photoPreviewUrl">
+                  <h2 class="text-sm font-medium text-gray-700">Preview Foto</h2>
+                  <img
+                  v-if="photoPreviewUrl"
+                  :src="photoPreviewUrl"
+                  alt="photo"
+                  class="h-auto w-32 object-cover rounded-md"
+                  />
+                </div>
               </div>
             </div>
           </div>

@@ -1297,7 +1297,7 @@ const saveData = async () => {
                   accept=".jpg,.jpeg,.png"
                   >
                     <div v-if="fileFoto || photoPreviewUrl" class="mt-2">
-                      <h2 class="text-sm font-medium text-gray-700">Preview</h2>
+                      <h2 class="text-sm font-medium text-gray-700">Preview Foto</h2>
                       <img
                         v-if="fileFoto"
                         :src="`${BASE_URL}/uploads/member/${fileFoto}`"
