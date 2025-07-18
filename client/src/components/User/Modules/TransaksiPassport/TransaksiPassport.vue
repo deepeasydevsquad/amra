@@ -136,6 +136,12 @@ const handleSaveSuccess = (message: string) => {
   fetchData()
 }
 
+const handleSaveFailed = (message: string) => {
+  isFormOpen.value = false
+  displayNotification(message, 'error')
+  fetchData()
+}
+
 const showConfirmation = (title: string, message: string, action: () => void) => {
   confirmTitle.value = title
   confirmMessage.value = message
@@ -387,6 +393,7 @@ const formatPrice = (num: number): string => {
         :isFormOpen="isFormOpen"
         @cancel="closeModal"
         @save-success="handleSaveSuccess"
+        @error="handleSaveFailed"
       />
     </transition>
   </div>

@@ -22,6 +22,7 @@ const props = defineProps<{ isFormOpen: boolean }>()
 const emit = defineEmits<{
   (e: 'cancel'): void
   (e: 'save-success', message: string): void
+  (e: 'error', message: string): void
 }>()
 
 const handleCancel = () => {
@@ -108,9 +109,14 @@ const handleSubmit = async () => {
   try {
     const res = await addTransaksiPassport(payload)
     emit('save-success', 'Berhasil tambah transaksi passport!')
-  } catch (err) {
+  } catch (err: any) {
     console.error('Gagal kirim transaksi:', err)
-    alert('Gagal menyimpan transaksi, coba lagi.')
+
+    // Ambil pesan error dari response kalau ada
+    const message =
+      err?.response?.data?.message || err?.message || 'Terjadi kesalahan saat kirim data'
+
+    emit('error', message)
   }
 }
 
@@ -171,11 +177,6 @@ const validateForm = (): boolean => {
     }
   })
 
-  if (payerIndex.value === null || formList.value[payerIndex.value] === undefined) {
-    alert('Silakan pilih siapa yang membayar dulu!')
-    isValid = false
-  }
-
   return isValid
 }
 
@@ -222,7 +223,6 @@ const fetchPaket = async () => {
       division_id: SelectedCabang.value,
     })
     paketOption.value = [{ id: 0, name: 'Pilih Paket' }, ...response.data]
-    console.log('paket option', paketOption.value)
   } catch (error) {
     console.error(error)
   }
