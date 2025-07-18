@@ -117,6 +117,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "company_id",
         onDelete: "CASCADE",
       });
+      Company.hasMany(models.Headline, {
+        foreignKey: "company_id",
+        onDelete: "CASCADE",
+      });
     }
   }
   Company.init(
