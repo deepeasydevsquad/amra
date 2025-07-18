@@ -8,6 +8,7 @@ import DangerButton from '@/components/Button/DangerButton.vue'
 import EditButton from '@/components/User/Modules/Jurnal/Particle/EditButton.vue'
 import Notification from '@/components/User/Modules/Jurnal/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/Jurnal/Particle/Confirmation.vue'
+import Pagination from '@/components/Pagination/Pagination.vue'
 
 // Import service API
 import { getFilter, daftarJurnal, deleteJurnal } from '@/service/jurnal'; // Import function POST
@@ -86,6 +87,7 @@ const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
 const totalColumns = ref(9); // Default 3 kolom
+const totalRow = ref(0);
 
 const selectedJurnal = ref<Partial<Jurnal>>({id: 0});
 
@@ -107,6 +109,7 @@ const fetch = async() => {
   const response = await daftarJurnal({tanggal_transaksi: tanggalTransaksi.value, periode: selectedOptionPeriode.value, cabang: selectedOptionCabang.value, perpage: itemsPerPage, pageNumber: currentPage.value});
   totalPages.value = Math.ceil(response.total / itemsPerPage)
   dataJurnal.value = response.data;
+  totalRow.value = response.total;
 }
 
 // const openModal = (kota?: Kota) => {
@@ -266,11 +269,20 @@ const deleteData = async (id: number) => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <tr>
+           <Pagination
+              :current-page="currentPage"
+              :total-pages="totalPages"
+              :pages="pages"
+              :total-columns="totalColumns"
+              @prev-page="prevPage"
+              @next-page="nextPage"
+              @page-now="pageNow"
+              :totalRow = "totalRow"
+            />
+          <!-- <tr>
             <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
               <nav class="flex mt-0">
                 <ul class="inline-flex items-center -space-x-px">
-                  <!-- Tombol Previous -->
                   <li>
                     <button
                       @click="prevPage"
@@ -281,7 +293,6 @@ const deleteData = async (id: number) => {
                       Previous
                     </button>
                   </li>
-                  <!-- Nomor Halaman -->
                   <li v-for="page in pages" :key="page">
                     <button
                       @click="pageNow(page)"
@@ -293,8 +304,6 @@ const deleteData = async (id: number) => {
                       {{ page }}
                     </button>
                   </li>
-
-                  <!-- Tombol Next -->
                   <li>
                     <button
                       @click="nextPage"
@@ -308,7 +317,7 @@ const deleteData = async (id: number) => {
                 </ul>
               </nav>
             </td>
-          </tr>
+          </tr> -->
         </tfoot>
       </table>
     </div>

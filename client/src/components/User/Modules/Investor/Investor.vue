@@ -21,6 +21,7 @@ const itemsPerPage = 100; // Jumlah airlines per halaman
 const currentPage = ref(1);
 const search = ref("");
 const totalPages = ref(0);
+const totalRow = ref(0);
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
@@ -90,6 +91,7 @@ const fetchData = async() => {
   const response = await daftarInvestorAPI({search: search.value, perpage: itemsPerPage, pageNumber: currentPage.value, cabang:selectedOptionCabang.value});
   totalPages.value = Math.ceil(response.total / itemsPerPage)
   dataInvestor.value = response.data;
+  totalRow.value = response.total;
 }
 
 // Menhapus data di variable formData
@@ -238,6 +240,7 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
               @prev-page="prevPage"
               @next-page="nextPage"
               @page-now="pageNow"
+              :totalRow = "totalRow"
             />
         </tfoot>
       </table>
