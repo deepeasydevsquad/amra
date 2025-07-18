@@ -34,7 +34,7 @@ const search = ref('')
 const filter = ref('belum_ada_transaksi')
 const totalPages = ref(0)
 const totalColumns = ref(6)
-const totalRow = ref(0);
+const totalRow = ref(0)
 
 const TransaksiVisa = ref<TransaksiVisa[]>([])
 const isFormOpen = ref<boolean>(false)
@@ -78,8 +78,8 @@ interface TransaksiVisa {
   id: number
   invoice: string
   petugas: string
-  payer: string
-  payer_identity: string
+  kostumer_name: string
+  paket_name: string
   name: string
   identity_number: string
   birth_place: string
@@ -148,6 +148,11 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
 const handleSaveSuccess = async (message: string) => {
   displayNotification('Data transaksi berhasil disimpan.', 'success')
   await fetchData()
+  ModalVisa.value = false
+}
+
+const handleSaveFailed = (message: string) => {
+  displayNotification(message, 'error')
   ModalVisa.value = false
 }
 
@@ -263,7 +268,9 @@ const openFormCetakDataJamaah = (item: any) => {
         <thead class="bg-gray-100">
           <tr>
             <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Nomor Invoice</th>
-            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Info Pembayar</th>
+            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">
+              Info Kostumer/Paket
+            </th>
             <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Info Visa</th>
             <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Total</th>
             <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Tanggal</th>
@@ -285,10 +292,15 @@ const openFormCetakDataJamaah = (item: any) => {
           </tr>
           <tr v-for="item in TransaksiVisa" :key="item.id" class="hover:bg-gray-50 transition">
             <td class="px-6 py-4 text-center align-top">{{ item.invoice }}</td>
-            <td class="px-6 py-4 text-center align-top">
-              {{ item.payer }}<br />
-              <span class="text-xs text-gray-500">{{ item.payer_identity }}</span>
+            <td class="px-6 py-4 text-left align-top leading-tight">
+              <div class="grid grid-cols-[auto_1fr] gap-x-2">
+                <span class="font-semibold">Kostumer:</span>
+                <span>{{ item.kostumer_name }}</span>
+                <span class="font-semibold">Paket:</span>
+                <span>{{ item.paket_name || '-' }}</span>
+              </div>
             </td>
+
             <td class="px-6 py-4 align-top">
               <h1 class="font-bold">{{ item.jenis_visa }}</h1>
               <div class="text-xs leading-5 space-y-1">
@@ -343,13 +355,6 @@ const openFormCetakDataJamaah = (item: any) => {
     </div>
 
     <!-- Notification Component -->
-    <Notification
-      v-if="showNotification"
-      :show-notification="showNotification"
-      :notification-message="notificationMessage"
-      :notification-type="notificationType"
-      @close="showNotification = false"
-    />
 
     <!-- Confirmation Component -->
     <Confirmation
@@ -391,6 +396,14 @@ const openFormCetakDataJamaah = (item: any) => {
     :formStatus="ModalVisa"
     @cancel="ModalVisa = false"
     @submitted="handleSaveSuccess"
-    @notify=""
+    @notify="handleSaveFailed"
+  />
+
+  <Notification
+    v-if="showNotification"
+    :show-notification="showNotification"
+    :notification-message="notificationMessage"
+    :notification-type="notificationType"
+    @close="showNotification = false"
   />
 </template>
