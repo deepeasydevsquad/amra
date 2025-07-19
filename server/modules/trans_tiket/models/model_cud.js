@@ -85,6 +85,7 @@ class Model_cud {
       const tiketTransactions = await Ticket_transaction.create(
         {
           division_id: this.division_id,
+          paket_id: customer.paket_id,
           nomor_register: body.nomor_register,
           total_transaksi: totalTransaksi,
           status: "active",
@@ -121,8 +122,7 @@ class Model_cud {
             ticket_transaction_id: tiketTransactions.id,
             invoice: body.invoice,
             nominal: customer.dibayar,
-            costumer_name: customer.costumer_name,
-            costumer_identity: customer.costumer_identity,
+            kostumer_id: customer.kostumer_id,
             status: "cash",
             petugas: type,
           },
@@ -167,16 +167,13 @@ class Model_cud {
           ticket_transaction_id: body.ticket_transaction_id,
           invoice: invoice,
           nominal: body.nominal,
-          costumer_name: body.costumer_name,
-          costumer_identity: body.costumer_identity,
+          kostumer_id: body.kostumer_id,
           status: "cash",
           petugas: type,
         },
         { transaction: this.t }
       );
-      this.message =
-        "Pembayaran Tiker Berhasil Dilakukan Untuk Customer : " +
-        body.costumer_name;
+      this.message = "Pembayaran Tiker Berhasil ";
       this.invoice = invoice;
     } catch (error) {
       this.state = false;

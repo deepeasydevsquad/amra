@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import Form from '@/components/Modal/FormEditProfile.vue'
 import InputText from '@/components/Form/InputText.vue'
-import { ref, watch, computed } from 'vue'
-import { detail_refund, refund } from '@/service/trans_tiket'
+import { ref, watch, computed, onMounted } from 'vue'
+import { daftar_costumer, detail_refund, refund } from '@/service/trans_tiket'
+import SelectField from '@/components/Form/SelectField.vue'
 
 const props = defineProps<{
   nomor_register: string
@@ -24,6 +25,7 @@ const namaPelanggan = ref('')
 const identitasFee = ref('')
 const sudahDibayar = ref(0)
 const sisaPembayaran = ref(0)
+const costumer_id = ref(0)
 
 watch(
   [() => props.formStatus, () => props.nomor_register],
@@ -106,7 +108,7 @@ const sisaPembayaranFormatted = computed({
 })
 
 const submitRefund = async () => {
-  if (!props.nomor_register || !namaPelanggan.value || !identitasFee.value) {
+  if (!props.nomor_register) {
     alert('❌ Nama pelanggan, identitas, dan nomor register wajib diisi.')
     return
   }
@@ -120,6 +122,7 @@ const submitRefund = async () => {
     nomor_register: props.nomor_register,
     costumer_name: namaPelanggan.value,
     costumer_identity: identitasFee.value,
+    kostumer_id: SelectedCustomer.value,
     detail,
   }
 
@@ -148,6 +151,26 @@ const getFeeModel = (item: any) =>
       item.fee = toNumber(val)
     },
   })
+
+interface costumer {
+  id: number
+  name: string
+}
+
+const customerOption = ref<costumer[]>([])
+const SelectedCustomer = ref(0)
+const fetchCustomer = async () => {
+  try {
+    const response = await daftar_costumer()
+    customerOption.value = [{ id: 0, name: 'Pilih Kostumer' }, ...response]
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+onMounted(async () => {
+  await fetchCustomer()
+})
 </script>
 
 <template>
@@ -245,8 +268,14 @@ const getFeeModel = (item: any) =>
       <!-- Input tambahan di bawah tabel -->
       <div class="mt-6 space-y-4">
         <!-- Baris Pertama -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <InputText placeholder="Nama Pelanggan" v-model="namaPelanggan" note="Nama Pelanggan" />
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+          <SelectField
+            label="Kostumer"
+            v-model="SelectedCustomer"
+            :options="customerOption"
+            class="flex-1 min-w-[200px] -mt-5"
+            :note="'Kostumer'"
+          />
           <InputText
             placeholder="Total Di Refund"
             v-model="totalRefundFormatted"
@@ -264,11 +293,6 @@ const getFeeModel = (item: any) =>
         <!-- Baris Kedua -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <InputText
-            placeholder="Identitas Pelanggan"
-            v-model="identitasFee"
-            note="Identitas Pelanggan"
-          />
-          <InputText
             placeholder="Sudah Di Bayar"
             v-model="sudahDibayarFormatted"
             note="Sudah di Bayar"
@@ -280,6 +304,8 @@ const getFeeModel = (item: any) =>
             note="Sisa Pembayaran"
             :readonly="true"
           />
+          <!-- Biar baris kedua juga sejajar penuh -->
+          <div class="hidden md:block"></div>
         </div>
       </div>
     </Form>

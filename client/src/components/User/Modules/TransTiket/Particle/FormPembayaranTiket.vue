@@ -8,11 +8,16 @@ import { add_pembayaran } from '@/service/trans_tiket'
 const props = defineProps<{
   formData: {
     ticket_transaction_id: number
+    costumer_id: number
     nominal: number
     costumer_name: string
     costumer_identity: string
   }
 }>()
+
+onMounted(() => {
+  console.log('form pembayaran tiket:', props.formData)
+})
 
 const emit = defineEmits<{
   (e: 'cancel'): void
@@ -27,7 +32,7 @@ const form = ref({
   nominal: 0,
   nominal_sisa: props.formData.nominal,
   costumer_name: props.formData.costumer_name,
-  costumer_identity: props.formData.costumer_identity,
+  kostumer_id: props.formData.costumer_id,
 })
 
 onMounted(() => {
@@ -54,7 +59,7 @@ watch(
       nominal: 0,
       nominal_sisa: val.nominal,
       costumer_name: val.costumer_name,
-      costumer_identity: val.costumer_identity,
+      kostumer_id: val.costumer_id,
     }
   },
   { immediate: true },
@@ -78,12 +83,22 @@ const submit = async () => {
 </script>
 
 <template>
-  <Form :label="'Pembayaran Tiket'" :submitLabel="'BAYAR'" :width="'w-1/5'" @cancel="emit('cancel')" @submit="submit" >
-    <div >
+  <Form
+    :label="'Pembayaran Tiket'"
+    :submitLabel="'BAYAR'"
+    :width="'w-1/3'"
+    @cancel="emit('cancel')"
+    @submit="submit"
+  >
+    <div>
       <InputReadonly class="mt-0" label="Nama Customer" id="nama" :value="form.costumer_name" />
-      <InputReadonly class="mt-6" label="Nomor Identitas" id="identitas" :value="form.costumer_identity" />
-      <InputCurrency class="mt-6"  label="Nominal Bayar" id="nominal" v-model="form.nominal" />
-      <InputReadonly class="mt-6" label="Sisa Nominal" id="nominal_sisa" :value="formatRupiah(form.nominal_sisa)"/>
+      <InputCurrency class="mt-6" label="Nominal Bayar" id="nominal" v-model="form.nominal" />
+      <InputReadonly
+        class="mt-6"
+        label="Sisa Nominal"
+        id="nominal_sisa"
+        :value="formatRupiah(form.nominal_sisa)"
+      />
     </div>
   </Form>
 </template>

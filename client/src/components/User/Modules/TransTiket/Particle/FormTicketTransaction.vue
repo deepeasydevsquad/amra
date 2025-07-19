@@ -130,26 +130,26 @@
         </table>
         <!-- Customer Data -->
         <div class="mt-0 pt-3">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <InputText
-                v-model="form.customer.costumer_name"
-                :error="errors.costumer_name"
-                id="costumer_name"
-                label="Nama Pelanggan"
-                placeholder="Nama Pelanggan"
-              />
-            </div>
-            <div>
-              <InputText
-                v-model="form.customer.costumer_identity"
-                :error="errors.costumer_identity"
-                id="costumer_identity"
-                label="Nomor Identitas Pelanggan"
-                placeholder="Nomor Identitas Pelanggan"
-              />
-            </div>
-            <div>
+          <div class="flex flex-wrap gap-4 items-end">
+            <SelectField
+              label="Kostumer"
+              v-model="form.customer.kostumer_id"
+              :options="customerOption"
+              class="flex-1 min-w-[200px]"
+            />
+            <SelectField
+              label="Cabang"
+              v-model="SelectedCabang"
+              :options="cabangOption"
+              class="flex-1 min-w-[200px]"
+            />
+            <SelectField
+              label="Paket"
+              v-model="form.customer.paket_id"
+              :options="paketOption"
+              class="flex-1 min-w-[200px]"
+            />
+            <div class="flex-1 min-w-[200px]">
               <InputText
                 v-model.number="form.customer.dibayar"
                 :error="errors.dibayar"
@@ -158,7 +158,7 @@
                 placeholder="Dibayar"
               />
             </div>
-            <div class="flex flex-col">
+            <div class="flex flex-col flex-1 min-w-[200px]">
               <label for="sisa" class="text-sm font-medium text-gray-700 mb-1">Sisa</label>
               <div
                 id="sisa"
@@ -176,7 +176,14 @@
 
 <script setup lang="ts">
 import { defineProps, ref, watch, toRaw, onMounted, computed } from 'vue'
-import { add_tiket, generate_nomor_register, generate_nomor_invoice } from '@/service/trans_tiket'
+import {
+  add_tiket,
+  generate_nomor_register,
+  generate_nomor_invoice,
+  daftar_costumer,
+  daftar_paket,
+} from '@/service/trans_tiket'
+import { paramCabang } from '@/service/param_cabang'
 import Form from '@/components/Modal/Form.vue'
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import InputText from '@/components/Form/InputText.vue'
@@ -242,14 +249,13 @@ interface TicketForm {
   customer_price_display?: string
 }
 interface CustomerForm {
-  costumer_name: string
-  costumer_identity: string
+  kostumer_id: number
+  paket_id: number
   dibayar: number
 }
 
 interface ErrorFields {
-  costumer_name?: string
-  costumer_identity?: string
+  kostumer_id?: string
   dibayar?: string
   tickets?: {
     pax?: string
@@ -262,8 +268,7 @@ interface ErrorFields {
 }
 
 const errors = ref<ErrorFields>({
-  costumer_name: '',
-  costumer_identity: '',
+  kostumer_id: '',
   dibayar: '',
   tickets: [],
 })
@@ -288,8 +293,8 @@ const form = ref<FormData>({
   id: 0,
   tickets: [],
   customer: {
-    costumer_name: '',
-    costumer_identity: '',
+    kostumer_id: 0,
+    paket_id: 0,
     dibayar: 0,
   },
   nomor_register: '',
@@ -308,7 +313,7 @@ function removeTicket(index: number) {
 function handleCancel() {
   emit('cancel')
   errors.value = {
-    costumer_name: '',
+    kostumer_id: '',
   }
 }
 // Function to create a blank ticket row
@@ -340,8 +345,8 @@ function initializeForm(data: TicketTransactionForm) {
     id: 0,
     tickets: fixedTickets,
     customer: {
-      costumer_name: data.customer?.costumer_name ?? '',
-      costumer_identity: data.customer?.costumer_identity ?? '',
+      kostumer_id: data.customer?.kostumer_id ?? '',
+      paket_id: data.customer?.paket_id ?? '',
       dibayar: data.customer?.dibayar ?? 0,
     },
     nomor_register: data.nomor_register ?? '',
@@ -392,20 +397,14 @@ const validateForm = (): boolean => {
 
   // Reset errors
   errors.value = {
-    costumer_name: '',
-    costumer_identity: '',
+    kostumer_id: '',
     dibayar: '',
     tickets: [],
   }
 
   // Validate customer fields
-  if (!form.value.customer.costumer_name.trim()) {
-    errors.value.costumer_name = 'Nama pelanggan wajib diisi'
-    isValid = false
-  }
-
-  if (!form.value.customer.costumer_identity.trim()) {
-    errors.value.costumer_identity = 'Nomor identitas wajib diisi'
+  if (!form.value.customer.kostumer_id || form.value.customer.kostumer_id === 0) {
+    errors.value.kostumer_id = 'Kostumer wajib dipilih'
     isValid = false
   }
 
@@ -505,4 +504,63 @@ const formatRupiah = (value: number): string => {
     minimumFractionDigits: 2,
   }).format(value)
 }
+
+interface costumer {
+  id: number
+  name: string
+}
+
+const customerOption = ref<costumer[]>([])
+const SelectedCustomer = ref(0)
+const fetchCustomer = async () => {
+  try {
+    const response = await daftar_costumer()
+    customerOption.value = [{ id: 0, name: 'Pilih Kostumer' }, ...response]
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+interface cabang {
+  id: number
+  name: string
+}
+const cabangOption = ref<cabang[]>([])
+const SelectedCabang = ref(0)
+const fetchCabang = async () => {
+  try {
+    const response = await paramCabang()
+    cabangOption.value = [{ id: 0, name: 'Pilih Cabang' }, ...response.data]
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+interface paket {
+  id: number
+  name: string
+}
+const paketOption = ref<paket[]>([{ id: 0, name: 'Pilih Paket' }]) // Tambahkan opsi default
+const SelectedPaket = ref(0)
+const fetchPaket = async () => {
+  try {
+    const response = await daftar_paket({
+      division_id: SelectedCabang.value,
+    })
+    paketOption.value = [{ id: 0, name: 'Pilih Paket' }, ...response]
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+watch(SelectedCabang, async (newCabang) => {
+  if (newCabang) {
+    await fetchPaket()
+  }
+})
+
+onMounted(async () => {
+  await fetchCustomer()
+  await fetchCabang()
+})
 </script>

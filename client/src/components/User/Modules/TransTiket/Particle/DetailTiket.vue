@@ -65,7 +65,7 @@ const emit = defineEmits<{
       <thead class="bg-gray-100 text-gray-800">
         <tr>
           <th class="px-4 py-2 border-b">Invoice</th>
-          <th class="px-4 py-2 border-b">Nama / Identitas Pelanggan</th>
+          <th class="px-4 py-2 border-b">Nama Kostumer</th>
           <th class="px-4 py-2 border-b">Petugas</th>
           <th class="px-4 py-2 border-b text-right">Nominal</th>
           <th class="px-4 py-2 border-b">Status</th>
@@ -83,7 +83,7 @@ const emit = defineEmits<{
           </td>
 
           <td class="px-4 py-2 border-b">
-            {{ item.customer_name }} / {{ item.customer_identity }}
+            {{ item.customer_name }}
           </td>
           <td class="px-4 py-2 border-b">{{ item.petugas }}</td>
           <td class="px-4 py-2 border-b">

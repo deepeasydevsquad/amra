@@ -55,13 +55,8 @@ router.post(
         if (parsed.dibayar == null || isNaN(parsed.dibayar)) {
           throw new Error("Field 'dibayar' pada customer tidak valid.");
         }
-        if (!parsed.costumer_name) {
-          throw new Error("Field 'costumer_name' pada customer harus diisi.");
-        }
-        if (!parsed.costumer_identity) {
-          throw new Error(
-            "Field 'costumer_identity' pada customer harus diisi."
-          );
+        if (!parsed.kostumer_id) {
+          throw new Error("Field 'kostumer_id' pada customer harus diisi.");
         }
 
         return true;
@@ -116,7 +111,6 @@ router.post(
       .notEmpty()
       .withMessage("Ticket Transaction wajib diisi"),
     body("costumer_name").notEmpty().withMessage("Nama wajib diisi"),
-    body("costumer_identity").notEmpty().withMessage("Identitas wajib diisi"),
     body("nominal").notEmpty().withMessage("Nominal wajib diisi"),
   ],
   controllers.add_pembayaran_ticket
@@ -151,8 +145,6 @@ router.post(
     body("nomor_register")
       .notEmpty()
       .withMessage("Ticket Registrasi wajib diisi"),
-    body("costumer_name").notEmpty().withMessage("Nama wajib diisi"),
-    body("costumer_identity").notEmpty().withMessage("Identitas wajib diisi"),
     body("detail")
       .isArray({ min: 1 })
       .withMessage("Detail refund harus berupa array dan minimal 1 data"),
@@ -193,12 +185,6 @@ router.post(
       .isInt()
       .withMessage("ID transaksi harus berupa angka"),
 
-    body("costumer_name").notEmpty().withMessage("Nama customer wajib diisi"),
-
-    body("costumer_identity")
-      .notEmpty()
-      .withMessage("Identitas customer wajib diisi"),
-
     body("details")
       .isArray({ min: 1 })
       .withMessage(
@@ -222,4 +208,23 @@ router.post(
   ],
   controller_r2.reschelude
 );
+
+router.get(
+  "/trans_tiket/daftar_customer",
+  authenticateToken,
+  controllers.daftar_customer
+);
+
+body("costumer_name").notEmpty().withMessage("Nama customer wajib diisi"),
+  router.post(
+    "/trans_tiket/daftar_paket",
+    authenticateToken,
+    [
+      body("division_id")
+        .trim()
+        .notEmpty()
+        .withMessage("ID  tidak boleh kosong."),
+    ],
+    controllers.daftar_paket
+  );
 module.exports = router;
