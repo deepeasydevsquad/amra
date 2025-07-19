@@ -230,8 +230,27 @@ const deleteData = async (jamaahId: number) => {
       </div>
 
       <!-- Search Input -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
-        <label for="filter" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
+      <div class="inline-flex rounded-md shadow-xs" role="group">
+        <label for="search" class="block text-sm font-medium text-gray-700 mr-2 mt-3">Filter</label>
+        <input
+          type="text"
+          id="search"
+          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+          v-model="search"
+          @change="fetchData()"
+          placeholder="Cari data..."
+        />
+        <select
+          v-model="filterCabang"
+          style="width: 300px"
+          @change="fetchData()"
+          class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+            {{ optionC.name }}
+          </option>
+        </select>
+        <!-- <label for="filter" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
         <select
           v-model="filterCabang"
           @change="fetchData()"
@@ -249,7 +268,7 @@ const deleteData = async (jamaahId: number) => {
           v-model="search"
           @change="fetchData()"
           placeholder="Cari berdasarkan nama..."
-        />
+        /> -->
       </div>
     </div>
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md mb-5">
