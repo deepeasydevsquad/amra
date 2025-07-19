@@ -97,4 +97,22 @@ controllers.detail_ticket = async (req, res) => {
   }
 };
 
+controllers.daftar_customer = async (req, res) => {
+  try {
+    const data = await new Model_r(req).daftar_kostumer();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
+controllers.daftar_paket = async (req, res) => {
+  try {
+    const data = await new Model_r(req).daftar_paket();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
 module.exports = controllers;

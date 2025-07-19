@@ -122,3 +122,23 @@ export const reschedule = async (param : any) => {
       throw error;
   }
 }
+
+export const daftar_paket = async (param : any) => {
+  try {
+      const response = await api.post("/trans_tiket/daftar_paket", param);
+      return response.data;
+  } catch (error) {
+      console.error("Gagal melakukan reschedule tiket:", error);
+      throw error;
+  }
+}
+
+export const daftar_costumer = async () => {
+  try {
+      const response = await api.get("/trans_tiket/daftar_customer");
+      return response.data;
+  } catch (error) {
+      console.error("Gagal melakukan reschedule tiket:", error);
+      throw error;
+  }
+}

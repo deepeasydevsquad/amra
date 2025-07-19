@@ -2,8 +2,9 @@
 import Form from '@/components/Modal/FormEditProfile.vue'
 import InputText from '@/components/Form/InputText.vue'
 import InputDate from '@/components/Form/InputDate.vue'
-import { ref, watch, computed } from 'vue'
-import { reschedule, detail_reschedule } from '@/service/trans_tiket'
+import { ref, watch, computed, onMounted } from 'vue'
+import { reschedule, detail_reschedule, daftar_costumer } from '@/service/trans_tiket'
+import SelectField from '@/components/Form/SelectField.vue'
 
 const props = defineProps<{
   nomor_register: string
@@ -99,7 +100,7 @@ async function handleSubmit() {
   const payload = {
     ticket_transaction_id: formData.value.id,
     costumer_name: namaPelanggan.value,
-    costumer_identity: identitasPelanggan.value,
+    kostumer_id: SelectedCustomer.value,
     details: formData.value.detail.map((d) => ({
       ticket_transaction_detail_id: d.id,
       departure_date: formatToYYYYMMDD(d.departure_date),
@@ -131,6 +132,26 @@ function resetForm() {
   namaPelanggan.value = ''
   identitasPelanggan.value = ''
 }
+
+interface costumer {
+  id: number
+  name: string
+}
+
+const customerOption = ref<costumer[]>([])
+const SelectedCustomer = ref(0)
+const fetchCustomer = async () => {
+  try {
+    const response = await daftar_costumer()
+    customerOption.value = [{ id: 0, name: 'Pilih Kostumer' }, ...response]
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+onMounted(async () => {
+  await fetchCustomer()
+})
 </script>
 
 <template>
@@ -203,11 +224,12 @@ function resetForm() {
     <div class="mt-6 space-y-4">
       <!-- Baris Pertama -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <InputText placeholder="Nama Pelanggan" v-model="namaPelanggan" note="Nama Pelanggan" />
-        <InputText
-          placeholder="Identitas Pelanggan"
-          v-model="identitasPelanggan"
-          note="Identitas Pelanggan"
+        <SelectField
+          label="Kostumer"
+          v-model="SelectedCustomer"
+          :options="customerOption"
+          class="flex-1 min-w-[200px] -mt-5"
+          :note="'Kostumer'"
         />
         <InputText
           :modelValue="formatRupiah(formData?.sudah_bayar || 0)"

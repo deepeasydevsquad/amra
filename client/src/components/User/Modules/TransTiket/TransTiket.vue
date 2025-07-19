@@ -57,6 +57,7 @@
                   </div>
                   <div>HARGA TRAVEL: Rp {{ ticket.travel_price.toLocaleString() }}</div>
                   <div>HARGA KOSTUMER: Rp {{ ticket.costumer_price.toLocaleString() }}</div>
+                  <div>PAKET NAME : {{ transaction.paket_name || 'N/A' }}</div>
                 </div>
               </div>
               <div
@@ -106,8 +107,7 @@
                     Tanggal Transaksi: {{ new Date(payment.createdAt).toLocaleString() }} | No
                     Invoice: <span class="text-red-600 font-semibold">{{ payment.invoice }}</span> |
                     Biaya: Rp {{ payment.nominal }} | Nama Petugas: {{ payment.petugas }} | Nama
-                    Pelanggan: {{ payment.costumer_name }} | Nomor Identitas:
-                    {{ payment.costumer_identity }}
+                    Pelanggan: {{ payment.costumer_name }}
                   </li>
                 </ul>
               </div>
@@ -305,6 +305,7 @@ interface TicketTransaction {
   division_id: number
   nomor_register: string
   total_transaksi: number
+
   status: string
   createdAt: string
   updatedAt: string
@@ -315,6 +316,7 @@ interface TicketTransaction {
 interface TicketDetail {
   id: number
   pax: number
+  paket_name: string
   code_booking: string
   ticket_transaction_id: number
   airlines_id: number | null
@@ -329,8 +331,9 @@ interface TicketDetail {
 interface PaymentHistory {
   id: number
   invoice: string
+  costumer_id: number
   costumer_name: string
-  costumer_identity: string
+  paket_name: string
   petugas: string
   nominal: string
   status: string
@@ -454,7 +457,8 @@ const pembayaranData = ref({
   ticket_transaction_id: 0,
   nominal: 0,
   costumer_name: '',
-  costumer_identity: '',
+  costumer_id: 0,
+  paket_name: '',
 })
 
 const openPembayaranForm = (transaction: TicketTransaction) => {
@@ -463,15 +467,17 @@ const openPembayaranForm = (transaction: TicketTransaction) => {
 
   // ambil data costumer dari payment terakhir kalau ada
   const lastPayment = transaction.payment_histories[0] || {
+    costumer_id: 0,
     costumer_name: '',
-    costumer_identity: '',
+    paket_name: '',
   }
 
   pembayaranData.value = {
     ticket_transaction_id: transaction.id,
     nominal: sisa,
     costumer_name: lastPayment.costumer_name || '',
-    costumer_identity: lastPayment.costumer_identity || '',
+    costumer_id: lastPayment.costumer_id || 0,
+    paket_name: lastPayment.paket_name || '',
   }
 
   showModalPembayaran.value = true
