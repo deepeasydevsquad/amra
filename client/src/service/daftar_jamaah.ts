@@ -1,9 +1,38 @@
 import api from './api' // Import service API
 
-
-export const getMember = async () => {
+export const getAgen =  async (division_id: number) => {
   try {
-    const response = await api.get('/get-member-not-jamaah')
+    const response = await api.post('/daftar-jamaah/get-agen', {division_id})
+    return response.data
+  } catch (error) {
+    console.error('Gagal Mengambil Data:', error)
+    throw error
+  }
+}
+
+export const getInfoMember = async (param: any) => {
+  try {
+    const response = await api.post('/daftar-jamaah/get-info-member', param)
+    return response.data
+  } catch (error) {
+    console.error('Gagal Mengambil Data:', error)
+    throw error
+  }
+}
+
+export const getMemberNotJamaah = async (division_id: number) => {
+  try {
+    const response = await api.post('/daftar-jamaah/get-member-not-jamaah', {division_id})
+    return response.data
+  } catch (error) {
+    console.error('Gagal Mengambil Data:', error)
+    throw error
+  }
+}
+
+export const getJamaahNotMember = async (division_id: number) => {
+  try {
+    const response = await api.post('/daftar-jamaah/get-jamaah-not-member', {division_id})
     return response.data
   } catch (error) {
     console.error('Gagal Mengambil Data:', error)
@@ -13,34 +42,29 @@ export const getMember = async () => {
 
 export const daftarJamaah = async (param: any) => {
   try {
-    const response = await api.post('/get-daftar-jamaah', param) // Kirim data ke backend
-    return response.data // Kembalikan data hasil request
+    const response = await api.post('/daftar-jamaah/list', param)
+    return response.data
   } catch (error) {
     console.error('Gagal mengambil data jamaah:', error)
-    throw error // Bisa ditangani di bagian pemanggilan
+    throw error
   }
 }
 
-export const downloadJamaah = async (param: any) => {
+export const getDownloadJamaah = async (division_id: number) => {
   try {
-    const response = await api.post('/download-daftar-jamaah', param, {
+    const response = await api.post('/daftar-jamaah/download', { division_id }, {
       responseType: 'blob', // << penting biar axios handle sebagai file
     })
 
-    // Bikin blob dari data response
     const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
 
-    // Buat URL dari blob
     const url = window.URL.createObjectURL(blob)
-
-    // Buat element <a> buat trigger download
     const link = document.createElement('a')
     link.href = url
-    link.setAttribute('download', 'daftar_jamaah.xlsx') // Nama file
+    link.setAttribute('download', `daftar_jamaah.xlsx`) // Nama file
     document.body.appendChild(link)
     link.click()
 
-    // Cleanup
     link.remove()
     window.URL.revokeObjectURL(url)
   } catch (error) {
@@ -49,24 +73,33 @@ export const downloadJamaah = async (param: any) => {
   }
 }
 
-
 export const addJamaah = async (param: any) => {
   try {
-    const response = await api.post('/add-daftar-jamaah', param, {
+    const response = await api.post('/daftar-jamaah/add', param, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-    }) // Kirim data ke backend
-    return response.data // Kembalikan data hasil request
+    })
+    return response.data
   } catch (error) {
     console.error('Gagal menambah data jamaah:', error)
-    throw error // Bisa ditangani di bagian pemanggilan
+    throw error
+  }
+}
+
+export const getInfoUpdate = async (param: any) => {
+  try {
+    const response = await api.post('/daftar-jamaah/get-info-update', param)
+    return response.data
+  } catch (error) {
+    console.error('Gagal mengambil data jamaah:', error)
+    throw error
   }
 }
 
 export const editJamaah = async (param: any) => {
   try {
-    const response = await api.post('/edit-daftar-jamaah', param, {
+    const response = await api.post('/daftar-jamaah/update', param, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -80,7 +113,7 @@ export const editJamaah = async (param: any) => {
 
 export const deleteJamaah = async (param: any) => {
   try {
-    const response = await api.post('/delete-daftar-jamaah', param)
+    const response = await api.post('/daftar-jamaah/delete', param)
     return response.data
   } catch (error) {
     console.error('gagal delete data jamaah', error)

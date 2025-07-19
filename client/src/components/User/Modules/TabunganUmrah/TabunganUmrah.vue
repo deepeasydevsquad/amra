@@ -163,14 +163,13 @@ const fetchDataCabang = async () => {
   const response = await paramCabang()
   optionFilterCabang.value = response.data
   filterCabang.value = response.data[0].id
-  await fetchData()
 }
 
 const tabelutama = ref<HTMLTableElement | null>(null)
 
 onMounted(async () => {
-  await fetchData();
   await fetchDataCabang();
+  await fetchData();
   totalColumns.value = tabelutama.value?.querySelectorAll(':scope > thead > tr > th:not(.hidden)').length
 })
 
@@ -258,7 +257,7 @@ const deleteData = async (id: number) => {
         displayNotification(
           error?.response?.data?.error_msg ||
           error?.response?.data?.message ||
-          'Terjadi kesalahan dalam menyimpan data',
+          'Terjadi kesalahan dalam menghapus data',
           'error'
         );
       } finally {

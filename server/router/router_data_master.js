@@ -5,106 +5,121 @@ const { authenticateToken } = require("../middleware/authenticateToken");
 
 const router = express.Router();
 
-router.post(
+router.get(
   "/get-provinsi",
-  authenticateToken,
-  [body("pageNumber").trim(), body("perpage").trim(), body("search").trim()],
   authenticateToken,
   controller.getProvinsi
 );
+
 router.post(
   "/get-kabupaten",
   authenticateToken,
-  [body("pageNumber").trim(), body("perpage").trim(), body("search").trim()],
-  authenticateToken,
+  [
+    body("provinsi_id")
+      .trim()
+      .notEmpty()
+      .withMessage("Provinsi tidak boleh kosong.")
+      .isInt()
+      .withMessage("Provinsi harus berupa angka."),
+  ],
   controller.getKabupaten
 );
+
 router.post(
   "/get-kecamatan",
   authenticateToken,
-  [body("pageNumber").trim(), body("perpage").trim(), body("search").trim()],
-  authenticateToken,
+  [
+    body("kabupaten_id")
+      .trim()
+      .notEmpty()
+      .withMessage("Kabupaten tidak boleh kosong.")
+      .isInt()
+      .withMessage("Kabupaten harus berupa angka."),
+  ],
   controller.getKecamatan
 );
+
 router.post(
   "/get-kelurahan",
   authenticateToken,
-  [body("pageNumber").trim(), body("perpage").trim(), body("search").trim()],
-  authenticateToken,
+  [
+    body("kecamatan_id")
+      .trim()
+      .notEmpty()
+      .withMessage("Kecamatan tidak boleh kosong.")
+      .isInt()
+      .withMessage("Kecamatan harus berupa angka."),
+  ],
   controller.getKelurahan
 );
-router.post(
+
+router.get(
   "/get-mahram",
-  authenticateToken,
-  [body("pageNumber").trim(), body("perpage").trim(), body("search").trim()],
   authenticateToken,
   controller.getMahram
 );
-router.post(
+
+router.get(
   "/get-pekerjaan",
-  authenticateToken,
-  [body("pageNumber").trim(), body("perpage").trim(), body("search").trim()],
   authenticateToken,
   controller.getPekerjaan
 );
-router.post(
+
+router.get(
   "/get-pendidikan",
-  authenticateToken,
-  [body("pageNumber").trim(), body("perpage").trim(), body("search").trim()],
   authenticateToken,
   controller.getPendiidikan
 );
-router.post(
+
+router.get(
   "/get-pengalaman",
-  authenticateToken,
-  [body("pageNumber").trim(), body("perpage").trim(), body("search").trim()],
   authenticateToken,
   controller.getPengalamanHajiUmrah
 );
 
-router.post  (
+router.get  (
   "/get-kota",
   authenticateToken,
   controller.getKota
 );
 
-router.post(
+router.get(
   "/get-airlines",
   authenticateToken,
   controller.getAirlines
 );
 
-router.post(
+router.get(
   "/get-asuransi",
   authenticateToken,
   controller.getAsuransi
 );
 
-router.post(
+router.get(
   "/get-hotel",
   authenticateToken,
   controller.getHotel
 );
 
-router.post(
+router.get(
   "/get-bandara",
   authenticateToken,
   controller.getBandara
 );
 
-router.post(
+router.get(
   "/get-tipe-paket",
   authenticateToken,
   controller.getTipePaket
 );
 
-router.post(
+router.get(
   "/get-fasilitas",
   authenticateToken,
   controller.getFasilitas
 );
 
-router.post(
+router.get(
   "/get-provider-visa",
   authenticateToken,
   controller.getProviderVisa
