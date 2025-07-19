@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Mst_bank extends Model {
+  class Akun_bank_perusahaan extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,22 +11,22 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Mst_bank.belongsTo(models.Company, {
+      Akun_bank_perusahaan.belongsTo(models.Company, {
         foreignKey: "company_id",
       });
-      Mst_bank.hasMany(models.Akun_bank_perusahaan, {
+      Akun_bank_perusahaan.belongsTo(models.Mst_bank, {
         foreignKey: "mst_bank_id",
-        onDelete: "CASCADE",
       });
     }
   }
-  Mst_bank.init({
+  Akun_bank_perusahaan.init({
     company_id: DataTypes.INTEGER,
-    kode: DataTypes.STRING,
-    name: DataTypes.STRING
+    mst_bank_id: DataTypes.INTEGER,
+    nomor_akun: DataTypes.STRING,
+    nama_akun: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'Mst_bank',
+    modelName: 'Akun_bank_perusahaan',
   });
-  return Mst_bank;
+  return Akun_bank_perusahaan;
 };

@@ -37,7 +37,7 @@ module.exports = {
       { menu_id : menus[3].id, name: 'Whatsapp', path: 'whatsapp', tab:`[{"id":"${tabs[48].id}"},{"id":"${tabs[49].id}"},{"id":"${tabs[50].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[3].id, name: 'Surat Menyurat', path: 'surat_menyurat', tab:`[{"id":"${tabs[51].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[3].id, name: 'PPOB', path: 'ppob', tab:`[{"id":"${tabs[55].id}"},{"id":"${tabs[60].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
-      { menu_id : menus[4].id, name: 'Mobile', path: 'mobile', tab:`[{"id":"${tabs[61].id}"},{"id":"${tabs[62].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
+      { menu_id : menus[4].id, name: 'Mobile', path: 'mobile', tab:`[{"id":"${tabs[61].id}"},{"id":"${tabs[62].id}"},{"id":"${tabs[66].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[5].id, name: 'Supplier', path: 'supplier', tab:`[{"id":"${tabs[11].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[5].id, name: 'Bank', path: 'bank', tab:`[{"id":"${tabs[6].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[5].id, name: 'Airlines', path: 'airlines', tab:`[{"id":"${tabs[7].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
