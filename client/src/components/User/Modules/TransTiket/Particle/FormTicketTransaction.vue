@@ -345,8 +345,8 @@ function initializeForm(data: TicketTransactionForm) {
     id: 0,
     tickets: fixedTickets,
     customer: {
-      kostumer_id: data.customer?.kostumer_id ?? '',
-      paket_id: data.customer?.paket_id ?? '',
+      kostumer_id: data.customer?.kostumer_id ?? 0,
+      paket_id: data.customer?.paket_id ?? 0,
       dibayar: data.customer?.dibayar ?? 0,
     },
     nomor_register: data.nomor_register ?? '',
