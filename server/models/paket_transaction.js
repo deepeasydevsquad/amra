@@ -46,6 +46,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "paket_transaction_id",
         onDelete: "CASCADE",
       });
+      Paket_transaction.hasMany(models.File_pendukung, {
+        foreignKey: "paket_transaction_id",
+        onDelete: "CASCADE",
+      });
     }
   }
   Paket_transaction.init({
