@@ -133,6 +133,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "company_id",
         onDelete: "CASCADE",
       });
+      Company.hasMany(models.Ppob_prabayar_markup_company, {
+        foreignKey: "company_id",
+        onDelete: "CASCADE",
+      });
     }
   }
   Company.init(

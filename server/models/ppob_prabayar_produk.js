@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
       Ppob_prabayar_produk.belongsTo(models.Ppob_prabayar_operator, {
         foreignKey: "ppob_prabayar_operator_id",
       });
+      Ppob_prabayar_produk.hasMany(models.Ppob_prabayar_markup_company, {
+        foreignKey: "ppob_prabayar_produk_id",
+        onDelete: "CASCADE",
+      });
     }
   }
   Ppob_prabayar_produk.init({
