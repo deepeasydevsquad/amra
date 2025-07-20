@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
       Akun_bank_perusahaan.belongsTo(models.Mst_bank, {
         foreignKey: "mst_bank_id",
       });
+      Akun_bank_perusahaan.hasMany(models.Request_deposit_member, {
+        foreignKey: "akun_bank_perusahaan_id",
+        onDelete: "CASCADE",
+      });
     }
   }
   Akun_bank_perusahaan.init({
