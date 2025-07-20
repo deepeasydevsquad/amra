@@ -270,9 +270,12 @@ onMounted(() => {
                 <LightButton @click="openFormRefund(dataTransPaket.id)" title="Refund Transaksi Paket">
                   <RefundIcon class="h-4 w-4 text-gray-600" />
                 </LightButton>
-                <EditButton @click="openFormEditVisa(dataTransPaket.id)" title="Update Informasi Visa">
+                <LightButton @click="openFormEditVisa(dataTransPaket.id)" title="Update Informasi Visa">
                   <EditIcon></EditIcon>
-                </EditButton>
+                </LightButton>
+                <LightButton @click="openFormEditVisa(dataTransPaket.id)" title="Upload File Pendukung">
+                  <EditIcon></EditIcon>
+                </LightButton>
                 <DangerButton @click="deleteData(dataTransPaket.id, )" title="Hapus Transaksi Paket">
                   <DeleteIcon></DeleteIcon>
                 </DangerButton>
