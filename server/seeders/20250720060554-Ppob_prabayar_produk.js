@@ -1351,17 +1351,33 @@ module.exports = {
       {id:"2306",kode:"MLD85",ppob_prabayar_operator_id:"148",name:"MOBILELEGEND - 85 DIAMOND",price:"21143",description:"no pelanggan = gabungan antara user_id dan zone_id",status:"tersedia", createdAt: new Date(), updatedAt: new Date()}
     ];
 
-
+    var datas = [];
     for (let i = 0; i < data.length; i++) {
       try {
         if(ids.includes(parseInt( data[i].ppob_prabayar_operator_id))) {
-          await Ppob_prabayar_produk.create(data[i]);
+          datas.push(data[i]);
         }
+      } catch (error) {
+        break;  // Berhenti jika terjadi error
+      }
+    }
+
+
+    const batchSize = 100;
+
+    for (let i = 0; i < datas.length; i += batchSize) {
+      const batch = datas.slice(i, i + batchSize);
+      try {
+        await queryInterface.bulkInsert('Ppob_prabayar_produks', batch, {});
+        console.log(`Batch Ppob Prabayar Produk ${i / batchSize + 1} berhasil disisipkan`);
       } catch (error) {
         console.error('Error saat insert batch:', error);
         break;  // Berhenti jika terjadi error
       }
     }
+
+
+
   },
 
   async down (queryInterface, Sequelize) {
