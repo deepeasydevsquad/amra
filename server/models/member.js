@@ -30,9 +30,8 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "member_id",
         onDelete: 'CASCADE',
       });
-      
-      Company.hasMany(models.Request_deposit_member, {
-        foreignKey: "company_id",
+      Member.hasMany(models.Request_deposit_member, {
+        foreignKey: "member_id",
         onDelete: "CASCADE",
       });
     }
