@@ -16,13 +16,16 @@ import {
   daftarFasilitas,
   daftarProviderVisa,
 } from '@/service/data_master'
+import { paramCabang } from '@/service/param_cabang'
 
 const props = defineProps<{
   isFormOpen: boolean
+  cabangId: number
 }>()
 
 const emit = defineEmits<{
   (e: 'close'): void
+  (e: 'status', payload: { error: boolean, err_msg?: string }): void
 }>()
 
 interface ErrorFields {
@@ -88,7 +91,11 @@ interface ProviderVisa {
   name: string
 }
 
-// Data from API
+interface Cabang {
+  id: number
+  name: string
+}
+
 const kotaList = ref<Kota[]>([])
 const airlinesList = ref<Airlines[]>([])
 const asuransiList = ref<Asuransi[]>([])
@@ -137,7 +144,9 @@ const errors = ref<ErrorFields>({
 })
 
 // Form reactive
+const cabangList = ref<Cabang[]>([])
 const form = reactive({
+  division_id: props.cabangId,
   jenis_kegiatan: '',
   photo: null as File | null, // <-- photo diubah jadi File | null
   name: '',
@@ -208,8 +217,9 @@ const handleFileUpload = (event: Event) => {
 }
 
 const fetchData = async () => {
-  const [kota, airlines, asuransi, hotel, bandara, tipePaket, fasilitas, providerVisa] =
+  const [cabang, kota, airlines, asuransi, hotel, bandara, tipePaket, fasilitas, providerVisa] =
     await Promise.all([
+      paramCabang(),
       daftarKota(),
       daftarAirlines(),
       daftarAsuransi(),
@@ -220,6 +230,7 @@ const fetchData = async () => {
       daftarProviderVisa(),
     ])
 
+  cabangList.value = cabang.data
   kotaList.value = kota.data
   airlinesList.value = airlines.data
   asuransiList.value = asuransi.data
@@ -273,6 +284,11 @@ const validateForm = (): boolean => {
     paket_types: '',
   }
   let isValid = true
+
+  if (!form.division_id) {
+    displayNotification('Pilih cabang terlebih dahulu.', 'error')
+    isValid = false
+  }
 
   if (!form.name) {
     errors.value.name = 'Nama paket tidak boleh kosong.'
@@ -403,9 +419,6 @@ const saveData = async () => {
       displayNotification('Tolong lengkapi form dengan benar.', 'error')
       return
     }
-
-    console.log('Form data:', form)
-
     const formData = new FormData()
 
     // Menambahkan data form lainnya
@@ -446,13 +459,26 @@ const saveData = async () => {
       console.log(`${key}:`, value)
     }
 
-    await addPaket(formData)
+    const response = await addPaket(formData)
 
-    displayNotification('Data berhasil disimpan', 'success')
-    setTimeout(() => emit('close'), 3000)
-  } catch (error) {
-    console.error(error)
-    displayNotification('Gagal menyimpan data', 'error')
+    emit('close')
+    emit('status', { error: false, err_msg: response.message || response.error_msg || 'Data berhasil disimpan' })
+  } catch (error: any) {
+    if (error?.response?.data?.errors) {
+      const errors = error.response.data.errors;
+      let errMsg = '';
+      for (const err of errors) {
+        errMsg += `${err.msg}\n`;
+      }
+      displayNotification(errMsg, 'error');
+    } else {
+      displayNotification(
+        error?.response?.data?.error_msg ||
+        error?.response?.data?.message ||
+        'Terjadi kesalahan dalam menyimpan data',
+        'error'
+      )
+    }
   }
 }
 
@@ -529,8 +555,13 @@ const onPriceInput = (event: Event, id: number) => {
               <small class="text-gray-400">Ukuran Maksimum 600KB (Tipe: .jpg, .jpeg, .png)</small>
               <p v-if="errors.photo" class="mt-1 text-sm text-red-600">{{ errors.photo }}</p>
             </div>
-
-            <div class="col-span-2">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Cabang<span class="text-red-500">*</span></label>
+              <select v-model="form.division_id" class="w-full border-gray-300 placeholder:text-gray-500 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <option v-for="cabang in cabangList" :value="cabang.id" :key="cabang.id">{{ cabang.name }}</option>
+              </select>
+            </div>
+            <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 Nama Paket <span class="text-red-500">*</span>
               </label>
@@ -669,7 +700,7 @@ const onPriceInput = (event: Event, id: number) => {
                 <label :for="`tipe-paket-${item.id}`" class="w-40 text-sm">{{ item.name }}</label>
                 <input
                   type="text"
-                  class="flex-1 border px-2 py-1 rounded"
+                  :class="`${!form.paket_types.includes(item.id) ? 'opacity-50 cursor-default transition duration-300 ease-in-out' : 'transition duration-300 ease-in-out'} px-2 py-1 flex-1 border border-gray-300 placeholder:text-gray-500 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500`"
                   :value="formatPrice(form.paket_prices[item.id] || '')"
                   :disabled="!form.paket_types.includes(item.id)"
                   @input="onPriceInput($event, item.id)"

@@ -19,13 +19,17 @@ import {
   daftarProviderVisa,
 } from '@/service/data_master'
 
+import { paramCabang } from '@/service/param_cabang'
+
 const props = defineProps<{
   isFormOpen: boolean
   paketId: number
+  cabangId: number
 }>()
 
 const emit = defineEmits<{
   (e: 'close'): void
+  (e: 'status', payload: { error: boolean, err_msg?: string }): void
 }>()
 
 interface ErrorFields {
@@ -90,7 +94,13 @@ interface ProviderVisa {
   name: string
 }
 
+interface Cabang {
+  id: number
+  name: string
+}
+
 // Data from API
+const cabangList = ref<Cabang[]>([])
 const paketList = ref<any[]>([]) // Ganti any dengan tipe data yang sesuai
 const kotaList = ref<Kota[]>([])
 const airlinesList = ref<Airlines[]>([])
@@ -140,6 +150,7 @@ const errors = ref<ErrorFields>({
 
 // Form reactive
 const form = reactive({
+  division_id: props.cabangId,
   jenis_kegiatan: '',
   photo: null as File | null, // <-- photo diubah jadi File | null
   name: '',
@@ -209,13 +220,19 @@ const handleFileUpload = (event: Event) => {
   }
 }
 
+
 const fetchData = async () => {
+  if (!props.paketId || !props.cabangId) {
+    displayNotification('ID paket atau cabang tidak ditemukan, silakan keluar dan masuk kembali.', 'error')
+    return
+  }
   console.log('Fetching data...')
   console.log('Paket ID:', props.paketId)
 
-  const [paket, kota, airlines, asuransi, hotel, bandara, tipePaket, fasilitas, providerVisa] =
+  const [cabang, paket, kota, airlines, asuransi, hotel, bandara, tipePaket, fasilitas, providerVisa] =
     await Promise.all([
-      getPaket(props.paketId),
+      paramCabang(),
+      getPaket(props.paketId, props.cabangId),
       daftarKota(),
       daftarAirlines(),
       daftarAsuransi(),
@@ -230,6 +247,7 @@ const fetchData = async () => {
     displayNotification('Gagal mengambil data paket', 'error')
     return
   }
+  cabangList.value = cabang.data
   paketList.value = paket.data
   kotaList.value = kota.data
   airlinesList.value = airlines.data
@@ -316,6 +334,11 @@ const validateForm = (): boolean => {
     paket_types: '',
   }
   let isValid = true
+
+  if (!props.paketId || !props.cabangId) {
+    displayNotification('ID paket atau cabang tidak ditemukan, silakan keluar dan masuk kembali.', 'error')
+    return false
+  }
 
   if (!form.name) {
     errors.value.name = 'Nama paket tidak boleh kosong.'
@@ -484,14 +507,26 @@ const saveData = async () => {
       console.log(`${key}:`, value)
     }
 
-    await editPaket(props.paketId, Object.fromEntries(formData))
-    // await editPaket(props.paketId, formData); // ✅ Before
+    const response = await editPaket(props.paketId, Object.fromEntries(formData))
 
-    displayNotification('Data berhasil disimpan', 'success')
-    setTimeout(() => emit('close'), 3000)
-  } catch (error) {
-    console.error(error)
-    displayNotification('Gagal menyimpan data', 'error')
+    emit('close')
+    emit('status', { error: false, err_msg: response.error_msg || 'Paket berhasil di update' })
+  } catch (error: any) {
+    if (error?.response?.data?.errors) {
+      const errors = error.response.data.errors;
+      let errMsg = '';
+      for (const err of errors) {
+        errMsg += `${err.msg}\n`;
+      }
+      displayNotification(errMsg, 'error');
+    } else {
+      displayNotification(
+        error?.response?.data?.error_msg ||
+        error?.response?.data?.message ||
+        'Terjadi kesalahan dalam menyimpan data',
+        'error'
+      )
+    }
   }
 }
 
@@ -565,8 +600,13 @@ const onPriceInput = (event: Event, id: number) => {
               </div>
               <small class="text-gray-400">Ukuran Maksimum 600KB (Tipe: .jpg, .jpeg, .png)</small>
             </div>
-
-            <div class="col-span-2">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Cabang<span class="text-red-500">*</span></label>
+              <select v-model="form.division_id" class="w-full border-gray-300 placeholder:text-gray-500 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <option v-for="cabang in cabangList" :value="cabang.id" :key="cabang.id">{{ cabang.name }}</option>
+              </select>
+            </div>
+            <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 Nama Paket <span class="text-red-500">*</span>
               </label>
@@ -705,7 +745,7 @@ const onPriceInput = (event: Event, id: number) => {
                 <label :for="`tipe-paket-${item.id}`" class="w-40 text-sm">{{ item.name }}</label>
                 <input
                   type="text"
-                  class="flex-1 border px-2 py-1 rounded"
+                  :class="`${!form.paket_types.some((type) => type.id === item.id) ? 'opacity-50 cursor-default transition duration-300 ease-in-out' : 'transition duration-300 ease-in-out'} px-2 py-1 flex-1 border border-gray-300 placeholder:text-gray-500 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500`"
                   :value="formatPrice(form.paket_prices?.[item.id] || 0)"
                   :disabled="!form.paket_types.some((type) => type.id === item.id)"
                   @input="onPriceInput($event, item.id)"
@@ -897,12 +937,6 @@ const onPriceInput = (event: Event, id: number) => {
         >
           Batal
         </button>
-        <!-- <button
-          type="submit"
-          class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
-        >
-          Simpan
-        </button> -->
         <PrimaryButton type="submit">UPDATE PAKET</PrimaryButton>
       </div>
     </form>
