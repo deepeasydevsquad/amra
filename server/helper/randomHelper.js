@@ -6,6 +6,7 @@ const {
   Op,
   Kas_keluar_masuk,
   Pembayaran_gaji,
+  Item_fasilitas,
 } = require("../models");
 
 const helper = {};
@@ -93,4 +94,21 @@ helper.menghasilkan_invoice_pembayaran_gaji = async () => {
   }
   return rand;
 };
+
+helper.generate_item_code = async () => {
+  let item_code = "";
+  let exists = true;
+
+  while (exists) {
+    item_code = await helper.randomString(
+      10,
+      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    );
+    const check = await Item_fasilitas.findOne({ where: { item_code } });
+    exists = !!check;
+  }
+
+  return item_code;
+};
+
 module.exports = helper;
