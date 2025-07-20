@@ -11,40 +11,39 @@ router.post(
   authenticateToken,
   [
     body("pageNumber").trim(),
-    body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
+    body("perpage")
+      .trim()
+      .notEmpty()
+      .withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
   ],
   controllers.list
 );
 
-// search: searchQuery.value,
-//       perpage: itemsPerPage.value,
-//       pageNumber: currentPage.value,
-
-// router.post(
-//   "/daftar-provider-visa/add",
-//   authenticateToken,
-//   [
-//     body("name").trim().notEmpty().withMessage("Nama Provider Visa tidak boleh kosong.").toUpperCase(),
-//   ],
-//   controllers.add
-// );
-
-// router.post(
-//   "/daftar-provider-visa/update",
-//   authenticateToken,
-//   [
-//     body("id").trim().notEmpty().withMessage("ID Provider Visa tidak boleh kosong.").custom(validation.check_id_provider_visa),
-//     body("name").trim().notEmpty().withMessage("Nama Provider Visa tidak boleh kosong.").toUpperCase(),
-//   ],
-//   controllers.update
-// );
-
-// router.post(
-//   "/daftar-provider-visa/delete",
-//   authenticateToken,
-//   [body("id").trim().notEmpty().withMessage("ID Provider Visa tidak boleh kosong.").isInt().withMessage("ID Provider Visa harus berupa angka.").custom(validation.check_id_provider_visa)],
-//   controllers.delete
-// );
+router.post(
+  "/daftar-stock-fasilitas/add",
+  authenticateToken,
+  [
+    body("jumlah")
+      .notEmpty()
+      .withMessage("Jumlah stok wajib diisi.")
+      .isInt({ min: 1 })
+      .withMessage("Jumlah stok harus berupa angka lebih dari 0."),
+    body("mst_fasilitas_id")
+      .notEmpty()
+      .withMessage("ID fasilitas wajib diisi."),
+    body("harga_beli")
+      .notEmpty()
+      .withMessage("Harga beli wajib diisi.")
+      .isNumeric()
+      .withMessage("Harga beli harus berupa angka."),
+    body("harga_jual")
+      .notEmpty()
+      .withMessage("Harga jual wajib diisi.")
+      .isNumeric()
+      .withMessage("Harga jual harus berupa angka."),
+  ],
+  controllers.add_stock
+);
 
 module.exports = router;

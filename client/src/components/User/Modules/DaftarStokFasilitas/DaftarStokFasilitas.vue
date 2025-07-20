@@ -3,7 +3,12 @@
     <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
       <div class="flex items-center gap-2"></div>
       <div class="flex items-center gap-0">
-         <input type="text" id="search" v-model="searchQuery" @input="handleSearch" placeholder="Cari berdasarkan nama fasilitas..."
+        <input
+          type="text"
+          id="search"
+          v-model="searchQuery"
+          @input="handleSearch"
+          placeholder="Cari berdasarkan nama fasilitas..."
           class="w-64 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
         />
       </div>
@@ -14,28 +19,42 @@
           <tr>
             <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Fasilitas</th>
             <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Jumlah Stok</th>
-            <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Jumlah Stok Terjual</th>
+            <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">
+              Jumlah Stok Terjual
+            </th>
             <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center w-28">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
-          <template v-if="data.length > 0 ">
+          <template v-if="data.length > 0">
             <tr v-for="d in data" :key="d.id" class="hover:bg-gray-50 transition-colors">
-              <td class="px-6 py-4 text-center align-top text-sm font-medium text-gray-700">{{ d.name }}</td>
-              <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">{{ d.jumlah_stok }} Unit</td>
-              <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">{{ d.jumlah_stok_terjual }} Unit</td>
+              <td class="px-6 py-4 text-center align-top text-sm font-medium text-gray-700">
+                {{ d.name }}
+              </td>
+              <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">
+                {{ d.jumlah_stok }} Unit
+              </td>
+              <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">
+                {{ d.jumlah_stok_terjual }} Unit
+              </td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
-                  <LightButton title="Tambah Stok Fasilitas" class="p-1 w-6 h-6">
+                  <LightButton
+                    @click="openModalStock(d.id)"
+                    title="Tambah Stok Fasilitas"
+                    class="p-1 w-6 h-6"
+                  >
                     <IconPlus class="w-4 h-4" />
                   </LightButton>
                 </div>
               </td>
             </tr>
           </template>
-          <template v-else >
+          <template v-else>
             <tr>
-              <td colspan="4" class="px-2 py-2 text-center align-top"> Daftar Fasilitas Tidak Ditemukan</td>
+              <td colspan="4" class="px-2 py-2 text-center align-top">
+                Daftar Fasilitas Tidak Ditemukan
+              </td>
             </tr>
           </template>
         </tbody>
@@ -56,7 +75,10 @@
   </div>
 
   <!-- Modal Konfirmasi Hapus -->
-  <Confirmation :showConfirmDialog="showDeleteConfirmDialog" confirmTitle="Konfirmasi Hapus" confirmMessage="Apakah Anda yakin ingin menghapus pengguna ini?"
+  <Confirmation
+    :showConfirmDialog="showDeleteConfirmDialog"
+    confirmTitle="Konfirmasi Hapus"
+    confirmMessage="Apakah Anda yakin ingin menghapus pengguna ini?"
   >
     <button
       @click=""
@@ -85,6 +107,13 @@
     :notificationType="notificationType"
     :notificationMessage="notificationMessage"
     @close="showNotification = false"
+  />
+
+  <FormAdd
+    v-if="ModalStock"
+    :idFasilitas="selectedFasilitasId"
+    @close="ModalStock = false"
+    @success="handleSuccess"
   />
 
   <!-- <FormPembayaran
@@ -127,6 +156,7 @@ import LightButton from '@/components/Button/LightButton.vue'
 // import DangerButton from '@/components/Button/DangerButton.vue'
 
 import IconPlus from '@/components/Icons/IconPlus.vue'
+import FormAdd from './widget/FormAdd.vue'
 // import IconMoney from '@/components/Icons/IconMoney.vue'
 
 const totalColumns = ref(4)
@@ -182,7 +212,7 @@ interface Data {
 }
 
 const data = ref<Data[]>([])
-const totalRow = ref(0);
+const totalRow = ref(0)
 const searchQuery = ref('')
 const currentPage = ref(1)
 const totalPages = ref(1)
@@ -241,7 +271,7 @@ const fetchData = async () => {
     })
 
     data.value = response.data || []
-    totalRow.value = response.total;
+    totalRow.value = response.total
   } catch (error) {
     console.error('Error fetching pinjaman:', error)
     displayNotification('Gagal memuat data pinjaman: ' + (error as Error).message, 'error')
@@ -335,7 +365,19 @@ onMounted(() => {
 //     clearTimeout(searchTimeout.value)
 //   }
 // })
+
+const ModalStock = ref(false)
+const selectedFasilitasId = ref<number | null>(null)
+const openModalStock = (id: number) => {
+  ModalStock.value = true
+  selectedFasilitasId.value = id
+}
+
+const handleSuccess = () => {
+  ModalStock.value = false
+  displayNotification('Stok fasilitas berhasil ditambahkan', 'success')
+  fetchData()
+}
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

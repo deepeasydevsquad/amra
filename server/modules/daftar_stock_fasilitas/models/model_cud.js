@@ -1,7 +1,7 @@
-const { sequelize, Agen, Member, Grup, Division } = require("../../../models");
-const Model_r = require("./model_r");
+const { sequelize, Item_fasilitas } = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
+const { generate_item_code } = require("../../../helper/randomHelper");
 const bcrypt = require("bcryptjs");
 const moment = require("moment");
 
@@ -19,71 +19,39 @@ class Model_cud {
     this.t = await sequelize.transaction();
   }
 
-  // Tambah Pengguna
-  async tambahAgen() {
-    // initialize dependensi properties
+  async tambah_stok() {
     await this.initialize();
-    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
     try {
-      const uplineId = body.upline_id || 0;
+      const jumlah = parseInt(body.jumlah || 1);
+      const items = [];
 
-      // insert process
-      const insert = await Agen.create(
-        {
-          company_id: this.company_id,
-          member_id: body.member_id,
-          level_keagenan_id: body.level_keagenan_id,
-          upline_id: uplineId,
-          createdAt: myDate,
-          updatedAt: myDate,
-        },
-        {
-          transaction: this.t,
-        }
-      );
-      // write log message
-      this.message = `Menambahkan Agen Baru dengan ID Agen : ${insert.id}`;
-      return await this.response();
+      for (let i = 0; i < jumlah; i++) {
+        const item_code = await generate_item_code();
+        items.push({
+          item_code,
+          mst_fasilitas_id: body.mst_fasilitas_id,
+          status: "belum_terjual",
+          harga_beli: body.harga_beli,
+          harga_jual: body.harga_jual,
+          createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+          updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+        });
+      }
+
+      // ⛳ bulk insert pakai transaction
+      await Item_fasilitas.bulkCreate(items, { transaction: this.t });
+
+      this.message = `Menambahkan ${jumlah} stok fasilitas baru`;
     } catch (error) {
-      this.state = false;
-    }
-  }
-
-  // Hapus Pengguna
-  async delete() {
-    // initialize dependensi properties
-    await this.initialize();
-
-    const { id } = this.req.body;
-
-    try {
-      const model_r = new Model_r(this.req);
-      const infoAgen = await model_r.infoAgen(id);
-      await Agen.destroy({ 
-        where: { 
-          id : id 
-        }
-      },  
-      { 
-        transaction: this.t
-      });
-
-      this.message = `Menghapus Pengguna dengan Username: ${infoAgen.Member.fullname} dan ID: ${id}`;
-    } catch (error) {
-
-      console.log("xxxxx");
-      console.log(error);
-      console.log("xxxxx");
-      
-      this.state = false;
+      console.error("Error tambah stok:", error);
     }
   }
 
   async response() {
     if (this.state) {
-      await writeLog(this.req, this.t, { msg: this.message, });
+      await writeLog(this.req, this.t, { msg: this.message });
       // commit
       await this.t.commit();
       return true;
@@ -93,18 +61,6 @@ class Model_cud {
       return false;
     }
   }
-
-  // Response handler
-  // async response() {
-  //   if (this.state) {
-  //     await writeLog(this.req, this.t, { msg: this.message });
-  //     await this.t.commit();
-  //     return { success: true, message: this.message };
-  //   } else {
-  //     await this.t.rollback();
-  //     return { success: false, message: this.message };
-  //   }
-  // }
 }
 
 module.exports = Model_cud;
