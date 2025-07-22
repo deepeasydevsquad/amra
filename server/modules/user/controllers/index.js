@@ -41,7 +41,7 @@ controllers.login_process = async (req, res) => {
         type: body.type,
       };
 
-      const accessToken = jwt.sign(userPayload, process.env.SECRET_KEY, { expiresIn: "15m" });
+      const accessToken = jwt.sign(userPayload, process.env.SECRET_KEY, { expiresIn: "10s" });
       const refreshToken = jwt.sign(userPayload, process.env.REFRESH_SECRET_KEY, { expiresIn: "7d" });
 
       refreshTokens.push(refreshToken); // optional: bisa dikelola lebih baik via DB
