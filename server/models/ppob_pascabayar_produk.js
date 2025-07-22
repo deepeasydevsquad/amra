@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Ppob_pascabayar_produk.init({
     ppob_pascabayar_kategori_id: DataTypes.INTEGER,
+    kode: DataTypes.STRING,
     name: DataTypes.STRING,
     fee: DataTypes.INTEGER,
     markup: DataTypes.INTEGER,
