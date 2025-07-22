@@ -33,11 +33,20 @@ export const getDaftarPermintaanDepositMember = async (param: any) => {
 
 export const getDaftarHeadline = async (param: any) => {
   try {
-    // const response = await api.post('/beranda-utama/daftar-headline', param);
-    // return response.data;
-    console.log('Comingsoon');
+    const response = await api.post('/beranda-utama/daftar-headline', param);
+    return response.data;
   } catch (error) {
     console.error('Error fetching Daftar Headline:', error);
     throw error;
   }
 }
+
+export const deleteHeadline = async (id : number) => {
+  try {
+    const response = await api.post("/beranda-utama/delete-headline", {id : id});
+    return response.data;
+  } catch (error) {
+    console.error("Gagal menghapus headline:", error);
+    throw error;
+  }
+};

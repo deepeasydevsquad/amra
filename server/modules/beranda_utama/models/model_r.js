@@ -6,17 +6,11 @@ const {
   Jamaah,
   Member,
   Ticket_transaction_detail,
-  Mst_pendidikan,
-  Mst_pekerjaan,
-  Mst_provider,
-  Mst_asuransi,
+  Headline,
   sequelize,
 } = require("../../../models");
 const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
-const { getAlamatInfo } = require("../../../helper/alamatHelper");
-const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
-const ExcelJS = require('exceljs');
 
 class Model_r {
   constructor(req) {
@@ -163,6 +157,54 @@ class Model_r {
       return { data, total: count };
     } catch (error) {
       console.error("Error in daftarJamaah:", error);
+      return { data: [], total: 0 };
+    }
+  }
+
+  async daftarHeadline() {
+    await this.initialize();
+
+    try {
+      const dataHeadline = await Headline.findAndCountAll({ 
+        where: { company_id: this.company_id },
+        order: [['id', 'ASC']]
+      });
+
+      const data = dataHeadline.rows.map((item) => ({
+        id: item.id,
+        headline: item.headline,
+        tampilkan: item.tampilkan,
+      }));
+
+      return { 
+        data: data, 
+        total: dataHeadline.count
+      };
+    } catch (error) {
+      console.error("Error in daftarHeadline:", error);
+      return { data: [], total: 0 };
+    }
+  }
+
+  async fetchHeadline() {
+    await this.initialize();
+    const body = this.req.body;
+    
+    try {
+      const dataHeadline = await Headline.findOne({ where: { id: body.id } });
+
+      const data = {
+        id: dataHeadline.id,
+        headline: dataHeadline.headline,
+        tampilkan: dataHeadline.tampilkan,
+      };
+
+      return { 
+        data: data, 
+        total: 1
+      };
+    } catch (error) {
+      console.error("Error in fetchHeadline:", error);
       return { data: [], total: 0 };
     }
   }
