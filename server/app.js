@@ -118,6 +118,7 @@ const arr_router = [
   "k_t",
   "pembayaran_gaji", 
   "daftar_stock_fasilitas",
+  "item_fasilitas",
   "headline"
 ];
 

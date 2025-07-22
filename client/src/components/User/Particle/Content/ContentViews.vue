@@ -60,7 +60,7 @@ import KasKeluarMasuk from '../../Modules/KasKeluarMasuk/KasKeluarMasuk.vue'
 import DaftarPembayaran from '../../Modules/PembayaranGaji/DaftarPembayaran.vue'
 import DaftarStokFasilitas from '../../Modules/DaftarStokFasilitas/DaftarStokFasilitas.vue'
 import Headline from '../../Modules/Headline/Headline.vue'
-// daftar_stok_fasilitas
+import ItemFasilitas from '../../Modules/ItemFasilitas/ItemFasilitas.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -114,6 +114,7 @@ const tabComponents = {
   kas_keluar_masuk: KasKeluarMasuk,
   riwayat_pembayaran_gaji_staff: DaftarPembayaran,
   daftar_stok_fasilitas: DaftarStokFasilitas,
+  daftar_item_fasilitas: ItemFasilitas,
   headline: Headline
 }
 
