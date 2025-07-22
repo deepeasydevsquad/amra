@@ -1,13 +1,25 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { getBerandaUtama, getDaftarJamaah, getDaftarPermintaanDepositMember, getDaftarHeadline } from '@/service/beranda_utama'
+import {
+  getBerandaUtama,
+  getDaftarJamaah,
+  getDaftarPermintaanDepositMember,
+  getDaftarHeadline,
+  deleteHeadline,
+} from '@/service/beranda_utama'
 
 // Import components
+import EditIcon from '@/components/User/Modules/BerandaUtama/icon/EditIcon.vue'
+import DeleteIcon from '@/components/User/Modules/BerandaUtama/icon/DeleteIcon.vue'
+import FormHeadline from '@/components/User/Modules/Headline/widget/FormHeadline.vue'
 import SkeletonTable from '@/components/User/Modules/BerandaUtama/widget/SkeletonTable.vue'
 import InfoCard from '@/components/User/Modules/BerandaUtama/widget/InfoCard.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
+import Notification from '@/components/User/Modules/BerandaUtama/particle/Notification.vue'
+import Confirmation from '@/components/User/Modules/BerandaUtama/particle/Confirmation.vue'
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import PrimaryButtonLight from '@/components/Button/PrimaryButtonLight.vue'
+import LightButton from '@/components/Button/LightButton.vue'
 
 interface StatusCard {
   saldo_perusahaan: number;
@@ -27,9 +39,9 @@ interface Jamaah {
 }
 
 interface Headline {
-  title: string;
-  content: string;
-  date: string;
+  id: number;
+  headline: string;
+  tampilkan: boolean;
 }
 
 interface DepositMember {
@@ -43,6 +55,15 @@ interface DepositMember {
 
 // Status Card
 const isLoading = ref(true)
+const confirmMessage = ref<string>('');
+const confirmTitle = ref<string>('');
+const confirmAction = ref<(() => void) | null>(null);
+const showConfirmDialog = ref<boolean>(false);
+const showNotification = ref(false)
+const notificationType = ref('')
+const notificationMessage = ref('')
+const isFormOpen = ref<boolean>(false)
+const headlineId = ref<number | undefined>(undefined)
 const dataStatusCard = ref<StatusCard>({
   saldo_perusahaan: 0,
   total_jamaah_terdaftar: 0,
@@ -55,7 +76,8 @@ const headline = reactive({
   isLoading: true,
   currentPage: 1,
   totalPages: 0,
-  totalColumns: 2,
+  totalColumns: 3,
+  totalRow: 0,
   itemsPerPage: 5,
   data: [] as Headline[],
 })
@@ -66,6 +88,7 @@ const jamaah = reactive({
   search: '',
   totalPages: 0,
   totalColumns: 4,
+  totalRow: 0,
   itemsPerPage: 10,
   data: [] as Jamaah[],
 })
@@ -76,6 +99,7 @@ const deposit = reactive({
   search: '',
   totalPages: 0,
   totalColumns: 4,
+  totalRow: 0,
   itemsPerPage: 10,
   data: [] as DepositMember[],
 })
@@ -100,6 +124,7 @@ const fetchHeadlineData = async () => {
       pageNumber: headline.currentPage,
     })
     headline.data = res.data
+    headline.totalRow = res.total
     headline.totalPages = Math.ceil(res.total / headline.itemsPerPage)
   } catch (error) {
     console.error('Error fetching headline:', error)
@@ -117,6 +142,7 @@ const fetchJamaahData = async () => {
       pageNumber: jamaah.currentPage,
     })
     jamaah.data = res.data
+    jamaah.totalRow = res.total
     jamaah.totalPages = Math.ceil(res.total / jamaah.itemsPerPage)
   } catch (error) {
     console.error('Error fetching jamaah:', error)
@@ -134,6 +160,7 @@ const fetchDepositMemberData = async () => {
       pageNumber: deposit.currentPage,
     })
     deposit.data = res.data
+    deposit.totalRow = res.total
     deposit.totalPages = Math.ceil(res.total / deposit.itemsPerPage)
   } catch (error) {
     console.error('Error fetching deposit:', error)
@@ -174,12 +201,47 @@ const handleSearch = (state: { currentPage: number; fetchData: () => void }) => 
   }, 500)
 }
 
+const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
+  notificationMessage.value = message
+  notificationType.value = type
+  showNotification.value = true
+  if (timeoutId) clearTimeout(timeoutId)
+  timeoutId = window.setTimeout(() => {
+    showNotification.value = false
+  }, 3000)
+}
+
+const showConfirmation = (title: string, message: string, action: () => void) => {
+  confirmTitle.value = title;
+  confirmMessage.value = message;
+  confirmAction.value = action;
+  showConfirmDialog.value = true;
+};
+
+const showForm = async (id?: number) => {
+  headlineId.value = id
+  isFormOpen.value = true
+}
+
 onMounted(() => {
   fetchStatusCard()
   fetchHeadlineData()
   fetchJamaahData()
   fetchDepositMemberData()
 })
+
+const deleteHeadlineData = async (id: number) => {
+  showConfirmation('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus headline ini?', async () => {
+    try {
+      const res = await deleteHeadline(id)
+      displayNotification(res.error_msg || res.message || 'Headline berhasil dihapus.', 'success')
+      fetchHeadlineData()
+    } catch (error) {
+      displayNotification('Gagal menghapus headline', 'error')
+    }
+    showConfirmDialog.value = false
+  })
+}
 </script>
 
 <template>
@@ -208,28 +270,30 @@ onMounted(() => {
         <!-- Headline -->
         <div class="bg-white rounded shadow p-4">
           <div class="flex justify-between items-center mb-4 text-sm">
-            <PrimaryButton>
-              <font-awesome-icon icon="plus" class="mr-2" /> Tambahkan Headline
+            <PrimaryButton class="flex items-center gap-2" @click="showForm()">
+              <font-awesome-icon icon="plus" /> Tambahkan Headline
             </PrimaryButton>
           </div>
           <SkeletonTable v-if="headline.isLoading" :columns="headline.totalColumns" :rows="headline.itemsPerPage" />
           <table v-else class="w-full text-sm border">
             <thead class="bg-gray-100">
               <tr>
-                <th class="px-3 py-3 font-medium text-gray-900 text-center">Headline</th>
-                <th class="px-3 py-3 font-medium text-gray-900 text-center">Aksi</th>
+                <th class="w-[70%] px-3 py-3 font-medium text-gray-900 text-center">Headline</th>
+                <th class="w-[10%] py-3 font-medium text-gray-900 text-center">Tampilkan</th>
+                <th class="w-[20%] px-3 py-3 font-medium text-gray-900 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in headline.data" :key="index" class="hover:bg-gray-50 text-center">
-                <td class="text-center px-3 py-3 align-top">{{ item.title }}</td>
-                <td class="text-center px-3 py-3 align-top">
-                  <button class="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">
-                    <font-awesome-icon icon="pencil-alt" class="mr-1" /> Edit
-                  </button>
-                  <button class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600">
-                    <font-awesome-icon icon="trash-alt" class="mr-1" /> Hapus
-                  </button>
+              <tr v-for="(item, index) in headline.data" :key="index" class="hover:bg-gray-50">
+                <td class="text-center px-3 py-3 align-top">{{ item.headline }}</td>
+                <td class="text-center py-3 align-top">{{ item.tampilkan }}</td>
+                <td class="text-center px-3 py-3 align-top flex justify-center">
+                  <LightButton @click="showForm(item.id)">
+                    <EditIcon />
+                  </LightButton>
+                  <LightButton  @click="deleteHeadlineData(item.id)">
+                    <DeleteIcon />
+                  </LightButton>
                 </td>
               </tr>
               <tr v-if="headline.data.length === 0">
@@ -242,9 +306,10 @@ onMounted(() => {
                 :total-pages="headline.totalPages"
                 :pages="pages(headline.totalPages)"
                 :total-columns="headline.totalColumns"
+                :total-row="headline.totalRow"
                 @prev-page="() => prevPage({ ...headline, fetchData: fetchHeadlineData })"
                 @next-page="() => nextPage({ ...headline, fetchData: fetchHeadlineData })"
-                @page-now="(page) => handlePageChange({ ...headline, fetchData: fetchHeadlineData }, page)"
+                @page-now="(page: number) => handlePageChange({ ...headline, fetchData: fetchHeadlineData }, page)"
               />
             </tfoot>
           </table>
@@ -293,9 +358,10 @@ onMounted(() => {
                 :total-pages="jamaah.totalPages"
                 :pages="pages(jamaah.totalPages)"
                 :total-columns="jamaah.totalColumns"
+                :total-row="jamaah.totalRow"
                 @prev-page="() => prevPage({ ...jamaah, fetchData: fetchJamaahData })"
                 @next-page="() => nextPage({ ...jamaah, fetchData: fetchJamaahData })"
-                @page-now="(page) => handlePageChange({ ...jamaah, fetchData: fetchJamaahData }, page)"
+                @page-now="(page: number) => handlePageChange({ ...jamaah, fetchData: fetchJamaahData }, page)"
               />
             </tfoot>
           </table>
@@ -345,9 +411,10 @@ onMounted(() => {
                 :total-pages="deposit.totalPages"
                 :pages="pages(deposit.totalPages)"
                 :total-columns="deposit.totalColumns"
+                :total-row="deposit.totalRow"
                 @prev-page="() => prevPage({ ...deposit, fetchData: fetchDepositMemberData })"
                 @next-page="() => nextPage({ ...deposit, fetchData: fetchDepositMemberData })"
-                @page-now="(page) => handlePageChange({ ...deposit, fetchData: fetchDepositMemberData }, page)"
+                @page-now="(page: number) => handlePageChange({ ...deposit, fetchData: fetchDepositMemberData }, page)"
               />
             </tfoot>
           </table>
@@ -355,4 +422,35 @@ onMounted(() => {
       </div>
     </div>
   </div>
+  <FormHeadline
+    v-if="isFormOpen"
+    :is-form-open="isFormOpen"
+    :headline-id="headlineId"
+    @close="isFormOpen = false; fetchHeadlineData()"
+    @status="(payload: any) => displayNotification(payload.err_msg || 'Data gagal disimpan', payload.error ? 'error' : 'success')"
+  />
+
+  <!-- Confirmation Dialog -->
+  <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
+    <button @click="confirmAction && confirmAction()"
+      class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+    >
+      Ya
+    </button>
+    <button
+      @click="showConfirmDialog = false"
+      class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+    >
+      Tidak
+    </button>
+  </Confirmation>
+
+  <!-- Notification Popup -->
+  <!-- Notification Popup -->
+  <Notification
+    :show-notification="showNotification"
+    :notification-type="notificationType"
+    :notification-message="notificationMessage"
+    @close="showNotification = false"
+  ></Notification>
 </template>

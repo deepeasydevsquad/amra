@@ -2,6 +2,7 @@ const {
   sequelize,
   Company,
   Jamaah,
+  Headline,
   Member,
   } = require("../../../models");
 const Model_r = require("../models/model_r");
@@ -24,25 +25,21 @@ class Model_cud {
     this.state = true;
   }
 
-  async penerima() {
-    this.tipe = await tipe(this.req);
+  async deleteHeadline() {
+    await this.initialize();
+    const body = this.req.body;
 
-    if (this.tipe === "administrator") {
-      const company = await Company.findOne({
-        where: { id: this.company_id },
+    try {
+      await Headline.destroy({
+        transaction: this.t,
+        where: { id: body.id, company_id: this.company_id },
       });
-      return company?.company_name ?? "Unknown Company";
-    }
 
-    if (this.tipe === "staff") {
-      const member = await Member.findOne({
-        where: { company_id: this.company_id },
-        order: [["id", "DESC"]],
-      });
-      return member?.fullname ?? "Unknown Staff";
+      this.message = "Headline berhasil dihapus dengan id " + body.id;
+    } catch (error) {
+      console.log("Error in deleteHeadline:", error);
+      this.state = false;
     }
-
-    return "Tipe user tidak diketahui";
   }
   
   // response
