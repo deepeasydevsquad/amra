@@ -7,28 +7,30 @@ const validation = require("../validation/daftar_paket");
 const router = express.Router();
 
 router.post(
-  "/daftar_paket/list",
+  "/daftar-paket/list",
   authenticateToken,
   [
+    body("division_id").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(validation.check_id_cabang),
     body("pageNumber").trim(),
     body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
     body("filter").trim(),
   ],
-  controllers.get_daftar_paket
+  controllers.getDaftarPaket
 );
 
 router.post(
-  "/daftar_paket/paketlist",
+  "/daftar-paket/paketlist",
   authenticateToken,
   [
-    body("id").trim().notEmpty().withMessage("ID Paket tidak boleh kosong."),
+    body("id").trim().notEmpty().withMessage("ID Paket tidak boleh kosong.").custom(validation.check_id_paket),
+    body("division_id").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(validation.check_id_cabang)
   ],
-  controllers.get_daftar_paket_by_id
+  controllers.getDaftarPaketById
 );
 
 router.post(
-  '/daftar_paket',
+  '/daftar-paket/add',
   authenticateToken,
   (req, res, next) => {
     console.log('\n🕵️‍♂️ Incoming request headers:');
@@ -43,6 +45,7 @@ router.post(
     next();
   },
   [
+    body("division_id").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(validation.check_id_cabang),
     body("jenis_kegiatan").trim().notEmpty().withMessage("Jenis Kegiatan tidak boleh kosong."),
     body("name").trim().notEmpty().withMessage("Nama Paket tidak boleh kosong."),
     body("description").trim().notEmpty().withMessage("Deskripsi tidak boleh kosong."),
@@ -69,11 +72,12 @@ router.post(
     body("paket_types").trim().notEmpty().withMessage("Tipe Paket tidak boleh kosong."),
     body("paket_prices").trim().notEmpty().withMessage("Harga Paket tidak boleh kosong.")
   ],
+  validation.removeUploadedFileOnValidationError,
   controllers.add
 );
 
 router.post(
-  '/daftar_paket/update',
+  '/daftar-paket/update',
   authenticateToken,
   (req, res, next) => {
     console.log('\n🕵️‍♂️ Incoming request headers:');
@@ -88,7 +92,8 @@ router.post(
     next();
   },
   [
-    body("id").trim().notEmpty().withMessage("ID Paket tidak boleh kosong."),
+    body("id").trim().notEmpty().withMessage("ID Paket tidak boleh kosong.").custom(validation.check_id_paket),
+    body("division_id").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(validation.check_id_cabang),
     body("jenis_kegiatan").trim().notEmpty().withMessage("Jenis Kegiatan tidak boleh kosong."),
     body("name").trim().notEmpty().withMessage("Nama Paket tidak boleh kosong."),
     body("description").trim().notEmpty().withMessage("Deskripsi tidak boleh kosong."),
@@ -116,14 +121,27 @@ router.post(
     body("paket_types").trim().notEmpty().withMessage("Tipe Paket tidak boleh kosong."),
     body("paket_prices").trim().notEmpty().withMessage("Harga Paket tidak boleh kosong.")
   ],
+  validation.removeUploadedFileOnValidationError,
   controllers.update
 );
 
 router.post(
-  "/daftar_paket/delete",
+  "/daftar-paket/delete",
   authenticateToken,
   [
-    body("id").trim().notEmpty().withMessage("ID Paket tidak boleh kosong.").isInt().withMessage("ID Paket harus berupa angka."),
+    body("id")
+      .trim()
+      .notEmpty()
+      .withMessage("ID Paket tidak boleh kosong.")
+      .isInt()
+      .withMessage("ID Paket harus berupa angka.")
+      .custom(validation.check_id_paket),
+
+    body("division_id")
+      .trim()
+      .notEmpty()
+      .withMessage("Cabang tidak boleh kosong.")
+      .custom(validation.check_id_cabang),
   ],
   controllers.delete
 );

@@ -5,7 +5,7 @@ const { handleValidationErrors, handleServerError } = require("../../../helper/h
 const controllers = {};
 
 // **Mendapatkan daftar paket**
-controllers.get_daftar_paket = async (req, res) => {
+controllers.getDaftarPaket = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {
@@ -18,7 +18,7 @@ controllers.get_daftar_paket = async (req, res) => {
 };
 
 // **Mendapatkan daftar paket berdasarkan id**
-controllers.get_daftar_paket_by_id = async (req, res) => {
+controllers.getDaftarPaketById = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
   try {

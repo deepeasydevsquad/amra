@@ -295,12 +295,13 @@ const cetakKwitansi = async (invoice: string) => {
           Tabungan Umrah
         </PrimaryButton>
         <div class="flex items-center">
-          <label for="filter" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
+          <label for="filter" class="block text-sm font-medium text-gray-700">Search</label>
           <div class="flex items-center mx-4">
             <input type="text" id="search"
               class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder:text-gray-400"
               v-model="search" @change="fetchData()" placeholder="Cari jamaah atau paket..." />
           </div>
+          <label for="filter" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
           <select id="filter"
             class="block w-64 px-3 py-2 text-gray-700 bg-white border rounded-s-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
             v-model="filter" @change="fetchData()" >
