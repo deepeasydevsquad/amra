@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "ppob_pascabayar_produk_id",
         onDelete: "CASCADE",
       });
+      Ppob_pascabayar_produk.hasMany(models.Ppob_transaction_pascabayar, {
+        foreignKey: "ppob_pascabayar_produk_id",
+        onDelete: "CASCADE",
+      });
     }
   }
   Ppob_pascabayar_produk.init({
