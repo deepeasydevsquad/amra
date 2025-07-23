@@ -28,10 +28,12 @@ const bank = ref<bank[]>([])
 
 const daftar_bank = async () => {
   const response = await mst_bank()
-  bank.value = response.data
+  bank.value = [
+    { id: -1, name: '-- Pilih bank --' }, // ini placeholder-nya
+    ...response.data,
+  ]
+  console.log('bank value', bank.value)
 }
-
-const optionsWithPlaceholder = computed(() => [{ id: null, nama: 'Pilih Bank' }, ...bank.value])
 
 const form = ref({
   id: props.id,

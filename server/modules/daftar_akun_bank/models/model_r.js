@@ -14,11 +14,18 @@ class Model_r {
   async daftar_mst_bank() {
     try {
       await this.initialize();
+
       const data = await Mst_bank.findAll({
-        attributes: ["id", "name", "kode"],
+        attributes: ["id", "kode"],
       });
 
-      return data;
+      // Ubah hasilnya: ganti 'kode' jadi 'nama'
+      const result = data.map((item) => ({
+        id: item.id,
+        name: item.kode, // rename 'kode' jadi 'nama'
+      }));
+
+      return result;
     } catch (error) {
       console.error("Error daftar_mst_bank:", error);
       return [];

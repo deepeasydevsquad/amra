@@ -222,8 +222,8 @@ const handleUpdate = () => {
             <td class="px-6 py-4 text-center">{{ d?.nomor_akun }}</td>
             <td class="px-6 py-4 text-center">
               <div class="flex justify-center items-center gap-2">
-                <DangerButton @click="deleteData(d.id)"><DeleteIcon /></DangerButton>
                 <LightButton @click="openModalUpdate(d?.id)"><EditIcon /></LightButton>
+                <DangerButton @click="deleteData(d.id)"><DeleteIcon /></DangerButton>
               </div>
             </td>
           </tr>

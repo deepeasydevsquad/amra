@@ -12,7 +12,7 @@ const props = defineProps<{
 
 interface bank {
   id: number
-  kode: string
+
   nama: string
 }
 
@@ -20,18 +20,22 @@ const bank = ref<bank[]>([])
 
 const daftar_bank = async () => {
   const response = await mst_bank()
-  bank.value = response.data
+  bank.value = [
+    { id: -1, name: '-- Pilih bank --' }, // ini placeholder-nya
+    ...response.data,
+  ]
+  console.log('bank value', bank.value)
 }
 
 const form = ref({
-  mst_bank_id: '',
+  mst_bank_id: -1,
   nomor_akun: '',
   nama_akun: '',
 })
 
 const reset_form = () => {
   form.value = {
-    mst_bank_id: '',
+    mst_bank_id: -1,
     nomor_akun: '',
     nama_akun: '',
   }
