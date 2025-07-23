@@ -212,7 +212,7 @@ const handleUpdate = () => {
             <th class="px-6 py-3 font-medium text-gray-900 text-center">Info Bank</th>
             <th class="px-6 py-3 font-medium text-gray-900 text-center">Nama Rekening</th>
             <th class="px-6 py-3 font-medium text-gray-900 text-center">Nomor Rekening</th>
-            <th class="px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
+            <th class="w-[5%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody v-if="data.length > 0" class="divide-y divide-gray-200">
