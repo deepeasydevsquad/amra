@@ -37,7 +37,7 @@ const daftar_bank = async () => {
 
 const form = ref({
   id: props.id,
-  mst_bank_id: '',
+  mst_bank_id: -1,
   nomor_akun: '',
   nama_akun: '',
 })
@@ -55,7 +55,7 @@ const handleSubmit = async () => {
 const reset_form = () => {
   form.value = {
     id: props.id,
-    mst_bank_id: '',
+    mst_bank_id: -1,
     nomor_akun: '',
     nama_akun: '',
   }
