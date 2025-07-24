@@ -198,31 +198,31 @@ onMounted(() => {
           <tr>
             <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Jamaah</th>
             <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Mahram</th>
-            <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Paket</th>
-            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Info</th>
-            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
+            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Paket</th>
+            <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Info</th>
+            <th class="w-[5%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
           <template v-if="dataPaketJamaah && dataPaketJamaah.length > 0">
             <tr v-for="dataJamaah in dataPaketJamaah" :key="dataJamaah.id" class="hover:bg-gray-50">
-              <td class="px-6 py-4 text-center">
+              <td class="px-6 py-4 text-center align-top">
                 <p>{{ dataJamaah.fullname }}</p>
                 <p>(No Identitas : {{ dataJamaah.identity_number }})</p>
               </td>
-              <td class="px-6 py-4" :class="{'text-center': !dataJamaah.mahram || dataJamaah.mahram.length === 0}">
+              <td class="px-6 py-4 align-top" :class="{'text-center': !dataJamaah.mahram || dataJamaah.mahram.length === 0}">
                 <template v-if="dataJamaah.mahram && dataJamaah.mahram.length > 0">
                   <p v-for="mahram in dataJamaah.mahram">{{ mahram.fullname }} ({{ mahram.mahram_type }})</p>
                 </template>
                 <p v-else >Tidak Ada Mahram</p>
               </td>
-              <td class="px-6 py-4 text-center">
+              <td class="px-6 py-4 text-center align-top">
                 <p>{{ dataJamaah.name.toUpperCase() }}</p>
                 <p>(Kode Paket: {{ dataJamaah.kode }})</p>
                 <p>(Tipe Paket: {{ dataJamaah.type }})</p>
                 <p>(Harga: {{ dataJamaah.price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }) }})</p>
               </td>
-              <td class="px-6 py-4">
+              <td class="px-6 py-4 align-top">
                 <p class="font-bold">Barang Jamaah Yang Diambil</p>
                 <ul v-if="dataJamaah.handover_barang.length > 0" v-for="barang in dataJamaah.handover_barang" :key="barang.id" class="list-disc list-inside text-sm pl-3">
                   <li class="items-center gap-1">{{ barang.name }}</li>
@@ -234,16 +234,18 @@ onMounted(() => {
                 </ul>
                 <p v-else>Fasilitas Jamaah belum diberikan</p>
               </td>
-              <td class="px-6 py-4 text-center flex gap-2 justify-center">
-                <LightButton @click="openFormOpsiHandoverBarang(dataJamaah)" title="Handover Barang">
-                  <HandoverIcon class="h-4 w-4 text-gray-600" />
-                </LightButton>
-                <LightButton @click="openFormHandoverFasilitas(dataJamaah)" title="Handover Fasilitas">
-                  <HandoverBarangIcon class="h-4 w-4 text-gray-600" />
-                </LightButton>
-                <LightButton col-span-1 title="Cetak Data Jamaah" @click="openFormCetakDataJamaah(dataJamaah)">
-                  <CetakIcon class="h-4 w-4 text-gray-600" />
-                </LightButton>
+              <td class="px-4 py-2 text-center align-top">
+                <div class="flex flex-col items-center space-y-2">
+                  <LightButton @click="openFormOpsiHandoverBarang(dataJamaah)" title="Handover Barang">
+                    <HandoverIcon class="h-4 w-4 text-gray-600" />
+                  </LightButton>
+                  <LightButton @click="openFormHandoverFasilitas(dataJamaah)" title="Handover Fasilitas">
+                    <HandoverBarangIcon class="h-4 w-4 text-gray-600" />
+                  </LightButton>
+                  <LightButton col-span-1 title="Cetak Data Jamaah" @click="openFormCetakDataJamaah(dataJamaah)">
+                    <CetakIcon class="h-4 w-4 text-gray-600" />
+                  </LightButton>
+                </div>
               </td>
             </tr>
           </template>

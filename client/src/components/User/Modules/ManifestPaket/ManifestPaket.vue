@@ -5,7 +5,7 @@ import EditIcon from '@/components/User/Modules/ManifestPaket/icon/EditIcon.vue'
 import DownloadIcon from '@/components/User/Modules/ManifestPaket/icon/DownloadIcon.vue'
 
 // import element
-import EditButton from '@/components/User/Modules/ManifestPaket/particle/EditButton.vue'
+import LightButton from '@/components/Button/LightButton.vue'
 import Notification from '@/components/User/Modules/ManifestPaket/particle/Notification.vue'
 
 // import
@@ -248,9 +248,9 @@ onMounted(() => {
                 </template>
               </td>
               <td class="px-6 py-4 items-center justify-center flex gap-2">
-                <EditButton col-span-1 title="Cetak Data Jamaah" @click="openFormEditManifest(dataManifest)">
+                <LightButton col-span-1 title="Cetak Data Jamaah" @click="openFormEditManifest(dataManifest)">
                   <EditIcon></EditIcon>
-                </EditButton>
+                </LightButton>
               </td>
             </tr>
           </template>

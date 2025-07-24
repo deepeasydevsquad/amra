@@ -6,7 +6,7 @@ import RefundIcon from '@/components/Icons/RefundIcon.vue'
 import IconUpload from '@/components/Icons/IconUpload.vue'
 
 // import element
-import DangerButton from '@/components/User/Modules/DaftarTransaksiPaket/Particle/DangerButton.vue'
+import DangerButton from '@/components/Button/DangerButton.vue'
 import EditButton from '@/components/User/Modules/DaftarTransaksiPaket/Particle/EditButton.vue'
 import LightButton from '@/components/User/Modules/DaftarTransaksiPaket/Particle/LightButton.vue'
 import Notification from '@/components/User/Modules/DaftarTransaksiPaket/Particle/Notification.vue'
@@ -94,7 +94,7 @@ const showConfirmDialog = ref<boolean>(false);
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
-const totalColumns = ref(7);
+const totalColumns = ref(6);
 const totalRow = ref(0);
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
@@ -239,54 +239,100 @@ onMounted(() => {
         <thead class="bg-gray-100">
           <tr>
             <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Paket</th>
-            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Tipe Paket</th>
+            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Tipe Paket</th>
             <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Jamaah</th>
-            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Total Harga</th>
-            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Status Pembayaran</th>
-            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Total Harga</th>
+            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Status Pembayaran</th>
+            <th class="w-[5%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100 border-t border-gray-100">
+        <tbody class="divide-y divide-gray-100 border-t border-gray-100 text-sm">
           <template v-if="dataPaketTransaction && dataPaketTransaction.length > 0">
             <tr v-for="dataTransPaket in dataPaketTransaction" :key="dataTransPaket.id" class="hover:bg-gray-50">
-              <td class="px-6 py-4 text-center">
+              <td class="px-6 py-4 text-center align-top">
                 {{ dataTransPaket.name.toUpperCase() }} <br>
                 (Tgl Keberangkatan: {{ dataTransPaket.departure_date }})
               </td>
-              <td class="px-6 py-4 text-center">
+              <td class="px-6 py-4 text-center align-top">
                 {{ dataTransPaket.type }} <br>
                 ({{ dataTransPaket.price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }) }})
               </td>
-              <td class="px-6 py-4">
-                <ul class="list-disc list-inside text-sm">
-                  <li class="items-center gap-1">{{ dataTransPaket.fullname }} </li>
-                  <li class="pl-3 flex items-center gap-1">(No ID: {{ dataTransPaket.identity_number }})</li>
-                  <li class="pt-6 font-bold items-center gap-1">No Visa: {{ dataTransPaket.nomor_visa }}</li>
-                  <li class="font-bold items-center gap-1">Tanggal Berlaku Visa: {{ dataTransPaket.tanggal_berlaku_visa }}</li>
-                  <li class="font-bold items-center gap-1">Tanggal Berakhir Visa: {{ dataTransPaket.tanggal_berakhir_visa }}</li>
-                </ul>
+              <td class="px-6 py-4 align-top">
+                <table class="w-full ">
+                  <tbody>
+                    <tr>
+                      <td class="w-[40%]">Nama</td>
+                      <td>:</td>
+                      <td class="text-right space-y-2 py-1">{{ dataTransPaket.fullname }}</td>
+                    </tr>
+                    <tr>
+                      <td >No ID</td>
+                      <td>:</td>
+                      <td class="text-right space-y-2 py-1">{{ dataTransPaket.identity_number }}</td>
+                    </tr>
+                    <tr>
+                      <td >No Visa</td>
+                      <td>:</td>
+                      <td class="text-right space-y-2 py-1">{{ dataTransPaket.nomor_visa }}</td>
+                    </tr>
+                    <tr>
+                      <td >Tgl. Berlaku Visa</td>
+                      <td>:</td>
+                      <td class="text-right space-y-2 py-1">{{ dataTransPaket.tanggal_berlaku_visa }}</td>
+                    </tr>
+                    <tr>
+                      <td >Tgl. Berakhir Visa</td>
+                      <td>:</td>
+                      <td class="text-right space-y-2 py-1">{{ dataTransPaket.tanggal_berakhir_visa }}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </td>
-              <td class="px-6 py-4 text-center">{{  formatRupiah( dataTransPaket.total_price ?? 0) }}</td>
-              <td class="px-6 py-4">
-                <ul class="list-disc list-inside text-sm">
-                  <li class="items-center gap-1"> <strong>Biaya Mahram: </strong> <br> {{ formatRupiah( dataTransPaket.biaya_mahram ?? 0) }} </li>
-                  <li class="items-center gap-1"> <strong>Sudah Bayar: </strong> <br> {{ formatRupiah(  dataTransPaket.total_price ?? 0) }} </li>
-                  <li class="items-center gap-1"> <strong>Sisa: </strong> <br> {{ formatRupiah( dataTransPaket.sisa ?? 0) }} </li>
-                </ul>
+              <td class="px-6 py-4 text-center align-top">{{  formatRupiah( dataTransPaket.total_price ?? 0) }}</td>
+              <td class="px-6 py-4 align-top">
+                <table class="w-full">
+                  <tbody>
+                    <tr>
+                      <td class="w-[40%]">Biaya Mahram</td>
+                      <td>:</td>
+                      <td class="text-right space-y-2 py-1">
+                        {{ formatRupiah( dataTransPaket.biaya_mahram ?? 0) }}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td >Sudah Bayar</td>
+                      <td>:</td>
+                      <td class="text-right space-y-2 py-1">
+                        {{ formatRupiah( dataTransPaket.total_price ?? 0) }}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td >Sisa</td>
+                      <td>:</td>
+                      <td class="text-right space-y-2 py-1">
+                        {{ formatRupiah( dataTransPaket.sisa ?? 0) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </td>
-              <td class="px-6 py-4 text-center flex gap-2 justify-center">
-                <LightButton @click="openFormRefund(dataTransPaket.id)" title="Refund Transaksi Paket">
-                  <RefundIcon class="h-4 w-4 text-gray-600" />
-                </LightButton>
-                <LightButton @click="openFormEditVisa(dataTransPaket.id)" title="Update Informasi Visa">
-                  <EditIcon></EditIcon>
-                </LightButton>
-                <LightButton @click="openFilePendukung(dataTransPaket.id)" title="Upload File Pendukung">
-                  <IconUpload></IconUpload>
-                </LightButton>
-                <DangerButton @click="deleteData(dataTransPaket.id, )" title="Hapus Transaksi Paket">
-                  <DeleteIcon></DeleteIcon>
-                </DangerButton>
+              <td class="px-4 py-2 text-center align-top">
+                <div class="flex flex-col items-center space-y-2">
+                  <LightButton @click="openFormRefund(dataTransPaket.id)" title="Refund Transaksi Paket">
+                    <RefundIcon class="h-4 w-4 text-gray-600" />
+                  </LightButton>
+                  <LightButton @click="openFormEditVisa(dataTransPaket.id)" title="Update Informasi Visa">
+                    <EditIcon></EditIcon>
+                  </LightButton>
+                  <LightButton @click="openFilePendukung(dataTransPaket.id)" title="Upload File Pendukung">
+                    <IconUpload></IconUpload>
+                  </LightButton>
+                  <DangerButton @click="deleteData(dataTransPaket.id, )" title="Hapus Transaksi Paket">
+                    <DeleteIcon></DeleteIcon>
+                  </DangerButton>
+                </div>
+
+
               </td>
             </tr>
           </template>

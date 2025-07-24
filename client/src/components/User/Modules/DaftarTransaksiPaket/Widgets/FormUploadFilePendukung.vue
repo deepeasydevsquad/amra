@@ -25,7 +25,9 @@
                   <InputFile label_status="false" id="photo-upload" :error="errors.photo" @file-selected="handleFileUpload" accept=".jpg,.jpeg,.png" />
                 </td>
                 <td class="px-6 py-1 border-b text-center">
-                  <button type="button" @click="formData.splice(index, 1)" class="text-red-500 hover:underline">Hapus</button>
+                  <DangerButton @click="deleteRow(index, formData.length )" title="Hapus Transaksi Paket">
+                    <DeleteIcon></DeleteIcon>
+                  </DangerButton>
                 </td>
               </tr>
             </template>
@@ -34,7 +36,7 @@
             <tr>
               <td class="py-3 px-0 border-b " colspan="3">
                  <div class="flex justify-end">
-                    <PrimaryButton>
+                    <PrimaryButton @click="addRow()">
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                       </svg>
@@ -56,6 +58,10 @@
   import InputFile from '@/components/Form/InputFile.vue'
   import PrimaryButton from '@/components/Button/PrimaryButton.vue'
   import { error } from 'console'
+  import alertify from 'alertifyjs'
+
+  import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
+  import DangerButton from '@/components/Button/DangerButton.vue'
 
   interface FilePendukung {
     id?: number
@@ -65,7 +71,7 @@
 
   const props = defineProps<{ showForm: boolean }>()
   const errors = ref<Record<string, string>>({})
-  const formData = ref<Partial<FilePendukung[]>>([])
+  const formData = ref<Partial<FilePendukung>[]>([])
   const emit = defineEmits<{
     (e: 'cancel'): void;
   }>();
@@ -93,6 +99,19 @@
 
     return isValid
   }
+
+  const deleteRow = (index: number, length: number): void => {
+    if( length <= 1 ) {
+      alertify.error('Minimal harus ada satu file pendukung yang diunggah');
+      return
+    }
+    formData.value.splice(index, 1)
+  }
+
+  const addRow = (): void => {
+    formData.value.push(createEmptyForm())
+  }
+
 
   const handleFileUpload = (event: Event): void => {
     // const input = event as HTMLInputElement
