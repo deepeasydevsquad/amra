@@ -1,10 +1,31 @@
-const { Paket_la } = require("../models");
-const { getCabang } = require("../helper/companyHelper");
+const { 
+  Paket,
+  Division,
+} = require("../models");
+const { validationResult } = require("express-validator")
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
 const validation = {};
+
+validation.removeUploadedFileOnValidationError = (req, res, next) => {
+  const errors = validationResult(req)
+
+  if (!errors.isEmpty()) {
+    if (req.file) {
+      const filePath = path.resolve(req.file.path)
+      fs.unlink(filePath, (err) => {
+        if (err) console.error("❌ Gagal menghapus file:", err)
+        else console.log("🧹 File dihapus karena validasi gagal:", filePath)
+      })
+    }
+
+    return res.status(422).json({ errors: errors.array() })
+  }
+
+  next()
+}
 
 // Path upload
 const uploadPath = path.join(__dirname, "../uploads/daftar_paket");
@@ -34,20 +55,34 @@ const fileFilter = (req, file, cb) => {
 
 validation.upload = multer({ storage, fileFilter });
 
-// Validasi ID paket
-validation.check_id_paket_la = async (value, { req }) => {
-  console.log("Mengecek ID Paket LA:", value); // Log ID yang akan diperiksa
-  const division_id = await getCabang(req);
-  console.log("Division ID:", division_id); // Log division_id
+validation.check_id_cabang = async (value, { req }) => {
+    try {
+        const cabang = await Division.findOne({ where: { id: value }, attributes: ["id"] });
+        if (!cabang) {
+            console.debug(`ID Cabang tidak terdaftar di pangkalan data`);
+            throw new Error("ID Cabang tidak terdaftar di pangkalan data");
+        }
+        
+        return true;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
 
-  const check = await Paket_la.findOne({ where: { id: value, division_id } });
-
-  if (!check) {
-    console.log("ID Paket LA tidak ditemukan di database"); // Log jika ID tidak ditemukan
-    throw new Error("ID Paket LA tidak terdaftar di pangkalan data");
+validation.check_id_paket = async (value, { req }) => {
+  try {
+    const paket = await Paket.findOne({ where: { id: value }, attributes: ["id"] });
+    if (!paket) {
+        console.debug(`ID Paket tidak terdaftar di pangkalan data`);
+        throw new Error("ID Paket tidak terdaftar di pangkalan data");
+    }
+    
+    return true;
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
-
-  console.log("ID Paket LA ditemukan:", check); // Log jika ID ditemukan
-};
+}
 
 module.exports = validation;

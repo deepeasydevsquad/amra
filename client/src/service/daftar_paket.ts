@@ -2,7 +2,7 @@ import api from "./api";
 
 export const daftarPaket = async (param : any) => {
   try {
-    const response = await api.post("/daftar_paket/list", param);
+    const response = await api.post("/daftar-paket/list", param);
     return response.data;
   } catch (error) {
     console.error("Gagal mengambil paket:", error);
@@ -10,9 +10,9 @@ export const daftarPaket = async (param : any) => {
   }
 };
 
-export const getPaket = async (id : number) => {
+export const getPaket = async (id : number, division_id : number) => {
   try {
-    const response = await api.post(`/daftar_paket/paketlist`, { id: id });
+    const response = await api.post(`/daftar-paket/paketlist`, { id: id, division_id: division_id });
     return response.data;
   } catch (error) {
     console.error("Gagal mengambil paket:", error);
@@ -22,7 +22,7 @@ export const getPaket = async (id : number) => {
 
 export const addPaket = async (param : any) => {
   try {
-    const { data } = await api.post('/daftar_paket', param, {
+    const { data } = await api.post('/daftar-paket/add', param, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -49,7 +49,7 @@ export const editPaket = async (id: any, param: any) => {
       }
     }
 
-    const response = await api.post("/daftar_paket/update", formData, {
+    const response = await api.post("/daftar-paket/update", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
 
@@ -61,9 +61,9 @@ export const editPaket = async (id: any, param: any) => {
 };
 
 
-export const deletePaket = async (id : number) => {
+export const deletePaket = async (id : number, division_id : number) => {
   try {
-    const response = await api.post(`/daftar_paket/delete`,{ id : id});
+    const response = await api.post(`/daftar-paket/delete`,{ id : id, division_id: division_id});
     if (response.status !== 200) {
       throw new Error('Status bukan 200');
     }

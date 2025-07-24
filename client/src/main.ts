@@ -1,11 +1,15 @@
 // Import Global Styles
 import './assets/css/satoshi.css'
 import './assets/css/style.css'
+
 import 'flowbite'
 
 // Vue Core
 import { createApp } from 'vue'
 import App from './App.vue'
+import alertify from 'alertifyjs'
+import 'alertifyjs/build/css/alertify.min.css';
+import 'alertifyjs/build/css/themes/default.min.css'; // atau theme lain seperti semantic.min.css
 import router from './router'
 import { createPinia } from 'pinia'
 import { createHead } from '@vueuse/head'
@@ -21,6 +25,8 @@ import VueApexCharts from 'vue3-apexcharts'
 // FontAwesome Setup
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+// import Confirm from 'confirmjs'
 
 // FontAwesome Icons - Solid
 import {
@@ -73,6 +79,6 @@ router.beforeEach((to, from, next) => {
 
 // Register FontAwesome Component
 app.component('font-awesome-icon', FontAwesomeIcon)
-
+app.config.globalProperties.$alertify = alertify
 // Mount ke DOM
 app.mount('#app')

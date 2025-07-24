@@ -1,7 +1,7 @@
 const { Op, sequelize, Paket, Paket_price } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
-const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
 const moment = require("moment");
 const fs = require('fs');
 const path = require('path');
@@ -21,6 +21,19 @@ class Model_cud {
     this.state = true;
   }
 
+  async getDivisionId() {
+    const userType = await tipe(this.req);
+    if (userType === "administrator") {
+      return this.req.body.division_id;
+    } else if (userType === "staff") {
+      const decoded = jwt.decode(
+        this.req.headers["authorization"]?.split(" ")[1]
+      );
+      return decoded?.division_id;
+    } else {
+      throw new Error("Role pengguna tidak valid.");
+    }
+  }
   async generateKodePaket() {
     // generate kode number, kode number format : 6 random alphanumeric characters
     const possibleAbjad = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -58,11 +71,12 @@ class Model_cud {
     const body = this.req.body;
 
     const kodePaket = await this.generateKodePaket();
+    const division_id = await this.getDivisionId();
     const slug = await this.generateSlug(body.name);
     try {
       console.log("Data Body:", body);
       console.log("Company ID:", this.company_id);
-      console.log("Division ID:", this.division_id);
+      console.log("Division ID:", division_id);
       console.log("Generated Kode Paket:", kodePaket);
       console.log("Generated Slug:", slug);
       console.log("Generated Photo:", this.req.body.photoPath || null);
@@ -87,7 +101,7 @@ class Model_cud {
       console.log("Formatted Facilities:", formattedFacilities);
       
       const insert = await Paket.create({
-        division_id: this.division_id,
+        division_id: division_id,
         jenis_kegiatan: body.jenis_kegiatan,
         kode: kodePaket,
         photo: this.req.body.photoPath || null, // <-- SIMPAN NAMA FILENYA SAJA
@@ -156,19 +170,22 @@ class Model_cud {
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
   
+    const division_id = await this.getDivisionId();
+
     const model_r = new Model_r(this.req);
   
     // get info paket
-    const infoPaket = await model_r.infoPaket(body.id, this.division_id);
+    const infoPaket = await model_r.infoPaket(body.id);
     const slug = await this.generateSlug(body.name);
   
     try {
       // --- HANDLE PHOTO LAMA JIKA ADA PERGANTIAN ---
       let newPhotoPath = infoPaket.photo;
-      if (this.req.body.photoPath && this.req.body.photoPath !== infoPaket.photo) {
-        newPhotoPath = this.req.body.photoPath;
+      if (body.photoPath && body.photoPath !== infoPaket.photo) {
+        newPhotoPath = body.photoPath;
 
         // Ambil nama file saja dan buat path lengkap
+        console.log("Info Paket Photo:", infoPaket.photo);
         const fileName = path.basename(infoPaket.photo); // Ambil nama file
         const filePath = path.resolve(__dirname, '../../../uploads/daftar_paket', fileName);
 
@@ -206,6 +223,7 @@ class Model_cud {
       // --- UPDATE DATA PAKET ---
       await Paket.update(
         {
+          division_id: division_id,
           jenis_kegiatan: body.jenis_kegiatan,
           photo: newPhotoPath,
           slug: slug,
@@ -236,7 +254,7 @@ class Model_cud {
           updatedAt: myDate,
         },
         {
-          where: { id: body.id, division_id: this.division_id },
+          where: { id: body.id },
           transaction: this.t,
         }
       );
@@ -300,13 +318,14 @@ class Model_cud {
     // initialize dependensi properties
     await this.initialize();
     const body = this.req.body;
+    const division_id = await this.getDivisionId();
     try {
       // call object
       const model_r = new Model_r(this.req);
       // get info paket
       console.log("Body ID:", body.id);
-      console.log("Division ID:", this.division_id);
-      const paketInfo = await model_r.infoPaket(body.id, this.division_id);
+      console.log("Division ID:", division_id);
+      const paketInfo = await model_r.infoPaket(body.id, division_id);
 
       // delete process
       // get paket price info
@@ -345,7 +364,7 @@ class Model_cud {
         {
           where: {
             id: body.id,
-            division_id: this.division_id,
+            division_id: division_id,
           },
           transaction: this.t,
         }
@@ -362,19 +381,19 @@ class Model_cud {
 
   // response
   async response() {
-    console.log("RESPONDING: state =", this.state);
     if (this.state) {
-      console.log("Committing transaction...");
-      await writeLog(this.req, this.t, { msg: this.message });
+      await writeLog(this.req, this.t, {
+        msg: this.message,
+      });
+      // commit
       await this.t.commit();
       return true;
     } else {
-      console.log("Rolling back transaction...");
+      // rollback
       await this.t.rollback();
       return false;
     }
   }
-  
 }
 
 module.exports = Model_cud;

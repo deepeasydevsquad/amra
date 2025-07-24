@@ -1,5 +1,5 @@
 const Model_r = require("../models/model_r");
-// const Model_cud = require("../models/model_cud");
+const Model_cud = require("../models/model_cud");
 const { handleValidationErrors, handleServerError } = require("../../../helper/handleError");
 
 const controllers = {};
@@ -25,6 +25,42 @@ controllers.daftarJamaah = async (req, res) => {
     const model_r = new Model_r(req);
     const feedBack = await model_r.daftarJamaah(); // Ambil daftar jamaah dari model
     res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
+// Mendapatkan daftar headline
+controllers.daftarHeadline = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_r = new Model_r(req);
+    const feedBack = await model_r.daftarHeadline(); // Ambil daftar headline dari model
+    res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
+// Menghapus headline
+controllers.deleteHeadline = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    await model_cud.deleteHeadline(); // Ambil daftar headline dari model
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Headline berhasil dihapus.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Headline gagal dihapus.',
+      });
+    }
   } catch (error) {
     handleServerError(res, error.message);
   }

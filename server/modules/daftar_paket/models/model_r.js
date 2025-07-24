@@ -1,5 +1,5 @@
 const { Op, Paket, Paket_price, Mst_provider, Mst_asuransi, Mst_paket_type } = require("../../../models");
-const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
 
@@ -13,6 +13,20 @@ class Model_r {
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
     this.division_id = await getCabang(this.req);
+  }
+
+  async getDivisionId() {
+    const userType = await tipe(this.req);
+    if (userType === "administrator") {
+      return this.req.body.division_id;
+    } else if (userType === "staff") {
+      const decoded = jwt.decode(
+        this.req.headers["authorization"]?.split(" ")[1]
+      );
+      return decoded?.division_id;
+    } else {
+      throw new Error("Role pengguna tidak valid.");
+    }
   }
 
   async cekDate(departureDate) {
@@ -38,24 +52,23 @@ class Model_r {
     await this.initialize();
 
     const body = this.req.body;
-    
-    
-    // const pageNumber = parseInt(body.pageNumber) || 1;
-    // const perpage = parseInt(body.perpage) || 10;
-    // const offset = (pageNumber - 1) * perpage;
+    const division_id = await this.getDivisionId();
 
-    var limit = body.perpage;
+    console.log("division_id:", division_id);
+    console.log("body:", body);
+    
+    const pageNumber = parseInt(body.pageNumber) || 1;
+    const perpage = parseInt(body.perpage) || 10;
+    const offset = (pageNumber - 1) * perpage;
     var page = 1;
 
     if (body.pageNumber != undefined && body.pageNumber !== '0' ) page = body.pageNumber;
-
-
 
     const search = body.search || "";
     const filter = body.filter || "";
     const today = moment().format('YYYY-MM-DD');
 
-    var where = { division_id: this.division_id };
+    var where = { division_id: division_id };
 
     if (filter === "belum_berangkat") {
       where = {
@@ -82,11 +95,13 @@ class Model_r {
         ]
       };
     }
+    console.log("where:", where);
 
     var sql = {};
     sql["order"] = [["updatedAt", "DESC"]];
     sql["attributes"] = [
       "id",
+      "division_id",
       "jenis_kegiatan",
       "kode",
       "photo",
@@ -118,38 +133,9 @@ class Model_r {
       "createdAt",
       "updatedAt"
     ];
-    // sql["include"] = [
-    //   {
-    //     model: Paket_price,
-    //     attributes: [
-    //       "id",
-    //       "mst_paket_type_id",
-    //       "price"
-    //     ],
-    //     required: false
-    //   },
-    //   {
-    //     model: Mst_provider,
-    //     attributes: [
-    //       "id",
-    //       "name"
-    //     ],
-    //     required: false
-    //   },
-    //   {
-    //     model: Mst_asuransi,
-    //     attributes: [
-    //       "id",
-    //       "name"
-    //     ],
-    //     required: false
-    //   }
-    // ];
     sql["where"] = where;
-    // sql["limit"] = perpage;
-    // sql["offset"] = offset;
-    sql["limit"] = limit * 1;
-    sql["offset"] = (page - 1) * limit;
+    sql["limit"] = perpage;
+    sql["offset"] = offset;
 
     try {
       const query = await dbList(sql);
@@ -164,6 +150,7 @@ class Model_r {
             value.map(async (e) => {
               data.push({
                 id: e.id,
+                division_id: e.division_id,
                 jenis_kegiatan: e.jenis_kegiatan,
                 kode: e.kode,
                 name: e.name,
@@ -179,8 +166,6 @@ class Model_r {
                 arrival_time: e.arrival_time,
                 prices: [],
                 status: await this.cekDate(e.departure_date),
-                createdAt: moment(e.createdAt).format('YYYY-MM-DD HH:mm:ss'),
-                updatedAt: moment(e.updatedAt).format('YYYY-MM-DD HH:mm:ss')
               });
 
               list_paket_id.push(e.id);
@@ -198,7 +183,7 @@ class Model_r {
           model: Mst_paket_type,
           attributes: ['name']
         } }).then(async (value) => {
-           await Promise.all(
+          await Promise.all(
             value.map(async (e) => {
               if( list_paket_price[e.paket_id] === undefined ) {
                 list_paket_price = {...list_paket_price,...{[e.paket_id] : [{id: e.price, paket_tipe: e.Mst_paket_type.name, price: e.price}]}};
@@ -210,7 +195,7 @@ class Model_r {
         });
 
 
-         console.log("```Paket Price````````");
+        console.log("```Paket Price````````");
         console.log(list_paket_price);
         console.log("```Paket Price````````");
 
@@ -242,12 +227,13 @@ class Model_r {
   async get_paket() {
     // initialize dependensi properties
     await this.initialize();
+    const division_id = await this.getDivisionId();
 
     const body = this.req.body;
 
     console.log("Body:", body); // Log the request body for debugging
 
-    var where = { id: body.id, division_id: this.division_id };
+    var where = { id: body.id, division_id: division_id };
 
     var sql = {};
     sql["order"] = [["id", "DESC"]];
@@ -311,7 +297,6 @@ class Model_r {
     sql["where"] = where;
 
     try {
-      console.log("Sql:", sql);
       const query = await dbList(sql);
       console.log("Query:", query);
       const q = await Paket.findAndCountAll(query.total);
@@ -382,7 +367,7 @@ class Model_r {
     try {
       var data = {};
       const paket = await Paket.findOne({
-        where: { id: id, division_id: division_id },
+        where: division_id ? { id: id, division_id: division_id } : { id: id },
         include: [
           {
             model: Paket_price,

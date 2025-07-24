@@ -14,10 +14,19 @@ module.exports = (sequelize, DataTypes) => {
       Ppob_pascabayar_produk.belongsTo(models.Ppob_pascabayar_kategori, {
         foreignKey: "ppob_pascabayar_kategori_id",
       });
+      Ppob_pascabayar_produk.hasMany(models.Ppob_pascabayar_markup_company, {
+        foreignKey: "ppob_pascabayar_produk_id",
+        onDelete: "CASCADE",
+      });
+      Ppob_pascabayar_produk.hasMany(models.Ppob_transaction_pascabayar, {
+        foreignKey: "ppob_pascabayar_produk_id",
+        onDelete: "CASCADE",
+      });
     }
   }
   Ppob_pascabayar_produk.init({
     ppob_pascabayar_kategori_id: DataTypes.INTEGER,
+    kode: DataTypes.STRING,
     name: DataTypes.STRING,
     fee: DataTypes.INTEGER,
     markup: DataTypes.INTEGER,

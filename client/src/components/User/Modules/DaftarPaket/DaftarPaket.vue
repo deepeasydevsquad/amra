@@ -26,6 +26,7 @@ import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
 // import API
 import { daftarPaket, deletePaket } from '@/service/daftar_paket'
+import { paramCabang } from '@/service/param_cabang'
 import { ref, onMounted, computed } from 'vue';
 
 const itemsPerPage = 100; // Jumlah paket_la per halaman
@@ -33,6 +34,7 @@ const currentPage = ref(1);
 const totalPages = ref(0);
 const search = ref('');
 const filter = ref('');
+const optionFilterCabang = ref<Cabang[]>([]);
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
@@ -58,8 +60,14 @@ const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
 });
 
+interface Cabang {
+  id: number;
+  name: string
+}
+
 interface Paket {
   id: number;
+  division_id: number;
   jenis_kegiatan: string;
   kode: string;
   photo: string;
@@ -98,6 +106,7 @@ interface Paket {
   status: string;
 }
 
+const filterCabang = ref(0);
 const timeoutId = ref<number | null>(null);
 const dataPaket = ref<Paket[]>([]);
 const isFormOpen = ref<boolean>(false);
@@ -118,17 +127,14 @@ const paket = ref<number>(0);
 const fetchData = async () => {
   try {
     isLoading.value = true
+
     const response = await daftarPaket({
+        division_id: filterCabang.value || 1,
         search: search.value,
         filter: filter.value,
         perpage: itemsPerPage,
         pageNumber: currentPage.value,
     });
-
-    if (response.error) {
-        displayNotification(response.error_msg, "error");
-        return;
-    }
 
     totalPages.value = Math.ceil(response.total / itemsPerPage);
     totalRow.value = response.total;
@@ -141,7 +147,14 @@ const fetchData = async () => {
   }
 };
 
+const fetchDataCabang = async () => {
+  const response = await paramCabang()
+  optionFilterCabang.value = response.data
+  filterCabang.value = response.data[0].id
+}
+
 onMounted(async () => {
+  await fetchDataCabang();
   await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
 });
 
@@ -184,17 +197,21 @@ const deleteData = async (id: number) => {
     'Apakah Anda yakin ingin menghapus data ini?',
     async () => {
       try {
-        const response = await deletePaket(id);
+        isLoading.value = true
+        const response = await deletePaket(id, filterCabang.value);
         if (response.error) {
           displayNotification(response.error_msg, 'error');
           return;
         }
         showConfirmDialog.value = false;
         displayNotification(response.error_msg || "Operasi berhasil!", "success");
-        fetchData();
-      } catch (error) {
-        console.error('Error deleting data:', error);
-        displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
+      } catch (error: any) {
+        displayNotification(
+          error?.response?.data?.error_msg ||
+          error?.response?.data?.message ||
+          'Terjadi kesalahan', 'error');
+      } finally {
+        isLoading.value = false
       }
     }
   );
@@ -210,11 +227,25 @@ const shortText = (teks:string, maxKarakter: number) => {
     <div v-if="isLoading" class="flex items-center justify-center">
       <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
     </div>
+    <!-- Form Add -->
     <div v-else-if="isFormOpen">
-      <FormAdd :isFormOpen="isFormOpen" @close="isFormOpen = false; fetchData()" />
+      <FormAdd
+        :is-form-open="isFormOpen"
+        :cabang-id="filterCabang"
+        @close="isFormOpen = false; fetchData()"
+        @status="(payload) => displayNotification(payload.err_msg || 'Paket gagal ditambahkan', payload.error ? 'error' : 'success')"
+      />
     </div>
+
+    <!-- Form Edit -->
     <div v-else-if="isFormOpenEdit">
-      <FormEdit :isFormOpen="isFormOpenEdit" :paketId="paket" @close="isFormOpenEdit = false; fetchData()" />
+      <FormEdit
+        :is-form-open="isFormOpenEdit"
+        :paket-id="paket"
+        :cabang-id="filterCabang"
+        @close="isFormOpenEdit = false; fetchData()"
+        @status="(payload) => displayNotification(payload.err_msg || 'Paket gagal diubah', payload.error ? 'error' : 'success')"
+      />
     </div>
     <div v-else-if="isPageDetailPaketOpen">
       <DetailPaket :isPageDetailPaketOpen="isPageDetailPaketOpen" :paketId="paket" @closeDetailPaket="isPageDetailPaketOpen = false; fetchData()" />
@@ -222,21 +253,11 @@ const shortText = (teks:string, maxKarakter: number) => {
     <div v-else-if="dataPaket" class="container mx-auto px-4 mt-10">
       <div class="flex justify-between items-center mb-6">
         <PrimaryButton @click="openForm()">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
+          <font-awesome-icon :icon="['fas', 'plus']"></font-awesome-icon>
           Tambah Paket
         </PrimaryButton>
 
         <div class="flex items-center">
-          <label for="filter" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
-          <select id="filter"
-            class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-            v-model="filter" @change="fetchData()">
-            <option value="" selected>Lihat Semua</option>
-            <option value="sudah_berangkat">Sudah Berangkat</option>
-            <option value="belum_berangkat">Belum Berangkat</option>
-          </select>
           <div class="flex items-center ml-4">
             <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
             <input
@@ -247,6 +268,21 @@ const shortText = (teks:string, maxKarakter: number) => {
               @change="fetchData()"
               placeholder="Nama Paket/Kode Paket"
             />
+          </div>
+          <div class="flex items-center ml-4">
+            <label for="filter" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
+            <select id="filter"
+              class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              v-model="filter" @change="fetchData()">
+              <option value="" selected>Lihat Semua</option>
+              <option value="sudah_berangkat">Sudah Berangkat</option>
+              <option value="belum_berangkat">Belum Berangkat</option>
+            </select>
+            <select id="cabang"
+              class="block w-64 px-3 py-2 text-gray-700 bg-white border-t border-b border-e border-gray-300 rounded-e-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              v-model="filterCabang" @change="fetchData()">
+              <option v-for="cabang in optionFilterCabang" :key="cabang.id" :value="cabang.id">{{ cabang.name }}</option>
+            </select>
           </div>
         </div>
       </div>
@@ -305,7 +341,7 @@ const shortText = (teks:string, maxKarakter: number) => {
                     <LightButton @click="openFormEdit(paket.id)">
                       <EditIcon></EditIcon>
                     </LightButton>
-                    <DangerButton @click="deleteData(paket.id)">
+                    <DangerButton @click="deleteData(paket.id, paket.division_id)">
                       <DeleteIcon></DeleteIcon>
                     </DangerButton>
                   </div>
@@ -324,10 +360,10 @@ const shortText = (teks:string, maxKarakter: number) => {
               :total-pages="totalPages"
               :pages="pages"
               :total-columns="totalColumns"
+              :totalRow = "totalRow"
               @prev-page="prevPage"
               @next-page="nextPage"
               @page-now="pageNow"
-              :totalRow = "totalRow"
             />
           </tfoot>
         </table>

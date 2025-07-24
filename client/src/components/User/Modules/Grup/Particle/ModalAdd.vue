@@ -115,25 +115,25 @@ const closeModal = () => {
 // Validasi form
 const validateForm = (): boolean => {
 
-    errors.value = {
-      nameGrup: '',
-      cabangId: '',
-    }
-
-    let isValid = true
-
-    if (!groupData.name.trim()) {
-      errors.value.nameGrup = 'Nama tidak boleh kosong'
-      isValid = false
-    }
-
-    if (groupData.branchName == '0') {
-      errors.value.cabangId = 'Anda wajib memilih salah satu cabang'
-      isValid = false
-    }
-
-    return isValid
+  errors.value = {
+    nameGrup: '',
+    cabangId: '',
   }
+
+  let isValid = true
+
+  if (!groupData.name.trim()) {
+    errors.value.nameGrup = 'Nama tidak boleh kosong'
+    isValid = false
+  }
+
+  if (groupData.branchName == '0') {
+    errors.value.cabangId = 'Anda wajib memilih salah satu cabang'
+    isValid = false
+  }
+
+  return isValid
+}
 
 // Simpan data dan kirim ke parent
 const saveGroup = () => {
