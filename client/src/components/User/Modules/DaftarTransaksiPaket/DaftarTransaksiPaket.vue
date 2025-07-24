@@ -1,8 +1,9 @@
 <script setup lang="ts">
 // Import Icon
-import DeleteIcon from '@/components/User/Modules/DaftarTransaksiPaket/Icon/DeleteIcon.vue'
-import EditIcon from '@/components/User/Modules/DaftarTransaksiPaket/Icon/EditIcon.vue'
-import RefundIcon from '@/components/User/Modules/DaftarTransaksiPaket/Icon/RefundIcon.vue'
+import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
+import EditIcon from '@/components/Icons/EditIcon.vue'
+import RefundIcon from '@/components/Icons/RefundIcon.vue'
+import IconUpload from '@/components/Icons/IconUpload.vue'
 
 // import element
 import DangerButton from '@/components/User/Modules/DaftarTransaksiPaket/Particle/DangerButton.vue'
@@ -15,6 +16,7 @@ import Confirmation from '@/components/User/Modules/DaftarTransaksiPaket/Particl
 import FormAdd from '@/components/User/Modules/DaftarTransaksiPaket/Widgets/FormAdd.vue'
 import FormEditVisa from '@/components/User/Modules/DaftarTransaksiPaket/Widgets/FormEditVisa.vue'
 import FormRefund from '@/components/User/Modules/DaftarTransaksiPaket/Widgets/FormRefund.vue'
+import FormUploadFilePendukung from '@/components/User/Modules/DaftarTransaksiPaket/Widgets/FormUploadFilePendukung.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 
 // Import service API
@@ -84,6 +86,7 @@ const transpaketId = ref<number | null>(null);
 const isFormOpen = ref<boolean>(false);
 const isFormEditVisaOpen = ref<boolean>(false);
 const isFormRefundOpen = ref<boolean>(false);
+const isFormFilePendukungOpen = ref<boolean>(false);
 const notificationMessage = ref<string>('');
 const notificationType = ref<'success' | 'error'>('success');
 const showNotification = ref<boolean>(false);
@@ -147,6 +150,11 @@ const fetchData = async () => {
     isLoading.value = false
   }
 };
+
+async function openFilePendukung(id: number){ // id paket transaksi
+  isFormFilePendukungOpen.value = true;
+  transpaketId.value = id;
+}
 
 async function deleteData(transpaketId: number) {
   showConfirmation(
@@ -273,8 +281,8 @@ onMounted(() => {
                 <LightButton @click="openFormEditVisa(dataTransPaket.id)" title="Update Informasi Visa">
                   <EditIcon></EditIcon>
                 </LightButton>
-                <LightButton @click="openFormEditVisa(dataTransPaket.id)" title="Upload File Pendukung">
-                  <EditIcon></EditIcon>
+                <LightButton @click="openFilePendukung(dataTransPaket.id)" title="Upload File Pendukung">
+                  <IconUpload></IconUpload>
                 </LightButton>
                 <DangerButton @click="deleteData(dataTransPaket.id, )" title="Hapus Transaksi Paket">
                   <DeleteIcon></DeleteIcon>
@@ -302,24 +310,14 @@ onMounted(() => {
     </div>
   </div>
 
-  <!-- Form Pengembalian Barang Handover -->
-  <transition
-    enter-active-class="transition duration-200 ease-out"
-    enter-from-class="transform scale-95 opacity-0"
-    enter-to-class="transform scale-100 opacity-100"
-    leave-active-class="transition duration-200 ease-in"
-    leave-from-class="transform scale-100 opacity-100"
-    leave-to-class="transform scale-95 opacity-0"
-  >
-    <FormAdd
-      v-if="isFormOpen"
-      :isFormOpen="isFormOpen"
-      :paketId="props.paketId"
-      @close="isFormOpen= false; fetchData()"
-      @status="(payload) => displayNotification(payload.err_msg || 'Pengembalian Barang gagal ditambahkan', payload.error ? 'error' : 'success')"
-      />
-  </transition>
+  <FormUploadFilePendukung  :showForm="isFormFilePendukungOpen" :transpaketId="transpaketId" @cancel="isFormFilePendukungOpen= false; fetchData()"></FormUploadFilePendukung>
 
+  <!-- Form Pengembalian Barang Handover -->
+  <transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
+    leave-active-class="transition duration-200 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0" >
+    <FormAdd v-if="isFormOpen" :isFormOpen="isFormOpen" :paketId="props.paketId" @close="isFormOpen= false; fetchData()"
+      @status="(payload) => displayNotification(payload.err_msg || 'Pengembalian Barang gagal ditambahkan', payload.error ? 'error' : 'success')" />
+  </transition>
 
   <!-- Form Edit Visa -->
   <transition

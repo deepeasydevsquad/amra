@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import Header from '@/components/User/Modules/DaftarJamaahPaket/Particle/Header.vue';
+// import Header from '@/components/User/Modules/DaftarJamaahPaket/Particle/Header.vue';
+import Header from '@/components/User/Modules/Invoice/Particle/Header.vue'
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { cetakDataAbsensiJamaahPaket } from '@/service/daftar_jamaah_paket';
@@ -63,7 +64,6 @@ onMounted(async () => {
     <div class="bg-white text-gray-800 max-w-[216mm] mx-auto min-h-[356mm] p-8 font-serif text-sm print:text-xs print:shadow-none space-y-[10px] print:bg-white print:text-black print:max-w-full">
       <!-- Header Kwitansi -->
       <Header :data="data"></Header>
-
       <!-- Judul -->
       <div class="container mx-auto font-bold text-lg flex justify-between">
         <div class="grid grid-cols-[150px_10px_1fr]">

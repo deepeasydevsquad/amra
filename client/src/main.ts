@@ -28,6 +28,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // import Confirm from 'confirmjs'
 
+
+// <font-awesome-icon icon="fa-solid fa-cloud-arrow-up" />
 // FontAwesome Icons - Solid
 import {
   faPlaneArrival, faBuilding, faPlane, faMoneyBillWave, faTicketSimple , faUser, faUserCheck, faHome, faHouseCrack, faCaretRight, faExchange, faBoxOpen, faUsers, faGlobe, faDatabase,
@@ -35,7 +37,7 @@ import {
   faMoneyBillAlt, faUndoAlt, faListAlt, faImage, faTicket, faCircleArrowRight, faQrcode, faCalendar, faArrowLeft,
   faHandHoldingDollar, faMoneyCheckAlt, faCity, faCar, faHotel, faPassport, faSubway, faClipboardList,
   faPiggyBank, faUserCog, faUserTie, faCalculator, faList, faBalanceScale, faBalanceScaleLeft, faCommentDollar,
-  faShieldAlt, faEnvelope, faClipboardCheck, faLayerGroup, faPeopleCarry, faEyeSlash
+  faShieldAlt, faEnvelope, faClipboardCheck, faLayerGroup, faPeopleCarry, faEyeSlash, faCloudArrowUp
 } from '@fortawesome/free-solid-svg-icons'
 
 // FontAwesome Icons - Regular
@@ -53,7 +55,7 @@ library.add(
   faHandHoldingDollar, faMoneyCheckAlt, faCity, faCar, faHotel, faPassport, faSubway, faClipboardList,
   faPiggyBank, faUserCog, faUserTie, faCalculator, faList, faBalanceScale, faBalanceScaleLeft, faCommentDollar,
   faShieldAlt, faEnvelope, faClipboardCheck, faLayerGroup, faPeopleCarry, faTicketSimple, faMoneyBillWave, faPlane,
-  faBuilding, faPlaneArrival, faCircle, faClock, farUser, faCcVisa, faWhatsapp, faEye, faEyeSlash
+  faBuilding, faPlaneArrival, faCircle, faClock, farUser, faCcVisa, faWhatsapp, faEye, faEyeSlash, faCloudArrowUp
 )
 
 // Buat App Vue

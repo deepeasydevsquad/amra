@@ -387,7 +387,7 @@ class Model_r {
 
       if (isPetugasAdmin) {
         await this.penerima().then((penerima) => {
-          data["petugas"] = "Administrator " + penerima;
+          data["petugas"] = penerima;
           data["jabatan"] = "Administrator";
         });
       } else if (isPetugasStaff) {
