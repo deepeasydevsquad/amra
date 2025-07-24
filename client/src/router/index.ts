@@ -40,7 +40,7 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
       meta: {
-        title: 'Aplikasi ',
+        title: 'AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
         description: 'Ini adalah deskripsi halaman Home',
       },
     },
@@ -48,11 +48,19 @@ const router = createRouter({
       path: '/Login',
       name: 'login',
       component: LoginView,
+      meta: {
+        title: 'Login || AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
+        description: 'Ini adalah deskripsi halaman Home',
+      },
     },
     {
       path: '/Register',
       name: 'register',
       component: RegisterView,
+      meta: {
+        title: 'Registrasi || AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
+        description: 'Ini adalah deskripsi halaman Home',
+      },
     },
     {
       path: '/kwitansi',
@@ -68,7 +76,7 @@ const router = createRouter({
       path: '/user',
       name: 'user',
       meta: {
-        title: 'Home - My Website',
+        title: 'User Area || AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
         description: 'Ini adalah deskripsi halaman Home',
       },
       component: UserView,
