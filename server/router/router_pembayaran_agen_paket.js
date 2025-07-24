@@ -9,6 +9,7 @@ router.post(
   "/trans_paket/get-pembayaran-agen-paket",
   authenticateToken,
   [
+    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong."),
     body("pageNumber")
       .trim()
       .notEmpty()

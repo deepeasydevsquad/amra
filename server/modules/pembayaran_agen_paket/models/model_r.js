@@ -42,9 +42,18 @@ class Model_r {
 
     const search = body.search;
 
-    const whereFee = {
-      "$Paket_transaction.division_id$": this.division,
-    };
+    console.log("xxxxxxxxxxxxxxxxxxxxxxxxx");
+    console.log(body);
+    console.log("xxxxxxxxxxxxxxxxxxxxxxxxx");
+
+    let whereMember = {};
+
+    if (body.cabang) {
+      whereMember = {
+        ...whereMember,
+        division_id: body.cabang,
+      };
+    }
 
     if (search && search !== "") {
       whereFee["$Agen.Member.fullname$"] = {
@@ -57,12 +66,14 @@ class Model_r {
         include: [
           {
             model: Agen,
+            required: true,
             include: [
               {
                 model: Member,
+                required: true,
                 attributes: ["fullname", "identity_number", "whatsapp_number"],
-                where:
-                  search && search !== ""
+                where: {
+                  ...(search && search !== ""
                     ? {
                         [Op.or]: [
                           { fullname: { [Op.like]: `%${search}%` } },
@@ -70,16 +81,15 @@ class Model_r {
                           { whatsapp_number: { [Op.like]: `%${search}%` } },
                         ],
                       }
-                    : undefined,
+                    : {}),
+                  ...whereMember,
+                },
               },
             ],
           },
           {
             model: Paket_transaction,
             required: true,
-            where: {
-              division_id: this.division,
-            },
             include: [
               {
                 model: Paket,
