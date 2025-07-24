@@ -174,15 +174,11 @@ const handleUpdate = () => {
 </script>
 <template>
   <div class="container mx-auto p-4">
-    <!-- Pencarian -->
     <div class="flex justify-between items-center mb-4">
-      <!-- Button kiri -->
       <PrimaryButton @click="openModalAdd">
         <IconPlus />
         Tambah Akun Bank
       </PrimaryButton>
-
-      <!-- Search kanan -->
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
