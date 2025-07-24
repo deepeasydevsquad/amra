@@ -7,6 +7,8 @@ import { get_paket_agen } from '@/service/pembayaran_fee_agen_paket'
 import { ref, onMounted, computed } from 'vue'
 import FormPembayaran from '../Particle/FormPembayaran.vue'
 import Notification from '../Particle/Notification.vue'
+import { paramCabang } from '@/service/param_cabang'
+import Cabang from '../../Cabang/Cabang.vue'
 
 const showNotification = ref(false)
 const notificationMessage = ref('')
@@ -75,8 +77,10 @@ const pageNow = (page: number) => {
 const fetch_data = async () => {
   try {
     const response = await get_paket_agen({
+      search: searchQuery.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
+      cabang: selectedOptionCabang.value,
     })
     total.value = response.total
     data.value = response.data
@@ -94,8 +98,6 @@ const formatRupiah = (angka: number | string): string => {
   }).format(Number(angka))
 }
 
-onMounted(fetch_data)
-
 const modalPembayaran = ref(false)
 const agen_id = ref(0)
 
@@ -103,19 +105,51 @@ const openModalPembayaran = (id: number) => {
   modalPembayaran.value = true
   agen_id.value = id
 }
+
+interface filterCabang {
+  id: number
+  name: string
+}
+
+const selectedOptionCabang = ref(0)
+const optionFilterCabang = ref<filterCabang[]>([])
+const searchQuery = ref('')
+
+const fetchFilterData = async () => {
+  const response = await paramCabang()
+  optionFilterCabang.value = response.data
+  selectedOptionCabang.value = response.data[0].id
+  await fetch_data()
+}
+
+onMounted(fetchFilterData)
 </script>
 
 <template>
   <div class="flex justify-between items-center mb-4">
-    <div class="flex justify-end items-center w-full">
-      <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-      <input
-        type="text"
-        id="search"
-        class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder:text-gray-400"
-        placeholder="Cari Agen..."
-        disabled
-      />
+    <!-- Tambahin wrapper dengan flex justify-end -->
+    <div class="w-full flex justify-end mb-4">
+      <div class="inline-flex rounded-md shadow-xs" role="group">
+        <label for="search" class="block text-sm font-medium text-gray-700 mr-2 mt-3">Filter</label>
+        <input
+          type="text"
+          id="search"
+          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+          v-model="searchQuery"
+          @change="fetch_data()"
+          placeholder="Cari data..."
+        />
+        <select
+          v-model="selectedOptionCabang"
+          style="width: 300px"
+          @change="fetch_data()"
+          class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+            {{ optionC.name }}
+          </option>
+        </select>
+      </div>
     </div>
   </div>
 

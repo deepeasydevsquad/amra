@@ -38,17 +38,18 @@ class Model_r {
 
     try {
       var data = {};
-      const q = await Paket_transaction.findAndCountAll({ 
-        where : {
-          paket_id, division_id
+      const q = await Paket_transaction.findAndCountAll({
+        where: {
+          paket_id,
+          division_id,
         },
         include: {
-          required : true,
-          model: Jamaah, 
+          required: true,
+          model: Jamaah,
           include: [
             {
-              required : true,
-              model: Agen, 
+              required: true,
+              model: Agen,
               include: [
                 {
                   model: Member,
@@ -69,36 +70,42 @@ class Model_r {
                     attributes: ["fullname", "identity_number"],
                   },
                 },
-              ]
-            }, 
+              ],
+            },
             {
-              required : true,
-              model: Member, 
-            }
-          ]
-        }
+              required: true,
+              model: Member,
+            },
+          ],
+        },
       });
       var list_agen_id = [];
       await Promise.all(
         await q.rows.map(async (e) => {
-          if( data[e.Jamaah.agen_id] == undefined) {
-            data = {...data,...{[e.Jamaah.agen_id] : { 
+          if (data[e.Jamaah.agen_id] == undefined) {
+            data = {
+              ...data,
+              ...{
+                [e.Jamaah.agen_id]: {
                   agen_id: e.Jamaah.agen_id,
                   nama_agen: e.Jamaah.Agen.Member?.fullname || null,
-                  whatsapp_number:  e.Jamaah.Agen.Member?.whatsapp_number || null,
-                  level_keagenan:  e.Jamaah.Agen.Level_keagenan?.name || null, 
-                  total_belum_lunas : 0,
-                  total_lunas : 0,
+                  whatsapp_number:
+                    e.Jamaah.Agen.Member?.whatsapp_number || null,
+                  level_keagenan: e.Jamaah.Agen.Level_keagenan?.name || null,
+                  total_belum_lunas: 0,
+                  total_lunas: 0,
                   rekrutans: [
                     {
                       id: e.Jamaah.id,
                       fullname: e.Jamaah.Member?.fullname || null,
                       identity_number: e.Jamaah.Member?.identity_number || null,
-                    }
-                   ]
-                }}};
+                    },
+                  ],
+                },
+              },
+            };
             list_agen_id.push(e.Jamaah.agen_id);
-          }else{
+          } else {
             data[e.Jamaah.agen_id].rekrutans.push({
               id: e.Jamaah.id,
               fullname: e.Jamaah.Member?.fullname || null,
@@ -108,34 +115,42 @@ class Model_r {
         })
       );
 
-      const q2 = await Fee_agen.findAndCountAll({ 
-        where : {
+      const q2 = await Fee_agen.findAndCountAll({
+        where: {
           agen_id: { [Op.in]: list_agen_id },
         },
       });
       var feeAgen = {};
       await Promise.all(
         await q2.rows.map(async (e) => {
-          if(feeAgen[e.agen_id] === undefined) {
-            feeAgen = {...feeAgen,...{[e.agen_id] : { 
-              total_belum_lunas: (e.status_bayar == 'belum_lunas' ? e.nominal : 0 ), 
-              total_lunas: (e.status_bayar == 'lunas' ? e.nominal : 0 ) }}};
-          }else{
-            feeAgen[e.agen_id].total_belum_lunas += (e.status_bayar == 'belum_lunas' ? e.nominal : 0 );
-            feeAgen[e.agen_id].total_lunas += (e.status_bayar == 'lunas' ? e.nominal : 0 );
+          if (feeAgen[e.agen_id] === undefined) {
+            feeAgen = {
+              ...feeAgen,
+              ...{
+                [e.agen_id]: {
+                  total_belum_lunas:
+                    e.status_bayar == "belum_lunas" ? e.nominal : 0,
+                  total_lunas: e.status_bayar == "lunas" ? e.nominal : 0,
+                },
+              },
+            };
+          } else {
+            feeAgen[e.agen_id].total_belum_lunas +=
+              e.status_bayar == "belum_lunas" ? e.nominal : 0;
+            feeAgen[e.agen_id].total_lunas +=
+              e.status_bayar == "lunas" ? e.nominal : 0;
           }
         })
       );
 
-      for( let x in data ) {
-        if(feeAgen[x] !== undefined) {
+      for (let x in data) {
+        if (feeAgen[x] !== undefined) {
           data[x].total_belum_lunas = feeAgen[x].total_belum_lunas;
           data[x].total_lunas = feeAgen[x].total_lunas;
         }
       }
 
-
-          //   agen.Fee_agens?.forEach((fee) => {
+      //   agen.Fee_agens?.forEach((fee) => {
       //     if (fee.status_bayar === "belum_lunas") {
       //       total_belum_lunas += Number(fee.nominal);
       //     } else if (fee.status_bayar === "lunas") {
@@ -143,17 +158,16 @@ class Model_r {
       //     }
       //   });
 
-
-       // include: {
-        //   required : true, 
-        //   model: Ticket_transaction, 
-        //   where: { paket_id: body.paket_id },
-        //   include:{
-        //     required : true, 
-        //     model: Division, 
-        //     where: { company_id: this.company_id }
-        //   }
-        // }
+      // include: {
+      //   required : true,
+      //   model: Ticket_transaction,
+      //   where: { paket_id: body.paket_id },
+      //   include:{
+      //     required : true,
+      //     model: Division,
+      //     where: { company_id: this.company_id }
+      //   }
+      // }
 
       // Ambil semua transaksi paket berdasarkan paket_id dan division_id
       // const transaksi = await Paket_transaction.findAll({
@@ -245,7 +259,7 @@ class Model_r {
         status: true,
         message: "Berhasil ambil data agen dari paket & division",
         data: data,
-        total : Object.keys(data).length
+        total: Object.keys(data).length,
       };
     } catch (error) {
       return {
