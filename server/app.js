@@ -119,6 +119,7 @@ const arr_router = [
   "pembayaran_gaji", 
   "daftar_stock_fasilitas",
   "item_fasilitas",
+  "akun_bank",
   "headline"
 ];
 

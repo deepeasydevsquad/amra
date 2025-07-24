@@ -61,6 +61,7 @@ import DaftarPembayaran from '../../Modules/PembayaranGaji/DaftarPembayaran.vue'
 import DaftarStokFasilitas from '../../Modules/DaftarStokFasilitas/DaftarStokFasilitas.vue'
 import Headline from '../../Modules/Headline/Headline.vue'
 import ItemFasilitas from '../../Modules/ItemFasilitas/ItemFasilitas.vue'
+import AkunBank from '../../Modules/AkunBank/AkunBank.vue'
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -115,7 +116,8 @@ const tabComponents = {
   riwayat_pembayaran_gaji_staff: DaftarPembayaran,
   daftar_stok_fasilitas: DaftarStokFasilitas,
   daftar_item_fasilitas: ItemFasilitas,
-  headline: Headline
+  headline: Headline,
+  daftar_akun_bank_perusahaan: AkunBank,
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click
