@@ -25,6 +25,7 @@ const itemsPerPage = 100; // Jumlah paket_la per halaman
 const currentPage = ref(1);
 const search = ref("");
 const totalPages = ref(0);
+const totalRow = ref(0)
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
@@ -130,6 +131,7 @@ const fetchData = async () => {
     }
 
     totalPages.value = Math.ceil(response.total / itemsPerPage);
+    totalRow.value = response.total
 
     const fasilitasResponse = await daftarFasilitasPaketLA({
         search: search.value,
@@ -176,7 +178,7 @@ const openFormRefund = (id: number, register_number: string) => {
 
 onMounted(async () => {
   await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-  totalColumns.value = document.querySelectorAll("thead th").length;
+  // totalColumns.value = document.querySelectorAll("thead th").length;
 });
 
 const validateModal = (): boolean => {
@@ -512,6 +514,7 @@ const cetakInvoice = async (invoice: string) => {
               @prev-page="prevPage"
               @next-page="nextPage"
               @page-now="pageNow"
+              :totalRow="totalRow"
             />
         </tfoot>
       </table>
