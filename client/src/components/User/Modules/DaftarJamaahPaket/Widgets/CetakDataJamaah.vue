@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import Header from '@/components/User/Modules/DaftarJamaahPaket/Particle/Header.vue';
+// import Header from '@/components/User/Modules/DaftarJamaahPaket/Particle/Header.vue';
+import Header from '@/components/User/Modules/Invoice/Particle/Header.vue'
 import Footer from '@/components/User/Modules/DaftarJamaahPaket/Particle/Footer.vue';
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
@@ -104,31 +105,25 @@ function formatDateToBoxes(dateStr: string): string[] {
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Nama Jamaah</p>
-        <div class="border border-gray-900 px-3 flex-grow">
-          {{ data.fullname_jamaah }}
-        </div>
+        <div class="border border-gray-300 px-3 py-1 flex-grow">{{ data.fullname_jamaah }}</div>
       </div>
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Nama Ayah Kandung</p>
-        <div class="border border-gray-900 px-3 flex-grow">
-          {{ data.nama_ayah }}
-        </div>
+        <div class="border border-gray-300 px-3 py-1 flex-grow">{{ data.nama_ayah }}</div>
       </div>
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Tempat Lahir</p>
-        <div class="border border-gray-900 px-3 flex-grow">
+        <div class="border border-gray-300 px-3 py-1 flex-grow">
           {{ data.birth_place }}
         </div>
         <div class="flex items-center gap-1 ml-4">
           <label class="w-20">Tanggal</label>
           <div class="flex items-center mr-10">
             <template v-for="(char, index) in groupTanggalKotak(data.birth_date)" :key="index">
-              <div
-                v-if="char !== '|'"
-                class="w-7 h-7 border border-gray-900 flex items-center justify-center "
-              >
+              <div v-if="char !== '|'" class="w-7 h-7 py-1 border-s border-t border-b border-gray-300 flex items-center justify-center"
+              :class="index == 3 || index == 6 || index == 9 ? 'border-e' : ''">
                 {{ char }}
               </div>
               <div v-else class="w-3"></div>
@@ -140,7 +135,7 @@ function formatDateToBoxes(dateStr: string): string[] {
       <div class="flex items-center flex-wrap gap-4">
         <div class="flex items-center gap-2 min-w-[250px]">
           <p class="w-48 font-medium">Jenis Kelamin</p>
-          <div class="w-6 h-6 border border-gray-900 flex items-center justify-center ">
+          <div class="w-7 h-7 px-3 py-1 border border-gray-300 flex items-center justify-center ">
             {{ data.gender }}
           </div>
           <p class="ml-2">1. Laki-laki</p>
@@ -149,14 +144,14 @@ function formatDateToBoxes(dateStr: string): string[] {
 
         <div class="flex items-center gap-2 min-w-[100px]">
           <p class="w-12 font-medium">Umur</p>
-          <div class="w-6 h-6 border border-gray-900 flex items-center justify-center ">
+          <div class="w-7 h-7 px-3 py-1 border border-gray-300 flex items-center justify-center ">
             {{ data.umur }}
           </div>
         </div>
 
         <div class="flex items-center gap-2 min-w-[100px]">
           <p class="w-8 font-medium">GD</p>
-          <div class="w-6 h-6 border border-gray-900 flex items-center justify-center ">
+          <div class="w-7 h-7 px-3 py-1 border border-gray-300 flex items-center justify-center ">
             {{ data.blood_type }}
           </div>
         </div>
@@ -168,35 +163,35 @@ function formatDateToBoxes(dateStr: string): string[] {
 
           <!-- Kiri: Nomor Passport dan Tempat -->
           <div>
-            <div class="border border-gray-900">
-              <p class=" font-semibold text-center border-b border-gray-900">NOMOR PASSPORT</p>
+            <div class="border border-gray-300">
+              <p class=" font-medium px-3 py-1 text-center border-b ">Nomor Passport</p>
               <div class="flex justify-center">
                 <template v-for="(char, index) in Array(9).fill('-').map((_, i) => data.nomor_passport?.[i] || '-')" :key="index">
-                  <div class="w-6 h-8 border border-gray-900 flex items-center justify-center ">{{ char }}</div>
+                  <div class="w-6 h-7 border-gray-300 flex items-center justify-center " :class="index == 8 ? '' : 'border-e'">{{ char }}</div>
                 </template>
               </div>
             </div>
-            <div class="border border-gray-900 mt-2">
-              <p class="font-semibold text-center border-b border-gray-900">TEMPAT DIKELUARKAN</p>
-              <p class="h-8 border border-gray-900 font-semibold pt-1 text-center justify-center">{{ data.tempat_di_keluarkan_passport }}</p>
+            <div class="border border-gray-300 mt-2">
+              <p class="font-medium text-center py-1  border-b border-gray-300">Tempat Dikeluarkan</p>
+              <p class="h-7 border-gray-300 font-semibold pt-1 text-center justify-center">{{ data.tempat_di_keluarkan_passport }}</p>
             </div>
           </div>
 
           <!-- Kanan: Tanggal Dikeluarkan dan Masa Berlaku -->
           <div class="flex flex-col gap-2">
-            <div class="border border-gray-900">
-              <p class=" font-semibold text-center border-b border-gray-900">TANGGAL DIKELUARKAN</p>
+            <div class="border border-gray-300">
+              <p class=" font-medium text-center border-b py-1">Tanggal Dikeluarkan</p>
               <div class="flex">
                 <template v-for="(char, index) in formatDateToBoxes(data.tanggal_di_keluarkan_passport)" :key="'issued' + index">
-                  <div class="w-6 h-8 border border-gray-900 flex items-center justify-center ">{{ char }}</div>
+                  <div class="w-7 h-7 border-gray-300 flex items-center justify-center" :class="index == formatDateToBoxes(data.tanggal_di_keluarkan_passport).length - 1 ? '' : 'border-e'">{{ char }}</div>
                 </template>
               </div>
             </div>
-            <div class="border border-gray-900">
-              <p class=" font-semibold text-center border-b border-gray-900">MASA BERLAKU</p>
+            <div class="border border-gray-300">
+              <p class="font-medium text-center border-b py-1">Masa Berlaku</p>
               <div class="flex">
                 <template v-for="(char, index) in formatDateToBoxes(data.masa_berlaku_passport)" :key="'valid' + index">
-                  <div class="w-6 h-8 border border-gray-900 flex items-center justify-center ">{{ char }}</div>
+                  <div class="w-7 h-7 border-gray-300 flex items-center justify-center " :class="index == formatDateToBoxes(data.masa_berlaku_passport).length - 1 ? '' : 'border-e'">{{ char }}</div>
                 </template>
               </div>
             </div>
@@ -206,43 +201,42 @@ function formatDateToBoxes(dateStr: string): string[] {
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Alamat</p>
-        <div class="border border-gray-900 px-3 flex-grow">
+        <div class="border py-1 border-gray-300 px-3 flex-grow">
           {{ data.alamat }}
         </div>
       </div>
 
-
       <div class="flex items-center">
         <p class="w-50 font-medium">Desa/Kelurahan</p>
-        <div class="border border-gray-900 px-3 flex-grow">
+        <div class="border py-1 border-gray-300 px-3 flex-grow">
           {{ data.kelurahan }}
         </div>
       </div>
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Kecamatan</p>
-        <div class="border border-gray-900 px-3 flex-grow">
+        <div class="border border-gray-300 px-3 py-1  flex-grow">
           {{ data.kecamatan }}
         </div>
       </div>
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Kabupaten Kota</p>
-        <div class="border border-gray-900 px-3 flex-grow">
+        <div class="border border-gray-200 px-3 py-1 flex-grow">
           {{ data.kabupaten }}
         </div>
       </div>
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Provinsi</p>
-        <div class="border border-gray-900 px-3 flex-grow">
+        <div class="border border-gray-300 px-3 py-1 flex-grow">
           {{ data.provinsi }}
         </div>
         <div class="flex items-center gap-1 ml-4">
           <label class="w-20 font-medium">Kode Pos</label>
-          <div class="flex items-center mr-10">
+          <div class="flex items-center mr-10 border-t border-b border-s border-e">
             <template v-for="(char, index) in data.kode_pos.split('')" :key="index">
-              <div class="w-6 h-8 border border-gray-900 flex items-center justify-center ">{{ char }}</div>
+              <div class="w-6 h-7 border-gray-300 flex items-center justify-center py-1 " :class="index == data.kode_pos.split('').length - 1 ? '' : 'border-e'">{{ char }}</div>
             </template>
           </div>
         </div>
@@ -250,12 +244,12 @@ function formatDateToBoxes(dateStr: string): string[] {
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Telepon</p>
-        <div class="border border-gray-900 px-3 flex-grow">
+        <div class="border border-gray-300 px-3 py-1 flex-grow">
           {{ data.nomor_telephone }}
         </div>
         <div class="flex items-center gap-1 ml-4">
           <p class="w-20 font-medium">Hp</p>
-          <div class="border border-gray-900 px-4 mr-10 flex-grow">
+          <div class="border border-gray-300 px-4 py-1 mr-10 flex-grow">
             {{ data.whatsapp_number }}
           </div>
         </div>
@@ -263,7 +257,7 @@ function formatDateToBoxes(dateStr: string): string[] {
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Email</p>
-        <div class="border border-gray-900 px-3 flex-grow">
+        <div class="border border-gray-300 px-3 py-1 flex-grow">
           {{ data.email_jamaah }}
         </div>
       </div>
@@ -271,7 +265,7 @@ function formatDateToBoxes(dateStr: string): string[] {
       <div class="flex gap-6">
         <div class="flex items-center w-3/4">
           <p class="w-50 font-medium">Pengalaman Haji</p>
-          <div class="w-6 h-6 border border-gray-900 flex items-center justify-center  font-medium">
+          <div class="w-6 h-7 border border-gray-300 flex items-center justify-center font-medium">
             {{ data.pengalaman_haji }}
           </div>
           <p class="ml-2">A. Belum Pernah B. Sudah - Kali</p>
@@ -279,7 +273,7 @@ function formatDateToBoxes(dateStr: string): string[] {
 
         <div class="flex items-center w-1/4">
           <p class="w-28">Tahun Terakhir</p>
-          <div class="border border-gray-900 px-3 min-w-[120px]">
+          <div class="border border-gray-300 px-3 py-1 min-w-[120px]">
             {{ data.tahun_haji }}
           </div>
         </div>
@@ -287,7 +281,7 @@ function formatDateToBoxes(dateStr: string): string[] {
       <div class="flex gap-6 mt-2">
         <div class="flex items-center w-3/4">
           <p class="w-50 font-medium">Pengalaman Umrah</p>
-          <div class="w-6 h-6 border border-gray-900 flex items-center justify-center  font-medium">
+          <div class="w-6 h-6 border border-gray-300 flex items-center justify-center font-medium">
             {{ data.pengalaman_umrah }}
           </div>
           <p class="ml-2">A. Belum Pernah B. Sudah - Kali</p>
@@ -295,7 +289,7 @@ function formatDateToBoxes(dateStr: string): string[] {
 
         <div class="flex items-center w-1/4">
           <p class="w-28">Tahun Terakhir</p>
-          <div class="border border-gray-900 px-3 min-w-[120px]">
+          <div class="border border-gray-300 px-3 py-1 min-w-[120px]">
             {{ data.tahun_umrah }}
           </div>
         </div>
@@ -306,7 +300,7 @@ function formatDateToBoxes(dateStr: string): string[] {
         <template v-for="(char, index) in groupTanggalKotak(data.departure_date)" :key="index">
           <div
             v-if="char !== '|'"
-            class="w-7 h-7 border border-gray-900 flex items-center justify-center "
+            class="w-7 h-7 border-gray-300 py-1 flex items-center justify-center" :class="index == 3 || index == 6 || index == 9 ? 'border-s border-t border-b border-e' : 'border-s border-t border-b'"
           >
             {{ char }}
           </div>
@@ -316,21 +310,21 @@ function formatDateToBoxes(dateStr: string): string[] {
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Berangkat Dari</p>
-        <div class="border border-gray-900 px-3 flex-grow">
+        <div class="border border-gray-300 px-3 py-1 flex-grow">
           {{ data.departure_from }}
         </div>
       </div>
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Penyakit</p>
-        <div class="border border-gray-900 px-3 flex-grow">
+        <div class="border border-gray-300 px-3 py-1 flex-grow">
           {{ data.desease }}
         </div>
       </div>
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Pendidikan Terakhir</p>
-        <div class="w-6 h-6 border border-gray-900 flex items-center justify-center ">
+        <div class="w-6 h-7 border border-gray-300 flex items-center justify-center ">
           {{ data.pendidikan }}
         </div>
         <p class="text-[10px] ml-2">1. Belum Sekolah</p>
@@ -345,29 +339,33 @@ function formatDateToBoxes(dateStr: string): string[] {
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Pekerjaan</p>
-        <div class="border border-gray-900 px-3 flex-grow">
+        <div class="border border-gray-300 px-3 py-1 flex-grow">
           {{ data.pekerjaan }}
         </div>
       </div>
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Nama Instansi Pekerjaan</p>
-        <div class="border border-gray-900 px-3 flex-grow">
+        <div class="border border-gray-300 px-3 py-1 flex-grow">
           {{ data.profession_instantion_name}}
         </div>
       </div>
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Alamat dan Telepon Pekerjaan</p>
-        <div class="border border-gray-900 px-3 flex-grow">
+        <div class="border border-gray-300 px-3 flex-grow py-1">
           {{ data.profession_instantion_address}} {{ data.profession_instantion_telephone}}
         </div>
       </div>
 
+      <div class="page-break"></div>
+
+      <div class="h-6 print:h-10"></div>
+
       <div class="flex items-center">
         <div class="flex items-center w-3/4">
           <p class="w-50 font-medium">Status</p>
-          <div class="w-6 h-6 border border-gray-900 flex items-center justify-center  font-medium">
+          <div class="w-6 h-7 border border-gray-300 flex items-center justify-center  font-medium">
             {{ data.status_nikah }}
           </div>
           <p class="ml-2">1. Menikah</p>
@@ -375,7 +373,7 @@ function formatDateToBoxes(dateStr: string): string[] {
           <p class="ml-2">3. Janda Duda</p>
         </div>
         <p class="w-28 font-medium">Tahun Nikah</p>
-        <div class="min-w-[120px] border border-gray-900 px-3 flex-grow">
+        <div class="min-w-[120px] border border-gray-300 px-3 py-1 flex-grow">
           {{ data.tanggal_nikah }}
         </div>
       </div>
@@ -385,17 +383,24 @@ function formatDateToBoxes(dateStr: string): string[] {
         <table class="ml-1 w-3/4">
           <thead>
             <tr>
-              <th class="border border-gray-900 px-3">NAMA</th>
-              <th class="border border-gray-900 px-3">HUBUNGAN</th>
-              <th class="border border-gray-900 px-3">TELPON/HP</th>
+              <th class="border border-gray-300 px-3 py-1 font-medium">Nama</th>
+              <th class="border border-gray-300 px-3 py-1 font-medium">Hubungan</th>
+              <th class="border border-gray-300 px-3 py-1 font-medium">Telpon/HP</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="mahram in data.mahram" :key="mahram.id" class="text-center">
-              <td class="border border-gray-900 px-3">{{ mahram.fullname }}</td>
-            <td class="border border-gray-900 px-3">{{ mahram.mahram_type }}</td>
-            <td class="border border-gray-900 px-3">{{ mahram.nomor_telephone }}</td>
-          </tr>
+            <template v-if="data.mahram.length === 0">
+              <tr>
+                <td colspan="3" class="text-center text-gray-500 py-1 border-b">Tidak ada mahram yang terdaftar</td>
+              </tr>
+            </template>
+            <template v-else>
+              <tr v-for="(mahram, index) in data.mahram" :key="index" class="text-center">
+                <td class="border border-gray-300 px-3">{{ mahram.fullname }}</td>
+                <td class="border border-gray-300 px-3">{{ mahram.mahram_type }}</td>
+                <td class="border border-gray-300 px-3">{{ mahram.nomor_telephone }}</td>
+              </tr>
+            </template>
         </tbody>
       </table>
     </div>
@@ -404,21 +409,21 @@ function formatDateToBoxes(dateStr: string): string[] {
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Nama</p>
-        <div class="border border-gray-900 px-3 flex-grow">
+        <div class="border border-gray-300 px-3 py-1 flex-grow">
           {{ data.nama_keluarga }}
         </div>
       </div>
 
       <div class="flex items-center">
         <p class="w-50 font-medium">Alamat dan Telepon</p>
-        <div class="border border-gray-900 px-3 flex-grow">
+        <div class="border border-gray-300 px-3 py-1 flex-grow">
           {{ data.alamat_keluarga }} {{ data.telephone_keluarga }}
         </div>
       </div>
 
-        <div class="flex items-center pt-10" style="page-break-inside: avoid;">
-          <Footer :data="data"></Footer>
-        </div>
+      <div class="flex items-center pt-10" style="page-break-inside: avoid;">
+        <Footer :data="data"></Footer>
+      </div>
 
     </div>
   </div>
@@ -430,6 +435,11 @@ function formatDateToBoxes(dateStr: string): string[] {
     size: 210mm 297mm; /* A4 Size */
     margin: 0;
     -webkit-print-color-adjust: exact;
+  }
+
+  .page-break {
+    page-break-before: always;
+    break-before: page;
   }
 }
 </style>

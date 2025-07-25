@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Ppob_transaction_prabayars', {
+    await queryInterface.createTable('Transaction_deposit_companies', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -17,33 +17,23 @@ module.exports = {
         },
         onDelete: 'CASCADE',
       },
-      ppob_prabayar_produk_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "Ppob_prabayar_produks",
-          key: "id",
-        },
-        onDelete: 'CASCADE',
-      },
-      transaction_code: {
-        type: Sequelize.STRING
-      },
-      nomor_tujuan: {
-        type: Sequelize.STRING
-      },
-      price: {
+      nominal: {
         type: Sequelize.INTEGER
       },
-      application_price: {
-        type: Sequelize.INTEGER
+      type_transaction: {
+        allowNull: true,
+        type: Sequelize.ENUM,
+        values: ['deposit', 'ppob'],
+        defaultValue : null
       },
-      company_price: {
-        type: Sequelize.INTEGER
+      ket: {
+        type: Sequelize.TEXT
       },
       status: {
+        allowNull: true,
         type: Sequelize.ENUM,
-        values: ['process', 'success', 'failed'],
-        defaultValue : "process"
+        values: ['process', 'approved', 'rejected'],
+        defaultValue : 'process'
       },
       createdAt: {
         allowNull: false,
@@ -56,6 +46,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Ppob_transaction_prabayars');
+    await queryInterface.dropTable('Transaction_deposit_companies');
   }
 };

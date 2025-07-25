@@ -8,6 +8,7 @@ import Pagination from '@/components/Pagination/Pagination.vue';
 import PrimaryButton from '@/components/Button/PrimaryButton.vue';
 import LightButton from '@/components/Button/LightButton.vue';
 import DangerButton from '@/components/Button/DangerButton.vue';
+import IconPlus from '@/components/Icons/IconPlus.vue'
 
 import { ref, onMounted, computed } from 'vue';
 
@@ -60,7 +61,6 @@ const notificationType = ref('')
 const notificationMessage = ref('')
 const isFormOpen = ref<boolean>(false)
 const headlineId = ref<number | undefined>(undefined)
-
 const dataHeadline = ref<Headline[]>([])
 
 const fetchData = async () => {
@@ -73,6 +73,7 @@ const fetchData = async () => {
     })
     dataHeadline.value = response.data
     total.value = response.total
+    totalPages.value = Math.ceil(response.total / itemsPerPage)
   } catch (error) {
     displayNotification('Gagal mengambil data', 'error')
     isLoading.value = false
@@ -131,11 +132,9 @@ onMounted(() => {
   </div>
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
-    <div class="flex justify-between mb-4">
-      <PrimaryButton
-        @click="showForm()"
-      >
-      <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
+    <div class="flex justify-between items-center mb-4">
+      <PrimaryButton @click="showForm()">
+       <IconPlus />
         Tambah Headline
       </PrimaryButton>
       <div class="flex items-center">
@@ -154,11 +153,11 @@ onMounted(() => {
     <!-- Table data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-700">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-100">
           <tr>
-            <th class="w-[80%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Headline</th>
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Tampilkan</th>
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[80%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Headline</th>
+            <th class="w-[10%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Tampilkan</th>
+            <th class="w-[10%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -183,7 +182,7 @@ onMounted(() => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <Pagination
+          <!-- <Pagination
               :current-page="currentPage"
               :total-pages="totalPages"
               :pages="pages"
@@ -192,7 +191,17 @@ onMounted(() => {
               @prev-page="prevPage"
               @next-page="nextPage"
               @page-now="pageNow"
-            />
+            /> -->
+             <Pagination
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            :pages="pages"
+            :total-columns="totalColumns"
+            @prev-page="prevPage"
+            @next-page="nextPage"
+            @page-now="pageNow"
+            :totalRow="total"
+          />
         </tfoot>
       </table>
     </div>

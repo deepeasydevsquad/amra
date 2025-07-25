@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, getCurrentInstance  } from 'vue'
 import axios from 'axios'
 import LoginButton from '@/components/Login/particles/LoginButton.vue'
 import ForgotPasswordButton from '@/components/Login/particles/ForgotPasswordButton.vue'
 import GuideButton from '@/components/Login/particles/GuideButton.vue'
 import RegisterButton from '@/components/Login/particles/RegisterButton.vue'
+import alertify from 'alertifyjs'
+
 import api from '@/service/api' // Import service API
 
 
 interface Login {
   type: string;
-  company_code: string;
+  company_code?: string;
   username: string;
   password: string;
 }
@@ -25,26 +27,64 @@ const inputLogin = ref<Partial<Login>>({
 
 const isLoading = ref(true)
 
-const handleLogin = async (type: string) => {
+const errors = ref<Record<string, string>>({})
 
-  console.log("VITE_APP_API_BASE_URL-----------");
-  console.log(import.meta.env.VITE_APP_API_BASE_URL);
-  console.log("VITE_APP_API_BASE_URL-----------");
-  const API_BASE_URL = window.location.hostname + ':3001';
-  console.log("API_BASE_URL-----------");
-  console.log(API_BASE_URL);
-  console.log("API_BASE_URL-----------");
+const validateForm = (): boolean => {
+
+  const type = ['administrator', 'staff'];
+  let isValid = false
+  errors.value = {};
+
+  if(!inputLogin.value.type || !type.includes(inputLogin.value.type)) {
+    errors.value.type = 'Tipe akun tidak valid';
+    isValid = false;
+  }
+
+  if(inputLogin.value.type == 'staff' && !inputLogin.value.company_code) {
+    errors.value.company_code = 'Kode Perusahaan wajib diisi';
+    isValid = false;
+  } else {
+    isValid = true;
+  }
+
+  if(!inputLogin.value.username || inputLogin.value.username.trim() === '') {
+    errors.value.username = 'Username tidak boleh kosong';
+    isValid = false;
+  }
+
+  if(!inputLogin.value.password || inputLogin.value.password.trim() === '') {
+    errors.value.password = 'Password tidak boleh kosong';
+    isValid = false;
+  }
+
+  return isValid
+}
+
+const handleLogin = async () => {
+
+  if (!validateForm()) {
+    for (const key in errors.value) {
+      if (errors.value[key]) {
+        alertify.error(errors.value[key]);
+      }
+    }
+    return
+  }
 
   try {
     const baseUrl = window.location.protocol + '//' + window.location.hostname + ':3001';
-    // Kirim data login ke server Express.js menggunakan axios
-    const response = await axios.post(baseUrl + '/auth/login', {
+    var data = {
       type: inputLogin.value.type,
       username: inputLogin.value.username,
-      password: inputLogin.value.password,
-    })
+      password: inputLogin.value.password
+    };
+    if( inputLogin.value.type === 'staff') {
+      data = {...data,...{['company_code'] : inputLogin.value.company_code} };
+    }
 
-    // const response = await api.post("/daftar_akun/", param);
+    // Kirim data login ke server Express.js menggunakan axios
+    const response = await axios.post(baseUrl + '/auth/login', data)
+
     // filter
     if (response.status === 200) {
       console.log('Login successful', response.data)
@@ -80,7 +120,6 @@ setTimeout(() => {
       <div class="w-1/2 rounded-l-lg">
         <img src="/bg.png" alt="Haji Image" class="object-cover w-full h-full" />
       </div>
-
       <!-- Bagian Kanan -->
       <div class="ml-6 p-8 flex flex-col justify-center items-center max-w-2lg">
         <div class="flex flex-col justify-center w-full mb-0">
@@ -93,31 +132,13 @@ setTimeout(() => {
             <p class="text-gray-500 text-xs mt-0 mb-10 italic">Pilih Salah Satu Tipe Akun Anda</p>
             <template v-if="inputLogin.type === 'staff'">
               <input v-model="inputLogin.company_code" type="text" placeholder="Kode Perusahaan" class="w-full p-2 border border-gray-300 rounded-lg input-field"/>
-              <p class="text-gray-500 text-xs mt-0 mb-10 italic">
-                Kode Perusahaan wajib diisi jika anda masuk sebagai Staff.
-              </p>
+              <p class="text-gray-500 text-xs mt-0 mb-10 italic">Kode Perusahaan wajib diisi jika anda masuk sebagai Staff.</p>
             </template>
-            <input
-              v-model="inputLogin.username"
-              type="text"
-              placeholder="Username"
-              class="w-full p-2 border border-gray-300 rounded-lg input-field"
-            />
-            <input
-              v-model="inputLogin.password"
-              type="password"
-              placeholder="Password"
-              class="w-full p-2 border border-gray-300 rounded-lg input-field"
-            />
-            <LoginButton
-              @click="handleLogin('administrator')"
-              icon="lock.svg"
-              label="Masuk Akun Sekarang"
-              color="bg-sky-700 text-white"
-            />
+            <input v-model="inputLogin.username" type="text" placeholder="Username" class="w-full p-2 border border-gray-300 rounded-lg input-field" />
+            <input v-model="inputLogin.password" type="password" placeholder="Password" class="w-full p-2 border border-gray-300 rounded-lg input-field" />
+            <LoginButton @click="handleLogin()" icon="lock.svg" label="Masuk Akun Sekarang" color="bg-sky-700 text-white" />
           </div>
         </div>
-
         <p class="text-center mb-4 mt-6 text-[#175690] font-semibold">Atau</p>
         <RegisterButton />
         <a href="#" class="text-xs text-center mt-5 mb-16 text-[#175690]">

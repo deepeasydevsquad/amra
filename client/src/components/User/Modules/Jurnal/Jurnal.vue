@@ -15,7 +15,7 @@ import { getFilter, daftarJurnal, deleteJurnal } from '@/service/jurnal'; // Imp
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
-const itemsPerPage = 100; // Jumlah kota per halaman
+const itemsPerPage = 100;
 const currentPage = ref(1);
 const search = ref("");
 const totalPages = ref(0);
@@ -71,7 +71,7 @@ interface filterCabang {
   }
 
 const optionFilterPeriode = ref([{ id: 0, name: 'Periode Sekarang' }]);
-const optionFilterCabang = ref<filterCabang[]>([]); // { id: 0, name: 'Pilih Semua Cabang' }
+const optionFilterCabang = ref<filterCabang[]>([]);
 const selectedOptionPeriode = ref(0);
 const selectedOptionCabang = ref(0);
 const tanggalTransaksi = ref('');
@@ -112,31 +112,10 @@ const fetch = async() => {
   totalRow.value = response.total;
 }
 
-// const openModal = (kota?: Kota) => {
-//   selectedKota.value = kota ? { ...kota } : { kode: '', name: '' };
-//   isModalOpen.value = true;
-// };
-
 onMounted(async () => {
   await fetchFilter();
-  // await fetch(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-  // totalColumns.value = document.querySelectorAll("thead th").length;
 });
 
-// const validateForm = (): boolean => {
-//   errors.value = { kode: '', name: '' };
-//   let isValid = true;
-
-//   if (!selectedKota.value.kode?.trim()) {
-//     errors.value.kode = 'Kode tidak boleh kosong';
-//     isValid = false;
-//   }
-//   if (!selectedKota.value.name?.trim()) {
-//     errors.value.name = 'Nama tidak boleh kosong';
-//     isValid = false;
-//   }
-//   return isValid;
-// };
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message;
@@ -180,29 +159,8 @@ const deleteData = async (id: number) => {
 
 <template>
   <div class="container mx-auto p-4">
-    <!-- Tambah data dan Search -->
-    <!-- <div class="flex justify-between mb-4">
-      <div class="flex items-center">
-        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input
-          type="text"
-          id="search"
-          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-          v-model="search"
-          @change="fetchData()"
-          placeholder="Cari data..."
-        />
-      </div>
-    </div> -->
     <div class="flex justify-end items-center mb-4">
       <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
-      <!-- <input
-        v-model="search"
-        @change="fetchData()"
-        type="text"
-        placeholder="Cari log..."
-        class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-      /> -->
       <div class="inline-flex rounded-md shadow-xs" role="group">
           <input
             v-model="tanggalTransaksi"
@@ -223,7 +181,6 @@ const deleteData = async (id: number) => {
           </select>
         </div>
     </div>
-
     <!-- Table data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
@@ -279,45 +236,6 @@ const deleteData = async (id: number) => {
               @page-now="pageNow"
               :totalRow = "totalRow"
             />
-          <!-- <tr>
-            <td class="px-4 py-4 text-center border min-h-[200px]" :colspan="totalColumns">
-              <nav class="flex mt-0">
-                <ul class="inline-flex items-center -space-x-px">
-                  <li>
-                    <button
-                      @click="prevPage"
-                      :disabled="currentPage === 1"
-                      class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg
-                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                  </li>
-                  <li v-for="page in pages" :key="page">
-                    <button
-                      @click="pageNow(page)"
-                      class="px-3 py-2 leading-tight border"
-                      :class="currentPage === page
-                        ? 'text-white bg-[#3a477d] border-[#3a477d]'
-                        : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700'"
-                    >
-                      {{ page }}
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      @click="nextPage"
-                      :disabled="currentPage === totalPages"
-                      class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg
-                        hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </td>
-          </tr> -->
         </tfoot>
       </table>
     </div>

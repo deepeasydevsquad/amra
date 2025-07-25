@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Ppob_transaction_prabayars', {
+    await queryInterface.createTable('Request_deposit_companies', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -17,33 +17,39 @@ module.exports = {
         },
         onDelete: 'CASCADE',
       },
-      ppob_prabayar_produk_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "Ppob_prabayar_produks",
-          key: "id",
-        },
-        onDelete: 'CASCADE',
-      },
-      transaction_code: {
+      request_code: {
         type: Sequelize.STRING
       },
-      nomor_tujuan: {
+      bank: {
         type: Sequelize.STRING
       },
-      price: {
+      number_account_bank: {
+        type: Sequelize.STRING
+      },
+      name_account_bank: {
+        type: Sequelize.STRING
+      },
+      nominal: {
         type: Sequelize.INTEGER
       },
-      application_price: {
+      nominal_code: {
         type: Sequelize.INTEGER
       },
-      company_price: {
-        type: Sequelize.INTEGER
+      sending_payment_status: {
+        type: Sequelize.ENUM,
+        values: ['sudah_dikirim','belum_dikirim'],
+        defaultValue : "belum_dikirim"
       },
       status: {
         type: Sequelize.ENUM,
-        values: ['process', 'success', 'failed'],
-        defaultValue : "process"
+        values: ['disetujui','ditolak','diproses'],
+        defaultValue : "diproses"
+      },
+      status_node: {
+        type: Sequelize.TEXT
+      },
+      petugas: {
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
@@ -56,6 +62,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Ppob_transaction_prabayars');
+    await queryInterface.dropTable('Request_deposit_companies');
   }
 };

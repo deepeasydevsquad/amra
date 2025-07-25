@@ -25,6 +25,7 @@ const itemsPerPage = 100; // Jumlah paket_la per halaman
 const currentPage = ref(1);
 const search = ref("");
 const totalPages = ref(0);
+const totalRow = ref(0)
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
@@ -93,7 +94,7 @@ const notificationType = ref<'success' | 'error'>('success');
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
-const totalColumns = ref(5); // Default 3 kolom
+const totalColumns = ref(4); // Default 3 kolom
 
 const selectedPaketLA = ref<Partial<PaketLA>>({
   client_name: '',
@@ -130,6 +131,7 @@ const fetchData = async () => {
     }
 
     totalPages.value = Math.ceil(response.total / itemsPerPage);
+    totalRow.value = response.total
 
     const fasilitasResponse = await daftarFasilitasPaketLA({
         search: search.value,
@@ -176,7 +178,7 @@ const openFormRefund = (id: number, register_number: string) => {
 
 onMounted(async () => {
   await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-  totalColumns.value = document.querySelectorAll("thead th").length;
+  // totalColumns.value = document.querySelectorAll("thead th").length;
 });
 
 const validateModal = (): boolean => {
@@ -354,9 +356,9 @@ const cetakInvoice = async (invoice: string) => {
         <thead class="bg-gray-100">
           <tr>
             <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">No. Register</th>
-            <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Info Klien</th>
-            <th class="w-[46%] px-6 py-3 font-medium text-gray-900 text-center">Info Item Transaksi</th>
-            <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Info Harga</th>
+            <th class="w-[40%] px-6 py-3 font-medium text-gray-900 text-center">Info Klien & Harga</th>
+            <th class="w-[55%] px-6 py-3 font-medium text-gray-900 text-center">Info Item Transaksi</th>
+            <!-- <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Info Harga</th> -->
             <th class="w-[5%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
@@ -366,17 +368,48 @@ const cetakInvoice = async (invoice: string) => {
           <td class="p-3 border-gray-300 align-top font-bold text-center">
             #{{ paket.register_number }}
           </td>
-          <td class="py-3 px-6 border-gray-300 align-top">
-              <table class="w-full">
+          <td class="py-3 px-6  border-gray-300 align-top">
+              <table class="w-full mb-5">
+                <thead>
+                  <tr>
+                    <th colspan="3" class="text-center py-2 font-medium border text-gray-900 bg-gray-100">Info Klien</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  <tr v-for="(label, value) in {
-                    'Nama Klien': paket.client_name,
-                    'Nomor HP': paket.client_hp_number,
-                    'Alamat': paket.client_address,
-                    }" :key="label" class="border-gray-200 hover:bg-gray-200">
-                    <td class="py-1.5">{{ value }}</td>
-                    <td class="pl-8 pr-2">:</td>
-                    <td class="text-right space-y-2 text-sm py-1">{{ label }}</td>
+                  <tr v-for="(label, value) in { 'Nama Klien': paket.client_name, 'Nomor HP': paket.client_hp_number, 'Alamat': paket.client_address,}"
+                  :key="label" class="border-gray-200 hover:bg-gray-200">
+                    <td class=" w-[40%] border-b px-6 py-2">{{ value }}</td>
+                    <td class="text-center border-b py-2">:</td>
+                    <td class="border-b text-right space-y-2 text-sm px-6 py-2">{{ label }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <table class="w-full mb-5">
+                <thead>
+                  <tr>
+                    <th colspan="3" class="text-center py-2 font-medium border text-gray-900 bg-gray-100">Info Harga</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="w-[40%] border-b px-6 py-2">Total Harga</td>
+                    <td class="text-center border-b py-2">:</td>
+                    <td class="text-right space-y-2 text-sm border-b px-6 py-2">Rp {{ paket.total_price.toLocaleString() }}</td>
+                  </tr>
+                  <tr>
+                    <td class="border-b px-6 py-2">Diskon</td>
+                    <td class="text-center border-b py-2">:</td>
+                    <td class="text-right space-y-2 text-sm border-b px-6 py-2">Rp {{ paket.discount.toLocaleString() }}</td>
+                  </tr>
+                  <tr>
+                    <td class="border-b px-6 py-2">Sudah Dibayar</td>
+                    <td class="text-center border-b py-2">:</td>
+                    <td class="text-right space-y-2 text-sm border-b px-6 py-2">Rp {{ paket.terbayar.toLocaleString() }}</td>
+                  </tr>
+                  <tr>
+                    <td class="border-b px-6 py-2">Sisa</td>
+                    <td class="text-center border-b py-2">:</td>
+                    <td class="text-right space-y-2 text-sm border-b px-6 py-2">Rp {{ paket.sisa.toLocaleString() }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -443,38 +476,9 @@ const cetakInvoice = async (invoice: string) => {
               </div>
             </template>
           </td>
-          <td class="py-3 px-6 border-gray-300 align-top">
-            <table class="w-full">
-                <tbody>
-                  <tr>
-                    <td class="w-[40%]">Total Harga</td>
-                    <td>:</td>
-                    <td class="text-right space-y-2 text-sm py-1">Rp {{ paket.total_price.toLocaleString() }}</td>
-                  </tr>
-                  <tr>
-                    <td>Diskon</td>
-                    <td>:</td>
-                    <td class="text-right space-y-2 text-sm py-1">
-                      Rp {{ paket.discount.toLocaleString() }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Sudah Dibayar</td>
-                    <td>:</td>
-                    <td class="text-right space-y-2 text-sm py-1">
-                      Rp {{ paket.terbayar.toLocaleString() }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Sisa</td>
-                    <td>:</td>
-                    <td class="text-right space-y-2 text-sm py-1">
-                      Rp {{ paket.sisa.toLocaleString() }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-          </td>
+          <!-- <td class="py-3 px-6 border-gray-300 align-top">
+
+          </td> -->
           <td class="px-6 py-4 text-center align-top">
               <div class="flex flex-col items-center gap-2">
                 <LightButton  @click="openFormItem(paket.id)">
@@ -512,6 +516,7 @@ const cetakInvoice = async (invoice: string) => {
               @prev-page="prevPage"
               @next-page="nextPage"
               @page-now="pageNow"
+              :totalRow="totalRow"
             />
         </tfoot>
       </table>

@@ -19,13 +19,13 @@
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr class="bg-gray-100">
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
               Nomor Register
             </th>
             <th class="w-[35%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
               Info Tiket
             </th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[35%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
               Info Pembayaran
             </th>
             <th class="w-[5%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>

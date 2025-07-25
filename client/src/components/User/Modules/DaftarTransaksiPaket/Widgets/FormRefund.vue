@@ -1,4 +1,4 @@
-ak<script setup lang="ts">
+<script setup lang="ts">
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 import Notification from '@/components/User/Modules/TabunganUmrah/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/TabunganUmrah/Particle/Confirmation.vue'

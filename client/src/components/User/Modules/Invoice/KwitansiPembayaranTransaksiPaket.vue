@@ -57,13 +57,10 @@ onMounted(async () => {
     <div v-if="!isLoading && data">
       <!-- Header Kwitansi -->
       <Header :data="data"></Header>
-
       <!-- Judul -->
-      <h2 class="text-center text-lg font-bold border-b pb-2 mb-4">
-        KWITANSI PEMBAYARAN TRANSAKSI PAKET
-      </h2>
+      <h2 class="text-center text-lg font-bold pb-2 mb-2">KWITANSI PEMBAYARAN TRANSAKSI PAKET</h2>
       <!-- Info Jamaah & Transaksi -->
-      <div class="border rounded p-4 bg-white shadow-sm mb-6 text-xs">
+      <div class="border-t border-b px-0 py-4 bg-white mb-6 text-xs">
         <div class="grid grid-cols-5 gap-4">
           <div>
             <p class="text-gray-500 font-bold">Kode Transaksi</p>
@@ -85,23 +82,22 @@ onMounted(async () => {
             <p class="text-gray-500 font-bold">Info Jamaah</p>
             <p class="font-medium">
               {{ data.fullname }}<br />
-              <span class="text-gray-700">(WA : {{ data.whatsapp_number }})</span>
+              <span class="text-gray-700">({{ data.whatsapp_number }})</span>
             </p>
           </div>
         </div>
       </div>
-
       <!-- Tabel Transaksi -->
-      <div class="border rounded p-4 bg-white shadow-sm mb-6">
-        <h2 class="text-md font-bold mb-2 pb-2">Detail Transaksi</h2>
-        <table class="w-full text-center border border-collapse mb-6 text-sm print:text-xs border-b border-gray-300">
+      <div class="rounded p-0 bg-white mb-6">
+        <h2 class="text-md font-bold mb-0 pb-2">Detail Transaksi</h2>
+        <table class="w-full text-center  border-collapse mb-6 text-xs print:text-xs border-b border-gray-300">
           <thead class="bg-gray-100">
             <tr>
-              <th class="border-b border-gray-300 p-2 w-[20%]">Tanggal</th>
-              <th class="border-b border-gray-300 p-2 w-[10%]">Keperluan</th>
-              <th class="border-b border-gray-300 p-2 w-[30%]">Penerima</th>
-              <th class="border-b border-gray-300 p-2 w-[30%]">Info</th>
-              <th class="border-b border-gray-300 p-2 w-[10%]">Jumlah</th>
+              <th class="border-b border-t border-s font-medium border-gray-300 p-2 w-[20%]">Tanggal</th>
+              <th class="border-b border-t font-medium border-gray-300 p-2 w-[10%]">Keperluan</th>
+              <th class="border-b border-t font-medium border-gray-300 p-2 w-[30%]">Penerima</th>
+              <th class="border-b border-t font-medium border-gray-300 p-2 w-[30%]">Info</th>
+              <th class="border-b border-t border-e font-medium border-gray-300 p-2 w-[10%]">Jumlah</th>
             </tr>
           </thead>
           <tbody>
@@ -115,8 +111,8 @@ onMounted(async () => {
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="4" class="border-b border-gray-300 p-2 text-right font-bold">Total Pembayaran</td>
-              <td class="border-b border-gray-300 p-2 font-bold">{{ formatCurrency(data.nominal) }}</td>
+              <td colspan="4" class="border-b border-gray-300 p-2 text-right font-bold"><i>Total Pembayaran</i></td>
+              <td class="border-b border-gray-300 p-2 font-normal">{{ formatCurrency(data.nominal) }}</td>
             </tr>
           </tfoot>
         </table>
@@ -125,7 +121,7 @@ onMounted(async () => {
       <!-- Tanda Tangan -->
       <div class="flex justify-between text-center mt-12">
         <div>
-          <p class="mb-12">Member/Jamaah</p>
+          <p class="mb-12">Member / Jamaah</p>
           <p class="border-t border-gray-400 w-48 mx-auto"></p>
         </div>
         <div>

@@ -6,7 +6,10 @@ import DownloadIcon from '@/components/User/Modules/ManifestPaket/icon/DownloadI
 
 // import element
 import LightButton from '@/components/Button/LightButton.vue'
+<<<<<<< HEAD
 import EditButton from '@/components/User/Modules/ManifestPaket/particle/EditButton.vue'
+=======
+>>>>>>> 8ad6aa8c97fea5a4c78c9bbcb8801e8a7c82bb44
 import Notification from '@/components/User/Modules/ManifestPaket/particle/Notification.vue'
 
 // import
@@ -253,7 +256,11 @@ onMounted(() => {
                 </template>
               </td>
               <td class="px-6 py-4 items-center justify-center flex gap-2">
+<<<<<<< HEAD
                 <LightButton title="Cetak Data Jamaah" @click="openFormEditManifest(dataManifest)">
+=======
+                <LightButton col-span-1 title="Cetak Data Jamaah" @click="openFormEditManifest(dataManifest)">
+>>>>>>> 8ad6aa8c97fea5a4c78c9bbcb8801e8a7c82bb44
                   <EditIcon></EditIcon>
                 </LightButton>
               </td>
