@@ -9,7 +9,7 @@ const {
   Mst_provider,
   Mst_asuransi
 } = require("../../../models");
-const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, getDivisionId } = require("../../../helper/companyHelper");
 const { getAlamatInfo } = require("../../../helper/alamatHelper");
 const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
@@ -24,7 +24,7 @@ class Model_r {
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
-    this.division_id = await getCabang(this.req);
+    this.division_id = await getDivisionId(this.req);
   }
 
   // Fungsi untuk ambil ID paket transaction dari pencarian

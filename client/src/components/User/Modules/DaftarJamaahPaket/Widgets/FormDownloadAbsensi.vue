@@ -8,13 +8,14 @@ import { getPetugasJamaahPaket } from '@/service/daftar_jamaah_paket'
 const props = defineProps<{
   isFormDownloadAbsensiOpen: boolean;
   paketId: number | null;
+  cabangId: number;
 }>()
 
 console.log(props)
 
 const emit = defineEmits<{
   (e: 'close'): void
-  (e: 'success'): void
+  (e: 'status', payload: { error: boolean, err_msg?: string }): void
 }>()
 
 // Interfaces
@@ -71,7 +72,9 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 const fetchData = async () => {
   try {
     isLoading.value = true;
-    const petugas = await getPetugasJamaahPaket();
+    const petugas = await getPetugasJamaahPaket({
+      division_id: props.cabangId
+    });
     PetugasOption.value = petugas.data;
   } catch (error) {
     displayNotification('Failed to fetch data', 'error')

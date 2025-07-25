@@ -23,10 +23,13 @@ import { ref, onMounted, computed } from 'vue';
 
 const props = defineProps<{
   paketId: number
+  cabangId: number
   search: string | null
   showBackButton?: boolean
   showAddTransactionButton?: boolean
 }>()
+
+console.log(props)
 
 const { showBackButton = false, showAddTransactionButton = false } = props
 
@@ -128,11 +131,16 @@ const openFormRefund = (id: number) => {
 };
 
 const fetchData = async () => {
+  if (!props.paketId || !props.cabangId) {
+    displayNotification('Paket ID atau Cabang ID tidak valid', 'error');
+    return
+  }
   try {
     isLoading.value = true
     search.value = props.search ? props.search : search.value
     const response = await daftarTransaksiPaket({
       id: props.paketId,
+      division_id: props.cabangId,
       search: search.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value
@@ -140,9 +148,13 @@ const fetchData = async () => {
     dataPaketTransaction.value = response.data;
     totalRow.value = response.total;
     totalPages.value = Math.ceil(response.total / itemsPerPage);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching data:', error);
-    displayNotification(error?.response?.data?.error_msg || 'Gagal memuat data transaksi paket', 'error');
+    const errorMessage =
+      error?.response?.data?.error_msg ||
+      error?.response?.data?.message ||
+      'Gagal memuat data transaksi paket';
+    displayNotification(errorMessage, 'error');
   } finally {
     isLoading.value = false
   }
@@ -158,9 +170,14 @@ async function deleteData(transpaketId: number) {
         showConfirmDialog.value = false
         displayNotification('Data berhasil dihapus!', 'success')
         fetchData()
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error deleting data:', error)
-        displayNotification(error?.response?.data?.error_msg, 'error')
+        displayNotification(
+          error?.response?.data?.error_msg ||
+            error?.response?.data?.message ||
+            'Terjadi kesalahan saat menghapus data.',
+          'error'
+        );
       }
     }
   );
@@ -273,10 +290,7 @@ onMounted(() => {
                 <LightButton @click="openFormEditVisa(dataTransPaket.id)" title="Update Informasi Visa">
                   <EditIcon></EditIcon>
                 </LightButton>
-                <LightButton @click="openFormEditVisa(dataTransPaket.id)" title="Upload File Pendukung">
-                  <EditIcon></EditIcon>
-                </LightButton>
-                <DangerButton @click="deleteData(dataTransPaket.id, )" title="Hapus Transaksi Paket">
+                <DangerButton @click="deleteData(dataTransPaket.id)" title="Hapus Transaksi Paket">
                   <DeleteIcon></DeleteIcon>
                 </DangerButton>
               </td>
@@ -313,8 +327,9 @@ onMounted(() => {
   >
     <FormAdd
       v-if="isFormOpen"
-      :isFormOpen="isFormOpen"
-      :paketId="props.paketId"
+      :is-form-open="isFormOpen"
+      :paket-id="props.paketId"
+      :cabang-id="props.cabangId"
       @close="isFormOpen= false; fetchData()"
       @status="(payload) => displayNotification(payload.err_msg || 'Pengembalian Barang gagal ditambahkan', payload.error ? 'error' : 'success')"
       />
@@ -335,6 +350,7 @@ onMounted(() => {
       :isFormEditVisaOpen="isFormEditVisaOpen"
       :paketId="props.paketId"
       :transpaketId="transpaketId"
+      :cabang-id="props.cabangId"
       @close="isFormEditVisaOpen= false; fetchData()"
       @status="(payload) => displayNotification(payload.err_msg || 'Pengembalian Barang gagal ditambahkan', payload.error ? 'error' : 'success')"
       />
@@ -355,6 +371,7 @@ onMounted(() => {
       :isFormRefundOpen="isFormRefundOpen"
       :paketId="props.paketId"
       :transpaketId="transpaketId"
+      :cabang-id="props.cabangId"
       @close="isFormRefundOpen= false; fetchData()"
       @status="(payload) => displayNotification(payload.err_msg || 'Pengembalian Barang gagal ditambahkan', payload.error ? 'error' : 'success')"
       />

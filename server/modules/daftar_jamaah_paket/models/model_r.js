@@ -20,7 +20,7 @@ const {
   Mst_pekerjaan,
   Mst_kota
 } = require("../../../models");
-const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, getCabang, tipe, getDivisionId } = require("../../../helper/companyHelper");
 const { getAlamatInfo } = require("../../../helper/alamatHelper");
 const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
@@ -253,8 +253,11 @@ class Model_r {
     const perpage = parseInt(body.perpage) || 10;
     const offset = (pageNumber - 1) * perpage;
     const search = body.search || "";
+    const division_id = await getDivisionId(this.req);
 
-    let where = { paket_id: body.paketId, division_id: this.division_id };
+    console.log(body);
+
+    let where = { paket_id: body.paketId, division_id: division_id };
     if (search) {
       const paketTransactionIds = await this.getPaketTransactionIdsFromSearch(search);
       where = { ...where, id: { [Op.in]: paketTransactionIds } };
@@ -304,6 +307,8 @@ class Model_r {
       const totalData = await Paket_transaction.findAndCountAll(query.total);
       const dataList = await Paket_transaction.findAll(query.sql);
 
+      console.log(dataList);
+
       const data = await Promise.all(
         dataList.map(async (e) => {
           return await this.transformDaftarJamaahPaket(e);
@@ -322,17 +327,21 @@ class Model_r {
   async getPetugasJamaahPaket() {
     try {
       await this.initialize();
+      const division_id = await getDivisionId(this.req);
+      const userType = await tipe(this.req);
+      const data = [];
 
-      const data = [];      
-      data.push({
-        id: `admin-${this.company_id}`,
-        label: `Administrator ${await this.penerima()} (Administrator)`,
-        type: "admin",
-      });
+      if (userType === "administrator") {
+        data.push({
+          id: `admin-${this.company_id}`,
+          label: `Administrator ${await this.penerima()} (Administrator)`,
+          type: "admin",
+        });
+      } 
       
       // Tambahkan user Staff dan pegawai
       const users = await User.findAll({
-        where: { division_id: this.division_id },
+        where: { division_id: division_id },
         attributes: ["id"],
         include: [{
           model: Member,
@@ -379,13 +388,14 @@ class Model_r {
       await this.initialize();
       const id = this.req.params.id;
       const petugasIdQuery = this.req.query.petugasId;
+      const userType = await tipe(this.req);
       let data = await this.header();
 
       const petugasId = petugasIdQuery.split("-")[1];
       const isPetugasAdmin = petugasIdQuery.startsWith("admin-");
       const isPetugasStaff = petugasIdQuery.startsWith("petugas-");
 
-      if (isPetugasAdmin) {
+      if (isPetugasAdmin && userType === "administrator") {
         await this.penerima().then((penerima) => {
           data["petugas"] = "Administrator " + penerima;
           data["jabatan"] = "Administrator";
@@ -422,6 +432,7 @@ class Model_r {
             attributes: [
               "id", 
               "kelurahan_id",
+              "address",
               "nama_ayah",
               "blood_type",
               "nomor_passport",
@@ -429,6 +440,7 @@ class Model_r {
               "tempat_di_keluarkan_passport",
               "masa_berlaku_passport",
               "kode_pos",
+              "email",
               "nomor_telephone",
               "pengalaman_haji",
               "tahun_haji",
@@ -504,12 +516,13 @@ class Model_r {
       data["tanggal_di_keluarkan_passport"] = dataJamaahPaket.Jamaah?.tanggal_di_keluarkan_passport ? moment(dataJamaahPaket.Jamaah.tanggal_di_keluarkan_passport).format("YYYY-MM-DD") : "-";
       data["masa_berlaku_passport"] = dataJamaahPaket.Jamaah?.masa_berlaku_passport ? moment(dataJamaahPaket.Jamaah.masa_berlaku_passport).format("YYYY-MM-DD") : "-";
       data["tempat_di_keluarkan_passport"] = dataJamaahPaket.Jamaah?.tempat_di_keluarkan_passport ? dataJamaahPaket.Jamaah.tempat_di_keluarkan_passport : "-";
-      data["alamat"] = dataJamaahPaket.Jamaah?.alamat ? dataJamaahPaket.Jamaah.alamat : "-";
+      data["alamat"] = dataJamaahPaket.Jamaah?.address ? dataJamaahPaket.Jamaah.address : "-";
       data["kelurahan"] = alamatInfo?.kelurahan_name ? alamatInfo.kelurahan_name : "-";
       data["kecamatan"] = alamatInfo?.kecamatan_name ? alamatInfo.kecamatan_name : "-";
       data["kabupaten"] = alamatInfo?.kabupaten_kota_name ? alamatInfo.kabupaten_kota_name : "-";
       data["provinsi"] = alamatInfo?.provinsi_name ? alamatInfo.provinsi_name : "-";
       data["kode_pos"] = dataJamaahPaket.Jamaah?.kode_pos ? dataJamaahPaket.Jamaah.kode_pos : "-";
+      data["email"] = dataJamaahPaket.Jamaah?.email ? dataJamaahPaket.Jamaah.email : "-";
       data["nomor_telephone"] = dataJamaahPaket.Jamaah?.nomor_telephone ? dataJamaahPaket.Jamaah.nomor_telephone : "-";
       data["whatsapp_number"] = dataJamaahPaket.Jamaah.Member?.whatsapp_number ? dataJamaahPaket.Jamaah.Member.whatsapp_number : "-";
       data["email_jamaah"] = dataJamaahPaket.Jamaah?.email ? dataJamaahPaket.Jamaah.email : "-";
@@ -532,7 +545,7 @@ class Model_r {
       data["nama_keluarga"] = dataJamaahPaket.Jamaah?.nama_keluarga ? dataJamaahPaket.Jamaah.nama_keluarga : "-";
       data["alamat_keluarga"] = dataJamaahPaket.Jamaah?.alamat_keluarga ? dataJamaahPaket.Jamaah.alamat_keluarga : "-";
       data["telephone_keluarga"] = dataJamaahPaket.Jamaah?.telephone_keluarga ? dataJamaahPaket.Jamaah.telephone_keluarga : "-";
-
+      console.log(data);
       return {
         data
       };
@@ -546,6 +559,7 @@ class Model_r {
       await this.initialize();
       const paketId = this.req.params.paketId;
       const petugasIdQuery = this.req.query.petugasId;
+      const userType = await tipe(this.req);
 
       let data = await this.header();
 
@@ -553,7 +567,7 @@ class Model_r {
       const isPetugasAdmin = petugasIdQuery.startsWith("admin-");
       const isPetugasStaff = petugasIdQuery.startsWith("petugas-");
 
-      if (isPetugasAdmin) {
+      if (isPetugasAdmin && userType === "administrator") {
         const penerima = await this.penerima();
         data["petugas"] = "Administrator " + penerima;
         data["jabatan"] = "Administrator";
@@ -604,7 +618,7 @@ class Model_r {
             attributes: ["fullname"],
           }
         ],
-        attributes: ["id", "nomor_telephone"], // dari tabel Jamaah cukup id saja
+        attributes: ["id", "nomor_telephone", "address"], // dari tabel Jamaah cukup id saja
         raw: false,
       });
 
@@ -613,7 +627,7 @@ class Model_r {
       data["Jamaah"] = jamaah.map(j => ({
         id: j.id,
         fullname: j.Member?.fullname || "-",
-        alamat: "-",
+        alamat: j.address || "-",
         nomor_telepon: j.nomor_telephone || "-",
       }));
 

@@ -6,9 +6,21 @@ const validation = require("../validation/daftar_transaksi_paket");
 
 const router = express.Router();
 
-router.get(
-  "/daftar-transaksi-paket/get-jamaah-transaksi-paket/list/:paketId",
+router.post(
+  "/daftar-transaksi-paket/get-jamaah-transaksi-paket/list/",
   authenticateToken,
+  [
+    body("id")
+      .trim()
+      .notEmpty().withMessage("ID Paket tidak boleh kosong.")
+      .isInt().withMessage("ID Paket harus berupa angka.")
+      .custom(validation.check_id_paket),
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("ID Divisi tidak boleh kosong.")
+      .isInt().withMessage("ID Divisi harus berupa angka.")
+      .custom(validation.check_id_cabang),
+  ],
   controllers.getJamaahTransaksiPaket
 )
 
@@ -46,6 +58,11 @@ router.post(
       .notEmpty().withMessage("ID Paket tidak boleh kosong.")
       .isInt().withMessage("ID Paket harus berupa angka.")
       .custom(validation.check_id_paket),
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("ID Cabang tidak boleh kosong.")
+      .isInt().withMessage("ID Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
     body("pageNumber").trim(),
     body("perpage")
       .trim()
@@ -65,6 +82,11 @@ router.post(
       .notEmpty().withMessage("ID Paket tidak boleh kosong.")
       .isInt().withMessage("ID Paket harus berupa angka.")
       .custom(validation.check_id_paket),
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("ID Cabang tidak boleh kosong.")
+      .isInt().withMessage("ID Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
     body("jamaah_id")
       .trim()
       .notEmpty().withMessage("ID Jamaah tidak boleh kosong.")
@@ -86,6 +108,11 @@ router.post(
       .notEmpty().withMessage("ID Paket tidak boleh kosong.")
       .isInt().withMessage("ID Paket harus berupa angka.")
       .custom(validation.check_id_paket),
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("ID Cabang tidak boleh kosong.")
+      .isInt().withMessage("ID Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
     body("transpaketId")
       .trim()
       .notEmpty().withMessage("ID Transaksi Paket tidak boleh kosong.")
@@ -119,6 +146,11 @@ router.post(
       .notEmpty().withMessage("ID Paket tidak boleh kosong.")
       .isInt().withMessage("ID Paket harus berupa angka.")
       .custom(validation.check_id_transpaket),
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("ID Cabang tidak boleh kosong.")
+      .isInt().withMessage("ID Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
   ],
   controllers.infoupdateVisaTransaksiPaket
 )
@@ -132,6 +164,11 @@ router.post(
       .notEmpty().withMessage("ID Paket tidak boleh kosong.")
       .isInt().withMessage("ID Paket harus berupa angka.")
       .custom(validation.check_id_paket),
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("ID Cabang tidak boleh kosong.")
+      .isInt().withMessage("ID Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
     body("transpaketId")
       .trim()
       .notEmpty().withMessage("ID Transaksi Paket tidak boleh kosong.")
@@ -163,6 +200,11 @@ router.post(
       .notEmpty().withMessage("ID Transaksi Paket tidak boleh kosong.")
       .isInt().withMessage("ID Transaksi Paket harus berupa angka.")
       .custom(validation.check_id_transpaket),
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("ID Cabang tidak boleh kosong.")
+      .isInt().withMessage("ID Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
   ],
   controllers.inforefundTransaksiPaket
 )
@@ -181,6 +223,11 @@ router.post(
       .notEmpty().withMessage("ID Transaksi Paket tidak boleh kosong.")
       .isInt().withMessage("ID Transaksi Paket harus berupa angka.")
       .custom(validation.check_id_transpaket),
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("ID Cabang tidak boleh kosong.")
+      .isInt().withMessage("ID Cabang harus berupa angka.")
+      .custom(validation.check_id_cabang),
   ],
   controllers.deleteTransaksiPaket
 );

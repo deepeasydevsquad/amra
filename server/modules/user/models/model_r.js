@@ -38,6 +38,7 @@ class Model_r {
             }).then(async (e) => {
                 if (e) {
                     data["company_code"] = e.Division.Company.code;
+                    data["division_id"] = e.Division.id;
                     data["password"] = e.password;
                     data["start_subscribtion"] = e.Division.Company.start_subscribtion;
                     data["end_subscribtion"] = e.Division.Company.end_subscribtion;

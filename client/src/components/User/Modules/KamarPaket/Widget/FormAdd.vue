@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, defineProps, defineEmits, computed } from 'vue'
+import { ref, onMounted, watch, defineProps, defineEmits, computed } from 'vue'
 import { getAllHotels, getAllJamaah, createKamar } from '@/service/kamar_paket'
 
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
@@ -7,6 +7,7 @@ import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 // --- Props & Emits ---
 const props = defineProps<{
   isFormOpen: boolean
+  cabangId: number
 }>()
 
 const emit = defineEmits<{
@@ -29,6 +30,7 @@ const formData = ref({
 })
 
 // --- Computed Property untuk Filter ---
+// Computed property untuk memfilter jamaah yang belum dipilih di dropdown lain
 const filteredJamaahList = computed(() => (currentSelectionId: number | null) => {
   const selectedIds = formData.value.jamaah_ids
     .map((j) => j.id)
@@ -36,22 +38,52 @@ const filteredJamaahList = computed(() => (currentSelectionId: number | null) =>
   return allJamaahList.value.filter((j) => !selectedIds.includes(j.id))
 })
 
+// --- WATCHER UNTUK MENCEGAH DUPLIKASI ---
+watch(
+  () => formData.value.jamaah_ids,
+  (newJamaahIds) => {
+    const seenIds = new Set()
+    newJamaahIds.forEach((jamaah, index) => {
+      if (jamaah.id !== null) {
+        if (seenIds.has(jamaah.id)) {
+          // Jika ID sudah ada, ini adalah duplikat.
+          emit('show-notification', 'Jamaah tidak boleh dipilih lebih dari sekali.', 'error')
+          // Reset pilihan yang duplikat menjadi null
+          formData.value.jamaah_ids[index].id = null
+        } else {
+          seenIds.add(jamaah.id)
+        }
+      }
+    })
+  },
+  { deep: true }, // 'deep' diperlukan untuk memantau perubahan di dalam array of objects
+)
+
 // --- API Calls ---
 onMounted(async () => {
   try {
-    const hotels = await getAllHotels()
-    hotelList.value = hotels.map((h: any) => ({
+    // Ambil data hotel dan jamaah secara paralel
+    const [hotelResponse, jamaahResponse] = await Promise.all([
+      getAllHotels({ division_id: props.cabangId }),
+      getAllJamaah({ forEdit: false, division_id: props.cabangId }),
+    ])
+
+    console.log('hotelResponse:', hotelResponse)
+
+    // Set data hotel dari properti 'data' di dalam respons
+    hotelList.value = hotelResponse.data.map((h: any) => ({
       id: h.id,
       name: `${h.name} (Kota : ${h.kota_name || 'N/A'})`,
     }))
 
-    const jamaah = await getAllJamaah()
-    allJamaahList.value = jamaah.map((j: any) => ({
+    // Set data jamaah dari properti 'data' di dalam respons
+    allJamaahList.value = jamaahResponse.data.map((j: any) => ({
       id: j.id,
-      name: j.fullname,
-      identity: j.identity_number,
+      fullname: j.fullname,
+      identity_number: j.identity_number,
     }))
   } catch (error) {
+    console.error('Gagal memuat data untuk form:', error)
     emit('show-notification', 'Gagal memuat data untuk form.', 'error')
   }
 })
@@ -71,8 +103,11 @@ const handleSubmit = async () => {
   try {
     const payload = {
       ...formData.value,
+      division_id: props.cabangId,
       jamaah_ids: formData.value.jamaah_ids.map((j) => j.id).filter((id) => id !== null),
     }
+
+    console.log('Payload:', payload)
 
     await createKamar(payload)
     emit('save-success', 'Data kamar berhasil ditambahkan.')

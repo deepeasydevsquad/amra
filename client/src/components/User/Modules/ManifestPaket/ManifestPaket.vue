@@ -5,6 +5,7 @@ import EditIcon from '@/components/User/Modules/ManifestPaket/icon/EditIcon.vue'
 import DownloadIcon from '@/components/User/Modules/ManifestPaket/icon/DownloadIcon.vue'
 
 // import element
+import LightButton from '@/components/Button/LightButton.vue'
 import EditButton from '@/components/User/Modules/ManifestPaket/particle/EditButton.vue'
 import Notification from '@/components/User/Modules/ManifestPaket/particle/Notification.vue'
 
@@ -17,6 +18,7 @@ import { daftarManifestPaket, downloadAbsensi } from '@/service/manifest_paket'
 
 const props = defineProps<{
   paketId: number
+  cabangId: number
 }>()
 
 const isLoading = ref(false)
@@ -104,7 +106,7 @@ interface ManifestPaket {
 }
 
 const dataManifestPaket = ref<ManifestPaket[]>([])
-const selectedJamaah = ref<ManifestPaket | null>(null);
+const jamaahId = ref<number>(0);
 const isFormEditMasnifestOpen = ref<boolean>(false)
 const notificationMessage = ref<string>('');
 const notificationType = ref<'success' | 'error'>('success');
@@ -125,7 +127,9 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
 }
 
 const openFormEditManifest = (daftarManidest: ManifestPaket) => {
-  selectedJamaah.value = daftarManidest;
+  console.log(daftarManidest)
+  jamaahId.value = daftarManidest.jamaah_id;
+  console.log(jamaahId)
   isFormEditMasnifestOpen.value = true;
 }
 
@@ -134,6 +138,7 @@ const fetchData = async () => {
     isLoading.value = true
     const response = await daftarManifestPaket({
       paketId: props.paketId,
+      division_id: props.cabangId,
       search: search.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
@@ -152,7 +157,7 @@ const fetchData = async () => {
 const DownloadAbsensi = async () => {
   try {
     isLoading.value = true
-    await downloadAbsensi(props.paketId)
+    await downloadAbsensi(props.paketId, props.cabangId)
   } catch (error) {
     console.error('Error fetching data:', error)
   } finally {
@@ -248,9 +253,9 @@ onMounted(() => {
                 </template>
               </td>
               <td class="px-6 py-4 items-center justify-center flex gap-2">
-                <EditButton col-span-1 title="Cetak Data Jamaah" @click="openFormEditManifest(dataManifest)">
+                <LightButton title="Cetak Data Jamaah" @click="openFormEditManifest(dataManifest)">
                   <EditIcon></EditIcon>
-                </EditButton>
+                </LightButton>
               </td>
             </tr>
           </template>
@@ -287,9 +292,11 @@ onMounted(() => {
   >
     <FormUpdate
       v-if="isFormEditMasnifestOpen"
-      :jamaah="selectedJamaah"
+      :is-form-update-open="isFormEditMasnifestOpen"
+      :jamaah-id="jamaahId"
+      :cabang-id="props.cabangId"
       @close="isFormEditMasnifestOpen = false; fetchData()"
-      @update="displayNotification('Data Jamaah berhasil diperbarui', 'success')"
+      @status="(payload) => displayNotification(payload.err_msg || 'Data Jamaah gagal diperbarui', payload.error ? 'error' : 'success')"
       />
 
   </transition>

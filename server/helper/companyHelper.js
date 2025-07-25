@@ -86,4 +86,19 @@ companyHelper.getCabang = async (req) => {
   }
 };
 
+companyHelper.getDivisionId = async (req) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  const decoded = jwt.decode(token);
+  console.log(decoded);
+  if (decoded.type === "administrator") {
+    console.log(req.body.division_id);
+    return req.body.division_id;
+  } else if (decoded.type === "staff") {
+    return decoded.division_id;
+  } else {
+    throw new Error("Role pengguna tidak valid.");
+  }
+};
+
 module.exports = companyHelper;

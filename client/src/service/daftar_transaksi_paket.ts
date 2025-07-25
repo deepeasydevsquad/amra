@@ -1,9 +1,9 @@
 import api from "./api";
 
 
-export const getJamaah = async (paketId :number) => {
+export const getJamaah = async (param: any) => {
   try {
-    const response = await api.get(`/daftar-transaksi-paket/get-jamaah-transaksi-paket/list/${paketId}`);
+    const response = await api.post(`/daftar-transaksi-paket/get-jamaah-transaksi-paket/list/`, param);
     return response.data;
   } catch (error) {
     console.error("Gagal mengambil daftar jamaah:", error);
@@ -61,9 +61,9 @@ export const updateVisaTransaksiPaket = async (param: any) => {
   }
 };
 
-export const infoupdateVisaTransaksiPaket = async (id: number, transpaketId: number) => {
+export const infoupdateVisaTransaksiPaket = async (param: any) => {
   try {
-    const response = await api.post("/daftar-transaksi-paket/get-info-update-visa-transaksi-paket", { id, transpaketId });
+    const response = await api.post("/daftar-transaksi-paket/get-info-update-visa-transaksi-paket", param);
     return response.data;
   } catch (error) {
     console.error("Gagal melakukan update visa transaksi paket:", error);
@@ -81,9 +81,9 @@ export const refundTransaksiPaket = async (param: any) => {
   }
 };
 
-export const inforefundTransaksiPaket = async (id: number, transpaketId: number) => {
+export const inforefundTransaksiPaket = async (param: any) => {
   try {
-    const response = await api.post("/daftar-transaksi-paket/get-info-refund-transaksi-paket", { id, transpaketId });
+    const response = await api.post("/daftar-transaksi-paket/get-info-refund-transaksi-paket", param);
     return response.data;
   } catch (error) {
     console.error("Gagal melakukan refund transaksi paket:", error);
@@ -91,9 +91,9 @@ export const inforefundTransaksiPaket = async (id: number, transpaketId: number)
   }
 }
 
-export const deleteTransaksiPaket = async (id: number, transpaketId: number) => {
+export const deleteTransaksiPaket = async (param: any) => {
   try {
-    const response = await api.post("/daftar-transaksi-paket/delete-transaksi-paket", { id, transpaketId });
+    const response = await api.post("/daftar-transaksi-paket/delete-transaksi-paket", param);
     return response.data;
   } catch (error) {
     console.error("Gagal menghapus transaksi paket:", error);

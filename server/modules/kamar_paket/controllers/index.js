@@ -46,29 +46,30 @@ controllers.getHotelsForForm = async (req, res) => {
 controllers.getAvailableJamaahForForm = async (req, res) => {
   try {
     const model_r = new Model_r(req);
-    const forEdit = req.query.forEdit === "true";
-    const currentKamarId = req.query.currentKamarId
-      ? parseInt(req.query.currentKamarId)
-      : null;
+    const feedBack = await model_r.getAllAvailableJamaah();
 
-    let jamaah;
-    if (forEdit) {
-      jamaah = await model_r.getAllJamaahForEdit(currentKamarId);
-    } else {
-      jamaah = await model_r.getAllAvailableJamaah();
-    }
-
-    res.status(200).json({ error: false, data: jamaah });
+    res.status(200).json({ error: false, data: feedBack.data, total: feedBack.total });
   } catch (error) {
     handleServerError(res, error.message);
   }
 };
 
+controllers.getAvailableJamaahForFormEdit = async (req, res) => {
+  try {
+    const model_r = new Model_r(req);
+    const feedBack = await model_r.getAllJamaahForEdit();
+
+    res.status(200).json({ error: false, data: feedBack.data, total: feedBack.total });
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
 controllers.getKamarById = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
   try {
     const model_r = new Model_r(req);
-    const kamarData = await model_r.get_kamar_by_id(req.params.id);
+    const kamarData = await model_r.get_kamar_by_id();
     res.status(200).json({ error: false, data: kamarData });
   } catch (error) {
     handleServerError(res, error.message);

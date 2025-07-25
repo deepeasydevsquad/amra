@@ -20,7 +20,8 @@ const confirmAction = ref<(() => void) | null>(null)
 const props = defineProps<{
   isFormEditVisaOpen: boolean,
   paketId: number,
-  transpaketId: number
+  transpaketId: number,
+  cabangId: number
 }>()
 
 console.log(props)
@@ -65,13 +66,17 @@ function showConfirmation(title: string, message: string, action: () => void) {
 async function fetchData () {
   try {
     isLoading.value = true
-    const response = await infoupdateVisaTransaksiPaket(props.paketId, props.transpaketId)
+    const response = await infoupdateVisaTransaksiPaket({
+      id: props.paketId,
+      transpaketId: props.transpaketId,
+      division_id: props.cabangId
+    })
     form.nomor_visa = response.data.nomor_visa
     form.tanggal_berlaku_visa = response.data.tanggal_berlaku_visa
     form.tanggal_berakhir_visa = response.data.tanggal_berakhir_visa
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching data:', error)
-    displayNotification(error.response.data.error_msg, 'error')
+    emit('status', { error: true, err_msg: (error?.response?.data?.error_msg || error?.response?.data?.message) || 'Terjadi kesalahan saat mengambil data.' })
   } finally {
     isLoading.value = false
   }
@@ -123,18 +128,18 @@ async function saveData() {
         const payload = {
           id: props.paketId,
           transpaketId: props.transpaketId,
+          division_id: props.cabangId,
           nomor_visa: form.nomor_visa,
           tanggal_berlaku_visa: form.tanggal_berlaku_visa,
           tanggal_berakhir_visa: form.tanggal_berakhir_visa,
         }
 
         console.log(payload)
-        await updateVisaTransaksiPaket(payload)
-        emit('status', { error: false, err_msg: 'Visa berhasil diupdate' })
+        const response = await updateVisaTransaksiPaket(payload)
+        emit('status', { error: false, err_msg: response.message || 'Visa berhasil diupdate' })
         emit('close')
-      } catch (error) {
-        displayNotification('Gagal menyimpan Visa', 'error')
-        displayNotification(error.response.data.error_msg, 'error')
+      } catch (error: any) {
+        emit('status', { error: true, err_msg: error.response.data.error_msg || error.response.data.message || 'Terjadi kesalahan saat menyimpan data.' })
       } finally {
         isLoading.value = false
       }

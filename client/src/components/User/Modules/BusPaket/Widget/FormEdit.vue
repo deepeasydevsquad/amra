@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, defineProps, defineEmits, watch, computed } from 'vue'
+import { ref, defineProps, defineEmits, watch, computed } from 'vue'
 import { getAllJamaah, getAllCities, updateBus, getBusById } from '@/service/bus_paket'
 
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
@@ -8,6 +8,7 @@ import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 const props = defineProps<{
   isFormOpen: boolean
   busId: number | null
+  cabangId: number
 }>()
 
 const emit = defineEmits<{
@@ -36,40 +37,75 @@ const filteredJamaahList = computed(() => (currentSelectionId: number | null) =>
   return allJamaahList.value.filter((j) => !selectedIds.includes(j.id))
 })
 
-const loadInitialData = async () => {
-  try {
-    const [cityData, jamaahData] = await Promise.all([
-      getAllCities(),
-      getAllJamaah(true, props.busId),
-    ])
-    cityList.value = cityData
-    allJamaahList.value = jamaahData
-  } catch (error) {
-    emit('show-notification', 'Gagal memuat data untuk form.', 'error')
-  }
-}
+// --- Watcher to prevent duplicate jamaah selection ---
+watch(
+  () => formData.value.jamaah_ids,
+  (newJamaahIds) => {
+    const seenIds = new Set()
+    let hasDuplicates = false
+    const correctedJamaahIds = newJamaahIds.map((jamaah) => {
+      if (jamaah.id === null) return { id: null }
+      if (seenIds.has(jamaah.id)) {
+        hasDuplicates = true
+        return { id: null }
+      }
+      seenIds.add(jamaah.id)
+      return jamaah
+    })
 
-const loadBusData = async (id: number) => {
+    if (hasDuplicates) {
+      emit('show-notification', 'Jamaah tidak boleh dipilih lebih dari sekali.', 'error')
+      formData.value.jamaah_ids = correctedJamaahIds
+    }
+  },
+  { deep: true },
+)
+
+const loadEditData = async (busId: number) => {
+  if (!busId) return
   isFetchingData.value = true
   try {
-    const busData = await getBusById(id)
+    const [cityData, jamaahData, busData] = await Promise.all([
+      getAllCities(),
+      getAllJamaah({ division_id: props.cabangId }),
+      getBusById(busId),
+    ])
+
+    // Populate cities
+    cityList.value = cityData.map((c: any) => ({ id: c.id, name: c.name }))
+
+    // Combine available jamaah with currently selected jamaah to ensure dropdown is complete
+    const availableJamaah = jamaahData.map((j: any) => ({
+      id: j.id,
+      fullname: j.fullname,
+      identity_number: j.identity_number,
+    }))
+    const currentJamaahInBus = busData.jamaah_ids || []
+
+    const jamaahMap = new Map()
+    currentJamaahInBus.forEach((j: any) => jamaahMap.set(j.id, j))
+    availableJamaah.forEach((j: any) => jamaahMap.set(j.id, j))
+    allJamaahList.value = Array.from(jamaahMap.values())
+
+    // Populate form
     formData.value = {
       bus_number: busData.bus_number || '',
       city_id: busData.city_id || null,
       kapasitas_bus: busData.kapasitas_bus || 10,
       bus_leader: busData.bus_leader || '',
       jamaah_ids:
-        busData.jamaah_ids && busData.jamaah_ids.length > 0 ? busData.jamaah_ids : [{ id: null }],
+        currentJamaahInBus.length > 0
+          ? currentJamaahInBus.map((j: any) => ({ id: j.id }))
+          : [{ id: null }],
     }
   } catch (error) {
-    emit('show-notification', 'Gagal memuat data bus yang akan diedit.', 'error')
+    emit('show-notification', 'Gagal memuat data untuk form edit.', 'error')
     emit('close')
   } finally {
     isFetchingData.value = false
   }
 }
 
-// Reset form ketika modal ditutup
 const resetForm = () => {
   formData.value = {
     bus_number: '',
@@ -78,15 +114,14 @@ const resetForm = () => {
     bus_leader: '',
     jamaah_ids: [{ id: null }],
   }
+  allJamaahList.value = []
 }
 
-onMounted(loadInitialData)
-
 watch(
-  () => [props.isFormOpen, props.busId],
-  ([isOpen, busId]) => {
-    if (isOpen && busId) {
-      loadBusData(busId)
+  () => props.isFormOpen,
+  (isOpen) => {
+    if (isOpen && props.busId) {
+      loadEditData(props.busId)
     } else if (!isOpen) {
       resetForm()
     }
@@ -94,24 +129,18 @@ watch(
   { immediate: true },
 )
 
-watch(
-  () => props.busId,
-  async (newBusId) => {
-    if (newBusId) {
-      try {
-        const jamaahData = await getAllJamaah(true, newBusId)
-        allJamaahList.value = jamaahData
-      } catch (error) {
-        emit('show-notification', 'Gagal memuat data jamaah.', 'error')
-      }
-    }
-  },
-)
+const addJamaahField = () => {
+  if (formData.value.jamaah_ids.length < formData.value.kapasitas_bus) {
+    formData.value.jamaah_ids.push({ id: null })
+  } else {
+    emit('show-notification', 'Kapasitas bus sudah penuh.', 'error')
+  }
+}
 
-const addJamaahField = () => formData.value.jamaah_ids.push({ id: null })
 const removeJamaahField = (index: number) => {
-  if (formData.value.jamaah_ids.length > 1) {
-    formData.value.jamaah_ids.splice(index, 1)
+  formData.value.jamaah_ids.splice(index, 1)
+  if (formData.value.jamaah_ids.length === 0) {
+    formData.value.jamaah_ids.push({ id: null })
   }
 }
 
@@ -121,6 +150,7 @@ const handleSubmit = async () => {
   try {
     const payload = {
       ...formData.value,
+      division_id: props.cabangId, // Add division_id to the payload
       jamaah_ids: formData.value.jamaah_ids.map((j) => j.id).filter((id) => id !== null),
     }
     await updateBus(props.busId, payload)

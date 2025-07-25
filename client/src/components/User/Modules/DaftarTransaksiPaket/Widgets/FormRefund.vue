@@ -21,6 +21,7 @@ const props = defineProps<{
   isFormRefundOpen: boolean,
   paketId: number,
   transpaketId: number
+  cabangId: number
 }>()
 
 console.log(props)
@@ -71,12 +72,15 @@ const fetchData = async () => {
   try {
     isLoading.value = true
 
-    const response = await inforefundTransaksiPaket(props.paketId, props.transpaketId)
+    const response = await inforefundTransaksiPaket({
+      id: props.paketId,
+      transpaketId: props.transpaketId,
+      division_id: props.cabangId
+    })
     dataPrice.value = response.data.price;
-    // displayNotification(response, 'success')
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching data:', error)
-    displayNotification('Failed to fetch data', 'error')
+    emit('status', { error: true, err_msg: (error?.response?.data?.error_msg || error?.response?.data?.message) || 'Terjadi kesalahan saat mengambil data.' })
   } finally {
     isLoading.value = false
   }
@@ -118,14 +122,15 @@ async function saveData() {
         const payload = {
           id: props.paketId,
           transpaketId: props.transpaketId,
+          division_id: props.cabangId,
           nominal_refund: form.nominal_refund,
         }
 
         console.debug("Payload:", payload)
-        await refundTransaksiPaket(payload)
-        emit('status', { error: false, err_msg: 'Dana berhasil dikembalikan' })
+        const response = await refundTransaksiPaket(payload)
+        emit('status', { error: false, err_msg: response.data.error_msg || response.data.message || 'Dana berhasil dikembalikan' })
         emit('close')
-      } catch (error) {
+      } catch (error:any) {
         displayNotification('Gagal melakukan refund', 'error')
         displayNotification(error.response.data.error_msg, 'error')
       } finally {

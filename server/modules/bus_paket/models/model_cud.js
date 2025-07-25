@@ -16,14 +16,21 @@ class model_cud {
 
   async create_bus() {
     await this.initialize();
-    const { city_id, bus_number, kapasitas_bus, bus_leader, jamaah_ids } =
-      this.req.body;
+    const {
+      city_id,
+      bus_number,
+      kapasitas_bus,
+      bus_leader,
+      jamaah_ids,
+      division_id,
+    } = this.req.body;
     const t = await sequelize.transaction();
 
     try {
       const newBus = await Bus.create(
         {
           company_id: this.company_id,
+          division_id: division_id, // Add division_id
           city_id: city_id,
           bus_number: bus_number,
           kapasitas_bus: kapasitas_bus,
@@ -51,8 +58,14 @@ class model_cud {
 
   async update_bus(id) {
     await this.initialize();
-    const { city_id, bus_number, kapasitas_bus, bus_leader, jamaah_ids } =
-      this.req.body;
+    const {
+      city_id,
+      bus_number,
+      kapasitas_bus,
+      bus_leader,
+      jamaah_ids,
+      division_id,
+    } = this.req.body;
 
     const t = await sequelize.transaction();
     try {
@@ -67,6 +80,7 @@ class model_cud {
           bus_number: bus_number,
           kapasitas_bus: kapasitas_bus,
           bus_leader: bus_leader,
+          division_id: division_id, // Add division_id
         },
         { transaction: t }
       );
