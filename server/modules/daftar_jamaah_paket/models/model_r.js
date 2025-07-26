@@ -609,7 +609,6 @@ class Model_r {
         attributes: ["name", "kode"],
       });
 
-      // Ambil semua Jamaah berdasarkan ID
       const jamaah = await Jamaah.findAll({
         where: { id: { [Op.in]: jamaahIds } },
         include: [

@@ -308,7 +308,7 @@ class Model_r {
 
     try {
       var data = [{id: 0, name: 'Pilih Upline'}];
-      const { rows } = await Agen.findAndCountAll({ 
+      const { rows } = await Agen.findAndCountAll({
         where: {
             member_id: {
               [Op.ne] : this.req.body.id
