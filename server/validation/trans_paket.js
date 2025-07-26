@@ -39,17 +39,18 @@ const storage = multer.diskStorage({
         const index = match ? match[1] : null;
         const title = req.body?.payload?.[index]?.title || file.originalname;
         const filename = Date.now() + '-' + title.replace(/\s+/g, '_') + path.extname(file.originalname);
-        cb(null, filename);
+        cb(null, filename); 
     },
 });
 
 // Filter tipe file yang diizinkan
 const fileFilter = (req, file, cb) => {
     const allowedTypes = ["application/pdf"];
-    if (allowedTypes.includes(file.mimetype) && file.size <= 600 * 1024) {
+    console.log("file: ", file);
+    if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error("Format file harus PDF dan ukurannya tidak boleh lebih dari 600 KB"), false);
+        return cb(new Error("Format file harus PDF"), false);
     }
 };
 
@@ -61,7 +62,7 @@ validation.hapusFileJikaValidasiError = async (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        // 🔥 Hapus semua file yang sudah terupload
+        // Hapus semua file yang sudah terupload
         if (req.files && req.files.length > 0) {
             req.files.forEach((file) => {
                 const filePath = path.resolve(uploadPath, file.savedFilename);
