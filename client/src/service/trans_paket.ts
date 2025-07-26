@@ -39,3 +39,19 @@ export const getCetakDataJamaahTransPaket = async (id: number) => {
     throw error;
   }
 }
+
+export const uploadFilePendukung = async (data: FormData) => {
+  console.log(data)
+  try {
+    const response = await api.post('/daftar-trans-paket/upload-file-pendukung', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error uploading file pendukung:', error);
+    throw error;
+  }
+};
+

@@ -82,7 +82,7 @@ interface PaketTransaction {
 }
 
 const dataPaketTransaction = ref<PaketTransaction[]>([]);
-const transpaketId = ref<number | null>(null);
+const transpaketId = ref<number>(0);
 const isFormOpen = ref<boolean>(false);
 const isFormEditVisaOpen = ref<boolean>(false);
 const isFormRefundOpen = ref<boolean>(false);
@@ -143,7 +143,7 @@ const fetchData = async () => {
     dataPaketTransaction.value = response.data;
     totalRow.value = response.total;
     totalPages.value = Math.ceil(response.total / itemsPerPage);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching data:', error);
     displayNotification(error?.response?.data?.error_msg || 'Gagal memuat data transaksi paket', 'error');
   } finally {
@@ -166,7 +166,7 @@ async function deleteData(transpaketId: number) {
         showConfirmDialog.value = false
         displayNotification('Data berhasil dihapus!', 'success')
         fetchData()
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error deleting data:', error)
         displayNotification(error?.response?.data?.error_msg, 'error')
       }
@@ -331,8 +331,6 @@ onMounted(() => {
                     <DeleteIcon></DeleteIcon>
                   </DangerButton>
                 </div>
-
-
               </td>
             </tr>
           </template>
@@ -356,7 +354,14 @@ onMounted(() => {
     </div>
   </div>
 
-  <FormUploadFilePendukung  :showForm="isFormFilePendukungOpen" :transpaketId="transpaketId" @cancel="isFormFilePendukungOpen= false; fetchData()"></FormUploadFilePendukung>
+  <!-- Cabang Id ini akan ditambahkan setelah merge untuk menghindari konflik pada module sebelumnya -->
+  <FormUploadFilePendukung
+    :showForm="isFormFilePendukungOpen"
+    :transpaketId="transpaketId"
+    :cabang-id="cabangId || 1"
+    @cancel="isFormFilePendukungOpen = false; fetchData()"
+    @status="(payload) => displayNotification(payload.err_msg || 'Pengembalian Barang gagal ditambahkan', payload.error ? 'error' : 'success')"
+  />
 
   <!-- Form Pengembalian Barang Handover -->
   <transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"

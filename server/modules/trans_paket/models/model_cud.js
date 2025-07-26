@@ -2,6 +2,7 @@ const {
   sequelize,
   Company,
   Jamaah,
+  File_pendukung,
   Member,
   } = require("../../../models");
 const Model_r = require("../models/model_r");
@@ -24,25 +25,36 @@ class Model_cud {
     this.state = true;
   }
 
-  async penerima() {
-    this.tipe = await tipe(this.req);
+  async addUploadFile() {
+    await this.initialize();
 
-    if (this.tipe === "administrator") {
-      const company = await Company.findOne({
-        where: { id: this.company_id },
-      });
-      return company?.company_name ?? "Unknown Company";
+    try {
+      const body = this.req.body;
+      const files = this.req.files; // hasil dari multer (upload.array)
+      const payload = body.payload || [];
+
+      if (!files || files.length === 0) {
+        this.state = false;
+        throw new Error("Tidak ada file yang diupload.");
+      }
+      console.log("Body:", body);
+      console.log("Files:", files);
+
+      const dataToInsert = files.map((file, index) => ({
+        company_id: this.company_id,
+        paket_transaction_id: body.id,
+        title_file: payload[index]?.title || file.originalname, // fallback ke originalname kalau title tidak ada
+        filename: file.filename,
+      }));
+
+      await File_pendukung.bulkCreate(dataToInsert, { transaction: this.t });
+
+      this.message = `${files.length} file berhasil diupload.`;
+    } catch (error) {
+      console.error("Error in addUploadFile:", error);
+      this.state = false;
+      throw error;
     }
-
-    if (this.tipe === "staff") {
-      const member = await Member.findOne({
-        where: { company_id: this.company_id },
-        order: [["id", "DESC"]],
-      });
-      return member?.fullname ?? "Unknown Staff";
-    }
-
-    return "Tipe user tidak diketahui";
   }
   
   // response

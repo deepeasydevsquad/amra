@@ -37,27 +37,6 @@ class Model_r {
     this.division_id = await getCabang(this.req);
   }
 
-  async penerima() {
-    this.tipe = await tipe(this.req);
-
-    if (this.tipe === "administrator") {
-      const company = await Company.findOne({
-        where: { id: this.company_id },
-      });
-      return company?.company_name ?? "Unknown Company";
-    }
-
-    if (this.tipe === "staff") {
-      const member = await Member.findOne({
-        where: { company_id: this.company_id },
-        order: [["id", "DESC"]],
-      });
-      return member?.fullname ?? "Unknown Staff";
-    }
-
-    return "Tipe user tidak diketahui";
-  }
-
   async getPaketListTransPaket() {
     await this.initialize();
 

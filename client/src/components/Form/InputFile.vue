@@ -15,7 +15,7 @@
       </div>
     </div>
     <p v-if="error" class="text-red-500 text-sm mt-1">{{ error }}</p>
-    <p class="text-xs text-gray-500 mt-2">Ukuran maksimum: 600 KB. Tipe file: JPG, JPEG, PNG.</p>
+    <p class="text-xs text-gray-500 mt-2">Ukuran maksimum: {{ props.maxSize }} KB. Tipe file: {{ props.accept.toUpperCase() }}.</p>
     <div class="mt-3">
       <slot></slot>
     </div>
@@ -31,7 +31,8 @@
     buttonText: { type: String, default: 'Choose File' },
     accept: { type: String, default: '.jpg,.jpeg,.png' },
     error: { type: String, default: '' },
-    label_status: { type: Boolean, default: true }
+    label_status: { type: Boolean, default: true },
+    maxSize: { type: Number, default: 600 } // Default 600 KB
   })
 
   const emit = defineEmits(['file-selected'])
