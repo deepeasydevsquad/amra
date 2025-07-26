@@ -14,6 +14,7 @@
 
   const props = defineProps<{
     paketId: number
+    cabangId: number
   }>()
 
   const emit = defineEmits<{
@@ -40,6 +41,13 @@
 <template>
   <div>
     <NavSubmenu @close="emit('closeDetailPaket')"  @update:current="(val : any) => current = val" />
-    <component :is="currentComponent" :paket-id="props.paketId" :showBackButton="false" :showAddTransactionButton="true" />
+    <!-- render component berdasarkan current -->
+    <component
+      :is="currentComponent"
+      :paket-id="props.paketId"
+      :cabang-id="props.cabangId"
+      :show-back-button="false"
+      :show-add-transaction-button="true"
+    />
   </div>
 </template>

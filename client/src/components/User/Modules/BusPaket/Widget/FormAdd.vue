@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, defineProps, defineEmits, computed } from 'vue'
+import { ref, onMounted, defineProps, defineEmits, computed, watch } from 'vue'
 import { getAllJamaah, getAllCities, createBus } from '@/service/bus_paket'
 
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
@@ -7,6 +7,7 @@ import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 // --- Props & Emits ---
 const props = defineProps<{
   isFormOpen: boolean
+  cabangId: number
 }>()
 
 const emit = defineEmits<{
@@ -35,18 +36,40 @@ const filteredJamaahList = computed(() => (currentSelectionId: number | null) =>
   return allJamaahList.value.filter((j) => !selectedIds.includes(j.id))
 })
 
-// --- API Calls ---
-onMounted(async () => {
-  try {
-    // Load cities
-    const cities = await getAllCities()
-    cityList.value = cities.map((c: any) => ({
-      id: c.id,
-      name: c.name,
-    }))
+// --- Watcher to prevent duplicate jamaah selection ---
+watch(
+  () => formData.value.jamaah_ids,
+  (newJamaahIds) => {
+    const seenIds = new Set()
+    let hasDuplicates = false
+    const correctedJamaahIds = newJamaahIds.map((jamaah) => {
+      if (jamaah.id === null) return { id: null }
+      if (seenIds.has(jamaah.id)) {
+        hasDuplicates = true
+        return { id: null }
+      }
+      seenIds.add(jamaah.id)
+      return jamaah
+    })
 
-    // Load jamaah
-    const jamaah = await getAllJamaah()
+    if (hasDuplicates) {
+      emit('show-notification', 'Jamaah tidak boleh dipilih lebih dari sekali.', 'error')
+      formData.value.jamaah_ids = correctedJamaahIds
+    }
+  },
+  { deep: true },
+)
+
+// --- API Calls ---
+const loadInitialData = async () => {
+  try {
+    // Load cities and jamaah in parallel
+    const [cities, jamaah] = await Promise.all([
+      getAllCities(),
+      getAllJamaah({ division_id: props.cabangId }), // Pass division_id here
+    ])
+
+    cityList.value = cities.map((c: any) => ({ id: c.id, name: c.name }))
     allJamaahList.value = jamaah.map((j: any) => ({
       id: j.id,
       name: j.fullname,
@@ -55,14 +78,36 @@ onMounted(async () => {
   } catch (error) {
     emit('show-notification', 'Gagal memuat data untuk form.', 'error')
   }
+}
+
+onMounted(() => {
+  if (props.isFormOpen) {
+    loadInitialData()
+  }
 })
+
+watch(
+  () => props.isFormOpen,
+  (newVal) => {
+    if (newVal) {
+      loadInitialData()
+    }
+  },
+)
 
 // --- Form Logic ---
 const addJamaahField = () => {
-  formData.value.jamaah_ids.push({ id: null })
+  if (formData.value.jamaah_ids.length < formData.value.kapasitas_bus) {
+    formData.value.jamaah_ids.push({ id: null })
+  } else {
+    emit('show-notification', 'Kapasitas bus sudah penuh.', 'error')
+  }
 }
 const removeJamaahField = (index: number) => {
   formData.value.jamaah_ids.splice(index, 1)
+  if (formData.value.jamaah_ids.length === 0) {
+    formData.value.jamaah_ids.push({ id: null })
+  }
 }
 
 const handleSubmit = async () => {
@@ -72,6 +117,7 @@ const handleSubmit = async () => {
   try {
     const payload = {
       ...formData.value,
+      division_id: props.cabangId, // Add division_id to the payload
       jamaah_ids: formData.value.jamaah_ids.map((j) => j.id).filter((id) => id !== null),
     }
 

@@ -25,10 +25,13 @@ import { ref, onMounted, computed } from 'vue';
 
 const props = defineProps<{
   paketId: number
+  cabangId: number
   search: string | null
   showBackButton?: boolean
   showAddTransactionButton?: boolean
 }>()
+
+console.log(props)
 
 const { showBackButton = false, showAddTransactionButton = false } = props
 
@@ -131,11 +134,16 @@ const openFormRefund = (id: number) => {
 };
 
 const fetchData = async () => {
+  if (!props.paketId || !props.cabangId) {
+    displayNotification('Paket ID atau Cabang ID tidak valid', 'error');
+    return
+  }
   try {
     isLoading.value = true
     search.value = props.search ? props.search : search.value
     const response = await daftarTransaksiPaket({
       id: props.paketId,
+      division_id: props.cabangId,
       search: search.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value
@@ -143,9 +151,13 @@ const fetchData = async () => {
     dataPaketTransaction.value = response.data;
     totalRow.value = response.total;
     totalPages.value = Math.ceil(response.total / itemsPerPage);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching data:', error);
-    displayNotification(error?.response?.data?.error_msg || 'Gagal memuat data transaksi paket', 'error');
+    const errorMessage =
+      error?.response?.data?.error_msg ||
+      error?.response?.data?.message ||
+      'Gagal memuat data transaksi paket';
+    displayNotification(errorMessage, 'error');
   } finally {
     isLoading.value = false
   }
@@ -166,9 +178,14 @@ async function deleteData(transpaketId: number) {
         showConfirmDialog.value = false
         displayNotification('Data berhasil dihapus!', 'success')
         fetchData()
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error deleting data:', error)
-        displayNotification(error?.response?.data?.error_msg, 'error')
+        displayNotification(
+          error?.response?.data?.error_msg ||
+            error?.response?.data?.message ||
+            'Terjadi kesalahan saat menghapus data.',
+          'error'
+        );
       }
     }
   );
@@ -331,8 +348,6 @@ onMounted(() => {
                     <DeleteIcon></DeleteIcon>
                   </DangerButton>
                 </div>
-
-
               </td>
             </tr>
           </template>
@@ -359,6 +374,25 @@ onMounted(() => {
   <FormUploadFilePendukung  :showForm="isFormFilePendukungOpen" :transpaketId="transpaketId" @cancel="isFormFilePendukungOpen= false; fetchData()"></FormUploadFilePendukung>
 
   <!-- Form Pengembalian Barang Handover -->
+  <transition
+    enter-active-class="transition duration-200 ease-out"
+    enter-from-class="transform scale-95 opacity-0"
+    enter-to-class="transform scale-100 opacity-100"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="transform scale-100 opacity-100"
+    leave-to-class="transform scale-95 opacity-0"
+  >
+    <FormAdd
+      v-if="isFormOpen"
+      :is-form-open="isFormOpen"
+      :paket-id="props.paketId"
+      :cabang-id="props.cabangId"
+      @close="isFormOpen= false; fetchData()"
+      @status="(payload) => displayNotification(payload.err_msg || 'Pengembalian Barang gagal ditambahkan', payload.error ? 'error' : 'success')"
+      />
+  </transition>
+
+  <!-- Form Pengembalian Barang Handover -->
   <transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
     leave-active-class="transition duration-200 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0" >
     <FormAdd v-if="isFormOpen" :isFormOpen="isFormOpen" :paketId="props.paketId" @close="isFormOpen= false; fetchData()"
@@ -379,6 +413,7 @@ onMounted(() => {
       :isFormEditVisaOpen="isFormEditVisaOpen"
       :paketId="props.paketId"
       :transpaketId="transpaketId"
+      :cabang-id="props.cabangId"
       @close="isFormEditVisaOpen= false; fetchData()"
       @status="(payload) => displayNotification(payload.err_msg || 'Pengembalian Barang gagal ditambahkan', payload.error ? 'error' : 'success')"
       />
@@ -399,6 +434,7 @@ onMounted(() => {
       :isFormRefundOpen="isFormRefundOpen"
       :paketId="props.paketId"
       :transpaketId="transpaketId"
+      :cabang-id="props.cabangId"
       @close="isFormRefundOpen= false; fetchData()"
       @status="(payload) => displayNotification(payload.err_msg || 'Pengembalian Barang gagal ditambahkan', payload.error ? 'error' : 'success')"
       />

@@ -7,6 +7,7 @@ import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 const props = defineProps<{
   isFormOpen: boolean
   kamarId: number | null
+  cabangId: number
 }>()
 
 const emit = defineEmits<{
@@ -27,7 +28,7 @@ const formData = ref({
   jamaah_ids: [] as { id: number | null }[],
 })
 
-// --- Computed Property untuk Filter ---
+// Computed property untuk memfilter jamaah yang belum dipilih di dropdown lain
 const filteredJamaahList = computed(() => (currentSelectionId: number | null) => {
   const selectedIds = formData.value.jamaah_ids
     .map((j) => j.id)
@@ -35,42 +36,100 @@ const filteredJamaahList = computed(() => (currentSelectionId: number | null) =>
   return allJamaahList.value.filter((j) => !selectedIds.includes(j.id))
 })
 
-const loadInitialData = async () => {
-  try {
-    const [hotelsData, jamaahData] = await Promise.all([
-      getAllHotels(),
-      getAllJamaah(true, props.kamarId),
-    ])
-    hotelList.value = hotelsData
-    allJamaahList.value = jamaahData
-  } catch (error) {
-    emit('show-notification', 'Gagal memuat data untuk form.', 'error')
+// --- WATCHER UNTUK MENCEGAH DUPLIKASI ---
+watch(
+  () => formData.value.jamaah_ids,
+  (newJamaahIds) => {
+    const seenIds = new Set()
+    let hasDuplicates = false
+    const correctedJamaahIds = newJamaahIds.map((jamaah) => {
+      if (jamaah.id === null) {
+        return { id: null }
+      }
+      if (seenIds.has(jamaah.id)) {
+        hasDuplicates = true
+        return { id: null } // Tandai sebagai duplikat untuk dikoreksi
+      }
+      seenIds.add(jamaah.id)
+      return jamaah
+    })
+
+    if (hasDuplicates) {
+      emit('show-notification', 'Jamaah tidak boleh dipilih lebih dari sekali.', 'error')
+      // Ganti array lama dengan yang sudah dikoreksi untuk menghindari loop
+      formData.value.jamaah_ids = correctedJamaahIds
+    }
+  },
+  { deep: true },
+)
+
+const resetForm = () => {
+  formData.value = {
+    hotel_id: null,
+    tipe_kamar: 'Laki-Laki',
+    kapasitas_kamar: 10,
+    jamaah_ids: [{ id: null }],
   }
 }
 
-const loadKamarData = async (id: number) => {
+const loadEditData = async (kamarId: number) => {
+  if (!kamarId) return
   isFetchingData.value = true
   try {
-    const kamarData = await getKamarById(id)
-    formData.value = kamarData
-    if (!formData.value.jamaah_ids || formData.value.jamaah_ids.length === 0) {
-      formData.value.jamaah_ids = [{ id: null }]
-    }
+    // 1. Ambil semua data yang diperlukan secara paralel
+    const [hotelResponse, jamaahData, kamarData] = await Promise.all([
+      getAllHotels({ division_id: props.cabangId }),
+      getAllJamaah({
+        division_id: props.cabangId,
+      }),
+      getKamarById(kamarId),
+    ])
+
+    // 2. Proses dan set data hotel
+    hotelList.value = hotelResponse.data.map((h: any) => ({
+      id: h.id,
+      name: `${h.name} (Kota : ${h.kota_name || 'N/A'})`,
+    }))
+
+    // 3. Gabungkan daftar jamaah yang tersedia dengan jamaah yang sudah ada di kamar
+    const availableJamaah = jamaahData.data
+    // Asumsi `kamarData.jamaah_ids` berisi array objek jamaah lengkap dari API
+    const currentJamaahInRoom = kamarData.jamaah_ids || []
+
+    // Buat Map untuk memastikan tidak ada duplikat jamaah
+    const jamaahMap = new Map()
+    currentJamaahInRoom.forEach((j: any) => jamaahMap.set(j.id, j))
+    availableJamaah.forEach((j: any) => jamaahMap.set(j.id, j))
+
+    allJamaahList.value = Array.from(jamaahMap.values()).map((j: any) => ({
+      id: j.id,
+      fullname: j.fullname,
+      identity_number: j.identity_number,
+    }))
+
+    // 4. Set data form dari kamar yang akan diedit
+    formData.value.hotel_id = kamarData.hotel_id
+    formData.value.tipe_kamar = kamarData.tipe_kamar
+    formData.value.kapasitas_kamar = kamarData.kapasitas_kamar
+    // Gunakan data jamaah dari kamarData untuk mengisi pilihan
+    formData.value.jamaah_ids =
+      currentJamaahInRoom.length > 0
+        ? currentJamaahInRoom.map((j: any) => ({ id: j.id })) // Pastikan formatnya { id: ... }
+        : [{ id: null }]
   } catch (error) {
-    emit('show-notification', 'Gagal memuat data kamar yang akan diedit.', 'error')
+    console.error('Gagal memuat data untuk form edit:', error)
+    emit('show-notification', 'Gagal memuat data untuk form edit.', 'error')
     emit('close')
   } finally {
     isFetchingData.value = false
   }
 }
 
-onMounted(loadInitialData)
-
 watch(
-  () => [props.isFormOpen, props.kamarId],
-  ([isOpen, kamarId]) => {
-    if (isOpen && kamarId) {
-      loadKamarData(kamarId)
+  () => props.isFormOpen,
+  (isOpen) => {
+    if (isOpen && props.kamarId) {
+      loadEditData(props.kamarId)
     } else if (!isOpen) {
       resetForm()
     }
@@ -78,24 +137,21 @@ watch(
   { immediate: true },
 )
 
-watch(
-  () => props.kamarId,
-  async (newKamarId) => {
-    if (newKamarId) {
-      try {
-        const jamaahData = await getAllJamaah(true, newKamarId)
-        allJamaahList.value = jamaahData
-      } catch (error) {
-        emit('show-notification', 'Gagal memuat data jamaah.', 'error')
-      }
-    }
-  },
-)
+const addJamaahField = () => {
+  if (formData.value.jamaah_ids.length < formData.value.kapasitas_kamar) {
+    formData.value.jamaah_ids.push({ id: null })
+  } else {
+    emit('show-notification', 'Kapasitas kamar sudah penuh.', 'error')
+  }
+}
 
-const addJamaahField = () => formData.value.jamaah_ids.push({ id: null })
 const removeJamaahField = (index: number) => {
-  if (formData.value.jamaah_ids.length > 1) {
+  if (formData.value.jamaah_ids.length > 0) {
     formData.value.jamaah_ids.splice(index, 1)
+  }
+  // Jika setelah dihapus menjadi kosong, tambahkan satu field kosong
+  if (formData.value.jamaah_ids.length === 0) {
+    formData.value.jamaah_ids.push({ id: null })
   }
 }
 

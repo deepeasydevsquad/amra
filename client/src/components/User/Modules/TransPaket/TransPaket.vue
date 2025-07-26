@@ -16,6 +16,7 @@ const emit = defineEmits<{
 const isVisible = ref(true)
 const current = ref('daftar_paket')
 const selectedPaketId = ref(0)
+const cabangId = ref(0)
 
 const componentMap: Record<string, any> = {
   daftar_paket: PageDaftarPaket,
@@ -27,8 +28,9 @@ const componentMap: Record<string, any> = {
 
 const currentComponent = computed(() => componentMap[current.value])
 
-const handleShowDetailPaket = (paketId: number) => {
+const handleShowDetailPaket = (paketId: number, division_id: number) => {
   selectedPaketId.value = paketId
+  cabangId.value = division_id
   current.value = 'detail_paket'
 }
 
@@ -40,6 +42,6 @@ const handleCloseDetailPaket = () => {
 <template>
   <div v-if="isVisible" class="pl-4 pr-4 flex flex-col h-full">
     <NavSubmenu v-if="current !== 'detail_paket'" @close="emit('close')"  @update:current="(val : any) => current = val" />
-    <component :is="currentComponent" @showDetailPaket="handleShowDetailPaket" @closeDetailPaket="handleCloseDetailPaket" :paketId="selectedPaketId" />
+    <component :is="currentComponent" @showDetailPaket="handleShowDetailPaket" @closeDetailPaket="handleCloseDetailPaket" :paketId="selectedPaketId" :cabang-id="cabangId" />
   </div>
 </template>

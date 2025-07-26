@@ -1,39 +1,47 @@
 const { body } = require("express-validator");
+const { 
+    Division,
+    Paket,
+    Kamar
+} = require("../models");
+const {  getDivisionId, getCompanyIdByCode } = require("../helper/companyHelper");
 
 const validation = {};
 
-validation.createKamar = [
-  // Memeriksa 'hotel_id'
-  body("hotel_id")
-    .notEmpty()
-    .withMessage("Nama Hotel harus dipilih.")
-    .isInt()
-    .withMessage("ID Hotel tidak valid."),
+validation.check_id_paket = async (value, { req }) => {
+  const division_id = await getDivisionId(req);
+  var check = Paket.findOne({ where: { id : value, division_id : division_id }});
+  if (!check) {
+      throw new Error("ID Paket tidak terdaftar dipangkalan data");
+  }
+  return true;
+}
 
-  // Memeriksa 'tipe_kamar'
-  body("tipe_kamar")
-    .notEmpty()
-    .withMessage("Tipe Kamar harus dipilih.")
-    .isIn(["Laki-Laki", "Perempuan"])
-    .withMessage("Tipe Kamar tidak valid."),
+validation.check_id_cabang = async (value, { req }) => {
+  try {
+    const cabang = await Division.findOne({ where: { id: value }, attributes: ["id"] });
+    if (!cabang) {
+        console.debug(`ID Cabang tidak terdaftar di pangkalan data`);
+        throw new Error("ID Cabang tidak terdaftar di pangkalan data");
+    }
 
-  // Memeriksa 'kapasitas_kamar'
-  body("kapasitas_kamar")
-    .notEmpty()
-    .withMessage("Kapasitas Kamar tidak boleh kosong.")
-    .isInt({ min: 1 })
-    .withMessage("Kapasitas harus berupa angka dan minimal 1."),
-
-  // Memeriksa 'jamaah_ids'
-  body("jamaah_ids")
-    .isArray()
-    .withMessage("Data jamaah tidak valid.")
-    .custom((value, { req }) => {
-      if (value.length > 0 && value.length > req.body.kapasitas_kamar) {
-        throw new Error("Jumlah jamaah tidak boleh melebihi kapasitas kamar.");
-      }
-      return true;
-    }),
-];
+    const division_id = await getDivisionId(req);
+    if (division_id != value) {
+        throw new Error("ID Cabang tidak sesuai dengan ID Cabang yang login");
+    }
+    return true;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+validation.check_id_kamar = async (value, { req }) => {
+  const company_id = await getCompanyIdByCode(req);
+  const check = await Kamar.findOne({ where: { id : value, company_id : company_id }});
+  if (!check) {
+      throw new Error("ID Kamar tidak terdaftar dipangkalan data");
+  }
+  return true;
+}
 
 module.exports = validation;

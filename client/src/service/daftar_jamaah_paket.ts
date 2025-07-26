@@ -1,8 +1,8 @@
 import api from "./api";
 
-export const getPetugasJamaahPaket = async () => {
+export const getPetugasJamaahPaket = async (param : any) => {
   try {
-    const response = await api.get("/daftar-jamaah-paket/get-petugas-jamaah-paket");
+    const response = await api.post("/daftar-jamaah-paket/get-petugas-jamaah-paket", param);
     return response.data;
   } catch (error) {
     console.error("Gagal mengambil data petugas jamaah paket: ", error);

@@ -16,7 +16,7 @@ const {
   } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
-const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, getCabang, tipe, getDivisionId } = require("../../../helper/companyHelper");
 const moment = require("moment");
 const { getJamaahInfo } = require("../../../helper/JamaahHelper");
 
@@ -202,12 +202,13 @@ class Model_cud {
     await this.initialize();
     const body = this.req.body;
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+    const division_id = await getDivisionId(this.req);
     
     try {
       // call object
       const model_r = new Model_r(this.req);
       // get info tabungan
-      const infoPaket = await model_r.infoPaket(body.id, body.paket_types_id, this.division_id);
+      const infoPaket = await model_r.infoPaket(body.id, body.paket_types_id, division_id);
       const invoicePaketTransactionPaymentHistory = await this.generateInvoice();
       const penerima = await this.penerima();
       const jamaah = await getJamaahInfo(body.jamaah_id);
@@ -216,7 +217,7 @@ class Model_cud {
       console.log("___________AAAA___________");
       // console.log("Data Body:", body);
       // console.log("Company ID:", this.company_id);
-      // console.log("Division ID:", this.division_id);
+      // console.log("Division ID:", division_id);
       // console.log("Invoice Tabungan:", invoicePaketTransactionPaymentHistory);
       
       // === 1. Insert ke tabel fee agen ===
@@ -239,7 +240,7 @@ class Model_cud {
 
       // === 2. Insert ke tabel paket transaction ===
       const paketTransaction = await Paket_transaction.create({
-        division_id: this.division_id,
+        division_id: division_id,
         jamaah_id: body.jamaah_id,
         fee_agen_id: agenId,
         paket_id: body.id,
@@ -281,6 +282,7 @@ class Model_cud {
     await this.initialize();
     const body = this.req.body;
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+    const division_id = await getDivisionId(this.req);
 
     try {
       await Paket_transaction.update({
@@ -292,6 +294,7 @@ class Model_cud {
         where: {
           id: body.transpaketId,
           paket_id: body.id,
+          division_id: division_id
         }, transaction: this.t});
 
       this.message = `Mengupdate visa transaksi paket id: ${body.id}`;
@@ -306,6 +309,7 @@ class Model_cud {
     await this.initialize();
     const body = this.req.body;
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+    const division_id = await getDivisionId(this.req);
 
     try {
       const model_r = new Model_r(this.req);
@@ -322,6 +326,7 @@ class Model_cud {
         where: {
           id: body.transpaketId,
           paket_id: body.id,
+          division_id: division_id
         }, transaction: this.t});
 
       await Paket_transaction_payment_history.create({
@@ -345,12 +350,14 @@ class Model_cud {
     await this.initialize();
     const body = this.req.body;
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
+    const division_id = await getDivisionId(this.req);
 
     try {
       await Paket_transaction.destroy({
         where: {
           id: body.transpaketId,
           paket_id: body.id,
+          division_id: division_id
         }, transaction: this.t});
 
       this.message = `Menghapus transaksi paket id: ${body.id}`;

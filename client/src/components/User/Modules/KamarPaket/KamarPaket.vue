@@ -19,6 +19,12 @@ import FormEdit from '@/components/User/Modules/KamarPaket/Widget/FormEdit.vue'
 import { getDaftarKamarPaket, deleteKamar } from '@/service/kamar_paket'
 import { ref, onMounted, computed } from 'vue'
 
+
+const props = defineProps<{
+  paketId: number
+  cabangId: number
+}>()
+
 // --- State ---
 const itemsPerPage = 10
 const currentPage = ref(1)
@@ -28,6 +34,7 @@ const totalColumns = ref(5)
 const totalRow = ref(0);
 const isEditFormOpen = ref<boolean>(false)
 const editingKamarId = ref<number | null>(null)
+const isDeletingId = ref<number | null>(null) // <-- State untuk melacak ID yang sedang dihapus
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
@@ -65,10 +72,11 @@ const isFormOpen = ref<boolean>(false)
 const isLoading = ref<boolean>(false)
 
 interface JamaahDetail {
-  nama: string
-  no_identity: string
-  tipe_paket: string
+  fullname: string,
+  identity_number: string,
+  tipe_paket: string,
 }
+
 interface Kamar {
   id: number
   tipe_kamar: string
@@ -82,6 +90,8 @@ const fetchData = async () => {
   try {
     isLoading.value = true
     const response = await getDaftarKamarPaket({
+      paketId: props.paketId,
+      division_id: props.cabangId,
       search: search.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
@@ -129,6 +139,7 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 }
 
 const deleteItem = async (id: number) => {
+  isDeletingId.value = id // <-- Atur ID yang sedang dihapus
   try {
     const response = await deleteKamar(id)
 
@@ -143,6 +154,7 @@ const deleteItem = async (id: number) => {
     displayNotification(errorMessage, 'error')
   } finally {
     showConfirmDialog.value = false
+    isDeletingId.value = null // <-- Reset ID setelah selesai
   }
 }
 
@@ -173,12 +185,11 @@ const handleDownload = () => {
   window.open(url, '_blank')
 }
 
+const tabelutama = ref<HTMLTableElement | null>(null)
 // --- Lifecycle Hook ---
 onMounted(async () => {
   await fetchData()
-  setTimeout(() => {
-    // totalColumns.value = document.querySelectorAll('thead th').length
-  }, 0)
+  totalColumns.value = tabelutama.value?.querySelectorAll(':scope > thead > tr > th:not(.hidden)').length
 })
 </script>
 
@@ -187,14 +198,7 @@ onMounted(async () => {
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
       <div class="flex gap-2">
         <PrimaryButton @click="isFormOpen = true">
-          <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            />
-          </svg>
+          <font-awesome-icon icon="fas fa-plus"></font-awesome-icon>
           <span class="text-base">Tambah Kamar</span>
         </PrimaryButton>
         <button
@@ -225,6 +229,7 @@ onMounted(async () => {
 
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
       <table
+        ref="tabelutama"
         class="w-full border-collapse bg-white text-center text-sm justify-center text-gray-700"
       >
         <thead class="bg-gray-100">
@@ -261,16 +266,16 @@ onMounted(async () => {
                   <ul v-if="item.daftar_jamaah.length > 0" class="space-y-3">
                     <li
                       v-for="jamaah in item.daftar_jamaah"
-                      :key="jamaah.no_identity"
+                      :key="jamaah.identity_number"
                       class="border-b border-gray-100 pb-2 last:border-b-0 flex gap-2"
                     >
                       <div class="flex-shrink-0 flex items-center justify-center mt-1">
                         <span class="text-gray-500">&#x1F464;</span>
                       </div>
                       <div class="flex-1">
-                        <div class="font-medium text-gray-800 mb-1">{{ jamaah.nama }}</div>
+                        <div class="font-medium text-gray-800 mb-1">{{ jamaah.fullname }}</div>
                         <ul class="text-sm text-gray-500 space-y-1">
-                          <li>No. ID: {{ jamaah.no_identity }}</li>
+                          <li>No. ID: {{ jamaah.identity_number }}</li>
                           <li>Tipe Paket: {{ jamaah.tipe_paket }}</li>
                         </ul>
                       </div>
@@ -285,8 +290,17 @@ onMounted(async () => {
               <LightButton title="Edit" @click="handleEdit(item.id)">
                 <EditIcon class="h-4 w-4 text-gray-600" />
               </LightButton>
-              <DangerButton title="Delete" @click="handleDelete(item.id)">
-                <DeleteIcon class="w-5 h-5" />
+              <DangerButton
+                title="Delete"
+                @click="handleDelete(item.id)"
+                :disabled="isDeletingId === item.id"
+              >
+                <span v-if="isDeletingId === item.id">
+                  <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                </span>
+                <span v-else>
+                  <DeleteIcon class="w-5 h-5" />
+                </span>
               </DangerButton>
             </td>
           </tr>
@@ -340,6 +354,7 @@ onMounted(async () => {
     <FormAdd
       v-if="isFormOpen"
       :is-form-open="isFormOpen"
+      :cabang-id="props.cabangId"
       @close="isFormOpen = false"
       @save-success="handleSaveSuccess"
       @show-notification="displayNotification"
@@ -349,6 +364,7 @@ onMounted(async () => {
       v-if="isEditFormOpen"
       :is-form-open="isEditFormOpen"
       :kamar-id="editingKamarId"
+      :cabang-id="props.cabangId"
       @close="isEditFormOpen = false"
       @save-success="handleSaveSuccess"
       @show-notification="displayNotification"

@@ -8,24 +8,8 @@ const {
   Member,
   Division,
 } = require("../models");
-const { getCompanyIdByCode, tipe, getCabang } = require("../helper/companyHelper");
+const { getDivisionId } = require("../helper/companyHelper");
 
-
-const getDivisionId = async (req) => {
-  const userType = await tipe(req);
-  console.log("User tipe: ", userType);
-  if (userType === "administrator") {
-      return req.body.division_id;
-  } else if (userType === "staff") {
-      const token = this.req.headers["authorization"]?.split(" ")[1];
-      const decoded = token ? jwt.decode(token) : null;
-      return decoded?.division_id; 
-  } else {
-      throw new Error("Role pengguna tidak valid.");
-  }
-}
-
-    
 const validation = {};
 
 validation.removeUploadedFileOnValidationError = (req, res, next) => {
@@ -76,6 +60,8 @@ validation.upload = multer({ storage, fileFilter });
 
 validation.check_id_jamaah = async ( value, { req } ) => {
   const division_id = await getDivisionId(req);
+  console.log('division_id:', division_id);
+  console.log('value:', value);
   const check = await Jamaah.findOne({ where: { id: value, division_id: division_id } });
   if (!check) {
     throw new Error("ID Jamaah tidak terdaftar dipangkalan data");
@@ -92,13 +78,23 @@ validation.check_id_member = async ( value, { req } ) => {
   return true;
 }
 
-validation.check_id_cabang = async ( value, { req } ) => {
-  const company_id = await getCompanyIdByCode(req);
-  var check = await Division.findOne({where: { id : value, company_id : company_id }}); 
-  if (!check) {
-    throw new Error("ID Cabang ini tidak terdaftar dipangkalan data");
-  }
-  return true;
+validation.check_id_cabang = async (value, { req }) => {
+    try {
+        const cabang = await Division.findOne({ where: { id: value }, attributes: ["id"] });
+        if (!cabang) {
+            console.debug(`ID Cabang tidak terdaftar di pangkalan data`);
+            throw new Error("ID Cabang tidak terdaftar di pangkalan data");
+        }
+
+        const division_id = await getDivisionId(req);
+        if (division_id != value) {
+            throw new Error("ID Cabang tidak sesuai dengan ID Cabang yang login");
+        }
+        return true;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
 }
 
 module.exports = validation; 

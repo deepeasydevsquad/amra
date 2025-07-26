@@ -15,6 +15,18 @@ import { ref, onMounted, computed } from 'vue'
 import FormAdd from '@/components/User/Modules/BusPaket/Widget/FormAdd.vue'
 import FormEdit from '@/components/User/Modules/BusPaket/Widget/FormEdit.vue'
 
+
+const props = defineProps({
+  isFormOpen: {
+    type: Boolean,
+    default: false,
+  },
+  cabangId: {
+    type: Number,
+    required: true
+  }
+})
+
 const itemsPerPage = 10
 const currentPage = ref(1)
 const search = ref('')
@@ -77,6 +89,7 @@ const fetchData = async () => {
   try {
     isLoading.value = true
     const response = await getDaftarBusPaket({
+      division_id: props.cabangId,
       search: search.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
@@ -176,14 +189,7 @@ onMounted(async () => {
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
       <div class="flex gap-2">
         <PrimaryButton @click="isFormOpen = true">
-          <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            />
-          </svg>
+          <font-awesome-icon :icon="['fas', 'plus']"></font-awesome-icon>
           <span class="text-base">Tambah Bus</span>
         </PrimaryButton>
       </div>
@@ -322,6 +328,7 @@ onMounted(async () => {
     <FormAdd
       v-if="isFormOpen"
       :is-form-open="isFormOpen"
+      :cabang-id="cabangId"
       @close="isFormOpen = false"
       @save-success="handleSaveSuccess"
       @show-notification="displayNotification"
@@ -331,6 +338,7 @@ onMounted(async () => {
       v-if="isEditFormOpen"
       :is-form-open="isEditFormOpen"
       :bus-id="editingBusId"
+      :cabang-id="cabangId"
       @close="isEditFormOpen = false"
       @save-success="handleSaveSuccess"
       @show-notification="displayNotification"

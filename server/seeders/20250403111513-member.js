@@ -47,7 +47,7 @@ module.exports = {
         updatedAt: new Date() 
       },
       { 
-        division_id: 2, 
+        division_id: 1, 
         fullname: 'Kurniawan', 
         identity_number: '77777777',
         identity_type: 'ktp',

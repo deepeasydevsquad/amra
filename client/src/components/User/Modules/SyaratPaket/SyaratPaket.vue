@@ -13,7 +13,8 @@ import { ref, onMounted, computed } from 'vue'
 import { daftarSyaratPaket } from '@/service/syarat_paket'
 
 const props = defineProps<{
-  paketId: number
+  paketId: number,
+  cabangId: number
 }>()
 
 const isLoading = ref(false)
@@ -80,6 +81,7 @@ const fetchData = async () => {
     isLoading.value = true
     const response = await daftarSyaratPaket({
       paketId: props.paketId,
+      division_id: props.cabangId,
       search: search.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
@@ -88,7 +90,8 @@ const fetchData = async () => {
     totalRow.value = response.total;
     console.log(dataSyaratPaket)
     totalPages.value = Math.ceil(response.total / itemsPerPage)
-  } catch (error) {
+  } catch (error: any) {
+    displayNotification(error.response?.data?.message || error.response?.data?.error_msg || 'Terjadi kesalahan saat mengambil data.', 'error')
     console.error('Error fetching data:', error)
   } finally {
     isLoading.value = false
