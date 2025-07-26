@@ -71,6 +71,7 @@ controllers.user = async (req, res) => {
     res.status(200).json({
       error: false,
       error_msg: "Data Berhasil Ditemukan.",
+    
       menu_info: data.menu_info,
       user_info: data.user_info,
     });

@@ -14,7 +14,7 @@ module.exports = {
           icon: null,
           company_name: "PT. MUHANDIS QUR'ANI WISATA",
           email: "admin@gmail.com",
-          type: "limited",
+          type: "unlimited",
           verify_status: "verified",
           verify_time: "2025-02-07 15:33:41",
           whatsapp_company_number: "085262802144",

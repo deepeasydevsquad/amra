@@ -29,6 +29,8 @@ const fetchProfile = async () => {
 }
 
 onMounted(() => {
+
+  console.log("DDDD");
   fetchProfile()
 })
 
