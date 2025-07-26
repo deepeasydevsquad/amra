@@ -23,4 +23,30 @@ router.post(
   controllers.getDaftarJamaahTransPaket
 );
 
+router.post(
+  "/daftar-trans-paket/upload-file-pendukung",
+  authenticateToken,
+  validation.upload.any(), // Middleware multer untuk banyak file
+  (req, res, next) => {
+    console.log("mulai upload file pendukung");
+    console.log("req.body:", req.body);
+    console.log("req.files:", req.files);
+    next();
+  },
+  [
+    body("id")
+      .trim()
+      .notEmpty().withMessage("ID Trans Paket tidak boleh kosong.")
+      .custom(validation.check_id_transpaket),
+
+    body("division_id")
+      .trim()
+      .notEmpty().withMessage("ID Cabang tidak boleh kosong.")
+      .custom(validation.check_id_cabang),
+  ],
+  validation.hapusFileJikaValidasiError,
+  controllers.addUploadFile
+);
+
+
 module.exports = router;

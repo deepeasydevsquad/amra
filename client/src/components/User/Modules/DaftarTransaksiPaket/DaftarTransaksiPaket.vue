@@ -85,7 +85,7 @@ interface PaketTransaction {
 }
 
 const dataPaketTransaction = ref<PaketTransaction[]>([]);
-const transpaketId = ref<number | null>(null);
+const transpaketId = ref<number>(0);
 const isFormOpen = ref<boolean>(false);
 const isFormEditVisaOpen = ref<boolean>(false);
 const isFormRefundOpen = ref<boolean>(false);
@@ -371,7 +371,14 @@ onMounted(() => {
     </div>
   </div>
 
-  <FormUploadFilePendukung  :showForm="isFormFilePendukungOpen" :transpaketId="transpaketId" @cancel="isFormFilePendukungOpen= false; fetchData()"></FormUploadFilePendukung>
+  <!-- Cabang Id ini akan ditambahkan setelah merge untuk menghindari konflik pada module sebelumnya -->
+  <FormUploadFilePendukung
+    :showForm="isFormFilePendukungOpen"
+    :transpaketId="transpaketId"
+    :cabang-id="cabangId || 1"
+    @cancel="isFormFilePendukungOpen = false; fetchData()"
+    @status="(payload) => displayNotification(payload.err_msg || 'Pengembalian Barang gagal ditambahkan', payload.error ? 'error' : 'success')"
+  />
 
   <!-- Form Pengembalian Barang Handover -->
   <transition

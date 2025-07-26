@@ -153,7 +153,6 @@ onMounted(() => { fetchData() })
 let isSaving = false
 async function saveData() {
   if (isSaving) return
-  isSaving = true
 
   if (!validateForm()) {
     isSaving = false
@@ -165,6 +164,7 @@ async function saveData() {
     'Apakah Anda yakin ingin menambah transaksi paket ini?',
     async () => {
       isLoading.value = true
+      isSaving = true
 
       try {
         const payload = {
@@ -184,8 +184,10 @@ async function saveData() {
         window.open(`/kwitansi-pembayaran-transaksi-paket/${response.data.invoice}`, '_blank')
         emit('status', { error: false, err_msg: 'Transaksi Paket berhasil ditambahkan' })
         emit('close')
-      } catch (error: any) {
-        emit('status', { error: true, err_msg: error.response.data.error_msg || 'Terjadi kesalahan saat menyimpan data.' })
+      
+      } catch (error) {
+        displayNotification('Gagal menyimpan Transaksi Paket', 'error')
+        emit('status', { error: true, err_msg: error.response.data.error_msg })
       } finally {
         isLoading.value = false
         isSaving = false

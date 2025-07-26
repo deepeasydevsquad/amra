@@ -1,114 +1,115 @@
-const { 
+const {
     Op,
-    Paket,
+    File_pendukung,
     Paket_transaction,
-    Handover_fasilitas_paket,
-    Handover_barang_paket,
-    Handover_fasilitas_detail_paket,
-    Mst_fasilitas
+    Division
 } = require("../models");
-const { getCabang, getCompanyIdByCode } = require("../helper/companyHelper");
+
+const { getDivisionId, getCompanyIdByCode } = require("../helper/companyHelper");
+const helper = require("../helper/handleError");
+const { validationResult, body } = require("express-validator");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
 const validation = {};
 
-validation.check_id_paket = async (value, { req }) => {
-    const division_id = await getCabang(req);
-    var check = Paket.findOne({ where: { id : value, division_id : division_id }});
-    if (!check) {
-        throw new Error("ID Paket tidak terdaftar dipangkalan data");
-    }
-    return true;
+// Path upload
+const uploadPath = path.join(__dirname, "../uploads/file_pendukung");
+
+// Pastikan folder uploads/file_pendukung ada
+if (!fs.existsSync(uploadPath)) {
+    fs.mkdirSync(uploadPath, { recursive: true });
 }
 
+// Storage multer
+// const storage = multer.diskStorage({
+//     destination: (req, file, cb) => cb(null, uploadPath),
+//     filename: (req, file, cb) => {
+//         const filename = Date.now() + path.extname(file.originalname);
+//         file.savedFilename = filename; // Simpan nama file
+//         cb(null, filename);
+//     },
+// });
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadPath),
+    filename: (req, file, cb) => {
+        const match = file.fieldname.match(/payload\[(\d+)\]\[file\]/);
+        const index = match ? match[1] : null;
+        const title = req.body?.payload?.[index]?.title || file.originalname;
+        const filename = Date.now() + '-' + title.replace(/\s+/g, '_') + path.extname(file.originalname);
+        cb(null, filename); 
+    },
+});
+
+// Filter tipe file yang diizinkan
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = ["application/pdf"];
+    console.log("file: ", file);
+    if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        return cb(new Error("Format file harus PDF"), false);
+    }
+};
+
+// Multer multiple upload
+validation.upload = multer({ storage, fileFilter });
+
+// Hapus file jika validasi gagal dan kembalikan format error seperti handleValidationErrors
+validation.hapusFileJikaValidasiError = async (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        // Hapus semua file yang sudah terupload
+        if (req.files && req.files.length > 0) {
+            req.files.forEach((file) => {
+                const filePath = path.resolve(uploadPath, file.savedFilename);
+                fs.unlink(filePath, (err) => {
+                if (err) console.error("❌ Gagal menghapus file:", err);
+                else console.log("🧹 File dihapus karena validasi gagal:", filePath);
+                });
+            });
+        }
+
+        const err_msg = await helper.error_msg(errors);
+
+        return res.status(400).json({
+            status: "error",
+            error: true,
+            message: err_msg.replace(/<br>/g, " "),
+        });
+    }
+
+    next();
+};
+
 validation.check_id_transpaket = async (value, { req }) => {
-    const division_id = await getCabang(req);
+    const division_id = await getDivisionId(req);
     var check = await Paket_transaction.findOne({ where: { id : value, division_id : division_id }});
     if (!check) {
         throw new Error("ID Transaksi Paket tidak terdaftar dipangkalan data");
     }
 }
 
-validation.check_mst_paket = async (value, { req }) => {
+// Validasi ID Cabang
+validation.check_id_cabang = async (value, { req }) => {4
+    const company_id = await getCompanyIdByCode(req);
     try {
-        const company_id = await getCompanyIdByCode(req);
-        const transpaketId = req.body.id;
-
-        const paketTransaction = await Paket_transaction.findByPk(transpaketId);
-        const paket = await Paket.findByPk(paketTransaction.paket_id, {
-            attributes: ['facilities'],
-            raw: true,
+        const cabang = await Division.findOne({
+            where: { id: value, company_id: company_id },
+            attributes: ["id"],
         });
 
-        const fasilitasIds = JSON.parse(paket?.facilities || '[]').map(f => +f.id);
-        if (!fasilitasIds.length) {
-            throw new Error('Tidak ada fasilitas yang tersedia di paket');
-        }
-
-        // Ambil ID fasilitas yang sudah digunakan
-        const usedIds = await Handover_fasilitas_detail_paket.findAll({
-            attributes: ['mst_fasilitas_id'],
-            include: [{
-                model: Handover_fasilitas_paket,
-                where: { paket_transaction_id: transpaketId },
-            }],
-            raw: true,
-        }).then(rows => rows.map(r => r.mst_fasilitas_id));
-
-        // Ambil semua fasilitas yang tersedia dan belum digunakan
-        const fasilitasTersedia = await Mst_fasilitas.findAll({
-            where: {
-                id: {
-                [Op.in]: fasilitasIds,
-                ...(usedIds.length && { [Op.notIn]: usedIds }), // hanya filter kalau ada usedIds
-                },
-                company_id,
-            },
-            attributes: ['id'],
-            raw: true,
-        });
-
-        const validIdSet = new Set(fasilitasTersedia.map(f => f.id));
-
-        for (const id of value) {
-            const fasilitasId = Number(id);
-            if (!validIdSet.has(fasilitasId)) {
-                throw new Error(`Fasilitas ID ${fasilitasId} tidak tersedia atau sudah digunakan`);
-            }
+        if (!cabang) {
+            console.debug(`ID Cabang tidak terdaftar di pangkalan data`);
+            throw new Error("ID Cabang tidak terdaftar di pangkalan data");
         }
 
         return true;
     } catch (error) {
-        console.error('[check_mst_paket]', error);
-        throw error;
-    }
-};
-
-validation.check_id_handover_barang = async (value, { req }) => {
-    try {
-        // Validasi: apakah semua ID ada di Handover_barang?
-        const handoverBarang = await Handover_barang_paket.findAll({
-            where: {
-                id: {
-                    [Op.in]: value,
-                },
-                paket_transaction_id: req.body.id,
-            },
-        });
-
-        if (handoverBarang.length !== value.length) {
-            const missingIds = value.filter(id => !handoverBarang.map(hb => hb.id).includes(id));
-            throw new Error(`ID Handover Barang ${missingIds.join(', ')} tidak ditemukan`);
-        }
-
-        // Validasi: apakah status belum dikembalikan?
-        const dikembalikan = handoverBarang.find(hb => hb.status.toLowerCase() === 'dikembalikan');
-        if (dikembalikan) {
-            throw new Error(`Handover Barang dengan ID ${dikembalikan.id} sudah dikembalikan`);
-        }
-
-        return true;
-    } catch (error) {
-        console.log('[check_id_handover_barang]', error);
+        console.log(error);
         throw error;
     }
 };

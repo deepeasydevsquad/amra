@@ -1,173 +1,228 @@
+<script setup lang="ts">
+import { defineProps, defineEmits, ref, watch } from 'vue'
+import Form from '@/components/Modal/Form.vue'
+import InputText from '@/components/Form/InputText.vue'
+import InputFile from '@/components/Form/InputFile.vue'
+import PrimaryButton from '@/components/Button/PrimaryButton.vue'
+import DangerButton from '@/components/Button/DangerButton.vue'
+import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
+import alertify from 'alertifyjs'
+import { uploadFilePendukung } from '@/service/trans_paket'
+
+interface FilePendukung {
+  title: string
+  file?: File
+}
+
+const props = defineProps<{
+  showForm: boolean
+  transpaketId: number
+  cabangId: number
+}>()
+
+const emit = defineEmits<{
+  (e: 'cancel'): void
+  (e: 'status', payload: { error: boolean; err_msg?: string }): void
+}>()
+
+const errors = ref<Record<string, string>>({})
+const formData = ref<Partial<FilePendukung>[]>([])
+const isLoading = ref(false)
+
+const handleCancel = (): void => {
+  emit('cancel')
+  errors.value = {}
+  formData.value = []
+}
+
+function createEmptyForm(): Partial<FilePendukung> {
+  return {
+    title: '',
+    file: undefined,
+  }
+}
+
+const addRow = (): void => {
+  formData.value.push(createEmptyForm())
+}
+
+const deleteRow = (index: number): void => {
+  formData.value.splice(index, 1)
+}
+
+const handleFileUpload = (event: Event, index: number): void => {
+  const file = event as HTMLInputElement
+
+  // Jika tidak ada file yang dipilih atau file tidak valid, reset state
+  if (!file) {
+    formData.value[index].file = undefined
+    return
+  }
+
+  const allowedTypes = ['application/pdf']
+  const maxSize = 614400 // 600KB
+
+  if (!allowedTypes.includes(file.type)) {
+    alertify.error(`Format file '${file.name}' tidak didukung. Gunakan format PDF.`)
+    file.value = ''
+    formData.value[index].file = undefined
+    formData.value[index].title = undefined
+    return
+  }
+  if (file.size > maxSize) {
+    alertify.error(`Ukuran file '${file.name}' maksimum 600KB`)
+    file.value = ''
+    formData.value[index].file = undefined
+    formData.value[index].title = undefined
+    return
+  }
+
+  // Jika file valid, simpan ke state
+  formData.value[index].file = file
+  if (!formData.value[index].title) {
+    formData.value[index].title = file.name.replace(/\.[^/.]+$/, '')
+  }
+  // Hapus error jika ada
+  if (errors.value[`file-${index}`]) {
+    errors.value[`file-${index}`] = ''
+  }
+}
+
+const validateForm = (): boolean => {
+  errors.value = {}
+  let isValid = true
+
+  if (formData.value.length === 0) {
+    errors.value.form = 'Minimal harus ada satu file pendukung yang diunggah'
+    isValid = false
+  }
+
+  formData.value.forEach((form, index) => {
+    if (!form.title || form.title.trim() === '') {
+      errors.value[`title-${index}`] = 'Nama File harus diisi'
+      isValid = false
+    }
+    if (!form.file) {
+      errors.value[`file-${index}`] = 'File harus diunggah'
+      isValid = false
+    }
+  })
+
+  if (!isValid) {
+    alertify.error('Form tidak valid. Silakan perbaiki semua kesalahan.')
+  }
+
+  return isValid
+}
+
+const handleSubmit = async (): Promise<void> => {
+  if (!validateForm()) return
+
+  isLoading.value = true
+
+  const fd = new FormData()
+  fd.append('id', props.transpaketId.toString())
+  fd.append('division_id', props.cabangId.toString())
+
+  formData.value.forEach((item, index) => {
+    fd.append(`payload[${index}][title]`, item.title)
+    fd.append(`payload[${index}][file]`, item.file)
+  })
+
+  console.log("fd", fd);
+
+  try {
+    const response = await uploadFilePendukung(fd)
+    if (response?.error || response?.status) {
+      emit('status', { error: false, err_msg: response.message })
+      alertify.success(response.message || 'File berhasil diunggah.')
+      emit('cancel')
+    } else {
+      emit('status', { error: true, err_msg: response.message })
+      alertify.error(response?.message || 'Terjadi kesalahan saat upload.')
+      emit('cancel')
+    }
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || 'Gagal mengupload file.'
+    alertify.error(errorMessage)
+    console.error(error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+watch(
+  () => props.showForm,
+  (val) => {
+    if (val) {
+      formData.value = [createEmptyForm()]
+      errors.value = {}
+    }
+  },
+)
+</script>
+
 <template>
-  <Form :form-status="showForm" :label="'Form Upload File Pendukung'" class="text-sm" width="sm:w-1/2" @close="handleCancel" @cancel="handleCancel"  @submit="handleSubmit" :submitLabel="'UPLOAD FILE'">
-    <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-0 px-1">
-      <div class="space-y-4">
-        <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="w-[45%] px-6 py-2 font-medium text-gray-900 text-center border-b border-t">Nama File</th>
-              <th class="w-[45%] px-6 py-2 font-medium text-gray-900 text-center border-b border-t">File</th>
-              <th class="w-[10%] px-6 py-2 font-medium text-gray-900 text-center border-b border-t">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            <template v-if="formData.length === 0">
-              <tr>
-                <td colspan="3" class="px-6 py-1 text-center text-gray-500">Tidak ada file yang diunggah</td>
-              </tr>
-            </template>
-            <template v-else>
-              <tr v-for="(file, index) in formData" :key="index">
-                <td class="px-4 pt-4 border-b text-center align-top">
-                  <InputText label_status="false" v-model="file.title" label="Nama File" id="title" placeholder="Nama File" :error="errors.title" />
-                </td>
-                <td class="px-4 pt-4 border-b text-center">
-                  <InputFile label_status="false" id="photo-upload" :error="errors.photo" @file-selected="handleFileUpload" accept=".jpg,.jpeg,.png" />
-                </td>
-                <td class="px-6 py-1 border-b text-center">
-                  <DangerButton @click="deleteRow(index, formData.length )" title="Hapus Transaksi Paket">
-                    <DeleteIcon></DeleteIcon>
-                  </DangerButton>
-                </td>
-              </tr>
-            </template>
-          </tbody>
-           <tfoot>
-            <tr>
-              <td class="py-3 px-0 border-b " colspan="3">
-                 <div class="flex justify-end">
-                    <PrimaryButton @click="addRow()">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                      </svg>
-                      TAMBAH ROW
-                    </PrimaryButton>
-                 </div>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+  <Form
+    :form-status="showForm"
+    :label="'Form Upload File Pendukung'"
+    class="text-sm"
+    width="sm:w-1/2"
+    @close="handleCancel"
+    @cancel="handleCancel"
+    @submit="handleSubmit"
+    :submitLabel="isLoading ? 'MENGUNGGAH...' : 'UNGGAH FILE'"
+    :is-loading="isLoading"
+  >
+    <div class="flex flex-col px-1">
+      <!-- Header -->
+      <div class="flex border-b border-t bg-gray-50">
+        <div class="w-[55%] px-4 py-2 font-medium text-gray-900 text-center">Nama File</div>
+        <div class="w-[35%] px-4 py-2 font-medium text-gray-900 text-center">Pilih File</div>
+        <div class="w-[10%] px-4 py-2 font-medium text-gray-900 text-center">Aksi</div>
       </div>
+
+      <!-- Body -->
+      <div class="max-h-[40vh] overflow-y-auto">
+        <div v-if="formData.length === 0" class="text-center py-4 text-gray-500">
+          Klik "Tambah Row" untuk memulai.
+        </div>
+        <div
+          v-for="(item, index) in formData"
+          :key="index"
+          class="flex items-start border-b py-3"
+        >
+          <div class="w-[55%] px-2">
+            <InputText
+              label_status="false"
+              v-model="item.title"
+              :id="`title-${index}`"
+              placeholder="Contoh: Scan KTP"
+              :error="errors[`title-${index}`]"
+            />
+          </div>
+          <div class="w-[35%] px-2">
+            <InputFile
+              label_status="false"
+              :id="`file-upload-${index}`"
+              :error="errors[`file-${index}`]"
+              @file-selected="handleFileUpload($event, index)"
+              accept=".pdf"
+            />
+          </div>
+          <div class="w-[10%] px-2 flex justify-center items-center h-full pt-1">
+            <DangerButton @click="deleteRow(index)" title="Hapus Baris">
+              <DeleteIcon />
+            </DangerButton>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex justify-end mt-3">
+        <PrimaryButton @click="addRow"> TAMBAH ROW </PrimaryButton>
+      </div>
+      <div v-if="errors.form" class="text-red-500 text-sm mt-2 text-center">{{ errors.form }}</div>
     </div>
   </Form>
 </template>
-<script setup lang="ts">
-  import { defineProps, defineEmits, ref, watch } from 'vue'
-  import Form from "@/components/Modal/Form.vue"
-  import InputText from '@/components/Form/InputText.vue'
-  import InputFile from '@/components/Form/InputFile.vue'
-  import PrimaryButton from '@/components/Button/PrimaryButton.vue'
-  import { error } from 'console'
-  import alertify from 'alertifyjs'
-
-  import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
-  import DangerButton from '@/components/Button/DangerButton.vue'
-
-  interface FilePendukung {
-    id?: number
-    title: string
-    filename: string
-  }
-
-  const props = defineProps<{ showForm: boolean }>()
-  const errors = ref<Record<string, string>>({})
-  const formData = ref<Partial<FilePendukung>[]>([])
-  const emit = defineEmits<{
-    (e: 'cancel'): void;
-  }>();
-  const handleCancel = (): void => {
-    emit('cancel')
-    errors.value = {};
-  }
-
-  function createEmptyForm(): FilePendukung {
-    return {
-      title: '',
-      filename: '',
-    }
-  }
-
-  const validateForm = (): boolean => {
-
-    let isValid = true
-    errors.value = {};
-
-    // if (form.value.level_id == 0) {
-    //   errors.value.level_id = 'Silahkan pilih salah satu level agen'
-    //   isValid = false
-    // }
-
-    return isValid
-  }
-
-  const deleteRow = (index: number, length: number): void => {
-    if( length <= 1 ) {
-      alertify.error('Minimal harus ada satu file pendukung yang diunggah');
-      return
-    }
-    formData.value.splice(index, 1)
-  }
-
-  const addRow = (): void => {
-    formData.value.push(createEmptyForm())
-  }
-
-
-  const handleFileUpload = (event: Event): void => {
-    // const input = event as HTMLInputElement
-    // if (input) {
-    //   const file = input
-
-    //   // Validasi jenis file
-    //   if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
-    //     errors.value.photo = 'File harus berupa JPG, JPEG, atau PNG'
-    //     fileName.value = ''
-    //     return
-    //   }
-
-    //   // Validasi ukuran file (600KB = 614400 bytes)
-    //   if (file.size > 614400) {
-    //     errors.value.photo = 'Ukuran file maksimum 600KB'
-    //     displayNotification('Ukuran file gambar maksimum 600KB', 'error')
-    //     fileName.value = ''
-    //     return
-    //   }
-
-    //   fileName.value = file.name
-    //   formData.value.photo = file
-    //   console.log(fileName.value)
-    //   console.log(formData.value.photo)
-    // }
-  }
-
-
-  const handleSubmit = async (): Promise<void> => {
-    if (!validateForm()) {
-      return
-    }
-
-    try {
-      // const response = await makeAnAgen({ id : form.value.id, level: form.value.level_id, upline: form.value.upline_id } );
-      // if(response.error) {
-      //   displayNotification(response.error_msg, 'error');
-      // }else{
-      //   displayNotification(response.error_msg, 'success');
-      // }
-      emit('cancel')
-    } catch (error) {
-      console.error('Gagal menyimpan data member:', error)
-    }
-  }
-
-
-
-  watch(
-    () => props.showForm,
-    async (val) => {
-      if (val) {
-        formData.value= [createEmptyForm()]
-      }
-    },
-  )
-
-</script>
