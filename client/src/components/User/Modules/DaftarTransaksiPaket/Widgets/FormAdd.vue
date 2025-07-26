@@ -72,7 +72,12 @@ function showConfirmation(title: string, message: string, action: () => void) {
 
 // Function: Ambil data agen dari jamaah terpilih
 const checkAndFetchAgen = async (jamaahId: number) => {
-  const selected = JamaahList.value.find(j => j.id === jamaahId)
+
+  console.log("___________________");
+  console.log(form.jamaah_id);
+  console.log(JamaahList.value);
+  console.log("___________________");
+  const selected = JamaahList.value.find(j => j.id === form.jamaah_id)
   console.log('Selected Jamaah:', selected)
   if (selected?.agen_id) {
     try {
@@ -184,7 +189,7 @@ async function saveData() {
         window.open(`/kwitansi-pembayaran-transaksi-paket/${response.data.invoice}`, '_blank')
         emit('status', { error: false, err_msg: 'Transaksi Paket berhasil ditambahkan' })
         emit('close')
-      
+
       } catch (error) {
         displayNotification('Gagal menyimpan Transaksi Paket', 'error')
         emit('status', { error: true, err_msg: error.response.data.error_msg })

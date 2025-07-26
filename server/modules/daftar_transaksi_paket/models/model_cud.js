@@ -13,6 +13,7 @@ const {
   Deposit,
   Handover_fasilitas,
   Handover_barang,
+  Paket
   } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
@@ -202,11 +203,25 @@ class Model_cud {
     await this.initialize();
     const body = this.req.body;
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
-    const division_id = await getDivisionId(this.req);
     
     try {
       // call object
       const model_r = new Model_r(this.req);
+      
+      // get division_id from paket
+      var division_id = 0
+      await Paket.findOne({ 
+        include: {
+          required: true,
+          model: Division,
+          where: { company_id: this.company_id },
+        },
+        where: { id: body.id
+        }
+      }).then(async (e) => {
+        if (e) { division_id = e.division_id; }
+      });
+
       // get info tabungan
       const infoPaket = await model_r.infoPaket(body.id, body.paket_types_id, division_id);
       const invoicePaketTransactionPaymentHistory = await this.generateInvoice();
@@ -234,7 +249,10 @@ class Model_cud {
           pembayaran_fee_agen_id: null,
           createdAt: dateNow,
           updatedAt: dateNow,
-        }, { transaction: this.t });
+        }, 
+        { 
+          transaction: this.t 
+        });
         agenId = agen.id;
       }
 

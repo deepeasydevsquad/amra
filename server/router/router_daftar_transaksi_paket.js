@@ -82,11 +82,6 @@ router.post(
       .notEmpty().withMessage("ID Paket tidak boleh kosong.")
       .isInt().withMessage("ID Paket harus berupa angka.")
       .custom(validation.check_id_paket),
-    body("division_id")
-      .trim()
-      .notEmpty().withMessage("ID Cabang tidak boleh kosong.")
-      .isInt().withMessage("ID Cabang harus berupa angka.")
-      .custom(validation.check_id_cabang),
     body("jamaah_id")
       .trim()
       .notEmpty().withMessage("ID Jamaah tidak boleh kosong.")

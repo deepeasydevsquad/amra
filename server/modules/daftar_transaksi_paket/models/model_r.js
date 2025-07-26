@@ -197,48 +197,113 @@ class Model_r {
 
   async getJamaahTransaksiPaket() {
     await this.initialize();
-    const division_id = await getDivisionId(this.req);
+    // const division_id = await getDivisionId(this.req);
     const { id: paket_id } = this.req.body;
 
     try {
-      const transaksiPaket = await Paket_transaction.findAll({
-        where: { paket_id },
-        attributes: ["jamaah_id"],
-        raw: true,
-      });
-      const jamaahTerdaftarIds = transaksiPaket.map(e => e.jamaah_id);
+      // Ambil semua jamaah yang sudah terdaftar di paket ini namun belum terdaftar di paket transaksi
 
-      const tabunganAktif = await Tabungan.findAll({
-        where: {
-          division_id,
-          status: "active",
+      // ambil divisi dari paket di 
+      var division_id = 0;
+      await Paket.findOne({ 
+        include: {
+          required: true,
+          model: Division,
+          where: { company_id: this.company_id },
         },
-        attributes: ["jamaah_id"],
-        raw: true,
+        where: { id: paket_id
+        }
+      }).then(async (e) => {
+        if (e) { division_id = e.division_id; }
       });
-      const jamaahDenganTabunganIds = new Set(tabunganAktif.map(e => e.jamaah_id));
 
-      const jamaah = await Jamaah.findAll({
+      // ambil jamaah yang sudah terdaftar di paket transaksi
+      var jamaahSudahTerdaftar = [];
+      const q = await Paket_transaction.findAndCountAll({
         where: {
-          division_id,
+          paket_id
+        },
+        order: [["id", "ASC"]],
+      });
+      await Promise.all(
+        await q.rows.map(async (e) => {
+          jamaahSudahTerdaftar.push(e.jamaah_id);
+        })
+      );
+
+      var data = [];
+      const q1 = await Jamaah.findAndCountAll({
+        where: {
           id: {
-            [Op.notIn]: [...jamaahTerdaftarIds, ...jamaahDenganTabunganIds],
-          },
+            [Op.notIn]: jamaahSudahTerdaftar,
+          }
         },
-        attributes: ["id", "agen_id"],
-        include: [{
+        include: {
+          required: true,
           model: Member,
-          attributes: ["fullname"],
-        }],
+          where: {
+            division_id: division_id,
+          }
+        } 
       });
+      await Promise.all(
+        await q1.rows.map(async (e) => {
+          data.push({
+            id: e.id, 
+            agen_id: e.agen_id,
+            name: e.Member?.fullname || "-"
+          });
+        })
+      );
+
+
+      console.log("XXXXX");
+      console.log(data);
+      console.log("XXXXX");
+
+      // jamaahSudahTerdaftar.push(e.jamaah_id);
+     
+      // const transaksiPaket = await Paket_transaction.findAll({
+      //   where: { paket_id },
+      //   attributes: ["jamaah_id"],
+      //   raw: true,
+      // });
+      // const jamaahTerdaftarIds = transaksiPaket.map(e => e.jamaah_id);
+
+      // const tabunganAktif = await Tabungan.findAll({
+      //   where: {
+      //     division_id,
+      //     status: "active",
+      //   },
+      //   attributes: ["jamaah_id"],
+      //   raw: true,
+      // });
+      // const jamaahDenganTabunganIds = new Set(tabunganAktif.map(e => e.jamaah_id));
+
+      // const jamaah = await Jamaah.findAll({
+      //   where: {
+      //     division_id,
+      //     id: {
+      //       [Op.notIn]: [...jamaahTerdaftarIds, ...jamaahDenganTabunganIds],
+      //     },
+      //   },
+      //   attributes: ["id", "agen_id"],
+      //   include: [{
+      //     model: Member,
+      //     attributes: ["fullname"],
+      //   }],
+      // });
+
+      // data: jamaah.map(e => ({
+      //   id: e.id,
+      //   agen_id: e.agen_id,
+      //   name: e.Member?.fullname || "-",
+      // })),
+
 
       return {
-        data: jamaah.map(e => ({
-          id: e.id,
-          agen_id: e.agen_id,
-          name: e.Member?.fullname || "-",
-        })),
-        total: jamaah.length,
+        data: data,
+        total: data.length,
       };
     } catch (error) {
       console.error("Error in getJamaahTransaksiPaket:", error);
