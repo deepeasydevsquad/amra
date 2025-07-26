@@ -133,10 +133,12 @@ const handleSubmit = async (): Promise<void> => {
 
   try {
     const response = await uploadFilePendukung(fd)
-    if (response?.error) {
+    if (response?.error || response?.status) {
       emit('status', { error: true, err_msg: response.message })
       alertify.error(response.message || 'Terjadi kesalahan saat upload.')
+      emit('cancel')
     } else {
+      emit('status', { error: false, err_msg: response.message })
       alertify.success(response?.message || 'File berhasil diunggah.')
       emit('cancel')
     }
