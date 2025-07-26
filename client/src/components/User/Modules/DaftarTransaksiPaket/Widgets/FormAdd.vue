@@ -95,7 +95,7 @@ const fetchData = async () => {
     const [jamaahResponse, paketResponse] = await Promise.all([
       getJamaah({
         id: props.paketId,
-        division_id: props.cabangId
+        // division_id: props.cabangId
       }),
       getPaketTypes(props.paketId),
     ])

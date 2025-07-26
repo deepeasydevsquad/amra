@@ -15,11 +15,11 @@ router.post(
       .notEmpty().withMessage("ID Paket tidak boleh kosong.")
       .isInt().withMessage("ID Paket harus berupa angka.")
       .custom(validation.check_id_paket),
-    body("division_id")
-      .trim()
-      .notEmpty().withMessage("ID Divisi tidak boleh kosong.")
-      .isInt().withMessage("ID Divisi harus berupa angka.")
-      .custom(validation.check_id_cabang),
+    // body("division_id")
+    //   .trim()
+    //   .notEmpty().withMessage("ID Divisi tidak boleh kosong.")
+    //   .isInt().withMessage("ID Divisi harus berupa angka.")
+    //   .custom(validation.check_id_cabang),
   ],
   controllers.getJamaahTransaksiPaket
 )
