@@ -333,18 +333,6 @@ onMounted(() => {
                   </tbody>
                 </table>
               </td>
-<<<<<<< HEAD
-              <td class="px-6 py-4 text-center flex gap-2 justify-center">
-                <LightButton @click="openFormRefund(dataTransPaket.id)" title="Refund Transaksi Paket">
-                  <RefundIcon class="h-4 w-4 text-gray-600" />
-                </LightButton>
-                <LightButton @click="openFormEditVisa(dataTransPaket.id)" title="Update Informasi Visa">
-                  <EditIcon></EditIcon>
-                </LightButton>
-                <DangerButton @click="deleteData(dataTransPaket.id)" title="Hapus Transaksi Paket">
-                  <DeleteIcon></DeleteIcon>
-                </DangerButton>
-=======
               <td class="px-4 py-2 text-center align-top">
                 <div class="flex flex-col items-center space-y-2">
                   <LightButton @click="openFormRefund(dataTransPaket.id)" title="Refund Transaksi Paket">
@@ -360,9 +348,6 @@ onMounted(() => {
                     <DeleteIcon></DeleteIcon>
                   </DangerButton>
                 </div>
-
-
->>>>>>> 8ad6aa8c97fea5a4c78c9bbcb8801e8a7c82bb44
               </td>
             </tr>
           </template>
@@ -386,7 +371,8 @@ onMounted(() => {
     </div>
   </div>
 
-<<<<<<< HEAD
+  <FormUploadFilePendukung  :showForm="isFormFilePendukungOpen" :transpaketId="transpaketId" @cancel="isFormFilePendukungOpen= false; fetchData()"></FormUploadFilePendukung>
+
   <!-- Form Pengembalian Barang Handover -->
   <transition
     enter-active-class="transition duration-200 ease-out"
@@ -405,9 +391,6 @@ onMounted(() => {
       @status="(payload) => displayNotification(payload.err_msg || 'Pengembalian Barang gagal ditambahkan', payload.error ? 'error' : 'success')"
       />
   </transition>
-=======
-  <FormUploadFilePendukung  :showForm="isFormFilePendukungOpen" :transpaketId="transpaketId" @cancel="isFormFilePendukungOpen= false; fetchData()"></FormUploadFilePendukung>
->>>>>>> 8ad6aa8c97fea5a4c78c9bbcb8801e8a7c82bb44
 
   <!-- Form Pengembalian Barang Handover -->
   <transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
