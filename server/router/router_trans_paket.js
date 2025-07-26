@@ -44,6 +44,7 @@ router.post(
       .notEmpty().withMessage("ID Cabang tidak boleh kosong.")
       .custom(validation.check_id_cabang),
   ],
+  validation.hapusFileJikaValidasiError,
   controllers.addUploadFile
 );
 
