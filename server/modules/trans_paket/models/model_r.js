@@ -53,6 +53,7 @@ class Model_r {
         order: [["createdAt", "DESC"]],
         attributes: [
           "id",
+          "division_id",
           "name",
           "kode",
           "photo",
@@ -99,8 +100,10 @@ class Model_r {
           finalPhoto = null;
         }
 
+        console.log("finalPhoto:", paket);
         return {
           id: paket.id,
+          division_id: paket.division_id,
           name: paket.name,
           kode: paket.kode,
           photo: finalPhoto,

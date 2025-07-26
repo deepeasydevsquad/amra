@@ -5,10 +5,17 @@ import Notification from '@/components/Modal/Notification.vue'
 import Confirmation from '@/components/Modal/Confirmation.vue'
 import Logout from '@/components/Login/widgets/Logout.vue'
 import ModalEditProfile from '@/components/User/Modules/Profile/ModalEditProfile.vue'
+// import { CompanyCode, Name, Jabatan } from '@/stores/profile'
+import { SettingStore } from '@/stores/settings'
 
 const target = ref(null)
 const dropdownOpen = ref(false)
 const logoutRef = ref(null)
+
+// const settings = SettingStore()
+const SettingGlob = SettingStore()
+// const name = Name()
+// const jabatan = Jabatan()
 
 onClickOutside(target, () => {
   dropdownOpen.value = false
@@ -49,17 +56,13 @@ function showNotif(payload: { type: 'success' | 'error'; message: string }) {
 
 <template>
   <div class="relative" ref="target">
-    <router-link
-      class="flex items-center gap-4"
-      to="#"
-      @click.prevent="dropdownOpen = !dropdownOpen"
-    >
+    <router-link class="flex items-center gap-4" to="#" @click.prevent="dropdownOpen = !dropdownOpen" >
       <span class="hidden text-right lg:block">
-        <span class="block text-sm font-medium text-amra dark:text-white">Muammar Kadafi</span>
-        <span class="block text-xs font-bold text-amra dark:text-white">As Administartor</span>
+        <span class="block text-sm font-medium text-amra dark:text-white">{{ SettingGlob.sharedObject.type == 'administrator' ? SettingGlob.sharedObject.company_name: SettingGlob.sharedObject.fullname ?? '-'  }} / <b>{{ SettingGlob.sharedObject.company_code }}</b></span>
+        <span class="block text-xs font-bold text-amra dark:text-white">As {{ SettingGlob.sharedObject.type }}</span>
       </span>
       <span class="h-12 w-12 rounded-full">
-        <img src="@/assets/images/user/user-01.png" alt="User" />
+        <img src="@/assets/images/user/avatar.png" alt="User" />
       </span>
       <svg
         :class="dropdownOpen && 'rotate-180'"

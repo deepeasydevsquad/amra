@@ -25,6 +25,7 @@ import { ref, onMounted, computed } from 'vue';
 
 const props = defineProps<{
   paketId: number
+  cabangId: number
 }>()
 
 const isLoading = ref(false);
@@ -143,6 +144,7 @@ const fetchData = async () => {
     isLoading.value = true
     const response = await daftarJamaahPaket({
       paketId: props.paketId,
+      division_id: props.cabangId,
       search: search.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value
@@ -280,10 +282,11 @@ onMounted(() => {
   >
     <FormDownloadAbsensi
       v-if="isFormDownloadAbsensiOpen"
-      :isFormDownloadAbsensiOpen="isFormDownloadAbsensiOpen"
-      :paketId="props.paketId"
+      :is-form-download-absensi-open="isFormDownloadAbsensiOpen"
+      :paket-id="props.paketId"
+      :cabang-id="props.cabangId"
       @close="isFormDownloadAbsensiOpen= false; fetchData()"
-      @status="(payload) => displayNotification(payload.err_msg || 'Pengembalian Barang gagal ditambahkan', payload.error ? 'error' : 'success')"
+      @status="(payload) => displayNotification(payload.err_msg || 'Absensi gagal diunduh', payload.error ? 'error' : 'success')"
       />
   </transition>
 
@@ -298,10 +301,11 @@ onMounted(() => {
   >
     <FormCetakDataJamaah
       v-if="isFormCetakDataJamaahOpen"
-      :isFormCetakDataJamaahOpen="isFormCetakDataJamaahOpen"
-      :transpaketId="transpaketId"
+      :is-form-cetak-data-jamaah-open="isFormCetakDataJamaahOpen"
+      :transpaket-id="transpaketId"
+      :cabang-id="props.cabangId"
       @close="isFormCetakDataJamaahOpen = false; fetchData()"
-      @success="displayNotification('Jamaah berhasil dicetak', 'success')"
+      @status="(payload) => displayNotification(payload.err_msg || 'Data Jamaah gagal dicetak', payload.error ? 'error' : 'success')"
       />
   </transition>
 

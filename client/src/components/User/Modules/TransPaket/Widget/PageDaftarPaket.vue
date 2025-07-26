@@ -9,6 +9,7 @@ const BASE_URL = import.meta.env.VITE_APP_API_BASE_URL
 
 interface Paket {
   id: number
+  division_id: number
   name: string
   kode: string
   photo: string
@@ -54,11 +55,11 @@ const fetchDaftarPaket = async () => {
 }
 
 const emit = defineEmits<{
-  (e: 'showDetailPaket', paketId: number): void
+  (e: 'showDetailPaket', paketId: number, division_id: number): void
 }>()
 
-const handleBeliPaket = (id: number) => {
-  emit('showDetailPaket', id)
+const handleBeliPaket = (id: number, division_id: number) => {
+  emit('showDetailPaket', id, division_id)
 }
 
 const formatPrice = (price: number) => {
@@ -118,7 +119,7 @@ onMounted(() => {
                       </span>
                     </div>
                   </div>
-                  <PrimaryButton @click="handleBeliPaket(paket.id)" :auto="false" >BELI PAKET</PrimaryButton>
+                  <PrimaryButton @click="handleBeliPaket(paket.id, paket.division_id)" :auto="false" >BELI PAKET</PrimaryButton>
                 </div>
             </div>
           </template>

@@ -21,6 +21,7 @@ const confirmAction = ref<(() => void) | null>(null)
 const props = defineProps<{
   isFormOpen: boolean,
   paketId: number,
+  cabangId: number
 }>()
 
 console.log(props)
@@ -92,13 +93,16 @@ const fetchData = async () => {
   try {
     isLoading.value = true
     const [jamaahResponse, paketResponse] = await Promise.all([
-      getJamaah(props.paketId),
+      getJamaah({
+        id: props.paketId,
+        // division_id: props.cabangId
+      }),
       getPaketTypes(props.paketId),
     ])
 
     JamaahList.value = jamaahResponse.data
     PaketTypesList.value = paketResponse.data
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching data:', error)
     displayNotification(error.response.data.error_msg, 'error')
   } finally {
@@ -167,6 +171,7 @@ async function saveData() {
           id: props.paketId,
           jamaah_id: form.jamaah_id,
           paket_types_id: form.paket_types_id,
+          division_id: props.cabangId,
         }
 
         const response = await addTransaksiPaket(payload)
@@ -179,6 +184,7 @@ async function saveData() {
         window.open(`/kwitansi-pembayaran-transaksi-paket/${response.data.invoice}`, '_blank')
         emit('status', { error: false, err_msg: 'Transaksi Paket berhasil ditambahkan' })
         emit('close')
+      
       } catch (error) {
         displayNotification('Gagal menyimpan Transaksi Paket', 'error')
         emit('status', { error: true, err_msg: error.response.data.error_msg })

@@ -10,10 +10,13 @@ export const daftarManifestPaket = async (param: any) => {
   }
 }
 
-export const downloadAbsensi = async (id: number) => {
+export const downloadAbsensi = async (id: number, division_id: number) => {
   try {
     const response = await api.post('/daftar-manifest-paket/download-manifest-paket',
-      { paketId: id },
+      {
+        paketId: id,
+        division_id: division_id
+      },
       { responseType: 'blob' }
     );
 

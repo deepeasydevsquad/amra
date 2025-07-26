@@ -109,6 +109,7 @@ interface Paket {
 const filterCabang = ref(0);
 const timeoutId = ref<number | null>(null);
 const dataPaket = ref<Paket[]>([]);
+const cabangId = ref<number>(0);
 const isFormOpen = ref<boolean>(false);
 const isFormOpenEdit = ref<boolean>(false);
 const isPageDetailPaketOpen = ref<boolean>(false);
@@ -186,9 +187,10 @@ const openFormEdit = (paketId: number) => {
   paket.value = paketId;
 }
 
-const openDetailPaket = (paketId: number) => {
-  isPageDetailPaketOpen.value = true;
+const openDetailPaket = (paketId: number, division_id: number) => {
   paket.value = paketId;
+  cabangId.value = division_id
+  isPageDetailPaketOpen.value = true;
 }
 
 const deleteData = async (id: number) => {
@@ -248,7 +250,7 @@ const shortText = (teks:string, maxKarakter: number) => {
       />
     </div>
     <div v-else-if="isPageDetailPaketOpen">
-      <DetailPaket :isPageDetailPaketOpen="isPageDetailPaketOpen" :paketId="paket" @closeDetailPaket="isPageDetailPaketOpen = false; fetchData()" />
+      <DetailPaket :isPageDetailPaketOpen="isPageDetailPaketOpen" :paket-id="paket" :cabang-id="filterCabang" @closeDetailPaket="isPageDetailPaketOpen = false; fetchData()" />
     </div>
     <div v-else-if="dataPaket" class="container mx-auto px-4 mt-10">
       <div class="flex justify-between items-center mb-6">
@@ -335,7 +337,7 @@ const shortText = (teks:string, maxKarakter: number) => {
                 <td class="px-6 py-4 text-center">{{ paket.quota_jamaah }} Orang</td>
                 <td class="px-6 py-4 text-center">
                   <div class="flex justify-center gap-2">
-                    <LightButton  @click="openDetailPaket(paket.id)">
+                    <LightButton  @click="openDetailPaket(paket.id, paket.division_id)">
                       <DetailIcon></DetailIcon>
                     </LightButton>
                     <LightButton @click="openFormEdit(paket.id)">

@@ -52,6 +52,7 @@ const fetchProfile = async () => {
 }
 
 onMounted(() => {
+  console.log("AAAAAA");
   fetchProfile()
 })
 

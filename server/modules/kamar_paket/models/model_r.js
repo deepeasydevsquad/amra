@@ -12,10 +12,13 @@ const {
   Jamaah,
   Member,
   Mst_kota,
+  Mst_paket_type,
   Mst_hotel,
   Agen,
+  Sequelize,
+  sequelize
 } = require("../../../models");
-const { getCompanyIdByCode } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, getDivisionId, getCabang } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
 
@@ -23,11 +26,15 @@ class model_r {
   constructor(req) {
     this.req = req;
     this.company_id;
+    this.division_id;
   }
 
   async initialize() {
     if (!this.company_id) {
       this.company_id = await getCompanyIdByCode(this.req);
+    }
+    if (!this.division_id) {
+      this.division_id = await getDivisionId(this.req);
     }
   }
 
@@ -68,32 +75,43 @@ class model_r {
 
   async getAllAvailableJamaah() {
     await this.initialize();
-    try {
-      const assignedTransactions = await Kamar_jamaah.findAll({
-        attributes: ["paket_transaction_id"],
-      });
-      const assignedTransactionIds = assignedTransactions.map(
-        (item) => item.paket_transaction_id
-      );
 
-      const availableTransactions = await Paket_transaction.findAll({
-        where: {
-          id: { [Op.notIn]: assignedTransactionIds },
-        },
+    try {
+      const where = {
+        division_id: this.division_id,
+        id: {
+          [Op.notIn]: Sequelize.literal(`(
+            SELECT DISTINCT paket_transaction_id
+            FROM Kamar_jamaahs
+            WHERE paket_transaction_id IS NOT NULL
+          )`)
+        }
+      };
+
+      const { count, rows } = await Paket_transaction.findAndCountAll({
+        where,
         include: [
           {
             model: Jamaah,
             required: true,
-            include: [{ model: Member, required: true }],
+            include: [
+              {
+                model: Member,
+                required: true,
+                attributes: ["fullname", "identity_number"],
+              },
+            ],
           },
         ],
       });
 
-      return availableTransactions.map((t) => ({
+      const data = rows.map((t) => ({
         id: t.id,
         fullname: t.Jamaah.Member.fullname,
         identity_number: t.Jamaah.Member.identity_number,
       }));
+      console.log("Datanya: ", data)
+      return { data, total: count };
     } catch (error) {
       console.error("Error di getAllAvailableJamaah:", error);
       throw error;
@@ -104,157 +122,108 @@ class model_r {
     await this.initialize();
 
     const body = this.req.body;
-    var limit = body.perpage;
-    var page = 1;
-
-    if (body.pageNumber != undefined && body.pageNumber !== "0")
-      page = body.pageNumber;
-
-    var where = { company_id: this.company_id };
+    const limit = parseInt(body.perpage) || 10;
+    const page = parseInt(body.pageNumber) || 1;
+    const offset = (page - 1) * limit;
 
     try {
-      let kamarIds = [];
+      const whereKamar = {};
 
-      if (body.search != undefined && body.search != "") {
-        const searchTerm = body.search.toLowerCase();
-
-        const matchingTransactions = await Paket_transaction.findAll({
-          include: [
-            {
-              model: Jamaah,
-              required: true,
-              include: [
-                {
-                  model: Member,
-                  required: true,
-                  where: {
-                    [Op.or]: [
-                      { fullname: { [Op.like]: `%${searchTerm}%` } },
-                      { identity_number: { [Op.like]: `%${searchTerm}%` } },
-                    ],
-                  },
-                },
-              ],
-            },
-          ],
-        });
-
-        const matchingTransactionIds = matchingTransactions.map((t) => t.id);
-
-        if (matchingTransactionIds.length > 0) {
-          const kamarJamaahs = await Kamar_jamaah.findAll({
-            where: {
-              paket_transaction_id: { [Op.in]: matchingTransactionIds },
-            },
-            attributes: ["kamar_id"],
-          });
-
-          kamarIds = [...new Set(kamarJamaahs.map((kj) => kj.kamar_id))];
-        }
-
-        if (kamarIds.length === 0) {
-          where.id = { [Op.in]: [-1] };
-        } else {
-          where.id = { [Op.in]: kamarIds };
-        }
+      // Optional search filter untuk kamar
+      if (body.search) {
+        whereKamar[Op.or] = [
+          { tipe_kamar: { [Op.like]: `%${body.search}%` } },
+          { kapasitas_kamar: { [Op.like]: `%${body.search}%` } },
+        ];
       }
 
-      var sql = {};
-      sql["limit"] = limit * 1;
-      sql["offset"] = (page - 1) * limit;
-      sql["order"] = [["id", "ASC"]];
-      sql["attributes"] = ["id", "tipe_kamar", "kapasitas_kamar", "hotel_id"];
-      sql["where"] = where;
+      // Ambil semua kamar dengan hotel + kota
+      const { rows: kamarList, count: total } = await Kamar.findAndCountAll({
+        where: whereKamar,
+        limit,
+        offset,
+        order: [["id", "ASC"]],
+        include: [
+          {
+            model: Mst_hotel,
+            attributes: ["id", "name"],
+            include: [{ model: Mst_kota, attributes: ["id", "name"] }],
+          },
+        ],
+      });
 
-      const query = await dbList(sql);
-      const q = await Kamar.findAndCountAll(query.total);
-      const total = q.count;
-      var data = [];
+      const kamarIds = kamarList.map((k) => k.id);
 
-      if (total > 0) {
-        await Kamar.findAll(query.sql).then(async (value) => {
-          await Promise.all(
-            await value.map(async (kamar) => {
-              let hotelName = "N/A";
-              let cityName = "N/A";
-
-              const hotel = await Mst_hotel.findOne({
-                where: { id: kamar.hotel_id },
-              });
-
-              if (hotel) {
-                hotelName = hotel.name;
-                if (hotel.kota_id) {
-                  const kota = await Mst_kota.findOne({
-                    where: { id: hotel.kota_id },
-                  });
-                  if (kota) {
-                    cityName = kota.name;
-                  }
-                }
-              }
-
-              const kamarJamaahs = await Kamar_jamaah.findAll({
-                where: { kamar_id: kamar.id },
+      // Ambil semua Kamar_jamaah yang terkait dengan kamar tersebut
+      const kamarJamaahList = await Kamar_jamaah.findAll({
+        where: {
+          kamar_id: { [Op.in]: kamarIds },
+        },
+        include: [
+          {
+            model: Paket_transaction,
+            where: {
+              division_id: this.division_id,
+              paket_id: body.paketId, // filter berdasarkan paketId
+            },
+            required: true,
+            include: [
+              {
+                model: Jamaah,
+                required: true,
                 include: [
                   {
-                    model: Paket_transaction,
-                    include: [
-                      {
-                        model: Jamaah,
-                        include: [{ model: Member }],
-                      },
-                    ],
+                    model: Member,
+                    required: true,
+                    attributes: ["fullname", "identity_number"],
                   },
                 ],
-              });
+              },
+              {
+                model: Mst_paket_type,
+                attributes: ["name"],
+              },
+            ],
+          },
+        ],
+      });
 
-              const daftar_jamaah_murni = [];
-              for (const kj of kamarJamaahs) {
-                if (
-                  kj.Paket_transaction &&
-                  kj.Paket_transaction.Jamaah &&
-                  kj.Paket_transaction.Jamaah.Member
-                ) {
-                  const memberId = kj.Paket_transaction.Jamaah.Member.id;
-                  const isAgent = await Agen.findOne({
-                    where: { member_id: memberId },
-                  });
-                  if (!isAgent) {
-                    daftar_jamaah_murni.push({
-                      nama: kj.Paket_transaction.Jamaah.Member.fullname,
-                      no_identity:
-                        kj.Paket_transaction.Jamaah.Member.identity_number,
-                      tipe_paket: "Normal",
-                    });
-                  }
-                }
-              }
+      // Kelompokkan jamaah berdasarkan kamar
+      const kamarToJamaahMap = {};
 
-              const formatTipeKamar = (tipe) => {
-                if (!tipe) return "";
-                return tipe
-                  .replace(/_/g, " ")
-                  .replace(/\b\w/g, (l) => l.toUpperCase())
-                  .replace(/ /g, "-");
-              };
+      kamarJamaahList.forEach((kj) => {
+        const kamarId = kj.kamar_id;
+        const trans = kj.Paket_transaction;
 
-              data.push({
-                id: kamar.id,
-                tipe_kamar: formatTipeKamar(kamar.tipe_kamar),
-                hotel_name: hotelName,
-                kapasitas_kamar: kamar.kapasitas_kamar,
-                daftar_jamaah: daftar_jamaah_murni,
-                nama_kota: cityName,
-              });
-            })
-          );
-        });
-      }
+        if (trans && trans.Jamaah && trans.Jamaah.Member) {
+          const jamaah = {
+            id: trans.Jamaah.id,
+            fullname: trans.Jamaah.Member.fullname,
+            identity_number: trans.Jamaah.Member.identity_number,
+            tipe_paket: trans.Mst_paket_type?.name || "-",
+          };
+
+          if (!kamarToJamaahMap[kamarId]) kamarToJamaahMap[kamarId] = [];
+          kamarToJamaahMap[kamarId].push(jamaah);
+        }
+      });
+
+      // Format data akhir
+      const result = kamarList.map((kamar) => ({
+        id: kamar.id,
+        tipe_kamar: kamar.tipe_kamar
+          ?.replace(/_/g, " ")
+          .replace(/\b\w/g, (l) => l.toUpperCase())
+          .replace(/ /g, "-"),
+        hotel_name: kamar.Mst_hotel?.name || "N/A",
+        kapasitas_kamar: kamar.kapasitas_kamar,
+        daftar_jamaah: kamarToJamaahMap[kamar.id] || [],
+        nama_kota: kamar.Mst_hotel?.Mst_kotum?.name || "N/A",
+      }));
 
       return {
-        data: data,
-        total: total,
+        data: result,
+        total,
       };
     } catch (error) {
       console.error("Error di kamar_paket:", error);
@@ -262,80 +231,73 @@ class model_r {
     }
   }
 
-  async getAllJamaahForEdit(currentKamarId = null) {
+  async getAllJamaahForEdit() {
     await this.initialize();
+    const { kamar_id } = this.req.body;
+
     try {
-      let assignedToOtherRooms = [];
-
-      if (currentKamarId) {
-        const assignedTransactions = await Kamar_jamaah.findAll({
-          where: {
-            kamar_id: { [Op.ne]: currentKamarId },
+      // 1. Dapatkan semua ID transaksi paket yang sudah ada di kamar LAIN.
+      const jamaahInOtherRooms = await Kamar_jamaah.findAll({
+        where: {
+          kamar_id: {
+            [Op.ne]: kamar_id, // Op.ne berarti "not equal" atau "tidak sama dengan"
           },
-          attributes: ["paket_transaction_id"],
-        });
-        assignedToOtherRooms = assignedTransactions.map(
-          (item) => item.paket_transaction_id
-        );
-      } else {
-        const assignedTransactions = await Kamar_jamaah.findAll({
-          attributes: ["paket_transaction_id"],
-        });
-        assignedToOtherRooms = assignedTransactions.map(
-          (item) => item.paket_transaction_id
-        );
-      }
-
-      let currentRoomJamaah = [];
-      if (currentKamarId) {
-        const currentAssignments = await Kamar_jamaah.findAll({
-          where: { kamar_id: currentKamarId },
-          attributes: ["paket_transaction_id"],
-        });
-        currentRoomJamaah = currentAssignments.map(
-          (item) => item.paket_transaction_id
-        );
-      }
-
-      const availableTransactionIds = [...currentRoomJamaah];
-
-      const unassignedTransactions = await Paket_transaction.findAll({
-        where: {
-          id: { [Op.notIn]: assignedToOtherRooms },
         },
-        attributes: ["id"],
+        attributes: ['paket_transaction_id'],
+        raw: true,
       });
+      const jamaahIdsInOtherRooms = jamaahInOtherRooms.map(j => j.paket_transaction_id);
 
-      availableTransactionIds.push(...unassignedTransactions.map((t) => t.id));
-
-      const availableTransactions = await Paket_transaction.findAll({
+      // 2. Dapatkan semua jamaah yang ID transaksinya TIDAK ADA di daftar jamaahIdsInOtherRooms.
+      // Ini akan mencakup jamaah di kamar saat ini + jamaah yang belum punya kamar.
+      const { count, rows } = await Paket_transaction.findAndCountAll({
         where: {
-          id: { [Op.in]: availableTransactionIds },
+          division_id: this.division_id,
+          id: {
+            [Op.notIn]: jamaahIdsInOtherRooms,
+          },
         },
         include: [
           {
             model: Jamaah,
             required: true,
-            include: [{ model: Member, required: true }],
+            include: [
+              {
+                model: Member,
+                required: true,
+                attributes: ['fullname', 'identity_number'],
+              },
+            ],
           },
         ],
+        order: [[Jamaah, Member, 'fullname', 'ASC']],
       });
 
-      return availableTransactions.map((t) => ({
+      const result = rows.map((t) => ({
         id: t.id,
         fullname: t.Jamaah.Member.fullname,
         identity_number: t.Jamaah.Member.identity_number,
       }));
+
+      return {
+        data: result,
+        total: count,
+      };
     } catch (error) {
       console.error("Error di getAllJamaahForEdit:", error);
       throw error;
     }
   }
 
-  async get_kamar_by_id(id) {
+  async get_kamar_by_id() {
     await this.initialize();
+    console.log("this.req.params: ", this.req.params);
+    const params = this.req.params;
+    console.log("params: ", params.id);
+
     try {
-      const kamar = await Kamar.findByPk(id, {
+      const kamar = await Kamar.findOne({
+        where: { id: params.id , company_id: this.company_id },
         include: [
           {
             model: Kamar_jamaah,
@@ -343,7 +305,6 @@ class model_r {
           },
         ],
       });
-      if (!kamar) throw new Error("Kamar tidak ditemukan");
 
       const formatTipeKamar = (tipe) => {
         if (!tipe) return "N/A";

@@ -1,6 +1,7 @@
 const fs = require("fs");
 const { Company, Member, Division, Menu, Submenu, Tab } = require("../../../models");
 const jwt = require("jsonwebtoken");
+const moment = require("moment");
 
 class Model_r {
   constructor(req) {
@@ -38,6 +39,7 @@ class Model_r {
             }).then(async (e) => {
                 if (e) {
                     data["company_code"] = e.Division.Company.code;
+                    data["division_id"] = e.Division.id;
                     data["password"] = e.password;
                     data["start_subscribtion"] = e.Division.Company.start_subscribtion;
                     data["end_subscribtion"] = e.Division.Company.end_subscribtion;
@@ -67,6 +69,8 @@ class Model_r {
             if (e) {
               user_info['logo'] = e.logo;
               user_info['company_name'] = e.company_name;
+              user_info['tipe_berlangganan'] = e.type;
+              user_info['akhir_berlangganan'] = moment(e.end_subscribtion).format("D MMMM YYYY");
             }
         });
 

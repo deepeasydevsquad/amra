@@ -7,10 +7,18 @@ interface KamarPayload {
   jamaah_ids: (number | null)[]
 }
 
+// Helper untuk menangani respons API yang tidak konsisten
+const handleResponse = (response: any) => {
+  if (response.data && typeof response.data === 'object') {
+    return response.data
+  }
+  return response
+}
+
 export const getDaftarKamarPaket = async (param: any) => {
   try {
     const response = await api.post(`/daftar-kamar-paket/get-kamar-paket/list`, param)
-    return response.data
+    return handleResponse(response)
   } catch (error) {
     console.error('Gagal mengambil daftar kamar paket:', error)
     throw error
@@ -20,44 +28,43 @@ export const getDaftarKamarPaket = async (param: any) => {
 export const createKamar = async (payload: KamarPayload) => {
   try {
     const response = await api.post('/daftar-kamar-paket/create-kamar', payload)
-    return response.data
+    return handleResponse(response)
   } catch (error) {
     console.error('Gagal membuat kamar:', error)
     throw error
   }
 }
 
-export const getAllHotels = async () => {
+export const getAllHotels = async (param: any) => {
   try {
-    const response = await api.get('/daftar-kamar-paket/get-hotels')
-    return response.data.data
+    const response = await api.post('/daftar-kamar-paket/get-hotels', param)
+    return handleResponse(response)
   } catch (error) {
     console.error('Gagal mengambil data hotel:', error)
     throw error
   }
 }
+export const getAllJamaah = async (param: any) => {
+  const payload = {
+    forEdit: param.forEdit === false ? false : true,
+    currentKamarId: param.currentKamarId,
+    division_id: param.division_id,
+  };
 
-export const getAllJamaah = async (
-  forEdit: boolean = false,
-  currentKamarId: number | null = null,
-) => {
   try {
-    let url = `/daftar-kamar-paket/get-available-jamaah?forEdit=${forEdit}`
-    if (currentKamarId) {
-      url += `&currentKamarId=${currentKamarId}`
-    }
-    const response = await api.get(url)
-    return response.data.data
+    const url = payload.forEdit ? '/daftar-kamar-paket/get-available-jamaah-for-edit' : '/daftar-kamar-paket/get-available-jamaah';
+    const response = await api.post(url, payload);
+    return handleResponse(response);
   } catch (error) {
-    console.error('Gagal mengambil data jamaah:', error)
-    throw error
+    console.error('Gagal mengambil data jamaah:', error);
+    throw error;
   }
 }
 
 export const getKamarById = async (id: number) => {
   try {
     const response = await api.get(`/daftar-kamar-paket/${id}`)
-    return response.data.data
+    return handleResponse(response)
   } catch (error) {
     console.error(`Gagal mengambil data kamar dengan ID ${id}:`, error)
     throw error
@@ -66,8 +73,8 @@ export const getKamarById = async (id: number) => {
 
 export const updateKamar = async (id: number, payload: any) => {
   try {
-    const response = await api.put(`/daftar-kamar-paket/${id}`, payload)
-    return response.data
+    const response = await api.post(`/daftar-kamar-paket/${id}`, payload)
+    return handleResponse(response)
   } catch (error) {
     console.error(`Gagal memperbarui kamar dengan ID ${id}:`, error)
     throw error
@@ -77,7 +84,7 @@ export const updateKamar = async (id: number, payload: any) => {
 export const deleteKamar = async (id: number) => {
   try {
     const response = await api.delete(`/daftar-kamar-paket/${id}`)
-    return response.data
+    return handleResponse(response)
   } catch (error) {
     console.error(`Gagal menghapus kamar dengan ID ${id}:`, error)
     throw error
@@ -87,7 +94,7 @@ export const deleteKamar = async (id: number) => {
 export const getDownloadData = async () => {
   try {
     const response = await api.get('/daftar-kamar-paket/download')
-    return response.data
+    return handleResponse(response)
   } catch (error) {
     console.error('Gagal mengambil data download:', error)
     throw error

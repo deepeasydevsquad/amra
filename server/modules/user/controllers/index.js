@@ -39,7 +39,10 @@ controllers.login_process = async (req, res) => {
         username: body.username,
         company_code: data.company_code,
         type: body.type,
+        ...(body.type === "staff" && { division_id: data.division_id }), // Hanya untuk staff yang memiliki division_id
       };
+
+      console.log(userPayload);
 
       const accessToken = jwt.sign(userPayload, process.env.SECRET_KEY, { expiresIn: "10s" });
       const refreshToken = jwt.sign(userPayload, process.env.REFRESH_SECRET_KEY, { expiresIn: "7d" });
@@ -71,6 +74,7 @@ controllers.user = async (req, res) => {
     res.status(200).json({
       error: false,
       error_msg: "Data Berhasil Ditemukan.",
+    
       menu_info: data.menu_info,
       user_info: data.user_info,
     });

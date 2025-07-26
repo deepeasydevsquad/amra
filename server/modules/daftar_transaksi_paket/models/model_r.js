@@ -26,7 +26,7 @@ const {
   Mst_pendidikan,
   Mst_pekerjaan,
 } = require("../../../models");
-const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, getCabang, tipe, getDivisionId } = require("../../../helper/companyHelper");
 const { getAgenById } = require("../../../helper/JamaahHelper");
 const { getAlamatInfo } = require("../../../helper/alamatHelper");
 const { dbList } = require("../../../helper/dbHelper");
@@ -110,6 +110,7 @@ class Model_r {
   // Fungsi daftar transaksi paket
   async daftarTransaksiPaket() {
     await this.initialize();
+    const division_id = await getDivisionId(this.req);
 
     const body = this.req.body;
     const pageNumber = typeof body.pageNumber === "undefined" || body.pageNumber === 0 ? 1 : parseInt(body.pageNumber) || 1;
@@ -117,7 +118,9 @@ class Model_r {
     const offset = (pageNumber - 1) * perpage;
     const search = body.search || "";
 
-    let where = { paket_id: body.id, division_id: this.division_id };
+    console.log(body);
+
+    let where = { paket_id: body.id, division_id: division_id };
     if (search) {
       const paketTransactionIds = await this.getPaketTransactionIdsFromSearch(search);
       where = { ...where, id: { [Op.in]: paketTransactionIds } };
@@ -172,11 +175,15 @@ class Model_r {
       const totalData = await Paket_transaction.findAndCountAll(query.total);
       const dataList = await Paket_transaction.findAll(query.sql);
 
+      console.log(dataList);
+
       const data = await Promise.all(
         dataList.map(async (e) => {
           return await this.transformDaftarTransaksiPaket(e);
         })
       );
+
+      console.log(data);
 
       return { 
         data: data,
@@ -190,31 +197,32 @@ class Model_r {
 
   async getJamaahTransaksiPaket() {
     await this.initialize();
+    const division_id = await getDivisionId(this.req);
+    const { id: paket_id } = this.req.body;
+
     try {
-
-      const paketId = this.req.params.paketId;
-
-      // get jamaah in paket transaction
-      var ListJamaahId = [];
-      await Paket_transaction.findAll({
-        where: {
-          paket_id: paketId,
-        }
-      }).then(async (value) => {
-          await Promise.all(
-          value.map(async (e) => {
-            ListJamaahId.push(e.jamaah_id);
-          })
-        );
+      const transaksiPaket = await Paket_transaction.findAll({
+        where: { paket_id },
+        attributes: ["jamaah_id"],
+        raw: true,
       });
+      const jamaahTerdaftarIds = transaksiPaket.map(e => e.jamaah_id);
 
-      console.log("ListJamaahId", ListJamaahId);
+      const tabunganAktif = await Tabungan.findAll({
+        where: {
+          division_id,
+          status: "active",
+        },
+        attributes: ["jamaah_id"],
+        raw: true,
+      });
+      const jamaahDenganTabunganIds = new Set(tabunganAktif.map(e => e.jamaah_id));
 
       const jamaah = await Jamaah.findAll({
         where: {
-          division_id: this.division_id,
-          id: { 
-            [Op.notIn]: ListJamaahId 
+          division_id,
+          id: {
+            [Op.notIn]: [...jamaahTerdaftarIds, ...jamaahDenganTabunganIds],
           },
         },
         attributes: ["id", "agen_id"],
@@ -224,25 +232,13 @@ class Model_r {
         }],
       });
 
-      const tabunganAktif = await Tabungan.findAll({
-        where: {
-          status: "active",
-          division_id: this.division_id,
-        },
-        attributes: ["jamaah_id"],
-        raw: true,
-      });
-
-      const jamaahAktifTabunganIds = new Set(tabunganAktif.map(t => t.jamaah_id));
-      const filtered = jamaah.filter(j => !jamaahAktifTabunganIds.has(j.id));
-
       return {
-        data: filtered.map(e => ({
+        data: jamaah.map(e => ({
           id: e.id,
           agen_id: e.agen_id,
           name: e.Member?.fullname || "-",
         })),
-        total: filtered.length,
+        total: jamaah.length,
       };
     } catch (error) {
       console.error("Error in getJamaahTransaksiPaket:", error);
@@ -270,8 +266,6 @@ class Model_r {
         }],
       });
 
-      console.log("data", data);
-      
       return {
         data: data.map(e => ({
           id: e.mst_paket_type_id,
@@ -318,13 +312,14 @@ class Model_r {
   async infoupdateVisaTransaksiPaket() {
     await this.initialize();
     const body = this.req.body;
+    const division_id = await getDivisionId(this.req);
 
     try {
       const data = await Paket_transaction.findOne({
         where: {
           id: body.transpaketId,
           paket_id: body.id,
-          division_id: this.division_id
+          division_id: division_id
         },
         attributes: ["nomor_visa", "tanggal_berlaku_visa", "tanggal_berakhir_visa"],
       });
@@ -353,13 +348,14 @@ class Model_r {
   async inforefundTransaksiPaket() {
     await this.initialize();
     const body = this.req.body;
+    const division_id = await getDivisionId(this.req);
 
     try {
       const data = await Paket_transaction.findOne({
         where: {
           id: body.transpaketId,
           paket_id: body.id,
-          division_id: this.division_id
+          division_id: division_id
         },
         attributes: ["price"],
       });
