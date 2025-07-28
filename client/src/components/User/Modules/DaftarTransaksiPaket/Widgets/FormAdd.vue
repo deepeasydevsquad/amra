@@ -262,9 +262,9 @@ const formatPrice = (value: number | string): string => {
                   {{ formatPrice(PaketTypesList.find((pt) => pt.id === form.paket_types_id)?.price || 0) }}
                 </p>
               </div>
-              <div v-if="AgenDetail">
+              <div v-if="AgenDetail" class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Fee Agen ({{ AgenDetail.name }})</label>
-                <p class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm">
+                <p class="block w-full px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm mb-6">
                   {{ formatPrice(AgenDetail.default_fee) }}
                 </p>
               </div>

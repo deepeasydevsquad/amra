@@ -66,6 +66,12 @@ const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
 });
 
+interface FilePendukung {
+  title: string;
+  filename: string;
+}
+
+
 interface PaketTransaction {
     id: number;
     paket_id: number;
@@ -82,6 +88,7 @@ interface PaketTransaction {
     tanggal_berlaku_visa: string;
     tanggal_berakhir_visa: string;
     biaya_mahram: number;
+    file_pendukung: FilePendukung[];
 }
 
 const dataPaketTransaction = ref<PaketTransaction[]>([]);
@@ -97,7 +104,7 @@ const showConfirmDialog = ref<boolean>(false);
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
-const totalColumns = ref(6);
+const totalColumns = ref(5);
 const totalRow = ref(0);
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
@@ -255,58 +262,132 @@ onMounted(() => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-100">
           <tr>
-            <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Paket</th>
-            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Tipe Paket</th>
-            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Jamaah</th>
+            <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Info Paket</th>
+            <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Jamaah / Visa / File Pendukung</th>
             <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Total Harga</th>
-            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Status Pembayaran</th>
+            <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Status Pembayaran</th>
             <th class="w-[5%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100 text-sm">
           <template v-if="dataPaketTransaction && dataPaketTransaction.length > 0">
             <tr v-for="dataTransPaket in dataPaketTransaction" :key="dataTransPaket.id" class="hover:bg-gray-50">
-              <td class="px-6 py-4 text-center align-top">
-                {{ dataTransPaket.name.toUpperCase() }} <br>
-                (Tgl Keberangkatan: {{ dataTransPaket.departure_date }})
-              </td>
-              <td class="px-6 py-4 text-center align-top">
-                {{ dataTransPaket.type }} <br>
-                ({{ dataTransPaket.price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }) }})
-              </td>
-              <td class="px-6 py-4 align-top">
-                <table class="w-full ">
+              <td class="px-3 py-4 text-center align-top">
+                <table class="w-full mb-5">
+                  <thead>
+                    <tr>
+                      <th colspan="3" class="text-center py-2 font-medium border text-gray-900 bg-gray-100">Paket</th>
+                    </tr>
+                  </thead>
                   <tbody>
-                    <tr>
-                      <td class="w-[40%]">Nama</td>
-                      <td>:</td>
-                      <td class="text-right space-y-2 py-1">{{ dataTransPaket.fullname }}</td>
-                    </tr>
-                    <tr>
-                      <td >No ID</td>
-                      <td>:</td>
-                      <td class="text-right space-y-2 py-1">{{ dataTransPaket.identity_number }}</td>
-                    </tr>
-                    <tr>
-                      <td >No Visa</td>
-                      <td>:</td>
-                      <td class="text-right space-y-2 py-1">{{ dataTransPaket.nomor_visa }}</td>
-                    </tr>
-                    <tr>
-                      <td >Tgl. Berlaku Visa</td>
-                      <td>:</td>
-                      <td class="text-right space-y-2 py-1">{{ dataTransPaket.tanggal_berlaku_visa }}</td>
-                    </tr>
-                    <tr>
-                      <td >Tgl. Berakhir Visa</td>
-                      <td>:</td>
-                      <td class="text-right space-y-2 py-1">{{ dataTransPaket.tanggal_berakhir_visa }}</td>
+                    <tr v-for="(label, value) in {
+                      'Nama Paket': dataTransPaket.name.toUpperCase(),
+                      'Tanggal Berangkat': dataTransPaket.departure_date,
+                       }"
+                    :key="label" class="border-gray-200 hover:bg-gray-200">
+                      <td class="w-[50%] border-b px-6 py-2 text-left">{{ value }}</td>
+                      <td class="text-center border-b py-2">:</td>
+                      <td class="border-b text-right space-y-2 text-sm px-6 py-2">{{ label }}</td>
                     </tr>
                   </tbody>
                 </table>
+
+                <table class="w-full mb-5">
+                  <thead>
+                    <tr>
+                      <th colspan="3" class="text-center py-2 font-medium border text-gray-900 bg-gray-100">Tipe Paket</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(label, value) in {
+                      'Tipe Paket': dataTransPaket.type,
+                      'Harga Paket': dataTransPaket.price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }) }"
+                    :key="label" class="border-gray-200 hover:bg-gray-200">
+                      <td class="w-[50%] border-b px-6 py-2 text-left">{{ value }}</td>
+                      <td class="text-center border-b py-2">:</td>
+                      <td class="border-b text-right space-y-2 text-sm px-6 py-2">{{ label }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
               </td>
-              <td class="px-6 py-4 text-center align-top">{{  formatRupiah( dataTransPaket.total_price ?? 0) }}</td>
-              <td class="px-6 py-4 align-top">
+              <td class="px-3 py-4 align-top">
+                <table class="w-full mb-5">
+                  <thead>
+                    <tr>
+                      <th colspan="3" class="text-center py-2 font-medium border text-gray-900 bg-gray-100">Info Jamaah</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(label, value) in {
+                      'Nama Jamaah': dataTransPaket.fullname,
+                      'Nomor ID': dataTransPaket.identity_number,
+                       }"
+                    :key="label" class="border-gray-200 hover:bg-gray-200">
+                      <td class="w-[50%] border-b px-6 py-2 text-left">{{ value }}</td>
+                      <td class="text-center border-b py-2">:</td>
+                      <td class="border-b text-right space-y-2 text-sm px-6 py-2">{{ label }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <table class="w-full mb-5">
+                  <thead>
+                    <tr>
+                      <th colspan="3" class="text-center py-2 font-medium border text-gray-900 bg-gray-100">Info Visa</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(label, value) in {
+                      'Nomor Visa': dataTransPaket.nomor_visa,
+                      'Tanggal Berlaku': dataTransPaket.tanggal_berlaku_visa,
+                      'Tanggal Berakhir': dataTransPaket.tanggal_berakhir_visa,
+                       }"
+                    :key="label" class="border-gray-200 hover:bg-gray-200">
+                      <td class="w-[50%] border-b px-6 py-2 text-left">{{ value }}</td>
+                      <td class="text-center border-b py-2">:</td>
+                      <td class="border-b text-right space-y-2 text-sm px-6 py-2">{{ label }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+
+                <table class="w-full mb-5">
+                  <thead>
+                    <tr>
+                      <th colspan="3" class="text-center py-2 font-medium border text-gray-900 bg-gray-100">File Pendukung</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="dataTransPaket.file_pendukung && dataTransPaket.file_pendukung.length == 0" >
+                      <td colspan="3" class="text-center border-b py-2"> File pendukung tidak ditemukan</td>
+                    </tr>
+                    <tr v-else v-for="(file, index) in dataTransPaket.file_pendukung" :key="index" class="border-gray-200 hover:bg-gray-200">
+                      <td class="w-[50%] border-b px-6 py-2 text-left">{{ file.title }}</td>
+                      <td class="text-center border-b py-2">:</td>
+                      <td class="border-b text-right space-y-2 text-sm px-6 py-2">
+                        <a :href="`/api/file-pendukung/${file.filename}`" target="_blank" class="text-blue-600 hover:underline">
+                          {{ file.filename }}
+                        </a>
+                      </td>
+
+                    </tr>
+                    <!-- <tr v-for="(label, value) in {
+                      'Nomor Visa': dataTransPaket.nomor_visa,
+                      'Tanggal Berlaku': dataTransPaket.tanggal_berlaku_visa,
+                      'Tanggal Berakhir': dataTransPaket.tanggal_berakhir_visa,
+                       }"
+                    :key="label" class="border-gray-200 hover:bg-gray-200">
+                      <td class="w-[50%] border-b px-6 py-2 text-left">{{ value }}</td>
+                      <td class="text-center border-b py-2">:</td>
+                      <td class="border-b text-right space-y-2 text-sm px-6 py-2">{{ label }}</td>
+                    </tr> -->
+                  </tbody>
+                </table>
+
+              </td>
+              <td class="px-3 py-4 text-center align-top">{{  formatRupiah( dataTransPaket.total_price ?? 0) }}</td>
+              <td class="px-3 py-4 align-top">
                 <table class="w-full">
                   <tbody>
                     <tr>

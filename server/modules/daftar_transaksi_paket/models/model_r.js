@@ -25,6 +25,7 @@ const {
   Mst_kota,
   Mst_pendidikan,
   Mst_pekerjaan,
+  File_pendukung
 } = require("../../../models");
 const { getCompanyIdByCode, getCabang, tipe, getDivisionId } = require("../../../helper/companyHelper");
 const { getAgenById } = require("../../../helper/JamaahHelper");
@@ -183,7 +184,30 @@ class Model_r {
         })
       );
 
-      console.log(data);
+      var listPaketTransactionId = []
+      for( let x in data ) {
+        listPaketTransactionId.push(data[x].id);
+      }
+
+      var filePendukung = {};
+      const q = await File_pendukung.findAndCountAll({ where: { paket_transaction_id: { [Op.in]: listPaketTransactionId } } });
+      await Promise.all(
+        await q.rows.map(async (e) => {
+          if(filePendukung[e.paket_transaction_id] === undefined) {
+            filePendukung = { ...filePendukung, [e.paket_transaction_id]: [{ title: e.title_file, filename: e.filename}] };
+          }else{
+            filePendukung[e.paket_transaction_id].push({ title: e.title_file, filename: e.filename });
+          }
+        })
+      );
+
+      for( let x in data ) {
+        if(filePendukung[data[x].id] !== undefined) {
+          data[x].file_pendukung = filePendukung[data[x].id];
+        } else {
+          data[x].file_pendukung = [];
+        }
+      }
 
       return { 
         data: data,

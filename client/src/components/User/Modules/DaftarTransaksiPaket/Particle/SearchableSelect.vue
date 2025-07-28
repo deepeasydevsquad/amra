@@ -111,7 +111,7 @@ onUnmounted(() => {
     <!-- Dropdown -->
     <div
       v-if="showDropdown"
-      class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto"
+      class="absolute z-999 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto"
     >
       <!-- Search input -->
       <div class="p-2 border-b border-gray-200">
