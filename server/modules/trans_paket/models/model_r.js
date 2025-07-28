@@ -13,11 +13,9 @@ const {
   Handover_fasilitas_paket,
   sequelize,
 } = require("../../../models");
-const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
-const { getAlamatInfo } = require("../../../helper/alamatHelper");
+const { getCompanyIdByCode, getCabang, getDivisionId } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
-const ExcelJS = require('exceljs');
 const fs = require('fs').promises; 
 const path = require('path');
 
@@ -218,7 +216,8 @@ class Model_r {
     const offset = (pageNumber - 1) * perpage;
     const search = body.search || "";
 
-    let where = { division_id: this.division_id };
+    const division_id = await getDivisionId(this.req);
+    let where = { division_id: division_id };
     if (search) {
       const paketTransactionIds = await this.getPaketTransactionIdsFromSearch(search);
       where = { ...where, id: { [Op.in]: paketTransactionIds } };
@@ -247,7 +246,7 @@ class Model_r {
       {
         model: Paket,
         where: {
-          division_id: this.division_id,
+          division_id: division_id,
           departure_date: { [Op.gt]: new Date() },
         },
         attributes: ["id", "kode", "name"],
@@ -280,7 +279,7 @@ class Model_r {
 
       return { 
         data: data,
-        total: await totalData.count
+        total: totalData.count
       };    
     } catch (error) {
       console.log("Error in daftarJamaahPaket:", error);

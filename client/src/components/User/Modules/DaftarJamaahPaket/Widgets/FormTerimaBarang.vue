@@ -152,8 +152,8 @@ async function saveData() {
         emit('status', { error: false, err_msg: 'Data handover barang berhasil diserahkan' })
         emit('close')
       } catch (error) {
-        displayNotification('Gagal menyimpan data handover barang', 'error')
-        emit('status', { error: true, err_msg: error.response.data.error_msg })
+        showConfirmDialog.value = false
+        emit('status', { error: true, err_msg: error.response.data.error_msg || error.response.data.message })
       } finally {
         isLoading.value = false
       }
