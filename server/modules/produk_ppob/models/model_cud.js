@@ -67,6 +67,39 @@ class Model_cud {
     }
   }
 
+  async hapus_markup() {
+    await this.initialize();
+    const body = this.req.body;
+
+    try {
+      if (body.tipe === "prabayar") {
+        await Ppob_prabayar_markup_company.destroy({
+          where: {
+            company_id: this.company_id,
+            ppob_prabayar_produk_id: body.id,
+          },
+          transaction: this.t,
+        });
+      } else if (body.tipe === "pascabayar") {
+        await Ppob_pascabayar_markup_company.destroy({
+          where: {
+            company_id: this.company_id,
+            ppob_pascabayar_produk_id: body.id,
+          },
+          transaction: this.t,
+        });
+      } else {
+        throw new Error("Tipe tidak valid. Harus 'prabayar' atau 'pascabayar'");
+      }
+
+      this.message = "Markup berhasil dihapus";
+    } catch (error) {
+      console.error(error);
+      this.state = false;
+      this.message = "Gagal menghapus markup";
+    }
+  }
+
   async response() {
     if (this.state) {
       if (this.t) {

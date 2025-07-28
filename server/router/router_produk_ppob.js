@@ -34,4 +34,14 @@ router.post(
   controllers.add_markup
 );
 
+router.post(
+  "/ppob/delete",
+  authenticateToken,
+  [
+    body("id").trim().notEmpty().withMessage("Ppob tidak boleh kosong."),
+    body("tipe").trim().notEmpty().withMessage("Tipe tidak boleh kosong."),
+  ],
+  controllers.hapus_markup
+);
+
 module.exports = router;

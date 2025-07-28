@@ -19,3 +19,13 @@ export const add = async (param : any) => {
     throw error
   }
 }
+
+export const hapus = async (param : any) => {
+  try {
+    const response = await api.post('/ppob/delete', param)
+    return response.data
+  } catch (error) {
+    console.error('Gagal mengambil data profil:', error)
+    throw error
+  }
+}

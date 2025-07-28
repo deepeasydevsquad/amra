@@ -6,7 +6,7 @@ import LightButton from '@/components/Button/LightButton.vue'
 import DangerButton from '@/components/Button/DangerButton.vue'
 import EditIcon from '@/components/Icons/EditIcon.vue'
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
-import { daftar_produk, add } from '@/service/produk_ppob'
+import { daftar_produk, add, hapus } from '@/service/produk_ppob'
 import { computed, onMounted, ref, watch } from 'vue'
 import Confirmation from '@/components/Modal/Confirmation.vue'
 import Notification from '@/components/Modal/Notification.vue'
@@ -146,6 +146,19 @@ const closeModal = () => {
   resetForm()
 }
 
+const deleteData = async (id: number) => {
+  showConfirmation('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus data ini?', async () => {
+    try {
+      const response = await hapus({ id: id, tipe: selectedTipe.value })
+      showConfirmDialog.value = false
+      displayNotification('markup berhasil di hapus', 'success')
+      fetchData()
+    } catch (error) {
+      displayNotification('Terjadi kesalahan saat menghapus data.', 'error')
+    }
+  })
+}
+
 const handleSubmit = async () => {
   try {
     const response = await add({
@@ -239,7 +252,7 @@ const onMarkupInput = (val: string) => {
                 <div class="flex justify-center gap-2">
                   <div class="flex justify-center items-center gap-2">
                     <LightButton @click="openModal(d.id)"><EditIcon /></LightButton>
-                    <DangerButton @click=""><DeleteIcon /></DangerButton>
+                    <DangerButton @click="deleteData(d.id)"><DeleteIcon /></DangerButton>
                   </div>
                 </div>
               </td>

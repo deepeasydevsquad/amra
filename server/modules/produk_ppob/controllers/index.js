@@ -39,3 +39,28 @@ exports.add_markup = async (req, res) => {
     handleServerError(res, error);
   }
 };
+
+exports.hapus_markup = async (req, res) => {
+  // filter error
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_cud(req);
+    await model.hapus_markup();
+
+    if (await model.response()) {
+      res.status(200).json({
+        message: model.message || "markup berhasil dibuat",
+        status: "success",
+      });
+    } else {
+      res.status(400).json({
+        message: model.message || "Gagal membuat markup",
+        status: "failed",
+      });
+    }
+  } catch (error) {
+    console.error("Terjadi error saat addPinjaman:", error);
+    handleServerError(res, error);
+  }
+};
