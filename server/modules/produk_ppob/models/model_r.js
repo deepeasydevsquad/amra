@@ -40,7 +40,7 @@ class Model_r {
           { id: { [Op.like]: keyword } },
           { kode: { [Op.like]: keyword } },
           { name: { [Op.like]: keyword } },
-          { kategori: { [Op.like]: keyword } },
+          // { kategori: { [Op.like]: keyword } },
         ],
       };
     }

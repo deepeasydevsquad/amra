@@ -247,8 +247,8 @@ const onMarkupInput = (val: string) => {
           </template>
           <template v-else>
             <tr>
-              <td colspan="4" class="px-2 py-2 text-center align-top">
-                Daftar Fasilitas Tidak Ditemukan
+              <td colspan="6" class="px-2 py-2 text-center align-top">
+                Daftar Produk PPOB Tidak Ditemukan
               </td>
             </tr>
           </template>
