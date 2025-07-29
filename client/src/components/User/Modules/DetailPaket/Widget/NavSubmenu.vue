@@ -89,8 +89,6 @@ const icons: Record<string, string> = {
   `,
 }
 
-// const iconSvg = icons[props.icon] ?? ''
-
 const items = [
   { label: 'Transaksi', icon: 'transaksi', value: 'transaksi' },
   { label: 'Jamaah', icon: 'jamaah', value: 'jamaah' },
