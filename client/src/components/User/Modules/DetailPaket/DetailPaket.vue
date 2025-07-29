@@ -15,6 +15,8 @@
   const props = defineProps<{
     paketId: number
     cabangId: number
+    divisionName: string
+    paketName:string
   }>()
 
   const emit = defineEmits<{
@@ -34,13 +36,18 @@
     k_t: K_t
   }
 
+  console.log('Props:---------');
+  console.log('Props:', props);
+  console.log('Props:---------');
+
   const currentComponent = computed(() => componentMap[current.value])
 
 </script>
 
 <template>
   <div>
-    <NavSubmenu @close="emit('closeDetailPaket')"  @update:current="(val : any) => current = val" />
+    <NavSubmenu @close="emit('closeDetailPaket')"  @update:current="(val : any) => current = val" :divisionName="divisionName"
+  :paketName="paketName"/>
     <!-- render component berdasarkan current -->
     <component
       :is="currentComponent"

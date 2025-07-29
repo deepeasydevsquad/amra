@@ -252,7 +252,7 @@ class Model_cud {
       // call object
       const model_r = new Model_r(this.req);
       // get info tabungan
-      const infoDaftarJamaahPaket = await model_r.infoDaftarJamaahPaket(body.id, this.division_id);
+      const infoDaftarJamaahPaket = await model_r.infoDaftarJamaahPaket(body.id);
       const penerima = await this.penerima();
       const invoice_handover = await this.generateInvoiceHandover();
 
@@ -294,7 +294,7 @@ class Model_cud {
       // call object
       const model_r = new Model_r(this.req);
       // get info tabungan
-      const infoDaftarJamaahPaket = await model_r.infoDaftarJamaahPaket(body.id, this.division_id);
+      const infoDaftarJamaahPaket = await model_r.infoDaftarJamaahPaket(body.id);
       const penerima = await this.penerima();
       const invoice_returned = await this.generateInvoiceHandover();
 

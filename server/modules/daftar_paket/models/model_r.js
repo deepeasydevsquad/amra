@@ -1,4 +1,4 @@
-const { Op, Paket, Paket_price, Mst_provider, Mst_asuransi, Mst_paket_type } = require("../../../models");
+const { Op, Paket, Paket_price, Mst_provider, Mst_asuransi, Mst_paket_type, Division } = require("../../../models");
 const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
@@ -136,6 +136,11 @@ class Model_r {
     sql["where"] = where;
     sql["limit"] = perpage;
     sql["offset"] = offset;
+    sql['include'] = {
+      required : true, 
+      model: Division, 
+      attributes: ['name']
+    }
 
     try {
       const query = await dbList(sql);
@@ -151,6 +156,7 @@ class Model_r {
               data.push({
                 id: e.id,
                 division_id: e.division_id,
+                division_name: e.Division.name,
                 jenis_kegiatan: e.jenis_kegiatan,
                 kode: e.kode,
                 name: e.name,
@@ -173,10 +179,6 @@ class Model_r {
           );
         });
 
-        console.log("```````````");
-        console.log(list_paket_id);
-        console.log("```````````");
-
         var list_paket_price = {};
         await Paket_price.findAll({ where : { paket_id : { [Op.in] : list_paket_id}}, include: {
           required: true,
@@ -194,12 +196,6 @@ class Model_r {
           );
         });
 
-
-        console.log("```Paket Price````````");
-        console.log(list_paket_price);
-        console.log("```Paket Price````````");
-
-
         for( let x in data ) {
           if(list_paket_price[data[x].id] !== undefined) {
             data[x].prices = list_paket_price[data[x].id];
@@ -207,18 +203,11 @@ class Model_r {
         }
       }
 
-
-      console.log("------------data");
-      console.log(data);
-      console.log("------------data");
-
       return {
         data: data,
         total: total,
       };
-
     } catch (error) {
-      console.error("Error in daftar_paket:", error);
       return {};
     }
   }

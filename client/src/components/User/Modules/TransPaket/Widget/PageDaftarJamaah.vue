@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { getDaftarJamaahTransPaket } from '@/service/trans_paket'
+import { paramCabang } from '@/service/param_cabang'
 import Pagination from '@/components/Pagination/Pagination.vue'
 import LightButton from '@/components/Button/LightButton.vue'
 
@@ -16,6 +17,7 @@ import FormHandoverFasilitas from '@/components/User/Modules/DaftarJamaahPaket/W
 import FormOpsiHandoverBarang from '@/components/User/Modules/DaftarJamaahPaket/Widgets/FormOpsiHandoverBarang.vue'
 import FormTerimaBarang from '@/components/User/Modules/DaftarJamaahPaket/Widgets/FormTerimaBarang.vue'
 import FormPengembalianBarang from '@/components/User/Modules/DaftarJamaahPaket/Widgets/FormPengembalianBarang.vue'
+import { c } from 'node_modules/vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P'
 
 const itemsPerPage = 100 // Jumlah paket_la per halaman
 const search = ref('')
@@ -69,6 +71,15 @@ interface PaketJamaah {
   }[]
 }
 
+interface filterCabang {
+  id: number
+  name: string
+}
+
+const selectedOptionCabang = ref(0)
+const optionFilterCabang = ref<filterCabang[]>([])
+const total = ref<number>(0)
+
 const dataPaketJamaah = ref<PaketJamaah[]>([])
 const transpaketId = ref<number>(0)
 const isLoading = ref<boolean>(false)
@@ -119,16 +130,23 @@ const openPengembalianBarangHandover = (id: number) => {
   isFormPengembalianBarangOpen.value = true
 }
 
+const fetchFilterData = async () => {
+  const response = await paramCabang()
+  optionFilterCabang.value = response.data
+  selectedOptionCabang.value = response.data[0].id
+}
+
 const fetchData = async () => {
   try {
     isLoading.value = true
     const response = await getDaftarJamaahTransPaket({
+      division_id: selectedOptionCabang.value,
       search: search.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
     })
     dataPaketJamaah.value = response.data
-    console.log(dataPaketJamaah)
+    total.value = response.total
     totalPages.value = Math.ceil(response.total / itemsPerPage)
   } catch (error) {
     console.error('Error fetching data:', error)
@@ -137,7 +155,8 @@ const fetchData = async () => {
   }
 }
 
-onMounted(() => {
+onMounted(async() => {
+  await fetchFilterData()
   fetchData()
 })
 
@@ -165,11 +184,21 @@ const handleCloseFormOpsiHandoverBarang = () => {
         <input
           type="text"
           id="search"
-          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
           v-model="search"
           @change="fetchData()"
           placeholder="Cari Jamaah..."
         />
+        <select
+          v-model="selectedOptionCabang"
+          style="width: 300px"
+          @change="fetchData()"
+          class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+            {{ optionC.name }}
+          </option>
+        </select>
       </div>
     </div>
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
@@ -253,6 +282,7 @@ const handleCloseFormOpsiHandoverBarang = () => {
             :total-pages="totalPages"
             :pages="pages"
             :total-columns="totalColumns"
+            :total-row="total"
             @prev-page="prevPage"
             @next-page="nextPage"
             @page-now="pageNow"
@@ -275,12 +305,8 @@ const handleCloseFormOpsiHandoverBarang = () => {
       v-if="isFormCetakDataJamaahOpen"
       :isFormCetakDataJamaahOpen="isFormCetakDataJamaahOpen"
       :transpaketId="transpaketId"
-      @close="
-        () => {
-          isFormCetakDataJamaahOpen = false
-          fetchData()
-        }
-      "
+      :cabang-id="selectedOptionCabang"
+      @close="handleCloseFormCetak"
       @success="displayNotification('Jamaah berhasil dicetak', 'success')"
     />
   </transition>
@@ -380,7 +406,12 @@ const handleCloseFormOpsiHandoverBarang = () => {
       v-if="isFormPengembalianBarangOpen"
       :isFormPengembalianBarangOpen="isFormPengembalianBarangOpen"
       :transpaketId="transpaketId"
-      @close="handleCloseFormCetak"
+      @close="
+        () => {
+          isFormPengembalianBarangOpen = false
+          fetchData()
+        }
+      "
       @status="
         (payload: any) =>
           displayNotification(

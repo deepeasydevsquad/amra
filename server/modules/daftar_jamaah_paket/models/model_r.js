@@ -783,9 +783,9 @@ class Model_r {
     }
   }
 
-  async infoDaftarJamaahPaket(id, division_id) {
+  async infoDaftarJamaahPaket(id) {
     try {
-      const where = { id: id, division_id: division_id };
+      const where = { id: id };
 
       var sql = {}
       sql["attributes"] = [

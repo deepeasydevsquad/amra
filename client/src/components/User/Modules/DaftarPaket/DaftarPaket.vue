@@ -18,10 +18,6 @@ import DetailPaket from '@/components/User/Modules/DetailPaket/DetailPaket.vue'
 
 import LightButton from "@/components/Button/LightButton.vue"
 import DangerButton from "@/components/Button/DangerButton.vue"
-
-// import Pagination from '@/components/Pagination/Pagination.vue'
-// import LightButton from "@/components/Button/LightButton.vue"
-// import DangerButton from "@/components/Button/DangerButton.vue"
 import PrimaryButton from "@/components/Button/PrimaryButton.vue"
 
 // import API
@@ -68,6 +64,7 @@ interface Cabang {
 interface Paket {
   id: number;
   division_id: number;
+  division_name: string;
   jenis_kegiatan: string;
   kode: string;
   photo: string;
@@ -106,6 +103,7 @@ interface Paket {
   status: string;
 }
 
+
 const filterCabang = ref(0);
 const timeoutId = ref<number | null>(null);
 const dataPaket = ref<Paket[]>([]);
@@ -124,6 +122,8 @@ const confirmAction = ref<(() => void) | null>(null);
 const totalColumns = ref(7); // Default 3 kolom
 const totalRow = ref(0);
 const paket = ref<number>(0);
+const paketName = ref<string>('');
+const division_name = ref<string>('');
 
 const fetchData = async () => {
   try {
@@ -187,9 +187,11 @@ const openFormEdit = (paketId: number) => {
   paket.value = paketId;
 }
 
-const openDetailPaket = (paketId: number, division_id: number) => {
+const openDetailPaket = (paketId: number, division_id: number, divisionName: string, paket_name: string) => {
   paket.value = paketId;
-  cabangId.value = division_id
+  cabangId.value = division_id;
+  division_name.value = divisionName;
+  paketName.value = paket_name;
   isPageDetailPaketOpen.value = true;
 }
 
@@ -250,7 +252,11 @@ const shortText = (teks:string, maxKarakter: number) => {
       />
     </div>
     <div v-else-if="isPageDetailPaketOpen">
-      <DetailPaket :isPageDetailPaketOpen="isPageDetailPaketOpen" :paket-id="paket" :cabang-id="filterCabang" @closeDetailPaket="isPageDetailPaketOpen = false; fetchData()" />
+
+       <!-- division_name.value = divisionName;
+  paketName.value = paket_name; -->
+
+      <DetailPaket :isPageDetailPaketOpen="isPageDetailPaketOpen" :paket-id="paket" :cabang-id="filterCabang" :divisionName="division_name" :paketName="paketName" @closeDetailPaket="isPageDetailPaketOpen = false; fetchData()" />
     </div>
     <div v-else-if="dataPaket" class="container mx-auto px-4 mt-10">
       <div class="flex justify-between items-center mb-6">
@@ -337,13 +343,13 @@ const shortText = (teks:string, maxKarakter: number) => {
                 <td class="px-6 py-4 text-center">{{ paket.quota_jamaah }} Orang</td>
                 <td class="px-6 py-4 text-center">
                   <div class="flex justify-center gap-2">
-                    <LightButton  @click="openDetailPaket(paket.id, paket.division_id)">
+                    <LightButton  @click="openDetailPaket(paket.id, paket.division_id, paket.division_name, paket.name)">
                       <DetailIcon></DetailIcon>
                     </LightButton>
                     <LightButton @click="openFormEdit(paket.id)">
                       <EditIcon></EditIcon>
                     </LightButton>
-                    <DangerButton @click="deleteData(paket.id, paket.division_id)">
+                    <DangerButton @click="deleteData(paket.id)">
                       <DeleteIcon></DeleteIcon>
                     </DangerButton>
                   </div>

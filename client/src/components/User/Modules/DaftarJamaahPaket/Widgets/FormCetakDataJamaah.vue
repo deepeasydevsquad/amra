@@ -125,7 +125,7 @@ const cetakDataJamaah = async () => {
         showConfirmDialog.value = false
       } catch (error) {
         console.error(error)
-        displayNotification(error?.response?.data?.error_msg, 'error')
+        displayNotification(error?.response?.data?.error_msg || error?.response?.data?.message || 'Terjadi kesalahan saat mencetak data jamaah.', 'error')
       } finally {
         isLoading.value = false
       }

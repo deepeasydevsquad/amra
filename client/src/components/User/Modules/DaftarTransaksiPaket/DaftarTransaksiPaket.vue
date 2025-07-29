@@ -244,6 +244,10 @@ onMounted(() => {
           Mulai transaksi
         </button>
       </div>
+      <!-- Teks Tengah -->
+      <!-- <div class="mx-auto absolute left-1/2 -translate-x-1/2 text-lg font-semibold text-gray-800">
+        Paket Umrah Keren : Cabang Langsa
+      </div> -->
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input

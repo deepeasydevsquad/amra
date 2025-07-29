@@ -16,6 +16,7 @@ router.post(
   "/daftar-trans-paket/daftar-jamaah/list",
   authenticateToken,
   [
+    body("division_id").trim().notEmpty().withMessage("ID Cabang tidak boleh kosong.").custom(validation.check_id_cabang),
     body("pageNumber").trim().notEmpty().withMessage("Nomor halaman tidak boleh kosong."),
     body("perpage").trim().notEmpty().withMessage("Jumlah per halaman tidak boleh kosong.").isInt().withMessage("Jumlah per halaman harus berupa angka."),
     body("search").trim()
