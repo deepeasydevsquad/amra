@@ -13,6 +13,10 @@ controllers.getDaftarPaket = async (req, res) => {
     const feedBack = await model_r.daftar_paket(); // Ambil daftar paket dari model
     res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
   } catch (error) {
+
+    console.log("SSSTTTTT");
+    console.log(error);
+    console.log("SSSTTTTT");
     handleServerError(res, error.message);
   }
 };

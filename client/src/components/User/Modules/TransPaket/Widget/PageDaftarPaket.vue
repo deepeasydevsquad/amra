@@ -94,7 +94,6 @@ onMounted(() => {
               <h3 class="p-2 mt-3 text-lg font-bold text-center min-h-[4.5rem] leading-snug line-clamp-2">{{ paket.name }}</h3>
               <div class="pr-4 pl-4 space-y-8 pb-8 pt-4">
                 <div class="grid grid-cols-2 gap-y-2 text-sm px-0">
-
                     <div class="flex items-center gap-1">
                       <font-awesome-icon :icon="['fas', 'code-branch']" class="w-4 h-4 text-gray-600 pr-2" /><span>Cabang</span>
                     </div>
