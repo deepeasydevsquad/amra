@@ -174,19 +174,19 @@ const openModalPembayaran = (id: number) => {
             </th>
             <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[15%]">Fee</th>
             <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[15%]">
-              Sudah Bayar
+              Sudah Bayar {{ data }}
             </th>
             <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[5%]">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
-          <tr v-if="filteredData.length === 0">
+          <tr v-if="data.length === 0">
             <td colspan="5" class="text-center py-3 text-sm text-gray-500">
               Daftar Agen Tidak Ditemukan
             </td>
           </tr>
 
-          <tr v-for="item in filteredData" :key="item.agen_id" class="hover:bg-gray-50 transition-colors">
+          <tr v-else v-for="item in filteredData" :key="item.agen_id" class="hover:bg-gray-50 transition-colors">
             <!-- Info Agen -->
             <td class="px-6 py-4 border-b text-left align-top">
               <div class="py-1">
