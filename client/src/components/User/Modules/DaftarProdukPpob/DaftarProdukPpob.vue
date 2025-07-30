@@ -194,21 +194,12 @@ const onMarkupInput = (val: string) => {
     <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
       <div class="flex items-center gap-2"></div>
       <div class="flex items-center gap-2">
-        <select
-          v-model="selectedTipe"
-          @change="fetchData"
-          class="px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
-        >
+        <select v-model="selectedTipe" @change="fetchData"
+          class="px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-all text-black" >
           <option value="prabayar">Prabayar</option>
           <option value="pascabayar">Pascabayar</option>
         </select>
-
-        <input
-          type="text"
-          id="search"
-          v-model="searchQuery"
-          @input="handleSearch"
-          placeholder="Cari nama atau kode produk.."
+        <input type="text" id="search" v-model="searchQuery" @input="handleSearch" placeholder="Cari nama atau kode produk.."
           class="w-64 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
         />
       </div>
@@ -247,7 +238,6 @@ const onMarkupInput = (val: string) => {
               <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">
                 {{ formatRupiah(d.markup || 0) }}
               </td>
-
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
                   <div class="flex justify-center items-center gap-2">
@@ -267,16 +257,7 @@ const onMarkupInput = (val: string) => {
           </template>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <PaginationCustom
-            :currentPage="currentPage"
-            :totalPages="totalPages"
-            :pages="pages"
-            :totalColumns="totalColumns"
-            @prev-page="handlePrev"
-            @next-page="handleNext"
-            @page-now="handlePageNow"
-            :totalRow="totalRow"
-          />
+          <PaginationCustom :currentPage="currentPage" :totalPages="totalPages" :pages="pages" :totalColumns="totalColumns" @prev-page="handlePrev" @next-page="handleNext" @page-now="handlePageNow" :totalRow="totalRow" />
         </tfoot>
       </table>
     </div>
@@ -302,27 +283,9 @@ const onMarkupInput = (val: string) => {
     </button>
   </Confirmation>
 
-  <Notification
-    :showNotification="showNotification"
-    :notificationType="notificationType"
-    :notificationMessage="notificationMessage"
-    @close="showNotification = false"
-  ></Notification>
+  <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" ></Notification>
 
-  <Form
-    :formStatus="ModalMarkup"
-    @cancel="closeModal"
-    @submit="handleSubmit"
-    :submitLabel="'Edit Markup'"
-    :width="'w-1/3'"
-    :label="'Simpan '"
-  >
-    <InputText
-      :modelValue="formattedMarkup"
-      @update:modelValue="onMarkupInput"
-      placeholder="Masukkan Markup"
-      class="pb-3"
-      label="Markup Perusahaan"
-    />
+  <Form :formStatus="ModalMarkup" @cancel="closeModal" @submit="handleSubmit" :submitLabel="'Edit Markup'" :width="'w-1/3'" :label="'Simpan '" >
+    <InputText :modelValue="formattedMarkup" @update:modelValue="onMarkupInput" placeholder="Masukkan Markup" class="pb-3" label="Markup Perusahaan" />
   </Form>
 </template>
