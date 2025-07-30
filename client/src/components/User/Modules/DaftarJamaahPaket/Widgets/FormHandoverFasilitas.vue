@@ -175,9 +175,8 @@ const saveData = async () => {
         window.open(`/kwitansi-handover-fasilitas-paket/${response.data.invoice}`, '_blank')
         emit('close')
       } catch (error) {
-        const errorMessage = error?.response?.data?.error_msg ? error.response.data.error_msg : 'Terjadi kesalahan saat menyimpan data'
         showConfirmDialog.value = false
-        displayNotification(errorMessage, error?.response?.data?.error ? 'error' : 'success')
+        emit('status', { error: true, err_msg: error?.response?.data?.error_msg || error?.response?.data?.message })
       } finally {
         isLoading.value = false
       }

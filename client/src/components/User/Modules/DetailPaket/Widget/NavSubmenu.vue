@@ -1,6 +1,6 @@
 <!-- components/User/Modules/DaftarPaket/Widget/NavSubmenu.vue -->
 <script lang="ts" setup>
-import { defineEmits, ref, watch } from 'vue'
+import { defineEmits, ref, watch, defineProps } from 'vue'
 import BackButton from '@/components/User/Modules/DetailPaket/Particle/BackButton.vue'
 import SubmenuItem from '@/components/User/Modules/DetailPaket/Particle/SubmenuItem.vue'
 
@@ -8,6 +8,19 @@ const emit = defineEmits<{
   (e: 'close'): void
   (e: 'update:current', value: string): void
 }>()
+
+
+const props = defineProps<{
+  divisionName: string
+  paketName:string
+}>()
+
+
+  console.log('Props:---------XXXXXXXXXXXXXXXXXXXXXXXXXXX');
+  console.log('Props:', props);
+  console.log('Props:---------XXXXXXXXXXXXXXXXXXXXXXXXXXX');
+
+// :divisionName="divisionName", :paketName="paketName"
 
 const current = ref('transaksi')
 
@@ -65,7 +78,7 @@ const icons: Record<string, string> = {
         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
     </svg>
   `,
-  'k&t': `
+  k_t: `
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor"
       viewBox="0 0 24 24" class="w-4 h-4" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round"
@@ -76,8 +89,6 @@ const icons: Record<string, string> = {
   `,
 }
 
-// const iconSvg = icons[props.icon] ?? ''
-
 const items = [
   { label: 'Transaksi', icon: 'transaksi', value: 'transaksi' },
   { label: 'Jamaah', icon: 'jamaah', value: 'jamaah' },
@@ -86,16 +97,16 @@ const items = [
   { label: 'Kamar', icon: 'kamar', value: 'kamar' },
   { label: 'Bus', icon: 'bus', value: 'bus' },
   { label: 'Agen', icon: 'agen', value: 'agen' },
-  { label: 'K&T', icon: 'k&t', value: 'k_t' },
+  { label: 'K&T', icon: 'k_t', value: 'k_t' },
 ]
 
 watch(current, (val) => {
   emit('update:current', val)
 })
 </script>
-
 <template>
-  <div class="inline-flex rounded-md shadow-xs mb-5 px-4" role="group">
+  <div class="flex justify-between items-center mb-5 px-0 w-full">
+    <div class="inline-flex rounded-md shadow-xs mb-5 px-4">
       <button   @click="emit('close')"  type="button"
         class="px-4 py-2 text-sm font-medium bg-white border-t border-b border-s border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-0 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -103,7 +114,7 @@ watch(current, (val) => {
         </svg>
       </button>
       <template v-for="item in items" :key="item.value">
-        <button  @click="current = item.value" v-if="item.value == 'k_t'" type="button"  :class="current === item.value ? 'z-10 ring-2 text-blue-700 ring-blue-700 bg-gray-200 shadow-md font-semibold' : 'text-gray-700 hover:bg-gray-100 border-e' " class="px-4 py-2 w-30 text-sm font-medium bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+         <button  @click="current = item.value" v-if="item.value == 'k_t'" type="button"  :class="current === item.value ? 'z-10 ring-2 text-blue-700 ring-blue-700 bg-gray-200 shadow-md font-semibold' : 'text-gray-700 hover:bg-gray-100 border-e' " class="px-4 py-2 w-30 text-sm font-medium bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
            <span v-html="icons[item.icon]" class="w-4 h-4 pt-1 mr-1 inline-block" />
           <span>{{ item.label }}</span>
         </button>
@@ -113,4 +124,9 @@ watch(current, (val) => {
         </button>
       </template>
     </div>
+    <div class="text-sm font-medium text-gray-800 px-4 h-10">
+      {{ paketName }} : <b> {{ divisionName }}</b>
+    </div>
+  </div>
 </template>
+

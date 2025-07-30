@@ -11,13 +11,12 @@ const {
   Handover_barang_paket,
   Handover_fasilitas_detail_paket,
   Handover_fasilitas_paket,
+  Division,
   sequelize,
 } = require("../../../models");
-const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
-const { getAlamatInfo } = require("../../../helper/alamatHelper");
+const { getCompanyIdByCode, getCabang, getDivisionId, tipe } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
-const ExcelJS = require('exceljs');
 const fs = require('fs').promises; 
 const path = require('path');
 
@@ -29,20 +28,38 @@ class Model_r {
   }
 
   async initialize() {
-    // Avoid re-initializing if already done
     if (this.company_id && this.division_id) {
       return;
     }
     this.company_id = await getCompanyIdByCode(this.req);
     this.division_id = await getCabang(this.req);
+    this.type = await tipe(this.req);
   }
 
   async getPaketListTransPaket() {
     await this.initialize();
 
     try {
+
+      var div = [];
+      if( this.type === 'administrator' ) {
+        const { rows } = await Division.findAndCountAll({ where : { company_id : this.company_id} });
+        await Promise.all(
+          await rows.map(async (e) => {
+            div.push(e.id);
+          })
+        );
+      }else{
+        const { rows } = await Division.findAndCountAll({ where : { id: this.division, company_id : this.company_id} });
+        await Promise.all(
+          await rows.map(async (e) => {
+            div.push(e.id);
+          })
+        );
+      }
+
       const where = {
-        division_id: this.division_id,  
+        division_id: { [Op.in]: div },
         departure_date: {
           [Op.gt]: moment().startOf('day').toDate(),
         },
@@ -64,6 +81,11 @@ class Model_r {
           {
             model: Paket_price,
             attributes: ["id", "price"],
+          },
+          {
+            required: false, 
+            model: Division, 
+            attributes: ["id", "name"]
           },
         ],
       });
@@ -103,6 +125,7 @@ class Model_r {
         console.log("finalPhoto:", paket);
         return {
           id: paket.id,
+          division_name : paket.Division ? paket.Division.name : 'Tidak Diketahui',
           division_id: paket.division_id,
           name: paket.name,
           kode: paket.kode,
@@ -218,7 +241,8 @@ class Model_r {
     const offset = (pageNumber - 1) * perpage;
     const search = body.search || "";
 
-    let where = { division_id: this.division_id };
+    const division_id = await getDivisionId(this.req);
+    let where = { division_id: division_id };
     if (search) {
       const paketTransactionIds = await this.getPaketTransactionIdsFromSearch(search);
       where = { ...where, id: { [Op.in]: paketTransactionIds } };
@@ -247,7 +271,7 @@ class Model_r {
       {
         model: Paket,
         where: {
-          division_id: this.division_id,
+          division_id: division_id,
           departure_date: { [Op.gt]: new Date() },
         },
         attributes: ["id", "kode", "name"],
@@ -280,7 +304,7 @@ class Model_r {
 
       return { 
         data: data,
-        total: await totalData.count
+        total: totalData.count
       };    
     } catch (error) {
       console.log("Error in daftarJamaahPaket:", error);

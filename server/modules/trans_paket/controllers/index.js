@@ -13,6 +13,10 @@ controllers.getPaketListTransPaket = async (req, res) => {
     const feedBack = await model_r.getPaketListTransPaket();
     res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
   } catch (error) {
+
+    console.log("__________________xxx");
+    console.log(error);
+    console.log("__________________xxx");
     handleServerError(error, res);
   }
 };
