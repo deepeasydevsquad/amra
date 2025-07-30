@@ -20,7 +20,7 @@ interface ProdukPpob {
   tipe: string
 }
 const totalPages = ref(1)
-const itemsPerPage = ref(10)
+const itemsPerPage = ref(100)
 const currentPage = ref(1)
 const totalRow = ref(0)
 const searchQuery = ref('')
@@ -232,7 +232,7 @@ const onMarkupInput = (val: string) => {
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
           <template v-if="data.length > 0">
             <tr v-for="d in data" :key="d.id" class="hover:bg-gray-50 transition-colors">
-              <td class="px-6 py-4 text-center align-top text-sm font-medium text-gray-700">
+              <td class="px-6 py-4 text-left align-top text-sm font-medium text-gray-700">
                 {{ d.name }}
               </td>
               <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">
