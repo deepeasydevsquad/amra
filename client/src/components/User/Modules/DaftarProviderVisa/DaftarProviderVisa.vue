@@ -136,21 +136,15 @@ const deleteData = async (id: number) => {
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
-      <PrimaryButton
-        @click="openModal()"
-      >
-      <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
+      <PrimaryButton @click="openModal()" >
+        <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
         Tambah Provider Visa
       </PrimaryButton>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input
-          type="text"
-          id="search"
+        <input type="text" id="search"
           class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-          v-model="search"
-          @change="fetchData()"
-          placeholder="Cari data..."
+          v-model="search" @change="fetchData()" placeholder="Cari data..."
         />
       </div>
     </div>

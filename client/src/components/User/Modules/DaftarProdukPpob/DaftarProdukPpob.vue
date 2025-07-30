@@ -220,34 +220,19 @@ const onMarkupInput = (val: string) => {
             <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Nama Produk</th>
             <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Kode</th>
             <th class="w-[30%] px-6 py-4 font-medium text-gray-900 text-center">Tipe</th>
-            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center w-28">
-              Harga Aplikasi
-            </th>
-            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center w-28">
-              Markup Perusahaan
-            </th>
+            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center w-28">Harga Aplikasi</th>
+            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center w-28">Markup Perusahaan</th>
             <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center w-28">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
           <template v-if="data.length > 0">
             <tr v-for="d in data" :key="d.id" class="hover:bg-gray-50 transition-colors">
-              <td class="px-6 py-4 text-center align-top text-sm font-medium text-gray-700">
-                {{ d.name }}
-              </td>
-              <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">
-                {{ d.kode }}
-              </td>
-              <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">
-                {{ d.tipe }}
-              </td>
-              <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">
-                {{ formatRupiah(d.price) }}
-              </td>
-              <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">
-                {{ formatRupiah(d.markup || 0) }}
-              </td>
-
+              <td class="px-6 py-4 text-center align-top text-sm font-medium text-gray-700">{{ d.name }}</td>
+              <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">{{ d.kode }}</td>
+              <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">{{ d.tipe }}</td>
+              <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">{{ formatRupiah(d.price) }}</td>
+              <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">{{ formatRupiah(d.markup || 0) }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
                   <div class="flex justify-center items-center gap-2">
@@ -267,16 +252,7 @@ const onMarkupInput = (val: string) => {
           </template>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <PaginationCustom
-            :currentPage="currentPage"
-            :totalPages="totalPages"
-            :pages="pages"
-            :totalColumns="totalColumns"
-            @prev-page="handlePrev"
-            @next-page="handleNext"
-            @page-now="handlePageNow"
-            :totalRow="totalRow"
-          />
+          <PaginationCustom :currentPage="currentPage" :totalPages="totalPages" :pages="pages" :totalColumns="totalColumns" @prev-page="handlePrev" @next-page="handleNext" @page-now="handlePageNow" :totalRow="totalRow" />
         </tfoot>
       </table>
     </div>
