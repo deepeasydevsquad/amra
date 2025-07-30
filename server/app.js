@@ -120,7 +120,8 @@ const arr_router = [
   "daftar_stock_fasilitas",
   "item_fasilitas",
   "akun_bank",
-  "headline"
+  "headline",
+  "trans_fasilitas"
 ];
 
 const arr = {};
