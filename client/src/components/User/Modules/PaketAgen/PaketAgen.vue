@@ -174,7 +174,7 @@ const openModalPembayaran = (id: number) => {
             </th>
             <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[15%]">Fee</th>
             <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[15%]">
-              Sudah Bayar {{ data }}
+              Sudah Bayar
             </th>
             <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[5%]">Aksi</th>
           </tr>

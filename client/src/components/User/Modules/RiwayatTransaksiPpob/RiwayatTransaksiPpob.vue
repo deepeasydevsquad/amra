@@ -22,7 +22,7 @@ const search = ref('')
 const currentPage = ref(1)
 const totalPages = ref(0)
 const totalColumns = ref(6)
-const itemsPerPage = ref(10)
+const itemsPerPage = ref(100)
 const totalItems = ref(0)
 const timeoutId = ref<number | null>(null)
 const searchTimeout = ref<number | null>(null)
@@ -121,43 +121,33 @@ const handleSearch = () => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-100">
           <tr>
-            <th class="w-[20%] px-6 py-4 font-medium text-gray-900 text-center">Info Produk</th>
-            <th class="w-[20%] px-6 py-4 font-medium text-gray-900 text-center">
-              Transaction Code
-            </th>
-            <th class="w-[14%] px-6 py-4 font-medium text-gray-900 text-center">Status</th>
-            <th class="w-[20%] px-6 py-4 font-medium text-gray-900 text-center">Nomor Tujuan</th>
-            <th class="w-[13%] px-6 py-4 font-medium text-gray-900 text-center">
-              Harga Perusahaan
-            </th>
-            <th class="w-[13%] px-6 py-4 font-medium text-gray-900 text-center">
-              Tanggal Transaksi
-            </th>
+            <th class="w-[12%] px-6 py-4 font-medium text-gray-900 text-center">Transaction Code</th>
+            <th class="w-[37%] px-6 py-4 font-medium text-gray-900 text-center">Info Produk</th>
+            <th class="w-[10%] px-6 py-4 font-medium text-gray-900 text-center">Status</th>
+            <th class="w-[15%] px-6 py-4 font-medium text-gray-900 text-center">Nomor Tujuan</th>
+            <th class="w-[13%] px-6 py-4 font-medium text-gray-900 text-center">Harga Perusahaan</th>
+            <th class="w-[13%] px-6 py-4 font-medium text-gray-900 text-center">Tanggal Transaksi</th>
           </tr>
         </thead>
 
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
           <template v-if="riwayat.length > 0">
             <tr v-for="d in riwayat" :key="d.id" class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 text-center text-sm text-gray-600 font-bold">#{{ d.transaction_code }}</td>
               <td class="px-6 py-4 text-sm font-medium text-gray-700 text-center align-middle">
-                <div class="inline-block text-left">
-                  <table class="table-fixed">
-                    <tbody>
-                      <tr>
-                        <td class="pr-2 text-gray-500 text-right">Nama:</td>
-                        <td class="text-left">{{ d.nama_produk }}</td>
-                      </tr>
-                      <tr>
-                        <td class="pr-2 text-gray-500 text-right">Kode:</td>
-                        <td class="text-left">{{ d.kode_produk }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </td>
-
-              <td class="px-6 py-4 text-center text-sm text-gray-600">
-                {{ d.transaction_code }}
+                <table class="w-full mb-5">
+                  <tbody>
+                    <tr v-for="(label, value) in {
+                      'Nama Produk': d.nama_produk,
+                      'Kode Produk': d.kode_produk,
+                       }"
+                    :key="label" class="border-gray-200 hover:bg-gray-200">
+                      <td class="w-[30%] border-b px-6 py-2 text-left">{{ value }}</td>
+                      <td class="text-center border-b py-2">:</td>
+                      <td class="border-b text-right space-y-2 text-sm px-6 py-2">{{ label }}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </td>
               <td class="px-6 py-4 text-center text-sm">
                 <span
