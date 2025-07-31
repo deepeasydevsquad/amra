@@ -18,19 +18,11 @@
       <!-- Search + Filter Cabang -->
       <div class="flex items-center gap-0">
         <!-- Search -->
-        <input
-          type="text"
-          id="search"
-          v-model="searchQuery"
-          @input="handleSearch"
-          placeholder="Cari berdasarkan nama..."
+        <input type="text" id="search" v-model="searchQuery" @input="handleSearch" placeholder="Cari berdasarkan nama..."
           class="w-64 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
         />
-
         <!-- Dropdown Cabang -->
-        <select
-          v-model="selectedOptionCabang"
-          @change="fetchPinjaman"
+        <select v-model="selectedOptionCabang" @change="fetchPinjaman"
           class="w-60 px-3 py-2 text-sm bg-white border border-l-0 border-gray-300 text-gray-700 rounded-e-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
         >
           <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
@@ -70,16 +62,11 @@
             </td>
           </tr>
           <!-- Baris Data -->
-          <tr
-            v-for="pinjaman in pinjamans"
-            :key="pinjaman.id"
-            class="hover:bg-gray-50 transition-colors"
-          >
+          <tr v-for="pinjaman in pinjamans" :key="pinjaman.id" class="hover:bg-gray-50 transition-colors">
             <!-- Nomor Register -->
             <td class="px-6 py-4 text-center align-top text-sm font-bold text-gray-700">
               {{ pinjaman.register_number }}
             </td>
-
             <!-- Info Jamaah -->
             <td class="px-6 py-4 text-left align-top space-y-2 text-sm text-gray-600">
               <table class="w-full">
@@ -92,9 +79,7 @@
                   <tr>
                     <td>Nomor Identitas</td>
                     <td>:</td>
-                    <td class="text-right space-y-2 text-sm py-1">
-                      {{ pinjaman.identity_number }}
-                    </td>
+                    <td class="text-right space-y-2 text-sm py-1">{{ pinjaman.identity_number }}</td>
                   </tr>
                 </tbody>
               </table>
