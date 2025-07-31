@@ -29,3 +29,13 @@ export const hapus = async (param : any) => {
     throw error
   }
 }
+
+export const riwayat_transaksi = async (param : any) => {
+  try {
+    const response = await api.post('/ppob/riwayat_transaksi', param)
+    return response.data
+  } catch (error) {
+    console.error('Gagal mengambil data profil:', error)
+    throw error
+  }
+}
