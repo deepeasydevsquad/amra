@@ -1,6 +1,10 @@
 const {
-  Hotel_transaction,
-  Hotel_transaction_detail,
+  Transaction_fasilitas,
+  Transaction_fasilitas_detail,
+  Mst_fasilitas,
+  Item_fasilitas,
+  Kostumer,
+  Paket,
   sequelize,
   Company,
   Users,
@@ -75,7 +79,7 @@ class Model_cud {
 
     try {
       // 1. Insert transaksi utama
-      const transaksi = await Hotel_transaction.create(
+      const transaksi = await Transaction_fasilitas.create(
         {
           company_id: this.company_id,
           invoice: invoice,
@@ -88,28 +92,31 @@ class Model_cud {
         { transaction: this.t }
       );
 
-      // 2. Insert semua tamu ke details
-      const detailData = body.details.map((d) => ({
-        hotel_transaction_id: transaksi.id,
-        name: d.name,
-        birth_date: d.birth_date,
-        birth_place: d.birth_place,
-        identity_number: d.identity_number,
-        mst_hotel_id: d.mst_hotel_id,
-        mst_kota_id: d.mst_kota_id,
-        price: d.price,
-        check_in: d.check_in,
-        check_out: d.check_out,
-        createdAt: my_date,
-        updatedAt: my_date,
-      }));
-
-      await Hotel_transaction_detail.bulkCreate(detailData, {
-        transaction: this.t,
-      });
+      // 2. Hitung total harga dari semua fasilitas
+      let totalPrice = 0;
+      for (const detail of body.fasilitas) {
+        const fasilitas = await Item_fasilitas.findOne({
+          where: { id: detail.item_id },
+          attributes: ["id", "harga_jual"],
+        });
+        if (fasilitas) {
+          totalPrice += fasilitas.harga_jual;
+          await Transaction_fasilitas_detail.create(
+            {
+              transaction_fasilitas_id: transaksi.id,
+              item_fasilitas_id: fasilitas.id,
+              createdAt: my_date,
+              updatedAt: my_date,
+            },
+            { transaction: this.t }
+          );
+        }
+      }
+      transaksi.total = totalPrice;
+      await transaksi.save({ transaction: this.t });
 
       this.invoice = invoice;
-      this.message = "Transaksi hotel berhasil disimpan.";
+      this.message = "Transaksi fasilitas berhasil disimpan.";
     } catch (error) {
       this.message = "Gagal simpan transaksi hotel: " + error.message;
       this.state = false;
@@ -123,39 +130,14 @@ class Model_cud {
 
     const { id } = this.req.body;
 
-    if (!Number(id)) {
-      this.state = false;
-      this.message = "ID hotel harus berupa angka";
-      return;
-    }
-
     try {
-      const transaksi = await Hotel_transaction.findOne({
-        where: {
-          id: Number(id),
-          company_id: this.company_id,
-        },
-      });
-
-      if (!transaksi) {
-        this.state = false;
-        this.message = "Transaksi hotel tidak ditemukan.";
-        return;
-      }
-
-      // Hapus detail anaknya dulu
-      await Hotel_transaction_detail.destroy({
-        where: { hotel_transaction_id: transaksi.id },
+      // Hapus data induknya serta barangnya (cassecade delete)
+      await Transaction_fasilitas.destroy({
+        where: { id: id, company_id: this.company_id },
         transaction: this.t,
       });
 
-      // Hapus data induknya
-      await Hotel_transaction.destroy({
-        where: { id: transaksi.id },
-        transaction: this.t,
-      });
-
-      this.message = "Transaksi hotel berhasil dihapus.";
+      this.message = "Transaksi fasilitas berhasil dihapus.";
     } catch (error) {
       this.state = false;
       this.message = "Gagal hapus transaksi hotel: " + error.message;

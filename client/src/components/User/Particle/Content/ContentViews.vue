@@ -120,6 +120,8 @@ const tabComponents = {
   daftar_item_fasilitas: ItemFasilitas,
   headline: Headline,
   daftar_akun_bank_perusahaan: AkunBank,
+  daftar_produk_ppob: DaftarProdukPpob,
+  trans_fasilitas: TransFasilitas
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click

@@ -6,6 +6,7 @@ const {
   Akun_secondary,
   Member,
   Deposit,
+  Paket,
   Paket_la,
   Fasilitas_paket_la,
   Detail_fasilitas_paket_la,
@@ -45,6 +46,9 @@ const {
   Kas_keluar_masuk,
   Jurnal,
   Kostumer,
+  Transaction_fasilitas,
+  Transaction_fasilitas_detail,
+  Item_fasilitas,
 } = require("../../../models");
 const { Op } = require("sequelize");
 const {
@@ -1401,6 +1405,81 @@ class Model_r {
       return {
         status: false,
         message: "Gagal ambil data invoice transport.",
+        data: null,
+      };
+    }
+  }
+
+  async invoice_trans_fasilitas() {
+    await this.initialize();
+
+    try {
+      const invoice = this.req.params.invoice;
+
+      const header_kwitansi = await this.header_kwitansi_invoice();
+
+      const transaksi = await Transaction_fasilitas.findOne({
+        where: {
+          company_id: this.company_id,
+          invoice,
+        },
+        include: [
+          {
+            model: Kostumer,
+            required: true,
+            attributes: ["name"],
+          },
+        ],
+      });
+
+      if (!transaksi) {
+        return {};
+      }
+
+      const detailList = await Transaction_fasilitas_detail.findAll({
+        where: { transaction_fasilitas_id: transaksi.id },
+        include: [
+          {
+            model: Item_fasilitas,
+            attributes: ["item_code", "harga_jual"],
+            include: [
+              {
+                model: Mst_fasilitas,
+                attributes: ["name"],
+                required: true,
+              },
+            ],
+          },
+        ],
+      });
+
+      const detail_fasilitas = detailList.map((item) => {
+        const itemFasilitas = item.Item_fasilita;
+        return {
+          item_code: itemFasilitas?.item_code || "-",
+          price: itemFasilitas?.harga_jual || 0,
+          nama_fasilitas: itemFasilitas?.Mst_fasilita?.name || "-",
+        };
+      });
+
+      const total_price = detail_fasilitas.reduce(
+        (sum, item) => sum + item.price,
+        0
+      );
+      let data = {
+          header_kwitansi,
+          invoice: transaksi.invoice,
+          nama_kostumer: transaksi.Kostumer?.name || "-",
+          petugas: transaksi.petugas,
+          total_price,
+          detail_fasilitas,
+        }
+      return data;
+    } catch (error) {
+      console.error("Gagal ambil data invoice fasilitas:", error);
+      return {
+        status: false,
+        message: "Gagal ambil data invoice fasilitas.",
         data: null,
       };
     }

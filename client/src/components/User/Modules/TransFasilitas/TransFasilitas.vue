@@ -16,11 +16,15 @@ import Pagination from '@/components/Pagination/Pagination.vue'
 import { ref, watch, computed, onMounted } from 'vue'
 
 import {
-
+  daftarTransFasilitas,
+  daftar_kostumer,
+  daftar_paket,
+  daftar_fasilitas,
+  add_transaksi,
+  delete_transaksi
 } from '@/service/trans_fasilitas'
 import { paramCabang } from '@/service/param_cabang'
 
-const showModalDetail = ref(false)
 const totalItems = ref(0)
 const showModal = ref(false)
 const itemsPerPage = 10
@@ -34,7 +38,7 @@ const confirmMessage = ref('')
 const confirmTitle = ref('')
 const confirmAction = ref<(() => void) | null>(null)
 const timeoutId = ref<number | null>(null)
-const MobilOptions = ref<{ id: number | string; name: string; kota: string }[]>([])
+const FasilitasOption = ref<{ id: number | string; name: string }[]>([])
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message
@@ -91,7 +95,7 @@ const data = ref<any[]>([]) // array kosong
 
 const fetchData = async () => {
   try {
-    const response = await daftar_transaksi({
+    const response = await daftarTransFasilitas({
       search: searchQuery.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
@@ -99,6 +103,7 @@ const fetchData = async () => {
     data.value = response.data
     totalItems.value = response.total || response.data.length || 0
     totalPages.value = Math.ceil(response.total / itemsPerPage)
+    console.log('Data fetched:', data.value)
   } catch (error) {
     console.error(error)
   }
@@ -107,79 +112,55 @@ const fetchData = async () => {
 const deleteData = async (id: number) => {
   showConfirmation('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus data ini?', async () => {
     try {
-      await delete_transaksi({ id: id })
+      await delete_transaksi(id)
       showConfirmDialog.value = false
       displayNotification('Operasi berhasil!', 'success')
       fetchData()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting data:', error)
       displayNotification(error?.response?.data?.error_msg, 'error')
     }
   })
 }
 
-const fetchMobil = async () => {
-  try {
-    const data = await daftar_mobil()
-    MobilOptions.value = [
-      { id: 0, name: 'Pilih Mobil' },
-      ...data.map((item: any) => ({
-        id: item.id,
-        name: `${item.name}`,
-      })),
-    ]
-    console.log('data kota', data)
-  } catch (error) {
-    displayNotification('Gagal ambil data kota', 'error')
-  }
-}
-
-onMounted(() => {
-  fetchData()
-  fetchMobil()
-  fetchCustomer()
-  fetchCabang()
-  searchQuery.value = ''
-})
-
 const formData = ref({
+  division_id: 0,
   kostumer_id: 0,
   paket_id: 0,
-  address: '',
 })
 
-const formMobilList = ref([
+const formFasilitasList = ref([
   {
-    mst_mobil_id: '0',
-    car_number: '',
-    price: null,
+    id: '0',
   },
 ])
 
-const addMobil = () => {
-  formMobilList.value.push({
-    mst_mobil_id: '0',
-    car_number: '',
-    price: null,
+const addFasilitas = () => {
+  formFasilitasList.value.push({
+    id: '0',
   })
 }
 
-const removeMobil = (index: number) => {
-  if (formMobilList.value.length > 1) {
-    formMobilList.value.splice(index, 1)
+const removeFasilitas = (index: number) => {
+  if (formFasilitasList.value.length > 1) {
+    formFasilitasList.value.splice(index, 1)
   }
 }
 
 const cetak_invoice = (invoice: string) => {
-  const printUrl = `/kwitansi-trans-transport/${invoice}`
+  const printUrl = `/kwitansi-trans-fasilitas/${invoice}`
   window.open(printUrl, '_blank')
 }
 
 const errors = ref<{
   kostumer_id?: string
   paket_id?: string
+  division_id?: string
   address?: string
-  details?: { mst_mobil_id?: string; car_number?: string; price?: string; general?: string }[]
+  details?: {
+    id?: string
+    general?: string
+  }[]
 }>({})
 
 const validateForm = (): boolean => {
@@ -191,37 +172,32 @@ const validateForm = (): boolean => {
     isValid = false
   }
 
-  if (!formData.value.address?.trim()) {
-    errors.value.address = 'Alamat wajib diisi.'
+  if (!formData.value.paket_id) {
+    errors.value.paket_id = 'Paket harus dipilih.'
     isValid = false
   }
 
-  // Validasi list mobil
-  if (formMobilList.value.length === 0) {
-    errors.value.details = [{ general: 'Minimal satu mobil harus ditambahkan.' }]
+  if (!SelectedCabang.value || SelectedCabang.value === 0) {
+    errors.value.division_id = 'Cabang harus dipilih.'
+    isValid = false
+  }
+
+  // Validasi list fasilitas
+  if (formFasilitasList.value.length === 0) {
+    errors.value.details = [{ general: 'Minimal satu fasilitas harus ditambahkan.' }]
     isValid = false
   } else {
     errors.value.details = []
 
-    formMobilList.value.forEach((mobil, index) => {
-      const mobilErrors: Record<string, string> = {}
+    formFasilitasList.value.forEach((fasilitas, index) => {
+      const fasilitasErrors: Record<string, string> = {}
 
-      if (!mobil.mst_mobil_id) {
-        mobilErrors.mst_mobil_id = 'Mobil harus dipilih.'
+      if (!fasilitas.id || fasilitas.id == '0') {
+        fasilitasErrors.id = 'Fasilitas harus dipilih.'
         isValid = false
       }
 
-      if (!mobil.car_number?.trim()) {
-        mobilErrors.car_number = 'Nomor mobil wajib diisi.'
-        isValid = false
-      }
-
-      if (!mobil.price || isNaN(Number(mobil.price))) {
-        mobilErrors.price = 'Harga wajib diisi dan berupa angka.'
-        isValid = false
-      }
-
-      errors.value.details?.[index]?.car_number
+      errors.value.details[index] = { id: fasilitasErrors.id }
     })
   }
 
@@ -236,11 +212,9 @@ const submitForm = async () => {
     const payload = {
       kostumer_id: formData.value.kostumer_id,
       paket_id: formData.value.paket_id,
-      address: formData.value.address,
-      details: formMobilList.value.map((mobil) => ({
-        mst_mobil_id: Number(mobil.mst_mobil_id),
-        car_number: mobil.car_number,
-        price: Number(mobil.price),
+      division_id: SelectedCabang.value,
+      fasilitas: formFasilitasList.value.map((fasilitas) => ({
+        item_id: fasilitas.id,
       })),
     }
 
@@ -256,7 +230,7 @@ const submitForm = async () => {
     displayNotification(`Transaksi berhasil! Invoice: ${invoice}`, 'success')
 
     // 🧾 Open tab baru buat print kwitansi
-    const printUrl = `/kwitansi-trans-transport/${invoice}`
+    const printUrl = `/kwitansi-trans-fasilitas/${invoice}`
     window.open(printUrl, '_blank')
 
     // refresh data
@@ -269,33 +243,16 @@ const submitForm = async () => {
 
 const resetForm = () => {
   formData.value = {
+    division_id: 0,
     kostumer_id: 0,
     paket_id: 0,
-    address: '',
   }
 
-  formMobilList.value = [
+  formFasilitasList.value = [
     {
-      mst_mobil_id: '',
-      car_number: '',
-      price: null,
+      id: '0',
     },
   ]
-}
-
-// Format ke IDR
-const formatToIDR = (value: number | string): string => {
-  const num = typeof value === 'string' ? Number(value.replace(/[^\d]/g, '')) : value
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(num || 0)
-}
-
-// Ambil angka asli dari string IDR
-const parseIDR = (value: string): number => {
-  return Number(value.replace(/[^\d]/g, ''))
 }
 
 interface costumer {
@@ -304,11 +261,10 @@ interface costumer {
 }
 
 const customerOption = ref<costumer[]>([])
-const SelectedCustomer = ref(0)
 const fetchCustomer = async () => {
   try {
     const response = await daftar_kostumer()
-    customerOption.value = [{ id: 0, name: 'Pilih Kostumer' }, ...response]
+    customerOption.value = [{ id: 0, name: 'Pilih Kostumer' }, ...response.data]
   } catch (error) {
     console.error(error)
   }
@@ -329,18 +285,36 @@ const fetchCabang = async () => {
   }
 }
 
+const fetchFasilitas = async (paket_id: number) => {
+  try {
+    console.log('Fetching Fasilitas for Paket ID:', paket_id)
+    const response = await daftar_fasilitas({
+      paket_id: paket_id,
+      division_id: SelectedCabang.value,
+    })
+    FasilitasOption.value = [
+      { id: 0, name: 'Pilih Fasilitas' },
+      ...response.data.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+      })),
+    ]
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 interface paket {
   id: number
   name: string
 }
 const paketOption = ref<paket[]>([{ id: 0, name: 'Pilih Paket' }]) // Tambahkan opsi default
-const SelectedPaket = ref(0)
 const fetchPaket = async () => {
   try {
     const response = await daftar_paket({
       division_id: SelectedCabang.value,
     })
-    paketOption.value = [{ id: 0, name: 'Pilih Paket' }, ...response]
+    paketOption.value = [{ id: 0, name: 'Pilih Paket' }, ...response.data]
   } catch (error) {
     console.error(error)
   }
@@ -348,8 +322,26 @@ const fetchPaket = async () => {
 
 watch(SelectedCabang, async (newCabang) => {
   if (newCabang) {
+    formData.value.paket_id = 0; // Reset paket saat cabang berubah
     await fetchPaket()
   }
+})
+
+watch(() => formData.value.paket_id, async (newPaketId) => {
+  if (newPaketId) {
+    await fetchFasilitas(newPaketId)
+  } else {
+    FasilitasOption.value = [{ id: 0, name: 'Pilih Fasilitas' }]
+  }
+})
+
+onMounted(async () => {
+  FasilitasOption.value = [
+    { id: 0, name: 'Pilih Fasilitas' },
+  ]
+  await fetchData()
+  await fetchCustomer()
+  await fetchCabang()
 })
 </script>
 
@@ -387,15 +379,13 @@ watch(SelectedCabang, async (newCabang) => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-100">
           <tr>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[10%]">Invoice</th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[30%]">Nama Kostumer</th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[30%]">Paket</th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[30%]">Info Transport</th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[15%]">Total</th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[15%]">
-              Tanggal Transaksi
-            </th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[10%]">Aksi</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[5%]">Invoice</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[20%]">Nama Kostumer</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[20%]">Paket</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[30%]">Info Fasilitas</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[10%]">Total</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[10%]">Tanggal Transaksi</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[5%]">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -407,28 +397,44 @@ watch(SelectedCabang, async (newCabang) => {
           <tr v-for="item in filteredData" :key="item.invoice" class="hover:bg-gray-50">
             <td class="text-center px-6 py-4 align-top">{{ item.invoice }}</td>
             <td class="text-center px-6 py-4 align-top">
-              <div>{{ item.kostumer_name }}</div>
+              <div v-if="item.kostumer_name && item.tabungan_name">
+                {{ item.kostumer_name }} / {{ item.tabungan_name }}
+              </div>
+              <div v-else-if="item.kostumer_name">{{ item.kostumer_name }}</div>
+              <div v-else-if="item.tabungan_name">{{ item.tabungan_name }}</div>
             </td>
             <td class="text-center px-6 py-4 align-top">
               {{ item.paket_name }}
             </td>
             <td class="px-6 py-4 align-top">
-              <div v-for="(mobil, idx) in item.detail_mobil" :key="idx" class="mb-2">
-                <div class="grid grid-cols-[120px_1fr] gap-y-1 items-start">
-                  <div>Nama Mobil</div>
+              <div v-if="item.details && item.details.length > 0">
+                <div
+                  v-for="(detail, idx) in item.details"
+                  :key="idx"
+                  class="grid grid-cols-[120px_1fr] gap-y-1 items-start"
+                >
+                  <div>Nama Fasilitas</div>
                   <div>
-                    : <strong>{{ mobil.nama_mobil }}</strong>
+                    : <strong>{{ detail.fasilitas_name }}</strong>
                   </div>
-                  <div>Plat Mobil</div>
-                  <div>: {{ mobil.car_number }}</div>
-                  <div>Harga Per Paket</div>
-                  <div>: Rp {{ mobil.price?.toLocaleString() }}</div>
+                  <div>Kode Fasilitas</div>
+                  <div>
+                    : <strong>{{ detail.item_code }}</strong>
+                  </div>
+                  <div>Status</div>
+                  <div>: {{ detail.status }}</div>
+                  <div>Harga Fasilitas</div>
+                  <div>: Rp {{ detail.harga?.toLocaleString() }}</div>
+                  <hr class="my-2 border-dashed" />
                 </div>
-                <hr class="my-2 border-dashed" />
               </div>
+              <div v-else class="text-center py-2 text-gray-500">
+                Belum ada info fasilitas
+              </div>
+
             </td>
             <td class="text-center px-6 py-4 align-top">
-              Rp {{ item.total_price?.toLocaleString() }}
+              Rp {{ item.total_harga?.toLocaleString() }}
             </td>
             <td class="text-center px-6 py-4 align-top">{{ item.tanggal_transaksi }}</td>
             <td class="px-6 py-4 text-center align-top">
@@ -470,7 +476,7 @@ watch(SelectedCabang, async (newCabang) => {
     @submit="submitForm"
     :submitLabel="'Simpan'"
     :width="'w-1/3'"
-    :label="'Tambah Transaksi Transport'"
+    :label="'Tambah Transaksi Fasilitas'"
   >
     <div class="flex flex-wrap gap-4">
       <div class="flex-1 min-w-[200px]">
@@ -482,7 +488,12 @@ watch(SelectedCabang, async (newCabang) => {
         />
       </div>
       <div class="flex-1 min-w-[200px]">
-        <SelectField label="Cabang" v-model="SelectedCabang" :options="cabangOption" />
+        <SelectField
+          label="Cabang"
+          v-model="SelectedCabang"
+          :options="cabangOption"
+          :error="errors.division_id"
+        />
       </div>
       <div class="flex-1 min-w-[200px]">
         <SelectField
@@ -494,65 +505,32 @@ watch(SelectedCabang, async (newCabang) => {
       </div>
     </div>
 
-    <div class="mt-4">
-      <TextArea
-        v-model="formData.address"
-        id="address"
-        label="Alamat"
-        placeholder="Tuliskan Alamat Anda..."
-        note="Contoh: Jl. Raya Jakarta No. 123, Jakarta Selatan, DKI Jakarta"
-        :error="errors.address"
-        class="resize-none"
-      />
-    </div>
-
     <div class="mt-6">
-      <h3 class="font-semibold text-sm mb-2">Detail Mobil</h3>
+      <h3 class="font-semibold text-sm mb-2">Detail Fasilitas</h3>
       <table class="table-auto w-full">
         <thead class="bg-gray-100 text-sm text-gray-700">
           <tr class="text-center">
-            <th class="w-[90%] px-4 py-3">Info Mobil</th>
+            <th class="w-[90%] px-4 py-3">Info Fasilitas</th>
             <th class="w-[10%] px-4 py-3">Aksi</th>
           </tr>
         </thead>
         <tbody class="align-top border-t border-gray-200">
           <tr
-            v-for="(mobil, index) in formMobilList"
+            v-for="(fasilitas, index) in formFasilitasList"
             :key="index"
             class="hover:bg-gray-100 border-b border-dashed border-gray-700 pt-4"
           >
             <td class="px-4 py-2">
               <SelectField
-                note="Mobil"
-                v-model="mobil.mst_mobil_id"
-                placeholder="Pilih Mobil"
-                :options="MobilOptions"
-                :error="errors[`mobil_${index}_mst_mobil_id`]"
+                v-model="fasilitas.id"
+                placeholder="Pilih Fasilitas"
+                :options="FasilitasOption"
+                :error="errors.details?.[index]?.id"
               />
-
-              <div class="flex gap-4 mt-2">
-                <div class="w-1/2">
-                  <InputText
-                    v-model="mobil.car_number"
-                    note="Plat Mobil"
-                    placeholder="Masukkan Plat Mobil"
-                    :error="errors[`mobil_${index}_car_number`]"
-                  />
-                </div>
-                <div class="w-1/2">
-                  <InputText
-                    :modelValue="formatToIDR(mobil.price)"
-                    @update:modelValue="mobil.price = parseIDR($event)"
-                    note="Harga Per Paket"
-                    placeholder="Masukkan harga per paket"
-                    :error="errors[`mobil_${index}_price`]"
-                  />
-                </div>
-              </div>
             </td>
 
             <td class="px-4 py-2 text-center">
-              <DangerButton class="mt-2.5" @click="removeMobil(index)">
+              <DangerButton class="mt-2.5" @click="removeFasilitas(index)">
                 <DeleteIcon class="w-5 h-5" />
               </DangerButton>
             </td>
@@ -560,7 +538,10 @@ watch(SelectedCabang, async (newCabang) => {
         </tbody>
       </table>
       <div class="mt-4 flex justify-end">
-        <PrimaryButton @click="addMobil">+ Tambah Mobil</PrimaryButton>
+        <PrimaryButton @click="addFasilitas">
+          <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
+          Tambah Fasilitas
+        </PrimaryButton>
       </div>
     </div>
   </Form>

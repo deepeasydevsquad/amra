@@ -1,8 +1,6 @@
 const {
   Transaction_fasilitas,
   Transaction_fasilitas_detail,
-  Mst_hotel,
-  Mst_kota,
   Mst_fasilitas,
   Kostumer,
   Paket,
@@ -41,15 +39,6 @@ class Model_r {
     });
 
     return paketMap;
-  }
-
-  async data_fasilita(ids) {
-    const paketList = await Paket.findAll({
-      where: { id: { [Op.in]: ids } },
-      attributes: ["id", "facilities"],
-    });
-    
-
   }
 
   async daftar_transaksi_fasilitas() {
@@ -142,11 +131,11 @@ class Model_r {
         // Ambil detail fasilitas
         const detailList = await Transaction_fasilitas_detail.findAll({
           where: { transaction_fasilitas_id: { [Op.in]: listId } },
-          include: [
+          include: [  
             {
               model: Item_fasilitas,
               required: true,
-              attributes: ["item_code", "status", "harga_beli", "harga_jual"],
+              attributes: ["item_code", "status", "harga_jual"],
               include: [
                 {
                   model: Mst_fasilitas,
@@ -167,17 +156,16 @@ class Model_r {
           if (!fasilitasMap[trxId]) fasilitasMap[trxId] = [];
           if (!totalHargaMap[trxId]) totalHargaMap[trxId] = 0;
 
-          const item = e.Item_fasilitas;
+          const item = e.Item_fasilita;
           const fasilitas = {
             item_code: item?.item_code || "-",
             status: item?.status || "-",
-            harga_jual: item?.harga_jual || 0,
-            harga_beli: item?.harga_beli || 0,
-            fasilitas_name: item?.Mst_fasilitas?.name || "-",
+            harga: item?.harga_jual || 0,
+            fasilitas_name: item?.Mst_fasilita?.name || "-",
           };
 
           fasilitasMap[trxId].push(fasilitas);
-          totalHargaMap[trxId] += fasilitas.harga_jual || 0;
+          totalHargaMap[trxId] += Number(fasilitas.harga) || 0;
         });
 
         // Gabungkan kembali ke data utama
@@ -188,6 +176,10 @@ class Model_r {
         }));
       }
 
+      console.log("Total Transaksi:", total, "Halaman:", page, "Per Halaman:", limit);
+      console.log("Data Transaksi:", data.length, "items");
+      console.log("Data Transaksi:", JSON.stringify(data, null, 2));
+
       return { data, total };
     } catch (error) {
       console.error("Error in daftar_transaksi_fasilitas:", error);
@@ -195,47 +187,57 @@ class Model_r {
     }
   }
 
-  async daftar_kota() {
+  async daftar_fasilitas() {
     try {
-      await this.initialize(); // inisialisasi company_id
-      const sql = await Mst_kota.findAll({
-        where: { company_id: this.company_id },
+      await this.initialize();
+      const { paket_id, division_id } = this.req.body;
+
+      // Ambil fasilitas dari paket
+      const paket = await Paket.findOne({
+        where: { id: paket_id, division_id },
+        attributes: ["facilities"],
       });
 
-      const data = sql.map((d) => ({
-        id: d.id,
-        name: d.name,
-        kode: d.kode,
-      }));
-      return data;
-    } catch (error) {
-      console.error("Gagal ambil daftar kota:", error);
-      return [];
-    }
-  }
+      const facilitiesIds = new Set(
+        JSON.parse(paket.facilities).map((f) => f.id)
+      );
 
-  async daftar_hotel() {
-    try {
-      await this.initialize(); // inisialisasi company_id
-      const sql = await Mst_hotel.findAll({
-        where: { company_id: this.company_id },
+      if (facilitiesIds.size === 0) {
+        return [];
+      }
+
+      // Ambil item fasilitas yang valid
+      const itemFacilities = await Item_fasilitas.findAll({
+        where: {
+          mst_fasilitas_id: { [Op.in]: [...facilitiesIds] },
+        },
         include: [
           {
-            model: Mst_kota,
+            model: Mst_fasilitas,
             required: true,
-            attributes: ["name"],
+            attributes: ["id", "name"],
           },
         ],
       });
 
-      const data = sql.map((d) => ({
-        id: d.id,
-        name: d.name,
-        kota: d.Mst_kotum.name,
-      }));
+      // Kumpulkan hasil unik berdasarkan mst_fasilitas_id
+      const seen = new Set();
+      const data = [];
+
+      for (const item of itemFacilities) {
+        const id = item.mst_fasilitas_id;
+        if (!seen.has(id)) {
+          seen.add(id);
+          data.push({
+            id,
+            name: item.Mst_fasilita?.name || "Tidak diketahui",
+          });
+        }
+      }
+
       return data;
     } catch (error) {
-      console.error("Gagal ambil daftar hotel:", error);
+      console.error("Gagal mengambil daftar fasilitas:", error);
       return [];
     }
   }

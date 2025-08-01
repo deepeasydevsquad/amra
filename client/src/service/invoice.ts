@@ -192,13 +192,22 @@ export const getKwitansiPengembalianBarangPaket = async (param: string) => {
   }
 }
 
-
 export const kwitansi_trans_transport = async (param: string) => {
   try {
     const response = await api.get(`/invoice/kwitansi-trans-transport/${param}`); // Kirim data melewait URL
     return response.data; // Kembalikan data hasil request
   } catch (error) {
     console.log("Gagal mengambil kwitansi transport:", error);
+    throw error;
+  }
+}
+
+export const kwitansi_trans_fasilitas = async (param: string) => {
+  try {
+    const response = await api.get(`/invoice/kwitansi-trans-fasilitas/${param}`); // Kirim data melewait URL
+    return response.data; // Kembalikan data hasil request
+  } catch (error) {
+    console.log("Gagal mengambil kwitansi trans fasilitas:", error);
     throw error;
   }
 }
