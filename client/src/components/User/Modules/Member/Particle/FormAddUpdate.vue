@@ -3,16 +3,12 @@
     <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
       <SelectField v-model="form.cabang_id" id="cabang" label="Cabang" placeholder="Pilih Cabang" :error="errors.cabang_id" :options="cabangs" />
     </div>
-    <!-- Upload Photo -->
     <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
-      <!-- Upload Photo -->
       <InputFile label="Upload Photo Member" id="photo-upload" :error="errors.photo" @file-selected="handleFileUpload" accept=".jpg,.jpeg,.png"  />
     </div>
     <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
-      <!-- Name Member -->
-      <InputText v-model="form.name" label="Name Member" id="name" :error="errors.name" placeholder="Name Member" />
+      <InputText v-model="form.name" label="Name Member" id="name" :error="errors.name" placeholder="Name Member"/>
     </div>
-    <!-- Gender, Birthplace, and Birthdate -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
       <!-- Nomor Identitas -->
       <InputText v-model="form.identityNumber" label="Nomor Identitas" id="identity-number" :error="errors.identityNumber" placeholder="Nomor Identitas" />
@@ -269,8 +265,6 @@
         isValid = false
       }
     }
-
-
 
     return isValid
   }
