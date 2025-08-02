@@ -90,7 +90,10 @@ const handleLogin = async () => {
       localStorage.setItem('refresh_token', response.data.refresh_token)
 
       // ambil semua cabang setelah login berhasil
-      const cabang = await paramCabang()
+      const cabangResponse = await paramCabang()
+      const cabang = cabangResponse.data
+
+      console.log('ini data cabang login', cabang)
 
       if (!cabang || cabang.length === 0) {
         window.location.href = '/tambah-cabang'
