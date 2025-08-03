@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, defineProps, defineEmits, computed } from 'vue'
 import { getAllHotels, getAllJamaah, createKamar } from '@/service/kamar_paket'
-
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 
 // --- Props & Emits ---
@@ -16,17 +15,39 @@ const emit = defineEmits<{
   (e: 'show-notification', message: string, type: 'success' | 'error'): void
 }>()
 
-// --- State Management ---
-const hotelList = ref<{ id: number; name: string }[]>([])
-const allJamaahList = ref<{ id: number; name: string; identity: string }[]>([])
+
+interface Hotel {
+  id: number;
+  name: string
+}
+
+interface Jamaah {
+  id: number;
+  name: string;
+  identity: string
+}
+
+interface JamaahId {
+  id: number
+}
+
+interface Form {
+  hotel_id: number | null;
+  tipe_kamar: string
+  kapasitas_kamar: number
+  jamaah_ids: JamaahId[]
+}
+
+const hotelList = ref<Hotel[]>([])
+const allJamaahList = ref<Jamaah[]>([])
 const isLoading = ref(false)
 const serverErrors = ref<Record<string, string>>({})
 
-const formData = ref({
-  hotel_id: null as number | null,
+const formData = ref<Form>({
+  hotel_id: null,
   tipe_kamar: 'Laki-Laki',
-  kapasitas_kamar: 10,
-  jamaah_ids: [{ id: null as number | null }],
+  kapasitas_kamar: 0,
+  jamaah_ids: [],
 })
 
 // --- Computed Property untuk Filter ---
@@ -92,6 +113,7 @@ onMounted(async () => {
 const addJamaahField = () => {
   formData.value.jamaah_ids.push({ id: null })
 }
+
 const removeJamaahField = (index: number) => {
   formData.value.jamaah_ids.splice(index, 1)
 }
@@ -165,12 +187,8 @@ const handleSubmit = async () => {
 
           <!-- Tipe Kamar -->
           <div>
-            <label for="tipe-kamar" class="block text-sm font-medium text-black mb-1"
-              >Tipe Kamar</label
-            >
-            <select
-              id="tipe-kamar"
-              v-model="formData.tipe_kamar"
+            <label for="tipe-kamar" class="block text-sm font-medium text-black mb-1">Tipe Kamar</label>
+            <select id="tipe-kamar" v-model="formData.tipe_kamar"
               class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-black"
             >
               <option>Laki-Laki</option>

@@ -248,6 +248,7 @@ interface TicketForm {
   customer_price: number
   customer_price_display?: string
 }
+
 interface CustomerForm {
   kostumer_id: number
   paket_id: number

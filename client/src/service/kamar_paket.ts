@@ -44,22 +44,34 @@ export const getAllHotels = async (param: any) => {
     throw error
   }
 }
-export const getAllJamaah = async (param: any) => {
-  const payload = {
-    forEdit: param.forEdit === false ? false : true,
-    currentKamarId: param.currentKamarId,
-    division_id: param.division_id,
-  };
 
+
+export const getAllJamaah = async (param : any ) => {
   try {
-    const url = payload.forEdit ? '/daftar-kamar-paket/get-available-jamaah-for-edit' : '/daftar-kamar-paket/get-available-jamaah';
-    const response = await api.post(url, payload);
-    return handleResponse(response);
+    const response = await api.post('/daftar-kamar-paket/get-available-jamaah', param)
+    return handleResponse(response)
   } catch (error) {
-    console.error('Gagal mengambil data jamaah:', error);
-    throw error;
+    console.error('Gagal mengambil data hotel:', error)
+    throw error
   }
 }
+
+// export const getAllJamaah = async (param: any) => {
+//   const payload = {
+//     forEdit: param.forEdit === false ? false : true,
+//     currentKamarId: param.currentKamarId,
+//     division_id: param.division_id,
+//   };
+
+//   try {
+//     const url = payload.forEdit ? '/daftar-kamar-paket/get-available-jamaah-for-edit' : '/daftar-kamar-paket/get-available-jamaah';
+//     const response = await api.post(url, payload);
+//     return handleResponse(response);
+//   } catch (error) {
+//     console.error('Gagal mengambil data jamaah:', error);
+//     throw error;
+//   }
+// }
 
 export const getKamarById = async (id: number) => {
   try {

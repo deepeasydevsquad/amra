@@ -59,8 +59,8 @@ const emit = defineEmits<{
   (e: 'showDetailPaket', paketId: number, division_id: number): void
 }>()
 
-const handleBeliPaket = (id: number, division_id: number) => {
-  emit('showDetailPaket', id, division_id)
+const handleBeliPaket = (id: number, division_id: number, division_name:string, paket_name:string) => {
+  emit('showDetailPaket', id, division_id, division_name, paket_name )
 }
 
 const formatPrice = (price: number) => {
@@ -124,7 +124,7 @@ onMounted(() => {
                       </span>
                     </div>
                   </div>
-                  <PrimaryButton @click="handleBeliPaket(paket.id, paket.division_id)" :auto="false" >BELI PAKET</PrimaryButton>
+                  <PrimaryButton @click="handleBeliPaket(paket.id, paket.division_id, paket.division_name, paket.name)" :auto="false" >BELI PAKET</PrimaryButton>
                 </div>
             </div>
           </template>

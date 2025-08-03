@@ -123,6 +123,7 @@ const arr_router = [
   "headline",
   "trans_fasilitas",
   "produk_ppob",
+  "riwayat_transaksi_ppob",
 ];
 
 const arr = {};
