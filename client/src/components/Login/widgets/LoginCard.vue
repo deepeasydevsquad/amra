@@ -98,7 +98,7 @@ const handleLogin = async () => {
       if (!cabang || cabang.length === 0) {
         window.location.href = '/tambah-cabang'
       } else {
-        window.location.href = '/user'
+        window.location.href = '/User'
       }
     } else {
       console.log('Login failed', response.data)

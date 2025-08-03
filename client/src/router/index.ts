@@ -75,7 +75,7 @@ const router = createRouter({
       component: () => import('../views/MemberAreaView.vue'),
     },
     {
-      path: '/user',
+      path: '/User',
       name: 'user',
       meta: {
         title: 'User Area || AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',

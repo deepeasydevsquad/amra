@@ -30,7 +30,7 @@ const handleLogout = async () => {
     showNotification.value = true
 
     setTimeout(() => {
-      window.location.href = '/login'
+      window.location.href = '/Login'
     }, 1500)
   } catch (error) {
     console.error('Error during logout:', error)
@@ -42,7 +42,7 @@ const handleLogout = async () => {
     showNotification.value = true
 
     setTimeout(() => {
-      window.location.href = '/login'
+      window.location.href = '/Login'
     }, 1500)
   } finally {
     isLoading.value = false
