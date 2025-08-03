@@ -50,113 +50,110 @@ const formData = ref<Form>({
   jamaah_ids: [],
 })
 
-// --- Computed Property untuk Filter ---
-// Computed property untuk memfilter jamaah yang belum dipilih di dropdown lain
-const filteredJamaahList = computed(() => (currentSelectionId: number | null) => {
-  const selectedIds = formData.value.jamaah_ids
-    .map((j) => j.id)
-    .filter((id) => id !== null && id !== currentSelectionId)
-  return allJamaahList.value.filter((j) => !selectedIds.includes(j.id))
-})
+// // --- Computed Property untuk Filter ---
+// // Computed property untuk memfilter jamaah yang belum dipilih di dropdown lain
+// const filteredJamaahList = computed(() => (currentSelectionId: number | null) => {
+//   const selectedIds = formData.value.jamaah_ids
+//     .map((j) => j.id)
+//     .filter((id) => id !== null && id !== currentSelectionId)
+//   return allJamaahList.value.filter((j) => !selectedIds.includes(j.id))
+// })
 
 // --- WATCHER UNTUK MENCEGAH DUPLIKASI ---
 watch(
-  () => formData.value.jamaah_ids,
-  (newJamaahIds) => {
-    const seenIds = new Set()
-    newJamaahIds.forEach((jamaah, index) => {
-      if (jamaah.id !== null) {
-        if (seenIds.has(jamaah.id)) {
-          // Jika ID sudah ada, ini adalah duplikat.
-          emit('show-notification', 'Jamaah tidak boleh dipilih lebih dari sekali.', 'error')
-          // Reset pilihan yang duplikat menjadi null
-          formData.value.jamaah_ids[index].id = null
-        } else {
-          seenIds.add(jamaah.id)
-        }
-      }
-    })
+  () => props.isFormOpen,
+  (e) => {
+    // const seenIds = new Set()
+    // newJamaahIds.forEach((jamaah, index) => {
+    //   if (jamaah.id !== null) {
+    //     if (seenIds.has(jamaah.id)) {
+    //       // Jika ID sudah ada, ini adalah duplikat.
+    //       emit('show-notification', 'Jamaah tidak boleh dipilih lebih dari sekali.', 'error')
+    //       // Reset pilihan yang duplikat menjadi null
+    //       // formData.value.jamaah_ids[index].id = null
+    //     } else {
+    //       seenIds.add(jamaah.id)
+    //     }
+    //   }
+    // })
   },
   { deep: true }, // 'deep' diperlukan untuk memantau perubahan di dalam array of objects
 )
 
-// --- API Calls ---
-onMounted(async () => {
-  try {
-    // Ambil data hotel dan jamaah secara paralel
-    const [hotelResponse, jamaahResponse] = await Promise.all([
-      getAllHotels({ division_id: props.cabangId }),
-      getAllJamaah({ forEdit: false, division_id: props.cabangId }),
-    ])
+// // --- API Calls ---
+// onMounted(async () => {
+//   try {
+//     // Ambil data hotel dan jamaah secara paralel
+//     const [hotelResponse, jamaahResponse] = await Promise.all([
+//       getAllHotels({ division_id: props.cabangId }),
+//       getAllJamaah({ forEdit: false, division_id: props.cabangId }),
+//     ])
 
-    console.log('hotelResponse:', hotelResponse)
+//     console.log('hotelResponse:', hotelResponse)
 
-    // Set data hotel dari properti 'data' di dalam respons
-    hotelList.value = hotelResponse.data.map((h: any) => ({
-      id: h.id,
-      name: `${h.name} (Kota : ${h.kota_name || 'N/A'})`,
-    }))
+//     // Set data hotel dari properti 'data' di dalam respons
+//     hotelList.value = hotelResponse.data.map((h: any) => ({
+//       id: h.id,
+//       name: `${h.name} (Kota : ${h.kota_name || 'N/A'})`,
+//     }))
 
-    // Set data jamaah dari properti 'data' di dalam respons
-    allJamaahList.value = jamaahResponse.data.map((j: any) => ({
-      id: j.id,
-      fullname: j.fullname,
-      identity_number: j.identity_number,
-    }))
-  } catch (error) {
-    console.error('Gagal memuat data untuk form:', error)
-    emit('show-notification', 'Gagal memuat data untuk form.', 'error')
-  }
-})
+//     // Set data jamaah dari properti 'data' di dalam respons
+//     allJamaahList.value = jamaahResponse.data.map((j: any) => ({
+//       id: j.id,
+//       fullname: j.fullname,
+//       identity_number: j.identity_number,
+//     }))
+//   } catch (error) {
+//     console.error('Gagal memuat data untuk form:', error)
+//     emit('show-notification', 'Gagal memuat data untuk form.', 'error')
+//   }
+// })
 
 // --- Form Logic ---
-const addJamaahField = () => {
-  formData.value.jamaah_ids.push({ id: null })
-}
+// const addJamaahField = () => {
+//   formData.value.jamaah_ids.push({ id: null })
+// }
 
-const removeJamaahField = (index: number) => {
-  formData.value.jamaah_ids.splice(index, 1)
-}
+// const removeJamaahField = (index: number) => {
+//   formData.value.jamaah_ids.splice(index, 1)
+// }
 
-const handleSubmit = async () => {
-  isLoading.value = true
-  serverErrors.value = {}
+// const handleSubmit = async () => {
+//   isLoading.value = true
+//   serverErrors.value = {}
 
-  try {
-    const payload = {
-      ...formData.value,
-      division_id: props.cabangId,
-      jamaah_ids: formData.value.jamaah_ids.map((j) => j.id).filter((id) => id !== null),
-    }
+//   try {
+//     const payload = {
+//       ...formData.value,
+//       division_id: props.cabangId,
+//       jamaah_ids: formData.value.jamaah_ids.map((j) => j.id).filter((id) => id !== null),
+//     }
 
-    console.log('Payload:', payload)
+//     console.log('Payload:', payload)
 
-    await createKamar(payload)
-    emit('save-success', 'Data kamar berhasil ditambahkan.')
-    emit('close')
-  } catch (error: any) {
-    if (error.response && error.response.status === 422) {
-      const validationErrors = error.response.data.errors
-      if (validationErrors && validationErrors.length > 0) {
-        emit('show-notification', validationErrors[0].msg, 'error')
-      }
-    } else {
-      const errorMessage = error.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.'
-      emit('show-notification', errorMessage, 'error')
-    }
-    console.error('Gagal menyimpan data:', error)
-  } finally {
-    isLoading.value = false
-  }
-}
+//     await createKamar(payload)
+//     emit('save-success', 'Data kamar berhasil ditambahkan.')
+//     emit('close')
+//   } catch (error: any) {
+//     if (error.response && error.response.status === 422) {
+//       const validationErrors = error.response.data.errors
+//       if (validationErrors && validationErrors.length > 0) {
+//         emit('show-notification', validationErrors[0].msg, 'error')
+//       }
+//     } else {
+//       const errorMessage = error.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.'
+//       emit('show-notification', errorMessage, 'error')
+//     }
+//     console.error('Gagal menyimpan data:', error)
+//   } finally {
+//     isLoading.value = false
+//   }
+// }
 </script>
 
 <template>
   <!-- Overlay -->
-  <div
-    v-if="isFormOpen"
-    class="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-center"
-  >
+  <div v-if="isFormOpen" class="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-center">
     <!-- Modal Content -->
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
       <!-- Header -->
