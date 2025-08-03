@@ -448,7 +448,7 @@ const deletePermintaanDeposit = async (id: number) => {
                   <p class="font-semibold text-green-600">Rp {{ item.jumlah.toLocaleString() }}</p>
                   <p class="text-xs text-gray-600">{{ item.status_note }}</p>
                 </td>
-                <td class="p-3 align-top">
+                <td class="p-2 align-top">
                   <p>{{ item.bank_info }}</p>
                   <span v-if="item.sending_payment_status === 'sudah_dikirim'" class="px-2 py-0.5 text-xs font-medium text-blue-800 bg-blue-100 rounded-full">
                     {{ item.sending_payment_status.replace('_', ' ') }}
