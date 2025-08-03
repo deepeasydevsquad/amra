@@ -12,7 +12,7 @@ module.exports = {
         status_note: 'Menunggu konfirmasi pembayaran.',
         petugas: null,
         akun_bank_perusahaan_id: null,
-        sending_payment_status: 'belum_dikirim',
+        sending_payment_status: 'sudah_dikirim',
         createdAt: new Date(),
         updatedAt: new Date()
       },
