@@ -63,6 +63,7 @@ import Headline from '../../Modules/Headline/Headline.vue'
 import ItemFasilitas from '../../Modules/ItemFasilitas/ItemFasilitas.vue'
 import AkunBank from '../../Modules/AkunBank/AkunBank.vue'
 import DaftarProdukPpob from '../../Modules/DaftarProdukPpob/DaftarProdukPpob.vue'
+import TransFasilitas from '../../Modules/TransFasilitas/TransFasilitas.vue'
 import RiwayatTransaksiPpob from '../../Modules/RiwayatTransaksiPpob/RiwayatTransaksiPpob.vue'
 
 const tabComponents = {
@@ -122,6 +123,7 @@ const tabComponents = {
   daftar_akun_bank_perusahaan: AkunBank,
   daftar_produk_ppob: DaftarProdukPpob,
   riwayat_transaksi_ppob: RiwayatTransaksiPpob,
+  trans_fasilitas: TransFasilitas
 }
 
 const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click

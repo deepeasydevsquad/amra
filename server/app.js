@@ -121,6 +121,7 @@ const arr_router = [
   "item_fasilitas",
   "akun_bank",
   "headline",
+  "trans_fasilitas",
   "produk_ppob",
   "riwayat_transaksi_ppob",
 ];
