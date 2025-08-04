@@ -1,18 +1,7 @@
-const { Headline, Request_deposit_member } = require("../models");
+const { Request_deposit_member } = require("../models");
 const { getCompanyIdByCode } = require("../helper/companyHelper");
 
 const validation = {};
-
-validation.check_headline_id = async (value, { req }) => {
-    const company_id = await getCompanyIdByCode(req);
-    
-    const check = await Headline.findOne({ where: { id: value, company_id: company_id } });
-    if (!check) {
-        throw new Error("ID Headline ini tidak ditemukan dipangkalan data");
-    }
-
-    return true;
-}
 
 validation.check_id_permintaan_deposit_member_sudah_dikirim = async (value, { req }) => {
     const company_id = await getCompanyIdByCode(req);

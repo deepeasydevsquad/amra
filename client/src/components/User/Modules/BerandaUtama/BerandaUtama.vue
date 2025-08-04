@@ -5,6 +5,8 @@ import {
   getDaftarJamaah,
   getDaftarPermintaanDepositMember,
   getDaftarHeadline,
+  updateStatusRequestDepositMember,
+  deleteRequestDepositMember,
   deleteHeadline,
 } from '@/service/beranda_utama'
 
@@ -19,7 +21,6 @@ import Notification from '@/components/User/Modules/BerandaUtama/particle/Notifi
 import Confirmation from '@/components/User/Modules/BerandaUtama/particle/Confirmation.vue'
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import PrimaryButtonLight from '@/components/Button/PrimaryButtonLight.vue'
-import LightButton from '@/components/Button/LightButton.vue'
 
 interface StatusCard {
   saldo_perusahaan: number;
@@ -45,12 +46,13 @@ interface Headline {
 }
 
 interface DepositMember {
+  id: number;
   member_name: string;
   member_identity: string;
   jumlah: number;
-  keperluan: string;
-  sumber_biaya: string;
+  status_note: string;
   bank_info: string;
+  sending_payment_status: 'sudah_dikirim' | 'belum_dikirim';
 }
 
 // Status Card
@@ -230,14 +232,47 @@ onMounted(() => {
   fetchDepositMemberData()
 })
 
+const updateRequestDepositMemberStatus = async (id: number, status: string) => {
+  if (status !== 'disetujui' && status !== 'ditolak') {
+    displayNotification('Status hanya boleh di setujui atau tolak', 'error');
+    return;
+  }
+  showConfirmation('Konfirmasi Aksi', `Apakah Anda yakin ingin ${status} permintaan deposit ini?`, async () => {
+    try {
+      const res = await updateStatusRequestDepositMember({
+        id: id,
+        status: status,
+      })
+      displayNotification(res.error_msg || res.message || `Permintaan deposit berhasil ${status}.`, 'success')
+      fetchDepositMemberData()
+    } catch (error: any) {
+      displayNotification(error.response?.data?.error_msg || error.response?.data?.message || `Gagal ${status} permintaan deposit`, 'error')
+    }
+    showConfirmDialog.value = false
+  })
+}
+
 const deleteHeadlineData = async (id: number) => {
   showConfirmation('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus headline ini?', async () => {
     try {
       const res = await deleteHeadline(id)
       displayNotification(res.error_msg || res.message || 'Headline berhasil dihapus.', 'success')
       fetchHeadlineData()
-    } catch (error) {
-      displayNotification('Gagal menghapus headline', 'error')
+    } catch (error: any) {
+      displayNotification(error.response?.data?.error_msg || error.response?.data?.message || 'Gagal menghapus headline', 'error')
+    }
+    showConfirmDialog.value = false
+  })
+}
+
+const deletePermintaanDeposit = async (id: number) => {
+  showConfirmation('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus permintaan deposit ini?', async () => {
+    try {
+      const res = await deleteRequestDepositMember(id)
+      displayNotification(res.data?.error_msg || res.data?.message || 'Permintaan deposit berhasil dihapus.', 'success')
+      fetchDepositMemberData()
+    } catch (error: any) {
+      displayNotification(error.response?.data?.error_msg || error.response?.data?.message || 'Gagal menghapus permintaan deposit', 'error')
     }
     showConfirmDialog.value = false
   })
@@ -268,51 +303,59 @@ const deleteHeadlineData = async (id: number) => {
       </div>
       <div class="md:col-span-3">
         <!-- Headline -->
-        <div class="bg-white rounded shadow p-4">
-          <div class="flex justify-between items-center mb-4 text-sm">
-            <PrimaryButton class="flex items-center gap-2" @click="showForm()">
-              <font-awesome-icon icon="plus" /> Tambahkan Headline
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="font-semibold mt-1">Headline</h2>
+            <PrimaryButton class="flex items-center gap-2 text-sm" @click="showForm()">
+              <font-awesome-icon icon="plus" /> Tambah
             </PrimaryButton>
           </div>
-          <SkeletonTable v-if="headline.isLoading" :columns="headline.totalColumns" :rows="headline.itemsPerPage" />
-          <table v-else class="w-full text-sm border">
-            <thead class="bg-gray-100">
-              <tr>
-                <th class="w-[70%] px-3 py-3 font-medium text-gray-900 text-center">Headline</th>
-                <th class="w-[10%] py-3 font-medium text-gray-900 text-center">Tampilkan</th>
-                <th class="w-[20%] px-3 py-3 font-medium text-gray-900 text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, index) in headline.data" :key="index" class="hover:bg-gray-50">
-                <td class="text-center px-3 py-3 align-top">{{ item.headline }}</td>
-                <td class="text-center py-3 align-top">{{ item.tampilkan }}</td>
-                <td class="text-center px-3 py-3 align-top flex justify-center">
-                  <LightButton @click="showForm(item.id)">
-                    <EditIcon />
-                  </LightButton>
-                  <LightButton  @click="deleteHeadlineData(item.id)">
-                    <DeleteIcon />
-                  </LightButton>
-                </td>
-              </tr>
-              <tr v-if="headline.data.length === 0">
-                <td :colspan="headline.totalColumns" class="border p-3 hover:bg-gray-100 text-center text-gray-500">Daftar Headline Tidak Ditemukan</td>
-              </tr>
-            </tbody>
-            <tfoot class="bg-gray-100 font-bold">
-              <Pagination
-                :current-page="headline.currentPage"
-                :total-pages="headline.totalPages"
-                :pages="pages(headline.totalPages)"
-                :total-columns="headline.totalColumns"
-                :total-row="headline.totalRow"
-                @prev-page="() => prevPage({ ...headline, fetchData: fetchHeadlineData })"
-                @next-page="() => nextPage({ ...headline, fetchData: fetchHeadlineData })"
-                @page-now="(page: number) => handlePageChange({ ...headline, fetchData: fetchHeadlineData }, page)"
-              />
-            </tfoot>
-          </table>
+          <div class="overflow-x-auto rounded-lg border">
+            <SkeletonTable v-if="headline.isLoading" :columns="headline.totalColumns" :rows="headline.itemsPerPage" />
+            <table v-else class="w-full text-sm">
+              <thead class="bg-gray-100">
+                <tr>
+                  <th class="p-3 font-medium text-gray-900 text-left">Headline</th>
+                  <th class="p-3 font-medium text-gray-900 text-center">Tampil</th>
+                  <th class="p-3 font-medium text-gray-900 text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(item, index) in headline.data" :key="index" class="hover:bg-gray-50 border-b">
+                  <td class="p-3 align-top">{{ item.headline }}</td>
+                  <td class="p-3 align-top text-center">
+                    <span v-if="item.tampilkan" class="px-2 py-0.5 text-xs font-medium text-green-800 bg-green-100 rounded-full">Ya</span>
+                    <span v-else class="px-2 py-0.5 text-xs font-medium text-red-800 bg-red-100 rounded-full">Tidak</span>
+                  </td>
+                  <td class="p-2 align-top">
+                    <div class="flex justify-center items-center gap-2">
+                      <button @click="showForm(item.id)" class="p-2 text-gray-500 bg-gray-100 rounded-md hover:bg-blue-100 hover:text-blue-500 transition-colors">
+                        <EditIcon class="w-4 h-4" />
+                      </button>
+                      <button @click="deleteHeadlineData(item.id)" class="p-2 text-gray-500 bg-gray-100 rounded-md hover:bg-red-100 hover:text-red-500 transition-colors">
+                        <DeleteIcon class="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr v-if="headline.data.length === 0">
+                  <td :colspan="headline.totalColumns" class="p-4 text-center text-gray-500">Daftar Headline Tidak Ditemukan</td>
+                </tr>
+              </tbody>
+              <tfoot class="bg-gray-100 font-bold">
+                <Pagination
+                  :current-page="headline.currentPage"
+                  :total-pages="headline.totalPages"
+                  :pages="pages(headline.totalPages)"
+                  :total-columns="headline.totalColumns"
+                  :total-row="headline.totalRow"
+                  @prev-page="() => prevPage({ ...headline, fetchData: fetchHeadlineData })"
+                  @next-page="() => nextPage({ ...headline, fetchData: fetchHeadlineData })"
+                  @page-now="(page: number) => handlePageChange({ ...headline, fetchData: fetchHeadlineData }, page)"
+                />
+              </tfoot>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -330,26 +373,32 @@ const deleteHeadlineData = async (id: number) => {
             placeholder="Nama / Nomor Identitas Jamaah"
           />
         </div>
-        <div class="overflow-x-auto ">
+        <div class="overflow-x-auto rounded-lg border">
           <SkeletonTable v-if="jamaah.isLoading" :columns="jamaah.totalColumns" :rows="jamaah.itemsPerPage" />
-          <table v-else class="w-full text-sm border">
+          <table v-else class="w-full text-sm">
             <thead class="bg-gray-100">
               <tr>
-                <th class="px-3 py-3 font-medium text-gray-900 text-center">Nama Jamaah / Nomor Identitas</th>
-                <th class="px-3 py-3 font-medium text-gray-900 text-center">Tempat / Tanggal Lahir</th>
-                <th class="px-3 py-3 font-medium text-gray-900 text-center">Nomor Passport</th>
-                <th class="px-3 py-3 font-medium text-gray-900 text-center">Total Pembelian</th>
+                <th class="p-3 font-medium text-gray-900 text-left">Jamaah</th>
+                <th class="p-3 font-medium text-gray-900 text-left">Kelahiran</th>
+                <th class="p-3 font-medium text-gray-900 text-left">No. Passport</th>
+                <th class="p-3 font-medium text-gray-900 text-left">Total Pembelian</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in jamaah.data" :key="index" class="hover:bg-gray-50 text-center">
-                <td class="text-center px-3 py-3 align-top">{{ item.jamaah_name }} / {{ item.jamaah_identity }}</td>
-                <td class="text-center px-3 py-3 align-top">{{ item.birth_place }} / {{ item.birth_date }}</td>
-                <td class="text-center px-3 py-3 align-top">{{ item.no_passport }}</td>
-                <td class="text-center px-3 py-3 align-top">{{ item.total }}</td>
+              <tr v-for="(item, index) in jamaah.data" :key="index" class="hover:bg-gray-50 border-b">
+                <td class="p-3 align-top">
+                  <p class="font-semibold">{{ item.jamaah_name }}</p>
+                  <p class="text-xs text-gray-600">{{ item.jamaah_identity }}</p>
+                </td>
+                <td class="p-3 align-top">
+                  <p>{{ item.birth_place }}</p>
+                  <p class="text-xs text-gray-600">{{ item.birth_date }}</p>
+                </td>
+                <td class="p-3 align-top">{{ item.no_passport }}</td>
+                <td class="p-3 align-top font-semibold">{{ item.total ?? '0' }}</td>
               </tr>
               <tr v-if="jamaah.data.length === 0">
-                <td :colspan="jamaah.totalColumns" class="border p-3 hover:bg-gray-100 text-center text-gray-500">Data Jamaah Tidak Ditemukan</td>
+                <td :colspan="jamaah.totalColumns" class="p-4 text-center text-gray-500">Data Jamaah Tidak Ditemukan</td>
               </tr>
             </tbody>
             <tfoot class="bg-gray-100 font-bold">
@@ -378,29 +427,52 @@ const deleteHeadlineData = async (id: number) => {
             placeholder="Nama / Nomor Identitas Member"
           />
         </div>
-        <div class="overflow-x-auto rounded-lg">
+        <div class="overflow-x-auto rounded-lg border">
           <SkeletonTable v-if="deposit.isLoading" :columns="deposit.totalColumns" :rows="deposit.itemsPerPage" />
-          <table v-else class="w-full text-sm border">
+          <table v-else class="w-full text-sm">
             <thead class="bg-gray-100">
               <tr>
-                <th class="p-3 font-medium text-gray-900 text-center">Nama Member / Identitas Member</th>
-                <th class="p-3 font-medium text-gray-900 text-center">Jumlah / Keperluan / Sumber Biaya</th>
-                <th class="p-3 font-medium text-gray-900 text-center">Bank Info</th>
+                <th class="p-3 font-medium text-gray-900 text-left">Member</th>
+                <th class="p-3 font-medium text-gray-900 text-left">Jumlah & Status</th>
+                <th class="p-3 font-medium text-gray-900 text-left">Info Bank</th>
                 <th class="p-3 font-medium text-gray-900 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in deposit.data" :key="index" class="hover:bg-gray-50 text-center">
-                <td class="text-center p-3 align-top">{{ item.member_name }} / {{ item.member_identity }}</td>
-                <td class="text-center p-3 align-top">{{ item.jumlah }} / {{ item.keperluan }} / {{ item.sumber_biaya }}</td>
-                <td class="text-center p-3 align-top">{{ item.bank_info }}</td>
-                <td class="text-center p-3 align-top">
-                  <button class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">Setujui</button>
-                  <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Tolak</button>
+
+              <tr v-for="(item, index) in deposit.data" :key="index" class="hover:bg-gray-50 border-b">
+                <td class="p-3 align-top">
+                  <p class="font-semibold">{{ item.member_name }}</p>
+                  <p class="text-xs text-gray-600">{{ item.member_identity }}</p>
+                </td>
+                <td class="p-3 align-top">
+                  <p class="font-semibold text-green-600">Rp {{ item.jumlah.toLocaleString() }}</p>
+                  <p class="text-xs text-gray-600">{{ item.status_note }}</p>
+                </td>
+                <td class="p-2 align-top">
+                  <p>{{ item.bank_info }}</p>
+                  <span v-if="item.sending_payment_status === 'sudah_dikirim'" class="px-2 py-0.5 text-xs font-medium text-blue-800 bg-blue-100 rounded-full">
+                    {{ item.sending_payment_status.replace('_', ' ') }}
+                  </span>
+                  <span v-else class="px-2 py-0.5 text-xs font-medium text-yellow-800 bg-yellow-100 rounded-full">
+                    {{ item.sending_payment_status.replace('_', ' ') }}
+                  </span>
+                </td>
+                <td class="p-3 align-top">
+                  <div class="flex justify-center items-center gap-2">
+                    <button @click="updateRequestDepositMemberStatus(item.id, 'disetujui')" class="px-2 py-1 text-xs font-medium text-white bg-green-500 rounded-md hover:bg-green-600 transition-colors">Setujui</button>
+                    <button @click="updateRequestDepositMemberStatus(item.id, 'ditolak')" class="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors">Tolak</button>
+                    <button @click="deletePermintaanDeposit(item.id)" class="p-2 text-gray-500 bg-gray-100 rounded-md hover:bg-red-100 hover:text-red-500 transition-colors">
+                      <DeleteIcon class="w-4 h-4" />
+                    </button>
+                  </div>
                 </td>
               </tr>
+
+
+
               <tr v-if="deposit.data.length === 0">
-                <td :colspan="deposit.totalColumns" class="border p-3 hover:bg-gray-100 text-center text-gray-500 ">
+                <td :colspan="deposit.totalColumns" class="p-4 text-center text-gray-500">
                   Daftar Request Deposit Tidak Ditemukan
                 </td>
               </tr>

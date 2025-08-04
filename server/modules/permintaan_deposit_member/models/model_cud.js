@@ -1,8 +1,6 @@
 const { 
   sequelize,
   Company,
-  Jamaah,
-  Headline,
   Deposit,
   Request_deposit_member,
   Riwayat_tabungan,
@@ -13,7 +11,7 @@ const {
   Paket_transaction_payment_history,
   Member,
   } = require("../../../models");
-const Model_r = require("../models/model_r");
+const Model_r = require("./model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
 const moment = require("moment");
@@ -211,23 +209,6 @@ class Model_cud {
     }
   }
 
-  async deleteHeadline() {
-    await this.initialize();
-    const body = this.req.body;
-
-    try {
-      await Headline.destroy({
-        transaction: this.t,
-        where: { id: body.id, company_id: this.company_id },
-      });
-
-      this.message = "Headline berhasil dihapus dengan id " + body.id;
-    } catch (error) {
-      console.log("Error in deleteHeadline:", error);
-      this.state = false;
-    }
-  }
-  
   // response
   async response() {
     if (this.state) {
