@@ -200,11 +200,12 @@ onMounted(() => {
               </td>
               <td class="p-3 align-top text-center">
                 <div class="flex justify-center items-center gap-2">
-                  <button @click="updateRequestDepositMemberStatus(deposit.id, 'disetujui')" class="px-2 py-1 text-xs font-medium text-white bg-green-500 rounded-md hover:bg-green-600 transition-colors" title="Setujui">Setujui</button>
-                  <button @click="updateRequestDepositMemberStatus(deposit.id, 'ditolak')" class="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors" title="Tolak">Tolak</button>
-                  <button @click="deletePermintaanDeposit(deposit.id)" class="p-2 text-gray-500 bg-gray-100 rounded-md hover:bg-red-100 hover:text-red-500 transition-colors" title="Hapus">
+                  <button v-if="deposit.status === 'diproses'" @click="updateRequestDepositMemberStatus(deposit.id, 'disetujui')" class="px-2 py-1 text-xs font-medium text-white bg-green-500 rounded-md hover:bg-green-600 transition-colors" title="Setujui">Setujui</button>
+                  <button v-if="deposit.status === 'diproses'" @click="updateRequestDepositMemberStatus(deposit.id, 'ditolak')" class="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors" title="Tolak">Tolak</button>
+                  <button v-if="deposit.status === 'diproses'" @click="deletePermintaanDeposit(deposit.id)" class="p-2 text-gray-500 bg-gray-100 rounded-md hover:bg-red-100 hover:text-red-500 transition-colors" title="Hapus">
                     <DeleteIcon class="w-4 h-4" />
                   </button>
+                  <span v-if="deposit.status !== 'diproses'" class="text-sm text-gray-400">Sudah Diproses</span>
                 </div>
               </td>
             </tr>

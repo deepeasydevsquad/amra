@@ -192,7 +192,7 @@ class Model_r {
     const page = parseInt(pageNumber, 10) > 0 ? parseInt(pageNumber, 10) : 1;
     const offset = (page - 1) * limit;
 
-    const where = { company_id: this.company_id };
+    const where = { company_id: this.company_id, status: 'diproses' };
 
     if (search && search.trim() !== "") {
       const searchTerm = `%${search.trim()}%`;

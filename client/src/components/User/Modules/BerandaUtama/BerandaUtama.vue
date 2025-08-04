@@ -439,6 +439,7 @@ const deletePermintaanDeposit = async (id: number) => {
               </tr>
             </thead>
             <tbody>
+
               <tr v-for="(item, index) in deposit.data" :key="index" class="hover:bg-gray-50 border-b">
                 <td class="p-3 align-top">
                   <p class="font-semibold">{{ item.member_name }}</p>
@@ -467,6 +468,9 @@ const deletePermintaanDeposit = async (id: number) => {
                   </div>
                 </td>
               </tr>
+
+
+
               <tr v-if="deposit.data.length === 0">
                 <td :colspan="deposit.totalColumns" class="p-4 text-center text-gray-500">
                   Daftar Request Deposit Tidak Ditemukan
