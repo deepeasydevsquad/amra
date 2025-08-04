@@ -29,8 +29,10 @@ import KwitansiPengembalianBarangPaket from '@/components/User/Modules/Invoice/K
 import CetakDataAbsensiJamaah from '@/components/User/Modules/DaftarJamaahPaket/Widgets/CetakDataAbsensiJamaah.vue'
 import DownloadDaftarKamar from '@/components/User/Modules/KamarPaket/Widget/DownloadDaftarKamar.vue'
 import InvoiceTransTransport from '@/components/User/Modules/Invoice/InvoiceTransTransport.vue'
+import InvoiceTransFasilitas from '@/components/User/Modules/Invoice/InvoiceTransFasilitas.vue'
 import CetakRekapitulasi from '@/components/User/Modules/RekapitulasiTicket/Widget/CetakRekapitulasi.vue'
 import Profile from '@/components/User/Modules/Profile/Profile.vue'
+import CabangPertama from '@/components/User/Modules/CabangPertama/CabangPertama.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -73,7 +75,7 @@ const router = createRouter({
       component: () => import('../views/MemberAreaView.vue'),
     },
     {
-      path: '/user',
+      path: '/User',
       name: 'user',
       meta: {
         title: 'User Area || AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
@@ -208,6 +210,11 @@ const router = createRouter({
       component: InvoiceTransTransport,
     },
     {
+      path: '/kwitansi-trans-fasilitas/:invoice',
+      name: 'kwitansi-trans-fasilitas',
+      component: InvoiceTransFasilitas,
+    },
+    {
       path: '/rekapitulasi-ticket/cetak/:regnumb',
       name: 'rekapitulasi-ticket',
       component: CetakRekapitulasi
@@ -216,6 +223,11 @@ const router = createRouter({
       path : '/profile',
       name: 'profile',
       component: Profile
+    },
+    {
+      path: '/tambah-cabang',
+      name: 'tambah-cabang',
+      component: CabangPertama
     }
   ],
 })

@@ -15,7 +15,8 @@ const router = express.Router();
 router.post('/auth/login', 
   body("type").notEmpty().withMessage("Tipe Akun Tidak Boleh Kosong").trim().isIn(["administrator","staff"]),
   body("company_code").custom(validation.company_code_login_process),
-  body("username").notEmpty().withMessage("Username Tidak Boleh Kosong").trim().custom(validation.username_login_process),
+  body("username").trim().custom(validation.username_login_process),
+  body("nomor_whatsapp").trim().custom(validation.nomor_whatsapp_login_process),
   body("password").notEmpty().withMessage("Password Tidak Boleh Kosong").trim(),
   controllers.login_process
 );

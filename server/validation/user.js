@@ -10,33 +10,48 @@ validation.company_code_login_process = async ( value,  { req } ) => {
     return true;
 }
 
-validation.username_login_process = async (value,  { req } ) => {
+validation.nomor_whatsapp_login_process = async ( value , { req } ) => {
     const body = req.body;
     if( body.type == 'staff' ) {
-        var check = await Member.findOne({
-            where: { whatsapp_number: value },
-            includes : {
-                required : true, 
-                model : Division,
-                includes : {
+        if( value != '') {
+            var check = await Member.findOne({
+                where: { whatsapp_number: value },
+                include: {
                     required : true, 
-                    model : Company,
-                    where : { code : body.company_code }
+                    model: Division, 
+                    include : {
+                        required : true, 
+                        model: Company, 
+                        where: {
+                            code: body.company_code
+                        }
+                    }
                 }
+            });
+            if (!check) {
+                throw new Error("Terdapat kesalahan pada nomor whatsapp atau password anda.");
             }
-        });
-        if (!check) {
-            throw new Error("Terdapat kesalahan pada username atau password anda.");
-        }
-    }else if( body.type == 'administrator' ) {
-        var check = await Company.findOne({
-            where: { username: value },
-        });
-        if (!check) {
-            throw new Error("Terdapat kesalahan pada username atau password anda.");
-        }
+        }else{
+            throw new Error("Username tidak boleh kosong.");
+        }   
     }
+    return true;
+}
 
+validation.username_login_process = async (value,  { req } ) => {
+    const body = req.body;
+    if( body.type == 'administrator' ) {
+        if( value != '') {
+            var check = await Company.findOne({
+                where: { username: value },
+            });
+            if (!check) {
+                throw new Error("Terdapat kesalahan pada username atau password anda.");
+            }
+        }else{
+            throw new Error("Username tidak boleh kosong.");
+        }   
+    }
     return true;
 }
 

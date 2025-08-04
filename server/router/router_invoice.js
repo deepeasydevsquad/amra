@@ -133,4 +133,10 @@ router.get(
   controller.kwitansi_trans_transport
 );
 
+router.get(
+  "/invoice/kwitansi-trans-fasilitas/:invoice",
+  authenticateToken,
+  controller.kwitansi_trans_fasilitas
+);
+
 module.exports = router;

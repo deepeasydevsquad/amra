@@ -47,6 +47,21 @@ companyHelper.tipe = async (req) => {
   }
 };
 
+companyHelper.getNomorWhatsapp = async (req) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const decoded = jwt.decode(token);
+
+    return decoded.nomor_whatsapp;
+  } catch (error) {
+    console.log("sssss");
+    console.log(error);
+    console.log("sssss");
+    return "";
+  }
+};
+
 companyHelper.username = async (req) => {
   try {
     const authHeader = req.headers["authorization"];
@@ -70,7 +85,7 @@ companyHelper.getCabang = async (req) => {
     return company.division_id;
   } else {
     const company = await Member.findOne({
-      where: { whatsapp_number: decoded.username },
+      where: { whatsapp_number: decoded.nomor_whatsapp },
       attributes: ["division_id"],
       include: {
         required: true,

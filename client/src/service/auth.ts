@@ -8,15 +8,15 @@ import api from "./api"; // Pastikan path ini benar sesuai konfigurasi axios And
 export const logout = async (): Promise<void> => {
   try {
     const refreshToken = localStorage.getItem('refresh_token');
-    
+
     if (refreshToken) {
       // Kirim permintaan ke server untuk membatalkan refresh token
       const baseUrl = window.location.protocol + '//' + window.location.hostname + ':3001';
-      
-      await api.post(`${baseUrl}/auth/logout`, { 
-        refresh_token: refreshToken 
+
+      await api.post(`${baseUrl}/auth/logout`, {
+        refresh_token: refreshToken
       });
-      
+
       console.log('Logout berhasil di server');
     }
   } catch (error) {
@@ -26,11 +26,11 @@ export const logout = async (): Promise<void> => {
     // Selalu hapus token dari local storage
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    
+
     // Optional: Clear any other user-related data
     localStorage.removeItem('user_info');
     localStorage.removeItem('menu_info');
-    
+
     console.log('Token berhasil dihapus dari localStorage');
   }
 };
@@ -68,7 +68,7 @@ export const setTokens = (accessToken: string, refreshToken: string): void => {
 /**
  * Logout dan redirect ke halaman login
  */
-export const logoutAndRedirect = async (redirectPath: string = '/login'): Promise<void> => {
+export const logoutAndRedirect = async (redirectPath: string = '/Login'): Promise<void> => {
   await logout();
   window.location.href = redirectPath;
 };
