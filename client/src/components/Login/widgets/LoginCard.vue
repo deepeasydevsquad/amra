@@ -13,7 +13,8 @@ import api from '@/service/api' // Import service API
 interface Login {
   type: string
   company_code?: string
-  username: string
+  username?: string
+  nomorWhatsapp?: string
   password: string
 }
 
@@ -21,6 +22,7 @@ const inputLogin = ref<Partial<Login>>({
   type: 'administrator',
   company_code: '',
   username: '',
+  nomorWhatsapp: '',
   password: '',
 })
 
@@ -45,8 +47,13 @@ const validateForm = (): boolean => {
     isValid = true
   }
 
-  if (!inputLogin.value.username || inputLogin.value.username.trim() === '') {
-    errors.value.username = 'Username tidak boleh kosong'
+  if (inputLogin.value.type == 'administrator' && ( !inputLogin.value.username || inputLogin.value.username.trim() === '' )) {
+    errors.value.username = 'Username tidak boleh kosong jika anda masuk sebagai Administrator'
+    isValid = false
+  }
+
+  if (inputLogin.value.type == 'staff' && ( !inputLogin.value.nomorWhatsapp || inputLogin.value.nomorWhatsapp.trim() === '' )) {
+    errors.value.username = 'Nomor Whatsapp tidak boleh kosong jika anda masuk sebagai Staff'
     isValid = false
   }
 
@@ -72,11 +79,19 @@ const handleLogin = async () => {
     const baseUrl = window.location.protocol + '//' + window.location.hostname + ':3001'
     var data = {
       type: inputLogin.value.type,
-      username: inputLogin.value.username,
       password: inputLogin.value.password,
     }
     if (inputLogin.value.type === 'staff') {
-      data = { ...data, ...{ ['company_code']: inputLogin.value.company_code } }
+      data = { ...data, ...{
+          ['company_code']: inputLogin.value.company_code ,
+          ['nomor_whatsapp']: inputLogin.value.nomorWhatsapp
+        }
+      }
+    }else if( inputLogin.value.type === 'administrator' ) {
+      data = { ...data, ...{
+          ['username']: inputLogin.value.username
+        }
+      }
     }
 
     // Kirim data login ke server Express.js menggunakan axios
@@ -150,10 +165,16 @@ setTimeout(() => {
                 Kode Perusahaan wajib diisi jika anda masuk sebagai Staff.
               </p>
             </template>
-            <input
+            <input v-if="inputLogin.type === 'administrator'"
               v-model="inputLogin.username"
               type="text"
               placeholder="Username"
+              class="w-full p-2 border border-gray-300 rounded-lg input-field"
+            />
+            <input v-if="inputLogin.type === 'staff'"
+              v-model="inputLogin.nomorWhatsapp"
+              type="text"
+              placeholder="Nomor Whatsapp"
               class="w-full p-2 border border-gray-300 rounded-lg input-field"
             />
             <input

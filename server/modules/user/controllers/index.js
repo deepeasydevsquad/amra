@@ -15,8 +15,20 @@ controllers.login_process = async (req, res) => {
     const body = req.body;
     const model_r = new Model_r(req);
     const data = await model_r.get_user_information();
+    var error = false;
+    var error_msg = '';
+
+    console.log("======data");
+    console.log(data);
+    console.log("======data");
 
     if (Object.keys(data).length > 0) {
+
+      console.log("======Password");
+      console.log(body.password);
+      console.log(data.password);
+      console.log("======Password");
+
       const valid_password = await bcrypt.compare(body.password, data.password);
       if (!valid_password) {
         return res.status(400).json({
@@ -25,42 +37,53 @@ controllers.login_process = async (req, res) => {
         });
       }
 
-      const endDate = moment(data.end_subscribtion);
-      const now = moment();
-
-      if (endDate.isBefore(now, 'day')) {
-        return res.status(400).json({
-          error: true,
-          error_msg: "Masa Berlangganan Anda Sudah Berakhir. Silahkan Hubungi Administrator.",
-        });
-      }
-
       const userPayload = {
-        username: body.username,
         company_code: data.company_code,
         type: body.type,
-        ...(body.type === "staff" && { division_id: data.division_id }), // Hanya untuk staff yang memiliki division_id
+        ...(body.type === "staff" && { division_id: data.division_id }),
+        ...(body.type === 'staff' ? { nomor_whatsapp: body.nomor_whatsapp} : { username : body.username })
       };
 
-      console.log(userPayload);
+      if( data.type_subscribtion == 'limited') {
+        const endDate = moment(data.end_subscribtion);
+        const now = moment();
+        if (endDate.isBefore(now, 'day')) {
+          error = true;
+          error_msg = "Masa Berlangganan Anda Sudah Berakhir. Silahkan Hubungi Administrator.";
+        }
+      }
+      
+      if( error == false ) {
+        const accessToken = jwt.sign(userPayload, process.env.SECRET_KEY, { expiresIn: "10s" });
+        const refreshToken = jwt.sign(userPayload, process.env.REFRESH_SECRET_KEY, { expiresIn: "7d" });
 
-      const accessToken = jwt.sign(userPayload, process.env.SECRET_KEY, { expiresIn: "10s" });
-      const refreshToken = jwt.sign(userPayload, process.env.REFRESH_SECRET_KEY, { expiresIn: "7d" });
+        refreshTokens.push(refreshToken);
 
-      refreshTokens.push(refreshToken); // optional: bisa dikelola lebih baik via DB
-
-      return res.status(200).json({
-        access_token: accessToken,
-        refresh_token: refreshToken,
-        error: false,
-        error_msg: "Sukses.",
-      });
+        res.status(200).json({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          error: false,
+          error_msg: "Sukses.",
+        });
+      }
     } else {
-      return res.status(400).json({
+      error = true;
+      error_msg = "Username atau Password anda tidak ditemukan di pangkalan data.";
+    }
+
+    if( error ) {
+      res.status(400).json({
         error: true,
-        error_msg: "Username atau Password anda tidak ditemukan di pangkalan data.",
+        error_msg: error_msg,
       });
     }
+    // else{
+    //   res.status(200).json({
+    //     error: false,
+    //     error_msg: "Login berhasil dilakukan.",
+    //   });
+    // }
+
   } catch (error) {
     handleServerError(res, error);
   }

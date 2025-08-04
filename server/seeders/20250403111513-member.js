@@ -14,7 +14,7 @@ module.exports = {
         birth_date : '2000-01-01',
         birth_place : 'Langsa',
         whatsapp_number : '085262802222',
-        password: '$2a$10$JaWTb5ThDztEgIdgkioBWuBowG7UrhDNJoegQG6RmiVsb2HFEi.H.',
+        password: '$2a$10$Zr648UXQwtmNNUqeHhE5oujX.ecj7Kz4xL8Fv9iOQXMOREUf2PVDK',
         createdAt: new Date(), 
         updatedAt: new Date() 
       },

@@ -6,7 +6,11 @@ const  validation  = require("../validation/profile.js");
 
 const router = express.Router();
 
-router.get("/profile", authenticateToken, controllers.getProfile);
+router.get(
+  "/profile", 
+  authenticateToken, 
+  controllers.getProfile
+);
 
 
 router.put(

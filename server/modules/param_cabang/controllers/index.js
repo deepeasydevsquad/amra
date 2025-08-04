@@ -5,12 +5,32 @@ const{ getCompanyIdByCode, tipe, username, getCabang } = require("../../../helpe
 
 const controllers = {};
 
+
+// controllers.checkCabang = async ( req , res ) => {
+//    try {
+//       const model_r = new Model_r(req);
+//       const feedBack = await model_r.checkCabang();
+//       res.status(200).json({ error: false, data : feedBack });
+//    } catch (error) {
+//       // console.log("----------------SSS");
+//       // console.log(error);
+//       // console.log("----------------SSS");
+//       res.status(400).json({
+//         error: true,
+//         error_msg: 'Info tidak ditemukan.',
+//       });
+//    }
+// }
+
 controllers.paramCabang = async ( req, res ) => {
-  try {
+   try {
       const model_r = new Model_r(req);
       const feedBack = await model_r.paramCabang();
       res.status(200).json({ error: false, data : feedBack });
    } catch (error) {
+      console.log("----------------SSS");
+      console.log(error);
+      console.log("----------------SSS");
       res.status(400).json({
         error: true,
         error_msg: 'Info tidak ditemukan.',

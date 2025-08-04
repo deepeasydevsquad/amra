@@ -1,7 +1,7 @@
 "use strict";
 
 const { Op, Company, Member, User } = require("../../../models");
-const getCompanyIdByCode = require("../../../helper/companyHelper").getCompanyIdByCode;
+const { getCompanyIdByCode, getNomorWhatsapp } = require("../../../helper/companyHelper");
 const moment = require("moment");
 
 class model_r {
@@ -17,10 +17,11 @@ class model_r {
     }
 
     async getProfile() {
+        await this.initialize(); 
+
         const { type: role, id: memberId } = this.req.user;
-    
+        
         if (role === 'administrator') { 
-            await this.initialize(); 
             const companyProfile = await Company.findOne({
                 where: { id: this.company_id },
                 attributes: ['company_name', 'username', 'email', 'logo', 'whatsapp_company_number'],
@@ -33,9 +34,12 @@ class model_r {
         }
     
         if (role === 'staff') {
+            
+            const nomorWhatsapp = await getNomorWhatsapp(this.req);
+
             const memberProfile = await Member.findOne({
-                where: { id: memberId },
-                attributes: ['fullname', 'email', 'identity_number', 'gender', 'photo', 'whatsapp_number', 'birth_date'],
+                where: { whatsapp_number: nomorWhatsapp },
+                attributes: ['fullname', 'identity_number', 'gender', 'photo', 'whatsapp_number', 'birth_date'],
             });
     
             if (!memberProfile) {
