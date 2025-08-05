@@ -37,7 +37,6 @@ router.post(
   "/daftar-kamar-paket/create-kamar",
   authenticateToken,
   [
-    // Memeriksa 'hotel_id'
     body("hotel_id")
       .notEmpty()
       .withMessage("Nama Hotel harus dipilih.")
@@ -51,22 +50,16 @@ router.post(
       .isInt()
       .withMessage("ID Divisi harus berupa angka.")
       .custom(validation.check_id_cabang),
-
-    // Memeriksa 'tipe_kamar'
     body("tipe_kamar")
       .notEmpty()
       .withMessage("Tipe Kamar harus dipilih.")
-      .isIn(["Laki-Laki", "Perempuan"])
+      .isIn(["laki_laki", "perempuan"])
       .withMessage("Tipe Kamar tidak valid."),
-
-    // Memeriksa 'kapasitas_kamar'
     body("kapasitas_kamar")
       .notEmpty()
       .withMessage("Kapasitas Kamar tidak boleh kosong.")
       .isInt({ min: 1 })
       .withMessage("Kapasitas harus berupa angka dan minimal 1."),
-
-    // Memeriksa 'jamaah_ids'
     body("jamaah_ids")
       .isArray()
       .withMessage("Data jamaah tidak valid.")
@@ -99,6 +92,11 @@ router.post(
   "/daftar-kamar-paket/get-available-jamaah",
   authenticateToken,
   [
+    body("paketId")
+      .trim()
+      .notEmpty().withMessage("ID paket tidak boleh kosong.")
+      .isInt().withMessage("ID paket harus berupa angka.")
+      .custom(validation.check_id_paket),
     body("division_id")
       .isInt()
       .withMessage("Parameter cabangId harus berupa angka")

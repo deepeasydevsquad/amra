@@ -228,10 +228,7 @@ onMounted(async () => {
     </div>
 
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
-      <table
-        ref="tabelutama"
-        class="w-full border-collapse bg-white text-center text-sm justify-center text-gray-700"
-      >
+      <table ref="tabelutama" class="w-full border-collapse bg-white text-center text-sm justify-center text-gray-700" >
         <thead class="bg-gray-100">
           <tr>
             <th class="w-[25%] px-4 py-3 font-medium text-gray-900 text-sm">Tipe Kamar</th>
@@ -352,9 +349,9 @@ onMounted(async () => {
     </Confirmation>
 
     <FormAdd
-      v-if="isFormOpen"
-      :is-form-open="isFormOpen"
+      :isFormOpen="isFormOpen"
       :cabang-id="props.cabangId"
+      :paketId="props.paketId"
       @close="isFormOpen = false"
       @save-success="handleSaveSuccess"
       @show-notification="displayNotification"

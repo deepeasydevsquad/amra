@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, defineProps, defineEmits, computed } from 'vue'
 import { getAllHotels, getAllJamaah, createKamar } from '@/service/kamar_paket'
-import PrimaryButton from '@/components/Button/PrimaryButton.vue'
+import Form from "@/components/Modal/Form.vue"
+import alertify from 'alertifyjs'
 
-// --- Props & Emits ---
 const props = defineProps<{
   isFormOpen: boolean
   cabangId: number
+  paketId: number
 }>()
 
 const emit = defineEmits<{
@@ -15,7 +16,6 @@ const emit = defineEmits<{
   (e: 'show-notification', message: string, type: 'success' | 'error'): void
 }>()
 
-
 interface Hotel {
   id: number;
   name: string
@@ -23,8 +23,8 @@ interface Hotel {
 
 interface Jamaah {
   id: number;
-  name: string;
-  identity: string
+  fullname: string;
+  identity_number: string
 }
 
 interface JamaahId {
@@ -32,6 +32,7 @@ interface JamaahId {
 }
 
 interface Form {
+  id:number
   hotel_id: number | null;
   tipe_kamar: string
   kapasitas_kamar: number
@@ -39,224 +40,177 @@ interface Form {
 }
 
 const hotelList = ref<Hotel[]>([])
-const allJamaahList = ref<Jamaah[]>([])
+const jamaahList = ref<Jamaah[]>([])
 const isLoading = ref(false)
-const serverErrors = ref<Record<string, string>>({})
-
+const ErrorsMessage = ref<Record<string, string>>({})
 const formData = ref<Form>({
+  id: 0,
   hotel_id: null,
-  tipe_kamar: 'Laki-Laki',
+  tipe_kamar: 'laki_laki',
   kapasitas_kamar: 0,
-  jamaah_ids: [],
-})
+  jamaah_ids: [{
+    id: 0,
+  }]
+});
 
-// // --- Computed Property untuk Filter ---
-// // Computed property untuk memfilter jamaah yang belum dipilih di dropdown lain
-// const filteredJamaahList = computed(() => (currentSelectionId: number | null) => {
-//   const selectedIds = formData.value.jamaah_ids
-//     .map((j) => j.id)
-//     .filter((id) => id !== null && id !== currentSelectionId)
-//   return allJamaahList.value.filter((j) => !selectedIds.includes(j.id))
-// })
+const fetchData = async () => {
+  try {
+    const responseHotel = await getAllHotels({ division_id: props.cabangId });
+    const responseJamaah = await getAllJamaah({ forEdit: false, division_id: props.cabangId, paket_id: props.paketId });
+    hotelList.value = responseHotel.data;
+    jamaahList.value = [{ id: 0, fullname: 'Pilih Jamaah', identity_number: '' }, ...responseJamaah?.data];
+  } catch (error) {
+    console.error('Gagal fetch data ticket transactions:', error)
+  }
+}
 
-// --- WATCHER UNTUK MENCEGAH DUPLIKASI ---
 watch(
   () => props.isFormOpen,
   (e) => {
-    // const seenIds = new Set()
-    // newJamaahIds.forEach((jamaah, index) => {
-    //   if (jamaah.id !== null) {
-    //     if (seenIds.has(jamaah.id)) {
-    //       // Jika ID sudah ada, ini adalah duplikat.
-    //       emit('show-notification', 'Jamaah tidak boleh dipilih lebih dari sekali.', 'error')
-    //       // Reset pilihan yang duplikat menjadi null
-    //       // formData.value.jamaah_ids[index].id = null
-    //     } else {
-    //       seenIds.add(jamaah.id)
-    //     }
-    //   }
-    // })
+    fetchData();
   },
-  { deep: true }, // 'deep' diperlukan untuk memantau perubahan di dalam array of objects
 )
 
-// // --- API Calls ---
-// onMounted(async () => {
-//   try {
-//     // Ambil data hotel dan jamaah secara paralel
-//     const [hotelResponse, jamaahResponse] = await Promise.all([
-//       getAllHotels({ division_id: props.cabangId }),
-//       getAllJamaah({ forEdit: false, division_id: props.cabangId }),
-//     ])
+const addRow = () => {
+  formData.value.jamaah_ids.push(createEmptyJamaah())
+}
 
-//     console.log('hotelResponse:', hotelResponse)
+function removeJamaah(index: number) {
+  if( formData.value.jamaah_ids.length == 1) {
+    alertify.error('Anda wajib memilih salah satu jamaah.')
+  }else{
+    formData.value.jamaah_ids.splice(index, 1)
+  }
+}
 
-//     // Set data hotel dari properti 'data' di dalam respons
-//     hotelList.value = hotelResponse.data.map((h: any) => ({
-//       id: h.id,
-//       name: `${h.name} (Kota : ${h.kota_name || 'N/A'})`,
-//     }))
+function createEmptyJamaah(): Jamaah {
+  return  {
+    id: 0,
+    fullname: '',
+    identity_number : ''
+  }
+}
 
-//     // Set data jamaah dari properti 'data' di dalam respons
-//     allJamaahList.value = jamaahResponse.data.map((j: any) => ({
-//       id: j.id,
-//       fullname: j.fullname,
-//       identity_number: j.identity_number,
-//     }))
-//   } catch (error) {
-//     console.error('Gagal memuat data untuk form:', error)
-//     emit('show-notification', 'Gagal memuat data untuk form.', 'error')
-//   }
-// })
+const handleCancel = (): void => {
+  formData.value = {
+    id: 0,
+    hotel_id: null,
+    tipe_kamar: 'laki_laki',
+    kapasitas_kamar: 0,
+    jamaah_ids: [{
+      id: 0,
+    }]
+  };
+  emit('close')
+  ErrorsMessage.value = {}
+}
 
-// --- Form Logic ---
-// const addJamaahField = () => {
-//   formData.value.jamaah_ids.push({ id: null })
-// }
+const validateForm = (): boolean => {
+  const tipeKamar = ['laki_laki', 'perempuan'];
+  let isValid = true
+  ErrorsMessage.value = {};
 
-// const removeJamaahField = (index: number) => {
-//   formData.value.jamaah_ids.splice(index, 1)
-// }
+  if( formData.value.hotel_id == null ) {
+    ErrorsMessage.value.name = 'Anda wajib memilih salah satu hotel.'
+    isValid = false
+  }
+  if( !tipeKamar.includes(formData.value.tipe_kamar) ) {
+    ErrorsMessage.value.name = 'Tipe kamar tidak ditemukan.'
+    isValid = false
+  }
+  if( formData.value.kapasitas_kamar == 0 ) {
+    ErrorsMessage.value.name = 'Kapasitas kamar tidak boleh 0.'
+    isValid = false
+  }
+  if( formData.value.jamaah_ids.length == 0 ) {
+    ErrorsMessage.value.name = 'Anda wajib memilih salah satu jamaah.'
+    isValid = false
+  }
+  var listJ = [];
+  for( let x in  formData.value.jamaah_ids ) {
+    if( formData.value.jamaah_ids[x].id != 0 ) {
+      if(listJ.includes(formData.value.jamaah_ids[x].id) ) {
+        ErrorsMessage.value[formData.value.jamaah_ids[x].id]= 'Anda tidak boleh memilih nama yang sama dalam satu kamar.'
+        isValid = false
+      }else{
+        listJ.push(formData.value.jamaah_ids[x].id)
+      }
+    }else{
+      ErrorsMessage.value.name = 'Anda wajib memilih salah satu nama jamaah.'
+      isValid = false
+    }
+  }
+  return isValid
+}
 
-// const handleSubmit = async () => {
-//   isLoading.value = true
-//   serverErrors.value = {}
+const handleSubmit = async () => {
+  if (!validateForm()) {
+    for( let x in ErrorsMessage.value) { alertify.error(ErrorsMessage.value[x]) }
+    return
+  }
 
-//   try {
-//     const payload = {
-//       ...formData.value,
-//       division_id: props.cabangId,
-//       jamaah_ids: formData.value.jamaah_ids.map((j) => j.id).filter((id) => id !== null),
-//     }
-
-//     console.log('Payload:', payload)
-
-//     await createKamar(payload)
-//     emit('save-success', 'Data kamar berhasil ditambahkan.')
-//     emit('close')
-//   } catch (error: any) {
-//     if (error.response && error.response.status === 422) {
-//       const validationErrors = error.response.data.errors
-//       if (validationErrors && validationErrors.length > 0) {
-//         emit('show-notification', validationErrors[0].msg, 'error')
-//       }
-//     } else {
-//       const errorMessage = error.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.'
-//       emit('show-notification', errorMessage, 'error')
-//     }
-//     console.error('Gagal menyimpan data:', error)
-//   } finally {
-//     isLoading.value = false
-//   }
-// }
+  try {
+    const payload = {
+      ...formData.value,
+      division_id: props.cabangId,
+      jamaah_ids: formData.value.jamaah_ids.map((j) => j.id).filter((id) => id !== null),
+    }
+    await createKamar(payload)
+    emit('save-success', 'Data kamar berhasil ditambahkan.')
+    emit('close')
+  } catch (error: any) {
+    if (error.response && error.response.status === 400) {
+      alertify.error(error.response.data.message)
+    } else {
+      const errorMessage = error.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.'
+      emit('show-notification', errorMessage, 'error')
+    }
+  } finally {
+    isLoading.value = false
+  }
+}
 </script>
-
 <template>
-  <!-- Overlay -->
-  <div v-if="isFormOpen" class="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-center">
-    <!-- Modal Content -->
-    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-      <!-- Header -->
-      <div class="flex justify-between items-center border-b pb-3 mb-4">
-        <h2 class="text-xl font-bold text-black">Form Tambah Kamar</h2>
-        <button @click="$emit('close')" class="text-black hover:text-black text-2xl">
-          &times;
+  <Form :form-status="isFormOpen" :label="formData.id === 0 ? 'Tambah Kamar' : 'Edit Kamar'" @close="handleCancel" @cancel="handleCancel" @submit="handleSubmit" width="sm:w-full sm:max-w-xl" :submitLabel="formData.id === 0 ? 'TAMBAH KAMAR' : 'PERBAHARUI KAMAR'">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label for="hotel" class="block text-sm font-medium text-black mb-1">Nama Hotel</label>
+        <select id="hotel" v-model="formData.hotel_id" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-black" >
+          <option :value="null" disabled>Pilih Hotel</option>
+          <option v-for="hotel in hotelList" :key="hotel.id" :value="hotel.id">{{ hotel.name }}</option>
+        </select>
+      </div>
+      <div>
+        <label for="tipe-kamar" class="block text-sm font-medium text-black mb-1">Tipe Kamar</label>
+        <select id="tipe-kamar" v-model="formData.tipe_kamar"
+          class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-black" >
+          <option v-for="(v, index) in { 'laki_laki': 'Laki-laki', 'perempuan': 'Perempuan'}" :key="index" :value="index">{{ v }}</option>
+        </select>
+      </div>
+      <div>
+        <label for="kapasitas" class="block text-sm font-medium text-black mb-1" >Kapasitas Kamar</label >
+        <input type="number" id="kapasitas" v-model="formData.kapasitas_kamar" min="1" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-black" />
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-black mb-1">Daftar Jamaah</label>
+        <div v-for="(jamaah, index) in formData.jamaah_ids" :key="index" class="flex items-center gap-2 mb-2" >
+          <select v-model="jamaah.id" class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-black" >
+            <option v-for="(j, index) in jamaahList" :key="j.id" :value="j.id">
+              {{ j.fullname }}
+              <template v-if="j.id != 0">
+                ({{ j.identity_number }})
+              </template>
+            </option>
+          </select>
+          <button type="button" @click="removeJamaah(index)" class="p-2 text-red-500 hover:text-red-700 text-2xl" title="Hapus Jamaah" >
+            &times;
+          </button>
+        </div>
+        <button type="button" @click="addRow"
+          class="w-full mt-2 px-4 py-2 border border-dashed border-gray-300 text-sm font-medium rounded-md text-black hover:bg-gray-50" >
+          + Tambah Jamaah
         </button>
       </div>
-
-      <!-- Form Body -->
-      <form @submit.prevent="handleSubmit">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Nama Hotel -->
-          <div>
-            <label for="hotel" class="block text-sm font-medium text-black mb-1">Nama Hotel</label>
-            <select
-              id="hotel"
-              v-model="formData.hotel_id"
-              class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-black"
-            >
-              <option :value="null" disabled>Pilih Hotel</option>
-              <option v-for="hotel in hotelList" :key="hotel.id" :value="hotel.id">
-                {{ hotel.name }}
-              </option>
-            </select>
-          </div>
-
-          <!-- Tipe Kamar -->
-          <div>
-            <label for="tipe-kamar" class="block text-sm font-medium text-black mb-1">Tipe Kamar</label>
-            <select id="tipe-kamar" v-model="formData.tipe_kamar"
-              class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-black"
-            >
-              <option>Laki-Laki</option>
-              <option>Perempuan</option>
-            </select>
-          </div>
-
-          <!-- Kapasitas Kamar -->
-          <div>
-            <label for="kapasitas" class="block text-sm font-medium text-black mb-1"
-              >Kapasitas Kamar</label
-            >
-            <input
-              type="number"
-              id="kapasitas"
-              v-model="formData.kapasitas_kamar"
-              min="1"
-              class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-black"
-            />
-          </div>
-
-          <!-- Daftar Jamaah (dinamis) -->
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-black mb-1">Daftar Jamaah</label>
-            <div
-              v-for="(jamaah, index) in formData.jamaah_ids"
-              :key="index"
-              class="flex items-center gap-2 mb-2"
-            >
-              <select
-                v-model="jamaah.id"
-                class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-black"
-              >
-                <option :value="null" disabled>Pilih Jamaah</option>
-                <option v-for="j in filteredJamaahList(jamaah.id)" :key="j.id" :value="j.id">
-                  {{ j.name }} ({{ j.identity }})
-                </option>
-              </select>
-              <button
-                type="button"
-                @click="removeJamaahField(index)"
-                class="p-2 text-red-500 hover:text-red-700 text-2xl"
-                title="Hapus Jamaah"
-              >
-                &times;
-              </button>
-            </div>
-            <button
-              type="button"
-              @click="addJamaahField"
-              class="w-full mt-2 px-4 py-2 border border-dashed border-gray-300 text-sm font-medium rounded-md text-black hover:bg-gray-50"
-            >
-              + Tambah Jamaah
-            </button>
-          </div>
-        </div>
-
-        <!-- Form Footer -->
-        <div class="mt-8 pt-4 border-t flex justify-end gap-3">
-          <button
-            type="button"
-            @click="$emit('close')"
-            class="px-4 py-2 bg-gray-200 text-black rounded-md hover:bg-gray-300"
-          >
-            Cancel
-          </button>
-          <PrimaryButton type="submit" :disabled="isLoading">
-            {{ isLoading ? 'Menyimpan...' : 'Simpan' }}
-          </PrimaryButton>
-        </div>
-      </form>
     </div>
-  </div>
+  </Form>
 </template>

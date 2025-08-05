@@ -9,8 +9,15 @@ const {  getDivisionId, getCompanyIdByCode } = require("../helper/companyHelper"
 const validation = {};
 
 validation.check_id_paket = async (value, { req }) => {
-  const division_id = await getDivisionId(req);
-  var check = Paket.findOne({ where: { id : value, division_id : division_id }});
+  const company_id = await getCompanyIdByCode(req);
+  var check = Paket.findOne({ 
+    where: { id : value}, 
+    include: {
+      required : true, 
+      model: Division,
+      where: { company_id : company_id }
+    }
+  });
   if (!check) {
       throw new Error("ID Paket tidak terdaftar dipangkalan data");
   }

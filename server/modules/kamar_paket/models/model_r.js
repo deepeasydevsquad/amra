@@ -111,7 +111,7 @@ class model_r {
         identity_number: t.Jamaah.Member.identity_number,
       }));
       console.log("Datanya: ", data)
-      return { data, total: count };
+      return { data  };
     } catch (error) {
       console.error("Error di getAllAvailableJamaah:", error);
       throw error;
@@ -226,6 +226,11 @@ class model_r {
         total,
       };
     } catch (error) {
+
+
+      console.log("_________________________");
+      console.log(error);
+      console.log("_________________________");
       console.error("Error di kamar_paket:", error);
       return { data: [], total: 0 };
     }
