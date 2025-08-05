@@ -92,7 +92,7 @@ router.post(
   "/daftar-kamar-paket/get-available-jamaah",
   authenticateToken,
   [
-    body("paketId")
+    body("paket_id")
       .trim()
       .notEmpty().withMessage("ID paket tidak boleh kosong.")
       .isInt().withMessage("ID paket harus berupa angka.")
@@ -162,7 +162,7 @@ router.post(
     body("tipe_kamar")
       .notEmpty()
       .withMessage("Tipe Kamar harus dipilih.")
-      .isIn(["Laki-Laki", "Perempuan"])
+      .isIn(["laki_laki", "perempuan"])
       .withMessage("Tipe Kamar tidak valid."),
 
     // Memeriksa 'kapasitas_kamar'

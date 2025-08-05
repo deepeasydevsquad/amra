@@ -77,19 +77,34 @@ class model_r {
     await this.initialize();
 
     try {
-      const where = {
-        division_id: this.division_id,
-        id: {
-          [Op.notIn]: Sequelize.literal(`(
-            SELECT DISTINCT paket_transaction_id
-            FROM Kamar_jamaahs
-            WHERE paket_transaction_id IS NOT NULL
-          )`)
-        }
-      };
+      var listJamaahHaveKamar = [];
+      var where = { paket_id : this.req.body.paket_id };
+      if(this.req.body.id) {
+        where = {...where,...{ id: { [Op.ne]: this.req.body.id}}};
+      }
 
-      const { count, rows } = await Paket_transaction.findAndCountAll({
-        where,
+      const q = await Kamar_jamaah.findAndCountAll({
+        include : {
+          required: true, 
+          model: Paket_transaction,
+          where: where
+        }
+      });
+
+      await Promise.all(
+        await q.rows.map(async (e) => {
+          listJamaahHaveKamar.push(e.paket_transaction_id);
+        })
+      );
+
+      const q2 = await Paket_transaction.findAndCountAll({
+        where: {
+          division_id: this.division_id,
+          paket_id : this.req.body.paket_id,
+          id: { 
+            [Op.notIn] : listJamaahHaveKamar
+          }
+        },
         include: [
           {
             model: Jamaah,
@@ -105,13 +120,24 @@ class model_r {
         ],
       });
 
-      const data = rows.map((t) => ({
-        id: t.id,
-        fullname: t.Jamaah.Member.fullname,
-        identity_number: t.Jamaah.Member.identity_number,
-      }));
-      console.log("Datanya: ", data)
-      return { data  };
+      var data = [];
+      await Promise.all(
+        await q2.rows.map(async (e) => {
+          data.push({
+            id: e.id,
+            fullname: e.Jamaah.Member.fullname,
+            identity_number: e.Jamaah.Member.identity_number,
+          });
+        })
+      );
+
+      // const data = rows.map((t) => ({
+      //   id: t.id,
+      //   fullname: t.Jamaah.Member.fullname,
+      //   identity_number: t.Jamaah.Member.identity_number,
+      // }));
+      // console.log("Datanya: ", data)
+      return { data };
     } catch (error) {
       console.error("Error di getAllAvailableJamaah:", error);
       throw error;
@@ -322,7 +348,7 @@ class model_r {
       const formattedData = {
         id: kamar.id,
         hotel_id: kamar.hotel_id,
-        tipe_kamar: formatTipeKamar(kamar.tipe_kamar),
+        tipe_kamar: kamar.tipe_kamar,
         kapasitas_kamar: kamar.kapasitas_kamar,
         jamaah_ids: kamar.Kamar_jamaahs.map((kj) => ({
           id: kj.Paket_transaction.id,

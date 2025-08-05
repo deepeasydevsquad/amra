@@ -13,12 +13,11 @@ import Notification from '@/components/User/Modules/KamarPaket/Particle/Notifica
 import Confirmation from '@/components/User/Modules/KamarPaket/Particle/Confirmation.vue'
 
 // Import form pop-up
-import FormAdd from '@/components/User/Modules/KamarPaket/Widget/FormAdd.vue'
-import FormEdit from '@/components/User/Modules/KamarPaket/Widget/FormEdit.vue'
+import FormAddUpdate from '@/components/User/Modules/KamarPaket/Widget/FormAddUpdate.vue'
+// import FormEdit from '@/components/User/Modules/KamarPaket/Widget/FormEdit.vue'
 
 import { getDaftarKamarPaket, deleteKamar } from '@/service/kamar_paket'
 import { ref, onMounted, computed } from 'vue'
-
 
 const props = defineProps<{
   paketId: number
@@ -66,10 +65,10 @@ const notificationType = ref<'success' | 'error'>('success')
 const confirmMessage = ref<string>('')
 const confirmTitle = ref<string>('')
 const confirmAction = ref<(() => void) | null>(null)
-
 const kamarList = ref<Kamar[]>([])
 const isFormOpen = ref<boolean>(false)
 const isLoading = ref<boolean>(false)
+const id = ref<number>(0);
 
 interface JamaahDetail {
   fullname: string,
@@ -164,9 +163,9 @@ const handleDelete = (id: number) => {
   )
 }
 
-const handleEdit = (id: number) => {
-  editingKamarId.value = id
-  isEditFormOpen.value = true
+const handleEdit = (ids: number) => {
+  id.value = ids
+  isFormOpen.value = true
 }
 
 const handleConfirm = () => {
@@ -348,8 +347,10 @@ onMounted(async () => {
       </button>
     </Confirmation>
 
-    <FormAdd
+    <FormAddUpdate
+
       :isFormOpen="isFormOpen"
+      :id="id"
       :cabang-id="props.cabangId"
       :paketId="props.paketId"
       @close="isFormOpen = false"
@@ -357,7 +358,7 @@ onMounted(async () => {
       @show-notification="displayNotification"
     />
 
-    <FormEdit
+    <!-- <FormEdit
       v-if="isEditFormOpen"
       :is-form-open="isEditFormOpen"
       :kamar-id="editingKamarId"
@@ -365,6 +366,6 @@ onMounted(async () => {
       @close="isEditFormOpen = false"
       @save-success="handleSaveSuccess"
       @show-notification="displayNotification"
-    />
+    /> -->
   </div>
 </template>

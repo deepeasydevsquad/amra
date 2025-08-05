@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, defineProps, defineEmits, computed } from 'vue'
-import { getAllHotels, getAllJamaah, createKamar } from '@/service/kamar_paket'
+import { getAllHotels, getAllJamaah, createKamar, getKamarById, updateKamar } from '@/service/kamar_paket'
 import Form from "@/components/Modal/Form.vue"
 import alertify from 'alertifyjs'
 
 const props = defineProps<{
+  id:number
   isFormOpen: boolean
   cabangId: number
   paketId: number
@@ -48,28 +49,40 @@ const formData = ref<Form>({
   hotel_id: null,
   tipe_kamar: 'laki_laki',
   kapasitas_kamar: 0,
-  jamaah_ids: [{
-    id: 0,
-  }]
+  jamaah_ids: [{ id: 0 }]
 });
 
 const fetchData = async () => {
   try {
+
+    var payload = {};
+
+    if(props.id != 0) {
+      const resp = await getKamarById(props.id);
+      formData.value = resp.data
+      payload = { id: props.id, division_id: props.cabangId, paket_id: props.paketId }
+    }else{
+      formData.value = {
+        id: 0,
+        hotel_id: null,
+        tipe_kamar: 'laki_laki',
+        kapasitas_kamar: 0,
+        jamaah_ids: [{
+          id: 0,
+        }]
+      }
+      payload = { division_id: props.cabangId, paket_id: props.paketId }
+    }
+
     const responseHotel = await getAllHotels({ division_id: props.cabangId });
-    const responseJamaah = await getAllJamaah({ forEdit: false, division_id: props.cabangId, paket_id: props.paketId });
+    const responseJamaah = await getAllJamaah(payload);
+
     hotelList.value = responseHotel.data;
     jamaahList.value = [{ id: 0, fullname: 'Pilih Jamaah', identity_number: '' }, ...responseJamaah?.data];
   } catch (error) {
     console.error('Gagal fetch data ticket transactions:', error)
   }
 }
-
-watch(
-  () => props.isFormOpen,
-  (e) => {
-    fetchData();
-  },
-)
 
 const addRow = () => {
   formData.value.jamaah_ids.push(createEmptyJamaah())
@@ -155,8 +168,16 @@ const handleSubmit = async () => {
       division_id: props.cabangId,
       jamaah_ids: formData.value.jamaah_ids.map((j) => j.id).filter((id) => id !== null),
     }
-    await createKamar(payload)
-    emit('save-success', 'Data kamar berhasil ditambahkan.')
+
+    if( props.id != 0 ) {
+      await updateKamar(props.id, payload)
+      emit('save-success', 'Data kamar berhasil diperbaharui.')
+    }else{
+      await createKamar(payload)
+      emit('save-success', 'Data kamar berhasil ditambahkan.')
+    }
+
+
     emit('close')
   } catch (error: any) {
     if (error.response && error.response.status === 400) {
@@ -169,6 +190,14 @@ const handleSubmit = async () => {
     isLoading.value = false
   }
 }
+
+watch(
+  () => props.isFormOpen,
+  (e) => {
+    fetchData();
+  },
+)
+
 </script>
 <template>
   <Form :form-status="isFormOpen" :label="formData.id === 0 ? 'Tambah Kamar' : 'Edit Kamar'" @close="handleCancel" @cancel="handleCancel" @submit="handleSubmit" width="sm:w-full sm:max-w-xl" :submitLabel="formData.id === 0 ? 'TAMBAH KAMAR' : 'PERBAHARUI KAMAR'">
