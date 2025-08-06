@@ -4,7 +4,6 @@ const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/company
 const { menghasilkan_invoice_kas_keluar_masuk } = require("../../../helper/randomHelper");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const moment = require("moment");
-
 const Model_r_cabang = require("../../param_cabang/models/model_r");
 const Model_r = require("../models/model_r");
 
@@ -17,12 +16,10 @@ class model_cud {
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
     this.division_id = await getCabang(this.req);
-    // initialize transaction
     this.t = await sequelize.transaction();
     this.state = true;
   }
 
-  
   async petugas() {
     this.tipe = await tipe(this.req);
 
@@ -46,13 +43,10 @@ class model_cud {
 
   // Tambah Akun
   async add_kas_keluar_masuk() {
-    // initialize dependensi properties
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
-
     const model = new Model_r_cabang(this.req);
-    // await model.add_kas_keluar_masuk();
     const listDivision = await model.paramListAllCabang();
 
     try {
@@ -66,8 +60,6 @@ class model_cud {
       const keterangan = body.keterangan;
       var status_kwitansi = '';
       const kaskeluarmasuk = JSON.parse(body.kaskeluarmasuk);
-
-      // insert Jurnal
       for( let x in kaskeluarmasuk ) {
         await Jurnal.create(
           {
@@ -87,21 +79,17 @@ class model_cud {
             transaction: this.t,
           }
         );
-
         const akunDebet = listAkun[kaskeluarmasuk[x].akun_debet];
         const akunKredit = listAkun[kaskeluarmasuk[x].akun_kredit];
-
         if (!akunDebet || !akunKredit) {
           throw new Error("Akun debet atau kredit tidak ditemukan dalam listAkun.");
         }
-
         if (akunDebet.substring(0, 1) === '1') {
           status_kwitansi = 'masuk';
         } else if (akunKredit.substring(0, 1) === '1') {
           status_kwitansi = 'keluar';
         }
       }
-      // insert process
       const insert = await Kas_keluar_masuk.create(
         {
           division_id: division_id,
@@ -116,7 +104,6 @@ class model_cud {
           transaction: this.t,
         }
       );
-      // write log message
       this.message = `Menambahkan Kas Keluar Masuk dengan nomor invoice : ${invoice}, Petugas : ${petugas} dan ID Kas Keluar Masuk : ${insert.id}`;
       return invoice;
     } catch (error) {
@@ -127,14 +114,11 @@ class model_cud {
 
   // delete kas keluar masuk
   async delete () {
-    // initialize dependensi properties
     await this.initialize();
     const body = this.req.body;
     try {
-      // call model
       const model_r = new Model_r(this.req);
       const invoice = await model_r.getInvoiceById(body.id, this.company_id);
-      // destroy Jurnal
       await Jurnal.destroy(
         {
           where: { source: 'kaskeluarmasuk:invoice:' + invoice },
@@ -143,7 +127,6 @@ class model_cud {
           transaction: this.t,
         }
       );
-      // destroy Kas Keluar Masuk
       await Kas_keluar_masuk.destroy(
         {
           where: { id: body.id },
@@ -152,7 +135,6 @@ class model_cud {
           transaction: this.t,
         }
       );
-
       this.message = `Menghapus Kas Keluar dengan Invoice ${invoice} (ID Kas Keluar Masuk: ${body.id})`;
     } catch (error) {
       this.state = false;
