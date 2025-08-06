@@ -144,8 +144,8 @@ const fetchData = async () => {
         return;
     }
 
-    fasilitaspaketla.value = fasilitasResponse.data || []; // Ensure it assigns an array
-    dataPaketLA.value = response.data || []; // Ensure it assigns an array
+    fasilitaspaketla.value = fasilitasResponse.data || [];
+    dataPaketLA.value = response.data || [];
   } catch (error) {
       console.error('Error fetching data:', error);
       displayNotification('Gagal mengambil data.', 'error');
@@ -177,8 +177,7 @@ const openFormRefund = (id: number, register_number: string) => {
 }
 
 onMounted(async () => {
-  await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-  // totalColumns.value = document.querySelectorAll("thead th").length;
+  await fetchData();
 });
 
 const validateModal = (): boolean => {
@@ -322,12 +321,9 @@ const cetakInvoice = async (invoice: string) => {
     displayNotification('Terjadi kesalahan saat membuka invoice.', 'error')
   }
 }
-
 </script>
-
 <template>
   <div class="container mx-auto p-4">
-    <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
       <button
         @click="openModal()"
@@ -349,8 +345,6 @@ const cetakInvoice = async (invoice: string) => {
         />
       </div>
     </div>
-
-    <!-- Table data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md mb-5">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-100">
@@ -413,7 +407,6 @@ const cetakInvoice = async (invoice: string) => {
                 </tbody>
               </table>
           </td>
-          <!-- py-3 px-6  border-gray-300 align-top -->
           <td class="px-3 py-3 border-gray-300 align-top text-center">
             <template v-if="fasilitaspaketla.length > 0">
               <div v-for="invoice in fasilitaspaketla.filter((inv) => inv.paket_la_id === paket.id)" :key="invoice.id" class="mb-4 px-2 py-0 bg-white">
@@ -479,9 +472,6 @@ const cetakInvoice = async (invoice: string) => {
               </div>
             </template>
           </td>
-          <!-- <td class="py-3 px-6 border-gray-300 align-top">
-
-          </td> -->
           <td class="px-6 py-4 text-center align-top">
               <div class="flex flex-col items-center gap-2">
                 <LightButton  @click="openFormItem(paket.id)">

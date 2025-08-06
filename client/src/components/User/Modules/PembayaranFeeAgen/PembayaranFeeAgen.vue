@@ -86,7 +86,7 @@ interface filterCabang {
 const fetchFilterData = async () => {
   const response = await paramCabang()
   optionFilterCabang.value = [
-    // { id: 0, name: 'Pilih Cabang' },
+    { id: 0, name: 'Pilih Cabang' },
     ...response.data.map((item: any) => ({
       id: item.id,
       name: `${item.name}`,
@@ -458,19 +458,12 @@ const cetak_invoice = (invoice: string) => {
     </div>
   </Form>
 
-  <Form
-    :formStatus="showModal"
-    @cancel="
+  <Form :formStatus="showModal" @cancel="
       () => {
         resetForm()
         showModal = false
       }
-    "
-    @submit="submitForm()"
-    :submitLabel="'Bayar'"
-    :width="'w-1/4'"
-    :label="'Bayar Fee Agen'"
-  >
+    " @submit="submitForm()" :submitLabel="'Bayar'" :width="'w-1/4'" :label="'Bayar Fee Agen'" >
     <SelectField
       v-model="formCabangId"
       label="Pilih Cabang"
