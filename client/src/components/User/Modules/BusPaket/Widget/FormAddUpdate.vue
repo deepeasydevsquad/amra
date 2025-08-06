@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, defineProps, defineEmits, computed, watch } from 'vue'
+import { ref, defineProps, defineEmits, watch } from 'vue'
 import { getAllJamaah, getAllCities, createBus, updateBus, getBusById } from '@/service/bus_paket'
 import Form from "@/components/Modal/Form.vue"
 import alertify from 'alertifyjs'
-// import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 
-// --- Props & Emits ---
 const props = defineProps<{
   id: number
   isFormOpen: boolean
@@ -39,14 +37,10 @@ const formData = ref({
   jamaah_ids: [{ id: 0 }],
 })
 
-// --- API Calls ---
 const fetchData = async () => {
-
   try {
     var payload = {};
-
     if(props.id != 0) {
-      // const resp = await getKamarById(props.id);
       const resp =  await getBusById(props.id);
       formData.value = resp.data;
       payload = { id: props.id, division_id: props.cabangId, paket_id: props.paketId }
@@ -61,13 +55,10 @@ const fetchData = async () => {
       }
       payload = { division_id: props.cabangId, paket_id: props.paketId }
     }
-
     const responseCity = await getAllCities();
     const responseJamaah = await getAllJamaah(payload)
-
     cityList.value = [{ id: 0, name: 'Pilih Kota' }, ...responseCity]; ;
     allJamaahList.value = [{ id: 0, fullname: 'Pilih Jamaah', identity_number: '' }, ...responseJamaah];
-
   } catch (error) {
     emit('show-notification', 'Gagal memuat data untuk form.', 'error')
   }
@@ -92,7 +83,6 @@ function removeJamaah(index: number) {
     formData.value.jamaah_ids.splice(index, 1)
   }
 }
-
 
 const validateForm = (): boolean => {
   let isValid = true
@@ -180,7 +170,6 @@ const handleSubmit = async () => {
   }
 }
 
-
 const handleCancel = (): void => {
   formData.value = {
     id: 0,
@@ -190,16 +179,9 @@ const handleCancel = (): void => {
     bus_leader: '',
     jamaah_ids: [{ id: 0 }],
   };
-
-
-
-  console.log("Masuk Sinin")
-  console.log(formData.value)
-  console.log("Masuk Sinin")
   emit('close')
   ErrorsMessage.value = {}
 }
-
 
 watch(
   () => props.isFormOpen,
@@ -207,9 +189,7 @@ watch(
     fetchData();
   },
 )
-
 </script>
-
 <template>
   <Form :form-status="isFormOpen" :label="formData.id === 0 ? 'Tambah Bus' : 'Edit Bus'" @close="handleCancel" @cancel="handleCancel" @submit="handleSubmit" width="sm:w-full sm:max-w-xl" :submitLabel="formData.id === 0 ? 'TAMBAH BUS' : 'PERBAHARUI BUS'">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

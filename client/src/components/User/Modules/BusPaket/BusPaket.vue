@@ -192,7 +192,6 @@ onMounted(async () => {
           <span class="text-base">Tambah Bus</span>
         </PrimaryButton>
       </div>
-
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
         <label for="search" class="text-sm font-medium text-gray-700">Filter:</label>
         <div class="relative w-full sm:w-72">
@@ -208,11 +207,8 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
-      <table
-        class="w-full border-collapse bg-white text-center text-sm justify-center text-gray-700"
-      >
+      <table class="w-full border-collapse bg-white text-center text-sm justify-center text-gray-700" >
         <thead class="bg-gray-100">
           <tr>
             <th class="w-[15%] px-4 py-3 font-medium text-gray-900 text-sm">Nomor Bus</th>
@@ -324,25 +320,7 @@ onMounted(async () => {
       </button>
     </Confirmation>
 
-    <FormAddUpdate
-      :is-form-open="isFormOpen"
-      :id="id"
-      :cabang-id="cabangId"
-      :paketId="props.paketId!"
-      @close="isFormOpen = false; id= 0"
-      @save-success="handleSaveSuccess"
-      @show-notification="displayNotification"
-    />
-
-    <!-- <FormEdit
-      v-if="isEditFormOpen"
-      :is-form-open="isEditFormOpen"
-      :bus-id="editingBusId"
-      :cabang-id="cabangId"
-      @close="isEditFormOpen = false"
-      @save-success="handleSaveSuccess"
-      @show-notification="displayNotification"
-    /> -->
+    <FormAddUpdate :is-form-open="isFormOpen" :id="id" :cabang-id="cabangId" :paketId="props.paketId!"  @close="isFormOpen = false; id= 0" @save-success="handleSaveSuccess" @show-notification="displayNotification" />
   </div>
   >
 </template>

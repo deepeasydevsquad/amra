@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, defineProps, defineEmits, computed } from 'vue'
+import { ref, watch, defineProps, defineEmits } from 'vue'
 import { getAllHotels, getAllJamaah, createKamar, getKamarById, updateKamar } from '@/service/kamar_paket'
 import Form from "@/components/Modal/Form.vue"
 import alertify from 'alertifyjs'
@@ -54,18 +54,11 @@ const formData = ref<Form>({
 
 const fetchData = async () => {
   try {
-
     var payload = {};
-
     if(props.id != 0) {
       const resp = await getKamarById(props.id);
       formData.value = resp.data
       payload = { id: props.id, division_id: props.cabangId, paket_id: props.paketId }
-
-
-      console.log("------AAAA");
-      console.log(formData.value.jamaah_ids);
-      console.log("------AAAA");
     }else{
       formData.value = {
         id: 0,
@@ -78,10 +71,8 @@ const fetchData = async () => {
       }
       payload = { division_id: props.cabangId, paket_id: props.paketId }
     }
-
     const responseHotel = await getAllHotels({ division_id: props.cabangId });
     const responseJamaah = await getAllJamaah(payload);
-
     hotelList.value = responseHotel.data;
     jamaahList.value = [{ id: 0, fullname: 'Pilih Jamaah', identity_number: '' }, ...responseJamaah?.data];
   } catch (error) {
@@ -182,8 +173,6 @@ const handleSubmit = async () => {
       await createKamar(payload)
       emit('save-success', 'Data kamar berhasil ditambahkan.')
     }
-
-
     emit('close')
   } catch (error: any) {
     if (error.response && error.response.status === 400) {

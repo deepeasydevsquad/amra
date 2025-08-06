@@ -31,8 +31,6 @@ const search = ref('')
 const totalPages = ref(0)
 const totalColumns = ref(5)
 const totalRow = ref(0);
-const isEditFormOpen = ref<boolean>(false)
-const editingKamarId = ref<number | null>(null)
 const isDeletingId = ref<number | null>(null) // <-- State untuk melacak ID yang sedang dihapus
 
 const nextPage = () => {
@@ -302,28 +300,11 @@ onMounted(async () => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <Pagination
-            :current-page="currentPage"
-            :total-pages="totalPages"
-            :pages="pages"
-            :total-columns="totalColumns"
-            @prev-page="prevPage"
-            @next-page="nextPage"
-            @page-now="pageNow"
-            :totalRow = "totalRow"
-          />
+          <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" :totalRow = "totalRow" />
         </tfoot>
       </table>
     </div>
-
-    <Notification
-      v-if="showNotification"
-      :show-notification="showNotification"
-      :notification-message="notificationMessage"
-      :notification-type="notificationType"
-      @close="showNotification = false"
-    />
-
+    <Notification  v-if="showNotification" :show-notification="showNotification" :notification-message="notificationMessage" :notification-type="notificationType" @close="showNotification = false" />
     <Confirmation
       v-if="showConfirmDialog"
       :show-confirm-dialog="showConfirmDialog"
@@ -346,26 +327,6 @@ onMounted(async () => {
         Batal
       </button>
     </Confirmation>
-
-    <FormAddUpdate
-
-      :isFormOpen="isFormOpen"
-      :id="id"
-      :cabang-id="props.cabangId"
-      :paketId="props.paketId"
-      @close="isFormOpen = false; id= 0"
-      @save-success="handleSaveSuccess"
-      @show-notification="displayNotification"
-    />
-
-    <!-- <FormEdit
-      v-if="isEditFormOpen"
-      :is-form-open="isEditFormOpen"
-      :kamar-id="editingKamarId"
-      :cabang-id="props.cabangId"
-      @close="isEditFormOpen = false"
-      @save-success="handleSaveSuccess"
-      @show-notification="displayNotification"
-    /> -->
+    <FormAddUpdate :isFormOpen="isFormOpen" :id="id" :cabang-id="props.cabangId" :paketId="props.paketId" @close="isFormOpen = false; id= 0" @save-success="handleSaveSuccess" @show-notification="displayNotification" />
   </div>
 </template>
