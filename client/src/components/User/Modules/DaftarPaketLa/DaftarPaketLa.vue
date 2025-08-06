@@ -355,10 +355,9 @@ const cetakInvoice = async (invoice: string) => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-100">
           <tr>
-            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">No. Register</th>
+            <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">No. Register</th>
             <th class="w-[40%] px-6 py-3 font-medium text-gray-900 text-center">Info Klien & Harga</th>
-            <th class="w-[55%] px-6 py-3 font-medium text-gray-900 text-center">Info Item Transaksi</th>
-            <!-- <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Info Harga</th> -->
+            <th class="w-[40%] px-6 py-3 font-medium text-gray-900 text-center">Info Item Transaksi</th>
             <th class="w-[5%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
@@ -414,40 +413,46 @@ const cetakInvoice = async (invoice: string) => {
                 </tbody>
               </table>
           </td>
-          <td class="px-3 pt-0 border-gray-300 align-top text-center">
+          <!-- py-3 px-6  border-gray-300 align-top -->
+          <td class="px-3 py-3 border-gray-300 align-top text-center">
             <template v-if="fasilitaspaketla.length > 0">
-              <div v-for="invoice in fasilitaspaketla.filter((inv) => inv.paket_la_id === paket.id)" :key="invoice.id" class="mb-4 p-2 bg-white">
-                <table class="w-full mt-2 border text-center text-xs mb-3">
+              <div v-for="invoice in fasilitaspaketla.filter((inv) => inv.paket_la_id === paket.id)" :key="invoice.id" class="mb-4 px-2 py-0 bg-white">
+                <table class="w-full mb-5 ">
+                  <thead>
+                    <tr>
+                      <th colspan="3" class="text-center py-2 font-medium border text-gray-900 bg-gray-100">Info Total Transaksi</th>
+                    </tr>
+                  </thead>
                   <tbody>
                     <tr>
-                      <td class="w-[19%] px-6 text-center border font-bold bg-gray-200">INVOICE</td>
-                      <td class="w-[1%] px-3 border border-left-0">:</td>
-                      <td class="w-[25%] px-6 border text-left font-bold">{{ invoice.invoice }}</td>
-                      <td class="w-[20%] px-6 text-center border font-bold bg-gray-200">PRINT BTN</td>
-                      <td class="w-[1%] px-3 border">:</td>
-                      <td class="w-[34%] px-6 border text-left" style="text-transform:uppercase;">
-                        <button type="button" class="h-[35px] mx-[0.1rem] px-4 my-1 py-1 flex justify-center items-center rounded-lg text-gray-900 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
-                          @click="cetakInvoice(invoice.invoice)"
-                        >
+                      <td class="w-[25%] border-b px-6 py-2 text-left">Invoice</td>
+                      <td class="text-center border-b py-2">:</td>
+                      <td class="text-right space-y-2 text-sm border-b px-6 py-2">{{ invoice.invoice }}</td>
+                    </tr>
+                    <tr>
+                      <td class="border-b px-6 py-2 text-left">Total</td>
+                      <td class="text-center border-b py-2">:</td>
+                      <td class="text-right space-y-2 text-sm border-b px-6 py-2">Rp {{ invoice.total.toLocaleString() }},-</td>
+                    </tr>
+                    <tr>
+                      <td class="border-b px-6 py-0 text-left">Print BTN</td>
+                      <td class="text-center border-b py-0">:</td>
+                      <td class="space-y-2 text-sm border-b px-5 py-0">
+                        <button type="button"
+                          class="float-right h-[35px] mx-[0.1rem] px-4 my-1 py-1 flex justify-center items-center rounded-lg text-gray-900 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+                          @click="cetakInvoice(invoice.invoice)">
                           <i class="fas fa-print" style="font-size: 11px;"></i> Cetak Invoice
                         </button>
                       </td>
-                    </tr>
-                    <tr>
-                      <td class="w-[19%] px-6 py-5 text-center border font-bold" style="background-color: #e7e7e7;">TOTAL</td>
-                      <td class="w-[1%] px-3 border border-left-0">:</td>
-                      <td class="px-6 border text-left font-bold" colspan="4">Rp {{ invoice.total.toLocaleString() }},-</td>
                     </tr>
                   </tbody>
                 </table>
                 <table class="w-full mt-2 border text-center text-xs">
                   <thead>
-                    <tr class="bg-gray-200">
+                    <tr class="text-center py-2 font-medium border text-gray-900 bg-gray-100">
                       <th class="p-2 border">Deskripsi</th>
-                      <th class="p-2 border">Check-in</th>
-                      <th class="p-2 border">Check-out</th>
-                      <th class="p-2 border">Day</th>
-                      <th class="p-2 border">Pax</th>
+                      <th class="p-2 border">Check-in / Check-out</th>
+                      <th class="p-2 border">Day / Pax</th>
                       <th class="p-2 border">Price</th>
                       <th class="p-2 border">Aksi</th>
                     </tr>
@@ -455,10 +460,8 @@ const cetakInvoice = async (invoice: string) => {
                   <tbody>
                     <tr v-for="item in invoice.detail_fasilitas" :key="item.id" class="text-center">
                       <td class="p-2 ">{{ item.description }}</td>
-                      <td class="p-2 ">{{ item.check_in }}</td>
-                      <td class="p-2 ">{{ item.check_out }}</td>
-                      <td class="p-2 ">{{ item.day }}</td>
-                      <td class="p-2 ">{{ item.pax }}</td>
+                      <td class="p-2 ">{{ item.check_in }} / {{ item.check_out }}</td>
+                      <td class="p-2 ">{{ item.day }} / {{ item.pax }}</td>
                       <td class="p-2 ">Rp {{ item.price.toLocaleString() }}</td>
                       <td class="p-2 ">
                         <button @click="deleteItem(item.id, invoice.id)" class="px-1.5 py-1.5 bg-red-500 text-white font-bold rounded hover:bg-red-600">
