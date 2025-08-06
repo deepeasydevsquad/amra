@@ -78,16 +78,17 @@ class model_r {
 
     try {
       var listJamaahHaveKamar = [];
-      var where = { paket_id : this.req.body.paket_id };
+      var where = {};
       if(this.req.body.id) {
-        where = {...where,...{ id: { [Op.ne]: this.req.body.id}}};
+        where = {...where,...{ kamar_id: { [Op.ne]: this.req.body.id}}};
       }
 
       const q = await Kamar_jamaah.findAndCountAll({
+        where: where,
         include : {
           required: true, 
           model: Paket_transaction,
-          where: where
+          where: { paket_id : this.req.body.paket_id }
         }
       });
 

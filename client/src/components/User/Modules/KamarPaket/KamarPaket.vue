@@ -353,7 +353,7 @@ onMounted(async () => {
       :id="id"
       :cabang-id="props.cabangId"
       :paketId="props.paketId"
-      @close="isFormOpen = false"
+      @close="isFormOpen = false; id= 0"
       @save-success="handleSaveSuccess"
       @show-notification="displayNotification"
     />

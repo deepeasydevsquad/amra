@@ -61,6 +61,11 @@ const fetchData = async () => {
       const resp = await getKamarById(props.id);
       formData.value = resp.data
       payload = { id: props.id, division_id: props.cabangId, paket_id: props.paketId }
+
+
+      console.log("------AAAA");
+      console.log(formData.value.jamaah_ids);
+      console.log("------AAAA");
     }else{
       formData.value = {
         id: 0,
@@ -166,6 +171,7 @@ const handleSubmit = async () => {
     const payload = {
       ...formData.value,
       division_id: props.cabangId,
+      paketId: props.paketId,
       jamaah_ids: formData.value.jamaah_ids.map((j) => j.id).filter((id) => id !== null),
     }
 

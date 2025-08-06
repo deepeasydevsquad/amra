@@ -22,22 +22,33 @@ controllers.getDaftarBusPaket = async (req, res) => {
 };
 
 controllers.getAvailableJamaahForForm = async (req, res) => {
+  // try {
+  //   // const model_r = new Model_r(req);
+  //   // const forEdit = req.query.forEdit === "true";
+  //   // const currentBusId = req.query.currentBusId
+  //   //   ? parseInt(req.query.currentBusId)
+  //   //   : null;
+  //   // let jamaah;
+  //   // if (forEdit) {
+  //   //   jamaah = await model_r.getAllJamaahForEdit(currentBusId);
+  //   // } else {
+  //   //   jamaah = await model_r.getAllAvailableJamaah();
+  //   // }
+  //   // res.status(200).json({ error: false, data: jamaah });
+  // } catch (error) {
+  //   handleServerError(res, error.message);
+  // }
+
   try {
     const model_r = new Model_r(req);
-    const forEdit = req.query.forEdit === "true";
-    const currentBusId = req.query.currentBusId
-      ? parseInt(req.query.currentBusId)
-      : null;
+    const feedBack = await model_r.getAllAvailableJamaah();
 
-    let jamaah;
-    if (forEdit) {
-      jamaah = await model_r.getAllJamaahForEdit(currentBusId);
-    } else {
-      jamaah = await model_r.getAllAvailableJamaah();
-    }
-
-    res.status(200).json({ error: false, data: jamaah });
+    res.status(200).json({ error: false, data: feedBack.data, total: feedBack.total });
   } catch (error) {
+
+    console.log("-------2222");
+    console.log(error);
+    console.log("-------2222");
     handleServerError(res, error.message);
   }
 };
@@ -49,6 +60,10 @@ controllers.getAllCities = async (req, res) => {
     const cities = await model_r.getAllCities();
     res.status(200).json({ error: false, data: cities });
   } catch (error) {
+
+    console.log("############");
+    console.log(error);
+    console.log("############");
     handleServerError(res, error.message);
   }
 };

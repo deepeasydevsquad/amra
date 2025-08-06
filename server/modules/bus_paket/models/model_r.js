@@ -11,54 +11,134 @@ const {
   Mst_kota,
   Agen,
 } = require("../../../models");
-const { getCompanyIdByCode } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, getDivisionId } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
 
 class model_r {
   constructor(req) {
     this.req = req;
     this.company_id;
+    this.division_id;
   }
 
   async initialize() {
     if (!this.company_id) {
       this.company_id = await getCompanyIdByCode(this.req);
     }
+    if (!this.division_id) {
+      this.division_id = await getDivisionId(this.req);
+    }
   }
 
+  // async getAllAvailableJamaah() {
+  //   await this.initialize();
+  //   try {
+  //     const assignedTransactions = await Bus_jamaah.findAll({
+  //       attributes: ["paket_transaction_id"],
+  //     });
+  //     const assignedTransactionIds = assignedTransactions.map(
+  //       (item) => item.paket_transaction_id
+  //     );
+
+  //     const availableTransactions = await Paket_transaction.findAll({
+  //       where: {
+  //         id: { [Op.notIn]: assignedTransactionIds },
+  //       },
+  //       include: [
+  //         {
+  //           model: Jamaah,
+  //           required: true,
+  //           include: [{ model: Member, required: true }],
+  //         },
+  //       ],
+  //     });
+
+  //     return availableTransactions.map((t) => ({
+  //       id: t.id,
+  //       fullname: t.Jamaah.Member.fullname,
+  //       identity_number: t.Jamaah.Member.identity_number,
+  //     }));
+  //   } catch (error) {
+  //     console.error("Error di getAllAvailableJamaah:", error);
+  //     throw error;
+  //   }
+  // }
+
+  
   async getAllAvailableJamaah() {
     await this.initialize();
+
     try {
-      const assignedTransactions = await Bus_jamaah.findAll({
-        attributes: ["paket_transaction_id"],
+      var listJamaahHaveBus = [];
+      var where = {};
+      if(this.req.body.id) {
+        where = {...where,...{ bus_id: { [Op.ne]: this.req.body.id}}};
+      }
+
+      const q = await Bus_jamaah.findAndCountAll({
+        where: where,
+        include : {
+          required: true, 
+          model: Paket_transaction,
+          where: { paket_id : this.req.body.paket_id }
+        }
       });
-      const assignedTransactionIds = assignedTransactions.map(
-        (item) => item.paket_transaction_id
+
+      await Promise.all(
+        await q.rows.map(async (e) => {
+          listJamaahHaveBus.push(e.paket_transaction_id);
+        })
       );
 
-      const availableTransactions = await Paket_transaction.findAll({
+      const q2 = await Paket_transaction.findAndCountAll({
         where: {
-          id: { [Op.notIn]: assignedTransactionIds },
+          division_id: this.division_id,
+          paket_id : this.req.body.paket_id,
+          id: { 
+            [Op.notIn] : listJamaahHaveBus
+          }
         },
         include: [
           {
             model: Jamaah,
             required: true,
-            include: [{ model: Member, required: true }],
+            include: [
+              {
+                model: Member,
+                required: true,
+                attributes: ["fullname", "identity_number"],
+              },
+            ],
           },
         ],
       });
 
-      return availableTransactions.map((t) => ({
-        id: t.id,
-        fullname: t.Jamaah.Member.fullname,
-        identity_number: t.Jamaah.Member.identity_number,
-      }));
+      var data = [];
+      await Promise.all(
+        await q2.rows.map(async (e) => {
+          data.push({
+            id: e.id,
+            fullname: e.Jamaah.Member.fullname,
+            identity_number: e.Jamaah.Member.identity_number,
+          });
+        })
+      );
+
+      // const data = rows.map((t) => ({
+      //   id: t.id,
+      //   fullname: t.Jamaah.Member.fullname,
+      //   identity_number: t.Jamaah.Member.identity_number,
+      // }));
+      // console.log("Datanya: ", data)
+      return { data };
     } catch (error) {
       console.error("Error di getAllAvailableJamaah:", error);
       throw error;
     }
   }
+
+
+
 
   async bus_paket() {
     await this.initialize();

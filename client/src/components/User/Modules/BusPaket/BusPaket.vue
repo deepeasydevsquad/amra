@@ -12,11 +12,12 @@ import Confirmation from '@/components/User/Modules/BusPaket/Particle/Confirmati
 import { getDaftarBusPaket, deleteBus } from '@/service/bus_paket'
 import { ref, onMounted, computed } from 'vue'
 
-import FormAdd from '@/components/User/Modules/BusPaket/Widget/FormAdd.vue'
-import FormEdit from '@/components/User/Modules/BusPaket/Widget/FormEdit.vue'
-
+import FormAddUpdate from '@/components/User/Modules/BusPaket/Widget/FormAddUpdate.vue'
 
 const props = defineProps({
+  paketId: {
+    type: Number,
+  },
   isFormOpen: {
     type: Boolean,
     default: false,
@@ -69,6 +70,7 @@ const totalRow = ref(0);
 const busList = ref<Bus[]>([])
 const isFormOpen = ref<boolean>(false)
 const isLoading = ref<boolean>(false)
+const id = ref<number>(0);
 
 interface JamaahDetail {
   nama: string
@@ -160,9 +162,9 @@ const handleDelete = (id: number) => {
   )
 }
 
-const handleEdit = (id: number) => {
-  editingBusId.value = id
-  isEditFormOpen.value = true
+const handleEdit = (ids: number) => {
+  id.value = ids
+  isFormOpen.value = true
 }
 
 const handleConfirm = () => {
@@ -178,9 +180,6 @@ const handleCancelConfirm = () => {
 
 onMounted(async () => {
   await fetchData()
-  setTimeout(() => {
-    // totalColumns.value = document.querySelectorAll('thead th').length
-  }, 0)
 })
 </script>
 
@@ -325,16 +324,17 @@ onMounted(async () => {
       </button>
     </Confirmation>
 
-    <FormAdd
-      v-if="isFormOpen"
+    <FormAddUpdate
       :is-form-open="isFormOpen"
+      :id="id"
       :cabang-id="cabangId"
-      @close="isFormOpen = false"
+      :paketId="props.paketId!"
+      @close="isFormOpen = false; id= 0"
       @save-success="handleSaveSuccess"
       @show-notification="displayNotification"
     />
 
-    <FormEdit
+    <!-- <FormEdit
       v-if="isEditFormOpen"
       :is-form-open="isEditFormOpen"
       :bus-id="editingBusId"
@@ -342,7 +342,7 @@ onMounted(async () => {
       @close="isEditFormOpen = false"
       @save-success="handleSaveSuccess"
       @show-notification="displayNotification"
-    />
+    /> -->
   </div>
   >
 </template>

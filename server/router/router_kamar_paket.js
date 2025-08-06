@@ -2,12 +2,9 @@ const express = require("express");
 const { body, query, param } = require("express-validator");
 const controllers = require("../modules/kamar_paket/controllers/index");
 const { authenticateToken } = require("../middleware/authenticateToken");
-
 const validation = require("../validation/kamar_paket.js");
-
 const router = express.Router();
 
-// Rute untuk mengambil list data
 router.post(
   "/daftar-kamar-paket/get-kamar-paket/list",
   authenticateToken,
@@ -32,7 +29,6 @@ router.post(
   controllers.getDaftarKamarPaket
 );
 
-// Rute untuk membuat kamar baru
 router.post(
   "/daftar-kamar-paket/create-kamar",
   authenticateToken,
@@ -73,7 +69,6 @@ router.post(
   controllers.createKamarPaket
 );
 
-// Rute untuk mengambil data hotel (untuk form dropdown)
 router.post(
   "/daftar-kamar-paket/get-hotels",
   authenticateToken,
@@ -87,7 +82,6 @@ router.post(
   controllers.getHotelsForForm
 );
 
-// Rute untuk mengambil data jamaah yang tersedia (untuk form dropdown)
 router.post(
   "/daftar-kamar-paket/get-available-jamaah",
   authenticateToken,
@@ -121,7 +115,6 @@ router.post(
   controllers.getAvailableJamaahForFormEdit
 )
 
-// PERBAIKAN: Route download harus sebelum route dengan parameter :id
 router.get(
   "/daftar-kamar-paket/download",
   authenticateToken,
@@ -137,19 +130,16 @@ router.get(
   controllers.getKamarById
 );
 
-// RUTE BARU: Memperbarui data satu kamar berdasarkan ID
 router.post(
   "/daftar-kamar-paket/:id",
   authenticateToken,
   [
     param("id").isInt().withMessage("ID Kamar tidak valid."),
-    // Memeriksa 'hotel_id'
     body("hotel_id")
       .notEmpty()
       .withMessage("Nama Hotel harus dipilih.")
       .isInt()
       .withMessage("ID Hotel tidak valid."),
-
     body("division_id")
       .trim()
       .notEmpty()
@@ -157,22 +147,16 @@ router.post(
       .isInt()
       .withMessage("ID Divisi harus berupa angka.")
       .custom(validation.check_id_cabang),
-
-    // Memeriksa 'tipe_kamar'
     body("tipe_kamar")
       .notEmpty()
       .withMessage("Tipe Kamar harus dipilih.")
       .isIn(["laki_laki", "perempuan"])
       .withMessage("Tipe Kamar tidak valid."),
-
-    // Memeriksa 'kapasitas_kamar'
     body("kapasitas_kamar")
       .notEmpty()
       .withMessage("Kapasitas Kamar tidak boleh kosong.")
       .isInt({ min: 1 })
       .withMessage("Kapasitas harus berupa angka dan minimal 1."),
-
-    // Memeriksa 'jamaah_ids'
     body("jamaah_ids")
       .isArray()
       .withMessage("Data jamaah tidak valid.")

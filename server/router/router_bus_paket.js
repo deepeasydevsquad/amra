@@ -22,9 +22,14 @@ router.post(
   controllers.getDaftarBusPaket
 );
 
-router.get(
+router.post(
   "/daftar-bus-paket/get-available-jamaah",
   authenticateToken,
+  [
+    body("id").trim().custom(validation.check_id_bus),
+    body("paket_id").trim().notEmpty().withMessage("Paket ID tidak boleh kosong.").custom(validation.check_id_paket),
+    body("division_id").trim().notEmpty().withMessage("Division ID tidak boleh kosong.").custom(validation.check_id_cabang),
+  ],
   controllers.getAvailableJamaahForForm
 );
 
@@ -38,7 +43,7 @@ router.get(
 router.post(
   "/daftar-bus-paket/create-bus",
   authenticateToken,
-  validation.createBus,
+  // validation.createBus,
   controllers.createBusPaket
 );
 
@@ -55,7 +60,7 @@ router.put(
   authenticateToken,
   [
     param("id").isInt().withMessage("ID bus tidak valid."),
-    ...validation.createBus,
+    // ...validation.createBus,
   ],
   controllers.updateBusById
 );

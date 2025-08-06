@@ -18,16 +18,9 @@ export const getDaftarBusPaket = async (param: any) => {
   }
 }
 
-export const getAllJamaah = async (
-  forEdit: boolean = false,
-  currentBusId: number | null = null,
-) => {
+export const getAllJamaah = async (param : any ) => {
   try {
-    let url = `/daftar-bus-paket/get-available-jamaah?forEdit=${forEdit}`
-    if (currentBusId) {
-      url += `&currentBusId=${currentBusId}`
-    }
-    const response = await api.get(url)
+    const response = await api.post(`/daftar-bus-paket/get-available-jamaah`, param);
     return response.data.data
   } catch (error) {
     console.error('Gagal mengambil data jamaah:', error)
@@ -59,7 +52,7 @@ export const createBus = async (payload: BusPayload) => {
 export const getBusById = async (id: number) => {
   try {
     const response = await api.get(`/daftar-bus-paket/${id}`)
-    return response.data.data
+    return response.data
   } catch (error) {
     console.error(`Gagal mengambil data bus dengan ID ${id}:`, error)
     throw error
