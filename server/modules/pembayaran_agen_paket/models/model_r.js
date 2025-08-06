@@ -69,9 +69,14 @@ class Model_r {
             required: true,
             include: [
               {
+                model: Level_keagenan, 
+                required: true,
+                attributes: ['name']
+              }, 
+              {
                 model: Member,
                 required: true,
-                attributes: ["fullname", "identity_number", "whatsapp_number"],
+                attributes: ["fullname", "identity_number", "whatsapp_number", "gender", "identity_type"],
                 where: {
                   ...(search && search !== ""
                     ? {
@@ -112,7 +117,10 @@ class Model_r {
             agen_id: agenId,
             member_fullname: item?.Agen?.Member?.fullname,
             member_identity_number: item?.Agen?.Member?.identity_number,
+            member_identity_type:item?.Agen?.Member?.identity_type,
             member_whatsapp_number: item?.Agen?.Member?.whatsapp_number,
+            member_gender: item?.Agen?.Member?.gender,
+            member_level_keagenan: item?.Agen?.Level_keagenan?.name, 
             total_fee_lunas: 0,
             total_fee_belum_lunas: 0,
             jumlah_transaksi: 0,
