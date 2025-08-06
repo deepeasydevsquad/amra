@@ -1,7 +1,6 @@
 <template>
   <Form :form-status="showForm" :label="id === 0 ? 'Tambah Kas Keluar Masuk' : 'Edit Kas Keluar Masuk'" @close="handleCancel" @cancel="handleCancel" @submit="handleSubmit" width="sm:w-1/2 sm:max-w-1/2" :submitLabel="id === 0 ? 'TAMBAH KAS KELUAR MASUK' : 'PERBAHARUI KAS KELUAR MASUK'">
     <div class="grid grid-cols-1 md:grid-cols-1 gap-2 mb-6 ">
-      <!-- <InputText v-model="form.diterima_dibayar" label="Cabang" id="cabang" placeholder="Cabang" class="mx-2" /> -->
       <SelectField v-model="form.cabang" label="Cabang" placeholder="Pilih Salah Satu Cabang" :options="cabangList" class="mx-2" :error="errors.cabang"/>
     </div>
     <div class="grid grid-cols-2 md:grid-cols-2 gap-2 mb-6 ">
@@ -81,12 +80,8 @@
 </template>
 <script setup lang="ts">
   import { ref, watch } from 'vue'
-
-
   import { getAkun, addUpdateKasKeluarMasuk } from '@/service/kas_keluar_masuk'
   import { paramCabang  } from '@/service/param_cabang';
-
-
   import Form from "@/components/Modal/Form.vue"
   import InputText from "@/components/Form/InputText.vue"
   import InputDateTimes from "@/components/Form/InputDateTimes.vue"

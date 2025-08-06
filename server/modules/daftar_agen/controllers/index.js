@@ -5,9 +5,6 @@ const {
   handleServerError,
 } = require("../../../helper/handleError");
 
-const controllers = {};
-
-// list agen
 exports.list = async (req, res) => {
   try {
     const model = new Model_r(req);
@@ -28,15 +25,11 @@ exports.addAgen = async (req, res) => {
   }
 };
 
-// delete process
 exports.delete = async (req, res) => {
-  
   if (!(await handleValidationErrors(req, res))) return;
-
   try {
     const model = new Model_cud(req);
     await model.delete();
-
     // get response
     if (await model.response()) {
       res.status(200).json({
@@ -49,12 +42,7 @@ exports.delete = async (req, res) => {
         error_msg: 'Agen gagal dihapus.',
       });
     }
-  
   } catch (error) {
-
-    console.log("---------------");
-    console.log(error);
-    console.log("---------------");
     handleServerError(res, error.message);
   }
 };

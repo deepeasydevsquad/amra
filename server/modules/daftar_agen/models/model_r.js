@@ -1,4 +1,4 @@
-const { Op, Agen, Level_keagenan, Member, Division  } = require("../../../models");
+const { Op, Agen, Level_keagenan, Member, Division, Fee_agen  } = require("../../../models");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
 
@@ -14,6 +14,8 @@ class Model_r {
 
   async list() {
   
+      await this.initialize();
+
       const body = this.req.body;
       const limit = body.perpage || 10;
       const page = body.pageNumber && body.pageNumber !== "0" ? body.pageNumber : 1;
@@ -21,12 +23,10 @@ class Model_r {
       let where = {};
       let where_member = {};
   
-      // Filter berdasarkan division_id jika ada
       if (body.cabang) {
         where_member.division_id = body.cabang;
       }
   
-      // Filter berdasarkan pencarian (search)
       if (body.search) {
         where_member = {
           ...where_member,
@@ -36,7 +36,6 @@ class Model_r {
           ],
         };
       }
-      // 
   
       const sql = {
         limit: parseInt(limit),
@@ -74,22 +73,55 @@ class Model_r {
         let data = [];
   
         if (total > 0) {
-          data = q.rows.map((e) => ({
-            id: e.id,
-            fullname : e.Member.fullname,
-            nomor_identitas: e.Member.identity_number,
-            level: e.Level_keagenan.name,
-            cabang: e.Member.Division.name,
-            createdAt: e.createdAt,
-            updatedAt: e.updatedAt,
-          }));
+
+          var agen_id = [];
+          await Promise.all(
+            await q.rows.map(async (e) => {
+              data.push({
+                id: e.id,
+                fullname : e.Member.fullname,
+                nomor_identitas: e.Member.identity_number,
+                level: e.Level_keagenan.name,
+                cabang: e.Member.Division.name,
+                fee_agen: 0,
+                createdAt: e.createdAt,
+                updatedAt: e.updatedAt,
+              });
+
+              agen_id.push(e.id);
+            })
+          );
+
+
+          var list_fee_agen = {};
+          await Fee_agen.findAll({ 
+            where : { 
+              agen_id : { 
+                [Op.in] : agen_id 
+              }, 
+              status_bayar: 'belum_lunas', 
+              company_id: this.company_id 
+            }}).then(async (value) => {
+            await Promise.all(
+              await value.map(async (e) => {
+                if(list_fee_agen[e.agen_id] !== undefined ) {
+                  list_fee_agen[e.agen_id] = list_fee_agen[e.agen_id] + e.nominal;
+                }else{
+                  list_fee_agen = {...list_fee_agen,...{[e.agen_id] : e.nominal } };
+                }
+              })
+            );
+          });
+
+          for( let x in data) {
+            if(list_fee_agen[data[x].id] != undefined ) {
+              data[x].fee_agen = list_fee_agen[data[x].id];
+            }
+          }
         }
-  
+ 
         return { data: data, total: total };
       } catch (error) {
-        console.log("xxxxxxxx--------------------");
-        console.log(error);
-        console.log("xxxxxxxx--------------------");
         return { data: [], total: 0 };
       }
   }

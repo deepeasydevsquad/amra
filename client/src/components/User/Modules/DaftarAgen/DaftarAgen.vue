@@ -18,9 +18,10 @@
           <tr>
             <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Nama Agen</th>
             <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Nomor Identitas Agen</th>
-            <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Level Keagenan</th>
+            <th class="w-[25%] px-6 py-3 font-medium text-gray-900 text-center">Level Keagenan</th>
+            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Fee Agen</th>
             <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Cabang</th>
-            <th class="w-[10%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
+            <th class="w-[5%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody v-if="agens.length" class="divide-y divide-gray-100 border-t border-gray-100" >
@@ -28,6 +29,7 @@
             <td class="px-6 py-4 text-center">{{ agen?.fullname || '-' }}</td>
             <td class="px-6 py-4 text-center">{{ agen?.nomor_identitas || '-' }}</td>
             <td class="px-6 py-4 text-center">{{ agen?.level || '-' }}</td>
+            <td class="px-6 py-4 text-center">{{ formatRupiah(agen?.fee_agen) }}</td>
             <td class="px-6 py-4 text-center">{{ agen?.cabang }}</td>
             <td class="px-6 py-4 text-center">
               <div class="flex justify-center gap-2">
@@ -97,6 +99,7 @@ interface Agens {
   fullname: string;
   nomor_identitas: string;
   level: string;
+  fee_agen: string;
   cabang: string;
 }
 
@@ -104,7 +107,7 @@ interface Agens {
 const searchQuery = ref('')
 const currentPage = ref(1)
 const totalPages = ref(1)
-const totalColumns = ref(5);
+const totalColumns = ref(6);
 const itemsPerPage = ref(10)
 const isLoading = ref(false)
 const showDeleteConfirmDialog = ref(false)
@@ -147,6 +150,21 @@ const fetchAgens = async () => {
     isLoading.value = false
   }
 }
+
+const formatRupiah = (angka :any, prefix = "Rp ") => {
+  let numberString = angka.toString().replace(/\D/g, ""),
+    split = numberString.split(","),
+    sisa = split[0].length % 3,
+    rupiah = split[0].substr(0, sisa),
+    ribuan = split[0].substr(sisa).match(/\d{3}/g);
+
+  if (ribuan) {
+    let separator = sisa ? "." : "";
+    rupiah += separator + ribuan.join(".");
+  }
+
+  return prefix + (rupiah || "0");
+};
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message

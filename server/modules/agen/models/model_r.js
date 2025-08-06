@@ -79,6 +79,7 @@ class Model_r {
           fullname : e.Member.fullname,
           level: e.Level_keagenan.name,
           cabang: e.Member.Division.name,
+          fee_agen: 0,
           createdAt: e.createdAt,
           updatedAt: e.updatedAt,
         }));
