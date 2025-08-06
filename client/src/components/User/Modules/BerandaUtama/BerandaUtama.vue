@@ -237,7 +237,7 @@ const updateRequestDepositMemberStatus = async (id: number, status: string) => {
     displayNotification('Status hanya boleh di setujui atau tolak', 'error');
     return;
   }
-  showConfirmation('Konfirmasi Aksi', `Apakah Anda yakin ingin ${status} permintaan deposit ini?`, async () => {
+  showConfirmation('Konfirmasi Aksi', `Apakah Anda yakin ingin ${status == 'ditolak' ? 'MENOLAK' : 'MENYETUJUI'} permintaan deposit ini?`, async () => {
     try {
       const res = await updateStatusRequestDepositMember({
         id: id,
@@ -460,17 +460,14 @@ const deletePermintaanDeposit = async (id: number) => {
                 </td>
                 <td class="p-3 align-top">
                   <div class="flex justify-center items-center gap-2">
-                    <button @click="updateRequestDepositMemberStatus(item.id, 'disetujui')" class="px-2 py-1 text-xs font-medium text-white bg-green-500 rounded-md hover:bg-green-600 transition-colors">Setujui</button>
-                    <button @click="updateRequestDepositMemberStatus(item.id, 'ditolak')" class="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors">Tolak</button>
+                    <button @click="updateRequestDepositMemberStatus(item.id, 'disetujui')" class="px-2 py-2 text-xs font-medium text-white bg-green-500 rounded-md hover:bg-green-600 transition-colors">Setujui</button>
+                    <button @click="updateRequestDepositMemberStatus(item.id, 'ditolak')" class="px-2 py-2 text-xs font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors">Tolak</button>
                     <button @click="deletePermintaanDeposit(item.id)" class="p-2 text-gray-500 bg-gray-100 rounded-md hover:bg-red-100 hover:text-red-500 transition-colors">
                       <DeleteIcon class="w-4 h-4" />
                     </button>
                   </div>
                 </td>
               </tr>
-
-
-
               <tr v-if="deposit.data.length === 0">
                 <td :colspan="deposit.totalColumns" class="p-4 text-center text-gray-500">
                   Daftar Request Deposit Tidak Ditemukan
