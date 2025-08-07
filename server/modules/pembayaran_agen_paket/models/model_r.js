@@ -33,7 +33,9 @@ class Model_r {
   }
 
   async daftar_fee_all() {
+
     await this.initialize();
+    
     const body = this.req.body;
 
     const limit = parseInt(body.perpage) || 10;
@@ -63,6 +65,9 @@ class Model_r {
 
     try {
       const result = await Fee_agen.findAll({
+        where: { 
+          company_id : this.company_id
+        }, 
         include: [
           {
             model: Agen,

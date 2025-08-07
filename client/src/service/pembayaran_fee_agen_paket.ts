@@ -20,6 +20,10 @@ export const get_fee_by_agen = async (param: any) => {
 
 export const add_pembayaran = async (param: any) => {
   try {
+
+    console.log("******************");
+    console.log(param);
+    console.log("******************");
     const response = await api.post('/trans_paket/add_pembayaran_agen', param)
     return response.data
   } catch (error) {

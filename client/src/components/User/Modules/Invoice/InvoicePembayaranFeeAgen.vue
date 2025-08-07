@@ -27,8 +27,7 @@ onMounted(async () => {
 
 <template>
   <div
-    class="print-area bg-white mx-auto p-[20mm] font-sans print:p-0 print:m-0 print:shadow-none"
-    style="width: 210mm; height: 330mm; font-size: 11pt; line-height: 1.6; color: #111827"
+    class="bg-white text-gray-800 max-w-[216mm] mx-auto min-h-[356mm] p-8 font-serif text-sm print:text-xs print:shadow-none space-y-[10px] print:bg-white print:text-black print:max-w-full"
   >
     <Header v-if="data" :data="data.data_header" />
 

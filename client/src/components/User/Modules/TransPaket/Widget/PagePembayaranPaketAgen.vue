@@ -14,6 +14,9 @@ const showNotification = ref(false)
 const notificationMessage = ref('')
 const notificationType = ref('')
 const timeoutId = ref<number | null>(null)
+const nama = ref('');
+const level = ref('');
+const whatsapp = ref('');
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message
@@ -104,7 +107,11 @@ const formatRupiah = (angka: number | string): string => {
 const modalPembayaran = ref(false)
 const agen_id = ref(0)
 
-const openModalPembayaran = (id: number) => {
+const openModalPembayaran = (id: number, name:string, levels:string, whatsapps:string) => {
+
+  nama.value = name;
+  level.value = levels;
+  whatsapp.value = whatsapps;
   modalPembayaran.value = true
   agen_id.value = id
 }
@@ -190,18 +197,6 @@ onMounted(fetchFilterData)
             </div>
           </td>
           <td class="px-4 py-2 border-b text-left align-top">
-            <!-- <div class="py-1">
-              <span class="inline-block w-40 font-bold">Fee Sudah Dibayar</span>:
-              {{ formatRupiah(item.total_fee_lunas) }}
-            </div>
-            <div class="py-1">
-              <span class="inline-block w-40 font-bold">Fee Belum Dibayar</span>:
-              {{ formatRupiah(item.total_fee_belum_lunas) }}
-            </div>
-            <div class="py-1">
-              <span class="inline-block w-40 font-bold">Total Transaksi</span>:
-              {{ item.jumlah_transaksi }}
-            </div> -->
             <table class="w-full mb-5 border mt-3">
               <tbody>
                 <tr class="border-gray-200 hover:bg-gray-200">
@@ -228,15 +223,15 @@ onMounted(fetchFilterData)
             </table>
           </td>
           <td class="px-4 py-4 text-center align-top flex justify-center items-center">
-            <LightButton @click="openModalPembayaran(item.agen_id)">
+            <LightButton @click="openModalPembayaran(item.agen_id, item.member_fullname, item.member_level_keagenan, item.member_whatsapp_number)">
               <i class="pi pi-money-bill"></i>
             </LightButton>
           </td>
         </tr>
 
         <tr v-if="!data.length">
-          <td :colspan="totalColumns" class="text-center text-gray-400 py-6">
-            Data tidak tersedia
+          <td :colspan="totalColumns" class="text-center  py-6">
+            Daftar Agen Tidak Ditemukan
           </td>
         </tr>
       </tbody>
@@ -254,9 +249,17 @@ onMounted(fetchFilterData)
     </table>
   </div>
 
+
+   <!-- nama: string
+  level: string
+  whatsapp: string
+   -->
   <FormPembayaran
     :formStatus="modalPembayaran"
     :agen_id="agen_id"
+    :nama="nama"
+    :level="level"
+    :whatsapp="whatsapp"
     @cancel="modalPembayaran = false"
     @close="modalPembayaran = false"
     @submitted="

@@ -116,7 +116,7 @@ class Model_cud {
       // ✅ Insert pembayaran fee agen
       const insert = await Pembayaran_fee_agen.create(
         {
-          company_id: this.company_id,
+          division_id: this.division,
           agen_id: body.agen_id,
           invoice,
           applicant_name: aplicant.Member.fullname,

@@ -2,10 +2,14 @@
 import Form from '@/components/Modal/FormEditProfile.vue'
 import { ref, watch, computed, onMounted } from 'vue'
 import { get_fee_by_agen, add_pembayaran } from '@/service/pembayaran_fee_agen_paket'
+import alertify from 'alertifyjs'
 
 const props = defineProps<{
   agen_id: number
   formStatus: boolean
+  nama: string
+  level: string
+  whatsapp: string
 }>()
 
 const emit = defineEmits<{
@@ -38,26 +42,38 @@ watch(
 
 const toggleSelection = (id_fee_agen: number) => {
   if (selectedIds.value.includes(id_fee_agen)) {
-    selectedIds.value = selectedIds.value.filter((x) => x !== id_fee_agen)
+    selectedIds.value = selectedIds.value.filter(item => item !== id_fee_agen);
   } else {
     selectedIds.value.push(id_fee_agen)
   }
+
+  totalSelectedFee.value = 0;
+  for( let x in listFee.value) {
+    if(selectedIds.value.includes(listFee.value[x].id_fee_agen)) {
+      totalSelectedFee.value = totalSelectedFee.value + listFee.value[x].nominal_fee
+    }
+  }
 }
 
-const submitPembayaran = async (selectedFeeIds: number[]) => {
-  if (!selectedFeeIds.length) {
-    alert('Pilih minimal satu fee dulu.')
+const selectedFees = ref<number[]>([])
+const totalSelectedFee = ref<number>(0);
+const submitPembayaran = async () => {
+
+  if (selectedFees.value.length == 0 ) {
+    alertify.error('Pilih minimal satu fee dulu.')
     return
   }
 
-  const selectedFeeItems = listFee.value.filter((item) => selectedFeeIds.includes(item.id_fee_agen))
-
-  const total = selectedFeeItems.reduce((acc, item) => acc + item.nominal_fee, 0)
+  // console.log("xxxx");
+  // console.log(selectedFees.value);
+  // console.log("xxxx");
+  // const selectedFeeItems = listFee.value.filter((item) => selectedFeeIds.includes(item.id_fee_agen))
+  // const total = selectedFeeItems.reduce((acc, item) => acc + item.nominal_fee, 0)
 
   const payload = {
     agen_id: props.agen_id,
-    fee_agen_id: selectedFeeIds,
-    nominal: total,
+    fee_agen_id: selectedFees.value,
+    nominal: totalSelectedFee.value,
   }
 
   try {
@@ -71,123 +87,54 @@ const submitPembayaran = async (selectedFeeIds: number[]) => {
   }
 }
 
-const totalNominal = computed(() =>
-  listFee.value
-    .filter((item) => selectedIds.value.includes(item.id_fee_agen)) // ✅ HARUS id_fee_agen
-    .reduce((acc, item) => acc + item.nominal_fee, 0),
-)
-
 onMounted(() => {
   console.log('🛠 ID Fee Agen yang akan diupdate:', selectedIds)
 })
 </script>
 
 <template>
-  <Form
-    :formStatus="props.formStatus"
-    :label="'Form Pembayaran Fee Agen'"
-    :width="'w-5/6'"
-    :submitLabel="'Bayar'"
-    @submit="submitPembayaran(selectedIds)"
-    @cancel="() => emit('cancel')"
-  >
-    <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-      <thead class="bg-gray-100 border-t border-b">
-        <tr>
-          <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[30%]">INFO AGEN</th>
-          <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[30%]">
-            INFO TRANSAKSI
-          </th>
-          <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[30%]">INFO FEE</th>
-          <th class="text-center font-medium px-6 text-gray-900 py-3 text-sm w-[10%]">AKSI</th>
-        </tr>
-      </thead>
+  <Form :formStatus="props.formStatus" :label="'Form Pembayaran Fee Agen'" :width="'w-1/4'" :submitLabel="'Bayar'" @submit="submitPembayaran()" @cancel="() => emit('cancel')" >
+    <table class="w-full mb-5 text-gray-500 border">
       <tbody>
-        <tr v-for="(item, index) in listFee" :key="index" class="border-b align-top">
-          <!-- INFO AGEN -->
-          <td class="px-4 py-2 text-left align-top">
-            <div class="py-1">
-              <span class="inline-block w-28 font-bold">Nama</span>: {{ item.nama_agen }}
-            </div>
-            <div class="py-1">
-              <span class="inline-block w-28 font-bold">Level</span>: {{ item.level_agen }}
-            </div>
-            <div class="py-1">
-              <span class="inline-block w-28 font-bold">WhatsApp</span>: {{ item.no_wa_agen }}
-            </div>
-          </td>
-
-          <!-- INFO TRANSAKSI -->
-          <td class="px-4 py-2 text-left align-top">
-            <div class="py-1">
-              <span class="inline-block w-28 font-bold">Nama Jamaah</span>: {{ item.nama_jamaah }}
-            </div>
-            <div class="py-1">
-              <span class="inline-block w-28 font-bold">NIK</span>: {{ item.no_identitas_jamaah }}
-            </div>
-            <div class="py-1">
-              <span class="inline-block w-28 font-bold">Kode Paket</span>: {{ item.kode_paket }}
-            </div>
-            <div class="py-1">
-              <span class="inline-block w-28 font-bold">Paket</span>: {{ item.nama_paket }}
-            </div>
-          </td>
-
-          <!-- INFO FEE -->
-          <td class="px-4 py-2 text-left align-top">
-            <div class="py-1">
-              <span class="inline-block w-28 font-bold">Nominal</span>: Rp
-              {{ item.nominal_fee.toLocaleString('id-ID') }}
-            </div>
-            <div class="py-1">
-              <span class="inline-block w-28 font-bold">Status</span>:
-              <span
-                :class="
-                  item.status_bayar === 'lunas'
-                    ? 'text-green-600 font-semibold'
-                    : 'text-red-600 font-semibold'
-                "
-              >
-                {{ item.status_bayar.replace(/_/g, ' ').toUpperCase() }}
-              </span>
-            </div>
-          </td>
-
-          <!-- AKSI -->
-          <td class="px-4 py-4 text-left align-center">
-            <template v-if="item.status_bayar === 'lunas'">
-              <span class="text-green-600 font-semibold text-sm text-center">Sudah Dibayar</span>
-            </template>
-            <template v-else>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  :value="item.id_fee_agen"
-                  :checked="selectedIds.includes(item.id_fee_agen)"
-                  @change="toggleSelection(item.id_fee_agen)"
-                  class="accent-black w-4 h-4"
-                />
-                <span class="text-sm text-gray-600 font-semibold">Pilih</span>
-              </label>
-            </template>
-          </td>
+        <tr  class="border-gray-200 hover:bg-gray-200">
+          <td class="w-[30%] border-b px-2 py-2">Nama Agen</td>
+          <td class="text-center border-b py-2">:</td>
+          <td class="border-b text-right space-y-2 text-sm px-2 py-2">{{ props.nama }}</td>
+        </tr>
+        <tr  class="border-gray-200 hover:bg-gray-200">
+          <td class="border-b px-2 py-2">Level</td>
+          <td class="text-center border-b py-2">:</td>
+          <td class="border-b text-right space-y-2 text-sm px-2 py-2">{{ props.level }}</td>
+        </tr>
+        <tr  class="border-gray-200 hover:bg-gray-200">
+          <td class="border-b px-2 py-2">Whatsapp</td>
+          <td class="text-center border-b py-2">:</td>
+          <td class="border-b text-right space-y-2 text-sm px-2 py-2">{{ props.whatsapp }}</td>
         </tr>
       </tbody>
     </table>
 
-    <div v-if="listFee.length === 0 && !loading" class="text-center text-sm text-gray-500 py-6">
-      Tidak ada data fee untuk agen ini.
-    </div>
-
-    <div
-      v-if="selectedIds.length > 0"
-      class="flex justify-start items-center gap-4 pt-4 mt-4 text-sm"
-      :style="{ paddingLeft: '60%' }"
-    >
-      <div class="font-semibold text-gray-600">Total Fee Dibayar:</div>
-      <div class="text-gray-600 font-bold text-lg">
-        Rp {{ totalNominal.toLocaleString('id-ID') }}
+    <div class="space-y-2 mt-4">
+      <p class="font-semibold text-gray-700">Rincian Fee Belum Dibayar:</p>
+       <div v-for="(item, index) in listFee" :key="index" class="flex items-center justify-between p-2 border rounded" >
+        <div>
+          <p class="font-medium text-gray-700">{{ item.nama_jamaah }} ({{ item.no_identitas_jamaah }})</p>
+          <p class="text-sm text-gray-500">Rp {{ item.nominal_fee.toLocaleString('id-ID') }}</p>
+        </div>
+        <input type="checkbox" class="w-5 h-5 border-gray-300 text-gray-600 rounded focus:ring-gray-500" v-model="selectedFees"
+          @change="toggleSelection(item.id_fee_agen)" :checked="selectedIds.includes(item.id_fee_agen)" :value="item.id_fee_agen" />
+      </div>
+      <div class="mt-4 text-right font-bold text-lg text-gray-700">
+        Total Bayar: Rp {{ totalSelectedFee.toLocaleString('id-ID') }}
       </div>
     </div>
   </Form>
 </template>
+
+
+<style scoped>
+/* Override z-index alertify */
+.alertify-notifier {
+  z-index: 100000000 !important;
+}
+</style>
