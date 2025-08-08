@@ -23,7 +23,8 @@ const {
   Mst_pendidikan,
   Mst_pekerjaan,
   Mst_mahram_type,
-  Mahram
+  Mahram,
+  Item_fasilitas
 } = require("../../../models");
 const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
 const { getAgenById } = require("../../../helper/JamaahHelper");
@@ -160,22 +161,51 @@ class Model_r {
     }
     if (handoverIds.length === 0) return [];
     const fasilitasList = await Handover_fasilitas_detail.findAll({
+      // attributes: ['id', 'name'],
+      attributes: [],
       where: {
         handover_fasilitas_id: { [Op.in]: handoverIds },
       },
-      include: [{
-        model: Mst_fasilitas,
-        attributes: ["id", "name"],
-      }]
+      include: [
+        {
+          model: Item_fasilitas, 
+          required: true,
+          include: {
+            model: Mst_fasilitas,
+            attributes: ["id", "name"],
+          }
+        }
+      ]
     });
 
-    // Ambil hanya id dan name fasilitas
-    const fasilitas = fasilitasList
-      .map(fd => ({ id: fd.Mst_fasilita?.id, name: fd.Mst_fasilita?.name }))
-      .filter(f => !!f.id && !!f.name && f.name !== "-")
-      .sort((a, b) => a.name.localeCompare(b.name));
+    var hasil = [];
+    await Promise.all(
+      await fasilitasList.map(async (e) => {
 
-    const hasil = [...new Set(fasilitas.map(JSON.stringify))].map(JSON.parse);
+        console.log("xxxxx-----xxcxxx");
+        // console.log(e.Item_fasilita);
+        console.log(e.Item_fasilita.Mst_fasilitas);
+        console.log("xxxxx-----xxcxxx");
+        hasil.push({
+          id : e.Item_fasilita.Mst_fasilita.id, 
+          name : e.Item_fasilita.Mst_fasilita.name
+        });
+      })
+    );
+    // Ambil hanya id dan name fasilitas
+    // const fasilitas = fasilitasList
+    //   .map(fd => ({ id: fd.Item_fasilitas?.Mst_fasilita?.id, name: fd.Item_fasilitas?.Mst_fasilita?.name }))
+    //   .filter(f => !!f.id && !!f.name && f.name !== "-")
+    //   .sort((a, b) => a.name.localeCompare(b.name));
+
+    // const hasil = [...new Set(fasilitas.map(JSON.stringify))].map(JSON.parse);
+
+
+    console.log("------Hasil Hasil Hasil");
+    // console.log(fasilitas);
+    console.log(hasil);
+    console.log("------Hasil Hasil Hasil");
+
     return hasil;
   }
 
@@ -463,54 +493,81 @@ class Model_r {
       return {};
     }
   }
-
+  
   async getHandoverFasilitasById() {
     try {
       await this.initialize();
-      const body = this.req.body;
-      const tabunganId = body.id;
-      
-      const handoverFasilitas = await Handover_fasilitas.findAll({
+      const { id: tabunganId } = this.req.body;
+
+      const value = await Handover_fasilitas.findAll({
         where: { tabungan_id: tabunganId },
         order: [["id", "ASC"]],
         include: [
           {
             model: Handover_fasilitas_detail,
+            attributes: ['id'],
+            required: true,
             include: [
               {
-                model: Mst_fasilitas,
-                attributes: ["id", "name"],
+                model: Item_fasilitas,
+                required: true,
+                include: [
+                  {
+                    model: Mst_fasilitas,
+                    attributes: ["id", "name"],
+                    required: true,
+                  },
+                ],
               },
             ],
           },
         ],
       });
 
-      if (handoverFasilitas) {
-        const data = handoverFasilitas.map(hf => ({
-          id: hf.id,
-          invoice: hf.invoice,
-          petugas: hf.petugas,
-          penerima: hf.penerima,
-          nomor_identitas_penerima: hf.nomor_identitas_penerima,
-          tgl_penerima: moment(hf.createdAt).format('YYYY-MM-DD HH:mm:ss'),
-          detail: hf.Handover_fasilitas_details.map(fd => ({
-            id: fd.Mst_fasilita?.id || null,
-            name: fd.Mst_fasilita?.name || "-",
-          })),
-        }));
+      var data = [];
+      await Promise.all(
+        value.map(
+          async (hf) => {
 
-        return {
-          data : data,
-          total: handoverFasilitas.length,
-        };
-      }
-      
+            var det = hf.Handover_fasilitas_details?.map(fd => ({
+              id: fd?.Item_fasilita?.Mst_fasilita?.id ?? null,
+              name: fd?.Item_fasilita?.Mst_fasilita?.name ?? "-"
+            })) ?? [];
+
+              console.log("-------Det");
+              console.log(hf);
+              console.log(hf.Handover_fasilitas_details);
+              console.log(det);
+              console.log("-------Det");
+
+            data.push({ 
+              id: hf.id,
+              invoice: hf.invoice,
+              petugas: hf.petugas,
+              penerima: hf.penerima,
+              nomor_identitas_penerima: hf.nomor_identitas_penerima,
+              tgl_penerima: moment(hf.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+              detail: det,
+            });
+          }
+      )
+      );
+
+      return {
+        data,
+        total: data.length,
+      };
+
     } catch (error) {
-      console.log("Error in get_handover_fasilitas_by_tabungan_id:", error);
+
+      console.log("^^^^^^^^^^^^^^^^^^^^^^^");
+      console.log(error);
+      console.log("^^^^^^^^^^^^^^^^^^^^^^^");
+      console.error("Error in getHandoverFasilitasById:", error);
       return {};
     }
   }
+
 
   async getMstFasilitas() {
     try {
@@ -529,16 +586,27 @@ class Model_r {
         return { data: [], total: 0 };
       }
 
-      const usedIds = await Handover_fasilitas_detail.findAll({
-        attributes: ["mst_fasilitas_id"],
+      var usedIds = [];
+      await Handover_fasilitas_detail.findAll({
+        attributes: [],
         include: [
+          {
+            model: Item_fasilitas, 
+            required: true,
+            attributes: ['mst_fasilitas_id'], // hanya ambil kolom ini
+          },
           {
             model: Handover_fasilitas,
             where: { tabungan_id: tabunganId },
           },
         ],
-        raw: true,
-      }).then(rows => rows.map(r => r.mst_fasilitas_id));
+      }).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+            usedIds.push(e.Item_fasilita.mst_fasilitas_id);
+          })
+        );
+      });
 
       const fasilitas = await Mst_fasilitas.findAll({
         where: {
@@ -552,7 +620,32 @@ class Model_r {
         raw: true,
       });
 
-      const data = fasilitas.map(f => ({ id: f.id, name: f.name }));
+      var listFasilitasID = [];
+      await Promise.all(
+        await fasilitas.map(async (e) => {
+            listFasilitasID.push(e.id)
+        })
+      );
+
+      const itemFasilitas = await Item_fasilitas.findAll({
+        where: {
+          mst_fasilitas_id : { [Op.in] : listFasilitasID },
+          status: 'belum_terjual'
+        },
+      });
+
+      var stokFasilitas = {};
+      await Promise.all(
+        await itemFasilitas.map(async (e) => {
+          if(stokFasilitas[e.mst_fasilitas_id] == undefined ) {
+            stokFasilitas = {...stokFasilitas,...{[e.mst_fasilitas_id] : 1 } }
+          }else{
+            stokFasilitas[e.mst_fasilitas_id] = stokFasilitas[e.mst_fasilitas_id] + 1;
+          }
+        })
+      );
+
+      const data = fasilitas.map(f => ({ id: f.id, name: f.name, stok: stokFasilitas[f.id] !== undefined ? stokFasilitas[f.id] : 0 }));
 
       return {
         data,

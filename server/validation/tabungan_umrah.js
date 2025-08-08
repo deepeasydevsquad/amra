@@ -13,6 +13,7 @@ const {
     Handover_barang,
     Agen,
     Level_keagenan,
+    Item_fasilitas
 } = require("../models");
 
 const { getCompanyIdByCode, tipe } = require("../helper/companyHelper");
@@ -324,26 +325,67 @@ validation.check_mst_paket = async (value, { req }) => {
 
         // Ambil ID fasilitas yang sudah digunakan
         const usedIds = await Handover_fasilitas_detail.findAll({
-            attributes: ['mst_fasilitas_id'],
+            attributes: [],
             where: {
                 handover_fasilitas_id: {
                     [Op.in]: handoverIds.length ? handoverIds : [0],
                 },
             },
-            raw: true,
-        }).then(rows => rows.map(r => r.mst_fasilitas_id));
+            include: {
+                required: true, 
+                model: Item_fasilitas,
+                attributes: ['mst_fasilitas_id'],
+            },
+            // raw: true,
+        }).then(rows => rows.map(r => r.Item_fasilita.mst_fasilitas_id));
 
         // Hitung ID fasilitas yang belum digunakan
         const unusedIds = fasilitasIds.filter(id => !usedIds.includes(id));
 
+        var  listFasilitasID = [];
+        for( let x in value ) {
+            listFasilitasID.push(value[x]);
+        }
+
+        // mengecek stok
+        const itemFasilitas = await Item_fasilitas.findAll({
+            where: {
+                mst_fasilitas_id : { [Op.in] : listFasilitasID },
+                status: 'belum_terjual'
+            },
+        });
+
+        var stokFasilitas = {};
+        await Promise.all(
+            await itemFasilitas.map(async (e) => {
+            if(stokFasilitas[e.mst_fasilitas_id] == undefined ) {
+                stokFasilitas = {...stokFasilitas,...{[e.mst_fasilitas_id] : 1 } }
+            }else{
+                stokFasilitas[e.mst_fasilitas_id] = stokFasilitas[e.mst_fasilitas_id] + 1;
+            }
+            })
+        );
+
+
+        console.log("xxxx=====xxxxx");
+        console.log(value);
+        console.log(stokFasilitas);
+        console.log("xxxx=====xxxxx");
+
         for (const id of value) {
             const fasilitasId = Number(id);
-
+            // pengecekan stok fasilitas
+            if( stokFasilitas[id] == undefined ) {
+                throw new Error(`Stok fasilitas tidak ditemukan.`);
+            }else{
+                if( stokFasilitas[id] < 1){
+                    throw new Error(`Stok fasilitas tidak mencukupi.`);
+                }
+            }
             // Validasi: apakah ID termasuk unused?
             if (!unusedIds.includes(fasilitasId)) {
                 throw new Error(`Fasilitas ID ${fasilitasId} tidak tersedia atau sudah digunakan`);
             }
-
             // Validasi: apakah ID ada di Mst_fasilitas?
             const fasilitas = await Mst_fasilitas.findOne({
                 where: {

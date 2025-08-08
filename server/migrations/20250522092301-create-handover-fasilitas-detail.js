@@ -17,12 +17,13 @@ module.exports = {
         },
         onDelete: 'CASCADE',
       },
-      mst_fasilitas_id: {
+      item_fasilitas_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Mst_fasilitas",
+          model: "Item_fasilitas",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       createdAt: {
         allowNull: false,

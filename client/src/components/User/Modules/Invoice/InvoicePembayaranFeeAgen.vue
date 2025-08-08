@@ -34,7 +34,6 @@ onMounted(async () => {
     <div v-if="data?.pembayaran" class="mb-8 mt-6">
       <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Detail Pembayaran</h3>
       <div class="grid grid-cols-2 gap-4 text-sm">
-        <!-- KIRI -->
         <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
           <p class="mb-2">
             <span class="font-medium">Invoice:</span><br />
@@ -46,9 +45,7 @@ onMounted(async () => {
           </p>
           <p>
             <span class="font-medium">Total Pembayaran:</span><br />
-            <span class="font-bold">
-              Rp {{ Number(data.pembayaran.nominal_pembayaran).toLocaleString() }}
-            </span>
+            <span class="font-bold">Rp {{ Number(data.pembayaran.nominal_pembayaran).toLocaleString() }}</span>
           </p>
         </div>
 

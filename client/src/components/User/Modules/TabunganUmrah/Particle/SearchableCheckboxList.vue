@@ -96,15 +96,20 @@ watch(
           v-for="option in filteredOptions"
           :key="option[idField]"
           class="flex items-center gap-2 hover:bg-gray-100 p-1 rounded cursor-pointer"
+          :class="option.stok === 0 ? 'text-gray-400' : ''"
         >
           <input
+            :disabled="option.stok === 0"
             type="checkbox"
             :id="`${label.toLowerCase().replace(/\s+/g, '-')}-${option[idField]}`"
             :checked="isChecked(option)"
             @change="toggleOption(option)"
             class="w-4 h-4 rounded-sm border-2 border-gray-400 text-blue-500 focus:ring-blue-500"
           >
-          <span class="text-sm">{{ option[nameField] }}</span>
+          <span class="text-sm">{{ option[nameField] }} </span>
+          <span class="text-sm text-gray-400 italic" v-if="option.stok == 0 ">(Stok Habis)</span>
+          <span class="text-sm text-gray-700" v-else>(Stok :{{ option.stok }})</span>
+
         </label>
       </template>
       <div v-else class="text-center text-gray-500 py-2">
@@ -116,4 +121,12 @@ watch(
     <p v-if="error" class="mt-1 text-sm text-red-600">{{ error }}</p>
   </div>
 </template>
+<style>
+/* Memberi warna abu-abu pada checkbox yang disable */
+input[type="checkbox"]:disabled {
+  accent-color: gray; /* Untuk browser modern */
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+</style>
 

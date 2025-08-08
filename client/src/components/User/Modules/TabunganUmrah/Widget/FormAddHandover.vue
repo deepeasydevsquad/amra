@@ -215,8 +215,8 @@ onMounted(() => { fetchData() })
           <div class="space-y-4 text-gray-800 overflow-y-auto max-h-[64vh] no-scrollbar px-1">
             <!-- Tabel Dummy -->
             <label class="block ml-2 text-md font-medium text-gray-700">History Penerimaan Fasilitas</label>
-            <div class="overflow-x-auto rounded-lg overflow-y-auto scroll-smooth shadow-md max-h-[36vh] border mb-4">
-              <table class="w-full mt-2 border text-center text-xs mb-3">
+            <div class="overflow-x-auto overflow-y-auto scroll-smooth max-h-[36vh] mb-4">
+              <table class="w-full mt-0 border text-center text-xs mb-0">
                 <thead>
                   <tr class="bg-gray-100">
                     <th class="w-[15%] p-2 border">Invoice</th>

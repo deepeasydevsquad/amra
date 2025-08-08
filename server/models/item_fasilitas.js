@@ -18,6 +18,14 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "item_fasilitas_id",
         onDelete: 'CASCADE',
       });
+      Item_fasilitas.hasMany(models.Handover_fasilitas_detail, {
+        foreignKey: "item_fasilitas_id",
+        onDelete: 'CASCADE',
+      });
+      Item_fasilitas.hasMany(models.Handover_fasilitas_detail, {
+        foreignKey: "item_fasilitas_id",
+        onDelete: 'CASCADE',
+      });
     }
   }
   Item_fasilitas.init({

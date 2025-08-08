@@ -44,14 +44,14 @@ class Model_r {
         );
       }
 
-      console.log('&&&&&&&&&&&&&&&&&');
-      console.log(data);
-      console.log('&&&&&&&&&&&&&&&&&');
+      // console.log('&&&&&&&&&&&&&&&&&');
+      // console.log(data);
+      // console.log('&&&&&&&&&&&&&&&&&');
       return data;
     } catch (error) {
-      console.log("******************");
-      console.log(error);
-      console.log("******************");
+      // console.log("******************");
+      // console.log(error);
+      // console.log("******************");
       return data
     }
    

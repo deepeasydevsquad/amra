@@ -541,15 +541,21 @@ class Model_r {
 
       // Detail fasilitas
       const details = await Handover_fasilitas_detail.findAll({
+        attributes: [],
         where: { handover_fasilitas_id: hasil.id },
-        raw: true,
+        include: {
+          required: true, 
+          model: Item_fasilitas
+        },
+        // raw: true,
       });
 
+      console.log("00000000");
       if (!details || details.length === 0) {
         data.detail = [];
       } else {
-        const fasilitasIds = details.map((d) => d.mst_fasilitas_id);
-
+        const fasilitasIds = details.map((d) => d.Item_fasilita.mst_fasilitas_id);
+        console.log("11111111");
         const fasilitasList = await Mst_fasilitas.findAll({
           where: { id: { [Op.in]: fasilitasIds } },
           attributes: ["id", "name"],
@@ -562,7 +568,7 @@ class Model_r {
         }, {});
 
         data.detail = details.map((detail) => ({
-          name: fasilitasMap[detail.mst_fasilitas_id] || "Tidak diketahui",
+          name: fasilitasMap[detail.Item_fasilita.mst_fasilitas_id] || "Tidak diketahui",
         }));
       }
 
