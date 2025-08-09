@@ -104,6 +104,9 @@ controllers.addHandoverFasilitasPaket = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log("xxxxxxxxxxxxxxxxx");
+    console.log(error);
+    console.log("xxxxxxxxxxxxxxxxx");
     handleServerError(res, error.message);
   }
 }

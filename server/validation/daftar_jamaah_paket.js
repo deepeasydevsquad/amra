@@ -6,7 +6,8 @@ const {
     Handover_barang_paket,
     Handover_fasilitas_detail_paket,
     Mst_fasilitas,
-    Division
+    Division,
+    Item_fasilitas
 } = require("../models");
 const { getCabang, getCompanyIdByCode, getDivisionId } = require("../helper/companyHelper");
 
@@ -64,13 +65,19 @@ validation.check_mst_paket = async (value, { req }) => {
 
         // Ambil ID fasilitas yang sudah digunakan
         const usedIds = await Handover_fasilitas_detail_paket.findAll({
-            attributes: ['mst_fasilitas_id'],
+            // 
+            attributes: [],
             include: [{
                 model: Handover_fasilitas_paket,
                 where: { paket_transaction_id: transpaketId },
+            },
+            {
+                model: Item_fasilitas,
+                attributes: ['mst_fasilitas_id'],
+                // where: { paket_transaction_id: transpaketId },
             }],
-            raw: true,
-        }).then(rows => rows.map(r => r.mst_fasilitas_id));
+            // raw: true,
+        }).then(rows => rows.map(r => r.Item_fasilita.mst_fasilitas_id));
 
         // Ambil semua fasilitas yang tersedia dan belum digunakan
         const fasilitasTersedia = await Mst_fasilitas.findAll({

@@ -7,6 +7,9 @@ const {
   Kas_keluar_masuk,
   Pembayaran_gaji,
   Item_fasilitas,
+  Handover_fasilitas,
+  Handover_fasilitas_paket,
+  Transaction_fasilitas
 } = require("../models");
 
 const helper = {};
@@ -17,6 +20,20 @@ helper.randomString = async (length, chars) => {
     result += chars[Math.floor(Math.random() * chars.length)];
   return result;
 };
+
+helper.generateInvoiceHandoverFasilitas = async () => {
+    var rand = 0;
+    let condition = true;
+    while (condition) {
+      rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+      check1 = await Handover_fasilitas.findOne({ where: { invoice: rand } });
+      check2 = await Handover_fasilitas_paket.findOne({ where: { invoice: rand } });
+      check3 = await Transaction_fasilitas.findOne({ where: { invoice: rand } });
+      if (!check1 & !check2 && !check3) condition = false;
+    }
+
+    return rand;
+}
 
 helper.menghasilkan_invoice_deposit = async () => {
   var rand = 0;

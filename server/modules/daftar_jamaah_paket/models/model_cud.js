@@ -17,10 +17,16 @@ const {
   Handover_barang,
   Handover_barang_paket,
   Jurnal,
+  Item_fasilitas,
+  Mst_fasilitas, 
+  Transaction_fasilitas, 
+  Transaction_fasilitas_detail
   } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
+const { generateInvoiceHandoverFasilitas } = require("../../../helper/randomHelper");
+
 const moment = require("moment");
 
 class Model_cud {
@@ -211,8 +217,10 @@ class Model_cud {
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
     
     try {
-      const invoiceHandover = await this.generateInvoiceHandover();
+      const invoiceHandover = await generateInvoiceHandoverFasilitas();
       const penerima = await this.penerima();
+
+      const qPaketID = await Paket_transaction.findOne({ attributes: ['paket_id'], where : {id : body.id } });
 
       const handoverFasilitas = await Handover_fasilitas_paket.create({
         paket_transaction_id: body.id,
@@ -224,19 +232,89 @@ class Model_cud {
         updatedAt: dateNow,
       }, { transaction: this.t });
 
+       // mengambil mst_fasilitas_id
+      var listFasilitasID = [];
+      for (const fasilitasId of body.detail_fasilitas) {
+        listFasilitasID.push(fasilitasId)
+      }
+
+      const qItemFasilitas = await Item_fasilitas.findAll({
+        where: {
+          status: 'belum_terjual',
+          mst_fasilitas_id: { [Op.in]: listFasilitasID }
+        },
+        include: [{
+          required: true,
+          model: Mst_fasilitas,
+          where: { company_id: this.company_id }
+        }],
+        order: [
+          ['createdAt', 'ASC'] // paling lama dulu
+        ],
+        raw: true
+      });
+
+      // mngambil item fasilitas id
+      var total = 0;
+      var itemFasilitasID = {};
+      var itemFasilitasID2 = [];
+      await Promise.all(
+        await qItemFasilitas.map(async (e) => {
+          itemFasilitasID = {...itemFasilitasID,...{[e.mst_fasilitas_id] : e.id }};
+          itemFasilitasID2.push(e.id);
+          total = total + e.harga_jual;
+        })
+      );
+
+      // menginput data transaksi
+      const transactionFasilitas = await Transaction_fasilitas.create({
+        company_id: this.company_id, 
+        invoice: invoiceHandover, 
+        kostumer_id: null, 
+        tabungan_id: null,
+        paket_id: qPaketID.paket_id,
+        petugas: penerima, 
+        total: total,
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      }, { transaction: this.t });
+
       // Insert detail handover fasilitas
       for (const fasilitas_id of body.detail_fasilitas) {
         await Handover_fasilitas_detail_paket.create({  
           handover_fasilitas_paket_id: handoverFasilitas.id,
-          mst_fasilitas_id: fasilitas_id,
+          // mst_fasilitas_id: fasilitas_id,
+          item_fasilitas_id: itemFasilitasID[fasilitas_id],
+          createdAt: dateNow,
+          updatedAt: dateNow,
+        }, { transaction: this.t });
+         // input transaction detail fasilitas
+        await Transaction_fasilitas_detail.create({  
+          transaction_fasilitas_id: transactionFasilitas.id,
+          item_fasilitas_id: itemFasilitasID[fasilitas_id],
           createdAt: dateNow,
           updatedAt: dateNow,
         }, { transaction: this.t });
       }
 
+      // update item fasilitas
+      await Item_fasilitas.update(
+        {
+          status: 'terjual',
+          updatedAt: dateNow,
+        },
+        {
+          where: { id: { [Op.in]: itemFasilitasID2 } },
+          transaction: this.t,
+        }
+      );
+
       this.message = `Handover fasilitas paket berhasil ditambahkan untuk paket transaksi ID ${body.id} dengan invoice: ${invoiceHandover}`;
       return invoiceHandover;
     } catch (error) {
+      console.log("$$$$$$$$$$$$$$$");
+      console.log(error);
+      console.log("$$$$$$$$$$$$$$$");
       this.state = false;
       this.message = error.message || "Terjadi kesalahan saat menambahkan handover fasilitas.";
     }

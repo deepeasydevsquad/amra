@@ -18,7 +18,8 @@ const {
   Mst_mahram_type,
   Mst_pendidikan,
   Mst_pekerjaan,
-  Mst_kota
+  Mst_kota, 
+  Item_fasilitas
 } = require("../../../models");
 const { getCompanyIdByCode, getCabang, tipe, getDivisionId } = require("../../../helper/companyHelper");
 const { getAlamatInfo } = require("../../../helper/alamatHelper");
@@ -168,12 +169,17 @@ class Model_r {
       include: [
         {
           model: Handover_fasilitas_detail_paket,
+          attributes: [],
           required: true,
           include: [
             {
-              model: Mst_fasilitas,
+              model: Item_fasilitas,
               required: true,
-              attributes: ['id', 'name']
+              include:  {
+                model: Mst_fasilitas,
+                required: true,
+                attributes: ['id', 'name']
+              }
             }
           ]
         }
@@ -182,8 +188,8 @@ class Model_r {
     });
 
     return dataHandoverFasilitas.map((row) => ({
-      id: row['Handover_fasilitas_detail_pakets.Mst_fasilita.id'],
-      name: row['Handover_fasilitas_detail_pakets.Mst_fasilita.name'],
+      id: row['Handover_fasilitas_detail_pakets.Item_fasilita.Mst_fasilita.id'],
+      name: row['Handover_fasilitas_detail_pakets.Item_fasilita.Mst_fasilita.name'],
     }));
   }
 
@@ -657,13 +663,19 @@ class Model_r {
       }
 
       const usedIds = await Handover_fasilitas_detail_paket.findAll({
-        attributes: ["mst_fasilitas_id"],
-        include: [{
-          model: Handover_fasilitas_paket,
-          where: { paket_transaction_id: id },
-        }],
-        raw: true,
-      }).then(rows => rows.map(r => r.mst_fasilitas_id));
+        attributes: [],
+        include: [
+          {
+            model: Handover_fasilitas_paket,
+            where: { paket_transaction_id: id },
+          }, 
+          {
+            model: Item_fasilitas,
+            attributes: ["mst_fasilitas_id"],
+          }, 
+        ],
+        // raw: true,
+      }).then(rows => rows.map(r => r.Item_fasilita.mst_fasilitas_id));
 
       const fasilitas = await Mst_fasilitas.findAll({
         where: {
@@ -677,8 +689,33 @@ class Model_r {
         raw: true,
       });
 
+      var listFasilitasID = [];
+      await Promise.all(
+        await fasilitas.map(async (e) => {
+            listFasilitasID.push(e.id)
+        })
+      );
+
+      const itemFasilitas = await Item_fasilitas.findAll({
+        where: {
+          mst_fasilitas_id : { [Op.in] : listFasilitasID },
+          status: 'belum_terjual'
+        },
+      });
+
+      var stokFasilitas = {};
+      await Promise.all(
+        await itemFasilitas.map(async (e) => {
+          if(stokFasilitas[e.mst_fasilitas_id] == undefined ) {
+            stokFasilitas = {...stokFasilitas,...{[e.mst_fasilitas_id] : 1 } }
+          }else{
+            stokFasilitas[e.mst_fasilitas_id] = stokFasilitas[e.mst_fasilitas_id] + 1;
+          }
+        })
+      );
+
       return {
-        data: fasilitas.map(f => ({ id: f.id, name: f.name })),
+        data: fasilitas.map(f => ({ id: f.id, name: f.name, stok: stokFasilitas[f.id] !== undefined ? stokFasilitas[f.id] : 0 })),
         total: fasilitas.length,
       };
 
@@ -700,10 +737,17 @@ class Model_r {
         include: [
           {
             model: Handover_fasilitas_detail_paket,
+            attributes: ['id'],
+            required: true,
             include: [
               {
-                model: Mst_fasilitas,
-                attributes: ["id", "name"],
+                model: Item_fasilitas,
+                required: true,
+                include: {
+                  model: Mst_fasilitas,
+                  attributes: ["id", "name"],
+                  required: true,
+                },
               },
             ],
           },  
@@ -711,18 +755,37 @@ class Model_r {
       });
 
       if (handoverFasilitasPaket) {
-        const data = handoverFasilitasPaket.map(hf => ({
-          id: hf.id,
-          invoice: hf.invoice,
-          petugas: hf.petugas,
-          penerima: hf.penerima,
-          nomor_identitas_penerima: hf.nomor_identitas_penerima,
-          tgl_penerima: moment(hf.createdAt).format('YYYY-MM-DD HH:mm:ss'),
-          detail: hf.Handover_fasilitas_detail_pakets.map(fd => ({
-            id: fd.Mst_fasilita?.id || null,
-            name: fd.Mst_fasilita?.name || "-",
-          })),
-        }));
+        var data = [];
+        await Promise.all(
+          handoverFasilitasPaket.map(
+            async (hf) => {
+              var det = hf.Handover_fasilitas_detail_pakets?.map(fd => ({
+                id: fd?.Item_fasilita?.Mst_fasilita?.id ?? null,
+                name: fd?.Item_fasilita?.Mst_fasilita?.name ?? "-"
+              })) ?? [];
+  
+                console.log("-------Det");
+                console.log(hf);
+                console.log(hf.Handover_fasilitas_detail_pakets);
+                console.log(det);
+                console.log("-------Det");
+  
+              data.push({ 
+                id: hf.id,
+                invoice: hf.invoice,
+                petugas: hf.petugas,
+                penerima: hf.penerima,
+                nomor_identitas_penerima: hf.nomor_identitas_penerima,
+                tgl_penerima: moment(hf.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+                detail: det,
+              });
+            }
+        ));
+
+
+        console.log("_________________");
+        console.log(data);
+        console.log("_________________");
 
         return {
           data : data,

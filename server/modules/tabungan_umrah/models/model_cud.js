@@ -23,10 +23,13 @@ const {
   Handover_barang_paket,
   Item_fasilitas,
   Jurnal,
+  Transaction_fasilitas,
+  Transaction_fasilitas_detail
   } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
+const { generateInvoiceHandoverFasilitas } = require("../../../helper/randomHelper");
 const moment = require("moment");
 const { getJamaahInfo } = require("../../../helper/JamaahHelper");
 
@@ -201,6 +204,9 @@ class Model_cud {
       });
 
       exists = inHandoverFasilitas || inHandoverBarang;
+
+
+
     } while (exists);
     return invoice;
   }
@@ -527,7 +533,7 @@ class Model_cud {
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
     
     try {
-      const invoiceHandover = await this.generateInvoiceHandover();
+      const invoiceHandover = await generateInvoiceHandoverFasilitas();
       const penerima = await this.penerima();
 
       const handoverFasilitas = await Handover_fasilitas.create({
@@ -563,23 +569,42 @@ class Model_cud {
       });
 
       // mngambil item fasilitas id
+      var total = 0;
       var itemFasilitasID = {};
       var itemFasilitasID2 = [];
       await Promise.all(
         await qItemFasilitas.map(async (e) => {
           itemFasilitasID = {...itemFasilitasID,...{[e.mst_fasilitas_id] : e.id }};
           itemFasilitasID2.push(e.id);
+          total = total + e.harga_jual;
         })
       );
 
-      console.log("*********");
-      console.log(itemFasilitasID2);
-      console.log("*********");
+       // menginput data transaksi
+      const transactionFasilitas = await Transaction_fasilitas.create({
+        company_id: this.company_id, 
+        invoice: invoiceHandover, 
+        kostumer_id: null, 
+        tabungan_id: body.id,
+        paket_id: null,
+        petugas: penerima, 
+        total: total,
+        createdAt: dateNow,
+        updatedAt: dateNow,
+      }, { transaction: this.t });
 
       // Insert detail handover fasilitas
       for (const fasilitas_id of body.detail_fasilitas) {
+        // input handover detail fasilitas
         await Handover_fasilitas_detail.create({  
           handover_fasilitas_id: handoverFasilitas.id,
+          item_fasilitas_id: itemFasilitasID[fasilitas_id],
+          createdAt: dateNow,
+          updatedAt: dateNow,
+        }, { transaction: this.t });
+        // input transaction detail fasilitas
+        await Transaction_fasilitas_detail.create({  
+          transaction_fasilitas_id: transactionFasilitas.id,
           item_fasilitas_id: itemFasilitasID[fasilitas_id],
           createdAt: dateNow,
           updatedAt: dateNow,
@@ -935,7 +960,23 @@ class Model_cud {
           transaction: this.t,
           returning: true,
         });
-        
+
+        // mengekstraks invoice dari tabel handover fasilitas
+        var listInvoiceHandoverFasilitas = [];
+        for( let x in dataFasilitasList) {
+          listInvoiceHandoverFasilitas.push(dataFasilitasList[x].invoice);
+        }
+
+        //mengambil transaksi_fasilitas_id berdasarkan invoice
+        const qTransaksiFasilitas = await Transaction_fasilitas.findAll({ where: { invoice: listInvoiceHandoverFasilitas, company_id: this.company_id } });
+        const dataTransaksiFasilitasIDList = qTransaksiFasilitas.map(item => (item.id));
+
+        // update paket id yang ada di dalam tabel transaction fasilitas
+        await Transaction_fasilitas.update(
+          { paket_id: body.target_paket_id,updatedAt: dateNow,},
+          { where: { id: { [Op.in]: dataTransaksiFasilitasIDList } },transaction: this.t, }
+        );
+
         // Buat mapping dari ID lama → ID baru
         const idMap = {};
         handoverFasilitas.forEach((item, index) => {
@@ -945,6 +986,7 @@ class Model_cud {
         // Ambil semua detail berdasarkan ID handover_fasilitas yang lama
         const fasilitasIdMap = handoverFasilitas.map(f => f.id);
         const detailList = await Handover_fasilitas_detail.findAll({
+          attributes: ["item_fasilitas_id", "handover_fasilitas_id"],
           where: { handover_fasilitas_id: { [Op.in]: fasilitasIdMap } }
         });
         
@@ -958,12 +1000,14 @@ class Model_cud {
         if (detailList.length > 0) {
           const dataFasilitasDetailList = detailList.map(detail => ({
             handover_fasilitas_paket_id: idMap[detail.handover_fasilitas_id],
-            mst_fasilitas_id: detail.mst_fasilitas_id,
+            item_fasilitas_id: detail.item_fasilitas_id,
             createdAt: dateNow,
             updatedAt: dateNow,
           }));
           await Handover_fasilitas_detail_paket.bulkCreate(dataFasilitasDetailList, { transaction: this.t });
         }
+
+        // update di transaction fasilitas
       }
 
       console.log("================ 3 pembelianPaketTabunganUmrah ================");
