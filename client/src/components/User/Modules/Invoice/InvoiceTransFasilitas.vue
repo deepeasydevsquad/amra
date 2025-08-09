@@ -65,6 +65,16 @@ onMounted(async () => {
         </div>
       </div>
 
+      <div class="flex justify-between text-sm mb-4" v-if="data.nama_paket !== '-'  ">
+        <div>
+
+        </div>
+        <div class="text-right">
+          <div class="font-semibold">NAMA PAKET</div>
+          <div>{{ data.nama_paket }}</div>
+        </div>
+      </div>
+
       <h2 class="font-semibold text-sm mb-1">DETAIL TRANSAKSI :</h2>
 
       <table class="w-full border-collapse text-[10pt] mb-8">

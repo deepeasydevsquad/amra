@@ -1451,6 +1451,11 @@ class Model_r {
               }
             }
           },
+          {
+            model: Paket, 
+            required: false, 
+            attributes: ['name']
+          }
         ],
       });
 
@@ -1526,17 +1531,15 @@ class Model_r {
 
       // transaksi.Tabungan?.Jamaah?.Member?.fullname
       let data = {
-          header_kwitansi,
-          invoice: transaksi.invoice,
-          nama_kostumer: transaksi.kostumer_id != null ? transaksi.Kostumer.name : (transaksi.tabungan_id != null ? transaksi.Tabungan?.Jamaah?.Member?.fullname: namajamaah ),
-          petugas: transaksi.petugas,
-          total_price,
-          detail_fasilitas,
-        }
+        header_kwitansi,
+        invoice: transaksi.invoice,
+        nama_kostumer: transaksi.kostumer_id != null ? transaksi.Kostumer.name : (transaksi.tabungan_id != null ? transaksi.Tabungan?.Jamaah?.Member?.fullname: namajamaah ),
+        petugas: transaksi.petugas,
+        nama_paket: transaksi.Paket?.name ?? '-',
+        total_price,
+        detail_fasilitas,
+      }
 
-      console.log("%%%%%%%%%%%%");
-      console.log(data);
-      console.log("%%%%%%%%%%%%");
       return data;
     } catch (error) {
       console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
