@@ -352,6 +352,10 @@ exports.kwitansi_trans_fasilitas = async (req, res) => {
       res.status(400).json({ error: true, err_msg: "Data tidak ditemukan" });
     }
   } catch (error) {
+    console.log("--------------ddddddddddddddddd");
+    console.log(error);
+    console.log("--------------ddddddddddddddddd");
+
     handleServerError(res, error.message);
   }
 };

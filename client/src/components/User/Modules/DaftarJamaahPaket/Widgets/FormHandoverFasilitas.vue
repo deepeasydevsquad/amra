@@ -172,7 +172,8 @@ const saveData = async () => {
           displayNotification('Nomor invoice tidak tersedia', 'error')
           return
         }
-        window.open(`/kwitansi-handover-fasilitas-paket/${response.data.invoice}`, '_blank')
+        // window.open(`/kwitansi-handover-fasilitas-paket/${response.data.invoice}`, '_blank')
+        window.open(`/kwitansi-trans-fasilitas/${response.data.invoice}`, '_blank')
         emit('close')
       } catch (error) {
         showConfirmDialog.value = false

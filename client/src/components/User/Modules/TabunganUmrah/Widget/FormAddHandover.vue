@@ -178,7 +178,7 @@ const saveData = async () => {
           displayNotification('Nomor invoice tidak tersedia', 'error')
           return
         }
-        window.open(`/kwitansi-handover-fasilitas/${response.data.invoice}`, '_blank')
+        window.open(`/kwitansi-trans-fasilitas/${response.data.invoice}`, '_blank')
         emit('close')
         emit('status', { error: false, err_msg: response.error_msg || 'Handover fasilitas berhasil disimpan' })
       } catch (error) {

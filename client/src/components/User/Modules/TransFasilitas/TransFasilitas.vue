@@ -380,7 +380,7 @@ onMounted(async () => {
         <thead class="bg-gray-100">
           <tr>
             <th class="text-center font-medium text-gray-900 px-6 py-3 w-[5%]">Invoice</th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[20%]">Nama Kostumer</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[20%]">Nama Kostumer / Nama Jamaah</th>
             <th class="text-center font-medium text-gray-900 px-6 py-3 w-[20%]">Paket</th>
             <th class="text-center font-medium text-gray-900 px-6 py-3 w-[30%]">Info Fasilitas</th>
             <th class="text-center font-medium text-gray-900 px-6 py-3 w-[10%]">Total</th>
@@ -397,8 +397,14 @@ onMounted(async () => {
           <tr v-for="item in filteredData" :key="item.invoice" class="hover:bg-gray-50">
             <td class="text-center px-6 py-4 align-top">{{ item.invoice }}</td>
             <td class="text-center px-6 py-4 align-top">
-              <div v-if="item.kostumer_name && item.tabungan_name">
-                {{ item.kostumer_name }} / {{ item.tabungan_name }}
+              <div v-if="item.kostumer_name != '-'">
+                <b>Nama Kostumer</b> <br> ({{ item.kostumer_name }})
+              </div>
+              <div v-else-if="item.tabungan_name != '-'">
+                <b>Nama Jamaah</b> <br> ( {{ item.tabungan_name }})
+              </div>
+              <div v-else-if="item.nama_jamaah != '-'">
+                <b>Nama Jamaah</b> <br> ( {{ item.nama_jamaah }})
               </div>
               <div v-else-if="item.kostumer_name">{{ item.kostumer_name }}</div>
               <div v-else-if="item.tabungan_name">{{ item.tabungan_name }}</div>

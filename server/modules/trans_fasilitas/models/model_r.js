@@ -11,6 +11,9 @@ const {
   Company,
   Users,
   Member,
+  Handover_fasilitas_paket,
+  Paket_transaction,
+  Division
 } = require("../../../models");
 const moment = require("moment");
 const { Op } = require("sequelize");
@@ -102,6 +105,56 @@ class Model_r {
         const listId = [];
         const paketIds = new Set();
 
+        // const listInvoice = q.rows.map((trx) => {
+        //   if( trx.kostumer_id == null && trx.tabungan_id == null) {
+        //     return trx.invoice;
+        //   }
+        // });
+        const listInvoice = q.rows
+          .filter(trx => trx.kostumer_id == null && trx.tabungan_id == null)
+          .map(trx => trx.invoice);
+
+        // mengambil nama jamaah per invoice
+        var listJamaah = {};
+        if( listInvoice.length > 0 ) {
+          const qlistJamaah = await Handover_fasilitas_paket.findAll({
+            where: { invoice: { [Op.in]: listInvoice } },
+            include: [  
+              {
+                model: Paket_transaction,
+                required: true,
+                include: [
+                  {
+                    model: Division, 
+                    required: true,
+                    where: { company_id: this.company_id }
+                  },
+                  {
+                    model: Jamaah,
+                    required: true,
+                    include: {
+                      model: Member, 
+                      required: true, 
+                      attributes: ['fullname']
+                    }
+                  },
+                ],
+              },
+            ],
+          });
+
+          // await Promise.all(
+          //   await qlistJamaah.map(async (e) => {
+          //     listJamaah = {...listJamaah,...{[e.invoice] : e.Paket_transaction.Jamaah.Member.name}}
+          //   })
+          // );
+
+          qlistJamaah.forEach((e) => {
+            listJamaah[e.invoice] = e.Paket_transaction.Jamaah.Member.fullname;
+          });
+        }
+
+
         // Mapping transaksi dasar
         data = q.rows.map((trx) => {
           listId.push(trx.id);
@@ -113,12 +166,15 @@ class Model_r {
             petugas: trx.petugas,
             paket_id: trx.paket_id || null,
             kostumer_name: trx.Kostumer?.name || "-",
-            tabungan_name: trx.Tabungan?.id || "-",
+            nama_jamaah: listJamaah[trx.invoice] !== undefined ? listJamaah[trx.invoice] : '-',
+            tabungan_name: trx.Tabungan?.Jamaah?.Member?.fullname || "-",
             tanggal_transaksi: moment(trx.createdAt).format("YYYY-MM-DD HH:mm:ss"),
             total_harga: 0,
             details: [],
           };
         });
+
+
 
         // Mapping nama paket
         const paketMap = await this.ambil_nama_paket_bulk([...paketIds]);

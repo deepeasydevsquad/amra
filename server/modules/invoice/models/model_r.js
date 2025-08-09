@@ -1419,7 +1419,11 @@ class Model_r {
   async invoice_trans_fasilitas() {
     await this.initialize();
 
+    console.log('***************');
+    console.log('***************');
+    console.log('***************');
     try {
+      console.log('11111111111111111111');
       const invoice = this.req.params.invoice;
 
       const header_kwitansi = await this.header_kwitansi_invoice();
@@ -1432,11 +1436,58 @@ class Model_r {
         include: [
           {
             model: Kostumer,
-            required: true,
+            required: false,
             attributes: ["name"],
+          },
+          {
+            model: Tabungan,
+            required: false,
+            include: {
+              model: Jamaah, 
+              required: false,
+              include: {
+                model: Member, 
+                required: true
+              }
+            }
           },
         ],
       });
+
+
+      var namajamaah = '';
+      if( transaksi.kostumer_id == null && transaksi.tabungan_id == null ) {
+        const q = await Handover_fasilitas_paket.findOne({
+          where: { invoice: invoice },
+          include: [  
+            {
+              model: Paket_transaction,
+              required: true,
+              include: [
+                {
+                  model: Division, 
+                  required: true,
+                  where: { company_id: this.company_id }
+                },
+                {
+                  model: Jamaah,
+                  required: true,
+                  include: {
+                    model: Member, 
+                    required: true, 
+                    attributes: ['fullname']
+                  }
+                },
+              ],
+            },
+          ],
+        });
+
+        namajamaah = q.Paket_transaction.Jamaah.Member.fullname
+      }
+      console.log('2222222222222222222');
+      console.log(transaksi);
+      console.log('2222222222222222222');
 
       if (!transaksi) {
         return {};
@@ -1472,16 +1523,25 @@ class Model_r {
         (sum, item) => sum + item.price,
         0
       );
+
+      // transaksi.Tabungan?.Jamaah?.Member?.fullname
       let data = {
           header_kwitansi,
           invoice: transaksi.invoice,
-          nama_kostumer: transaksi.Kostumer?.name || "-",
+          nama_kostumer: transaksi.kostumer_id != null ? transaksi.Kostumer.name : (transaksi.tabungan_id != null ? transaksi.Tabungan?.Jamaah?.Member?.fullname: namajamaah ),
           petugas: transaksi.petugas,
           total_price,
           detail_fasilitas,
         }
+
+      console.log("%%%%%%%%%%%%");
+      console.log(data);
+      console.log("%%%%%%%%%%%%");
       return data;
     } catch (error) {
+      console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+      console.log(error);
+      console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
       console.error("Gagal ambil data invoice fasilitas:", error);
       return {
         status: false,
