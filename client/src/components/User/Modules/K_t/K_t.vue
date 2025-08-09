@@ -60,6 +60,16 @@ interface Tiket {
   total: number
 }
 
+interface Fasilitas {
+  unit: number
+  total: number
+}
+
+interface FeeAgen {
+  unit: number
+  total: number
+}
+
 interface KTData {
   paket_id: number
   name: string
@@ -73,6 +83,8 @@ interface KTData {
   hotel: Hotel,
   transport: Transport,
   passport: Passport,
+  fasilitas: Fasilitas,
+  fee_agen: FeeAgen
 }
 
 const data = ref<KTData>({
@@ -88,6 +100,8 @@ const data = ref<KTData>({
   transport: {unit: 0, total: 0},
   passport: {unit: 0, total: 0},
   tiket: {unit: 0, total: 0},
+  fasilitas: {unit: 0, total: 0},
+  fee_agen: {unit: 0, total: 0},
 });
 
 const notificationMessage = ref<string>('')
@@ -238,16 +252,16 @@ onMounted(() => {
           <tr class="border-b">
             <td class="px-6 py-3 font-medium text-gray-900 text-center">1</td>
             <td class="px-0 py-3 font-medium text-gray-900 text-left">Fee Agen</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center" >10 Orang</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" >{{ data.fee_agen.unit }} Orang</td>
             <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
-            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">{{  formatRupiah(data.fee_agen.total ?? 0)  }}</td>
           </tr>
           <tr class="border-b">
             <td class="px-6 py-3 font-medium text-gray-900 text-center">2</td>
             <td class="px-0 py-3 font-medium text-gray-900 text-left">Biaya Fasilitas</td>
-            <td class="px-0 py-3 font-medium text-gray-900 text-center" >1000 Fasilitas</td>
+            <td class="px-0 py-3 font-medium text-gray-900 text-center" >{{ data.fasilitas.unit }} Unit Fasilitas</td>
             <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
-            <td class="px-6 py-3 font-medium text-gray-900 text-right">Rp 0,-</td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(data.fasilitas.total ?? 0 ) }}</td>
           </tr>
           <tr class="border-b">
             <td class="px-6 py-3 font-medium text-gray-900 text-center">3</td>

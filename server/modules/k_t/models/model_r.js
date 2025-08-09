@@ -2,7 +2,7 @@ const moment = require("moment");
 const { Paket, Division, Paket_transaction, Paket_price, Mst_paket_type, 
   Visa_transaction, Visa_transaction_detail, Hotel_transaction, Hotel_transaction_detail, 
   Transport_transaction, Transport_transaction_detail, Passport_transaction, Passport_transaction_detail,
-  Ticket_transaction_detail, Ticket_transaction
+  Ticket_transaction_detail, Ticket_transaction, Item_fasilitas, Transaction_fasilitas, Transaction_fasilitas_detail, Fee_agen
 } = require("../../../models");
 const{ getCompanyIdByCode, tipe, getCabang } = require("../../../helper/companyHelper");
 const{ convertToRP } = require("../../../helper/currencyHelper");
@@ -83,19 +83,31 @@ class Model_r {
       );
 
       // mengambil informasi total anggaran
+      var listAgen = [];
+      var TotalFeeAgen = 0;
       var total_anggaran = 0;
       const q3 = await Paket_transaction.findAndCountAll({ 
         where : { 
           paket_id : body.paket_id 
         }, 
-        include: { 
-          required : true, 
-          model: Division, 
-          where: { company_id: this.company_id}
-        }
+        include: [
+          { 
+            required : true, 
+            model: Division, 
+            where: { company_id: this.company_id}
+          },
+          { 
+            required : true, 
+            model: Fee_agen, 
+          }
+        ]
       });
       await Promise.all(
         await q3.rows.map(async (e) => {
+          TotalFeeAgen = TotalFeeAgen + e.Fee_agen.nominal;
+          if(!listAgen.includes(e.Fee_agen.agen_id)) {
+            listAgen.push(e.Fee_agen.agen_id);
+          }
           total_anggaran = total_anggaran + e.price;
           if( paketPrice[e.mst_paket_type_id] !== undefined) {
             paketPrice[e.mst_paket_type_id].qt = paketPrice[e.mst_paket_type_id].qt + 1;
@@ -194,16 +206,51 @@ class Model_r {
         })
       );
 
-      var total_aktualisasi = total_rupiah_visa + total_rupiah_hotel + total_rupiah_transport + total_rupiah_passport + total_rupiah_tiket;
+      var unit_fasilitas= 0;
+      var total_rupiah_fasilitas = 0;
+      const q9 = await Transaction_fasilitas_detail.findAndCountAll({ 
+        include:[
+          {
+            required : true, 
+            model: Transaction_fasilitas, 
+            where: { paket_id: body.paket_id },
+          },
+          {
+            required : true, 
+            model: Item_fasilitas, 
+          }
+        ] 
+      });
+
+      await Promise.all(
+        await q9.rows.map(async (e) => {
+          unit_fasilitas = unit_fasilitas + 1;
+          total_rupiah_fasilitas = total_rupiah_fasilitas + e.Item_fasilita.harga_jual;
+        })
+      );
+
+
+      var total_aktualisasi = total_rupiah_fasilitas + total_rupiah_tiket + total_rupiah_visa + total_rupiah_hotel + total_rupiah_transport + total_rupiah_passport + TotalFeeAgen ;
 
       data['total_anggaran'] = total_anggaran;
       data['paketPrice'] = paketPrice
-      data['belanja'] = 0;
+      data['belanja'] = total_aktualisasi;
       data['keuntungan'] = total_anggaran - total_aktualisasi;
       data['tiket'] = {
         unit: unit_tiket,
         total: total_rupiah_tiket,
       };
+
+      data['fee_agen'] = {
+        unit: listAgen.length, 
+        total: TotalFeeAgen
+      }
+
+      data['fasilitas'] = {
+        unit: unit_fasilitas,
+        total: total_rupiah_fasilitas,
+      };
+
       data['visa'] = {
         unit: unit_visa,
         total: total_rupiah_visa,
@@ -221,7 +268,8 @@ class Model_r {
         total: total_rupiah_passport,
       };
 
-      data['total_aktualisasi'] = 0;
+        
+      data['total_aktualisasi'] = total_aktualisasi;
 
       return { data: data  };
     } catch (error) {
