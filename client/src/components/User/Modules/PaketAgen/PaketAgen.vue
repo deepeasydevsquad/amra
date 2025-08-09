@@ -180,7 +180,7 @@ const openModalPembayaran = (id: number) => {
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
-          <tr v-if="data.length === 0">
+          <tr v-if="Object.keys(data).length === 0">
             <td colspan="5" class="text-center py-3 text-sm text-gray-500">
               Daftar Agen Tidak Ditemukan
             </td>
