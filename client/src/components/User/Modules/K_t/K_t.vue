@@ -6,26 +6,19 @@ import CheckIcon from '@/components/User/Modules/SyaratPaket/icon/CheckIcon.vue'
 // Import components
 import Notification from '@/components/User/Modules/SyaratPaket/particle/Notification.vue'
 
-import LightButton from "@/components/Button/LightButton.vue"
+import PrimaryButtonLight from "@/components/Button/PrimaryButtonLight.vue"
 import DangerButtonSecondary from "@/components/Button/DangerButtonSecondary.vue"
-import IconPlus from '@/components/Icons/IconPlus.vue'
+import LockIcon from '@/components/Icons/LockIcon.vue'
 import DownloadIcon from '@/components/Icons/IconDownload.vue'
 
 
-// import widget
-// import Pagination from '@/components/Pagination/Pagination.vue'
-
 import { ref, onMounted, computed } from 'vue'
-import { getInfoPaketKT } from '@/service/k_t.ts'
+import { getInfoPaketKT } from '@/service/k_t'
 const props = defineProps<{
   paketId: number
 }>()
 
 const isLoading = ref(false)
-const itemsPerPage = 100 // Jumlah daftar transaksi per halaman
-const currentPage = ref(1)
-const search = ref('')
-const totalPages = ref(0)
 const timeoutId = ref<number | null>(null)
 
 interface paketPrice {
@@ -84,7 +77,8 @@ interface KTData {
   transport: Transport,
   passport: Passport,
   fasilitas: Fasilitas,
-  fee_agen: FeeAgen
+  fee_agen: FeeAgen,
+  status: string
 }
 
 const data = ref<KTData>({
@@ -102,12 +96,12 @@ const data = ref<KTData>({
   tiket: {unit: 0, total: 0},
   fasilitas: {unit: 0, total: 0},
   fee_agen: {unit: 0, total: 0},
+  status: ''
 });
 
 const notificationMessage = ref<string>('')
 const notificationType = ref<'success' | 'error'>('success')
 const showNotification = ref<boolean>(false)
-// const totalColumns = ref(3)
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message
@@ -136,19 +130,19 @@ const fetchData = async () => {
 }
 
 const formatRupiah = (angka :any, prefix = "Rp ") => {
-  let numberString = angka.toString().replace(/\D/g, ""),
-    split = numberString.split(","),
-    sisa = split[0].length % 3,
-    rupiah = split[0].substr(0, sisa),
-    ribuan = split[0].substr(sisa).match(/\d{3}/g);
+    let numberString = angka.toString().replace(/\D/g, ""),
+      split = numberString.split(","),
+      sisa = split[0].length % 3,
+      rupiah = split[0].substr(0, sisa),
+      ribuan = split[0].substr(sisa).match(/\d{3}/g);
 
-  if (ribuan) {
-    let separator = sisa ? "." : "";
-    rupiah += separator + ribuan.join(".");
-  }
+    if (ribuan) {
+      let separator = sisa ? "." : "";
+      rupiah += separator + ribuan.join(".");
+    }
 
-  return prefix + (rupiah || "0").trim() + ',-';
-};
+    return prefix + (rupiah || "0");
+  };
 
 onMounted(() => {
   fetchData()
@@ -161,10 +155,14 @@ onMounted(() => {
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400"></div>
     </div>
     <div class="flex justify-between mb-4">
-      <DangerButtonSecondary>
-        <DownloadIcon />
+      <DangerButtonSecondary v-if="data.status == 'buka'">
+        <font-awesome-icon icon="fa-solid fa-lock"  style="margin-right: 5px" />
         Tutup Paket
       </DangerButtonSecondary>
+      <PrimaryButtonLight v-if="data.status == 'tutup'">
+        <font-awesome-icon icon="fa-solid fa-lock-open"  style="margin-right: 5px" />
+        Buka Paket
+      </PrimaryButtonLight>
       <div class="flex items-center">
         <label for="search" class="block pt-2 text-base font-medium text-gray-700 mr-2">{{ data.name  ?? 'Rp 0' }}</label>
       </div>

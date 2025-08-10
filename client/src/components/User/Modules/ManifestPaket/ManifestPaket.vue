@@ -106,7 +106,8 @@ interface ManifestPaket {
   kewarganegaraan: string;
 }
 
-const dataManifestPaket = ref<ManifestPaket[]>([])
+const dataManifestPaket = ref<ManifestPaket[]>([]);
+const status = ref<string>('tutup');
 const jamaahId = ref<number>(0);
 const isFormEditMasnifestOpen = ref<boolean>(false)
 const notificationMessage = ref<string>('');
@@ -144,7 +145,8 @@ const fetchData = async () => {
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
     })
-    dataManifestPaket.value = response.data
+    dataManifestPaket.value = response.data;
+    status.value = response.status;
     totalRow.value = response.total;
     console.log(dataManifestPaket)
     totalPages.value = Math.ceil(response.total / itemsPerPage)
@@ -212,11 +214,8 @@ onMounted(() => {
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
           <template v-if="dataManifestPaket && dataManifestPaket.length > 0">
-            <tr
-              v-for="dataManifest in dataManifestPaket"
-              :key="dataManifest.id"
-              class="hover:bg-gray-50"
-            >
+            <tr v-for="dataManifest in dataManifestPaket" :key="dataManifest.id"
+              class="hover:bg-gray-50" :class="status == 'tutup' ? ' pointer-events-none opacity-50 ' : '' " >
               <td class="px-6 py-4 text-center">
                 <p>{{ dataManifest.nama_jamaah }}</p>
                 <p>({{ dataManifest.nomor_identitas }})</p>
@@ -254,9 +253,14 @@ onMounted(() => {
                 </template>
               </td>
               <td class="px-6 py-4 items-center justify-center flex gap-2">
-                <LightButton title="Cetak Data Jamaah" @click="openFormEditManifest(dataManifest)">
-                  <EditIcon></EditIcon>
-                </LightButton>
+                <template v-if="status == 'buka'">
+                  <LightButton title="Edit Data Jamaah" @click="openFormEditManifest(dataManifest)">
+                    <EditIcon></EditIcon>
+                  </LightButton>
+                </template>
+                <template v-else>
+                  <span class="italic">Paket ini sudah ditutup</span>
+                </template>
               </td>
             </tr>
           </template>

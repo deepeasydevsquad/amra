@@ -171,6 +171,7 @@ class Model_r {
                 departure_time: e.departure_time,
                 arrival_time: e.arrival_time,
                 prices: [],
+                tutup_paket: e.tutup_paket,
                 status: await this.cekDate(e.departure_date),
               });
 

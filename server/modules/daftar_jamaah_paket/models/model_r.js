@@ -260,7 +260,7 @@ class Model_r {
     const offset = (pageNumber - 1) * perpage;
     const search = body.search || "";
     const division_id = await getDivisionId(this.req);
-
+    var status = 'tutup';
     console.log(body);
 
     let where = { paket_id: body.paketId, division_id: division_id };
@@ -291,7 +291,7 @@ class Model_r {
       },
       {
         model: Paket,
-        attributes: ["id", "kode", "name"],
+        attributes: ["id", "kode", "name", "tutup_paket"],
         required: true
       },
       {
@@ -309,6 +309,7 @@ class Model_r {
     ]
 
     try {
+      
       const query = await dbList(sql);
       const totalData = await Paket_transaction.findAndCountAll(query.total);
       const dataList = await Paket_transaction.findAll(query.sql);
@@ -317,13 +318,15 @@ class Model_r {
 
       const data = await Promise.all(
         dataList.map(async (e) => {
+          status = e.Paket.tutup_paket;
           return await this.transformDaftarJamaahPaket(e);
         })
       );
 
       return { 
         data: data,
-        total: await totalData.count
+        total: await totalData.count,
+        status
       };    
     } catch (error) {
       console.log("Error in daftarJamaahPaket:", error);

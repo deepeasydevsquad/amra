@@ -57,6 +57,7 @@ const pages = computed(() => {
 })
 
 const showConfirmDialog = ref<boolean>(false)
+const status = ref<string>('tutup');
 const showNotification = ref<boolean>(false)
 const notificationMessage = ref<string>('')
 const notificationType = ref<'success' | 'error'>('success')
@@ -98,9 +99,8 @@ const fetchData = async () => {
       displayNotification(response.error_msg || 'Terjadi kesalahan saat mengambil data', 'error')
       return
     }
-
     totalRow.value= response.total;
-
+    status.value = response.status;
     totalPages.value = Math.ceil((response?.total || 0) / itemsPerPage)
     kamarList.value = response?.data || []
   } catch (error) {
@@ -186,7 +186,7 @@ const tabelutama = ref<HTMLTableElement | null>(null)
 // --- Lifecycle Hook ---
 onMounted(async () => {
   await fetchData()
-  totalColumns.value = tabelutama.value?.querySelectorAll(':scope > thead > tr > th:not(.hidden)').length
+  // totalColumns.value = tabelutama.value?.querySelectorAll(':scope > thead > tr > th:not(.hidden)').length
 })
 </script>
 
@@ -194,7 +194,7 @@ onMounted(async () => {
   <div class="container mx-auto p-4 min-h-screen">
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
       <div class="flex gap-2">
-        <PrimaryButton @click="isFormOpen = true">
+        <PrimaryButton @click="isFormOpen = true" v-if="status == 'buka'">
           <font-awesome-icon icon="fas fa-plus"></font-awesome-icon>
           <span class="text-base">Tambah Kamar</span>
         </PrimaryButton>
@@ -248,7 +248,7 @@ onMounted(async () => {
               {{ search ? 'Data tidak ditemukan' : 'Daftar Kamar Tidak Ditemukan' }}
             </td>
           </tr>
-          <tr v-for="item in kamarList" :key="item.id" class="hover:bg-gray-50 transition">
+          <tr v-for="item in kamarList" :key="item.id" class="hover:bg-gray-50 transition" :class="status == 'tutup' ? ' pointer-events-none opacity-50 ' : '' ">
             <td class="px-4 py-3 align-top">
               <div class="font-bold">{{ item.tipe_kamar }}</div>
               <div class="text-sm text-gray-500">(Hotel: {{ item.hotel_name }})</div>
@@ -281,21 +281,23 @@ onMounted(async () => {
             </td>
             <td class="px-4 py-3 align-top">{{ item.nama_kota }}</td>
             <td class="px-4 py-3 flex items-start justify-center gap-2">
-              <LightButton title="Edit" @click="handleEdit(item.id)">
-                <EditIcon class="h-4 w-4 text-gray-600" />
-              </LightButton>
-              <DangerButton
-                title="Delete"
-                @click="handleDelete(item.id)"
-                :disabled="isDeletingId === item.id"
-              >
-                <span v-if="isDeletingId === item.id">
-                  <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                </span>
-                <span v-else>
-                  <DeleteIcon class="w-5 h-5" />
-                </span>
-              </DangerButton>
+              <template v-if="status == 'buka'">
+                <LightButton title="Edit" @click="handleEdit(item.id)">
+                  <EditIcon class="h-4 w-4 text-gray-600" />
+                </LightButton>
+                <DangerButton title="Delete" @click="handleDelete(item.id)" :disabled="isDeletingId === item.id" >
+                  <span v-if="isDeletingId === item.id">
+                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  </span>
+                  <span v-else>
+                    <DeleteIcon class="w-5 h-5" />
+                  </span>
+                </DangerButton>
+              </template>
+              <template v-else>
+                <span class="italic">Paket ini sudah ditutup</span>
+              </template>
+
             </td>
           </tr>
         </tbody>

@@ -52,6 +52,7 @@ class Model_r {
       await Promise.all(
         await q.rows.map(async (e) => {
           data['name'] = e.name;
+          data['status'] = e.tutup_paket;
         })
       );
       

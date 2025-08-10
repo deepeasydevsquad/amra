@@ -130,6 +130,7 @@ class Model_r {
     const perpage = parseInt(body.perpage) || 10;
     const offset = (pageNumber - 1) * perpage;
     const search = body.search || "";
+    var status = 'tutup';
 
     let where = { paket_id: body.paketId, division_id: this.division_id };
     if (search) {
@@ -159,6 +160,11 @@ class Model_r {
             required: true
           }
         ]
+      }, 
+      {
+        model: Paket, 
+        required: true, 
+        attributes: ['tutup_paket']
       }
     ]
 
@@ -169,13 +175,15 @@ class Model_r {
 
       const data = await Promise.all(
         dataList.map(async (e) => {
+          status = e.Paket.tutup_paket;
           return await this.transformManifestPaket(e);
         })
       );
 
       return { 
         data: data,
-        total: await totalData.count
+        total: await totalData.count,
+        status
       };    
     } catch (error) {
       console.log("Error in daftarManifestPaket:", error);

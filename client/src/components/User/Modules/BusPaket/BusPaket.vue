@@ -60,6 +60,7 @@ const pages = computed(() => {
 })
 
 const showConfirmDialog = ref<boolean>(false)
+const status = ref<string>('tutup');
 const showNotification = ref<boolean>(false)
 const notificationMessage = ref<string>('')
 const notificationType = ref<'success' | 'error'>('success')
@@ -103,6 +104,7 @@ const fetchData = async () => {
     }
 
     totalRow.value= response.total;
+    status.value = response.status;
 
     totalPages.value = Math.ceil((response?.total || 0) / itemsPerPage)
     busList.value = response?.data || []
@@ -187,7 +189,7 @@ onMounted(async () => {
   <div class="container mx-auto p-4 min-h-screen">
     <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
       <div class="flex gap-2">
-        <PrimaryButton @click="isFormOpen = true">
+        <PrimaryButton @click="isFormOpen = true" v-if="status == 'buka'">
           <font-awesome-icon :icon="['fas', 'plus']"></font-awesome-icon>
           <span class="text-base">Tambah Bus</span>
         </PrimaryButton>
@@ -232,7 +234,7 @@ onMounted(async () => {
               {{ search ? 'Data tidak ditemukan' : 'Daftar Bus Tidak Ditemukan' }}
             </td>
           </tr>
-          <tr v-for="item in busList" :key="item.id" class="hover:bg-gray-50 transition">
+          <tr v-for="item in busList" :key="item.id" class="hover:bg-gray-50 transition" :class="status == 'tutup' ? ' pointer-events-none opacity-50 ' : '' ">
             <td class="px-4 py-3 align-top">
               <div class="font-bold">{{ item.bus_number }}</div>
             </td>
@@ -242,11 +244,7 @@ onMounted(async () => {
               <div class="flex justify-center">
                 <div class="text-left">
                   <ul v-if="item.daftar_jamaah.length > 0" class="space-y-3">
-                    <li
-                      v-for="jamaah in item.daftar_jamaah"
-                      :key="jamaah.no_identity"
-                      class="border-b border-gray-100 pb-2 last:border-b-0 flex gap-2"
-                    >
+                    <li v-for="jamaah in item.daftar_jamaah" :key="jamaah.no_identity" class="border-b border-gray-100 pb-2 last:border-b-0 flex gap-2">
                       <div class="flex-shrink-0 flex items-center justify-center mt-1">
                         <span class="text-gray-500">&#x1F464;</span>
                       </div>
@@ -265,12 +263,17 @@ onMounted(async () => {
             </td>
             <td class="px-4 py-3 align-top">{{ item.nama_kota }}</td>
             <td class="px-4 py-3 flex items-start justify-center gap-2">
-              <LightButton title="Edit" @click="handleEdit(item.id)">
-                <EditIcon class="h-4 w-4 text-gray-600" />
-              </LightButton>
-              <DangerButton title="Delete" @click="handleDelete(item.id)">
-                <DeleteIcon class="w-5 h-5" />
-              </DangerButton>
+              <template v-if="status == 'buka'">
+                <LightButton title="Edit" @click="handleEdit(item.id)">
+                  <EditIcon class="h-4 w-4 text-gray-600" />
+                </LightButton>
+                <DangerButton title="Delete" @click="handleDelete(item.id)">
+                  <DeleteIcon class="w-5 h-5" />
+                </DangerButton>
+              </template>
+              <template v-else>
+                <span class="italic">Paket ini sudah ditutup</span>
+              </template>
             </td>
           </tr>
         </tbody>

@@ -21,6 +21,7 @@ import FormPembayaran from '../TransPaket/Particle/FormPembayaran.vue'
 
 const showModalDetail = ref(false)
 const showModal = ref(false)
+const status = ref<string>('tutup');
 const totalRow = ref(0);
 const currentPage = ref(1)
 const totalPages = ref(1)
@@ -124,6 +125,7 @@ const fetchData = async () => {
   try {
     const response = await get_paket_agen({ paket_id: props.paketId })
     data.value = response.data
+    status.value = response.status_tutup
     totalRow.value = response.total;
     console.log("-----response")
     console.log(response)
@@ -185,8 +187,7 @@ const openModalPembayaran = (id: number) => {
               Daftar Agen Tidak Ditemukan
             </td>
           </tr>
-
-          <tr v-else v-for="item in filteredData" :key="item.agen_id" class="hover:bg-gray-50 transition-colors">
+          <tr v-else v-for="item in filteredData" :key="item.agen_id" class="hover:bg-gray-50 transition-colors" :class="status == 'tutup' ? ' pointer-events-none opacity-50 ' : '' ">
             <!-- Info Agen -->
             <td class="px-6 py-4 border-b text-left align-top">
               <div class="py-1">
@@ -230,9 +231,14 @@ const openModalPembayaran = (id: number) => {
             </td>
             <!-- Aksi -->
             <td class="px-6 py-5 border-b text-center align-top">
-              <LightButton @click="openModalPembayaran(item.agen_id)">
-                <i class="pi pi-money-bill"></i>
-              </LightButton>
+              <template v-if="status == 'buka'">
+                <LightButton @click="openModalPembayaran(item.agen_id)">
+                  <i class="pi pi-money-bill"></i>
+                </LightButton>
+              </template>
+              <template v-else>
+                <span class="italic">Paket ini sudah ditutup</span>
+              </template>
             </td>
           </tr>
         </tbody>

@@ -15,7 +15,7 @@ controllers.getDaftarKamarPaket = async (req, res) => {
     const feedBack = await model_r.kamar_paket();
     res
       .status(200)
-      .json({ error: false, data: feedBack.data });
+      .json({ error: false, data: feedBack.data, status: feedBack.status, total: feedBack.total });
   } catch (error) {
     console.log("*******");
     console.log(error);

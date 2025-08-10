@@ -8,6 +8,7 @@ const {
   sequelize,
   Jamaah,
   Paket_transaction,
+  Paket
 } = require("../../../models");
 const {
   getCompanyIdByCode,
@@ -35,6 +36,7 @@ class Model_r {
 
     const paket_id = this.req.body.paket_id;
     const division_id = this.division;
+    var status = 'tutup';
 
     try {
       var data = {};
@@ -43,45 +45,53 @@ class Model_r {
           paket_id,
           division_id,
         },
-        include: {
-          required: true,
-          model: Jamaah,
-          include: [
-            {
-              required: true,
-              model: Agen,
-              include: [
-                {
-                  model: Member,
-                  attributes: ["fullname", "whatsapp_number"],
-                },
-                {
-                  model: Level_keagenan,
-                  attributes: ["name"],
-                },
-                {
-                  model: Fee_agen,
-                  attributes: ["nominal", "status_bayar"],
-                },
-                {
-                  model: Jamaah,
-                  include: {
+        include: [
+          {
+            required: true,
+            model: Jamaah,
+            include: [
+              {
+                required: true,
+                model: Agen,
+                include: [
+                  {
                     model: Member,
-                    attributes: ["fullname", "identity_number"],
+                    attributes: ["fullname", "whatsapp_number"],
                   },
-                },
-              ],
-            },
-            {
-              required: true,
-              model: Member,
-            },
-          ],
-        },
+                  {
+                    model: Level_keagenan,
+                    attributes: ["name"],
+                  },
+                  {
+                    model: Fee_agen,
+                    attributes: ["nominal", "status_bayar"],
+                  },
+                  {
+                    model: Jamaah,
+                    include: {
+                      model: Member,
+                      attributes: ["fullname", "identity_number"],
+                    },
+                  },
+                ],
+              },
+              {
+                required: true,
+                model: Member,
+              },
+            ],
+          },
+          {
+            required: true, 
+            model: Paket,  
+            attributes: ['tutup_paket']
+          }
+        ]
       });
       var list_agen_id = [];
       await Promise.all(
         await q.rows.map(async (e) => {
+          status = e.Paket.tutup_paket;
           if (data[e.Jamaah.agen_id] == undefined) {
             data = {
               ...data,
@@ -257,11 +267,18 @@ class Model_r {
 
       return {
         status: true,
+        status_tutup: status,
         message: "Berhasil ambil data agen dari paket & division",
         data: data,
         total: Object.keys(data).length,
       };
     } catch (error) {
+
+
+      console.log("-------SSSS");
+      console.log(error);
+      console.log("-------SSSS");
+
       return {
         status: false,
         message: "Gagal ambil data agen dari paket & division",

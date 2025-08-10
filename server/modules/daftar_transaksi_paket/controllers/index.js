@@ -50,7 +50,7 @@ controllers.getDaftarTransaksiPaket = async (req, res) => {
   try {
     const model_r = new Model_r(req);
     const feedBack = await model_r.daftarTransaksiPaket(); // Ambil daftar transaksi paket dari model
-    res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
+    res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total, status: feedBack.status });
   } catch (error) {
     handleServerError(res, error.message);
   }

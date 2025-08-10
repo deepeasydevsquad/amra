@@ -146,6 +146,7 @@ class model_r {
     const body = this.req.body;
     var limit = body.perpage;
     var page = 1;
+    var status = 'tutup';
 
     if (body.pageNumber != undefined && body.pageNumber !== "0")
       page = body.pageNumber;
@@ -218,6 +219,11 @@ class model_r {
                         model: Jamaah,
                         include: [{ model: Member }],
                       },
+                      {
+                        model: Paket, 
+                        required: true,
+                        attributes: ['tutup_paket']
+                      }
                     ],
                   },
                 ],
@@ -225,11 +231,8 @@ class model_r {
 
               const daftar_jamaah_murni = [];
               for (const kj of busJamaahs) {
-                if (
-                  kj.Paket_transaction &&
-                  kj.Paket_transaction.Jamaah &&
-                  kj.Paket_transaction.Jamaah.Member
-                ) {
+                status = kj.Paket_transaction.Paket.tutup_paket;
+                if ( kj.Paket_transaction && kj.Paket_transaction.Jamaah && kj.Paket_transaction.Jamaah.Member ) {
                   const memberId = kj.Paket_transaction.Jamaah.Member.id;
                   const isAgent = await Agen.findOne({
                     where: { member_id: memberId },
@@ -261,6 +264,7 @@ class model_r {
       return {
         data: data,
         total: total,
+        status
       };
     } catch (error) {
       console.error("Error di bus_paket:", error);

@@ -86,7 +86,7 @@ interface Paket {
   airport_departure: number;
   departure_time: string;
   arrival_time: string;
-  tutup_paket: boolean;
+  tutup_paket: string;
   provider_visa_id: number;
   provider_name: string | null;
   asuransi_id: number;
@@ -310,23 +310,29 @@ const shortText = (teks:string, maxKarakter: number) => {
           </thead>
           <tbody class="divide-y divide-gray-100 border-t border-gray-100">
             <template v-if="dataPaket && dataPaket.length > 0">
-              <tr v-for="paket in dataPaket" :key="paket.id" class="hover:bg-gray-50">
-                <td class="px-6 py-4 text-center">
+              <tr v-for="paket in dataPaket" :key="paket.id" class="hover:bg-gray-50" >
+                <td class="px-6 py-4 text-center" :class="paket.tutup_paket == 'tutup' ? ' pointer-events-none opacity-50 ' : '' ">
                   <strong>{{ paket.kode }} id : ({{ paket.id }}) </strong> -
                   <strong v-if="paket.jenis_kegiatan === 'umrah'">UMRAH</strong>
                   <strong v-else-if="paket.jenis_kegiatan === 'haji'">HAJI</strong>
                   <strong v-else-if="paket.jenis_kegiatan === 'haji_umrah'">HAJI DAN UMRAH</strong>
                   <br>{{ paket.name }}
+
+
                 </td>
-                <td class="px-0 py-4">
+                <td class="px-0 py-4" :class="paket.tutup_paket == 'tutup' ? ' pointer-events-none opacity-50 ' : '' ">
+                  <span class="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2
+                              bg-white px-4 py-2 rounded shadow text-gray-600">
+                    Daftar Paket tidak ditemukan.
+                  </span>
                   <ul class="list-disc list-inside text-sm">
                     <li v-for="(price, index) in paket.prices" :key="index">
                       {{ price.paket_tipe }}: Rp {{ price.price.toLocaleString() }}
                     </li>
                   </ul>
                 </td>
-                <td class="px-6 py-4">{{ shortText( paket.description, 200 ) }}</td>
-                <td class="px-6 py-4 text-center">
+                <td class="px-6 py-4" :class="paket.tutup_paket == 'tutup' ? ' pointer-events-none opacity-50 ' : '' ">{{ shortText( paket.description, 200 ) }}</td>
+                <td class="px-6 py-4 text-center" :class="paket.tutup_paket == 'tutup' ? ' pointer-events-none opacity-50 ' : '' ">
                   {{ paket.departure_date }}
                   <br>
                   <br>
@@ -339,17 +345,17 @@ const shortText = (teks:string, maxKarakter: number) => {
                     <strong>{{ paket.status === 'belum_berangkat' ? 'BELUM BERANGKAT' : 'SUDAH BERANGKAT' }}</strong>
                   </span>
                 </td>
-                <td class="px-6 py-4 text-left">{{ paket.return_date }}</td>
-                <td class="px-6 py-4 text-center">{{ paket.quota_jamaah }} Orang</td>
+                <td class="px-6 py-4 text-left" :class="paket.tutup_paket == 'tutup' ? ' pointer-events-none opacity-50 ' : '' ">{{ paket.return_date }}</td>
+                <td class="px-6 py-4 text-center" :class="paket.tutup_paket == 'tutup' ? ' pointer-events-none opacity-50 ' : '' ">{{ paket.quota_jamaah }} Orang</td>
                 <td class="px-6 py-4 text-center">
-                  <div class="flex justify-center gap-2">
+                  <div class="flex justify-end gap-2">
                     <LightButton  @click="openDetailPaket(paket.id, paket.division_id, paket.division_name, paket.name)">
                       <DetailIcon></DetailIcon>
                     </LightButton>
-                    <LightButton @click="openFormEdit(paket.id)">
+                    <LightButton @click="openFormEdit(paket.id)" v-if="paket.tutup_paket == 'buka'">
                       <EditIcon></EditIcon>
                     </LightButton>
-                    <DangerButton @click="deleteData(paket.id)">
+                    <DangerButton @click="deleteData(paket.id)" v-if="paket.tutup_paket == 'buka'">
                       <DeleteIcon></DeleteIcon>
                     </DangerButton>
                   </div>

@@ -154,7 +154,7 @@ class Model_r {
       },
       {
         model: Paket,
-        attributes: ["id", "kode", "name", "departure_date"],
+        attributes: ["id", "kode", "name", "departure_date", "tutup_paket"],
         required: true
       },
       {
@@ -177,9 +177,10 @@ class Model_r {
       const dataList = await Paket_transaction.findAll(query.sql);
 
       console.log(dataList);
-
+      var status = 'tutup';
       const data = await Promise.all(
         dataList.map(async (e) => {
+          status = e.Paket.tutup_paket;
           return await this.transformDaftarTransaksiPaket(e);
         })
       );
@@ -210,6 +211,7 @@ class Model_r {
       }
 
       return { 
+        status,
         data: data,
         total: await totalData.count
       };    

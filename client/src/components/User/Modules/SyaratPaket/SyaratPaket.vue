@@ -58,6 +58,7 @@ interface SyaratPaket {
 }
 
 const dataSyaratPaket = ref<SyaratPaket[]>([])
+const status = ref<string>('tutup');
 const notificationMessage = ref<string>('')
 const notificationType = ref<'success' | 'error'>('success')
 const showNotification = ref<boolean>(false)
@@ -87,6 +88,7 @@ const fetchData = async () => {
       pageNumber: currentPage.value,
     })
     dataSyaratPaket.value = response.data
+    status.value = response.status
     totalRow.value = response.total;
     console.log(dataSyaratPaket)
     totalPages.value = Math.ceil(response.total / itemsPerPage)
@@ -138,7 +140,7 @@ onMounted(() => {
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
           <template v-if="dataSyaratPaket && dataSyaratPaket.length > 0">
-            <tr v-for="dataSyarat in dataSyaratPaket" :key="dataSyarat.id" class="hover:bg-gray-50">
+            <tr v-for="dataSyarat in dataSyaratPaket" :key="dataSyarat.id" class="hover:bg-gray-50"  :class="status == 'tutup' ? ' pointer-events-none opacity-50 ' : '' " >
               <td class="px-6 py-4 text-center">
                 <p>{{ dataSyarat.fullname }}</p>
                 <p>({{ dataSyarat.identity_number }})</p>

@@ -71,7 +71,6 @@ interface FilePendukung {
   filename: string;
 }
 
-
 interface PaketTransaction {
     id: number;
     paket_id: number;
@@ -92,6 +91,7 @@ interface PaketTransaction {
 }
 
 const dataPaketTransaction = ref<PaketTransaction[]>([]);
+const status = ref<string>('tutup');
 const transpaketId = ref<number>(0);
 const isFormOpen = ref<boolean>(false);
 const isFormEditVisaOpen = ref<boolean>(false);
@@ -235,7 +235,7 @@ onMounted(() => {
           Kembali
         </button>
         <button
-          v-if="props.showAddTransactionButton"
+          v-if="props.showAddTransactionButton && status == 'buka'"
           @click="openForm()"
           class="bg-[#455494] text-white px-4 py-2 rounded-lg hover:bg-[#3a477d] transition-colors duration-200 ease-in-out flex items-center gap-2" >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -275,7 +275,7 @@ onMounted(() => {
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100 text-sm">
           <template v-if="dataPaketTransaction && dataPaketTransaction.length > 0">
-            <tr v-for="dataTransPaket in dataPaketTransaction" :key="dataTransPaket.id" class="hover:bg-gray-50">
+            <tr v-for="dataTransPaket in dataPaketTransaction" :key="dataTransPaket.id" class="hover:bg-gray-50" :class="status == 'tutup' ? ' pointer-events-none opacity-50 ' : '' ">
               <td class="px-3 py-4 text-center align-top">
                 <table class="w-full mb-5">
                   <thead>
@@ -420,18 +420,23 @@ onMounted(() => {
               </td>
               <td class="px-4 py-2 text-center align-top">
                 <div class="flex flex-col items-center space-y-2">
-                  <LightButton @click="openFormRefund(dataTransPaket.id)" title="Refund Transaksi Paket">
-                    <RefundIcon class="h-4 w-4 text-gray-600" />
-                  </LightButton>
-                  <LightButton @click="openFormEditVisa(dataTransPaket.id)" title="Update Informasi Visa">
-                    <EditIcon></EditIcon>
-                  </LightButton>
-                  <LightButton @click="openFilePendukung(dataTransPaket.id)" title="Upload File Pendukung">
-                    <IconUpload></IconUpload>
-                  </LightButton>
-                  <DangerButton @click="deleteData(dataTransPaket.id, )" title="Hapus Transaksi Paket">
-                    <DeleteIcon></DeleteIcon>
-                  </DangerButton>
+                  <template v-if="status == 'buka'">
+                    <LightButton @click="openFormRefund(dataTransPaket.id)" title="Refund Transaksi Paket">
+                      <RefundIcon class="h-4 w-4 text-gray-600" />
+                    </LightButton>
+                    <LightButton @click="openFormEditVisa(dataTransPaket.id)" title="Update Informasi Visa">
+                      <EditIcon></EditIcon>
+                    </LightButton>
+                    <LightButton @click="openFilePendukung(dataTransPaket.id)" title="Upload File Pendukung">
+                      <IconUpload></IconUpload>
+                    </LightButton>
+                    <DangerButton @click="deleteData(dataTransPaket.id, )" title="Hapus Transaksi Paket">
+                      <DeleteIcon></DeleteIcon>
+                    </DangerButton>
+                  </template>
+                  <template v-else>
+                    <span class="italic">Paket ini sudah ditutup</span>
+                  </template>
                 </div>
               </td>
             </tr>

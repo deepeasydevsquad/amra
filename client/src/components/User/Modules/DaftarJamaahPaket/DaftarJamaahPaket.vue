@@ -83,6 +83,7 @@ interface PaketJamaah {
 }
 
 const dataPaketJamaah = ref<PaketJamaah[]>([]);
+const status = ref<string>('tutup');
 const transpaketId = ref<number>(0);
 const isFormDownloadAbsensiOpen = ref<boolean>(false);
 const isFormCetakDataJamaahOpen = ref<boolean>(false);
@@ -150,6 +151,7 @@ const fetchData = async () => {
       pageNumber: currentPage.value
     });
     dataPaketJamaah.value = response.data;
+    status.value = response.status;
     totalRow.value = response.total;
     console.log(dataPaketJamaah)
     totalPages.value = Math.ceil(response.total / itemsPerPage);
@@ -207,7 +209,7 @@ onMounted(() => {
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
           <template v-if="dataPaketJamaah && dataPaketJamaah.length > 0">
-            <tr v-for="dataJamaah in dataPaketJamaah" :key="dataJamaah.id" class="hover:bg-gray-50">
+            <tr v-for="dataJamaah in dataPaketJamaah" :key="dataJamaah.id" class="hover:bg-gray-50" :class="status == 'tutup' ? ' pointer-events-none opacity-50 ' : '' ">
               <td class="px-6 py-4 text-center align-top">
                 <p>{{ dataJamaah.fullname }}</p>
                 <p>(No Identitas : {{ dataJamaah.identity_number }})</p>
@@ -238,15 +240,20 @@ onMounted(() => {
               </td>
               <td class="px-4 py-2 text-center align-top">
                 <div class="flex flex-col items-center space-y-2">
-                  <LightButton @click="openFormOpsiHandoverBarang(dataJamaah)" title="Handover Barang">
-                    <HandoverIcon class="h-4 w-4 text-gray-600" />
-                  </LightButton>
-                  <LightButton @click="openFormHandoverFasilitas(dataJamaah)" title="Handover Fasilitas">
-                    <HandoverBarangIcon class="h-4 w-4 text-gray-600" />
-                  </LightButton>
-                  <LightButton col-span-1 title="Cetak Data Jamaah" @click="openFormCetakDataJamaah(dataJamaah)">
-                    <CetakIcon class="h-4 w-4 text-gray-600" />
-                  </LightButton>
+                  <template v-if="status == 'buka'">
+                    <LightButton @click="openFormOpsiHandoverBarang(dataJamaah)" title="Handover Barang">
+                      <HandoverIcon class="h-4 w-4 text-gray-600" />
+                    </LightButton>
+                    <LightButton @click="openFormHandoverFasilitas(dataJamaah)" title="Handover Fasilitas">
+                      <HandoverBarangIcon class="h-4 w-4 text-gray-600" />
+                    </LightButton>
+                    <LightButton col-span-1 title="Cetak Data Jamaah" @click="openFormCetakDataJamaah(dataJamaah)">
+                      <CetakIcon class="h-4 w-4 text-gray-600" />
+                    </LightButton>
+                  </template>
+                  <template v-else>
+                    <span class="italic">Paket ini sudah ditutup</span>
+                  </template>
                 </div>
               </td>
             </tr>

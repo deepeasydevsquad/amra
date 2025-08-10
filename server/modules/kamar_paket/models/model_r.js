@@ -15,6 +15,7 @@ const {
   Mst_paket_type,
   Mst_hotel,
   Agen,
+  Paket,
   Sequelize,
   sequelize
 } = require("../../../models");
@@ -152,6 +153,7 @@ class model_r {
     const limit = parseInt(body.perpage) || 10;
     const page = parseInt(body.pageNumber) || 1;
     const offset = (page - 1) * limit;
+    var status = 'tutup';
 
     try {
       const whereKamar = {};
@@ -210,6 +212,11 @@ class model_r {
                 model: Mst_paket_type,
                 attributes: ["name"],
               },
+              {
+                model: Paket, 
+                required: true, 
+                attributes: ['tutup_paket']
+              }
             ],
           },
         ],
@@ -221,6 +228,8 @@ class model_r {
       kamarJamaahList.forEach((kj) => {
         const kamarId = kj.kamar_id;
         const trans = kj.Paket_transaction;
+        
+        status = trans.Paket.status;
 
         if (trans && trans.Jamaah && trans.Jamaah.Member) {
           const jamaah = {
@@ -251,6 +260,7 @@ class model_r {
       return {
         data: result,
         total,
+        status
       };
     } catch (error) {
 

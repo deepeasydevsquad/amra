@@ -15,7 +15,7 @@ controllers.getDaftarBusPaket = async (req, res) => {
     const feedBack = await model_r.bus_paket();
     res
       .status(200)
-      .json({ error: false, data: feedBack.data, total: feedBack.total });
+      .json({ error: false, data: feedBack.data, total: feedBack.total, status: feedBack.status });
   } catch (error) {
     handleServerError(res, error.message);
   }
