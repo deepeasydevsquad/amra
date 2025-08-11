@@ -37,7 +37,7 @@ jobs:
           docker push $BACK_IMAGE
 
       - name: Deploy to Ubuntu server via SSH
-        uses: appleboy/ssh-action@v1.0.6
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ env.SERVER_IP }}
           username: ${{ env.SSH_USER }}
