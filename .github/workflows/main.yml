@@ -35,7 +35,7 @@ jobs:
         docker push muammar88/amra_saas_server:v1.0
 
     - name: Deploy to Ubuntu server via SSH
-      uses: appleboy/ssh-action@v1.0.0
+      uses: appleboy/ssh-action@v1
       with:
         host: ${{ env.SERVER_IP }}
         username: ${{ env.SSH_USER }}
