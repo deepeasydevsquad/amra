@@ -116,7 +116,7 @@ class Model_r {
           }
         })
       );
-
+      
       // mengambil informasi total transaksi visa
       var unit_visa = 0;
       var total_rupiah_visa = 0;

@@ -270,6 +270,7 @@ class Model_cud {
       }, { transaction: this.t });
 
       // === 3. Jika ada agen, insert ke FEE_KEAGENAN ===
+      var feesAgen = 0;
       if (jamaah?.Agen) {
         const invoiceAgen = await this.generateInvoiceAgen();
         const agen = await Fee_agen.create({
@@ -283,6 +284,8 @@ class Model_cud {
           createdAt: dateNow,
           updatedAt: dateNow,
         }, { transaction: this.t });
+        
+        feesAgen = jamaah.Agen.Level_keagenan.default_fee;
 
         await tabungan.update({
           fee_agen_id: agen.id,
@@ -326,6 +329,90 @@ class Model_cud {
           total_tabungan: Number(member.total_tabungan || 0) + Number(body.biaya_deposit),
           updatedAt: dateNow
         }, { transaction: this.t });
+      }
+ 
+      // insert JURNAL
+      // insert deposit
+      if(body.sumber_dana == 'deposit') {
+        await Jurnal.create(
+          {
+            division_id: division_id, 
+            source: 'deposittabungan:' + tabungan.id,
+            ref: 'Menabung',
+            ket: 'Menabung',
+            akun_debet: '24000',
+            akun_kredit: '23000',
+            saldo: body.biaya_deposit - feesAgen,
+            removable: 'false',
+            periode_id: 0,
+            createdAt: dateNow,
+            updatedAt: dateNow,
+          },
+          {
+            transaction: this.t,
+          }
+        );
+
+        if(feesAgen != 0 ) {
+          await Jurnal.create(
+            {
+              division_id: division_id, 
+              source: 'deposittabunganfeeagen:' + tabungan.id,
+              ref: 'Menabung (Fee Agen)',
+              ket: 'Menabung (Fee Agen)',
+              akun_debet: '24000',
+              akun_kredit: '25000',
+              saldo: feesAgen,
+              removable: 'false',
+              periode_id: 0,
+              createdAt: dateNow,
+              updatedAt: dateNow,
+            },
+            {
+              transaction: this.t,
+            }
+          );
+        }
+      }else{
+        await Jurnal.create(
+          {
+            division_id: division_id, 
+            source: 'tabungan:' + tabungan.id,
+            ref: 'Menabung',
+            ket: 'Menabung',
+            akun_debet: '11010',
+            akun_kredit: '23000',
+            saldo: body.biaya_deposit - feesAgen,
+            removable: 'false',
+            periode_id: 0,
+            createdAt: dateNow,
+            updatedAt: dateNow,
+          },
+          {
+            transaction: this.t,
+          }
+        );
+
+        if(feesAgen != 0 ) {
+          await Jurnal.create(
+            {
+              division_id: division_id, 
+              source: 'deposittabunganfeeagen:' + tabungan.id,
+              ref: 'Menabung (Fee Agen)',
+              ket: 'Menabung (Fee Agen)',
+              akun_debet: '11010',
+              akun_kredit: '25000',
+              saldo: feesAgen,
+              removable: 'false',
+              periode_id: 0,
+              createdAt: dateNow,
+              updatedAt: dateNow,
+            },
+            {
+              transaction: this.t,
+            }
+          );
+        }
       }
 
       this.message = `Data tabungan berhasil disimpan dengan invoice: ${invoiceTabungan}`;
@@ -533,7 +620,7 @@ class Model_cud {
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
     
     try {
-      const invoiceHandover = await generateInvoiceHandoverFasilitas();
+      const invoiceHandover = await generateInvoiceHandoverFasilitas( this.company_id );
       const penerima = await this.penerima();
 
       const handoverFasilitas = await Handover_fasilitas.create({

@@ -16,6 +16,17 @@ class Model_cud {
     this.state = true;
   }
 
+  async get_nomor_akun( company_id ) {
+    var num = 19110;
+    let condition = true;
+    while (condition) {
+      num++;
+      var check = await Mst_fasilitas.findOne({ where: { nomor_akun: num, company_id: company_id } });
+      if (!check) condition = false;
+    }
+    return num
+  }
+
   // Tambah Fasilitas
   async add() {
     await this.initialize();
@@ -23,10 +34,12 @@ class Model_cud {
     const body = this.req.body;
 
     try {
+      const nomor_akun = await this.get_nomor_akun( this.company_id );
       const insert = await Mst_fasilitas.create(
         {
           company_id: this.company_id, 
           name: body.name,
+          nomor_akun: nomor_akun,
           createdAt: myDate,
           updatedAt: myDate,
         },

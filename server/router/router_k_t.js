@@ -16,5 +16,23 @@ router.post(
   controllers.list
 );
 
+router.post(
+  "/k_t/tutup-paket",
+  authenticateToken,
+  [
+    body("paket_id").trim().notEmpty().withMessage("Paket ID tidak boleh kosong.").custom(validation.check_paket_id),
+  ],
+  controllers.tutupPaket
+);
+
+router.post(
+  "/k_t/buka-paket",
+  authenticateToken,
+  [
+    body("paket_id").trim().notEmpty().withMessage("Paket ID tidak boleh kosong.").custom(validation.check_paket_id),
+  ],
+  controllers.bukaPaket
+);
+
  
 module.exports = router;

@@ -153,9 +153,19 @@ class model_r {
     const limit = parseInt(body.perpage) || 10;
     const page = parseInt(body.pageNumber) || 1;
     const offset = (page - 1) * limit;
-    var status = 'tutup';
+    // var status = 'tutup';
 
     try {
+
+      const status = (await Paket.findOne({
+        where: { id: body.paketId },
+        include: [{
+          required: true,
+          model: Division,
+          where: { company_id: this.company_id }
+        }]
+      }))?.tutup_paket ?? 'tutup';
+
       const whereKamar = {};
 
       // Optional search filter untuk kamar
@@ -229,7 +239,7 @@ class model_r {
         const kamarId = kj.kamar_id;
         const trans = kj.Paket_transaction;
         
-        status = trans.Paket.status;
+        // status = trans.Paket.status;
 
         if (trans && trans.Jamaah && trans.Jamaah.Member) {
           const jamaah = {

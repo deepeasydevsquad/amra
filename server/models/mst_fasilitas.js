@@ -30,7 +30,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   Mst_fasilitas.init({
     company_id: DataTypes.INTEGER,
-    name: DataTypes.STRING
+    name: DataTypes.STRING, 
+    nomor_akun: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Mst_fasilitas',

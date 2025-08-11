@@ -260,7 +260,7 @@ class Model_r {
     const offset = (pageNumber - 1) * perpage;
     const search = body.search || "";
     const division_id = await getDivisionId(this.req);
-    var status = 'tutup';
+    // var status = 'tutup';
     console.log(body);
 
     let where = { paket_id: body.paketId, division_id: division_id };
@@ -309,6 +309,15 @@ class Model_r {
     ]
 
     try {
+
+      const status = (await Paket.findOne({
+        where: { id: body.paketId },
+        include: [{
+          required: true,
+          model: Division,
+          where: { company_id: this.company_id }
+        }]
+      }))?.tutup_paket ?? 'tutup';
       
       const query = await dbList(sql);
       const totalData = await Paket_transaction.findAndCountAll(query.total);
@@ -318,7 +327,6 @@ class Model_r {
 
       const data = await Promise.all(
         dataList.map(async (e) => {
-          status = e.Paket.tutup_paket;
           return await this.transformDaftarJamaahPaket(e);
         })
       );

@@ -21,14 +21,14 @@ helper.randomString = async (length, chars) => {
   return result;
 };
 
-helper.generateInvoiceHandoverFasilitas = async () => {
+helper.generateInvoiceHandoverFasilitas = async (company_id) => {
     var rand = 0;
     let condition = true;
     while (condition) {
       rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-      check1 = await Handover_fasilitas.findOne({ where: { invoice: rand } });
-      check2 = await Handover_fasilitas_paket.findOne({ where: { invoice: rand } });
-      check3 = await Transaction_fasilitas.findOne({ where: { invoice: rand } });
+      check1 = await Handover_fasilitas.findOne({ where: { invoice: rand }, include: { model: Tabungan, required: true, include : { model: Division, required: true, where: { company_id: company_id}}} });
+      check2 = await Handover_fasilitas_paket.findOne({ where: { invoice: rand }, include: { model: Paket_transaction, required: true, include: { model: Division, required: true,  where: { company_id: this.company_id } }} });
+      check3 = await Transaction_fasilitas.findOne({ where: { invoice: rand, company_id: this.company_id } });
       if (!check1 & !check2 && !check3) condition = false;
     }
 

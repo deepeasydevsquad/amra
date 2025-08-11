@@ -11,6 +11,16 @@ router.post(
   "/daftar-bus-paket/get-bus-paket/list",
   authenticateToken,
   [
+    body("paketId")
+          .trim()
+          .notEmpty().withMessage("ID paket tidak boleh kosong.")
+          .isInt().withMessage("ID paket harus berupa angka.")
+          .custom(validation.check_id_paket),
+    body("division_id")
+          .trim()
+          .notEmpty().withMessage("ID Cabang tidak boleh kosong.")
+          .isInt().withMessage("ID Cabang harus berupa angka.")
+          .custom(validation.check_id_cabang),      
     body("pageNumber").trim(),
     body("perpage")
       .trim()

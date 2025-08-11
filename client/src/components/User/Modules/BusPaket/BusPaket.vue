@@ -92,6 +92,7 @@ const fetchData = async () => {
   try {
     isLoading.value = true
     const response = await getDaftarBusPaket({
+      paketId: props.paketId,
       division_id: props.cabangId,
       search: search.value,
       perpage: itemsPerPage,

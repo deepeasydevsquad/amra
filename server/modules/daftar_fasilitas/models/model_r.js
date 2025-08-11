@@ -35,6 +35,7 @@ class Model_r {
     sql["attributes"] = [
       "id",
       "name",
+      "nomor_akun",
       "updatedAt",
     ];
     sql["where"] = where;
@@ -50,7 +51,8 @@ class Model_r {
             await value.map(async (e) => {
               data.push({ 
                 id : e.id,
-                name : e.name
+                name : e.name,
+                nomor_akun: e.nomor_akun
               });
             })
           );

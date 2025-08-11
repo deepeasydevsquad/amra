@@ -6,14 +6,15 @@ import CheckIcon from '@/components/User/Modules/SyaratPaket/icon/CheckIcon.vue'
 // Import components
 import Notification from '@/components/User/Modules/SyaratPaket/particle/Notification.vue'
 
-import PrimaryButtonLight from "@/components/Button/PrimaryButtonLight.vue"
+import SuccessButton from "@/components/Button/SuccessButton.vue"
 import DangerButtonSecondary from "@/components/Button/DangerButtonSecondary.vue"
+import Confirmation from "../../../Modal/Confirmation.vue"
 import LockIcon from '@/components/Icons/LockIcon.vue'
 import DownloadIcon from '@/components/Icons/IconDownload.vue'
 
 
 import { ref, onMounted, computed } from 'vue'
-import { getInfoPaketKT } from '@/service/k_t'
+import { getInfoPaketKT, tutupPaketUrl, bukaPaketUrl } from '@/service/k_t'
 const props = defineProps<{
   paketId: number
 }>()
@@ -103,6 +104,12 @@ const notificationMessage = ref<string>('')
 const notificationType = ref<'success' | 'error'>('success')
 const showNotification = ref<boolean>(false)
 
+
+const showConfirmDialog = ref<boolean>(false);
+const confirmMessage = ref<string>('');
+const confirmTitle = ref<string>('');
+const confirmAction = ref<(() => void) | null>(null);
+
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message
   notificationType.value = type
@@ -113,6 +120,41 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   timeoutId.value = window.setTimeout(() => {
     showNotification.value = false
   }, 3000)
+}
+
+const showConfirmation = (title: string, message: string, action: () => void) => {
+  confirmTitle.value = title;
+  confirmMessage.value = message;
+  confirmAction.value = action;
+  showConfirmDialog.value = true;
+};
+
+const tutupPaket = async () => {
+  const tutup_action = async () => {
+    try {
+      const response = await tutupPaketUrl({paket_id : props.paketId});
+      displayNotification(response.error_msg);
+      showConfirmDialog.value = false;
+      await fetchData();
+    } catch (error) {
+        showConfirmDialog.value = false;
+    }
+  };
+  showConfirmation('Konfirmasi Tutup Paket', 'Apakah Anda yakin ingin menutup paket ini?', tutup_action );
+}
+
+const bukaPaket = async () => {
+  const buka_action = async () => {
+    try {
+      const response = await bukaPaketUrl({paket_id : props.paketId});
+      displayNotification(response.error_msg);
+      showConfirmDialog.value = false;
+      await fetchData();
+    } catch (error) {
+        showConfirmDialog.value = false;
+    }
+  };
+  showConfirmation('Konfirmasi Buka Paket', 'Apakah Anda yakin ingin membuka paket ini?', buka_action );
 }
 
 const fetchData = async () => {
@@ -155,20 +197,20 @@ onMounted(() => {
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400"></div>
     </div>
     <div class="flex justify-between mb-4">
-      <DangerButtonSecondary v-if="data.status == 'buka'">
+      <DangerButtonSecondary v-if="data.status == 'buka'" @click="tutupPaket()">
         <font-awesome-icon icon="fa-solid fa-lock"  style="margin-right: 5px" />
         Tutup Paket
       </DangerButtonSecondary>
-      <PrimaryButtonLight v-if="data.status == 'tutup'">
+      <SuccessButton v-if="data.status == 'tutup'" @click="bukaPaket()">
         <font-awesome-icon icon="fa-solid fa-lock-open"  style="margin-right: 5px" />
         Buka Paket
-      </PrimaryButtonLight>
+      </SuccessButton>
       <div class="flex items-center">
         <label for="search" class="block pt-2 text-base font-medium text-gray-700 mr-2">{{ data.name  ?? 'Rp 0' }}</label>
       </div>
     </div>
     <div class="overflow-hidden  border border-gray-200">
-      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
+      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500" :class="data.status == 'tutup' ? ' pointer-events-none opacity-50 ' : '' ">
         <tbody>
           <tr>
             <td class="w-[25%] px-6 py-2 border-b font-medium text-gray-900 text-start">RINCIAN KEGIATAN ANGGARAN PAKET</td>
@@ -189,7 +231,7 @@ onMounted(() => {
       </table>
     </div>
     <div class="overflow-hidden  border border-gray-200 mt-10">
-      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
+      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500" :class="data.status == 'tutup' ? ' pointer-events-none opacity-50 ' : '' ">
         <thead class="bg-gray-100">
           <tr>
             <th class="w-[3%] px-6 py-3 font-medium text-gray-900 text-center">No</th>
@@ -224,7 +266,7 @@ onMounted(() => {
       </table>
     </div>
     <div class="overflow-hidden  border border-gray-200 mt-10">
-      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
+      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500" :class="data.status == 'tutup' ? ' pointer-events-none opacity-50 ' : '' ">
         <tbody>
           <tr class="border-b bg-gray-50 font-bold">
             <td class="w-[3%] px-6 py-3 font-bold text-gray-900 text-center">A.</td>
@@ -301,4 +343,15 @@ onMounted(() => {
     </div>
   </div>
   <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" />
+  <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
+    <button @click="confirmAction && confirmAction()"
+      class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">
+      Ya
+    </button>
+    <button
+      @click="showConfirmDialog = false"
+      class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" >
+      Tidak
+    </button>
+  </Confirmation>
 </template>

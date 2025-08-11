@@ -7,7 +7,8 @@ const {
   Mst_pendidikan,
   Mst_pekerjaan,
   Mst_provider,
-  Mst_asuransi
+  Mst_asuransi, 
+  Division
 } = require("../../../models");
 const { getCompanyIdByCode, getDivisionId } = require("../../../helper/companyHelper");
 const { getAlamatInfo } = require("../../../helper/alamatHelper");
@@ -130,7 +131,6 @@ class Model_r {
     const perpage = parseInt(body.perpage) || 10;
     const offset = (pageNumber - 1) * perpage;
     const search = body.search || "";
-    var status = 'tutup';
 
     let where = { paket_id: body.paketId, division_id: this.division_id };
     if (search) {
@@ -169,13 +169,21 @@ class Model_r {
     ]
 
     try {
+      const status = (await Paket.findOne({
+        where: { id: body.paketId },
+        include: [{
+          required: true,
+          model: Division,
+          where: { company_id: this.company_id }
+        }]
+      }))?.tutup_paket ?? 'tutup';
+
       const query = await dbList(sql);
       const totalData = await Paket_transaction.findAndCountAll(query.total);
       const dataList = await Paket_transaction.findAll(query.sql);
 
       const data = await Promise.all(
         dataList.map(async (e) => {
-          status = e.Paket.tutup_paket;
           return await this.transformManifestPaket(e);
         })
       );

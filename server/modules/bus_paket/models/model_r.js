@@ -10,6 +10,7 @@ const {
   Member,
   Mst_kota,
   Agen,
+  Paket
 } = require("../../../models");
 const { getCompanyIdByCode, getDivisionId } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
@@ -137,16 +138,12 @@ class model_r {
     }
   }
 
-
-
-
   async bus_paket() {
     await this.initialize();
 
     const body = this.req.body;
     var limit = body.perpage;
     var page = 1;
-    var status = 'tutup';
 
     if (body.pageNumber != undefined && body.pageNumber !== "0")
       page = body.pageNumber;
@@ -154,6 +151,15 @@ class model_r {
     var where = { company_id: this.company_id };
 
     try {
+      const status = (await Paket.findOne({
+        where: { id: body.paketId },
+        include: [{
+          required: true,
+          model: Division,
+          where: { company_id: this.company_id }
+        }]
+      }))?.tutup_paket ?? 'tutup';
+
       let busIds = [];
       if (body.search !== undefined && body.search !== "") {
         const searchTerm = body.search.toLowerCase();
@@ -231,7 +237,6 @@ class model_r {
 
               const daftar_jamaah_murni = [];
               for (const kj of busJamaahs) {
-                status = kj.Paket_transaction.Paket.tutup_paket;
                 if ( kj.Paket_transaction && kj.Paket_transaction.Jamaah && kj.Paket_transaction.Jamaah.Member ) {
                   const memberId = kj.Paket_transaction.Jamaah.Member.id;
                   const isAgent = await Agen.findOne({

@@ -157,6 +157,7 @@ const fetchData = async () => {
     });
     dataPaketTransaction.value = response.data;
     totalRow.value = response.total;
+    status.value = response.status;
     totalPages.value = Math.ceil(response.total / itemsPerPage);
   } catch (error: any) {
     console.error('Error fetching data:', error);
@@ -269,7 +270,7 @@ onMounted(() => {
             <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Info Paket</th>
             <th class="w-[30%] px-6 py-3 font-medium text-gray-900 text-center">Jamaah / Visa / File Pendukung</th>
             <th class="w-[15%] px-6 py-3 font-medium text-gray-900 text-center">Total Harga</th>
-            <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Status Pembayaran</th>
+            <th class="w-[20%] px-6 py-3 font-medium text-gray-900 text-center">Status Pembayaran {{ status }}</th>
             <th class="w-[5%] px-6 py-3 font-medium text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>

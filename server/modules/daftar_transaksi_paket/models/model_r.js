@@ -172,15 +172,32 @@ class Model_r {
     ]
 
     try {
+
+      const status = (await Paket.findOne({
+        where: { id: body.id },
+        include: [{
+          required: true,
+          model: Division,
+          where: { company_id: this.company_id }
+        }]
+      }))?.tutup_paket ?? 'tutup';
+
+
       const query = await dbList(sql);
       const totalData = await Paket_transaction.findAndCountAll(query.total);
       const dataList = await Paket_transaction.findAll(query.sql);
 
+      console.log("-----dataList");
       console.log(dataList);
-      var status = 'tutup';
+      console.log("-----dataList");
+    
       const data = await Promise.all(
         dataList.map(async (e) => {
-          status = e.Paket.tutup_paket;
+
+          // console.log("*****************");
+          // console.log(e.Paket.tutup_paket);
+          // console.log("*****************");
+          // status = e.Paket.tutup_paket;
           return await this.transformDaftarTransaksiPaket(e);
         })
       );
@@ -209,6 +226,10 @@ class Model_r {
           data[x].file_pendukung = [];
         }
       }
+
+      console.log('----Status-----');
+      console.log(status);
+      console.log('----Status-----');
 
       return { 
         status,

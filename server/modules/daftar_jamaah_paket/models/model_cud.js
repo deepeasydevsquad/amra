@@ -217,7 +217,7 @@ class Model_cud {
     const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
     
     try {
-      const invoiceHandover = await generateInvoiceHandoverFasilitas();
+      const invoiceHandover = await generateInvoiceHandoverFasilitas( this.company_id );
       const penerima = await this.penerima();
 
       const qPaketID = await Paket_transaction.findOne({ attributes: ['paket_id'], where : {id : body.id } });

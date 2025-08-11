@@ -39,7 +39,7 @@ router.post(
 router.post(
   "/daftar-fasilitas/delete",
   authenticateToken,
-  [body("id").trim().notEmpty().withMessage("ID Fasilitas tidak boleh kosong.").isInt().withMessage("ID Fasilitas harus berupa angka.").custom(validation.check_id_fasilitas)],
+  [body("id").trim().notEmpty().withMessage("ID Fasilitas tidak boleh kosong.").isInt().withMessage("ID Fasilitas harus berupa angka.").custom(validation.check_id_fasilitas).custom(validation.check_delete_is_allow)],
   controllers.delete
 );
 

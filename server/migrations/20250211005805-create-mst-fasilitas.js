@@ -20,6 +20,9 @@ module.exports = {
       name: {
         type: Sequelize.STRING
       },
+      nomor_akun: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
