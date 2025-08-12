@@ -18,55 +18,66 @@ jobs:
       DOCKER_HUB_PASS: ${{ secrets.DOCKER_HUB_PASS }}
       DB_USERNAME_ROOT: ${{ secrets.DB_USERNAME_ROOT_AMRA }}
       DB_PASSWORD_ROOT: ${{ secrets.DB_PASSWORD_ROOT_AMRA }}
-      
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Login to DockerHub
-        run: echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_USER" --password-stdin
+        run: echo "${{ env.DOCKER_HUB_PASS }} " | docker login -u "${{ env.DOCKER_HUB_USER }}" --password-stdin
 
       - name: Build and push client image
         run: |
-          docker build -t muammar88/amra_saas_client:v1.0 ./client
-          docker push muammar88/amra_saas_client:v1.0
+          docker build -t ${{ env.FRONT_IMAGE }} ./client
+          docker push ${{ env.FRONT_IMAGE }}
 
       - name: Build and push backend image
         run: |
-          docker build -t muammar88/amra_saas_server:v1.0 ./server
-          docker push muammar88/amra_saas_server:v1.0
+          docker build -t ${{ env.BACK_IMAGE }} ./server
+          docker push ${{ env.BACK_IMAGE }}
 
       - name: Deploy to Ubuntu server via SSH
-        uses: appleboy/ssh-action@v1.0.0
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ env.SERVER_IP }}
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_PRIVATE_KEY }}
           script: |
+            set -e
+
             cd /home/dbmachine/amra
 
-            # Pull latest images
-            docker pull muammar88/amra_saas_client:v1.0
-            docker pull muammar88/amra_saas_server:v1.0
+            echo "📦 Pulling latest images..."
+            docker pull ${{ env.FRONT_IMAGE }}
+            docker pull ${{ env.BACK_IMAGE }}
 
-            # Stop and remove containers if exist
+            echo "🛑 Stopping existing containers..."
             docker-compose down || true
 
-            # Start services using docker-compose
+            echo "🚀 Starting containers..."
             docker-compose up -d
 
-            sleep 60
+            echo "⏳ Waiting for MySQL to be ready..."
+            until docker exec mysql_container mysqladmin ping -u"${{ env.DB_USERNAME_ROOT }}" -p"${{ env.DB_PASSWORD_ROOT }}" --silent; do
+              echo "   ... still waiting for MySQL"
+              sleep 5
+            done
 
-            # Run Sequelize migration and seed scripts
-            if docker exec -i mysql_container mysql -u ${{ env.DB_USERNAME_ROOT }} -p${{ env.DB_PASSWORD_ROOT }} -e "DROP DATABASE IF EXISTS amra_db; CREATE DATABASE amra_db;"; then
-              if docker exec -i Container_server npx sequelize-cli db:migrate; then
-                docker exec -i Container_server npx sequelize-cli db:seed:all --debug
-                docker restart Container_server
-              else
-                echo "⚠️ Gagal menjalankan migration. Skip proses migrate."  
-              fi
+            echo "⏳ Waiting for Container_server to be running..."
+            until [ "$(docker inspect -f '{{.State.Running}}' Container_server)" == "true" ]; do
+              echo "   ... still waiting for Container_server"
+              sleep 5
+            done
+
+            echo "🗑 Dropping and creating database..."
+            docker exec -i mysql_container mysql -u"${{ env.DB_USERNAME_ROOT }}" -p"${{ env.DB_PASSWORD_ROOT }}" -e "DROP DATABASE IF EXISTS amra_db; CREATE DATABASE amra_db;"
+
+            echo "📜 Running Sequelize migrations..."
+            if docker exec -i Container_server npx sequelize-cli db:migrate; then
+              echo "🌱 Seeding database..."
+              docker exec -i Container_server npx sequelize-cli db:seed:all --debug
+              echo "🔄 Restarting Container_server..."
+              docker restart Container_server
             else
-              echo "⚠️ Gagal menjalankan Menghapus Database."  
-            fi  
-            
+              echo "⚠️ Migration failed. Skipping seed."
+            fi
