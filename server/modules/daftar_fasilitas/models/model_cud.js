@@ -1,4 +1,4 @@
-const { sequelize, Mst_fasilitas } = require("../../../models");
+const { sequelize, Mst_fasilitas, Akun_secondary, Saldo_akun, Op } = require("../../../models");
 const Model_r = require("./model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
@@ -21,7 +21,7 @@ class Model_cud {
     let condition = true;
     while (condition) {
       num++;
-      var check = await Mst_fasilitas.findOne({ where: { nomor_akun: num, company_id: company_id } });
+      var check = await Akun_secondary.findOne({ where: { nomor_akun: num, company_id: company_id } });
       if (!check) condition = false;
     }
     return num
@@ -47,6 +47,22 @@ class Model_cud {
           transaction: this.t,
         }
       );
+      // tambah di Akun
+      await Akun_secondary.create(
+        {
+          company_id: this.company_id, 
+          akun_primary_id: '1',
+          nomor_akun: nomor_akun,
+          nama_akun: body.name,
+          tipe_akun: 'tambahan', 
+          path: 'fasilitasId:' + insert.id,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
 
       this.message = `Menambahkan Fasilitas Baru dengan Nama Fasilitas: ${body.name} dan ID Fasilitas: ${insert.id}`;
     } catch (error) {
@@ -64,6 +80,7 @@ class Model_cud {
       const model_r = new Model_r(this.req);
       const infoFasilitas = await model_r.infoFasilitas(body.id, this.company_id);
 
+      // update fasilitas
       await Mst_fasilitas.update(
         {
           name: body.name,
@@ -77,8 +94,25 @@ class Model_cud {
         }
       );
 
+      // update akun secondary
+      await Akun_secondary.update(
+        {
+          nama_akun: body.name,
+          updatedAt: myDate,
+        },
+        {
+          where: { path: 'fasilitasId:' +  body.id , company_id: this.company_id,  },
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
       this.message = `Memperbaharui Data Fasilitas dengan Nama Fasilitas: ${infoFasilitas.name} dan ID Fasilitas: ${body.id} menjadi Nama Fasilitas: ${body.name}`;
     } catch (error) {
+      console.log("------SSS");
+      console.log(error);
+      console.log("------SSS");
       this.state = false;
     }
   }
@@ -90,7 +124,8 @@ class Model_cud {
     try {
       const model_r = new Model_r(this.req);
       const infoFasilitas = await model_r.infoFasilitas(body.id, this.company_id);
-      
+      const qA = await Akun_secondary.findOne({ where: { path: 'fasilitasId:' + body.id, company_id : this.company_id } })
+     
       await Mst_fasilitas.destroy(
         {
           where: {
@@ -103,8 +138,34 @@ class Model_cud {
         }
       );
 
+      await Akun_secondary.destroy(
+        {
+          where: {
+            path: 'fasilitasId:' +  body.id,
+            company_id: this.company_id
+          },
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
+      await Saldo_akun.destroy(
+        {
+          where: {
+            akun_secondary_id: qA.id,
+          },
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
       this.message = `Menghapus Fasilitas dengan Nama Fasilitas: ${infoFasilitas.name} dan ID Fasilitas: ${infoFasilitas.id}`;
     } catch (error) {
+      console.log('XXXXXXX');
+      console.log(error);
+      console.log('XXXXXXX');
       this.state = false;
     }
   }

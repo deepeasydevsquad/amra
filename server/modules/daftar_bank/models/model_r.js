@@ -36,6 +36,7 @@ class Model_r {
       "id",
       "kode",
       "name",
+      "nomor_akun",
       "updatedAt",
     ];
     sql["where"] = where;
@@ -52,7 +53,8 @@ class Model_r {
               data.push({ 
                 id : e.id, 
                 kode : e.kode,
-                name : e.name
+                name : e.name, 
+                nomor_akun: e.nomor_akun
               });
             })
           );
@@ -65,6 +67,11 @@ class Model_r {
       };
 
     } catch (error) {
+
+      console.log("CCCCCCCCCCCCCCCCCCC");
+      console.log(error);
+      console.log("CCCCCCCCCCCCCCCCCCC");
+
       return {};
     }
   }

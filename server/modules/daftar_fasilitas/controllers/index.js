@@ -86,6 +86,9 @@ controllers.delete = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log("dddddd");
+    console.log(error);
+    console.log("dddddd");
     handleServerError(res, error.message);
   }
 };

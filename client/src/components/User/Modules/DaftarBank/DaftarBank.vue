@@ -51,6 +51,7 @@ interface Bank {
   id: number;
   kode: string;
   name: string;
+  nomor_akun: string;
 }
 
 const timeoutId = ref<number | null>(null);
@@ -64,7 +65,7 @@ const notificationType = ref<'success' | 'error'>('success');
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
-const totalColumns = ref(3); // Default 3 kolom
+const totalColumns = ref(4); // Default 3 kolom
 
 const selectedBank = ref<Partial<Bank>>({
   kode: '',
@@ -164,7 +165,8 @@ const deleteData = async (id: number) => {
         <thead class="bg-gray-50">
           <tr>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Kode Bank</th>
-            <th class="w-[75%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Bank</th>
+            <th class="w-[40%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Bank</th>
+            <th class="w-[35%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Akun</th>
             <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
@@ -173,6 +175,7 @@ const deleteData = async (id: number) => {
             <tr v-for="Bank in dataBank" :key="Bank.id" class="hover:bg-gray-50">
               <td class="px-6 py-4 text-center">{{ Bank.kode }}</td>
               <td class="px-6 py-4 text-center">{{ Bank.name }}</td>
+              <td class="px-6 py-4 text-center">{{ Bank.nomor_akun }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
                   <LightButton @click="openModal(Bank)">

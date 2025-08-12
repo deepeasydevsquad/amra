@@ -16,13 +16,23 @@ class Model_cud {
     this.state = true;
   }
 
+  async get_nomor_akun( company_id ) {
+    var num = 11020;
+    let condition = true;
+    while (condition) {
+      num++;
+      var check = await Akun_secondary.findOne({ where: { nomor_akun: num, company_id: company_id } });
+      if (!check) condition = false;
+    }
+    return num
+  }
+
   // Tambah Bank
   async add() {
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
-    const model_r = new Model_r(this.req);
-    const new_nomor_akun_bank = await model_r.generate_nomor_akun_secondary_bank(this.company_id);
+    const nomor_akun = await this.get_nomor_akun( this.company_id );
 
     try {
       const insert = await Mst_bank.create(
@@ -30,6 +40,7 @@ class Model_cud {
           company_id : this.company_id, 
           kode: body.kode,
           name: body.name,
+          nomor_akun: nomor_akun,
           createdAt: myDate,
           updatedAt: myDate,
         },
@@ -42,10 +53,10 @@ class Model_cud {
         {
           company_id: this.company_id, 
           akun_primary_id: 1, 
-          nomor_akun: new_nomor_akun_bank,
+          nomor_akun: nomor_akun,
           nama_akun: body.name.toUpperCase(),
           tipe_akun: 'bawaan',
-          path: 'bank:kodeBank:' + body.kode,
+          path: 'bankId:' + insert.id,
           createdAt: myDate,
           updatedAt: myDate,
         },
@@ -69,20 +80,6 @@ class Model_cud {
     try {
       const model_r = new Model_r(this.req);
       const infoBank = await model_r.infoBank(body.id, this.company_id);
-      const idAkunSecondary = await model_r.getInfoAkunSecondary(this.company_id, infoBank.kode);
-
-      await Akun_secondary.update(
-        {
-          path: 'bank:kodeBank:' + body.kode,
-          updatedAt: myDate,
-        },
-        {
-          where: { id: idAkunSecondary.id, company_id : this.company_id,  },
-        },
-        {
-          transaction: this.t,
-        }
-      );
 
       await Mst_bank.update(
         {
@@ -92,6 +89,19 @@ class Model_cud {
         },
         {
           where: { id: body.id, company_id : this.company_id,  },
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
+      await Akun_secondary.update(
+        {
+          nama_akun: body.name.toUpperCase(), 
+          updatedAt: myDate,
+        },
+        {
+          where: { path: 'bankId:'+ body.id, company_id : this.company_id,  },
         },
         {
           transaction: this.t,
@@ -128,17 +138,17 @@ class Model_cud {
         }
       );
 
-      await Akun_secondary.destroy(
+       await Akun_secondary.destroy(
         {
           where: {
-            id : idAkunSecondary.id, 
+            path: 'bankId:' +  body.id,
             company_id: this.company_id
           },
         },
         {
           transaction: this.t,
         }
-      );      
+      );
 
       await Mst_bank.destroy(
         {

@@ -40,7 +40,7 @@ module.exports = {
       { menu_id : menus[4].id, name: 'Mobile', path: 'mobile', tab:`[{"id":"${tabs[61].id}"},{"id":"${tabs[62].id}"},{"id":"${tabs[66].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[5].id, name: 'Supplier', path: 'supplier', tab:`[{"id":"${tabs[11].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[5].id, name: 'Bank', path: 'bank', tab:`[{"id":"${tabs[6].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
-      { menu_id : menus[5].id, name: 'Airlines', path: 'airlines', tab:`[{"id":"${tabs[7].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
+      { menu_id : menus[5].id, name: 'Maskapai', path: 'maskapai', tab:`[{"id":"${tabs[7].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[5].id, name: 'Fasilitas', path: 'fasilitas', tab:`[{"id":"${tabs[8].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[5].id, name: 'Daftar Hotel', path: 'daftar_hotel', tab:`[{"id":"${tabs[14].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[5].id, name: 'Jenis Mobil', path: 'jenis_mobil', tab:`[{"id":"${tabs[13].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },

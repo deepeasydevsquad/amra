@@ -26,7 +26,10 @@ module.exports = (sequelize, DataTypes) => {
   }
   Mst_airline.init({
     company_id: DataTypes.INTEGER,
-    name: DataTypes.STRING
+    name: DataTypes.STRING,
+    nomor_akun_deposit: DataTypes.STRING,
+    nomor_akun_pendapatan: DataTypes.STRING,
+    nomor_akun_hpp: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Mst_airline',

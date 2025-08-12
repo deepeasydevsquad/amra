@@ -11,14 +11,13 @@ import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import IconPlus from '@/components/Icons/IconPlus.vue'
 import FormAdd from './widget/FormAdd.vue'
 import FormUpdate from './widget/FormUpdate.vue'
-import Modal from '../Modal/Modal.vue'
 import Confirmation from '@/components/Modal/Confirmation.vue'
 import Notification from '@/components/Modal/Notification.vue'
 
-interface filterCabang {
-  id: number
-  name: string
-}
+// interface filterCabang {
+//   id: number
+//   name: string
+// }
 
 interface AkunBank {
   id: number
@@ -30,19 +29,19 @@ interface AkunBank {
 
 // State untuk menyimpan data, loading, dan error
 const data = ref<Partial<AkunBank[]>>([])
-const logs = ref([])
+// const logs = ref([])
 const loading = ref(true)
 const error = ref<string | null>(null)
 const search = ref('')
 const selectedOptionCabang = ref(0)
-const optionFilterCabang = ref<filterCabang[]>([])
+// const optionFilterCabang = ref<filterCabang[]>([])
 
-const fetchFilterData = async () => {
-  const response = await paramCabang()
-  optionFilterCabang.value = response.data
-  selectedOptionCabang.value = response.data[0].id
-  await fetchData()
-}
+// const fetchFilterData = async () => {
+//   const response = await paramCabang()
+//   optionFilterCabang.value = response.data
+//   selectedOptionCabang.value = response.data[0].id
+//   await fetchData()
+// }
 
 // Fungsi untuk mengambil data log
 const fetchData = async () => {
@@ -66,16 +65,10 @@ const fetchData = async () => {
   }
 }
 
-// Fungsi untuk memformat tanggal
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleString() // Sesuaikan format sesuai kebutuhan
-}
-
 // Pagination logic
 const currentPage = ref(1)
 const itemsPerPage = 100
-const totalColumns = ref(5)
+const totalColumns = ref(4)
 const totalPages = ref(0)
 const totalRow = ref(0)
 
@@ -176,30 +169,23 @@ const handleUpdate = () => {
   <div class="container mx-auto p-4">
     <div class="flex justify-between items-center mb-4">
       <PrimaryButton @click="openModalAdd">
-        <IconPlus />
-        Tambah Akun Bank
+        <IconPlus /> Tambah Akun Bank
       </PrimaryButton>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input
-          v-model="search"
-          type="text"
-          placeholder="Cari akun..."
+        <input v-model="search" type="text" placeholder="Cari akun..."
           class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
         />
       </div>
     </div>
-
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-4">
       <span class="text-gray-500">Loading...</span>
     </div>
-
     <!-- Error State -->
     <div v-else-if="error" class="text-center py-4">
       <span class="text-red-500">{{ error }}</span>
     </div>
-
     <!-- Tabel System Log -->
     <div v-else class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
@@ -232,59 +218,25 @@ const handleUpdate = () => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <Pagination
-            :current-page="currentPage"
-            :total-pages="totalPages"
-            :pages="pages"
-            :total-columns="totalColumns"
-            @prev-page="prevPage"
-            @next-page="nextPage"
-            @page-now="pageNow"
-            :totalRow="totalRow"
-          />
+          <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow" :totalRow="totalRow"/>
         </tfoot>
       </table>
     </div>
   </div>
-
   <FormAdd v-if="ModalAdd" :ModalAdd="ModalAdd" @close="ModalAdd = false" @success="handleAdd" />
-
-  <FormUpdate
-    v-if="ModalUpdate"
-    :ModalUpdate="ModalUpdate"
-    :id="selectedId"
-    @close="ModalUpdate = false"
-    @success="handleUpdate"
-  />
-
+  <FormUpdate v-if="ModalUpdate" :ModalUpdate="ModalUpdate" :id="selectedId" @close="ModalUpdate = false" @success="handleUpdate" />
   <!-- Modal Konfirmasi Hapus -->
-  <Confirmation
-    :showConfirmDialog="showConfirmDialog"
-    confirmTitle="Konfirmasi Hapus"
-    confirmMessage="Apakah Anda yakin ingin menghapus pengguna ini?"
-  >
-    <button
-      @click="confirmAction?.()"
+  <Confirmation :showConfirmDialog="showConfirmDialog" confirmTitle="Konfirmasi Hapus" confirmMessage="Apakah Anda yakin ingin menghapus pengguna ini?" >
+    <button @click="confirmAction?.()"
       class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
     >
       Ya
     </button>
-    <button
-      @click="showConfirmDialog = false"
+    <button @click="showConfirmDialog = false"
       class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
     >
       Tidak
     </button>
   </Confirmation>
-
-  <Notification
-    :showNotification="showNotification"
-    :notificationType="notificationType"
-    :notificationMessage="notificationMessage"
-    @close="showNotification = false"
-  ></Notification>
+  <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" ></Notification>
 </template>
-
-<style scoped>
-/* Tambahkan custom CSS jika diperlukan */
-</style>

@@ -40,7 +40,7 @@ router.post(
   "/airlines/delete",
   authenticateToken,
   [
-    body("id").trim().notEmpty().withMessage("ID Maskapai tidak boleh kosong.").isInt().withMessage("ID Maskapai harus berupa angka.").custom(validation.check_id_airlines)
+    body("id").trim().notEmpty().withMessage("ID Maskapai tidak boleh kosong.").isInt().withMessage("ID Maskapai harus berupa angka.").custom(validation.check_id_airlines).custom(validation.check_delete_is_allow)
   ],
   controllers.delete
 );

@@ -23,7 +23,8 @@ module.exports = (sequelize, DataTypes) => {
   Mst_bank.init({
     company_id: DataTypes.INTEGER,
     kode: DataTypes.STRING,
-    name: DataTypes.STRING
+    name: DataTypes.STRING, 
+    nomor_akun: DataTypes.STRING, 
   }, {
     sequelize,
     modelName: 'Mst_bank',

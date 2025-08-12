@@ -35,6 +35,9 @@ class Model_r {
     sql["attributes"] = [
       "id",
       "name",
+      "nomor_akun_deposit",
+      "nomor_akun_pendapatan",
+      "nomor_akun_hpp",
       "updatedAt",
     ];
     sql["where"] = where;
@@ -50,7 +53,10 @@ class Model_r {
             await value.map(async (e) => {
               data.push({ 
                 id : e.id, 
-                name : e.name
+                name : e.name, 
+                nomor_akun_deposit: e.nomor_akun_deposit,
+                nomor_akun_pendapatan: e.nomor_akun_pendapatan,
+                nomor_akun_hpp: e.nomor_akun_hpp,
               });
             })
           );
@@ -76,6 +82,9 @@ class Model_r {
           if (e) {
               data["id"] = e.id;
               data["name"] = e.name;
+              data["nomor_akun_deposit"] = e.nomor_akun_deposit;
+              data["nomor_akun_pendapatan"] = e.nomor_akun_pendapatan;
+              data["nomor_akun_hpp"] = e.nomor_akun_hpp;
           }
       });
       return data
