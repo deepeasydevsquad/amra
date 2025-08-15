@@ -2,7 +2,7 @@ const express = require("express");
 const { body } = require("express-validator");
 const controllers = require("../modules/daftar_stock_fasilitas/controllers/index");
 const { authenticateToken } = require("../middleware/authenticateToken");
-// const validation = require("../validation/daftar_provider_visa");
+const validation = require("../validation/sumber_dana");
 
 const router = express.Router();
 
@@ -42,8 +42,19 @@ router.post(
       .withMessage("Harga jual wajib diisi.")
       .isNumeric()
       .withMessage("Harga jual harus berupa angka."),
+    body("sumber_dana")
+      .notEmpty()
+      .withMessage("Sumber Dana wajib diisi.")
+      .isNumeric()
+      .withMessage("Sumber Dana harus berupa angka.").custom( validation.sumber_dana ), 
   ],
   controllers.add_stock
+);
+
+router.get(
+  "/sumber-dana/list",
+  authenticateToken,
+  controllers.sumber_dana
 );
 
 module.exports = router;

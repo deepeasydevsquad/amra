@@ -109,8 +109,10 @@
     @close="showNotification = false"
   />
 
+  <!-- v-if="ModalStock" -->
+
   <FormAdd
-    v-if="ModalStock"
+    :showForm="ModalStock"
     :idFasilitas="selectedFasilitasId"
     @close="ModalStock = false"
     @success="handleSuccess"

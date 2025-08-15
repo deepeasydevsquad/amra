@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import Form from '@/components/Modal/Form.vue'
 import InputText from '@/components/Form/InputText.vue'
-import { add_stock } from '@/service/daftar_stock_fasilitas'
+import SelectField from '@/components/Form/SelectField.vue'
+import { add_stock, get_sumber_dana } from '@/service/daftar_stock_fasilitas'
 import { ref, computed, onMounted, watch } from 'vue'
 
 const emit = defineEmits(['close', 'success'])
 const props = defineProps<{
-  idFasilitas: number | null
+  idFasilitas: number | null,
+  showForm:boolean
 }>()
 
 const form = ref({
@@ -24,8 +26,15 @@ watch(
   { immediate: true },
 )
 
+interface optionInterface {
+  id: number
+  name: string
+}
+
 const hargaBeliDisplay = ref('')
 const hargaJualDisplay = ref('')
+const selectedSumberDana = ref(0);
+const optionSumberDana = ref<optionInterface[]>([])
 
 watch(
   () => form.value.harga_beli,
@@ -68,47 +77,37 @@ const handleSubmit = async () => {
       mst_fasilitas_id: form.value.fasilitas_id,
       harga_beli: form.value.harga_beli,
       harga_jual: form.value.harga_jual,
+      sumber_dana: selectedSumberDana.value,
     }
-
     await add_stock(payload)
     emit('success')
   } catch (error: any) {
     console.error('Gagal tambah stok:', error)
-    // Tambahin notifikasi atau alert di sini kalau perlu
   }
 }
+
+const fetchData = async () => {
+  try {
+    const response = await get_sumber_dana()
+    optionSumberDana.value = response.data
+  } catch (error) {
+    console.error('Gagal fetch data level agen:', error)
+  }
+}
+
+watch(
+  () => props.showForm,
+  () => {
+    console.log('ID Fasilitas berubah:', props.idFasilitas)
+    fetchData();
+  },
+)
 </script>
 <template>
-  <Form
-    :formStatus="true"
-    :label="' Tambah Stok Fasilitas'"
-    :width="'w-full max-w-md'"
-    :submitLabel="'Tambah Stok'"
-    @cancel="emit('close')"
-    @submit="handleSubmit"
-  >
-    <InputText
-      v-model="form.jumlah"
-      label="Jumlah"
-      placeholder="Masukkan jumlah"
-      class="mt-4"
-      required
-    />
-
-    <InputText
-      v-model="hargaBeliDisplay"
-      label="Harga Beli"
-      placeholder="Masukkan harga beli"
-      class="mt-4"
-      required
-    />
-
-    <InputText
-      v-model="hargaJualDisplay"
-      label="Harga Jual"
-      placeholder="Masukkan harga jual"
-      class="mt-4"
-      required
-    />
+  <Form :formStatus="showForm" :label="'Tambah Stok Fasilitas'" :width="'w-full max-w-md'" :submitLabel="'Tambah Stok'" @cancel="emit('close')" @submit="handleSubmit">
+    <SelectField v-model="selectedSumberDana" label="Sumber Dana" placeholder="Pilih Sumber Dana" class="mt-4" :options="optionSumberDana" optionLabel="nama" optionValue="id"/>
+    <InputText v-model="form.jumlah" label="Jumlah" placeholder="Masukkan jumlah" class="mt-4" required/>
+    <InputText v-model="hargaBeliDisplay" label="Harga Beli Per Satuan" placeholder="Masukkan harga beli"  class="mt-4"  required />
+    <InputText v-model="hargaJualDisplay" label="Harga Jual Per Satuan" placeholder="Masukkan harga jual"  class="mt-4" required />
   </Form>
 </template>

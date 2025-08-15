@@ -1,4 +1,4 @@
-const { Op, Mst_fasilitas, Item_fasilitas } = require("../../../models");
+const { Op, Mst_fasilitas, Item_fasilitas, Mst_bank } = require("../../../models");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
 
@@ -82,6 +82,30 @@ class Model_r {
       console.log(error);
       console.log("xxxxxxxx--------------------");
       return { data: [], total: 0 };
+    }
+  }
+
+  async sumber_dana() {
+    await this.initialize();
+
+    try {
+      var data = [{id: 0, name: 'KAS'}];
+       await Mst_bank.findAll({
+        where: { 
+          company_id: this.company_id
+        }}).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+            data.push({id: e.id, name: e.kode + ' - ' + e.name  });
+          })
+        );
+      });
+      return data;
+    } catch (error) {
+      console.log("xxxxxxxx--------------------");
+      console.log(error);
+      console.log("xxxxxxxx--------------------");
+      throw new Error("Gagal mengambil sumber dana.");
     }
   }
 }

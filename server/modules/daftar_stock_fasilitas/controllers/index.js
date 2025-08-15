@@ -3,6 +3,7 @@ const Model_cud = require("../models/model_cud");
 const {
   handleValidationErrors,
   handleServerError,
+  error_msg,
 } = require("../../../helper/handleError");
 
 const controllers = {};
@@ -44,15 +45,18 @@ exports.add_stock = async (req, res) => {
   }
 };
 
-// exports.addAgen = async (req, res) => {
-//   try {
-//     const model = new Model_cud(req);
-//     const data = await model.tambahAgen();
-//     res.status(200).json(data);
-//   } catch (error) {
-//     handleServerError(res, error.message);
-//   }
-// };
+exports.sumber_dana = async (req, res) => {
+   try {
+    const model = new Model_r(req);
+    const data = await model.sumber_dana();
+    res.status(200).json({data, error: false, error_msg : 'success'});
+  } catch (error) {
+    console.log("_____DDDDD_______");
+    console.log(error); // Log the error for debugging
+    console.log("_____DDDDD_______");
+    handleServerError(res, error.message);
+  }
+};
 
 // // delete process
 // exports.delete = async (req, res) => {

@@ -21,6 +21,17 @@ export const add_stock = async (param : any) => {
   }
 };
 
+
+export const get_sumber_dana = async () => {
+  try {
+    const response = await api.get("/sumber-dana/list");
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil data sumber dana:", error);
+    throw error;
+  }
+};
+
 // export const addAirlines = async (param : any) => {
 //   try {
 //     const response = await api.post("/airlines/add", param);
