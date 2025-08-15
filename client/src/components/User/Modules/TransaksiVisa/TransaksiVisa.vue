@@ -286,7 +286,7 @@ const openFormCetakDataJamaah = (item: any) => {
             </td>
           </tr>
           <tr v-else-if="TransaksiVisa.length === 0">
-            <td colspan="6" class="px-6 py-6 text-center text-gray-500">
+            <td colspan="6" class="px-6 py-3 text-center text-gray-500">
               {{ search ? 'Data tidak ditemukan' : 'Belum ada data transaksi visa' }}
             </td>
           </tr>

@@ -381,16 +381,16 @@ onMounted(async () => {
           <tr>
             <th class="text-center font-medium text-gray-900 px-6 py-3 w-[5%]">Invoice</th>
             <th class="text-center font-medium text-gray-900 px-6 py-3 w-[20%]">Nama Kostumer / Nama Jamaah</th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[20%]">Paket</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[15%]">Paket</th>
             <th class="text-center font-medium text-gray-900 px-6 py-3 w-[30%]">Info Fasilitas</th>
             <th class="text-center font-medium text-gray-900 px-6 py-3 w-[10%]">Total</th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[10%]">Tanggal Transaksi</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[15%]">Tanggal</th>
             <th class="text-center font-medium text-gray-900 px-6 py-3 w-[5%]">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
           <tr v-if="filteredData.length === 0">
-            <td colspan="6" class="text-center py-4 text-gray-500">
+            <td colspan="6" class="text-center py-3 text-gray-500">
               Daftar Transaksi Transport Tidak Ditemukan
             </td>
           </tr>

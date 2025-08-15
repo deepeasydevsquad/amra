@@ -251,7 +251,7 @@ onMounted(async () => {
             </tr>
           </template>
           <tr v-else>
-            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-600">Daftar Transaksi Keluar Masuk Tidak Ditemukan.</td>
+            <td colspan="6" class="px-6 py-3 text-center text-sm text-gray-600">Daftar Transaksi Keluar Masuk Tidak Ditemukan.</td>
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">

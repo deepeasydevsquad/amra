@@ -228,9 +228,8 @@ onMounted(fetchFilterData)
             </LightButton>
           </td>
         </tr>
-
         <tr v-if="!data.length">
-          <td :colspan="totalColumns" class="text-center  py-6">
+          <td :colspan="totalColumns" class="text-center  py-3">
             Daftar Agen Tidak Ditemukan
           </td>
         </tr>

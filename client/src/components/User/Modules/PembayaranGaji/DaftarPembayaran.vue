@@ -179,24 +179,24 @@ const confirmDelete = (id: number) => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr class="bg-gray-100">
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[10%] px-6 py-3 font-medium font-bold text-gray-900 text-center">
               Invoice
             </th>
-            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[20%] px-6 py-3 font-medium font-bold text-gray-900 text-center">
               Nominal
             </th>
-            <th class="w-[45%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[45%] px-6 py-3 font-medium font-bold text-gray-900 text-center">
               Info Staff
             </th>
-            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[20%] px-6 py-3 font-medium font-bold text-gray-900 text-center">
               Cabang
             </th>
-            <th class="w-[5%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[5%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
           <tr v-if="pembayaranGajiList.length === 0">
-            <td :colspan="totalColumns" class="text-center text-gray-500 py-6">
+            <td :colspan="totalColumns" class="text-center text-gray-500 py-3">
               Tidak ada data pembayaran gaji
             </td>
           </tr>

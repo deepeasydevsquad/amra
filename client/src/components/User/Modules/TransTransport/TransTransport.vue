@@ -394,21 +394,17 @@ watch(SelectedCabang, async (newCabang) => {
         <thead class="bg-gray-100">
           <tr>
             <th class="text-center font-medium text-gray-900 px-6 py-3 w-[10%]">Invoice</th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[30%]">Nama Kostumer</th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[30%]">Paket</th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[30%]">Info Transport</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[15%]">Nama Kostumer</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[20%]">Paket</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[20%]">Info Transport</th>
             <th class="text-center font-medium text-gray-900 px-6 py-3 w-[15%]">Total</th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[15%]">
-              Tanggal Transaksi
-            </th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[10%]">Aksi</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[15%]">Tanggal</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[5%]">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
           <tr v-if="filteredData.length === 0">
-            <td colspan="6" class="text-center py-4 text-gray-500">
-              Daftar Transaksi Transport Tidak Ditemukan
-            </td>
+            <td colspan="6" class="text-center py-3 text-gray-500">Daftar Transaksi Transport Tidak Ditemukan</td>
           </tr>
           <tr v-for="item in filteredData" :key="item.invoice" class="hover:bg-gray-50">
             <td class="text-center px-6 py-4 align-top">{{ item.invoice }}</td>

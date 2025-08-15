@@ -37,7 +37,7 @@ import {
   faMoneyBillAlt, faUndoAlt, faListAlt, faImage, faTicket, faCircleArrowRight, faQrcode, faCalendar, faArrowLeft,
   faHandHoldingDollar, faMoneyCheckAlt, faCity, faCar, faHotel, faPassport, faSubway, faClipboardList,
   faPiggyBank, faUserCog, faUserTie, faCalculator, faList, faBalanceScale, faBalanceScaleLeft, faCommentDollar,
-  faShieldAlt, faEnvelope, faClipboardCheck, faLayerGroup, faPeopleCarry, faEyeSlash, faCloudArrowUp, faCodeBranch, faLock, faLockOpen
+  faShieldAlt, faEnvelope, faClipboardCheck, faLayerGroup, faPeopleCarry, faEyeSlash, faCloudArrowUp, faCodeBranch, faLock, faLockOpen, faPlaneCircleCheck
 } from '@fortawesome/free-solid-svg-icons'
 
 // FontAwesome Icons - Regular
@@ -55,7 +55,8 @@ library.add(
   faHandHoldingDollar, faMoneyCheckAlt, faCity, faCar, faHotel, faPassport, faSubway, faClipboardList,
   faPiggyBank, faUserCog, faUserTie, faCalculator, faList, faBalanceScale, faBalanceScaleLeft, faCommentDollar,
   faShieldAlt, faEnvelope, faClipboardCheck, faLayerGroup, faPeopleCarry, faTicketSimple, faMoneyBillWave, faPlane,
-  faBuilding, faPlaneArrival, faCircle, faClock, farUser, faCcVisa, faWhatsapp, faEye, faEyeSlash, faCloudArrowUp, faCodeBranch, faLock, faLockOpen
+  faBuilding, faPlaneArrival, faCircle, faClock, farUser, faCcVisa, faWhatsapp, faEye, faEyeSlash, faCloudArrowUp, faCodeBranch,
+  faLock, faLockOpen, faPlaneCircleCheck
 )
 
 // Buat App Vue

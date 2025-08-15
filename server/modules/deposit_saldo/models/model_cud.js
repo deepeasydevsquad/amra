@@ -1,4 +1,4 @@
-const { sequelize, Deposit, Member, Company } = require("../../../models");
+const { sequelize, Deposit, Member, Company, Jurnal } = require("../../../models");
 const Model_r = require("./model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const {
@@ -98,9 +98,27 @@ class Model_cud {
         }
       );
 
-      this.message = `Menambahkan deposit ke ${
-        member.fullname
-      } sebesar Rp${body.nominal.toLocaleString("id-ID")}`;
+      // insert jurnal
+      await Jurnal.create(
+        {
+          division_id: body.division_id, 
+          source: '',
+          ref: 'DEPOSIT SALDO MEMBER ' + member.fullname + ' dengan nominal Rp ' + body.nominal.toLocaleString("id-ID")  ,
+          ket: 'DEPOSIT SALDO MEMBER ' + member.fullname + ' dengan nominal Rp ' + body.nominal.toLocaleString("id-ID"),
+          akun_debet: '11010',
+          akun_kredit: '24000',
+          saldo: body.nominal,
+          removable: 'false',
+          periode_id: 0,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
+      this.message = `Menambahkan deposit ke ${ member.fullname } sebesar Rp${body.nominal.toLocaleString("id-ID")}`;
     } catch (error) {
       console.error("Gagal tambah deposit:", error);
       this.state = false;

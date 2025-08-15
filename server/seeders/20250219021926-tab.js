@@ -71,6 +71,7 @@ module.exports = {
       { name: 'Riwayat Mutasi Saldo Perusahaan', icon : 'fas fa-clipboard-check', path: 'riwayat_mutasi_saldo_perusahaan', desc:'Fitur ini menampilkan riwayat mutasi saldo perusahaan yang pernah dilakukan.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Trans. Fasilitas', icon : 'fas fa-building', path: 'trans_fasilitas', desc:'Fitur ini berfungsi untuk menyimpan transasksi fasilitas.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Daftar Akun Bank Perusahaan', icon : 'fas fa-money-check-alt', path: 'daftar_akun_bank_perusahaan', desc:'Fitur ini berfungsi untuk menampilkan daftar akun bank perusahaan yang akan digunakan untuk proses deposit oleh member atau jamaah.',  createdAt: new Date(), updatedAt: new Date() },
+      { name: 'Riwayat Deposit Maskapai', icon : 'fas fa-plane-cicle-check', path: 'riwayat_deposit_maskapai', desc:'Fitur ini menampilkan seluruh riwayat deposit dari masing-masing maskapai.',  createdAt: new Date(), updatedAt: new Date() },
     ], {});
   },
 

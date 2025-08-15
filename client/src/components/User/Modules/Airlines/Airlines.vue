@@ -64,7 +64,7 @@
   const confirmMessage = ref<string>('');
   const confirmTitle = ref<string>('');
   const confirmAction = ref<(() => void) | null>(null);
-  const totalColumns = ref(5); // Default 3 kolom
+  const totalColumns = ref(6); // Default 3 kolom
   const selectedAirlines = ref<Partial<Airlines>>({name: ''});
 
   const fetchData = async () => {
@@ -147,10 +147,11 @@
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[45%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Maskapai</th>
+            <th class="w-[35%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Maskapai</th>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Akun Deposit</th>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Akun Pendapatan</th>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Akun HPP</th>
+            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Deposit</th>
             <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
@@ -161,6 +162,7 @@
               <td class="px-6 py-4 text-center">{{  airlines.nomor_akun_deposit }}</td>
               <td class="px-6 py-4 text-center">{{  airlines.nomor_akun_pendapatan }}</td>
               <td class="px-6 py-4 text-center">{{  airlines.nomor_akun_hpp }}</td>
+              <td class="px-6 py-4 text-center">Rp 20.000,-</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
                   <LightButton @click="openModal(airlines)">

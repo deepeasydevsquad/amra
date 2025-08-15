@@ -431,43 +431,27 @@ watch(SelectedCabang, async (newCabang) => {
             <th class="px-6 py-3 font-medium text-gray-900 text-center w-[10%]">Invoice</th>
             <th class="px-6 py-3 font-medium text-gray-900 text-center w-[20%]">Nama Costumer</th>
             <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">Paket</th>
-            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[35%]">
-              Info Transaksi Hotel
-            </th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[35%]">Info Transaksi Hotel</th>
             <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">Total</th>
-            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">
-              Tanggal Transaksi
-            </th>
+            <th class="px-6 py-3 font-medium text-gray-900 text-center w-[15%]">Tanggal</th>
             <th class="px-6 py-3 font-medium text-gray-900 text-center w-[5%]">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
           <tr v-if="data.length === 0">
-            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+            <td colspan="6" class="px-6 py-3 text-center text-gray-500">
               Daftar Transaksi Hotel Tidak Ditemukan
             </td>
           </tr>
-          <tr
-            v-else
-            v-for="transaksi in data"
-            :key="transaksi.id"
-            class="hover:bg-gray-50 transition-colors"
-          >
+          <tr v-else v-for="transaksi in data" :key="transaksi.id" class="hover:bg-gray-50 transition-colors">
             <td class="px-6 py-4 text-center align-top">{{ transaksi.invoice }}</td>
             <td class="px-6 py-4 text-center align-top">{{ transaksi.kostumer_name }} <br /></td>
-
             <td class="px-6 py-4 text-center align-top">{{ transaksi.paket_name }} <br /></td>
             <td class="px-6 py-4 text-left space-y-3">
-              <div
-                v-for="(detail, idx) in transaksi.details"
-                :key="idx"
-                class="pb-2"
-                :class="transaksi.details.length - 1 == idx ? '' : 'border-b'"
-              >
+              <div v-for="(detail, idx) in transaksi.details" :key="idx" class="pb-2" :class="transaksi.details.length - 1 == idx ? '' : 'border-b'" >
                 <p class="font-semibold text-gray-800 mb-2">{{ detail.hotel_name }}</p>
                 <div class="grid grid-cols-[100px_1fr] text-sm text-gray-700 gap-y-1">
-                  <span>Nama</span><span>: {{ detail.name }}</span> <span>Identitas</span
-                  ><span>: {{ detail.identity_number }}</span> <span>TTL</span
+                  <span>Nama</span><span>: {{ detail.name }}</span> <span>Identitas</span><span>: {{ detail.identity_number }}</span> <span>TTL</span
                   ><span>: {{ detail.birth_place }}, {{ detail.birth_date }}</span>
                   <span>Check-in</span><span>: {{ detail.check_in }}</span> <span>Check-out</span
                   ><span>: {{ detail.check_out }}</span> <span>Harga</span
@@ -475,9 +459,7 @@ watch(SelectedCabang, async (newCabang) => {
                 </div>
               </div>
             </td>
-            <td class="px-6 py-4 text-center align-top">
-              {{ formatHarga(transaksi.total_harga) }}
-            </td>
+            <td class="px-6 py-4 text-center align-top">{{ formatHarga(transaksi.total_harga) }}</td>
             <td class="px-6 py-4 text-center align-top">{{ transaksi.tanggal_transaksi }}</td>
             <td class="px-6 py-4 text-center align-top">
               <div class="flex flex-col items-center gap-2">
@@ -492,16 +474,7 @@ watch(SelectedCabang, async (newCabang) => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <Pagination
-            :currentPage="currentPage"
-            :totalPages="totalPages"
-            :pages="pages"
-            :totalColumns="totalColumns"
-            @prev-page="handlePrev"
-            @next-page="handleNext"
-            @page-now="handlePageNow"
-            :totalRow="totalRow"
-          />
+          <Pagination :currentPage="currentPage" :totalPages="totalPages" :pages="pages" :totalColumns="totalColumns" @prev-page="handlePrev" @next-page="handleNext" @page-now="handlePageNow" :totalRow="totalRow"/>
         </tfoot>
       </table>
     </div>

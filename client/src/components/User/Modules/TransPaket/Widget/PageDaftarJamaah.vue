@@ -205,22 +205,22 @@ const handleCloseFormOpsiHandoverBarang = () => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr class="bg-gray-100">
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[10%] px-6 py-3 font-medium font-bold text-gray-900 text-center">
               Nomor Identitas
             </th>
-            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[20%] px-6 py-3 font-medium font-bold text-gray-900 text-center">
               Nama Jamaah
             </th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[15%] px-6 py-3 font-medium font-bold text-gray-900 text-center">
               Tempat/Tanggal Lahir
             </th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[15%] px-6 py-3 font-medium font-bold text-gray-900 text-center">
               Nomor Passport
             </th>
-            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[20%] px-6 py-3 font-medium font-bold text-gray-900 text-center">
               Informasi Paket
             </th>
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[10%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
@@ -271,7 +271,7 @@ const handleCloseFormOpsiHandoverBarang = () => {
             </td>
           </tr>
           <tr v-else>
-            <td :colspan="totalColumns" class="px-6 py-4 text-center text-gray-500">
+            <td :colspan="totalColumns" class="px-6 py-3 text-center text-gray-500">
               Daftar Jamaah Tidak di Temukan
             </td>
           </tr>

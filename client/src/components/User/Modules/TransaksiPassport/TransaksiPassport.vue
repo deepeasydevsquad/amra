@@ -257,9 +257,7 @@ const formatPrice = (num: number): string => {
           <tr>
             <th class="w-[10%] px-6 py-3 text-gray-900 font-medium text-center">Nomor Invoice</th>
             <th class="w-[25%] px-6 py-3 text-gray-900 font-medium text-center">Info Pembayar</th>
-            <th class="w-[30%] px-6 py-3 text-gray-900 font-medium text-center">
-              Info Tansaksi Passport
-            </th>
+            <th class="w-[30%] px-6 py-3 text-gray-900 font-medium text-center">Info Tansaksi Passport</th>
             <th class="w-[15%] px-6 py-3 text-gray-900 font-medium text-center">Total</th>
             <th class="w-[15%] px-6 py-3 text-gray-900 font-medium text-center">Tanggal</th>
             <th class="w-[5%] px-6 py-3 text-gray-900 font-medium text-center">Aksi</th>
@@ -274,7 +272,7 @@ const formatPrice = (num: number): string => {
             </td>
           </tr>
           <tr v-else-if="TransaksiPassport.length === 0">
-            <td colspan="6" class="px-6 py-6 text-center text-gray-500 align-top">
+            <td colspan="6" class="px-6 py-3 text-center text-gray-500 align-top">
               {{ search ? 'Data tidak ditemukan' : 'Transaksi Passport Tidak Ditemukan' }}
             </td>
           </tr>
@@ -284,11 +282,7 @@ const formatPrice = (num: number): string => {
               {{ item.kostumer_name }}
             </td>
             <td class="px-6 py-4">
-              <div
-                v-for="(detail, i) in item.details"
-                :key="i"
-                class="mb-2 border-b border-dashed border-gray-200 pb-2 last:border-0 last:pb-0"
-              >
+              <div v-for="(detail, i) in item.details" :key="i" class="mb-2 border-b border-dashed border-gray-200 pb-2 last:border-0 last:pb-0" >
                 <div class="text-sm leading-5 space-y-1">
                   <div class="grid grid-cols-[120px_1fr] gap-y-1 items-start">
                     <div>Nama</div>
@@ -307,18 +301,8 @@ const formatPrice = (num: number): string => {
                 </div>
               </div>
             </td>
-
-            <td class="px-6 py-4 text-center align-top">
-              Rp.
-              {{
-                formatPrice(item.details.reduce((total, detail) => total + (detail.price || 0), 0))
-              }}
-            </td>
-
-            <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap align-top">
-              {{ formatTanggal(item.createdAt) }}
-            </td>
-
+            <td class="px-6 py-4 text-center align-top">Rp.{{ formatPrice(item.details.reduce((total, detail) => total + (detail.price || 0), 0))}}</td>
+            <td class="px-6 py-4 text-sm text-center text-gray-900 whitespace-nowrap align-top">{{ formatTanggal(item.createdAt) }}</td>
             <td class="px-6 py-4 text-center align-top">
               <div class="flex flex-col items-center gap-2">
                 <LightButton title="Cetak Kwitansi" @click="openCetakKwitansi(item.invoice)">

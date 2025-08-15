@@ -5,6 +5,7 @@ const { getCompanyIdByCode } = require("../../../helper/companyHelper");
 const moment = require("moment");
 
 class Model_cud {
+  
   constructor(req) {
     this.req = req;
     this.company_id;
@@ -35,6 +36,7 @@ class Model_cud {
 
     try {
       const nomor_akun = await this.get_nomor_akun( this.company_id );
+      
       const insert = await Mst_fasilitas.create(
         {
           company_id: this.company_id, 
@@ -47,6 +49,7 @@ class Model_cud {
           transaction: this.t,
         }
       );
+
       // tambah di Akun
       await Akun_secondary.create(
         {
@@ -110,9 +113,6 @@ class Model_cud {
 
       this.message = `Memperbaharui Data Fasilitas dengan Nama Fasilitas: ${infoFasilitas.name} dan ID Fasilitas: ${body.id} menjadi Nama Fasilitas: ${body.name}`;
     } catch (error) {
-      console.log("------SSS");
-      console.log(error);
-      console.log("------SSS");
       this.state = false;
     }
   }
@@ -163,9 +163,6 @@ class Model_cud {
 
       this.message = `Menghapus Fasilitas dengan Nama Fasilitas: ${infoFasilitas.name} dan ID Fasilitas: ${infoFasilitas.id}`;
     } catch (error) {
-      console.log('XXXXXXX');
-      console.log(error);
-      console.log('XXXXXXX');
       this.state = false;
     }
   }
