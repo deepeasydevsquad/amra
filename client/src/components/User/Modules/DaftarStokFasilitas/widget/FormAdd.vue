@@ -2,6 +2,7 @@
 import Form from '@/components/Modal/Form.vue'
 import InputText from '@/components/Form/InputText.vue'
 import SelectField from '@/components/Form/SelectField.vue'
+import Warning from "@/components/Modal/Warning.vue"
 import { add_stock, get_sumber_dana } from '@/service/daftar_stock_fasilitas'
 import { ref, computed, onMounted, watch } from 'vue'
 
@@ -17,6 +18,9 @@ const form = ref({
   harga_beli: 0,
   harga_jual: 0,
 })
+
+const showWarning = ref<boolean>(false);
+const warningMessage = ref<string>('');
 
 watch(
   () => props.idFasilitas,
@@ -82,7 +86,8 @@ const handleSubmit = async () => {
     await add_stock(payload)
     emit('success')
   } catch (error: any) {
-    console.error('Gagal tambah stok:', error)
+    showWarning.value = true;
+    warningMessage.value = error.response?.data?.message || 'Terjadi kesalahan saat menambah stok fasilitas.'
   }
 }
 
@@ -110,4 +115,5 @@ watch(
     <InputText v-model="hargaBeliDisplay" label="Harga Beli Per Satuan" placeholder="Masukkan harga beli"  class="mt-4"  required />
     <InputText v-model="hargaJualDisplay" label="Harga Jual Per Satuan" placeholder="Masukkan harga jual"  class="mt-4" required />
   </Form>
+  <Warning :showWarning="showWarning"  :warningMessage="warningMessage" @close="showWarning = false" ></Warning>
 </template>

@@ -36,7 +36,7 @@ router.post(
       .notEmpty()
       .withMessage("Harga beli wajib diisi.")
       .isNumeric()
-      .withMessage("Harga beli harus berupa angka."),
+      .withMessage("Harga beli harus berupa angka.").custom( validation.check_jumlah_dana ),
     body("harga_jual")
       .notEmpty()
       .withMessage("Harga jual wajib diisi.")

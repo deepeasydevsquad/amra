@@ -1,6 +1,6 @@
-const { sequelize, Item_fasilitas } = require("../../../models");
+const { sequelize, Item_fasilitas, Mst_fasilitas, Jurnal } = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
-const { getCompanyIdByCode } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
 const { generate_item_code } = require("../../../helper/randomHelper");
 const bcrypt = require("bcryptjs");
 const moment = require("moment");
@@ -9,6 +9,7 @@ class Model_cud {
   constructor(req) {
     this.req = req;
     this.company_id = null;
+    this.division_id = null;
     this.t = null;
     this.state = true;
     this.message = "";
@@ -16,12 +17,14 @@ class Model_cud {
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
+    this.division_id = await getCabang(this.req);
     this.t = await sequelize.transaction();
   }
 
   async hapus_stok() {
     await this.initialize();
     const body = this.req.body;
+    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
 
     try {
       const id = body.id; // atau pakai item_code kalau kamu pakai itu
@@ -34,6 +37,10 @@ class Model_cud {
       const item = await Item_fasilitas.findOne({
         where: {
           id,
+        },
+        include: {
+          model: Mst_fasilitas,
+          required: true,
         },
       });
 
@@ -50,6 +57,26 @@ class Model_cud {
       }
 
       await item.destroy({ transaction: this.t });
+
+      // Insert Jurnal
+      await Jurnal.create(
+        {
+          division_id: this.division_id, 
+          source: '',
+          ref: 'Menambah stok fasilitas',
+          ket: 'Menambah stok fasilitas',
+          akun_debet: '11010',
+          akun_kredit: item.Mst_fasilita.nomor_akun,
+          saldo: item.harga_beli,
+          removable: 'false',
+          periode_id: 0,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
 
       this.state = true;
       this.message = "Data berhasil dihapus";

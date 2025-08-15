@@ -5,7 +5,6 @@ import Notification from "@/components/Modal/Notification.vue"
 import Confirmation from "@/components/Modal/Confirmation.vue"
 import Warning from "@/components/Modal/Warning.vue"
 
-
 interface Company {
   id: number
   code: string

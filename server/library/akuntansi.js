@@ -2,6 +2,130 @@ const { Saldo_akun, Jurnal, Akun_primary, Akun_secondary } = require("../models"
 
 class Akuntansi {
 
+    async saldo_masing_masing_akun(nomor_akun, company_id, division_id, periode) {
+
+        const q = await Akun_secondary.findOne({
+            where: {
+                nomor_akun: nomor_akun, 
+                company_id: company_id
+            },
+            include: {
+                model : Akun_primary, 
+                required: true
+            }
+        });
+        const sn = q.Akun_primary.sn;
+
+        console.log("*******************");
+        console.log(nomor_akun);
+        console.log(company_id);
+        console.log(division_id);
+        console.log(periode);
+        console.log(sn);
+        console.log("*******************");
+
+        // get saldo awal
+        var saldo_awal = 0;
+        await Saldo_akun.findAll( {
+        include : {
+          required : true, 
+          model : Akun_secondary,
+          where : { nomor_akun : nomor_akun }
+        },  
+        where : { 
+            division_id : division_id, 
+            periode : periode 
+        }}).then(async (value) => {
+            await Promise.all(
+                await value.map(async (e) => {
+                    saldo_awal = saldo_awal + e.saldo;
+                })
+            );
+        });
+
+        console.log("*******saldo_awal************");
+        console.log(saldo_awal);
+        console.log("*******saldo_awal************");
+
+        var saldo_jurnal = saldo_awal;
+        await Jurnal.findAll({ where : { division_id : division_id, periode_id : periode }}).then(async (value) => {
+            await Promise.all(
+                await value.map(async (e) => {
+                    if( sn == 'D') {
+                        if(e.akun_debet == nomor_akun) {
+                            saldo_jurnal = saldo_jurnal + e.saldo;
+                        }
+                        if( e.akun_kredit == nomor_akun) {
+                            saldo_jurnal = saldo_jurnal - e.saldo;
+                        }
+                    } else if( sn == 'K') {
+                        if(e.akun_debet == nomor_akun) {
+                            saldo_jurnal = saldo_jurnal - e.saldo;
+                        }
+                        if( e.akun_kredit == nomor_akun) {
+                            saldo_jurnal = saldo_jurnal + e.saldo;
+                        }
+                    }
+                })
+            );
+        });
+
+        console.log("*******saldo_jurnal************");
+        console.log(saldo_jurnal);
+        console.log("*******saldo_jurnal************");
+
+        return saldo_jurnal;
+    }
+
+    
+                    // // info akun
+                    // var infAkunDebet =  akun_primary[e.akun_debet.toString().charAt(0)];
+                    // var infAkunKredit =  akun_primary[e.akun_kredit.toString().charAt(0)];
+        
+                    // if( infAkunDebet.sn == 'D') {
+                    //   if(saldo_jurnal[e.division_id] === undefined ) {
+                    //     saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_debet] : ( e.saldo + 0 ) } } };
+                    //   }else{
+                    //     if( saldo_jurnal[e.division_id][e.akun_debet] === undefined ) {
+                    //       saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_debet] : (e.saldo + 0)}}
+                    //     }else{
+                    //       saldo_jurnal[e.division_id][e.akun_debet] = saldo_jurnal[e.division_id][e.akun_debet] + e.saldo;
+                    //     }
+                    //   }
+                    // }else if ( infAkunDebet.sn == 'K' ) {
+                    //   if(saldo_jurnal[e.division_id] === undefined ) {
+                    //     saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_debet] : ( 0 - e.saldo ) } } };
+                    //   }else{
+                    //     if( saldo_jurnal[e.division_id][e.akun_debet] === undefined ) {
+                    //       saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_debet] : ( 0 - e.saldo )}}
+                    //     }else{
+                    //       saldo_jurnal[e.division_id][e.akun_debet] = saldo_jurnal[e.division_id][e.akun_debet] - e.saldo;
+                    //     }
+                    //   }
+                    // }
+        
+                    // if( infAkunKredit.sn == 'D') {
+                    //   if(saldo_jurnal[e.division_id] === undefined ) {
+                    //     saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_kredit] : ( 0 - e.saldo ) } } };
+                    //   }else{
+                    //     if( saldo_jurnal[e.division_id][e.akun_kredit] === undefined ) {
+                    //       saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_kredit] : (0 - e.saldo)}}
+                    //     }else{
+                    //       saldo_jurnal[e.division_id][e.akun_kredit] = saldo_jurnal[e.division_id][e.akun_kredit] - e.saldo;
+                    //     }
+                    //   }
+                    // }else if ( infAkunKredit.sn == 'K' ) {
+                    //   if(saldo_jurnal[e.division_id] === undefined ) {
+                    //     saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_kredit] : ( e.saldo + 0 ) } } };
+                    //   }else{
+                    //     if( saldo_jurnal[e.division_id][e.akun_kredit] === undefined ) {
+                    //       saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_kredit] : ( e.saldo + 0 )}}
+                    //     }else{
+                    //       saldo_jurnal[e.division_id][e.akun_kredit] = saldo_jurnal[e.division_id][e.akun_kredit] + e.saldo;
+                    //     }
+                    //   }
+                    // }
+
     async iktisar_laba_rugi(periode, division_id, company_id) {
 
         try {

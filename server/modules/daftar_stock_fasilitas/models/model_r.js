@@ -1,15 +1,19 @@
 const { Op, Mst_fasilitas, Item_fasilitas, Mst_bank } = require("../../../models");
-const { getCompanyIdByCode } = require("../../../helper/companyHelper");
-const { dbList } = require("../../../helper/dbHelper");
+const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
+// const { dbList } = require("../../../helper/dbHelper");
+const{ convertToRP } = require("../../../helper/currencyHelper");
+const Akuntansi = require("../../../library/akuntansi");
 
 class Model_r {
   constructor(req) {
     this.req = req;
     this.company_id;
+    this.division_id;
   }
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
+    this.division_id = await getCabang(this.req);
   }
 
   async list() {
@@ -88,18 +92,29 @@ class Model_r {
   async sumber_dana() {
     await this.initialize();
 
+    const akuntansi = new Akuntansi(); 
+
     try {
-      var data = [{id: 0, name: 'KAS'}];
-       await Mst_bank.findAll({
+      var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun('11010', this.company_id, this.division_id, '0') );
+
+      console.log("------____------");
+      console.log(saldo);
+      console.log("------____------");
+
+      var data = [{id: 0, name: 'KAS (Saldo : ' + saldo + ')'}];
+      await Mst_bank.findAll({
         where: { 
           company_id: this.company_id
         }}).then(async (value) => {
         await Promise.all(
           await value.map(async (e) => {
-            data.push({id: e.id, name: e.kode + ' - ' + e.name  });
+            var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun(e.nomor_akun, this.company_id, this.division_id, '0') ) ;
+            data.push({id: e.id, name: e.kode + ' (Saldo : ' + saldo + ') '});
           })
         );
       });
+
+
       return data;
     } catch (error) {
       console.log("xxxxxxxx--------------------");
