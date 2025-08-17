@@ -1,16 +1,11 @@
 <script setup lang="ts">
   // Import Icon
   import DeleteIcon from '@/components/User/Modules/Airlines/Icon/DeleteIcon.vue'
-  import EditIcon from '@/components/User/Modules/Airlines/Icon/EditIcon.vue'
   // import element
-  import Form from '@/components/User/Modules/Airlines/Widget/Form.vue'
   import DangerButton from '@/components/User/Modules/Airlines/Particle/DangerButton.vue'
   import Notification from '@/components/User/Modules/Airlines/Particle/Notification.vue'
-  import Confirmation from '@/components/User/Modules/Airlines/Particle/Confirmation.vue'
-  import LightButton from "@/components/Button/LightButton.vue"
   import PrimaryButton from '@/components/Button/PrimaryButton.vue'
   import Pagination from '@/components/Pagination/Pagination.vue'
-
   import { ref, onMounted, computed } from 'vue';
   import { riwayat_deposit_maskapai } from '@/service/riwayat_deposit_maskapai'; // Import function POST
   import { paramCabang } from '@/service/param_cabang'
@@ -34,8 +29,8 @@
   const currentPage = ref(1);
   const total = ref<number>(0);
   const totalPages = ref(0);
-  const totalColumns = ref(4); // Default 3 kolom
-  const itemsPerPage = 100; // Jumlah airlines per halaman
+  const totalColumns = ref(4);
+  const itemsPerPage = 100;
   const notificationMessage = ref<string>('');
   const notificationType = ref<'success' | 'error'>('success');
   const showNotification = ref<boolean>(false);
@@ -82,7 +77,6 @@
     // }
   }
 
-
   const nextPage = () => {
     if (currentPage.value < totalPages.value) {
       currentPage.value++;
@@ -110,19 +104,15 @@
     notificationMessage.value = message;
     notificationType.value = type;
     showNotification.value = true;
-
     if (timeoutId.value) clearTimeout(timeoutId.value);
-
     timeoutId.value = window.setTimeout(() => {
       showNotification.value = false;
     }, 3000);
   };
 
-
   const addDepositModal = () => {
     showForm.value = true;
   };
-
 
   const closeAddForm = () => {
     showForm.value = false
@@ -144,25 +134,18 @@
     return prefix + (rupiah || "0");
   };
 
-
   onMounted(async () => {
     await fetchFilterData();
   });
+
 </script>
 <template>
   <div class="container mx-auto p-4">
-    <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
       <PrimaryButton @click="addDepositModal()" >
         <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
         Tambah Deposit Maskapai
       </PrimaryButton>
-      <!-- <div class="flex items-center">
-        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input type="text" id="search" class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-          v-model="search" @change="fetchData()" placeholder="Cari data..." />
-      </div> -->
-
       <div class="inline-flex rounded-md shadow-xs" role="group">
         <input type="text" id="search" class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" v-model="search" @input="fetchData" placeholder="Cari data..."/>
         <select v-model="selectedOptionCabang" style="width: 300px" @change="fetchData()"
@@ -172,10 +155,8 @@
             {{ optionC.name }}
           </option>
         </select>
-
       </div>
     </div>
-
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
