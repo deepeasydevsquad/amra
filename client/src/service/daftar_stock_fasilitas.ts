@@ -22,9 +22,9 @@ export const add_stock = async (param : any) => {
 };
 
 
-export const get_sumber_dana = async () => {
+export const get_sumber_dana = async (param: any) => {
   try {
-    const response = await api.get("/sumber-dana/list");
+    const response = await api.post("/sumber-dana/list",param);
     return response.data;
   } catch (error) {
     console.error("Gagal mengambil data sumber dana:", error);

@@ -1,0 +1,38 @@
+const { Mst_bank, Mst_airline } = require("../models");
+const { getCompanyIdByCode } = require("../helper/companyHelper");
+const validation = {};
+
+validation.check_sumber_dana = async (value, { req }) => {
+    if(value != 0){
+        const company_id = await getCompanyIdByCode(req);
+        const check = await Mst_bank.findOne({
+            where: { id: value, company_id },
+        });
+        // check
+        if (!check) {
+            throw new Error("ID sumber dana tidak terdaftar di pangkalan data.");
+        }
+    }
+    return true;
+};
+
+validation.check_mst_airline_id = async (value, { req }) => {
+    const company_id = await getCompanyIdByCode(req);
+    const check = await Mst_airline.findOne({
+        where: { id: value, company_id },
+    });
+    // check
+    if (!check) {
+        throw new Error("ID Maskapai tidak terdaftar di pangkalan data.");
+    }
+    return true;
+}
+
+validation.check_deposit = async (value, { req }) => {
+    if(value <= 1000) {
+        throw new Error("Jumlah deposit tidak boleh lebih kecil dari Rp 1000 .");
+    }
+    return true;
+}
+
+module.exports = validation;

@@ -103,6 +103,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "division_id",
         onDelete: "CASCADE",
       });
+      Division.hasMany(models.Riwayat_deposit_airline, {
+        foreignKey: "division_id",
+        onDelete: "CASCADE",
+      });
     }
   }
   Division.init(

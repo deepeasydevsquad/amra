@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "airlines_id",
         onDelete: 'CASCADE',
       });
+      Mst_airline.hasMany(models.Riwayat_deposit_airline, {
+        foreignKey: "mst_airline_id",
+        onDelete: 'CASCADE',
+      });
     }
   }
   Mst_airline.init({

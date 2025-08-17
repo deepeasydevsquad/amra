@@ -1,5 +1,5 @@
-const { Op, Mst_fasilitas, Item_fasilitas, Mst_bank } = require("../../../models");
-const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
+const { Op, Mst_fasilitas, Item_fasilitas, Mst_bank, Division } = require("../../../models");
+const { getCompanyIdByCode, getCabang, tipe } = require("../../../helper/companyHelper");
 // const { dbList } = require("../../../helper/dbHelper");
 const{ convertToRP } = require("../../../helper/currencyHelper");
 const Akuntansi = require("../../../library/akuntansi");
@@ -9,11 +9,13 @@ class Model_r {
     this.req = req;
     this.company_id;
     this.division_id;
+    this.tipe;
   }
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
     this.division_id = await getCabang(this.req);
+    this.tipe = await tipe(this.req);
   }
 
   async list() {
@@ -47,40 +49,85 @@ class Model_r {
       let data = [];
 
       if (total > 0) {
-        await Promise.all(
-          q.rows.map(async (e) => {
-            // Ambil total stok yang BELUM terjual
-            const stokBelumTerjual = await Item_fasilitas.count({
-              where: {
-                mst_fasilitas_id: e.id,
-                status: "belum_terjual",
-              },
-            });
+        // Map untuk menampung stok
+        let terjual = {};
+        let belum_terjual = {};
 
-            // Ambil total stok yang SUDAH terjual
-            const stokTerjual = await Item_fasilitas.count({
-              where: {
-                mst_fasilitas_id: e.id,
-                status: "terjual",
-              },
-            });
+        var whereDiv = { company_id: this.company_id };
+        if( this.tipe == 'staff') {
+          whereDiv = {...whereDiv,...{id : this.division_id } };
+        }
 
-            console.log("xxxxxxxxxxxxxx");
-            console.log(stokBelumTerjual);
-            console.log(stokTerjual);
-            console.log("xxxxxxxxxxxxxx");
+        var listDivisonTerjual = [];
+        var listDivisonBelumTerjual = [];
+      
+        const qDiv = await Division.findAll({
+          where: whereDiv,
+        });
+        qDiv.forEach((e) => {
+          listDivisonTerjual.push({ id_cabang: e.id, nama_cabang: e.name, count: 0 });
+          listDivisonBelumTerjual.push({ id_cabang: e.id, nama_cabang: e.name, count: 0 });
+        })
 
-            data.push({
-              id: e.id,
-              name: e.name,
-              jumlah_stok: stokBelumTerjual,
-              jumlah_stok_terjual: stokTerjual,
-            });
-          })
-        );
+        // Ambil semua item fasilitas + division
+        const items = await Item_fasilitas.findAll({
+          include: {
+            required: true,
+            model: Division,
+            attributes: ["name"],
+          },
+        });
+
+        // Hitung stok berdasarkan status
+        items.forEach((e) => {
+          if (e.status === "terjual") {
+            if (!terjual[e.mst_fasilitas_id]) terjual[e.mst_fasilitas_id] = {};
+            if (!terjual[e.mst_fasilitas_id][e.division_id]) {
+              terjual[e.mst_fasilitas_id][e.division_id] = {
+                name_cabang: e.Division.name,
+                count: 0,
+              };
+            }
+            terjual[e.mst_fasilitas_id][e.division_id].count++;
+          }
+
+          if (e.status === "belum_terjual") {
+            if (!belum_terjual[e.mst_fasilitas_id]) belum_terjual[e.mst_fasilitas_id] = {};
+            if (!belum_terjual[e.mst_fasilitas_id][e.division_id]) {
+              belum_terjual[e.mst_fasilitas_id][e.division_id] = {
+                name_cabang: e.Division.name,
+                count: 0,
+              };
+            }
+            belum_terjual[e.mst_fasilitas_id][e.division_id].count++;
+          }
+        });
+
+        // Susun data output
+        q.rows.forEach((e) => {
+          // data terjual
+          const tempTerjual = listDivisonTerjual.map((loop) => {
+            const count = terjual?.[e.id]?.[loop.id_cabang]?.count ?? 0;
+            return { nama_cabang: loop.nama_cabang, count };
+          });
+
+          // data belum terjual
+          const tempBelumTerjual = listDivisonBelumTerjual.map((loop) => {
+            const count = belum_terjual?.[e.id]?.[loop.id_cabang]?.count ?? 0;
+            return { nama_cabang: loop.nama_cabang, count };
+          });
+
+          data.push({
+            id: e.id,
+            name: e.name,
+            jumlah_stok: tempBelumTerjual ,
+            jumlah_stok_terjual: tempTerjual,
+          });
+        });
+
       }
 
-      return { data: data, total: total };
+      return { data, total };
     } catch (error) {
       console.log("xxxxxxxx--------------------");
       console.log(error);
@@ -89,13 +136,15 @@ class Model_r {
     }
   }
 
+
   async sumber_dana() {
     await this.initialize();
 
     const akuntansi = new Akuntansi(); 
+    const division = this.req.body.cabang;
 
     try {
-      var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun('11010', this.company_id, this.division_id, '0') );
+      var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun('11010', this.company_id, division, '0') );
 
       console.log("------____------");
       console.log(saldo);
@@ -108,7 +157,7 @@ class Model_r {
         }}).then(async (value) => {
         await Promise.all(
           await value.map(async (e) => {
-            var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun(e.nomor_akun, this.company_id, this.division_id, '0') ) ;
+            var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun(e.nomor_akun, this.company_id, division, '0') ) ;
             data.push({id: e.id, name: e.kode + ' (Saldo : ' + saldo + ') '});
           })
         );

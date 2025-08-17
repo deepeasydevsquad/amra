@@ -14,6 +14,9 @@ module.exports = (sequelize, DataTypes) => {
       Item_fasilitas.belongsTo(models.Mst_fasilitas, {
         foreignKey: "mst_fasilitas_id",
       });
+      Item_fasilitas.belongsTo(models.Division, {
+        foreignKey: "division_id",
+      });
       Item_fasilitas.hasMany(models.Transaction_fasilitas_detail, {
         foreignKey: "item_fasilitas_id",
         onDelete: 'CASCADE',
@@ -29,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Item_fasilitas.init({
+    division_id: DataTypes.INTEGER,
     item_code: DataTypes.STRING,
     mst_fasilitas_id: DataTypes.INTEGER,
     status: DataTypes.ENUM(['terjual',"belum_terjual"]),

@@ -1,11 +1,8 @@
 'use strict';
-
-const mst_fasilitas = require('../models/mst_fasilitas');
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Item_fasilitas', {
+    await queryInterface.createTable('Riwayat_deposit_airlines', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -20,26 +17,21 @@ module.exports = {
         },
         onDelete: 'CASCADE',
       },
-      item_code: {
+      invoice: {
         type: Sequelize.STRING
       },
-      mst_fasilitas_id: {
+      sumber_dana: {
+        type: Sequelize.INTEGER
+      },
+      mst_airline_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Mst_fasilitas",
+          model: "Mst_airlines",
           key: "id",
         },
         onDelete: 'CASCADE',
       },
-      status: {
-        type: Sequelize.ENUM,
-        values: ['terjual', 'belum_terjual'],
-        defaultValue : "belum_terjual"
-      },
-      harga_beli: {
-        type: Sequelize.INTEGER
-      },
-      harga_jual: {
+      deposit: {
         type: Sequelize.INTEGER
       },
       createdAt: {
@@ -53,6 +45,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Item_fasilitas');
+    await queryInterface.dropTable('Riwayat_deposit_airlines');
   }
 };

@@ -2,7 +2,6 @@
   // Import Icon
   import DeleteIcon from '@/components/User/Modules/Airlines/Icon/DeleteIcon.vue'
   import EditIcon from '@/components/User/Modules/Airlines/Icon/EditIcon.vue'
-
   // import element
   import Form from '@/components/User/Modules/Airlines/Widget/Form.vue'
   import DangerButton from '@/components/User/Modules/Airlines/Particle/DangerButton.vue'
@@ -11,7 +10,6 @@
   import LightButton from "@/components/Button/LightButton.vue"
   import PrimaryButton from '@/components/Button/PrimaryButton.vue'
   import Pagination from '@/components/Pagination/Pagination.vue'
-
   // Import service API
   import { daftarAirlines, deleteAirlines } from '@/service/airlines'; // Import function POST
   import { ref, onMounted, computed } from 'vue';
@@ -20,6 +18,7 @@
   const currentPage = ref(1);
   const search = ref("");
   const totalPages = ref(0);
+
 
   const nextPage = () => {
     if (currentPage.value < totalPages.value) {
@@ -45,12 +44,18 @@
     return Array.from({ length: totalPages.value }, (_, i) => i + 1);
   });
 
+  interface DepositItem {
+    cabang: string;
+    deposit: string;
+  }
+
   interface Airlines {
     id: number;
     name: string;
     nomor_akun_deposit: string;
     nomor_akun_pendapatan: string;
     nomor_akun_hpp: string;
+    deposit: DepositItem[];
   }
 
   const timeoutId = ref<number | null>(null);
@@ -147,11 +152,11 @@
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[35%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Maskapai</th>
+            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Maskapai</th>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Akun Deposit</th>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Akun Pendapatan</th>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Akun HPP</th>
-            <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Deposit</th>
+            <th class="w-[35%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Deposit</th>
             <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
@@ -159,10 +164,20 @@
           <template v-if="dataAirlines && dataAirlines.length > 0">
             <tr v-for="airlines in dataAirlines" :key="airlines.id" class="hover:bg-gray-50">
               <td class="px-6 py-4 text-center">{{ airlines.name }}</td>
-              <td class="px-6 py-4 text-center">{{  airlines.nomor_akun_deposit }}</td>
-              <td class="px-6 py-4 text-center">{{  airlines.nomor_akun_pendapatan }}</td>
-              <td class="px-6 py-4 text-center">{{  airlines.nomor_akun_hpp }}</td>
-              <td class="px-6 py-4 text-center">Rp 20.000,-</td>
+              <td class="px-6 py-4 text-center">{{ airlines.nomor_akun_deposit }}</td>
+              <td class="px-6 py-4 text-center">{{ airlines.nomor_akun_pendapatan }}</td>
+              <td class="px-6 py-4 text-center">{{ airlines.nomor_akun_hpp }}</td>
+              <td class="px-6 py-4 text-center">
+                <table class="w-full mb-0">
+                  <tbody>
+                    <tr v-for="(value, index) in airlines.deposit" :key="index" class="border-gray-200 hover:bg-gray-200">
+                      <td class=" w-[65%] border-l border-t border-b  px-6 py-2 text-left">{{ value.cabang }}</td>
+                      <td class="w-[5%] text-center border-t border-b py-2">:</td>
+                      <td class="border-r border-t border-b text-right space-y-2 text-sm px-2 py-2">{{ value.deposit }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
                   <LightButton @click="openModal(airlines)">

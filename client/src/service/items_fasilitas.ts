@@ -11,11 +11,11 @@ export const list = async (param : any) => {
 };
 
 export const hapus = async (param : any) => {
-    try {
-      const response = await api.post("/item_fasilitas/delete", param);
-      return response.data;
-    } catch (error) {
-      console.error("Gagal mengambil jenis mobil:", error);
-      throw error;
-    }
-  };
+  try {
+    const response = await api.post("/item_fasilitas/delete", param);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil jenis mobil:", error);
+    throw error;
+  }
+};

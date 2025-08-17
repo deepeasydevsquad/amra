@@ -61,10 +61,10 @@ class Model_cud {
       // Insert Jurnal
       await Jurnal.create(
         {
-          division_id: this.division_id, 
+          division_id: item.division_id, 
           source: '',
-          ref: 'Menambah stok fasilitas',
-          ket: 'Menambah stok fasilitas',
+          ref: 'Menghapus stok fasilitas',
+          ket: 'Menghapus stok fasilitas',
           akun_debet: '11010',
           akun_kredit: item.Mst_fasilita.nomor_akun,
           saldo: item.harga_beli,

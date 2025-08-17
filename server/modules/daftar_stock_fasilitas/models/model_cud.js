@@ -26,6 +26,7 @@ class Model_cud {
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
 
     try {
+      const division_id = body.cabang;
       const sumber_dana = body.sumber_dana;
       const jumlah = parseInt(body.jumlah || 1);
       const items = [];
@@ -33,6 +34,7 @@ class Model_cud {
       for (let i = 0; i < jumlah; i++) {
         const item_code = await generate_item_code();
         items.push({
+          division_id: division_id,
           item_code,
           mst_fasilitas_id: body.mst_fasilitas_id,
           status: "belum_terjual",
@@ -67,7 +69,7 @@ class Model_cud {
       // Insert Jurnal
       await Jurnal.create(
         {
-          division_id: this.division_id, 
+          division_id: division_id, 
           source: '',
           ref: 'Menambah stok fasilitas',
           ket: 'Menambah stok fasilitas',

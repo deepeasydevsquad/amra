@@ -116,10 +116,12 @@ const handleLogin = async () => {
         window.location.href = '/User'
       }
     } else {
+      alertify.error(response.data)
       console.log('Login failed', response.data)
       // Tindakan setelah login gagal
     }
   } catch (error) {
+    alertify.error(error.response.data.message || 'An error occurred during login')
     console.error('An error occurred during login:', error)
   }
 }

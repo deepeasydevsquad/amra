@@ -25,20 +25,13 @@ class Model_r {
         ? parseInt(body.pageNumber)
         : 1;
 
-    // 🌟 START LOGGING
-    console.log("=== DEBUG START ===");
-    console.log("Company ID:", this.company_id);
-    console.log("Request Body:", body);
-
-    // 🧱 Build WHERE clause
-    let where = {};
+    let where = { division_id: body.cabang};
 
     if (body.search && body.search !== "") {
       where.name = { [Op.like]: `%${body.search}%` };
     }
 
-    if (
-      body.status &&
+    if ( body.status &&
       (body.status === "terjual" || body.status === "belum_terjual")
     ) {
       where.status = body.status;
@@ -60,35 +53,28 @@ class Model_r {
       limit,
       offset: (page - 1) * limit,
       order: [["id", "ASC"]],
-      attributes: ["id", "status", "createdAt", "updatedAt", "item_code"],
+      attributes: ["id", "status", "harga_jual", "harga_beli", "createdAt", "updatedAt", "item_code"],
       where,
       include,
     };
 
-    console.log("Sequelize Query Object:", sql);
-
-    // 🔍 Eksekusi Query
     try {
       const q = await Item_fasilitas.findAndCountAll(sql);
       const total = q.count;
-
       const data = q.rows.map((item) => {
         const row = item.toJSON();
         return {
           id: row.id,
           item_code: row.item_code,
           status: row.status,
+          harga_beli: row.harga_beli,
+          harga_jual: row.harga_jual,
           createdAt: row.createdAt,
           updatedAt: row.updatedAt,
           fasilitas_name: row.Mst_fasilita?.name || null,
           fasilitas_company: row.Mst_fasilita?.company_id || null,
         };
       });
-
-      console.log("Query Result Data:", data);
-      console.log("Total Data:", total);
-      console.log("=== DEBUG END ===");
-
       return {
         data,
         total,

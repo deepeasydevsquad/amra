@@ -9,7 +9,8 @@ const {
   Item_fasilitas,
   Handover_fasilitas,
   Handover_fasilitas_paket,
-  Transaction_fasilitas
+  Transaction_fasilitas, 
+  Riwayat_deposit_airline
 } = require("../models");
 
 const helper = {};
@@ -45,6 +46,7 @@ helper.menghasilkan_invoice_deposit = async () => {
   }
   return rand;
 };
+
 
 helper.menghasilkan_nomor_registrasi_peminjaman = async () => {
   var rand = 0;
@@ -126,6 +128,17 @@ helper.generate_item_code = async () => {
   }
 
   return item_code;
+};
+
+helper.menghasilkan_invoice_riwayat_deposit_maskapai = async () => {
+  var rand = 0;
+  let condition = true;
+  while (condition) {
+    rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    check = await Riwayat_deposit_airline.findOne({ where: { invoice: rand } });
+    if (!check) condition = false;
+  }
+  return rand;
 };
 
 module.exports = helper;

@@ -24,6 +24,11 @@ router.post(
   "/daftar-stock-fasilitas/add",
   authenticateToken,
   [
+     body("cabang")
+      .notEmpty()
+      .withMessage("Cabang wajib diisi.")
+      .isNumeric()
+      .withMessage("Cabang harus berupa angka.").custom( validation.check_cabang ),
     body("jumlah")
       .notEmpty()
       .withMessage("Jumlah stok wajib diisi.")
@@ -51,9 +56,16 @@ router.post(
   controllers.add_stock
 );
 
-router.get(
+router.post(
   "/sumber-dana/list",
   authenticateToken,
+  [
+      body("cabang")
+      .notEmpty()
+      .withMessage("Cabang wajib diisi.")
+      .isNumeric()
+      .withMessage("Cabang harus berupa angka.").custom( validation.check_cabang ), 
+  ],
   controllers.sumber_dana
 );
 
