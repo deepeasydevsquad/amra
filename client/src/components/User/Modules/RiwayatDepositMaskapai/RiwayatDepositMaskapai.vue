@@ -13,9 +13,8 @@
 
   import { ref, onMounted, computed } from 'vue';
   import { riwayat_deposit_maskapai } from '@/service/riwayat_deposit_maskapai'; // Import function POST
-import FormAddDeposit from './Widget/FormAddDeposit.vue'
-  //
-
+  import { paramCabang } from '@/service/param_cabang'
+  import FormAddDeposit from './Widget/FormAddDeposit.vue'
 
   interface MainInterface {
     id: number;
@@ -23,6 +22,11 @@ import FormAddDeposit from './Widget/FormAddDeposit.vue'
     nama_maskapai: string;
     nominal_deposit: string;
     tanggal_deposit: string;
+  }
+
+  interface filterCabang {
+    id: number
+    name: string
   }
 
   const data = ref<MainInterface[]>([]);
@@ -37,10 +41,13 @@ import FormAddDeposit from './Widget/FormAddDeposit.vue'
   const showNotification = ref<boolean>(false);
   const timeoutId = ref<number | null>(null);
   const showForm = ref(false);
+  const selectedOptionCabang = ref(0)
+  const optionFilterCabang = ref<filterCabang[]>([])
 
   const fetchData = async () => {
     try {
       const response = await riwayat_deposit_maskapai({
+        cabang: selectedOptionCabang.value,
         search: search.value,
         perpage: itemsPerPage,
         pageNumber: currentPage.value
@@ -52,6 +59,13 @@ import FormAddDeposit from './Widget/FormAddDeposit.vue'
     } catch (error) {
       displayNotification('Terjadi kesalahan saat mengambil data.', 'error');
     }
+  }
+
+  const fetchFilterData = async () => {
+    const response = await paramCabang()
+    optionFilterCabang.value = response.data
+    selectedOptionCabang.value = response.data[0].id
+    await fetchData()
   }
 
   const deleteData = async (id: number) => {
@@ -132,7 +146,7 @@ import FormAddDeposit from './Widget/FormAddDeposit.vue'
 
 
   onMounted(async () => {
-    await fetchData();
+    await fetchFilterData();
   });
 </script>
 <template>
@@ -143,10 +157,22 @@ import FormAddDeposit from './Widget/FormAddDeposit.vue'
         <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
         Tambah Deposit Maskapai
       </PrimaryButton>
-      <div class="flex items-center">
+      <!-- <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input type="text" id="search" class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
           v-model="search" @change="fetchData()" placeholder="Cari data..." />
+      </div> -->
+
+      <div class="inline-flex rounded-md shadow-xs" role="group">
+        <input type="text" id="search" class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" v-model="search" @input="fetchData" placeholder="Cari data..."/>
+        <select v-model="selectedOptionCabang" style="width: 300px" @change="fetchData()"
+          class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+            {{ optionC.name }}
+          </option>
+        </select>
+
       </div>
     </div>
 

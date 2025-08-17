@@ -11,6 +11,7 @@ router.post(
   "/riwayat_deposit_maskapai/list",
   authenticateToken,
   [
+    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(validationCabang.check_cabang_id),
     body("page").optional().isInt({ min: 1 }).withMessage("Page number must be an integer and at least 1"),
     body("perpage").optional().isInt({ min: 1 }).withMessage("Per page must be an integer and at least 1"),
     body("search").optional().trim(),

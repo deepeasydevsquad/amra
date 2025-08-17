@@ -20,6 +20,7 @@ class Model_r {
     const body = this.req.body;
     var limit = body.perpage;
     var page = 1;
+    const cabang = body.cabang;
 
     if (body.pageNumber != undefined && body.pageNumber !== '0' ) page = body.pageNumber;
 
@@ -48,7 +49,7 @@ class Model_r {
         where: where
       }
     ];
-    // sql["where"] = where;
+    sql["where"] = { division_id: cabang };
 
     try {
       const query = await dbList(sql);

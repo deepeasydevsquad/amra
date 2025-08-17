@@ -4,10 +4,7 @@
   import { paramCabang } from '@/service/param_cabang'
   import InputText from "@/components/Form/InputText.vue"
   import SelectField from "@/components/Form/SelectField.vue"
-  import InputDate from "@/components/Form/InputDate.vue"
   import Form from "@/components/Modal/Form.vue"
-  import InputFile from '@/components/Form/InputFile.vue'
-  import InputPassword from '@/components/Form/InputPassword.vue'
   import alertify from 'alertifyjs'
 
   const props = defineProps<{ showForm: boolean  }>()
