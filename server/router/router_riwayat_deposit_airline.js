@@ -20,7 +20,7 @@ router.post(
 );
 
 router.post(
-  `/riwayat_deposit_maskapai/info_add_deposit`,
+  `/riwayat_deposit_maskapai/add_info`,
   authenticateToken,
   [
     body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(validationCabang.check_cabang_id),
@@ -29,7 +29,7 @@ router.post(
 );
 
 router.post(
-  `/riwayat_deposit_maskapai/add_deposit`,
+  `/riwayat_deposit_maskapai/add`,
   authenticateToken,
   [
     body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(validationCabang.check_cabang_id),
@@ -38,6 +38,16 @@ router.post(
     body("deposit").trim().notEmpty().withMessage("Deposit tidak boleh kosong.").custom(validation.check_deposit),
   ], 
   controllers.add_deposit
+);
+
+router.post(
+  `/riwayat_deposit_maskapai/delete`,
+  authenticateToken,
+  [
+    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(validationCabang.check_cabang_id),
+    body("id").trim().notEmpty().withMessage("ID riwayat deposit maskapai tidak boleh kosong.").custom(validation.check_id),
+  ], 
+  controllers.delete
 );
 
 

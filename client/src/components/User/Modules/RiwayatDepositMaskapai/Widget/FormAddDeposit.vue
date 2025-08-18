@@ -5,6 +5,7 @@
   import InputText from "@/components/Form/InputText.vue"
   import SelectField from "@/components/Form/SelectField.vue"
   import Form from "@/components/Modal/Form.vue"
+  import Notification from '@/components/Modal/Notification.vue'
   import alertify from 'alertifyjs'
 
   const props = defineProps<{ showForm: boolean  }>()
@@ -78,7 +79,7 @@
       displayNotification('Deposit berhasil dilakukan.', 'success');
       emit('cancel')
     } catch (error: any) {
-      displayNotification('Terjadi kesalahan saat mengambil data.', 'success');
+      displayNotification('Terjadi kesalahan saat mengambil data.', 'error');
     }
   }
 
@@ -174,4 +175,6 @@
       <InputText v-model="computedNominal" label="Biaya Deposit (Rp)" placeholder="Masukkan nominal" :error="errors['deposit']" :note="'Minimal deposit Rp1.000'" required />
     </div>
   </Form>
+  <!-- Notification Popup -->
+  <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @closeNotification="showNotification = false" />
 </template>

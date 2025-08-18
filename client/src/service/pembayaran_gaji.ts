@@ -20,9 +20,9 @@ export const add_pembayaran_gaji = async (param: any) => {
   }
 }
 
-export const daftar_staff = async(param : any) => {
+export const daftar_staff_sumber_dana = async(param : any) => {
   try {
-    const response = await api.post('/pembayaran_gaji/daftar_staff', param)
+    const response = await api.post('/pembayaran_gaji/daftar_staff_sumber_dana', param)
     return response.data // Kembalikan data hasil request
   } catch (error) {
     console.error('Gagal ambil stafff:', error)

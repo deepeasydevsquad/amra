@@ -26,14 +26,9 @@
                 <table class="w-full mb-0">
                   <tbody>
                     <tr v-for="(value, index) in d.jumlah_stok" :key="index" class="border-gray-200 hover:bg-gray-200">
-                      <td class=" w-[60%] border-l border-t border-b  px-6 py-2 text-left">{{ value.nama_cabang }}</td>
+                      <td class=" w-[70%] border-l border-t border-b  px-6 py-2 text-left">{{ value.nama_cabang }}</td>
                       <td class="w-[5%] text-center border-t border-b py-2">:</td>
                       <td class="border-r border-t border-b text-right space-y-2 text-sm px-2 py-2">{{ value.count }} Unit</td>
-                      <td class="w-[10%] border-r border-t border-b text-right space-y-2 text-sm px-2 py-2">
-                        <LightButton @click="openModalStock(d.id)" title="Detail Stok Fasilitas Belum Terjual " class="p-1 w-2 h-2">
-                            <IconDetail class="w-5 h-5" />
-                        </LightButton>
-                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -42,7 +37,7 @@
                 <table class="w-full mb-0">
                   <tbody>
                     <tr v-for="(value2, index2) in d.jumlah_stok_terjual" :key="index2" class="border-gray-200 hover:bg-gray-200">
-                      <td class="w-[75%] border-l border-t border-b px-6 py-5 text-left">{{ value2.nama_cabang }}</td>
+                      <td class="w-[70%] border-l border-t border-b px-6 py-2 text-left">{{ value2.nama_cabang }}</td>
                       <td class="w-[5%] text-center border-t border-b py-2">:</td>
                       <td class="border-r border-t border-b text-right space-y-2 text-sm px-6 py-2">{{ value2.count }} Unit</td>
                     </tr>
@@ -223,27 +218,6 @@ const notificationType = ref<'success' | 'error'>('success')
 const timeoutId = ref<number | null>(null)
 const searchTimeout = ref<number | null>(null)
 
-// const visiblePages = computed(() => {
-//   const pages = []
-//   const halfVisible = Math.floor(maxVisiblePages / 2)
-
-//   let startPage = Math.max(1, currentPage.value - halfVisible)
-//   let endPage = Math.min(totalPages.value, currentPage.value + halfVisible)
-
-//   if (endPage - startPage + 1 < maxVisiblePages) {
-//     if (currentPage.value < totalPages.value / 2) {
-//       endPage = Math.min(totalPages.value, startPage + maxVisiblePages - 1)
-//     } else {
-//       startPage = Math.max(1, endPage - maxVisiblePages + 1)
-//     }
-//   }
-
-//   for (let i = startPage; i <= endPage; i++) {
-//     pages.push(i)
-//   }
-//   return pages
-// })
-
 const formatIDR = (nominal: number) => {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -295,27 +269,6 @@ const handleSearch = () => {
   }, 500)
 }
 
-// const prevPage = () => {
-//   if (currentPage.value > 1) {
-//     currentPage.value--
-//     fetchData()
-//   }
-// }
-
-// const nextPage = () => {
-//   if (currentPage.value < totalPages.value) {
-//     currentPage.value++
-//     fetchData()
-//   }
-// }
-
-// const goToPage = (page: number) => {
-//   if (page >= 1 && page <= totalPages.value) {
-//     currentPage.value = page
-//     fetchData()
-//   }
-// }
-
 const handlePrev = () => {
   if (currentPage.value > 1) currentPage.value--
 }
@@ -330,31 +283,10 @@ const bukaModalPeminjaman = () => {
   modalTambahPinjaman.value = true
 }
 
-// const peminjamanData = ref({})
-
-// const bukaModalBayar = (data) => {
-//   peminjamanData.value = data
-//   showFormPembayaranModal.value = true
-// }
-
-// const handleAddPinjaman = () => {
-//   modalTambahPinjaman.value = false
-//   displayNotification('Peminjaman berhasil ditambahkan', 'success')
-//   fetchPinjaman()
-// }
-
 onMounted(() => {
   fetchData()
 })
 
-// onUnmounted(() => {
-//   if (timeoutId.value) {
-//     clearTimeout(timeoutId.value)
-//   }
-//   if (searchTimeout.value) {
-//     clearTimeout(searchTimeout.value)
-//   }
-// })
 
 const ModalStock = ref(false)
 const selectedFasilitasId = ref<number | null>(null)

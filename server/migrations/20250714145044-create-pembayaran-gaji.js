@@ -17,6 +17,9 @@ module.exports = {
         },
         onDelete: 'CASCADE',
       },
+      sumber_dana: {
+        type: Sequelize.INTEGER
+      },
       invoice: {
         type: Sequelize.STRING
       },

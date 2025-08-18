@@ -66,11 +66,11 @@ exports.daftar_pembayaran_gaji = async (req, res) => {
   }
 };
 
-exports.daftar_staff = async (req, res) => {
+exports.daftar_staff_sumber_dana = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
   try {
     const model = new Model_r(req);
-    const data = await model.daftar_staff();
+    const data = await model.daftar_staff_sumber_dana();
     res.status(200).json(data);
   } catch (error) {
     handleServerError(res, error.message);

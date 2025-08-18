@@ -56,6 +56,33 @@ controllers.add_deposit = async ( req, res) => {
   }
 }
 
+
+controllers.delete = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;  
+
+  try {
+    const model_cud = new Model_cud(req);
+    await model_cud.delete();
+
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: 'Riwayat deposit maskapai berhasil ditambahkan.',
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: 'Riwayat deposit maskapai gagal ditambahkan.',
+      });
+    }
+  } catch (error) {
+    console.log("0000____0000||||||||");
+    console.log(error); 
+    console.log("0000____0000||||||||");
+    handleServerError(res, error.message);
+  }
+}
+
 // // *Menambahkan kota*
 // controllers.add = async (req, res) => {
 //   if (!(await handleValidationErrors(req, res))) return;

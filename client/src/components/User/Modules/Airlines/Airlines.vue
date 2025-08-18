@@ -1,12 +1,12 @@
 <script setup lang="ts">
   // Import Icon
-  import DeleteIcon from '@/components/User/Modules/Airlines/Icon/DeleteIcon.vue'
+  import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
   import EditIcon from '@/components/User/Modules/Airlines/Icon/EditIcon.vue'
   // import element
   import Form from '@/components/User/Modules/Airlines/Widget/Form.vue'
-  import DangerButton from '@/components/User/Modules/Airlines/Particle/DangerButton.vue'
-  import Notification from '@/components/User/Modules/Airlines/Particle/Notification.vue'
-  import Confirmation from '@/components/User/Modules/Airlines/Particle/Confirmation.vue'
+  import DangerButton from '@/components/Button/DangerButton.vue'
+  import Notification from '@/components/Modal/Notification.vue'
+  import Confirmation from '@/components/Modal/Confirmation.vue'
   import LightButton from "@/components/Button/LightButton.vue"
   import PrimaryButton from '@/components/Button/PrimaryButton.vue'
   import Pagination from '@/components/Pagination/Pagination.vue'

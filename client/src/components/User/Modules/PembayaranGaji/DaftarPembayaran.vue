@@ -274,11 +274,7 @@ const confirmDelete = (id: number) => {
     </button>
   </Confirmation>
 
-  <FormPembayaran
-    :formStatus="ModalPembayaran"
-    @cancel="ModalPembayaran = false"
-    @close="ModalPembayaran = false"
-    @submit="
+  <FormPembayaran :modalPembayaran="ModalPembayaran"  @cancel="ModalPembayaran = false" @close="ModalPembayaran = false" @submit="
       () => {
         fetchFilterData()
         handleSucces()

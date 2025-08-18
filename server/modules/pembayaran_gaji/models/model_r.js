@@ -1,9 +1,8 @@
-const { Member, User, Pembayaran_gaji, Division } = require("../../../models");
+const { Member, User, Pembayaran_gaji, Division, Mst_bank } = require("../../../models");
 const { Op } = require("sequelize");
-const {
-  getCompanyIdByCode,
-  getCabang,
-} = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
+const{ convertToRP } = require("../../../helper/currencyHelper");
+const Akuntansi = require("../../../library/akuntansi");
 
 class Model_r {
   constructor(req) {
@@ -84,10 +83,31 @@ class Model_r {
     }
   }
 
-  async daftar_staff() {
+  async daftar_staff_sumber_dana() {
+   
+    await this.initialize();
+
     const body = this.req.body;
+    const akuntansi = new Akuntansi(); 
 
     try {
+      var sumber_dana = [];
+      if( body.division_id != 0) {
+        var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun('11010', this.company_id, body.division_id, '0') );
+        sumber_dana = [{ id: 'kas', name: 'Kas (Saldo : ' + saldo + ')'}];
+        await Mst_bank.findAll({ where: { company_id: this.company_id }, }).then(async (value) => {
+          await Promise.all(
+            await value.map(async (e) => {
+              var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun(e.nomor_akun, this.company_id, body.division_id, '0') );
+              sumber_dana.push({ 
+                id : e.id, 
+                name : e.kode + ' (Saldo : ' + saldo + ')', 
+              });
+            })
+          );
+        });
+      }
+      
       const sql = await User.findAll({
         where: {
           division_id: body.division_id,
@@ -108,7 +128,7 @@ class Model_r {
 
       return {
         status: "success",
-        data,
+        data : { staff: data, sumber_dana },
       };
     } catch (error) {
       return {

@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Pembayaran_gaji.init({
     division_id: DataTypes.INTEGER,
+    sumber_dana: DataTypes.INTEGER,
     invoice: DataTypes.STRING,
     nominal: DataTypes.INTEGER,
     user_id: DataTypes.INTEGER

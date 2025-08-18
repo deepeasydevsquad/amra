@@ -2,12 +2,13 @@
   // Import Icon
   import DeleteIcon from '@/components/User/Modules/Airlines/Icon/DeleteIcon.vue'
   // import element
-  import DangerButton from '@/components/User/Modules/Airlines/Particle/DangerButton.vue'
-  import Notification from '@/components/User/Modules/Airlines/Particle/Notification.vue'
+  import DangerButton from '@/components/Button/DangerButton.vue'
+  import Notification from '@/components/Modal/Notification.vue'
   import PrimaryButton from '@/components/Button/PrimaryButton.vue'
+  import Confirmation from '@/components/Modal/Confirmation.vue'
   import Pagination from '@/components/Pagination/Pagination.vue'
   import { ref, onMounted, computed } from 'vue';
-  import { riwayat_deposit_maskapai } from '@/service/riwayat_deposit_maskapai'; // Import function POST
+  import { riwayat_deposit_maskapai, delete_riwayat_deposit_maskapai } from '@/service/riwayat_deposit_maskapai'; // Import function POST
   import { paramCabang } from '@/service/param_cabang'
   import FormAddDeposit from './Widget/FormAddDeposit.vue'
 
@@ -31,9 +32,7 @@
   const totalPages = ref(0);
   const totalColumns = ref(4);
   const itemsPerPage = 100;
-  const notificationMessage = ref<string>('');
-  const notificationType = ref<'success' | 'error'>('success');
-  const showNotification = ref<boolean>(false);
+
   const timeoutId = ref<number | null>(null);
   const showForm = ref(false);
   const selectedOptionCabang = ref(0)
@@ -64,17 +63,31 @@
   }
 
   const deleteData = async (id: number) => {
-    // try {
-    //   const response = await deleteAirlines(id);
-    //   if (response.success) {
-    //     displayNotification('Data berhasil dihapus.', 'success');
-    //     fetchData();
-    //   } else {
-    //     displayNotification('Gagal menghapus data.', 'error');
-    //   }
-    // } catch (error) {
-    //   displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
-    // }
+
+    console.log("xxxxx----xxxxx");
+    console.log(id);
+    console.log("xxxxx----xxxxx");
+
+    showConfirmation('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus data ini?',
+      async () => {
+        try {
+          const response = await delete_riwayat_deposit_maskapai({id : id, cabang: selectedOptionCabang.value});
+          if (response.error) {
+            displayNotification(response.error_msg, 'error');
+            return;
+          }
+          showConfirmDialog.value = false;
+          displayNotification(response.error_msg || "Operasi berhasil!", "success");
+
+          await fetchData()
+        } catch (error: any) {
+          displayNotification(
+            error?.response?.data?.error_msg ||
+            error?.response?.data?.message ||
+            'Terjadi kesalahan', 'error');
+        }
+      }
+    );
   }
 
   const nextPage = () => {
@@ -100,6 +113,9 @@
     return Array.from({ length: totalPages.value }, (_, i) => i + 1);
   });
 
+  const notificationMessage = ref<string>('');
+  const notificationType = ref<'success' | 'error'>('success');
+  const showNotification = ref<boolean>(false);
   const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
     notificationMessage.value = message;
     notificationType.value = type;
@@ -108,6 +124,18 @@
     timeoutId.value = window.setTimeout(() => {
       showNotification.value = false;
     }, 3000);
+  };
+
+
+  const confirmMessage = ref<string>('');
+  const confirmTitle = ref<string>('');
+  const showConfirmDialog = ref<boolean>(false);
+  const confirmAction = ref<(() => void) | null>(null);
+  const showConfirmation = (title: string, message: string, action: () => void) => {
+    confirmTitle.value = title;
+    confirmMessage.value = message;
+    confirmAction.value = action;
+    showConfirmDialog.value = true;
   };
 
   const addDepositModal = () => {
@@ -134,6 +162,7 @@
     return prefix + (rupiah || "0");
   };
 
+
   onMounted(async () => {
     await fetchFilterData();
   });
@@ -149,8 +178,7 @@
       <div class="inline-flex rounded-md shadow-xs" role="group">
         <input type="text" id="search" class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" v-model="search" @input="fetchData" placeholder="Cari data..."/>
         <select v-model="selectedOptionCabang" style="width: 300px" @change="fetchData()"
-          class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-        >
+          class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
           <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
             {{ optionC.name }}
           </option>
@@ -197,5 +225,16 @@
     <Notification  :showNotification="showNotification"  :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false"  ></Notification>
     <!-- Form Add Deposit -->
     <FormAddDeposit :showForm="showForm" @cancel="closeAddForm" />
+    <!-- Konfirmasi -->
+    <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
+      <button @click="confirmAction && confirmAction()"
+        class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm" >
+        Ya
+      </button>
+      <button @click="showConfirmDialog = false"
+        class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" >
+        Tidak
+      </button>
+    </Confirmation>
   </div>
 </template>
