@@ -242,21 +242,28 @@ watch(SelectedCabang, async (newCabang) => {
     :formStatus="formStatus"
     label="Tambah Transaksi Visa"
     submitLabel="Simpan"
-    width="w-4/5"
+    width="w-3/5"
     @cancel="emit('cancel') || resetForm()"
     @submit="submit"
   >
     <div class="flex flex-wrap gap-4 pb-3 mb-5">
+
       <SelectField
-        label="Kostumer"
+        label="Cabang"
+        v-model="SelectedCabang"
+        :options="cabangOption"
+        class="flex-1 min-w-[200px]"
+      />
+      <SelectField
+        label="Sumber Dana"
         v-model="SelectedCustomer"
         :options="customerOption"
         class="flex-1 min-w-[200px]"
       />
       <SelectField
-        label="Cabang"
-        v-model="SelectedCabang"
-        :options="cabangOption"
+        label="Kostumer"
+        v-model="SelectedCustomer"
+        :options="customerOption"
         class="flex-1 min-w-[200px]"
       />
       <SelectField

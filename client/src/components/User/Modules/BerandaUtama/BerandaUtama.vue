@@ -14,7 +14,7 @@ import {
 import EditIcon from '@/components/User/Modules/BerandaUtama/icon/EditIcon.vue'
 import DeleteIcon from '@/components/User/Modules/BerandaUtama/icon/DeleteIcon.vue'
 import FormHeadline from '@/components/User/Modules/Headline/Widget/FormHeadline.vue'
-import SkeletonTable from '@/components/User/Modules/BerandaUtama/widget/SkeletonTable.vue'
+import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue'
 import InfoCard from '@/components/User/Modules/BerandaUtama/widget/InfoCard.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 import Notification from '@/components/User/Modules/BerandaUtama/particle/Notification.vue'

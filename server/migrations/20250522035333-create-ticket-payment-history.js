@@ -23,14 +23,6 @@ module.exports = {
       invoice: {
         type: Sequelize.STRING
       },
-      kostumer_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "Kostumers",
-          key: "id",
-        },
-        onDelete: 'CASCADE',
-      },
       status: {
         type: Sequelize.ENUM,
         values: ['cash', 'refund'],

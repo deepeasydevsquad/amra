@@ -77,10 +77,15 @@
       }
       await add_deposit_maskapai(payload)
       displayNotification('Deposit berhasil dilakukan.', 'success');
+      resetForm();
       emit('cancel')
     } catch (error: any) {
-      displayNotification('Terjadi kesalahan saat mengambil data.', 'error');
+      displayNotification(error.response.data.message, 'error');
     }
+  }
+
+  const resetForm = async () => {
+    form.value = { cabang: 0, sumber_dana: 0, mst_airline_id: 0, deposit: 0, };
   }
 
   const handleCancel = (): void => {

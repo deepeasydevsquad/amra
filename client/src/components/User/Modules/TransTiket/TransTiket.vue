@@ -6,149 +6,94 @@
       </PrimaryButton>
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input
-          type="text"
-          v-model="searchQuery"
-          id="search"
-          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-          placeholder="Cari data..."
-        />
+        <input type="text" v-model="searchQuery" id="search" class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+          placeholder="Cari data..." />
       </div>
     </div>
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr class="bg-gray-100">
-            <th class="w-[25%] px-6 py-3 font-medium font-bold text-gray-900 text-center">
-              Nomor Register
-            </th>
-            <th class="w-[35%] px-6 py-3 font-medium font-bold text-gray-900 text-center">
-              Info Tiket
-            </th>
-            <th class="w-[35%] px-6 py-3 font-medium font-bold text-gray-900 text-center">
-              Info Pembayaran
-            </th>
+            <th class="w-[15%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Nomor Register</th>
+            <th class="w-[45%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Info Tiket</th>
+            <th class="w-[35%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Info Pembayaran</th>
             <th class="w-[5%] px-6 py-3 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody v-if="data.length" class="divide-y divide-gray-100 border-t border-gray-100">
           <tr v-for="transaction in data" :key="transaction?.id">
             <td class="px-4 py-2 align-top text-sm text-gray-800 whitespace-nowrap">
-              <div class="font-bold text-sm">{{ transaction.nomor_register }}</div>
+              <div class="font-bold text-sm">{{ transaction.nomor_registrasi }}</div>
               <div class="text-xs text-gray-500">
                 {{ new Date(transaction.updatedAt).toLocaleString() }}
               </div>
             </td>
             <td class="px-4 py-2 text-sm text-gray-700 align-top w-[480px]">
-              <div v-for="ticket in transaction.ticket_details" :key="ticket.id" class="mb-4">
-                <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-xs leading-snug">
-                  <div>PAX: {{ ticket.pax }}</div>
-                  <div>NAMA AIRLINES: {{ ticket.airlines_name || 'N/A' }}</div>
-                  <div class="text-red-500">KODE BOOKING: {{ ticket.code_booking }}</div>
-                  <div>
-                    TANGGAL BERANGKAT:
-                    {{
-                      new Date(ticket.departure_date).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })
-                    }}
-                  </div>
-                  <div>HARGA TRAVEL: Rp {{ ticket.travel_price.toLocaleString() }}</div>
-                  <div>HARGA KOSTUMER: Rp {{ ticket.costumer_price.toLocaleString() }}</div>
-                  <div>PAKET NAME : {{ transaction.paket_name || 'N/A' }}</div>
+              <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-xs leading-snug">
+                  <div class="text-red-500">KODE BOOKING: <b>{{ transaction.code_booking }}</b></div>
+                  <div>PAX: {{ transaction.pax }}</div>
+                  <div>NAMA AIRLINES: {{ transaction.airlines_name || 'N/A' }}</div>
+                  <div>HARGA TRAVEL: Rp {{ transaction.travel_price.toLocaleString() }}</div>
+                  <div>TANGGAL BERANGKAT: {{ transaction.departure_date }} </div>
+                  <div>HARGA KOSTUMER: Rp {{ transaction.costumer_price.toLocaleString() }}</div>
                 </div>
-              </div>
-              <div
-                class="bg-red-100 mt-2 px-4 py-1 text-sm font-bold flex justify-between items-center w-full"
-              >
+              <div class="bg-red-100 mt-2 px-4 py-1 text-sm font-bold flex justify-between items-center w-full">
                 <span>SUBTOTAL</span>
-                <span class="text-red-500"
-                  >: Rp {{ transaction.total_transaksi.toLocaleString() }}</span
-                >
+                <span class="text-red-500" >: Rp {{ (transaction.costumer_price  * transaction.pax).toLocaleString() }}</span>
               </div>
             </td>
-            <td class="px-4 py-2 text-sm text-gray-700 align-top">
+            <td class="px-4 py-2 text-xs text-gray-700 align-top">
               <div class="space-y-1" v-if="transaction.status == 'active'">
+                <template v-if="transaction.paket_name">
+                  <strong>NAMA PAKET</strong> : {{ transaction.paket_name || 'N/A' }}
+                </template>
+                <template v-else>
+                  <div>
+                    <strong>NAMA PELANGGAN</strong> : {{ transaction.costumer_name || 'N/A' }}
+                  </div>
+                </template>
                 <div>
-                  <strong>TOTAL TRANSAKSI TIKET</strong> : Rp
-                  {{ transaction.total_transaksi.toLocaleString() }}
+                  <strong>TOTAL TRANSAKSI TIKET</strong> : Rp {{ (transaction.costumer_price  * transaction.pax).toLocaleString() }}
                 </div>
                 <div>
-                  <strong>TOTAL PEMBAYARAN</strong> : Rp
-                  {{ calculateTotalPayment(transaction).toLocaleString() }}
+                  <strong>TOTAL PEMBAYARAN</strong> : Rp {{ calculateTotalPayment(transaction).toLocaleString() }}
                 </div>
                 <div>
-                  <strong>SISA PEMBAYARAN</strong> : Rp
-                  {{
-                    (
-                      transaction.total_transaksi - calculateTotalPayment(transaction)
-                    ).toLocaleString()
-                  }}
+                  <strong>SISA PEMBAYARAN</strong> : Rp {{ ( (transaction.costumer_price  * transaction.pax) - calculateTotalPayment(transaction) ).toLocaleString() }}
                 </div>
               </div>
               <div class="space-y-1 text-center py-5" v-if="transaction.status == 'refund'">
                 <strong class="text-red">TRANSAKSI SUDAH DIREFUND</strong>
               </div>
-
-              <div
-                v-if="transaction.payment_histories.length"
-                class="mt-2 text-xs text-gray-600 border-t pt-2"
-              >
-                <div class="text-red-500 italic font-medium">
-                  RIWAYAT PEMBAYARAN (Tiga transaksi terakhir)
-                </div>
-                <ul class="list-disc list-inside mt-1 space-y-1">
-                  <li
-                    v-for="payment in transaction.payment_histories.slice(0, 3)"
-                    :key="payment.id"
-                  >
-                    Tanggal Transaksi: {{ new Date(payment.createdAt).toLocaleString() }} | No
-                    Invoice: <span class="text-red-600 font-semibold">{{ payment.invoice }}</span> |
-                    Biaya: Rp {{ payment.nominal }} | Nama Petugas: {{ payment.petugas }} | Nama
-                    Pelanggan: {{ payment.costumer_name }}
-                  </li>
-                </ul>
+              <div v-if="transaction.payment_histories.length" class="mt-2 text-xs text-gray-600 border-t pt-2">
+                <div class="text-red-500 italic font-medium">RIWAYAT PEMBAYARAN (Tiga transaksi terakhir)</div>
+                <table class="w-full mb-5">
+                  <tbody>
+                    <tr  v-for="payment in transaction.payment_histories.slice(0, 3)" :key="payment.id">
+                      <td class="w-[30%] border-b border-dashed px-0 py-2 align-top">{{ new Date(payment.createdAt).toLocaleString() }}</td>
+                      <td class="text-left space-y-2 text-xs border-b border-dashed px-0 py-2 align-top">Invoice: <span class="text-red-600 font-semibold">{{ payment.invoice }}</span> | Biaya: {{ formatRupiah(payment.nominal) }} | Nama Petugas: {{ payment.petugas }}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </td>
-            <!-- Aksi -->
             <td class="px-4 py-2 text-center align-top">
               <div class="flex flex-col items-center space-y-2">
-                <LightButton
-                  v-if="
-                    transaction.total_transaksi > calculateTotalPayment(transaction) &&
-                    transaction.status == 'active'
-                  "
-                  class="p-2"
-                  title="Pembayaran Tiket"
-                  @click="openPembayaranForm(transaction)"
-                  ><i class="pi pi-money-bill"></i
-                ></LightButton>
-                <LightButton
-                  v-if="transaction.status == 'active'"
-                  @click="openModalRefund(transaction.nomor_register)"
-                  class="p-2"
-                  title="Refund Tiket"
-                  ><i class="pi pi-refresh"></i
-                ></LightButton>
-                <LightButton
-                  @click="openModalReschedule(transaction.nomor_register)"
-                  class="p-2"
-                  title="Reschedule Tiket"
-                  v-if="transaction.status == 'active'"
-                  ><i class="pi pi-calendar"></i
-                ></LightButton>
-                <LightButton
-                  class="p-2"
-                  @click="openModalDetail(transaction.nomor_register)"
-                  v-if="transaction.status == 'active'"
-                  title="Detail Riwayat Pembayaran Tiket"
-                  ><i class="pi pi-list"></i
-                ></LightButton>
-                <DangerButton class="p-2" title="Delete Tiket"
-                  ><i class="pi pi-times"></i
-                ></DangerButton>
+                <LightButton v-if=" (transaction.costumer_price  * transaction.pax) > calculateTotalPayment(transaction) && transaction.status == 'active'" class="p-2" title="Pembayaran Tiket" @click="openPembayaranForm(transaction.id)">
+                  <i class="pi pi-money-bill"></i>
+                </LightButton>
+                <LightButton v-if="transaction.status == 'active'" @click="openModalRefund(transaction.nomor_registrasi)" class="p-2" title="Refund Tiket" >
+                  <i class="pi pi-refresh"></i>
+                </LightButton>
+                <LightButton @click="openModalReschedule(transaction.nomor_registrasi)" class="p-2" title="Reschedule Tiket" v-if="transaction.status == 'active'">
+                  <i class="pi pi-calendar"></i>
+                </LightButton>
+                <LightButton class="p-2" @click="openModalDetail(transaction.nomor_registrasi)" v-if="transaction.status == 'active'" title="Detail Riwayat Pembayaran Tiket">
+                  <i class="pi pi-list"></i>
+                </LightButton>
+                <DangerButton class="p-2" title="Delete Tiket">
+                  <i class="pi pi-times"></i>
+                </DangerButton>
               </div>
             </td>
           </tr>
@@ -161,78 +106,17 @@
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <Pagination
-            :current-page="currentPage"
-            :total-pages="totalPages"
-            :pages="pages"
-            :total-columns="totalColumns"
-            @prev-page="prevPage"
-            @next-page="nextPage"
-            @page-now="pageNow"
-          />
+          <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow"/>
         </tfoot>
       </table>
     </div>
   </div>
-  <!-- Form Ticket Transaction -->
-  <FormTicketTransaction
-    :showForm="showTicketTransactionDialog"
-    :maskapaiList="maskapaiList"
-    :formData="ticketTransactionData"
-    @cancel="closeTicketTransactionForm"
-    @submitted="onTicketTransactionSubmitted"
-  />
-
-  <FormPembayaranTiket
-    :formStatus="showModalPembayaran"
-    :formData="pembayaranData"
-    @cancel="showModalPembayaran = false"
-    @submitted="
-      () => {
-        handleSuccess()
-        fetchData()
-      }
-    "
-  />
-
-  <DetailTiket
-    :formStatus="ShowModalDetail"
-    :nomor_register="nomor_register"
-    @cancel="closeModalDetail"
-  />
-
-  <FormRefun
-    :formStatus="showModalRefund"
-    :nomor_register="nomor_register"
-    @cancel="showModalRefund = false"
-    @close="showModalRefund = false"
-    @submitted="
-      () => {
-        RefundSuccess()
-        fetchData()
-      }
-    "
-  />
-
-  <Reschedule
-    :formStatus="showModalReschedule"
-    :nomor_register="nomor_register"
-    @cancel="showModalReschedule = false"
-    @close="showModalReschedule = false"
-    @submitted="
-      () => {
-        handleReschedule()
-        fetchData()
-      }
-    "
-  />
-
-  <Notification
-    :showNotification="showNotification"
-    :notificationType="notificationType"
-    :notificationMessage="notificationMessage"
-    @close="showNotification = false"
-  />
+  <FormTicketTransaction :showForm="showTicketTransactionDialog" @cancel="closeTicketTransactionForm" @submitted="onTicketTransactionSubmitted"/>
+  <FormPembayaranTiket :formStatus="showModalPembayaran" :id="idPembayaranTicket" @cancel="showModalPembayaran = false" @submitted=" () => { handleSuccess(); fetchData();} "/>
+  <DetailTiket :formStatus="ShowModalDetail" :nomor_register="nomor_register" @cancel="closeModalDetail"/>
+  <!-- <FormRefun :formStatus="showModalRefund" :nomor_register="nomor_register" @cancel="showModalRefund = false" @close="showModalRefund = false" @submitted="() => {RefundSuccess();fetchData();}"/> -->
+  <Reschedule :formStatus="showModalReschedule" :nomor_register="nomor_register" @cancel="showModalReschedule = false" @close="showModalReschedule = false" @submitted="() => {handleReschedule();fetchData();}"/>
+  <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" />
 </template>
 
 <script setup lang="ts">
@@ -253,7 +137,7 @@ import { TicketTransactionForm } from './Particle/FormTicketTransaction.vue'
 import { register } from 'module'
 
 const data = ref<TicketTransaction[]>([])
-const maskapaiList = ref<Maskapai[]>([])
+// const maskapaiList = ref<Maskapai[]>([])
 const currentPage = ref(1)
 const totalPages = ref(0)
 const totalColumns = ref(4)
@@ -261,6 +145,7 @@ const searchQuery = ref('')
 const itemsPerPage = 2
 const search = ref('')
 const filter = ref('')
+const idPembayaranTicket = ref(0);
 
 const showNotification = ref(false)
 const notificationMessage = ref('')
@@ -303,36 +188,37 @@ const pages = computed(() => {
 interface TicketTransaction {
   id: number
   division_id: number
-  nomor_register: string
-  total_transaksi: number
-
-  status: string
-  createdAt: string
-  updatedAt: string
-  ticket_details: TicketDetail[]
-  payment_histories: PaymentHistory[]
-}
-
-interface TicketDetail {
-  id: number
+  nomor_registrasi: string
+  costumer_id: number
+  costumer_name: string
   pax: number
-  paket_name: string
   code_booking: string
-  ticket_transaction_id: number
-  airlines_id: number | null
   airlines_name: string | null
   departure_date: string
   travel_price: number
   costumer_price: number
+  paket_name: string
+  status: string
   createdAt: string
   updatedAt: string
+  payment_histories: PaymentHistory[]
 }
+
+// interface TicketDetail {
+//   id: number
+//
+
+//   ticket_transaction_id: number
+//   airlines_id: number | null
+
+//   costumer_price: number
+//   createdAt: string
+//   updatedAt: string
+// }
 
 interface PaymentHistory {
   id: number
   invoice: string
-  costumer_id: number
-  costumer_name: string
   paket_name: string
   petugas: string
   nominal: string
@@ -400,21 +286,11 @@ const ticketTransactionData = ref<TicketTransactionForm>({
 })
 
 const startTicketTransaction = () => {
-  fetchMaskapai()
   showTicketTransactionDialog.value = true
 }
 
 const closeTicketTransactionForm = () => {
   showTicketTransactionDialog.value = false
-}
-
-const fetchMaskapai = async () => {
-  try {
-    const response = await getAirlines()
-    maskapaiList.value = response.data
-  } catch (error) {
-    console.error('Gagal fetch data cabang:', error)
-  }
 }
 
 const showModalReschedule = ref(false)
@@ -461,25 +337,23 @@ const pembayaranData = ref({
   paket_name: '',
 })
 
-const openPembayaranForm = (transaction: TicketTransaction) => {
-  const totalPayment = calculateTotalPayment(transaction)
-  const sisa = transaction.total_transaksi - totalPayment
-
-  // ambil data costumer dari payment terakhir kalau ada
-  const lastPayment = transaction.payment_histories[0] || {
-    costumer_id: 0,
-    costumer_name: '',
-    paket_name: '',
-  }
-
-  pembayaranData.value = {
-    ticket_transaction_id: transaction.id,
-    nominal: sisa,
-    costumer_name: lastPayment.costumer_name || '',
-    costumer_id: lastPayment.costumer_id || 0,
-    paket_name: lastPayment.paket_name || '',
-  }
-
+const openPembayaranForm = (id: number) => {
+  idPembayaranTicket.value = id;
   showModalPembayaran.value = true
 }
+
+  const formatRupiah = (angka :any, prefix = "Rp ") => {
+    let numberString = angka.toString().replace(/\D/g, ""),
+      split = numberString.split(","),
+      sisa = split[0].length % 3,
+      rupiah = split[0].substr(0, sisa),
+      ribuan = split[0].substr(sisa).match(/\d{3}/g);
+
+    if (ribuan) {
+      let separator = sisa ? "." : "";
+      rupiah += separator + ribuan.join(".");
+    }
+
+    return prefix + (rupiah || "0");
+  };
 </script>

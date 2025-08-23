@@ -10,7 +10,9 @@ const {
   Handover_fasilitas,
   Handover_fasilitas_paket,
   Transaction_fasilitas, 
-  Riwayat_deposit_airline
+  Riwayat_deposit_airline, 
+  Ticket_payment_history, 
+  Ticket_transaction
 } = require("../models");
 
 const helper = {};
@@ -34,6 +36,39 @@ helper.generateInvoiceHandoverFasilitas = async (company_id) => {
     }
 
     return rand;
+}
+
+helper.generateNomorRegisterTicket = async ( division_id ) => {
+  var rand = 0;
+  let condition = true;
+  while (condition) {
+    rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    check = await Ticket_transaction.findOne({ where: { nomor_registrasi: rand, division_id: division_id } });
+    if (!check) condition = false;
+  }
+  return rand;
+}
+
+helper.generateNomorInvoicePembayaranTicket = async ( division_id ) => {
+  var rand = 0;
+  let condition = true;
+  while (condition) {
+    rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    check = await Ticket_payment_history.findOne({ 
+      where: { 
+        invoice: rand 
+      }, 
+      include: { 
+        model: Ticket_transaction, 
+        required: true, 
+        where: { 
+          division_id: division_id 
+        } 
+      } 
+    });
+    if (!check) condition = false;
+  }
+  return rand;
 }
 
 helper.menghasilkan_invoice_deposit = async () => {

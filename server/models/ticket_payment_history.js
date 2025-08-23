@@ -14,9 +14,6 @@ module.exports = (sequelize, DataTypes) => {
       Ticket_payment_history.belongsTo(models.Ticket_transaction, {
         foreignKey: "ticket_transaction_id",
       });
-      Ticket_payment_history.belongsTo(models.Kostumer, {
-        foreignKey: "kostumer_id",
-      });
     }
     // 🔽 Static method to generate unique nomor_invoice
     static async generateUniqueNomorInvoice() {
@@ -52,7 +49,6 @@ module.exports = (sequelize, DataTypes) => {
     ticket_transaction_id: DataTypes.INTEGER,
     nominal: DataTypes.INTEGER,
     invoice: DataTypes.STRING,
-    kostumer_id: DataTypes.INTEGER,
     status: DataTypes.ENUM(['cash', 'refund']),
     petugas: DataTypes.STRING
   }, {

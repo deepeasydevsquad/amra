@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       Mst_airline.belongsTo(models.Company, {
         foreignKey: "company_id",
       });
-      Mst_airline.hasMany(models.Ticket_transaction_detail, {
+      Mst_airline.hasMany(models.Ticket_transaction, {
         foreignKey: "airlines_id",
         onDelete: 'CASCADE',
       });
@@ -28,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
+
+      //   Ticket_transaction.belongsTo(models.Mst_airline, {
+      //   foreignKey: "airlines_id",
+      // });
   Mst_airline.init({
     company_id: DataTypes.INTEGER,
     name: DataTypes.STRING,

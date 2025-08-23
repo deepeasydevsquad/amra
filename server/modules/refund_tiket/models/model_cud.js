@@ -1,19 +1,5 @@
-const {
-  sequelize,
-  Ticket_transaction,
-  Ticket_transaction_detail,
-  Ticket_transaction_refund,
-  Ticket_payment_history,
-  Users,
-  Member,
-  Company,
-} = require("../../../models");
-
-const {
-  getCabang,
-  tipe,
-  getCompanyIdByCode,
-} = require("../../../helper/companyHelper");
+const { sequelize, Ticket_transaction, Ticket_transaction_detail, Ticket_transaction_refund, Ticket_payment_history, Users, Member, Company } = require("../../../models");
+const { getCabang, tipe, getCompanyIdByCode,} = require("../../../helper/companyHelper");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const moment = require("moment");
 
@@ -129,7 +115,7 @@ class Model_cud {
           ticket_transaction_id: transaksi.id,
           nominal: totalRefund,
           invoice: Invoice,
-          kostumer_id: body.kostumer_id,
+          // kostumer_id: body.kostumer_id,
           status: "refund",
           petugas,
           createdAt: dateNow,

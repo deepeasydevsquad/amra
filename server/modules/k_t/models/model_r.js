@@ -203,7 +203,7 @@ class Model_r {
       await Promise.all(
         await q8.rows.map(async (e) => {
           unit_tiket = unit_tiket + 1;
-          total_rupiah_tiket = total_rupiah_tiket + e.travel_price;
+          total_rupiah_tiket = total_rupiah_tiket + e.costumer_price;
         })
       );
 
@@ -268,17 +268,11 @@ class Model_r {
         unit: unit_passport,
         total: total_rupiah_passport,
       };
-
         
       data['total_aktualisasi'] = total_aktualisasi;
 
       return { data: data  };
     } catch (error) {
-
-      console.log("__________________SSSS");
-      console.log(error);
-      console.log("__________________SSSS");
-
       return {};
     }
   }

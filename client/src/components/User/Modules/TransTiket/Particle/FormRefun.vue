@@ -120,14 +120,16 @@ const submitRefund = async () => {
 
   const payload = {
     nomor_register: props.nomor_register,
-    costumer_name: namaPelanggan.value,
-    costumer_identity: identitasFee.value,
-    kostumer_id: SelectedCustomer.value,
     detail,
   }
 
+  // console.log("Payload to submit:");
+  // console.log(payload);
+  // console.log("Payload to submit:");
+
+
   await refund(payload)
-  console.log('✅ Submit refund:', payload)
+  // console.log('✅ Submit refund:', payload)
 
   emit('submitted')
   resetForm()
@@ -168,6 +170,11 @@ const fetchCustomer = async () => {
   }
 }
 
+const handleCancle = async () => {
+  resetForm()
+  emit('cancel')
+}
+
 onMounted(async () => {
   await fetchCustomer()
 })
@@ -175,36 +182,21 @@ onMounted(async () => {
 
 <template>
   <div class="text-black">
-    <Form
-      :formStatus="props.formStatus"
-      :label="'Form Refund Tiket'"
-      :width="'w-2/3'"
-      :submitLabel="' Refund'"
-      @submit="submitRefund"
-      @cancel="
-        () => {
-          resetForm()
-          emit('cancel')
-        }
-      "
-    >
-      <div
-        class="inline-block border border-red-500 text-red-500 px-2 py-1 rounded font-semibold mb-4"
-      >
+    <Form :formStatus="props.formStatus" :label="'Form Refund Tiket'" :width="'w-xl'" :submitLabel="'REFUND'" @submit="submitRefund" @cancel="handleCancle">
+      <div class="inline-block border border-red-500 text-red-500 px-2 py-1 rounded font-semibold mb-4">
         Nomor Register: {{ props.nomor_register }}
       </div>
-
       <table class="w-full border-collapse bg-white text-center text-sm text-gray-500">
         <thead class="bg-gray-50 text-center">
           <tr class="bg-gray-100">
-            <th class="w-[10%] px-1 py-2 text-sm font-semibold text-gray-900 text-center">Pax</th>
-            <th class="w-[35%] px-4 py-3 text-sm font-bold text-gray-900 text-center">
+            <th class="w-[7%] text-center py-2 font-medium border text-gray-900 bg-gray-100">Pax</th>
+            <th class="w-[38%] text-center py-2 font-medium border text-gray-900 bg-gray-100">
               Info Tiket (Maskapai)
             </th>
-            <th class="w-[35%] px-4 py-3 text-sm font-bold text-gray-900 text-center">
+            <th class="w-[35%] text-center py-2 font-medium border text-gray-900 bg-gray-100">
               Info Tiket (Keberangkatan)
             </th>
-            <th class="w-[25%] px-4 py-4 text-base font-bold text-gray-900 text-center">Refund</th>
+            <th class="w-[25%] text-center py-2 font-medium border text-gray-900 bg-gray-100">Refund</th>
           </tr>
         </thead>
         <tbody>
@@ -212,100 +204,68 @@ onMounted(async () => {
             <td class="px-4 py-2 border-b text-center align-top">
               <div class="font-medium text-gray-800">{{ item.pax }}</div>
             </td>
-
             <td class="px-4 py-2 border-b text-left align-top">
-              <div class="py-1">
-                <span class="inline-block w-36 font-bold">Code Booking</span>:
-                {{ item.code_booking }}
-              </div>
-              <div class="py-1">
-                <span class="inline-block w-36 font-bold">Maskapai</span>: {{ item.maskapai }}
-              </div>
-              <div class="py-1">
-                <span class="inline-block w-36 font-bold">Tanggal Berangkat</span>:
-                {{ item.tanggal_berangkat }}
-              </div>
+              <table class="w-full mb-0">
+                <tbody>
+                  <tr>
+                    <td class="w-[60%] border-b px-4 py-2">Kode Booking</td>
+                    <td class="text-center border-b py-2 px-0">:</td>
+                    <td class="text-right space-y-2 text-sm border-b px-4 py-2">{{ item.code_booking }}</td>
+                  </tr>
+                  <tr>
+                    <td class="border-b px-4 py-2">Maskapai</td>
+                    <td class="text-center border-b py-2 px-0">:</td>
+                    <td class="text-right space-y-2 text-sm border-b px-4 py-2">{{ item.maskapai }}</td>
+                  </tr>
+                  <tr>
+                    <td class=" px-4 py-2">Tanggal Berangkat</td>
+                    <td class="text-center py-2 px-0">:</td>
+                    <td class="text-right space-y-2 text-sm px-4 py-2">{{ item.tanggal_berangkat }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </td>
 
             <td class="px-4 py-2 border-b text-left align-top">
-              <div class="py-1">
-                <span class="inline-block w-36 font-bold">Harga Travel</span>:
-                {{ item.harga_travel }}
-              </div>
-              <div class="py-1">
-                <span class="inline-block w-36 font-bold">Harga Costumer</span>:
-                {{ item.harga_costumer }}
-              </div>
-              <div class="py-1">
-                <span class="inline-block w-36 font-bold">Total Harga Tiket</span>:
-                {{ item.total_harga_tiket }}
-              </div>
-              <div class="py-1">
-                <span class="inline-block w-36 font-bold">Total Fee Tiket</span>:
-                {{ item.total_fee_tiket }}
-              </div>
+              <table class="w-full mb-0">
+                <tbody>
+                  <tr>
+                    <td class="w-[60%] border-b px-4 py-2">Harga Travel</td>
+                    <td class="text-center border-b py-2 px-0">:</td>
+                    <td class="text-right space-y-2 text-sm border-b px-4 py-2">{{ item.harga_travel }}</td>
+                  </tr>
+                  <tr>
+                    <td class="border-b px-4 py-2">Harga Costumer</td>
+                    <td class="text-center border-b py-2 px-0">:</td>
+                    <td class="text-right space-y-2 text-sm border-b px-4 py-2">{{ item.harga_costumer }}</td>
+                  </tr>
+                  <tr>
+                    <td class="border-b px-4 py-2">Total Harga Tiket</td>
+                    <td class="text-center border-b py-2 px-0">:</td>
+                    <td class="text-right space-y-2 text-sm border-b px-4 py-2">{{ item.total_harga_tiket }}</td>
+                  </tr>
+                  <tr>
+                    <td class=" px-4 py-2">Total Fee Tiket</td>
+                    <td class="text-center py-2 px-0">:</td>
+                    <td class="text-right space-y-2 text-sm  px-4 py-2">{{ item.total_fee_tiket }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </td>
-
             <td class="px-4 py-2 border-b text-left align-top">
-              <InputText
-                placeholder="Refund"
-                :modelValue="getRefundModel(item).value"
-                @update:modelValue="getRefundModel(item).value = $event"
-                note="Refund"
-              />
-
-              <InputText
-                placeholder="Fee"
-                :modelValue="getFeeModel(item).value"
-                @update:modelValue="getFeeModel(item).value = $event"
-                note="Fee"
-              />
+              <InputText placeholder="Refund" :modelValue="getRefundModel(item).value" @update:modelValue="getRefundModel(item).value = $event" :label="'Refund'" :class="'mb-4'" />
+              <InputText :class="'mb-4'" placeholder="Fee" :modelValue="getFeeModel(item).value" @update:modelValue="getFeeModel(item).value = $event" :label="'Fee'" />
             </td>
           </tr>
         </tbody>
       </table>
 
-      <!-- Input tambahan di bawah tabel -->
       <div class="mt-6 space-y-4">
-        <!-- Baris Pertama -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-          <SelectField
-            label="Kostumer"
-            v-model="SelectedCustomer"
-            :options="customerOption"
-            class="flex-1 min-w-[200px] -mt-5"
-            :note="'Kostumer'"
-          />
-          <InputText
-            placeholder="Total Di Refund"
-            v-model="totalRefundFormatted"
-            note="Total di Refund"
-            :readonly="true"
-          />
-          <InputText
-            placeholder="Total Fee"
-            v-model="totalFeeFormatted"
-            note="Total Fee"
-            :readonly="true"
-          />
-        </div>
-
-        <!-- Baris Kedua -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <InputText
-            placeholder="Sudah Di Bayar"
-            v-model="sudahDibayarFormatted"
-            note="Sudah di Bayar"
-            :readonly="true"
-          />
-          <InputText
-            placeholder="Sisa Pembayaran"
-            v-model="sisaPembayaranFormatted"
-            note="Sisa Pembayaran"
-            :readonly="true"
-          />
-          <!-- Biar baris kedua juga sejajar penuh -->
-          <div class="hidden md:block"></div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
+          <InputText placeholder="Total Di Refund" v-model="totalRefundFormatted" :readonly="true" :label="'Total di Refund'"/>
+          <InputText placeholder="Total Fee" v-model="totalFeeFormatted" :readonly="true" :label="'Total fee'" />
+          <InputText placeholder="Sudah Di Bayar" v-model="sudahDibayarFormatted" :readonly="true" :label="'Sudah dibayar'" />
+          <InputText placeholder="Sisa Pembayaran" v-model="sisaPembayaranFormatted" :readonly="true" :label="'Sisa pembayaran'" />
         </div>
       </div>
     </Form>

@@ -1,5 +1,6 @@
 const { Mst_bank, Mst_airline, Riwayat_deposit_airline } = require("../models");
 const { getCompanyIdByCode } = require("../helper/companyHelper");
+const Akuntansi = require("../library/akuntansi");
 const validation = {};
 
 validation.check_id = async (value, { req }) => {
@@ -47,8 +48,22 @@ validation.check_mst_airline_id = async (value, { req }) => {
 }
 
 validation.check_deposit = async (value, { req }) => {
-    if(value <= 1000) {
-        throw new Error("Jumlah deposit tidak boleh lebih kecil dari Rp 1000 .");
+    const company_id = await getCompanyIdByCode(req);
+    const akuntansi = new Akuntansi(); 
+    var nomor_akun = '';
+    if( req.body.sumber_dana == '0' ) {
+        nomor_akun = '11010';
+    }else{
+        const qB = await Mst_bank.findOne({ where: { id: req.body.sumber_dana, company_id: company_id } });
+        nomor_akun = qB.nomor_akun;
+    }
+    const saldo = await akuntansi.saldo_masing_masing_akun(nomor_akun, company_id, req.body.cabang, '0');
+    if(saldo < value) {
+        throw new Error("Jumlah deposit tidak boleh lebih besar dari saldo sumber dana.");
+    }else{
+        if(value <= 1000) {
+            throw new Error("Jumlah deposit tidak boleh lebih kecil dari Rp 1000 .");
+        }
     }
     return true;
 }

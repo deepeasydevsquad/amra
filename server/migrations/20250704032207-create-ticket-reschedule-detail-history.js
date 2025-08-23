@@ -12,9 +12,6 @@ module.exports = {
       ticket_reschedule_history_id: {
         type: Sequelize.INTEGER,
       },
-      ticket_transaction_detail_id: {
-        type: Sequelize.INTEGER,
-      },
       old_departure_date: {
         type: Sequelize.DATE,
       },

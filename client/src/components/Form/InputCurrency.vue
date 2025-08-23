@@ -8,8 +8,10 @@
       type="text"
       :value="formattedValue"
       @input="onInput"
+      :placeholder="placeholder"
       class="text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
     />
+    <p v-if="error" class="text-red-500 text-sm mt-1">{{ error }}</p>
     <p v-if="note" class="text-xs text-gray-500 mt-2">{{ note }}</p>
   </div>
 </template>
@@ -29,6 +31,8 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  placeholder: String,
+  error: String,
   max: {
     type: Number,
     default: 100_000_000, // batas maksimum default Rp100 juta

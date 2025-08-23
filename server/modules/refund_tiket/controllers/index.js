@@ -1,9 +1,6 @@
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
-const {
-  handleValidationErrors,
-  handleServerError,
-} = require("../../../helper/handleError");
+const { handleValidationErrors, handleServerError } = require("../../../helper/handleError");
 
 exports.refund_tiket_detail = async (req, res) => {
   try {

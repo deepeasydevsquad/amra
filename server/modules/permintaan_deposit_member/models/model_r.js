@@ -1,13 +1,6 @@
-const {
-  Op,
-  Company,
-  Member,
-  Request_deposit_member,
-  Akun_bank_perusahaan,
-  Mst_bank,
-  sequelize,
-} = require("../../../models");
+const { Op, Company, Member, Request_deposit_member, Akun_bank_perusahaan, Mst_bank, sequelize } = require("../../../models");
 const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
+
 const moment = require("moment");
 
 class Model_r {

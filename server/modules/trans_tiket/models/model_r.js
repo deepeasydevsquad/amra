@@ -1,22 +1,13 @@
-const {
-  Op,
-  Ticket_transaction,
-  Ticket_payment_history,
-  Ticket_transaction_detail,
-  Mst_airline,
-  Paket,
-  Kostumer,
-} = require("../../../models");
-const {
-  getCompanyIdByCode,
-  getCabang,
-} = require("../../../helper/companyHelper");
+const { Op, Ticket_transaction, Ticket_payment_history, Division, Mst_airline, Paket, Kostumer} = require("../../../models");
+const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
+const Akuntansi = require("../../../library/akuntansi");
+const{ convertToRP } = require("../../../helper/currencyHelper");
 const moment = require("moment");
 
 class Model_r {
   constructor(req) {
     this.req = req;
-    this.division_id;
+    this.division;
   }
 
   async initialize() {
@@ -38,6 +29,61 @@ class Model_r {
     });
 
     return paketMap;
+  }
+
+
+  async get_info_pembayaran_tiket() {
+
+    await this.initialize();
+
+    try {
+    
+      const q = await Ticket_transaction.findOne({ 
+        where: { 
+          id: this.req.body.id 
+        }, 
+        include: [
+          { 
+            model: Division, 
+            required: true, 
+            where: { 
+              company_id: this.company_id 
+            } 
+          },
+          { 
+            model: Mst_airline, 
+            required: true, 
+          },
+        ]
+      });
+      const total = q.pax * q.costumer_price;
+      var sudah_bayar = 0;
+      await Ticket_payment_history.findAll({
+        attributes: ["id", "nominal", "status"],
+        where: { ticket_transaction_id: this.req.body.id },
+        include: {
+          model: Ticket_transaction, 
+          required: true,
+          where: { division_id: q.division_id }
+        }
+      }).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+            if( e.status == 'cash') {
+              sudah_bayar = sudah_bayar + parseInt(e.nominal);
+            }
+          })
+        );
+      });
+      
+      
+      return { nomor_registrasi: q.nomor_registrasi, kode_booking: q.code_booking, maskapai: q.Mst_airline.name, pax: q.pax, harga: q.costumer_price, total: total, sudah_bayar };
+    } catch (error) {
+      console.log("*****DDDD************");
+      console.log(error);
+      console.log("*****DDDD************");
+      return { }
+    }
   }
 
   async ticket_transactions() {
@@ -72,15 +118,32 @@ class Model_r {
         "id",
         "division_id",
         "paket_id", // <== tambahin ini
-        "nomor_register",
-        "total_transaksi",
+        "nomor_registrasi",
         "status",
+        "pax",
+        "code_booking",
+        "travel_price",
+        "costumer_price",
+        "departure_date",
         "createdAt",
         "updatedAt",
       ],
       where: where,
       distinct: true,
       include: [
+        {
+          model: Mst_airline,
+          required: true, 
+          attributes: ["id", "name"],
+        },
+        {
+          model: Paket,
+          attributes: ["id", "name"],
+        },
+        {
+          model: Kostumer,
+          attributes: ["id", "name"],
+        },
         {
           model: Ticket_payment_history,
           attributes: [
@@ -92,33 +155,6 @@ class Model_r {
             "petugas",
             "createdAt",
             "updatedAt",
-          ],
-          include: [
-            {
-              model: Kostumer,
-              attributes: ["id", "name"],
-            },
-          ],
-        },
-        {
-          model: Ticket_transaction_detail,
-          attributes: [
-            "id",
-            "pax",
-            "code_booking",
-            "ticket_transaction_id",
-            "airlines_id",
-            "departure_date",
-            "travel_price",
-            "costumer_price",
-            "createdAt",
-            "updatedAt",
-          ],
-          include: [
-            {
-              model: Mst_airline,
-              attributes: ["id", "name"],
-            },
           ],
         },
       ],
@@ -141,35 +177,34 @@ class Model_r {
               paket_name = paket?.name ?? null;
             }
 
+            console.log("Paket Name--------------");
+            console.log(paket_name);
+            console.log("Paket Name--------------");
+
             return {
               id: transaction.id,
               division_id: transaction.division_id,
-              nomor_register: transaction.nomor_register,
+              nomor_registrasi: transaction.nomor_registrasi,
               total_transaksi: transaction.total_transaksi,
               status: transaction.status,
               createdAt: transaction.createdAt,
               updatedAt: transaction.updatedAt,
-              paket_name, // <== ini dia bro
-              ticket_details:
-                transaction.Ticket_transaction_details?.map((detail) => ({
-                  id: detail.id,
-                  pax: detail.pax,
-                  code_booking: detail.code_booking,
-                  ticket_transaction_id: detail.ticket_transaction_id,
-                  airlines_id: detail.airlines_id,
-                  airlines_name: detail.Mst_airline?.name ?? null,
-                  departure_date: detail.departure_date,
-                  travel_price: detail.travel_price,
-                  costumer_price: detail.costumer_price,
-                  createdAt: detail.createdAt,
-                  updatedAt: detail.updatedAt,
-                })) ?? [],
+              paket_name: transaction.Paket.name,
+              costumer_name: transaction.Kostumer?.name ?? null,
+              costumer_id: transaction.Kostumer?.id ?? null,
+              travel_price: transaction.travel_price,
+              costumer_price: transaction.costumer_price,
+              pax: transaction.pax,
+              code_booking: transaction.code_booking,
+              airlines_name: transaction.Mst_airline.name,
+              departure_date: moment(transaction.departure_date).format("YYYY-MM-DD"),
+              createdAt: moment(transaction.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+              updatedAt: moment(transaction.updatedAt).format("YYYY-MM-DD HH:mm:ss") ,
               payment_histories:
                 transaction.Ticket_payment_histories?.map((payment) => ({
                   id: payment.id,
                   invoice: payment.invoice,
-                  costumer_name: payment.Kostumer?.name ?? null,
-                  costumer_id: payment.Kostumer?.id ?? null,
+                 
                   petugas: payment.petugas,
                   nominal: payment.nominal,
                   status: payment.status,
@@ -188,7 +223,10 @@ class Model_r {
         perpage: limit,
       };
     } catch (error) {
-      console.error("ERROR: ticket_transactions()", error);
+      console.log("XXXXXXX");
+      console.log(error);
+      console.log("XXXXXXX");
+      // console.error("ERROR: ticket_transactions()", error);
       return { data: [], total: 0, pageNumber: page, perpage: limit };
     }
   }
@@ -196,19 +234,22 @@ class Model_r {
   async getAirlines() {
     // Initialize company_id
     await this.initialize();
+    const akuntansi = new Akuntansi(); 
 
     try {
-      var data = [{ id: "0", name: "Pilih Maskapai" }];
+      var data = [{ id: "0", name: " -- Pilih Maskapai -- " }];
+      // 
       await Mst_airline.findAll({
-        attributes: ["id", "name"],
+        attributes: ["id", "name", "nomor_akun_deposit"],
         where: { company_id: this.company_id },
         order: [["id", "ASC"]],
       }).then(async (value) => {
         await Promise.all(
           await value.map(async (e) => {
+            var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun(e.nomor_akun_deposit, this.company_id, this.req.body.cabang, '0') );
             data.push({
               id: e.id,
-              name: e.name,
+              name: e.name + " (Saldo: " + saldo + ")",
             });
           })
         );

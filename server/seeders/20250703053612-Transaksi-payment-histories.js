@@ -10,7 +10,6 @@ module.exports = {
         ticket_transaction_id: 1, 
         nominal: 1500000,
         invoice: 'DF23RR',
-        kostumer_id: 1,
         status: 'cash',
         petugas: 'administrator',
         createdAt: new Date(),

@@ -1,17 +1,7 @@
-const {
-  Ticket_transaction,
-  Ticket_payment_history,
-  Ticket_transaction_detail,
-  Mst_airline,
-} = require("../../../models");
-
-const {
-  getCompanyIdByCode,
-  getCabang,
-} = require("../../../helper/companyHelper");
-
-const moment = require("moment");
+const { Ticket_transaction, Ticket_payment_history, Ticket_transaction_detail, Mst_airline } = require("../../../models");
+const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
 const { convertToRP } = require("../../../helper/currencyHelper");
+const moment = require("moment");
 
 class Model_r {
   constructor(req) {

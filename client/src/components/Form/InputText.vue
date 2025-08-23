@@ -25,16 +25,16 @@
   </div>
 </template>
 
-<script setup>
-const model = defineModel()
-defineProps({
-  label: String,
-  id: String,
-  placeholder: String,
-  type: { type: String, default: 'text' },
-  error: String,
-  note: String,
-  label_status: { type: Boolean, default: true },
-  readonly: { type: Boolean, default: false },
-})
+<script setup lang="ts">
+  const model = defineModel()
+  defineProps({
+    label: String,
+    id: String,
+    placeholder: String,
+    type: { type: String, default: 'text' },
+    error: String,
+    note: String,
+    label_status: { type: Boolean, default: true },
+    readonly: { type: Boolean, default: false },
+  })
 </script>

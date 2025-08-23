@@ -29,6 +29,24 @@ controllers.generateNomorRegister = async (req, res) => {
   }
 };
 
+controllers.getInfoPembayaranTiket = async (req, res ) => {
+  if (!(await handleValidationErrors(req, res))) return;
+  try {
+    const model_r = new Model_r(req);
+    const data = await model_r.get_info_pembayaran_tiket();
+    if( Object.keys(data).length > 0  ) {
+      res.status(200).json({ error: false, message: 'Sukses', data: data});
+    }else{
+      res.status(400).json({ error: true, message: 'Gagal'});
+    }
+  } catch (error) {
+    console.log("*****************");
+    console.log(error);
+    console.log("*****************");
+    handleServerError(res, error.message);
+  }
+}
+
 // Menambahkan tiket baru
 controllers.addTiket = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
@@ -37,6 +55,9 @@ controllers.addTiket = async (req, res) => {
     const add = await model_cud.add();
     return res.status(200).json(add);
   } catch (error) {
+    console.log("*****************");
+    console.log(error);
+    console.log("*****************");
     handleServerError(res, error.message);
   }
 };
@@ -68,22 +89,24 @@ controllers.add_pembayaran_ticket = async (req, res) => {
 
   try {
     const model = new Model_cud(req);
-    await model.add_pembayaran_tikects();
-
+    const invoice = await model.add_pembayaran_tikects();
+    // get feedBack response
     if (await model.response()) {
       res.status(200).json({
-        message: model.message || "Transaksi berhasil dibuat",
-        invoice: model.invoice,
-        status: "success",
+        message: "Transaksi pembayaran tiket berhasil dilakukan",
+        invoice: invoice,
+        error: false
       });
     } else {
       res.status(400).json({
-        message: model.message || "Gagal membuat Transaksi",
-        status: "failed",
+        message: "Transaksi pembayaran tiket gagal dilakukan",
+        error: true
       });
     }
   } catch (error) {
-    console.error("Terjadi error saat Transaksi Fee:", error);
+          console.log("_____________AAAA");
+      console.log(error);
+      console.log("_____________AAAA");
     handleServerError(res, error);
   }
 };

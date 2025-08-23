@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label v-if="label_status == true" :for="id" class="block text-sm font-medium text-gray-700 mb-2">{{ label }}</label>
+    <label v-if="label_status == true" :for="id" class="block text-sm font-medium text-gray-700 mb-2" v-html="label"></label>
     <select
       :id="id"
       v-model="model"

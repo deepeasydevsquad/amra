@@ -16,18 +16,18 @@ module.exports = (sequelize, DataTypes) => {
         }
       );
 
-      Ticket_reschedule_detail_history.belongsTo(
-        models.Ticket_transaction_detail,
-        {
-          foreignKey: "ticket_transaction_detail_id",
-        }
-      );
+      // Ticket_reschedule_detail_history.belongsTo(
+      //   models.Ticket_transaction_detail,
+      //   {
+      //     foreignKey: "ticket_transaction_detail_id",
+      //   }
+      // );
     }
   }
   Ticket_reschedule_detail_history.init(
     {
       ticket_reschedule_history_id: DataTypes.INTEGER,
-      ticket_transaction_detail_id: DataTypes.INTEGER,
+      // ticket_transaction_detail_id: DataTypes.INTEGER,
       old_departure_date: DataTypes.DATE,
       old_travel_price: DataTypes.INTEGER,
       old_costumer_price: DataTypes.INTEGER,

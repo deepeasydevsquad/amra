@@ -17,19 +17,55 @@ module.exports = {
         },
         onDelete: 'CASCADE',
       },
-      nomor_register: {
+      nomor_registrasi: {
         type: Sequelize.STRING
       },
-      total_transaksi: {
-        type: Sequelize.INTEGER
+      airlines_id: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Mst_airlines",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
+      },
+      kostumer_id: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Kostumers",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
+      },
+      paket_id: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Pakets",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
       },
       status: {
         type: Sequelize.ENUM,
         values: ['active', 'refund', 'cancel'],
         defaultValue : "active"
       },
-      paket_id: {
-        type: Sequelize.INTEGER,
+      pax: {
+        type: Sequelize.INTEGER
+      },
+      code_booking: {
+        type: Sequelize.STRING
+      },
+      travel_price: {
+        type: Sequelize.INTEGER
+      },
+      costumer_price: {
+        type: Sequelize.INTEGER
+      },
+      departure_date: {
+        type: Sequelize.DATE
       },
       createdAt: {
         allowNull: false,

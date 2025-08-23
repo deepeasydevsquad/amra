@@ -9,7 +9,8 @@
       </div>
     </div>
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
-      <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
+      <SkeletonTable v-if="isLoading" :columns="totalColumns" :rows="itemsPerPage" />
+      <table v-else class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-100">
           <tr>
             <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">Fasilitas</th>
@@ -20,7 +21,7 @@
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
           <template v-if="data.length > 0">
-            <tr v-for="d in data" :key="d.id" class="hover:bg-gray-50 transition-colors">
+            <tr  v-for="d in data" :key="d.id" class="hover:bg-gray-50 transition-colors">
               <td class="px-6 py-4 text-center align-top text-sm font-medium text-gray-700">{{ d.name }}</td>
               <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">
                 <table class="w-full mb-0">
@@ -54,7 +55,7 @@
             </tr>
           </template>
           <template v-else>
-            <tr>
+            <tr >
               <td colspan="4" class="px-2 py-2 text-center align-top">Daftar Fasilitas Tidak Ditemukan</td>
             </tr>
           </template>
@@ -116,6 +117,8 @@ import { daftarFasilitasStock } from '@/service/daftar_stock_fasilitas'
 
 import Notification from '@/components/User/Modules/DaftarPeminjaman/Particle/Notification.vue'
 import Confirmation from '@/components/User/Modules/DaftarPeminjaman/Particle/Confirmation.vue'
+
+import SkeletonTable from '@/components/SkeletonTable/SkeletonTable.vue'
 // import FormAddPeminjaman from '@/components/User/Modules/DaftarPeminjaman/widget/FormAddPeminjaman.vue'
 // import FormUpdateSkema from '@/components/User/Modules/DaftarPeminjaman/widget/FormUpdateSkema.vue'
 // import FormPembayaran from '@/components/User/Modules/DaftarPeminjaman/widget/FormPembayaran.vue'
@@ -228,6 +231,7 @@ const formatIDR = (nominal: number) => {
 
 const fetchData = async () => {
   try {
+    isLoading.value = true
     const response = await daftarFasilitasStock({
       search: searchQuery.value,
       perpage: itemsPerPage.value,

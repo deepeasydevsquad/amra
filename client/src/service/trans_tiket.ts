@@ -1,11 +1,20 @@
 import api from "./api";
 
+
+export const get_info_pembayaran_ticket = async ( param : { id: number } ) => {
+  try {
+      const response = await api.post("/trans_tiket/get_info_pembayaran_ticket", param);
+      return response.data;
+  } catch (error) {
+      console.error("Gagal menambahkan tiket:", error);
+      throw error;
+  }
+}
+
 export const add_tiket = async (param : any) => {
     console.log(param);
     try {
         const response = await api.post("/trans_tiket/add_tiket", param);
-        console.log("Response add tiket");
-        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error("Gagal menambahkan tiket:", error);
@@ -29,9 +38,9 @@ export const get_transactions = async (param: any) => {
     }
 };
 
-export const generate_nomor_register = async (param : any) => {
+export const generate_nomor_register = async () => {
     try {
-        const response = await api.get("/trans_tiket/generate_nomor_register", param);
+        const response = await api.get("/trans_tiket/generate_nomor_register");
         return response.data;
     }
     catch(error) {
@@ -39,9 +48,9 @@ export const generate_nomor_register = async (param : any) => {
         throw error;
     }
 }
-export const generate_nomor_invoice = async (param : any) => {
+export const generate_nomor_invoice = async () => {
     try {
-        const response = await api.get("/trans_tiket/generate_nomor_invoice", param);
+        const response = await api.get("/trans_tiket/generate_nomor_invoice");
         return response.data;
     }
     catch(error) {
@@ -50,9 +59,9 @@ export const generate_nomor_invoice = async (param : any) => {
     }
 }
 
-export const getAirlines = async () => {
+export const getAirlines = async (param : { cabang: number } ) => {
   try {
-    const response = await api.get("/trans_tiket/get-airlines");
+    const response = await api.post("/trans_tiket/get-airlines", param);
     return response.data;
   } catch (error) {
     console.error("error", error);
@@ -60,8 +69,7 @@ export const getAirlines = async () => {
   }
 };
 
-export const add_pembayaran = async (param : any) => {
-
+export const addPembayaran = async (param : any) => {
     try {
         const response = await api.post("/trans_tiket/add_pembayaran", param);
         return response.data;

@@ -10,6 +10,7 @@ const {
   Paket_transaction,
   Paket_transaction_payment_history,
   Member,
+  Jurnal
   } = require("../../../models");
 const Model_r = require("./model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
@@ -143,6 +144,19 @@ class Model_cud {
       };
 
       if (status === "disetujui") {
+        // get member info
+        const memberInfo = await Request_deposit_member.findOne({
+          where: {  
+            id: body.id,
+            company_id: this.company_id,
+          },
+          include: {
+            model: Member,
+            required: true,
+            attributes: ['id', 'fullname'],
+          }
+        });
+
         // 1. Update status permintaan
         await Request_deposit_member.update(
           { status: "disetujui", status_note: "Permintaan deposit telah disetujui.", petugas: await this.penerima() },
@@ -177,6 +191,27 @@ class Model_cud {
           },
           { transaction: this.t }
         );
+
+        // Jurnal
+        await Jurnal.create(
+          {
+            division_id: info.member_division_id, 
+            source: 'requestdepositmember:' + memberInfo.id,
+            ref: 'APPROVE DEPOSIT SALDO MEMBER ' + memberInfo.Member.fullname + ' dengan nominal Rp ' + info.nominal,
+            ket: 'APPROVE DEPOSIT SALDO MEMBER ' + memberInfo.Member.fullname + ' dengan nominal Rp ' + body.nominal,
+            akun_debet: '11010',
+            akun_kredit: '24000',
+            saldo: info.nominal,
+            removable: 'false',
+            periode_id: 0,
+            createdAt: myDate,
+            updatedAt: myDate,
+          },
+          {
+            transaction: this.t,
+          }
+        );
+
         this.message = `Permintaan deposit member dengan ID ${body.id} telah disetujui.`;
       } else if (status === "ditolak") {
         await Request_deposit_member.update(
@@ -185,9 +220,7 @@ class Model_cud {
         );
         this.message = `Permintaan deposit member dengan ID ${body.id} telah ditolak.`;
       }
-
     } catch (error) {
-      console.error("Error in updateStatusRequestDepositMember:", error);
       this.state = false;
     }
   }
@@ -197,6 +230,20 @@ class Model_cud {
     const body = this.req.body;
 
     try {
+
+      // get member info
+      const memberInfo = await Request_deposit_member.findOne({
+        where: {  
+          id: body.id,
+          company_id: this.company_id,
+        },
+        include: {
+          model: Member,
+          required: true,
+          attributes: ['id', 'fullname'],
+        }
+      });
+
       await Request_deposit_member.destroy({
         transaction: this.t,
         where: { id: body.id, company_id: this.company_id },

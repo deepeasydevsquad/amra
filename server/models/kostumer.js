@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "kostumer_id",
         onDelete: 'CASCADE',
       });
-      Kostumer.hasMany(models.Ticket_payment_history, {
+      Kostumer.hasMany(models.Ticket_transaction, {
         foreignKey: "kostumer_id",
         onDelete: 'CASCADE',
       });

@@ -158,7 +158,7 @@ onMounted(async () => {
   <Form
     :formStatus="props.formStatus"
     :label="'Form Reschedule Tiket'"
-    :width="'w-3/4'"
+    :width="'w-xl'"
     :submitLabel="' Reschedule'"
     @submit="handleSubmit"
     @cancel="
