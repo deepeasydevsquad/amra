@@ -17,6 +17,59 @@ class Model_r {
     }
   }
 
+  async get_airlines_by_id() {
+    await this.initialize();
+    const akuntansi = new Akuntansi(); 
+
+    try {
+      const q = await Ticket_transaction.findOne({ 
+          where: { 
+              id: this.req.body.id 
+          }, 
+          include: [
+              { 
+                model: Division, 
+                required: true, 
+                where: { 
+                    company_id: this.company_id 
+                } 
+              },
+          ]
+      });
+      
+      var data = [{ id: "0", name: " -- Pilih Maskapai -- " }];
+      await Mst_airline.findAll({
+        attributes: ["id", "name", "nomor_akun_deposit"],
+        where: { company_id: this.company_id },
+        order: [["id", "ASC"]],
+      }).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+
+            console.log("******************");
+            console.log(q.nomor_akun_deposit);
+            console.log(q.division_id);
+            console.log(this.company_id);
+            console.log("******************");
+            var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun(e.nomor_akun_deposit, this.company_id, q.division_id , '0') );
+            data.push({ id: e.id, name: e.name + " (Saldo: " + saldo + ")"});
+          })
+        );
+      });
+      return data;
+    } catch (error) {
+      console.error("Error di Model_r saat mengambil getAllVisaTypes:", error);
+      throw error;
+    }
+
+
+    // try {
+    //   return {}
+    // } catch (error) {
+    //   return {}
+    // }
+  }
+
   async ambil_nama_paket_bulk(ids) {
     const paketList = await Paket.findAll({
       where: { id: { [Op.in]: ids } },
@@ -31,13 +84,9 @@ class Model_r {
     return paketMap;
   }
 
-
   async get_info_pembayaran_tiket() {
-
     await this.initialize();
-
     try {
-    
       const q = await Ticket_transaction.findOne({ 
         where: { 
           id: this.req.body.id 
@@ -75,13 +124,9 @@ class Model_r {
           })
         );
       });
-      
-      
-      return { nomor_registrasi: q.nomor_registrasi, kode_booking: q.code_booking, maskapai: q.Mst_airline.name, pax: q.pax, harga: q.costumer_price, total: total, sudah_bayar };
+      return { nomor_registrasi: q.nomor_registrasi, kode_booking: q.code_booking, maskapai: q.Mst_airline.name, maskapai_id: q.Mst_airline.id, 
+        pax: q.pax, harga: q.costumer_price, harga_travel: q.travel_price, tanggal_keberangkatan: moment(q.departure_date).format("YYYY-MM-DD"), total: total, sudah_bayar };
     } catch (error) {
-      console.log("*****DDDD************");
-      console.log(error);
-      console.log("*****DDDD************");
       return { }
     }
   }

@@ -3,7 +3,7 @@ import Form from '@/components/Modal/Form.vue'
 import Notification from '@/components/Modal/Notification.vue'
 import InputCurrency from '@/components/Form/InputCurrency.vue'
 import { ref, watch, computed } from 'vue'
-import { get_info_pembayaran_ticket, addPembayaran } from '@/service/trans_tiket'
+import { getInfoPembayaranTicketUrl, addPembayaran } from '@/service/trans_tiket'
 
 const props = defineProps<{ formStatus: boolean, id: number }>()
 
@@ -107,7 +107,7 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
 
 const fetchData = async () => {
   try {
-    const response = await get_info_pembayaran_ticket({ id: props.id });
+    const response = await getInfoPembayaranTicketUrl({ id: props.id });
     form.value.id = props.id;
     form.value.nomor_registrasi = response.data.nomor_registrasi;
     form.value.kode_booking = response.data.kode_booking;
@@ -154,7 +154,7 @@ watch(
 </script>
 <template>
   <Form :form-status="formStatus" :label="'Pembayaran Tiket'" :submitLabel="'BAYAR'" :width="'w-1/4'" @close="handleCancel" @cancel="handleCancel" @submit="handleSubmit">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-0 pr-3">
       <div class="mt-0 md:col-span-2">
         <label for="nomor_registrasi" class="text-sm font-medium text-gray-700 mb-1">Nomor Registrasi</label>
         <div id="nomor_registrasi" class="bg-gray-100 text-gray-800 px-3 py-2 mt-1 rounded border border-gray-300">

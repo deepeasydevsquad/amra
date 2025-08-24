@@ -1,6 +1,7 @@
-const { sequelize, Ticket_transaction, Ticket_transaction_detail, Ticket_transaction_refund, Ticket_payment_history, Users, Member, Company } = require("../../../models");
+const { sequelize, Ticket_transaction, Mst_airline, Division, Users, Member, Company, Jurnal, Ticket_payment_history } = require("../../../models");
 const { getCabang, tipe, getCompanyIdByCode,} = require("../../../helper/companyHelper");
 const { writeLog } = require("../../../helper/writeLogHelper");
+const { generateNomorInvoicePembayaranTicket } = require("../../../helper/randomHelper");
 const moment = require("moment");
 
 class Model_cud {
@@ -57,77 +58,178 @@ class Model_cud {
 
   async refund_tiket() {
     await this.initialize();
-    const Invoice = await this.generate_invoice();
     const petugas = await this.penerima();
+    const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
-    const nomor_register = body.nomor_register;
-    const dateNow = moment().format("YYYY-MM-DD HH:mm:ss");
-
+    
     try {
-      const transaksi = await Ticket_transaction.findOne({
-        where: { nomor_register },
-        include: [{ model: Ticket_transaction_detail }],
+
+      const q = await Ticket_transaction.findOne({ 
+        where: { 
+          id: this.req.body.id 
+        }, 
+        include: [
+          { 
+            model: Division, 
+            required: true, 
+            where: { 
+                company_id: this.company_id 
+            } 
+          },
+          { 
+            model: Mst_airline, 
+            required: true, 
+          },
+        ]
       });
 
-      if (!transaksi) {
-        this.state = false;
-        this.message = "Transaksi tidak ditemukan";
-        return;
+      var sudah_bayar = 0;
+      await Ticket_payment_history.findAll({
+      attributes: ["id", "nominal", "status"],
+      where: { ticket_transaction_id: this.req.body.id },
+      include: {
+          model: Ticket_transaction, 
+          required: true,
+          where: { division_id: q.division_id }
       }
+      }).then(async (value) => {
+          await Promise.all(
+              await value.map(async (e) => {
+                  if( e.status == 'cash') {
+                      sudah_bayar = sudah_bayar + parseInt(e.nominal);
+                  }
+              })
+          );
+      });
+
+      const invoice = await generateNomorInvoicePembayaranTicket(q.division_id);
 
       await Ticket_transaction.update(
         { status: "refund", total_transaksi: 0 },
-        { where: { nomor_register }, transaction: this.t }
+        { where: { id: this.req.body.id }, transaction: this.t }
       );
-
-      // ⬇️ Tambahkan totalRefund
-      let totalRefund = 0;
-
-      for (let i = 0; i < transaksi.Ticket_transaction_details.length; i++) {
-        const detail = transaksi.Ticket_transaction_details[i];
-
-        const refund = body.detail[i]?.refund ?? 0;
-        const fee = body.detail[i]?.fee ?? 0;
-
-        totalRefund += refund;
-
-        await Ticket_transaction_refund.create(
-          {
-            ticket_transaction_id: transaksi.id,
-            pax: detail.pax,
-            code_booking: detail.code_booking,
-            departure_date: detail.departure_date,
-            travel_price: detail.travel_price,
-            costumer_price: detail.costumer_price,
-            airlines_id: detail.airlines_id,
-            refund,
-            fee,
-            petugas,
-            createdAt: dateNow,
-            updatedAt: dateNow,
-          },
-          { transaction: this.t }
-        );
-      }
 
       await Ticket_payment_history.create(
         {
-          ticket_transaction_id: transaksi.id,
-          nominal: totalRefund,
-          invoice: Invoice,
-          // kostumer_id: body.kostumer_id,
+          ticket_transaction_id: this.req.body.id,
+          nominal: this.req.body.refund,
+          invoice: invoice,
           status: "refund",
           petugas,
-          createdAt: dateNow,
-          updatedAt: dateNow,
+          createdAt: myDate,
+          updatedAt: myDate,
         },
         { transaction: this.t }
       );
 
+      // ===== PROSES JURNAL =====
+      const total = q.pax * q.costumer_price;
+      // kembalikan / Reverse biaya deposit
+      await Jurnal.create(
+        {
+          division_id: q.division_id, 
+          source: 'ticketTransactionId:' + this.req.body.id,
+          ref: 'Refund HPP Penjualan Tiket ' + q.Mst_airline.name,
+          ket: 'Refund HPP Penjualan Tiket ' + q.Mst_airline.name,
+          akun_debet: q.Mst_airline.nomor_akun_deposit ,
+          akun_kredit: q.Mst_airline.nomor_akun_hpp,
+          saldo: q.pax * q.travel_price,
+          removable: 'false',
+          periode_id: 0,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
+      // pendapatan administratif jika refund
+      if( body.fee > 0 ) {
+        await Jurnal.create(
+          {
+            division_id: q.division_id, 
+            source: 'ticketTransactionId:' + q.id,
+            ref: 'Pendapatan Administratif Refund Penjualan Tiket ' + q.Mst_airline.name,
+            ket: 'Pendapatan Administratif Refund Penjualan Tiket ' + q.Mst_airline.name,
+            akun_debet: null,
+            akun_kredit: q.Mst_airline.nomor_akun_pendapatan,
+            saldo: body.fee,
+            removable: 'false',
+            periode_id: 0,
+            createdAt: myDate,
+            updatedAt: myDate,
+          },
+          {
+            transaction: this.t,
+          }
+        );
+      }
+
+      // Reverse pendapatan maskapai
+      await Jurnal.create(
+        {
+          division_id: q.division_id, 
+          source: 'ticketTransactionId:' + q.id,
+          ref: 'Refund Pendapatan Penjualan Tiket ' + q.Mst_airline.name,
+          ket: 'Refund Pendapatan Penjualan Tiket ' + q.Mst_airline.name,
+          akun_debet: q.Mst_airline.nomor_akun_pendapatan,
+          akun_kredit: null,
+          saldo: total,
+          removable: 'false',
+          periode_id: 0,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
+      // reverse Kas / Pembayaran Utan 
+      await Jurnal.create(
+        {
+          division_id: q.division_id, 
+          source: 'ticketTransactionId:' + q.id,
+          ref: 'Refund Kas / Pembayaran utang untuk Penjualan Tiket ' + q.Mst_airline.name,
+          ket: 'Refund Kas / Pembayaran utang untuk Penjualan Tiket ' + q.Mst_airline.name,
+          akun_debet: null,
+          akun_kredit: q.paket_id ? '23000' : '11010',
+          saldo: body.refund,
+          removable: 'false',
+          periode_id: 0,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
+      if( sudah_bayar < total ) { // kembalikan tanpa proses piutang
+         await Jurnal.create(
+          {
+            division_id: q.division_id, 
+            source: 'ticketTransactionId:' + q.id,
+            ref: 'Refund Piutang utang untuk Penjualan Tiket ' + q.Mst_airline.name,
+            ket: 'Refund Piutang utang untuk Penjualan Tiket ' + q.Mst_airline.name,
+            akun_debet: null,
+            akun_kredit: '13000',
+            saldo: total - (body.refund + body.fee),
+            removable: 'false',
+            periode_id: 0,
+            createdAt: myDate,
+            updatedAt: myDate,
+          },
+          {
+            transaction: this.t,
+          }
+        );
+      }
+
       this.message = "Berhasil melakukan refund tiket";
     } catch (error) {
       this.state = false;
-      this.message = "Terjadi kesalahan saat refund tiket";
       console.error("refund_tiket error:", error);
     }
   }

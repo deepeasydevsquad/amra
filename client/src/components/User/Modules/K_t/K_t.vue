@@ -52,6 +52,7 @@ interface Passport {
 interface Tiket {
   unit: number
   total: number
+  sisa: number
 }
 
 interface Fasilitas {
@@ -94,7 +95,7 @@ const data = ref<KTData>({
   hotel: {unit: 0, total: 0},
   transport: {unit: 0, total: 0},
   passport: {unit: 0, total: 0},
-  tiket: {unit: 0, total: 0},
+  tiket: {unit: 0, total: 0, sisa: 0},
   fasilitas: {unit: 0, total: 0},
   fee_agen: {unit: 0, total: 0},
   status: ''
@@ -260,7 +261,7 @@ onMounted(() => {
             <td class="px-0 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(item.price ?? 0) }}</td>
             <td class="px-0 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(0) }}</td>
             <td class="px-0 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(0) }}</td>
-            <td class="px-6 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(item.totalSell ?? 0) }}</td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(item.totalSell ?? 0)  }}</td>
           </tr>
         </tbody>
       </table>
@@ -308,7 +309,9 @@ onMounted(() => {
             <td class="px-0 py-3 font-medium text-gray-900 text-left">Biaya Tiket</td>
             <td class="px-0 py-3 font-medium text-gray-900 text-center" >{{ data.tiket.unit }} Tiket</td>
             <td colspan="3" class="px-6 py-3 font-medium text-gray-900 text-center" ></td>
-            <td class="px-6 py-3 font-medium text-gray-900 text-right">{{ formatRupiah(data.tiket.total ?? 0 ) }}</td>
+            <td class="px-6 py-3 font-medium text-gray-900 text-right"
+    v-html="formatRupiah(data.tiket.total ?? 0) + (data.tiket.sisa > 0 ? '<br><span class=\'text-red italic\'>(Sisa : ' + formatRupiah(data.tiket.sisa ?? 0) + ')</span>' : '')">
+</td>
           </tr>
           <tr class="border-b">
             <td class="px-6 py-3 font-medium text-gray-900 text-center">4</td>

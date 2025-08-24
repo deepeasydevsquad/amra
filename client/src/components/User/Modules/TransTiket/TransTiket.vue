@@ -21,7 +21,7 @@
           </tr>
         </thead>
         <tbody v-if="data.length" class="divide-y divide-gray-100 border-t border-gray-100">
-          <tr v-for="transaction in data" :key="transaction?.id">
+          <tr v-for="transaction in data" :key="transaction?.id" :class="transaction.status != 'active' ? ' pointer-events-none opacity-50 ' : '' ">
             <td class="px-4 py-2 align-top text-sm text-gray-800 whitespace-nowrap">
               <div class="font-bold text-sm">{{ transaction.nomor_registrasi }}</div>
               <div class="text-xs text-gray-500">
@@ -82,16 +82,16 @@
                 <LightButton v-if=" (transaction.costumer_price  * transaction.pax) > calculateTotalPayment(transaction) && transaction.status == 'active'" class="p-2" title="Pembayaran Tiket" @click="openPembayaranForm(transaction.id)">
                   <i class="pi pi-money-bill"></i>
                 </LightButton>
-                <LightButton v-if="transaction.status == 'active'" @click="openModalRefund(transaction.nomor_registrasi)" class="p-2" title="Refund Tiket" >
+                <LightButton v-if="transaction.status == 'active'" @click="openModalRefund(transaction.id)" class="p-2" title="Refund Tiket" >
                   <i class="pi pi-refresh"></i>
                 </LightButton>
-                <LightButton @click="openModalReschedule(transaction.nomor_registrasi)" class="p-2" title="Reschedule Tiket" v-if="transaction.status == 'active'">
-                  <i class="pi pi-calendar"></i>
+                <LightButton @click="openModalEdit(transaction.id)" class="p-2" title="Edit Transaksi Tiket" v-if="transaction.status == 'active'">
+                  <i class="pi pi-pencil"></i>
                 </LightButton>
                 <LightButton class="p-2" @click="openModalDetail(transaction.nomor_registrasi)" v-if="transaction.status == 'active'" title="Detail Riwayat Pembayaran Tiket">
                   <i class="pi pi-list"></i>
                 </LightButton>
-                <DangerButton class="p-2" title="Delete Tiket">
+                <DangerButton class="p-2" title="Delete Tiket" v-if="transaction.status == 'active'">
                   <i class="pi pi-times"></i>
                 </DangerButton>
               </div>
@@ -111,11 +111,18 @@
       </table>
     </div>
   </div>
+  <!-- Form untuk memulai transaksi pembelian tiket -->
   <FormTicketTransaction :showForm="showTicketTransactionDialog" @cancel="closeTicketTransactionForm" @submitted="onTicketTransactionSubmitted"/>
-  <FormPembayaranTiket :formStatus="showModalPembayaran" :id="idPembayaranTicket" @cancel="showModalPembayaran = false" @submitted=" () => { handleSuccess(); fetchData();} "/>
+  <!-- Form untuk pembayaran tiket -->
+  <FormPembayaranTiket :formStatus="showModalPembayaran" :id="idPembayaranTicket" @cancel="showModalPembayaran = false" @submitted=" () => { showModalPembayaran = false; fetchData(); } "/>
+  <!-- Form untuk transaksi refund -->
+  <FormRefun :formStatus="showModalRefund" :id="idRefundTicket" @cancel="showModalRefund = false" @close="showModalRefund = false" @submitted="() => { showModalRefund = false; fetchData(); }"/>
+
+
   <DetailTiket :formStatus="ShowModalDetail" :nomor_register="nomor_register" @cancel="closeModalDetail"/>
-  <!-- <FormRefun :formStatus="showModalRefund" :nomor_register="nomor_register" @cancel="showModalRefund = false" @close="showModalRefund = false" @submitted="() => {RefundSuccess();fetchData();}"/> -->
-  <Reschedule :formStatus="showModalReschedule" :nomor_register="nomor_register" @cancel="showModalReschedule = false" @close="showModalReschedule = false" @submitted="() => {handleReschedule();fetchData();}"/>
+  <!-- showModalEdit.value = true
+  idEditTicket.value = id -->
+  <FormEdit :formStatus="showModalEdit" :id="idEditTicket" @cancel="showModalEdit = false" @close="showModalEdit = false" @submitted="() => {showModalEdit = false; fetchData();}"/>
   <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" />
 </template>
 
@@ -129,7 +136,7 @@ import { reactive, computed, ref, onMounted, watchEffect } from 'vue'
 import { get_transactions, getAirlines } from '@/service/trans_tiket'
 import FormTicketTransaction from './Particle/FormTicketTransaction.vue'
 import FormPembayaranTiket from './Particle/FormPembayaranTiket.vue'
-import Reschedule from './Particle/Reschedule.vue'
+import FormEdit from './Particle/FormEdit.vue'
 import FormRefun from './Particle/FormRefun.vue'
 import DetailTiket from './Particle/DetailTiket.vue'
 import { Maskapai } from './Particle/FormTicketTransaction.vue'
@@ -146,6 +153,8 @@ const itemsPerPage = 2
 const search = ref('')
 const filter = ref('')
 const idPembayaranTicket = ref(0);
+const idRefundTicket = ref(0);
+const idEditTicket = ref(0);
 
 const showNotification = ref(false)
 const notificationMessage = ref('')
@@ -166,20 +175,19 @@ const resetNotificationTimeout = () => {
   }, 3000)
 }
 
-const RefundSuccess = () => {
-  showModalRefund.value = false
-  displayNotification('Refund berhasil', 'success')
-}
+// const RefundSuccess = () => {
+//   showModalRefund.value = false
+//   displayNotification('Refund berhasil', 'success')
+// }
 
 const handleReschedule = () => {
   showModalReschedule.value = false
   displayNotification('Reschedule berhasil', 'success')
 }
 
-const handleSuccess = () => {
-  showModalPembayaran.value = false
-  displayNotification('Operasi berhasil', 'success')
-}
+// const handleSuccess = () => {
+//   showModalPembayaran.value = false
+// }
 
 const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1)
@@ -293,24 +301,23 @@ const closeTicketTransactionForm = () => {
   showTicketTransactionDialog.value = false
 }
 
-const showModalReschedule = ref(false)
-const openModalReschedule = (register_number: string) => {
-  showModalReschedule.value = true
-  nomor_register.value = register_number
-  console.log('SET NOMOR REGISTER:', register_number)
+const showModalEdit = ref(false)
+const openModalEdit = (id: number) => {
+  showModalEdit.value = true
+  idEditTicket.value = id
 }
 
 const onTicketTransactionSubmitted = () => {
   showTicketTransactionDialog.value = false
-  displayNotification('Transaksi berhasil', 'success')
   fetchData()
 }
 
 const showModalRefund = ref(false)
 
-const openModalRefund = (register_number: string) => {
+const openModalRefund = (id: number) => {
   showModalRefund.value = true
-  nomor_register.value = register_number
+  idRefundTicket.value = id;
+  // nomor_register.value = register_number
 }
 
 const ShowModalDetail = ref(false)

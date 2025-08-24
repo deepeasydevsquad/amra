@@ -13,7 +13,8 @@ const {
   Deposit,
   Handover_fasilitas,
   Handover_barang,
-  Paket
+  Paket, 
+  Jurnal
   } = require("../../../models");
 const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
@@ -286,6 +287,27 @@ class Model_cud {
       { 
         transaction: this.t 
       });
+
+      // insert jurnal
+      await Jurnal.create(
+        {
+          division_id: division_id, 
+          source: '',
+          ref: 'PEMBELIAN PAKET OLEH MEMBER ' + jamaah.Member.fullname + ' dengan nominal Rp ' + infoPaket.price.toLocaleString("id-ID")  ,
+          ket: 'PEMBELIAN PAKET OLEH MEMBER ' + jamaah.Member.fullname + ' dengan nominal Rp ' + infoPaket.price.toLocaleString("id-ID"),
+          akun_debet: '11010',
+          akun_kredit: '23000',
+          saldo: infoPaket.price,
+          removable: 'false',
+          periode_id: 0,
+          createdAt: dateNow,
+          updatedAt: dateNow,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
 
       this.message = `Transaksi paket berhasil ditambahkan dengan invoice: ${invoicePaketTransactionPaymentHistory}`;
       return invoicePaketTransactionPaymentHistory;

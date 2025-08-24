@@ -1,7 +1,17 @@
 import api from "./api";
 
 
-export const get_info_pembayaran_ticket = async ( param : { id: number } ) => {
+export const editTiketUrl = async ( param : any ) => {
+  try {
+    const response = await api.post("/trans_tiket/update", param);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengupdate tiket:", error);
+    throw error;
+  }
+}
+
+export const getInfoPembayaranTicketUrl = async ( param : { id: number } ) => {
   try {
       const response = await api.post("/trans_tiket/get_info_pembayaran_ticket", param);
       return response.data;
@@ -101,7 +111,7 @@ export const detail_refund = async (param : any) => {
   }
 }
 
-export const refund = async (param : any) => {
+export const refundUrl = async (param : any) => {
   try {
       const response = await api.post("/trans_tiket/refund", param);
       return response.data;
@@ -150,3 +160,14 @@ export const daftar_costumer = async () => {
       throw error;
   }
 }
+
+export const getAirlinesByIdUrl = async (param: { id: number }) => {
+  try {
+      const response = await api.post("/trans_tiket/airlines_by_id", param);
+      return response.data;
+  } catch (error) {
+      console.error("Gagal melakukan reschedule tiket:", error);
+      throw error;
+  }
+}
+//

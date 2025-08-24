@@ -1,4 +1,4 @@
-const { sequelize, Ticket_transaction, Ticket_payment_history, Jurnal, Mst_airline, Division, Op } = require("../../../models");
+const { sequelize, Ticket_transaction, Ticket_payment_history, Jurnal, Mst_airline, Division } = require("../../../models");
 const { getCabang, getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { generateNomorRegisterTicket, generateNomorInvoicePembayaranTicket } = require("../../../helper/randomHelper");
@@ -65,14 +65,9 @@ class Model_cud {
     const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
  
     try {
-      const dibayar = body.dibayar;
+      // const dibayar = body.dibayar;
       // generate nomor_register 
       const nomor_register = await generateNomorRegisterTicket(body.cabang);
-
-
-      console.log("xxx");
-      console.log(nomor_register);
-      console.log("xxx");
       // get info maskapai
       const q = await Mst_airline.findOne({ where: {company_id: this.company_id, id: body.maskapai } });
       // total 
@@ -105,7 +100,7 @@ class Model_cud {
         ket: 'HPP Penjualan Tiket ' + q.name,
         akun_debet: q.nomor_akun_hpp,
         akun_kredit: q.nomor_akun_deposit,
-        saldo: body.harga_travel,
+        saldo: body.pax * body.harga_travel,
         removable: 'false',
         periode_id: 0,
         createdAt: myDate,
@@ -209,164 +204,17 @@ class Model_cud {
             }
           );
         }
-
-
       }
 
-      // cabang
-      // kostumer
-      // paket
-      // maskapai
-      // pax
-      // kode_booking
-      // tanggal_keberangkatan
-      // harga_travel
-      // harga_kostumer
-      // dibayar
-      // Validate input
-      // if (!tickets || !Array.isArray(tickets) || tickets.length === 0) {
-      //   return { status: 400, message: "No tickets provided." };
-      // }
-
-      // if (!body.nomor_register) {
-      //   return { status: 400, message: "Nomor register is required." };
-      // }
-      // Calculate total transaction
-      // let totalTransaksi = 0;
-      // for (const ticket of tickets) {
-      //   totalTransaksi += Number(ticket.pax) * Number(ticket.customer_price);
-      // }
-      // insert ke table Ticket_transactions
-      // const tiketTransactions = await Ticket_transaction.create(
-      //   {
-      //     division_id: this.division_id,
-      //     kostumer_id: customer.paket_id ? null : customer.kostumer_id,
-      //     paket_id: customer.paket_id,
-      //     nomor_register: body.nomor_register,
-      //     total_transaksi: totalTransaksi,
-      //     status: "active",
-      //   },
-      //   { transaction: this.t }
-      // );
-
-      // if (tiketTransactions)
-      //   console.log("Inserted Ticket Transaction:", tiketTransactions.toJSON());
-
-      // var listAirlinesId = [];
-      // for( const tiket of tickets) {
-      //   if (!listAirlinesId.includes(tiket.airlines_id)) {
-      //     listAirlinesId.push(tiket.airlines_id); 
-      //   }
-      // }
-
-      // var listAirLines = {};
-      // await Mst_airline.findAll({
-      //   attributes: ["id", "name",  "nomor_akun_deposit", "nomor_akun_pendapatan", "nomor_akun_hpp"],
-      //   where: { company_id: this.company_id, id: {[Op.in] : listAirlinesId } },
-      // }).then(async (value) => {
-      //   await Promise.all(
-      //     await value.map(async (e) => {
-      //       listAirLines[e.id] = {
-      //         name: e.name,
-      //         nomor_akun_deposit: e.nomor_akun_deposit, 
-      //         nomor_akun_pendapatan: e.nomor_akun_pendapatan,
-      //         nomor_akun_hpp: e.nomor_akun_hpp,
-      //       }
-      //     })
-      //   );
-      // });
-
-      // insert all tickets to tabel Ticket_transaction_details
-      // for (const ticket of tickets) {
-      //   try {
-      //     const tiketTansactionDetail = await Ticket_transaction_detail.create(
-      //       {
-      //         ticket_transaction_id: tiketTransactions.id,
-      //         pax: ticket.pax,
-      //         code_booking: ticket.code_booking,
-      //         departure_date: ticket.departure_date,
-      //         costumer_price: ticket.customer_price,
-      //         airlines_id: ticket.airlines_id,
-      //         travel_price: ticket.travel_price,
-      //       },
-      //       { transaction: this.t }
-      //     );
-
-      //     // transaksi 1 Jurnal untuk HPP
-      //     await Jurnal.create(
-      //       {
-      //         division_id: body.cabang, 
-      //         source: 'ticketTransactionId:' + tiketTansactionDetail.id,
-      //         ref: 'HPP Penjualan Tiket ' + listAirLines[ticket.airlines_id].name,
-      //         ket: 'HPP Penjualan Tiket ' + listAirLines[ticket.airlines_id].name,
-      //         akun_debet: listAirLines[ticket.airlines_id].nomor_akun_hpp,
-      //         akun_kredit: listAirLines[ticket.airlines_id].nomor_akun_deposit,
-      //         saldo: ticket.travel_price,
-      //         removable: 'false',
-      //         periode_id: 0,
-      //         createdAt: myDate,
-      //         updatedAt: myDate,
-      //       },
-      //       {
-      //         transaction: this.t,
-      //       }
-      //     );
-
-      //     // check apakah dibayar lunas atau tidak.
-
-      //     // transaksi 2 Jurnal untuk Pendapatan
-      //     await Jurnal.create(
-      //       {
-      //         division_id: body.cabang, 
-      //         source: 'ticketTransactionId:' + tiketTansactionDetail.id,
-      //         ref: 'PendapatanPenjualan Tiket ' + listAirLines[ticket.airlines_id].name,
-      //         ket: 'PendapatanPenjualan Penjualan Tiket ' + listAirLines[ticket.airlines_id].name,
-      //         akun_debet: customer.paket_id ? '23000' : '11010',
-      //         akun_kredit: listAirLines[ticket.airlines_id].nomor_akun_pendapatan,
-      //         saldo: ticket.customer_price,
-      //         removable: 'false',
-      //         periode_id: 0,
-      //         createdAt: myDate,
-      //         updatedAt: myDate,
-      //       },
-      //       {
-      //         transaction: this.t,
-      //       }
-      //     );
-
-      //   } catch (error) {
-      //     throw new Error(`Failed to insert ticket detail: ${err.message}`);
-      //   }
-      // }
-      // insert to table Ticket_payment_history if dibayar > 0
-      // if (customer.dibayar > 0) {
-      //   const ticketPaymentHistory = await Ticket_payment_history.create(
-      //     {
-      //       ticket_transaction_id: tiketTransactions.id,
-      //       invoice: body.invoice,
-      //       nominal: customer.dibayar,
-      //       status: "cash",
-      //       petugas: type,
-      //     },
-      //     { transaction: this.t }
-      //   );
-      // }
-
-
-
       // Commit the transaction
-      await this.t.commit();
-      // return {
-      //   status: 200,
-      //   message: "Transaksi Tiket Berhasil Dilakukan",
-      //   data: tiketTransactions,
-      // };
+      // await this.t.commit();
     } catch (error) {
+      this.state = false;
       console.log("xxxx");
       console.log(error);
       console.log("xxxx");
-      await this.t.rollback();
-      return { status: 500, message: error.message };
+      // await this.t.rollback();
+      // return { status: 500, message: error.message };
     }
   }
 
@@ -447,12 +295,190 @@ class Model_cud {
       this.message = "Pembayaran Tiker Berhasil ";
       return invoice;
     } catch (error) {
-
-      console.log("_____________");
-      console.log(error);
-      console.log("_____________");
       this.state = false;
       return '';
+    }
+  }
+
+  async update() {
+    await this.initialize();
+    const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
+    try {
+      // update ticket transaction
+      await Ticket_transaction.update(
+        {
+          airlines_id: this.req.body.maskapai_id,
+          pax: this.req.body.pax,
+          code_booking: this.req.body.kode_booking,
+          travel_price: this.req.body.harga_travel,
+          costumer_price: this.req.body.harga_kostumer,
+          departure_date: moment(this.req.body.tanggal_keberangkatan).format("YYYY-MM-DD HH:mm:ss"), 
+          updatedAt: myDate
+        }, 
+        {
+          where: { id: this.req.body.id },
+        },
+        {
+          transaction: this.t,
+        }
+      );
+      // destroy Jurnal
+      await Jurnal.destroy(
+        {
+          where: { source: "ticketTransactionId:" + this.req.body.id },
+          include: {
+            required : true, 
+            model : Division, 
+            where: { company_id: this.company_id }
+          }
+        }, 
+        {
+          transaction: this.t,
+        }
+      );
+      // get informasi transaksi tiket
+      const q = await Ticket_transaction.findOne({
+        where: { id: this.req.body.id }, 
+        include: [
+          { 
+            model: Division, 
+            required: true, 
+            where: { company_id: this.company_id } 
+          },
+          { 
+            model: Mst_airline,
+            required: true,
+          },
+        ]
+      });
+      // get informasi sudah bayar
+      var sudah_bayar = 0;
+      await Ticket_payment_history.findAll({
+        attributes: ["id", "nominal", "status"],
+        where: { ticket_transaction_id: this.req.body.id },
+        include: {
+            model: Ticket_transaction, 
+            required: true,
+            where: { division_id: q.division_id }
+        }
+      }).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+            if( e.status == 'cash') {
+              sudah_bayar = sudah_bayar + parseInt(e.nominal);
+            }
+          })
+        );
+      });
+      // get total
+      var total = q.pax * q.costumer_price;
+      // insert HPP Jurnal
+      await Jurnal.create(
+        {
+          division_id: q.division_id, 
+          source: 'ticketTransactionId:' + q.id,
+          ref: 'HPP Penjualan Tiket ' + q.Mst_airline.name,
+          ket: 'HPP Penjualan Tiket ' + q.Mst_airline.name,
+          akun_debet: q.Mst_airline.nomor_akun_hpp,
+          akun_kredit: q.Mst_airline.nomor_akun_deposit,
+          saldo: q.pax * q.travel_price,
+          removable: 'false',
+          periode_id: 0,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
+
+
+      // filter
+      if( sudah_bayar < total ) {
+        // insert Kas Atau Pembayaran Utang Tabungan 
+        await Jurnal.create(
+          {
+            division_id: q.division_id, 
+            source: 'ticketTransactionId:' + q.id,
+            ref: 'Kas / Pembayaran utang untuk Penjualan Tiket ' + q.Mst_airline.name,
+            ket: 'Kas / Pembayaran utang untuk Penjualan Tiket ' + q.Mst_airline.name,
+            akun_debet: q.paket_id ? '23000' : '11010',
+            akun_kredit: null,
+            saldo: sudah_bayar,
+            removable: 'false',
+            periode_id: 0,
+            createdAt: myDate,
+            updatedAt: myDate,
+          },
+          {
+            transaction: this.t,
+          }
+        );
+        // Insert Piutang 
+        await Jurnal.create(
+          {
+            division_id: q.division_id, 
+            source: 'ticketTransactionId:' + q.id,
+            ref: 'Piutang untuk Penjualan Tiket ' + q.Mst_airline.name,
+            ket: 'Piutang untuk Penjualan Tiket ' + q.Mst_airline.name,
+            akun_debet: '13000',
+            akun_kredit: null,
+            saldo: total - sudah_bayar,
+            removable: 'false',
+            periode_id: 0,
+            createdAt: myDate,
+            updatedAt: myDate,
+          },
+          {
+            transaction: this.t,
+          }
+        );
+        // Insert Pendapatan Maskapai 
+        await Jurnal.create(
+          {
+            division_id: q.division_id, 
+            source: 'ticketTransactionId:' + q.id,
+            ref: 'Pendapatan untuk Penjualan Tiket ' + q.Mst_airline.name,
+            ket: 'Pendapatan untuk Penjualan Tiket ' + q.Mst_airline.name,
+            akun_debet: null,
+            akun_kredit: q.Mst_airline.nomor_akun_pendapatan,
+            saldo: total,
+            removable: 'false',
+            periode_id: 0,
+            createdAt: myDate,
+            updatedAt: myDate,
+          },
+          {
+            transaction: this.t,
+          }
+        );
+      }else{
+        // Insert Pendapatan Jurnal
+        await Jurnal.create(
+          {
+            division_id: q.division_id, 
+            source: 'ticketTransactionId:' + q.id,
+            ref: 'Pendapatan Penjualan Tiket ' + q.Mst_airline.name,
+            ket: 'Pendapatan Penjualan Tiket ' + q.Mst_airline.name,
+            akun_debet: q.paket_id ? '23000' : '11010',
+            akun_kredit: q.Mst_airline.nomor_akun_pendapatan,
+            saldo: sudah_bayar,
+            removable: 'false',
+            periode_id: 0,
+            createdAt: myDate,
+            updatedAt: myDate,
+          },
+          {
+            transaction: this.t,
+          }
+        );
+      }
+    } catch (error) {
+      console.log("-------");
+      console.log(error);
+      console.log("-------");
+      this.state = false;
     }
   }
 

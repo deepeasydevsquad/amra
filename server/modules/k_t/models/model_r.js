@@ -2,7 +2,7 @@ const moment = require("moment");
 const { Paket, Division, Paket_transaction, Paket_price, Mst_paket_type, 
   Visa_transaction, Visa_transaction_detail, Hotel_transaction, Hotel_transaction_detail, 
   Transport_transaction, Transport_transaction_detail, Passport_transaction, Passport_transaction_detail,
-  Ticket_transaction_detail, Ticket_transaction, Item_fasilitas, Transaction_fasilitas, Transaction_fasilitas_detail, Fee_agen
+  Ticket_payment_history, Ticket_transaction, Item_fasilitas, Transaction_fasilitas, Transaction_fasilitas_detail, Fee_agen
 } = require("../../../models");
 const{ getCompanyIdByCode, tipe, getCabang } = require("../../../helper/companyHelper");
 const{ convertToRP } = require("../../../helper/currencyHelper");
@@ -188,25 +188,41 @@ class Model_r {
       // mengambil informasi total transaksi Tiket
       var unit_tiket = 0;
       var total_rupiah_tiket = 0;
-      const q8 = await Ticket_transaction_detail.findAndCountAll({ 
+      var total_harga_tiket =  0;
+      const q8 = await Ticket_transaction.findAndCountAll({ 
+        where: { paket_id: body.paket_id, status: 'active' },
         include: {
           required : true, 
-          model: Ticket_transaction, 
-          where: { paket_id: body.paket_id },
-          include:{
-            required : true, 
-            model: Division, 
-            where: { company_id: this.company_id }
-          }
+          model: Division, 
+          where: { company_id: this.company_id  }
         }
       });
       await Promise.all(
         await q8.rows.map(async (e) => {
-          unit_tiket = unit_tiket + 1;
-          total_rupiah_tiket = total_rupiah_tiket + e.costumer_price;
-        })
+          unit_tiket = unit_tiket + e.pax;
+          total_harga_tiket = total_harga_tiket + (e.pax * e.costumer_price );
+        }) 
       );
 
+      const q8_detail = await Ticket_payment_history.findAndCountAll({ 
+        include: {
+          required : true, 
+          model: Ticket_transaction,
+          where: { paket_id: body.paket_id, status: 'active' },
+          include: {
+            required : true, 
+            model: Division, 
+            where: { company_id: this.company_id  }
+          }
+        }
+      });
+      await Promise.all(
+        await q8_detail.rows.map(async (e) => {
+          total_rupiah_tiket = total_rupiah_tiket + parseInt(e.nominal);
+        }) 
+      );
+      const total_rupiah_sisa_tiket = total_harga_tiket - total_rupiah_tiket
+      
       var unit_fasilitas= 0;
       var total_rupiah_fasilitas = 0;
       const q9 = await Transaction_fasilitas_detail.findAndCountAll({ 
@@ -230,7 +246,6 @@ class Model_r {
         })
       );
 
-
       var total_aktualisasi = total_rupiah_fasilitas + total_rupiah_tiket + total_rupiah_visa + total_rupiah_hotel + total_rupiah_transport + total_rupiah_passport + TotalFeeAgen ;
 
       data['total_anggaran'] = total_anggaran;
@@ -240,6 +255,7 @@ class Model_r {
       data['tiket'] = {
         unit: unit_tiket,
         total: total_rupiah_tiket,
+        sisa: total_rupiah_sisa_tiket
       };
 
       data['fee_agen'] = {
@@ -273,6 +289,9 @@ class Model_r {
 
       return { data: data  };
     } catch (error) {
+      console.log('------DD');
+      console.log(error);
+      console.log('------DD');
       return {};
     }
   }

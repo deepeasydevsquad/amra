@@ -118,7 +118,7 @@ router.post(
   authenticateToken,
   [
     body("id").trim().notEmpty().withMessage("ID Transkasi Tiket tidak boleh kosong.").isNumeric().withMessage("ID Transaksi Tiket harus berupa angka.").custom(validation.check_id),
-    body("dibayar").notEmpty().withMessage("Jumlah yang akan dibayarkan tidak boleh 0").isNumeric().withMessage("ID Transaksi Tiket harus berupa angka.").custom(validation.check_jumlah_dibayar),
+    body("dibayar").notEmpty().withMessage("Jumlah yang akan dibayarkan tidak boleh 0").isNumeric().withMessage("Jumlah dibayar harus berupa angka.").custom(validation.check_jumlah_dibayar),
   ],
   controllers.add_pembayaran_ticket
 );
@@ -149,26 +149,35 @@ router.post(
   "/trans_tiket/refund",
   authenticateToken,
   [
-    body("nomor_register")
-      .notEmpty()
-      .withMessage("Ticket Registrasi wajib diisi"),
-    body("detail")
-      .isArray({ min: 1 })
-      .withMessage("Detail refund harus berupa array dan minimal 1 data"),
-
-    body("detail.*.refund")
-      .notEmpty()
-      .withMessage("Nilai refund wajib diisi")
-      .isNumeric()
-      .withMessage("Nilai refund harus berupa angka"),
-
-    body("detail.*.fee")
-      .notEmpty()
-      .withMessage("Nilai fee wajib diisi")
-      .isNumeric()
-      .withMessage("Nilai fee harus berupa angka"),
+    body("id").trim().notEmpty().withMessage("ID Transkasi Tiket tidak boleh kosong.").isNumeric().withMessage("ID Transaksi Tiket harus berupa angka.").custom(validation.check_id),
+    body("refund").notEmpty().withMessage("Jumlah refund yang akan dibayarkan tidak boleh 0").isNumeric().withMessage("Jumlah refund harus berupa angka.").custom(validation.check_jumlah_refund),
+    body("fee").trim(),
   ],
   controller_r.refund_tiket
+);
+
+router.post(
+  "/trans_tiket/airlines_by_id",
+  authenticateToken,
+  [
+    body("id").trim().notEmpty().withMessage("ID Transkasi Tiket tidak boleh kosong.").isNumeric().withMessage("ID Transaksi Tiket harus berupa angka.").custom(validation.check_id),
+  ],
+  controllers.get_airlines_by_id
+);
+
+router.post(
+  "/trans_tiket/update",
+  authenticateToken,
+  [
+    body("id").trim().notEmpty().withMessage("ID Transkasi Tiket tidak boleh kosong.").isNumeric().withMessage("ID Transaksi Tiket harus berupa angka.").custom(validation.check_id),
+    body("tanggal_keberangkatan").trim().notEmpty().withMessage("Tanggal keberangkatan tidak boleh kosong."),
+    body("kode_booking").trim().notEmpty().withMessage("Kode booking tidak boleh kosong."),
+    body("maskapai").trim().notEmpty().withMessage("ID Maskapai tidak boleh kosong.").isNumeric().withMessage("ID Maskapai harus berupa angka.").custom(validation.check_maskapai_id).custom(validation.check_jumlah_saldo_maskapai),
+    body("harga_travel").trim().notEmpty().withMessage("Harga travel tidak boleh kosong.").isNumeric().withMessage("Harga travel harus berupa angka."),
+    body("harga_kostumer").trim().notEmpty().withMessage("Harga kostumer tidak boleh kosong.").isNumeric().withMessage("Harga kostumer harus berupa angka."),
+    body("pax").trim().notEmpty().withMessage("Pax tidak boleh kosong.").isNumeric().withMessage("Pax harus berupa angka."),
+  ],
+  controllers.update
 );
 
 router.post(

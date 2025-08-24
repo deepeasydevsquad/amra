@@ -18,17 +18,17 @@ exports.refund_tiket = async (req, res) => {
   try {
     const model = new Model_cud(req);
     await model.refund_tiket();
-
+    // filter
     if (await model.response()) {
       res.status(200).json({
-        message: model.message || "Transaksi berhasil dibuat",
+        message: "Refund berhasil dilakukan",
         invoice: model.invoice,
-        status: "success",
+        error: false
       });
     } else {
       res.status(400).json({
-        message: model.message || "Gagal membuat Transaksi",
-        status: "failed",
+        message: "Refund gagal dilakukan",
+        error: true
       });
     }
   } catch (error) {
