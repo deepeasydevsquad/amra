@@ -106,7 +106,7 @@
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <Pagination :current-page="currentPage" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow"/>
+          <Pagination :current-page="currentPage" :totalRow="totalRow" :total-pages="totalPages" :pages="pages" :total-columns="totalColumns" @prev-page="prevPage" @next-page="nextPage" @page-now="pageNow"/>
         </tfoot>
       </table>
     </div>
@@ -148,6 +148,7 @@ const data = ref<TicketTransaction[]>([])
 const currentPage = ref(1)
 const totalPages = ref(0)
 const totalColumns = ref(4)
+const totalRow = ref(0);
 const searchQuery = ref('')
 const itemsPerPage = 2
 const search = ref('')
@@ -244,6 +245,7 @@ const fetchData = async () => {
       pageNumber: currentPage.value || 1,
     })
     data.value = response.data
+    totalRow.value = response.total
     console.log('data transaction -->')
     console.log(JSON.stringify(data.value))
     totalPages.value = Math.ceil(response.total / itemsPerPage)

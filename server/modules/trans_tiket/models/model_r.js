@@ -61,13 +61,6 @@ class Model_r {
       console.error("Error di Model_r saat mengambil getAllVisaTypes:", error);
       throw error;
     }
-
-
-    // try {
-    //   return {}
-    // } catch (error) {
-    //   return {}
-    // }
   }
 
   async ambil_nama_paket_bulk(ids) {

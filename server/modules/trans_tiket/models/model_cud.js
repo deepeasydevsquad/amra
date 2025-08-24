@@ -4,8 +4,6 @@ const { writeLog } = require("../../../helper/writeLogHelper");
 const { generateNomorRegisterTicket, generateNomorInvoicePembayaranTicket } = require("../../../helper/randomHelper");
 const moment = require("moment");
 
-//const Model_r = require("../models/model_r");
-
 class Model_cud {
   constructor(req) {
     this.req = req;
@@ -20,7 +18,6 @@ class Model_cud {
     this.state = true;
   }
 
-  // === GENERATE UNIQUE NOMOR INVOICE
   async generateNomorInvoice() {
     try {
       const nomorInvoice =
@@ -38,7 +35,7 @@ class Model_cud {
       };
     }
   }
-  // === GENERATE UNIQUE NOMOR REGISTER
+
   async generateNomorRegister() {
     try {
       const nomorRegister =
@@ -48,24 +45,21 @@ class Model_cud {
         message: "Nomor Register Berhasil Digenerate",
         data: { nomor_register: nomorRegister },
       };
-      // res.status(200).json({ nomor_register: nomorRegister });
     } catch (error) {
       return {
         status: 200,
         message: "Nomor Register Gagal digenerate",
         data: {},
       };
-      //res.status(500).json({ message: 'Failed to generate nomor_register', error: error.message });
     }
   }
-  // === CREATE ===
+
   async add() {
     await this.initialize();
     const body = this.req.body;
     const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
- 
+   
     try {
-      // const dibayar = body.dibayar;
       // generate nomor_register 
       const nomor_register = await generateNomorRegisterTicket(body.cabang);
       // get info maskapai
@@ -205,16 +199,8 @@ class Model_cud {
           );
         }
       }
-
-      // Commit the transaction
-      // await this.t.commit();
     } catch (error) {
       this.state = false;
-      console.log("xxxx");
-      console.log(error);
-      console.log("xxxx");
-      // await this.t.rollback();
-      // return { status: 500, message: error.message };
     }
   }
 
@@ -234,7 +220,6 @@ class Model_cud {
   async add_pembayaran_tikects() {
     await this.initialize();
     const body = this.req.body;
-    const type = await tipe(this.req);
     const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
 
     try {
@@ -392,8 +377,6 @@ class Model_cud {
         }
       );
 
-
-
       // filter
       if( sudah_bayar < total ) {
         // insert Kas Atau Pembayaran Utang Tabungan 
@@ -475,9 +458,6 @@ class Model_cud {
         );
       }
     } catch (error) {
-      console.log("-------");
-      console.log(error);
-      console.log("-------");
       this.state = false;
     }
   }
