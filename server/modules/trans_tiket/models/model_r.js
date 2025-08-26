@@ -303,17 +303,28 @@ class Model_r {
     await this.initialize();
     const body = this.req.body;
 
-    const division_id = this.division_id;
-    console.log("division_id:", division_id);
-
     try {
       const sql = await Ticket_transaction.findOne({
         where: {
-          nomor_register: body.nomor_register,
-          // division_id: division_id, // Uncomment kalo emang perlu filter divisi
+          id: body.id,
         },
-        attributes: ["nomor_register"],
+        attributes: ["nomor_registrasi", "status", 'pax', 'code_booking', 'travel_price', 'costumer_price', 'departure_date'],
         include: [
+          {
+            model: Kostumer,
+            attributes: ["name"],
+            required: false,
+          },
+          {
+            model: Mst_airline,
+            attributes: ["name"],
+            required: true,
+          },
+          {
+            model: Paket,
+            attributes: ["name"],
+            required: true,
+          },
           {
             model: Ticket_payment_history,
             attributes: [
@@ -322,14 +333,6 @@ class Model_r {
               "petugas",
               "status",
               "createdAt",
-              "kostumer_id", // pastiin field ini ada di payment_history
-            ],
-            include: [
-              {
-                model: Kostumer,
-                attributes: ["name"],
-                required: false, // biar gak error kalo gak ada relasi
-              },
             ],
           },
         ],
@@ -338,10 +341,22 @@ class Model_r {
       if (!sql) return null;
 
       const data = {
-        nomor_register: sql.nomor_register,
+        detail_info_transaksi: {
+          status: sql.status,
+          nomor_registrasi: sql.nomor_registrasi, 
+          pax: sql.pax, 
+          code_booking: sql.code_booking, 
+          travel_price: sql.travel_price, 
+          costumer_price: sql.costumer_price,
+          departure_date:  moment(sql.departure_date).format(
+            "D MMMM YYYY, HH:mm"
+          ) , 
+          paket: sql.Paket.name, 
+          maskapai: sql.Mst_airline.name, 
+          kostumer: sql.Kostumer ? sql.Kostumer.name : '-'
+        },
         riwayat_pembayaran: sql.Ticket_payment_histories.map((item) => ({
           invoice: item.invoice,
-          customer_name: item.Kostumer?.name || "-", // amanin null relasi
           petugas: item.petugas,
           nominal: item.nominal,
           status: item.status,
@@ -351,7 +366,7 @@ class Model_r {
         })),
       };
 
-      return data;
+      return { data };
     } catch (error) {
       console.error("❌ Error get_detail_tiket:", error);
       throw error;

@@ -457,6 +457,65 @@ class Model_cud {
           }
         );
       }
+
+      this.message = `Melakukan update data ticket dengan id ${this.req.body.id}`;
+    } catch (error) {
+      this.state = false;
+    }
+  }
+
+  // delete
+  async delete() {
+    await this.initialize();
+
+    try {
+      // destroy Ticket Payment History
+      await Ticket_payment_history.destroy(
+        {
+          where: { ticket_transaction_id: this.req.body.id },
+          include: {
+            required : true, 
+            model: Ticket_transaction,
+            include: {
+              required : true, 
+              model : Division, 
+              where: { company_id: this.company_id }
+            }
+          }
+        }, { transaction: this.t, }
+      );
+      
+      // destroy Ticket Transaction
+      await Ticket_transaction.destroy(
+        {
+          where: { id: this.req.body.id },
+          include: {
+            required : true, 
+            model : Division, 
+            where: { company_id: this.company_id }
+          }
+        }, 
+        {
+          transaction: this.t,
+        }
+      );
+      
+      // destroy Jurnal
+      await Jurnal.destroy(
+        {
+          where: { source: "ticketTransactionId:" + this.req.body.id },
+          include: {
+            required : true, 
+            model : Division, 
+            where: { company_id: this.company_id }
+          }
+        }, 
+        {
+          transaction: this.t,
+        }
+      );
+
+      this.message = `Menghapus data ticket dengan id ${this.req.body.id}`;
     } catch (error) {
       this.state = false;
     }

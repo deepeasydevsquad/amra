@@ -21,14 +21,14 @@
           </tr>
         </thead>
         <tbody v-if="data.length" class="divide-y divide-gray-100 border-t border-gray-100">
-          <tr v-for="transaction in data" :key="transaction?.id" :class="transaction.status != 'active' ? ' pointer-events-none opacity-50 ' : '' ">
-            <td class="px-4 py-2 align-top text-sm text-gray-800 whitespace-nowrap">
+          <tr v-for="transaction in data" :key="transaction?.id" >
+            <td class="px-4 py-2 align-top text-sm text-gray-800 whitespace-nowrap" :class="transaction.status != 'active' ? ' pointer-events-none opacity-50 ' : '' ">
               <div class="font-bold text-sm">{{ transaction.nomor_registrasi }}</div>
               <div class="text-xs text-gray-500">
                 {{ new Date(transaction.updatedAt).toLocaleString() }}
               </div>
             </td>
-            <td class="px-4 py-2 text-sm text-gray-700 align-top w-[480px]">
+            <td class="px-4 py-2 text-sm text-gray-700 align-top w-[480px]" :class="transaction.status != 'active' ? ' pointer-events-none opacity-50 ' : '' ">
               <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-xs leading-snug">
                   <div class="text-red-500">KODE BOOKING: <b>{{ transaction.code_booking }}</b></div>
                   <div>PAX: {{ transaction.pax }}</div>
@@ -42,7 +42,7 @@
                 <span class="text-red-500" >: Rp {{ (transaction.costumer_price  * transaction.pax).toLocaleString() }}</span>
               </div>
             </td>
-            <td class="px-4 py-2 text-xs text-gray-700 align-top">
+            <td class="px-4 py-2 text-xs text-gray-700 align-top" :class="transaction.status != 'active' ? ' pointer-events-none opacity-50 ' : '' ">
               <div class="space-y-1" v-if="transaction.status == 'active'">
                 <template v-if="transaction.paket_name">
                   <strong>NAMA PAKET</strong> : {{ transaction.paket_name || 'N/A' }}
@@ -88,10 +88,10 @@
                 <LightButton @click="openModalEdit(transaction.id)" class="p-2" title="Edit Transaksi Tiket" v-if="transaction.status == 'active'">
                   <i class="pi pi-pencil"></i>
                 </LightButton>
-                <LightButton class="p-2" @click="openModalDetail(transaction.nomor_registrasi)" v-if="transaction.status == 'active'" title="Detail Riwayat Pembayaran Tiket">
+                <LightButton class="p-2" @click="openModalDetail(transaction.id)" title="Detail Riwayat Pembayaran Tiket">
                   <i class="pi pi-list"></i>
                 </LightButton>
-                <DangerButton class="p-2" title="Delete Tiket" v-if="transaction.status == 'active'">
+                <DangerButton class="p-2" title="Delete Tiket" v-if="transaction.status == 'active'" @click="deleteData(transaction.id)">
                   <i class="pi pi-times"></i>
                 </DangerButton>
               </div>
@@ -117,13 +117,20 @@
   <FormPembayaranTiket :formStatus="showModalPembayaran" :id="idPembayaranTicket" @cancel="showModalPembayaran = false" @submitted=" () => { showModalPembayaran = false; fetchData(); } "/>
   <!-- Form untuk transaksi refund -->
   <FormRefun :formStatus="showModalRefund" :id="idRefundTicket" @cancel="showModalRefund = false" @close="showModalRefund = false" @submitted="() => { showModalRefund = false; fetchData(); }"/>
-
-
-  <DetailTiket :formStatus="ShowModalDetail" :nomor_register="nomor_register" @cancel="closeModalDetail"/>
-  <!-- showModalEdit.value = true
-  idEditTicket.value = id -->
+  <!-- Show detail Tiket -->
+  <DetailTiket :formStatus="ShowModalDetail" :id="idDetail" @cancel="closeModalDetail"/>
+  <!-- Show Edit Form -->
   <FormEdit :formStatus="showModalEdit" :id="idEditTicket" @cancel="showModalEdit = false" @close="showModalEdit = false" @submitted="() => {showModalEdit = false; fetchData();}"/>
+  <!-- Show Notification -->
   <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" />
+  <!-- Show Confirmation Dialog -->
+  <Confirmation  :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
+    <button @click="confirmAction && confirmAction()"  class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+    > Ya </button>
+    <button @click="showConfirmDialog = false"
+      class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+    > Tidak </button>
+  </Confirmation>
 </template>
 
 <script setup lang="ts">
@@ -132,16 +139,14 @@ import LightButton from '@/components/Button/LightButton.vue'
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 import Notification from '@/components/Modal/Notification.vue'
-import { reactive, computed, ref, onMounted, watchEffect } from 'vue'
-import { get_transactions, getAirlines } from '@/service/trans_tiket'
+import Confirmation from "@/components/Modal/Confirmation.vue"
+import { computed, ref, onMounted} from 'vue'
+import { get_transactions, deleteUrl } from '@/service/trans_tiket'
 import FormTicketTransaction from './Particle/FormTicketTransaction.vue'
 import FormPembayaranTiket from './Particle/FormPembayaranTiket.vue'
 import FormEdit from './Particle/FormEdit.vue'
 import FormRefun from './Particle/FormRefun.vue'
 import DetailTiket from './Particle/DetailTiket.vue'
-import { Maskapai } from './Particle/FormTicketTransaction.vue'
-import { TicketTransactionForm } from './Particle/FormTicketTransaction.vue'
-import { register } from 'module'
 
 const data = ref<TicketTransaction[]>([])
 // const maskapaiList = ref<Maskapai[]>([])
@@ -156,19 +161,20 @@ const filter = ref('')
 const idPembayaranTicket = ref(0);
 const idRefundTicket = ref(0);
 const idEditTicket = ref(0);
+const idDetail = ref(0);
 
+
+// Notifikasi Setting
 const showNotification = ref(false)
 const notificationMessage = ref('')
 const notificationType = ref('')
 const timeoutId = ref<number | null>(null)
-
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message
   notificationType.value = type
   showNotification.value = true
   resetNotificationTimeout()
 }
-
 const resetNotificationTimeout = () => {
   if (timeoutId.value) clearTimeout(timeoutId.value)
   timeoutId.value = window.setTimeout(() => {
@@ -176,19 +182,17 @@ const resetNotificationTimeout = () => {
   }, 3000)
 }
 
-// const RefundSuccess = () => {
-//   showModalRefund.value = false
-//   displayNotification('Refund berhasil', 'success')
-// }
-
-const handleReschedule = () => {
-  showModalReschedule.value = false
-  displayNotification('Reschedule berhasil', 'success')
-}
-
-// const handleSuccess = () => {
-//   showModalPembayaran.value = false
-// }
+// Konfirmasi Setting
+const showConfirmDialog = ref<boolean>(false);
+const confirmMessage = ref<string>('');
+const confirmTitle = ref<string>('');
+const confirmAction = ref<(() => void) | null>(null);
+const showConfirmation = (title: string, message: string, action: () => void) => {
+  confirmTitle.value = title;
+  confirmMessage.value = message;
+  confirmAction.value = action;
+  showConfirmDialog.value = true;
+};
 
 const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1)
@@ -212,18 +216,6 @@ interface TicketTransaction {
   updatedAt: string
   payment_histories: PaymentHistory[]
 }
-
-// interface TicketDetail {
-//   id: number
-//
-
-//   ticket_transaction_id: number
-//   airlines_id: number | null
-
-//   costumer_price: number
-//   createdAt: string
-//   updatedAt: string
-// }
 
 interface PaymentHistory {
   id: number
@@ -273,27 +265,27 @@ const pageNow = (page: number) => {
   fetchData()
 }
 
-onMounted(() => {
-  fetchData()
-})
+const deleteData = async (id: number) => {
+  showConfirmation('Konfirmasi Hapus','Apakah Anda yakin ingin menghapus data ini?',
+    async () => {
+      try {
+        const response = await deleteUrl({ id : id });
+        showConfirmDialog.value = false;
+        displayNotification(response.message);
+        fetchData();
+      } catch (error) {
+        console.error('Error deleting data:', error);
+        displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
+      }
+    }
+  );
+};
 
 const calculateTotalPayment = (transaction: TicketTransaction): number => {
   return transaction.payment_histories.reduce((sum, p) => sum + parseInt(p.nominal || '0'), 0)
 }
 
 const showTicketTransactionDialog = ref(false)
-
-const ticketTransactionData = ref<TicketTransactionForm>({
-  id: 0,
-  tickets: [],
-  customer: {
-    costumer_name: '',
-    costumer_identity: '',
-    dibayar: 0,
-  },
-  nomor_register: '',
-  invoice: '',
-})
 
 const startTicketTransaction = () => {
   showTicketTransactionDialog.value = true
@@ -319,7 +311,6 @@ const showModalRefund = ref(false)
 const openModalRefund = (id: number) => {
   showModalRefund.value = true
   idRefundTicket.value = id;
-  // nomor_register.value = register_number
 }
 
 const ShowModalDetail = ref(false)
@@ -330,39 +321,35 @@ const closeModalDetail = () => {
   nomor_register.value = ''
 }
 
-const openModalDetail = (register_number: string) => {
-  nomor_register.value = register_number
-  console.log('SET NOMOR REGISTER:', register_number)
+const openModalDetail = (id: number) => {
+  idDetail.value = id;
   ShowModalDetail.value = true
 }
 
 const showModalPembayaran = ref(false)
-
-const pembayaranData = ref({
-  ticket_transaction_id: 0,
-  nominal: 0,
-  costumer_name: '',
-  costumer_id: 0,
-  paket_name: '',
-})
 
 const openPembayaranForm = (id: number) => {
   idPembayaranTicket.value = id;
   showModalPembayaran.value = true
 }
 
-  const formatRupiah = (angka :any, prefix = "Rp ") => {
-    let numberString = angka.toString().replace(/\D/g, ""),
-      split = numberString.split(","),
-      sisa = split[0].length % 3,
-      rupiah = split[0].substr(0, sisa),
-      ribuan = split[0].substr(sisa).match(/\d{3}/g);
+const formatRupiah = (angka :any, prefix = "Rp ") => {
+  let numberString = angka.toString().replace(/\D/g, ""),
+    split = numberString.split(","),
+    sisa = split[0].length % 3,
+    rupiah = split[0].substr(0, sisa),
+    ribuan = split[0].substr(sisa).match(/\d{3}/g);
 
-    if (ribuan) {
-      let separator = sisa ? "." : "";
-      rupiah += separator + ribuan.join(".");
-    }
+  if (ribuan) {
+    let separator = sisa ? "." : "";
+    rupiah += separator + ribuan.join(".");
+  }
 
-    return prefix + (rupiah || "0");
-  };
+  return prefix + (rupiah || "0");
+};
+
+onMounted(() => {
+  fetchData()
+})
+
 </script>

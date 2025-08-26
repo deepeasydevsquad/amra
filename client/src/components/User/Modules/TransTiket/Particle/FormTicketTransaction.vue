@@ -178,11 +178,6 @@ const validateForm = (): boolean => {
     isValid = false
   }
 
-
-    console.log('Harga Travel============');
-    console.log(form.value.harga_travel);
-    console.log(form.value.harga_kostumer);
-    console.log('Harga Kostumer============');
   if (( form.value.harga_travel === 0 )  || ( form.value.harga_travel < 0 )) {
     errors.value.harga_travel = 'Harga travel harus lebih besar dari 0'
     isValid = false
@@ -197,7 +192,6 @@ const validateForm = (): boolean => {
     errors.value.dibayar = 'Dibayar tidak boleh lebih kecil dari 0'
     isValid = false
   }
-
 
   return isValid
 }
@@ -228,9 +222,6 @@ const handleSubmit = async (): Promise<void> => {
     reset();
 
   } catch (error) {
-    console.log("----error.response.data");
-    console.log(error.response.data);
-    console.log("----error.response.data");
     displayNotification(error.response.data.message, 'error');
   }
 }
@@ -279,7 +270,6 @@ interface cabang {
 }
 
 const list_cabang = ref<cabang[]>([{ id: 0, name: ' -- Pilih Cabang -- ' }])
-// const SelectedCabang = ref(0)
 const fetchCabang = async () => {
   try {
     const response = await paramCabang()
@@ -293,8 +283,8 @@ interface paket {
   id: number
   name: string
 }
+
 const list_paket = ref<paket[]>([{ id: 0, name: ' -- Pilih Paket -- ' }]) // Tambahkan opsi default
-// const SelectedPaket = ref(0)
 const fetchPaket = async () => {
   try {
     const response = await daftar_paket({
@@ -316,30 +306,6 @@ const fetchPaketMaskapai = async () => {
   }
 }
 
-// const fetchGeneratedNomorRegister = async () => {
-//   try {
-//     const res = await generate_nomor_register()
-//     form.value.nomor_register = res.data.nomor_register;
-
-//     console.log("ccccccccccccccccccc");
-//     console.log(res.data.nomor_register);
-//     console.log(form.value.nomor_register);
-//     console.log("ccccccccccccccccccc");
-//     // form.value.nomor_register
-//   } catch (error) {
-//     console.error(error)
-//   }
-// }
-
-// const fetchGeneratedInvoice = async () => {
-//   try {
-//     const res = await generate_nomor_invoice()
-//     form.value.invoice = res.data.invoice;
-//   } catch (error) {
-//     console.error(error)
-//   }
-// }
-
 const showNotification = ref(false)
 const notificationMessage = ref('')
 const notificationType = ref<'success' | 'error'>('success')
@@ -360,21 +326,8 @@ watch(
     if (val) {
       await fetchCustomer()
       await fetchCabang()
-      // await fetchGeneratedNomorRegister()
-      // await fetchGeneratedInvoice()
-      // initializeForm(props.formData)
     }
   },
 )
 
-// watch(SelectedCabang, async (newCabang) => {
-//   if (newCabang) {
-//     await fetchPaket()
-//   }
-// })
-
-// onMounted(async () => {
-//   await fetchCustomer()
-//   await fetchCabang()
-// })
 </script>

@@ -137,9 +137,25 @@ controllers.get_airlines_by_id = async ( req, res ) => {
 }
 
 controllers.detail_ticket = async (req, res) => {
+  // filter error
+  if (!(await handleValidationErrors(req, res))) return;
+
   try {
-    const data = await new Model_r(req).get_detail_tiket();
-    res.status(200).json(data);
+    const model_r = new Model_r(req)
+    const data = await model_r.get_detail_tiket();
+    // get feedBack response
+    if ( Object.keys(data).length > 0 ) {
+      res.status(200).json({
+        message: "Data detail ticket berhasil ditemukan.",
+        data: data,
+        error: false
+      });
+    } else {
+      res.status(400).json({
+        message: "Data detail ticket gagal ditemukan",
+        error: true
+      });
+    }
   } catch (error) {
     handleServerError(res, error.message);
   }
@@ -186,6 +202,24 @@ controllers.update = async (req, res) => {
     console.log("+++++++++++++++");
     console.log(error);
     console.log("+++++++++++++++");
+    handleServerError(res, error);
+  }
+}
+
+controllers.delete = async (req, res) => {
+  // filter error
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_cud(req);
+    await model.delete();
+    // get feedBack response
+    if (await model.response()) {
+      res.status(200).json({ message: "Proses delete berhasil dilakukan", error: false });
+    } else {
+      res.status(400).json({ message: "Proses delete gagal dilakukan", error: true });
+    }
+  } catch (error) {
     handleServerError(res, error);
   }
 }

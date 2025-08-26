@@ -38,55 +38,18 @@ router.post(
   controllers.getInfoPembayaranTiket
 );
 
-
-//trans_tiket/get_info_pembayaran_ticket
-
-  // body("customer").notEmpty().withMessage("Customer tidak boleh kosong.")
-  //   .custom((value) => {
-  //     let parsed;
-  //     try {
-  //       parsed = typeof value === "string" ? JSON.parse(value) : value;
-  //     } catch (err) {
-  //       throw new Error("Format customer tidak valid (harus JSON).");
-  //     }
-
-  //     if (parsed.dibayar == null || isNaN(parsed.dibayar)) {
-  //       throw new Error("Field 'dibayar' pada customer tidak valid.");
-  //     }
-  //     if (!parsed.kostumer_id && !parsed.paket_id) {
-  //       throw new Error("Field 'kostumer_id' atau 'paket' pada harus diisi salah satu.");
-  //     }
-
-  //     return true;
-  //   }),
-  // body("nomor_register")
-  //   .notEmpty()
-  //   .withMessage("Nomor register harus diisi."),
-  // body("invoice").optional(),
-  // body("cabang").notEmpty().withMessage("Cabang wajib diisi").custom(validationCabang.check_cabang_id),
-
-  //  const payload = {
-  //     cabang: form.value.cabang,
-  //     kostumer: form.value.kostumer,
-  //     maskapai: form.value.maskapai,
-  //     pax: form.value.pax,
-  //     kode_booking: form.value.kode_booking,
-  //     tanggal_keberangkatan: form.value.tanggal_keberangkatan,
-  //     harga_travel: form.value.harga_travel,
-  //     harga_kostumer: form.value.harga_kostumer,
-  //     dibayar: form.value.dibayar
-  //   }
-
 router.get(
   "/trans_tiket/generate_nomor_register",
   authenticateToken,
   controllers.generateNomorRegister
 );
+
 router.get(
   "/trans_tiket/generate_nomor_invoice",
   authenticateToken,
   controllers.generateNomorInvoice
 );
+
 router.get(
   "/trans_tiket/ticket_transactions",
   authenticateToken,
@@ -127,9 +90,7 @@ router.post(
   "/trans_tiket/detail",
   authenticateToken,
   [
-    body("register_number")
-      .notEmpty()
-      .withMessage("Ticket Registrasi wajib diisi"),
+    body("id").trim().notEmpty().withMessage("ID Transkasi Tiket tidak boleh kosong.").isNumeric().withMessage("ID Transaksi Tiket harus berupa angka.").custom(validation.check_id),
   ],
   controllers.detail_ticket
 );
@@ -178,6 +139,15 @@ router.post(
     body("pax").trim().notEmpty().withMessage("Pax tidak boleh kosong.").isNumeric().withMessage("Pax harus berupa angka."),
   ],
   controllers.update
+);
+
+router.post(
+  "/trans_tiket/delete",
+  authenticateToken,
+  [
+    body("id").trim().notEmpty().withMessage("ID Transkasi Tiket tidak boleh kosong.").isNumeric().withMessage("ID Transaksi Tiket harus berupa angka.").custom(validation.check_id),
+  ],
+  controllers.delete
 );
 
 router.post(

@@ -1,5 +1,14 @@
 import api from "./api";
 
+export const deleteUrl = async ( param : { id: number } ) => {
+  try {
+    const response = await api.post("/trans_tiket/delete", param);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengupdate tiket:", error);
+    throw error;
+  }
+}
 
 export const editTiketUrl = async ( param : any ) => {
   try {
@@ -90,7 +99,7 @@ export const addPembayaran = async (param : any) => {
 }
 
 
-export const get_detail = async (param : any) => {
+export const getDetailUrl = async (param : { id: number }) => {
   try {
       const response = await api.post("/trans_tiket/detail", param);
       return response.data;
@@ -170,4 +179,3 @@ export const getAirlinesByIdUrl = async (param: { id: number }) => {
       throw error;
   }
 }
-//
