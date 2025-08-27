@@ -38,24 +38,27 @@ class Model_r {
       });
       
       var data = [{ id: "0", name: " -- Pilih Maskapai -- " }];
-      await Mst_airline.findAll({
-        attributes: ["id", "name", "nomor_akun_deposit"],
-        where: { company_id: this.company_id },
-        order: [["id", "ASC"]],
-      }).then(async (value) => {
-        await Promise.all(
-          await value.map(async (e) => {
+      if(q) {
+        await Mst_airline.findAll({
+          attributes: ["id", "name", "nomor_akun_deposit"],
+          where: { company_id: this.company_id },
+          order: [["id", "ASC"]],
+        }).then(async (value) => {
+          await Promise.all(
+            await value.map(async (e) => {
 
-            console.log("******************");
-            console.log(q.nomor_akun_deposit);
-            console.log(q.division_id);
-            console.log(this.company_id);
-            console.log("******************");
-            var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun(e.nomor_akun_deposit, this.company_id, q.division_id , '0') );
-            data.push({ id: e.id, name: e.name + " (Saldo: " + saldo + ")"});
-          })
-        );
-      });
+              console.log("******************");
+              console.log(e.nomor_akun_deposit);
+              console.log(q.division_id);
+              console.log(this.company_id);
+              console.log("******************");
+              var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun(e.nomor_akun_deposit, this.company_id, q.division_id , '0') );
+              data.push({ id: e.id, name: e.name + " (Saldo: " + saldo + ")"});
+            })
+          );
+        });
+      }
+     
       return data;
     } catch (error) {
       console.error("Error di Model_r saat mengambil getAllVisaTypes:", error);
@@ -120,12 +123,15 @@ class Model_r {
       return { nomor_registrasi: q.nomor_registrasi, kode_booking: q.code_booking, maskapai: q.Mst_airline.name, maskapai_id: q.Mst_airline.id, 
         pax: q.pax, harga: q.costumer_price, harga_travel: q.travel_price, tanggal_keberangkatan: moment(q.departure_date).format("YYYY-MM-DD"), total: total, sudah_bayar };
     } catch (error) {
+      console.log("-------XXXX");
+      console.log(error);
+      console.log("-------XXXX");
       return { }
     }
   }
 
   async ticket_transactions() {
-    const query = this.req.query;
+    const query = this.req.body;
     const limit = parseInt(query.perpage) || 10;
     const page =
       query.pageNumber && query.pageNumber !== "0"
@@ -134,8 +140,8 @@ class Model_r {
 
     let where = {};
 
-    if (query.division_id) {
-      where.division_id = query.division_id;
+    if (query.cabang) {
+      where.division_id = query.cabang;
     }
 
     if (query.search) {

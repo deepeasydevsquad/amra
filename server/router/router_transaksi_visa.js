@@ -6,6 +6,7 @@ const { authenticateToken } = require("../middleware/authenticateToken");
 // Import validasi custom
 const validation = require("../validation/transaksi_visa.js");
 const visaValidasi = require("../validation/visa");
+const validationCabang  = require("../validation/param");
 
 const router = express.Router();
 
@@ -14,18 +15,24 @@ router.post(
   "/daftar-transaksi-visa/get-transaksi-visa/list",
   authenticateToken,
   [
+    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").isNumeric().withMessage("ID Cabang harus berupa angka.").custom(validationCabang.check_cabang_id),
     body("pageNumber").trim(),
-    body("perpage")
-      .trim()
-      .notEmpty()
-      .withMessage("Jumlah Per Page tidak boleh kosong."),
+    body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
     body("filter").trim(),
   ],
   controllers.getDaftarTransaksiVisa
 );
 
-// RUTE UNTUK MENYIMPAN DATA BARU DENGAN VALIDASI LENGKAP
+router.post(
+  "/transaksi-visa/get-sumber-dana-paket",
+  authenticateToken,
+  [
+    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").isNumeric().withMessage("ID Cabang harus berupa angka.").custom(validationCabang.check_cabang_id),
+  ],
+  controllers.getSumberDanaPaket
+);
+
 router.post(
   "/daftar-transaksi-visa/add-new",
   authenticateToken,
@@ -33,90 +40,37 @@ router.post(
   controllers.add_transaksi_visa
 );
 
-// RUTE UNTUK UPDATE DATA
-// router.put(
-//   "/daftar-transaksi-visa/update/:id",
-//   authenticateToken,
-//   [
-//     param("id", "ID tidak valid")
-//       .isInt({ min: 1 })
-//       .withMessage("ID harus berupa angka positif")
-//       .custom(validation.check_transaksi_visa_exists),
+router.post(
+  "/transaksi-visa/add-visa",
+  authenticateToken,
+  [ 
+    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").isNumeric().withMessage("ID Cabang harus berupa angka.").custom(validationCabang.check_cabang_id),
+    body("sumber_dana").trim().notEmpty().withMessage("Sumber dana tidak boleh kosong.").custom(validation.check_sumber_dana),
+    body("kostumer").trim().isNumeric().withMessage("ID Kostumer harus berupa angka.").custom(validation.check_kostumer),
+    body("paket").trim().isNumeric().withMessage("ID Kostumer harus berupa angka."),
+    body("jenis_visa").trim().notEmpty().withMessage("Jenis Visa tidak boleh kosong.").isNumeric().withMessage("ID Jenis Visa harus berupa angka.").custom(validation.check_jenis_visa),
+    body("pax").trim().notEmpty().withMessage("Pax tidak boleh kosong.").isNumeric().withMessage("Pax harus berupa angka."),
+    body("harga_travel").trim().notEmpty().withMessage("Harga Travel tidak boleh kosong.").isNumeric().withMessage("Harga travel harus berupa angka.").custom(validation.check_saldo),
+    body("harga_costumer").trim().notEmpty().withMessage("Harga Kostumer tidak boleh kosong.").isNumeric().withMessage("Harga kostumer harus berupa angka."),
+  ],
+  controllers.addVisa
+);
 
-//     body("invoice").optional().trim().custom(validation.check_invoice_unique),
-
-//     body("payer_identity")
-//       .optional()
-//       .trim()
-//       .isLength({ min: 10, max: 20 })
-//       .withMessage("Nomor identitas harus 10-20 karakter")
-//       .custom(validation.check_identity_number_unique),
-
-//     body("gender").optional().trim().custom(validation.check_gender),
-
-//     body("birth_date")
-//       .optional()
-//       .isISO8601()
-//       .toDate()
-//       .custom(validation.check_birth_date),
-
-//     body("jenis_visa").optional().trim().custom(validation.check_visa_type),
-
-//     body("passport_number")
-//       .optional()
-//       .trim()
-//       .isLength({ min: 6, max: 20 })
-//       .withMessage("Nomor passport harus 6-20 karakter")
-//       .custom(validation.check_passport_number_unique),
-
-//     body("passport_expire_date")
-//       .optional()
-//       .isISO8601()
-//       .toDate()
-//       .custom(validation.check_passport_dates),
-
-//     body("postal_code").optional().trim().custom(validation.check_postal_code),
-
-//     body("city")
-//       .optional()
-//       .isInt({ min: 1 })
-//       .withMessage("ID Kota harus berupa angka")
-//       .custom(validation.check_city_id),
-
-//     body("phone").optional().trim().custom(validation.check_phone_number),
-
-//     body("valid_until")
-//       .optional()
-//       .isISO8601()
-//       .toDate()
-//       .custom(validation.check_valid_until),
-
-//     body("price").optional().isNumeric().custom(validation.check_price),
-//   ],
-//   controllers.updateTransaksiVisa
-// );
-
-// RUTE UNTUK DELETE DATA
 router.delete(
   "/daftar-transaksi-visa/delete/:id",
   authenticateToken,
   [
-    param("id", "ID tidak valid")
-      .isInt({ min: 1 })
-      .withMessage("ID harus berupa angka positif")
-      .custom(validation.check_visa_transaction_exists),
+    param("id", "ID tidak valid").isInt({ min: 1 }).withMessage("ID harus berupa angka positif").custom(validation.check_visa_transaction_exists),
   ],
   controllers.deleteTransaksiVisa
 );
 
-// RUTE UNTUK GET ALL CITIES
 router.get(
   "/transaksi-visa/get-all-cities",
   authenticateToken,
   controllers.getAllCities
 );
 
-// RUTE UNTUK GET ALL VISA TYPES
 router.get(
   "/transaksi-visa/get-all-visa-types",
   authenticateToken,
@@ -132,13 +86,14 @@ router.get(
 router.post(
   "/transaksi-visa/daftar-paket",
   authenticateToken,
-  [
-    body("division_id")
-      .trim()
-      .notEmpty()
-      .withMessage("ID Divisi tidak boleh kosong."),
-  ],
+  [ body("division_id").trim().notEmpty().withMessage("ID Divisi tidak boleh kosong.") ],
   controllers.daftar_paket
+);
+
+router.get(
+  "/transaksi-visa/daftar-jenis-visa",
+  authenticateToken,
+  controllers.daftar_jenis_visa
 );
 
 module.exports = router;

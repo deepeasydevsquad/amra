@@ -40,16 +40,9 @@ export const add_tiket = async (param : any) => {
         throw error;
     }
 }
-export const get_transactions = async (param: any) => {
+export const get_transactions = async (param: { pageNumber: number, perpage: number, search: string, filter: string, cabang: number }) => {
     try {
-      const response = await api.get("/trans_tiket/ticket_transactions", {
-        params: {
-          pageNumber: param.pageNumber,
-          perpage: param.perpage,
-          search: param.search || '',
-          filter: param.filter || '',
-        },
-      });
+      const response = await api.post("/trans_tiket/ticket_transactions", param);
       return response.data;
     } catch (error) {
       console.error("Gagal mengambil tiket transactions:", error);

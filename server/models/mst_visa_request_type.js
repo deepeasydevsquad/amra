@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Mst_visa_request_type.hasMany(models.Visa_transaction_detail, {
+      Mst_visa_request_type.hasMany(models.Visa_transaction, {
         foreignKey: "mst_visa_request_type_id",
         onDelete: 'CASCADE',
       });

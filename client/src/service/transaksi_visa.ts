@@ -40,9 +40,9 @@ export const deleteTransaksiVisa = async (id: number) => {
     console.error('Delete service error:', error);
     return {
       error: true,
-      error_msg: error.response?.data?.message || 
-                 error.response?.data?.error_msg || 
-                 error.message || 
+      error_msg: error.response?.data?.message ||
+                 error.response?.data?.error_msg ||
+                 error.message ||
                  'Gagal menghubungi server.'
     };
   }
@@ -80,4 +80,31 @@ export const daftar_kostumer = async () => {
     } catch (error) {
         throw error;
     }
+}
+
+export const get_jenis_visa = async () => {
+  try {
+      const response = await api.get("/transaksi-visa/daftar-jenis-visa");
+      return response.data;
+  } catch (error) {
+      throw error;
+  }
+}
+
+export const getSumberDanaPaket = async ( param : { cabang: number} ) => {
+  try {
+      const response = await api.post("/transaksi-visa/get-sumber-dana-paket", param);
+      return response.data;
+  } catch (error) {
+      throw error;
+  }
+}
+
+export const addVisaUrl = async ( param : { cabang: number, sumber_dana: number, kostumer: number, paket: number, jenis_visa: number, pax: number, harga_travel: number, harga_costumer: number  } ) => {
+  try {
+      const response = await api.post("/transaksi-visa/add-visa", param);
+      return response.data;
+  } catch (error) {
+      throw error;
+  }
 }

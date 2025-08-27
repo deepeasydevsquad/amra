@@ -71,7 +71,7 @@ const fetchData = async () => {
   }
 }
 
-watch( () => props.formStatus, async () => { fetchData(); }, { immediate: true }, );
+watch( () => props.formStatus, async () => { fetchData(); });
 
 </script>
 

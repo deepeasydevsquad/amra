@@ -7,6 +7,45 @@ const {
 
 const controllers = {};
 
+controllers.addVisa = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_cud(req);
+    await model.addVisa(); // insert new visa
+    // response
+    if (await model.response()) {
+      res.status(200).json({
+        message: "Proses tambah transaksi visa berhasil dilakukan",
+        invoice: model.invoiceVisa,
+        error: false,
+      });
+    } else {
+      res.status(400).json({
+        message: "Proses tambah transaksi visa Gagal dilakukan",
+        error: true,
+      });
+    }
+  } catch (error) {
+    console.log("xxxxxxx");
+    console.log(error);
+    console.log("xxxxxxx");
+    handleServerError(res, error);
+  }
+}
+
+controllers.getSumberDanaPaket = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_r = new Model_r(req);
+    const feedBack = await model_r.get_sumber_dana_paket(); // Ambil daftar tabungan dari model
+    res.status(200).json({ error: false, data: feedBack});
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
 // FUNGSI UNTUK MENGAMBIL DATA LIST
 controllers.getDaftarTransaksiVisa = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
@@ -22,7 +61,16 @@ controllers.getDaftarTransaksiVisa = async (req, res) => {
   }
 };
 
-//Controller untuk menangani penambahan transaksi visa baru.
+controllers.daftar_jenis_visa = async (req, res) => {
+  try {
+    const model_r = new Model_r(req);
+    const feedBack = await model_r.daftar_jenis_visa();
+    res.status(200).json({ error: false, data: feedBack });
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
 controllers.add_transaksi_visa = async (req, res) => {
   // filter error
   if (!(await handleValidationErrors(req, res))) return;
@@ -72,6 +120,9 @@ controllers.deleteTransaksiVisa = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log("xxxx-----------------------");
+    console.log(error);
+    console.log("xxxx-----------------------");
     handleServerError(res, error.message);
   }
 };

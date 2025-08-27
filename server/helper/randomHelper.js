@@ -12,7 +12,8 @@ const {
   Transaction_fasilitas, 
   Riwayat_deposit_airline, 
   Ticket_payment_history, 
-  Ticket_transaction
+  Ticket_transaction, 
+  Visa_transaction
 } = require("../models");
 
 const helper = {};
@@ -23,6 +24,18 @@ helper.randomString = async (length, chars) => {
     result += chars[Math.floor(Math.random() * chars.length)];
   return result;
 };
+
+
+helper.generateNomorInvoiceVisa = async ( division_id ) => {
+  var rand = 0;
+  let condition = true;
+  while (condition) {
+    rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    check = await Visa_transaction.findOne({ where: { invoice: rand, division_id: division_id } });
+    if (!check) condition = false;
+  }
+  return rand;
+}
 
 helper.generateInvoiceHandoverFasilitas = async (company_id) => {
     var rand = 0;

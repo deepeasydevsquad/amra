@@ -235,7 +235,7 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   }, 3000)
 }
 
-watch(() => props.formStatus, async () => { await fetchData(); }, { immediate: true });
+watch(() => props.formStatus, async () => { await fetchData(); });
 
 </script>
 

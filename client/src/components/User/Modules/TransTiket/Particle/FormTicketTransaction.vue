@@ -137,7 +137,6 @@ const calculateSisa = computed(() => {
   return ( ( form.value.pax ?? 0 ) * (form.value.harga_kostumer ?? 0 ) ) - ( form.value.dibayar ?? 0 )
 })
 
-
 const validateForm = (): boolean => {
   let isValid = true
 

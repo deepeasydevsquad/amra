@@ -9,21 +9,24 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      company_id: {
+      division_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Companies",
+          model: "Divisions",
           key: "id",
         },
         onDelete: 'CASCADE',
       },
-      invoice: {
-        type: Sequelize.STRING
-      },
-      petugas: {
-        type: Sequelize.STRING
+      mst_visa_request_type_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Mst_visa_request_types",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
       },
       kostumer_id: {
+        allowNull: true,
         type: Sequelize.INTEGER,
         references: {
           model: "Kostumers",
@@ -32,7 +35,28 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       paket_id: {
+        allowNull: true,
         type: Sequelize.INTEGER,
+        references: {
+          model: "Pakets",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
+      },
+      invoice: {
+        type: Sequelize.STRING
+      },
+      pax: {
+        type: Sequelize.INTEGER
+      },
+      harga_travel: {
+        type: Sequelize.INTEGER
+      },
+      harga_costumer: {
+        type: Sequelize.INTEGER
+      },
+      petugas: {
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,

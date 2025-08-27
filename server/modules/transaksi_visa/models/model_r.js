@@ -1,16 +1,10 @@
 "use strict";
 
-const {
-  Op,
-  Visa_transaction,
-  Visa_transaction_detail,
-  Mst_kota,
-  Mst_visa_request_type,
-  Kostumer,
-  Paket,
-} = require("../../../models");
+const { Op, Visa_transaction, Mst_bank, Mst_kota, Mst_visa_request_type, Kostumer, Paket } = require("../../../models");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
+const{ convertToRP } = require("../../../helper/currencyHelper");
+const Akuntansi = require("../../../library/akuntansi");
 const moment = require("moment");
 
 class Model_r {
@@ -69,7 +63,7 @@ class Model_r {
           ? parseInt(body.pageNumber)
           : 1;
 
-      let where = { company_id: this.company_id };
+      let where = { division_id: body.cabang };
 
       if (body.search) {
         where = {
@@ -85,25 +79,21 @@ class Model_r {
         where,
         include: [
           {
-            model: Visa_transaction_detail,
-            required: true,
-            attributes: [
-              "name",
-              "identity_number",
-              "birth_place",
-              "birth_date",
-              "passport_number",
-              "valid_until",
-              "price",
-              "mst_visa_request_type_id",
-            ],
-          },
-          {
             model: Kostumer,
             required: false,
             attributes: ["name"],
           },
-        ],
+          {
+            model: Paket,
+            required: false,
+            attributes: ["name"],
+          },
+          {
+            model: Mst_visa_request_type,
+            required: false,
+            attributes: ["name"],
+          },
+        ]
       };
 
       const q = await Visa_transaction.findAndCountAll(sql);
@@ -111,57 +101,27 @@ class Model_r {
       let data = [];
 
       if (total > 0) {
-        const paketIds = new Set();
-        const trxList = q.rows;
-
-        // collect paket_id untuk ambil nama paket
-        trxList.forEach((trx) => {
-          if (trx.paket_id) paketIds.add(trx.paket_id);
-        });
-
-        // ambil nama paket by ID
-        const paketMap = await this.ambil_nama_paket_bulk([...paketIds]);
-
         await Promise.all(
-          trxList.map(async (trx) => {
-            let jenisVisa = "Visa Singgah";
-            const detail = trx.Visa_transaction_details?.[0];
-
-            if (detail?.mst_visa_request_type_id) {
-              try {
-                const visaType = await Mst_visa_request_type.findByPk(
-                  detail.mst_visa_request_type_id,
-                  { attributes: ["name"] }
-                );
-                if (visaType) jenisVisa = visaType.name;
-              } catch (error) {
-                console.error("Error fetching visa type:", error);
-              }
-            }
-
+          q.rows.map(async (e) => {
             data.push({
-              id: trx.id,
-              invoice: trx.invoice,
-              petugas: trx.petugas,
-              kostumer_name: trx.Kostumer?.name || "-",
-              paket_id: trx.paket_id || null,
-              paket_name: trx.paket_id ? paketMap[trx.paket_id] || "-" : "-",
-              createdAt: moment(trx.createdAt).format("YYYY-MM-DD HH:mm:ss"),
-              name: detail?.name || "-",
-              identity_number: detail?.identity_number || "-",
-              birth_place: detail?.birth_place || "-",
-              birth_date: detail?.birth_date || "-",
-              passport_number: detail?.passport_number || "-",
-              valid_until: detail?.valid_until || "-",
-              price: detail?.price || 0,
-              jenis_visa: jenisVisa,
+              id: e.id,
+              invoice: e.invoice, 
+              petugas: e.petugas,
+              kostumer: e.Kostumer?.name || "-", 
+              paket: e.Paket?.name || "-", 
+              pax: e.pax,
+              harga_travel: e.harga_travel, 
+              harga_costumer: e.harga_costumer,
+              jenis_visa: e.Mst_visa_request_type.name, 
+              tanggal_transaksi : moment(e.createdAt).format("D MMMM YYYY")
             });
           })
         );
       }
 
-      console.log("data:", data);
-      console.log("total:", total);
+      console.log("YYYYYYYYYYYYYYYY");
+      console.log(total);
+      console.log("YYYYYYYYYYYYYYYY");
 
       return {
         data,
@@ -229,6 +189,51 @@ class Model_r {
     } catch (error) {
       console.error("Gagal ambil daftar kostumer:", error);
       return [];
+    }
+  }
+
+  async daftar_jenis_visa() {
+    try {
+      const sql = await Mst_visa_request_type.findAll();
+      const data = sql.map((d) => ({
+        id: d.id,
+        name: d.name,
+      }));
+
+      return data;
+    } catch (error) {
+      console.error("Gagal ambil daftar jenis visa :", error);
+      return [];
+    }
+  }
+
+  async get_sumber_dana_paket() {
+    await this.initialize();
+    
+    const akuntansi = new Akuntansi(); 
+
+    try {
+      var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun('11010', this.company_id, this.req.body.cabang, '0') );
+      var sumber_dana = [{ id: 0, name: 'Kas (Saldo : ' + saldo + ')'}];
+      await Mst_bank.findAll({ where: { company_id: this.company_id }, }).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+            var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun(e.nomor_akun, this.company_id, this.req.body.cabang, '0') );
+            sumber_dana.push({ 
+              id : e.id, 
+              name : e.kode + ' (Saldo : ' + saldo + ')', 
+            });
+          })
+        );
+      });
+
+      const sql = await Paket.findAll({ where: { division_id: this.req.body.cabang } });
+      const daftar_paket = sql.map((d) => ({ id: d.id, name: d.name }));
+
+      return { sumber_dana, daftar_paket };
+    } catch (error) {
+      console.error("Gagal ambil daftar jenis visa :", error);
+      return {};
     }
   }
 }

@@ -1,13 +1,7 @@
-const {
-  sequelize,
-  Visa_transaction,
-  Visa_transaction_detail,
-  Company,
-  Member,
-  Mst_visa_request_type,
-} = require("../../../models");
+const { sequelize, Visa_transaction, Visa_transaction_detail, Company, Member, Mst_visa_request_type, Mst_bank, Jurnal, Division } = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
+const { generateNomorInvoiceVisa } = require("../../../helper/randomHelper");
 const moment = require("moment");
 
 class Model_cud {
@@ -17,12 +11,14 @@ class Model_cud {
     this.t; // transaction
     this.state = true; // status operasi
     this.message = ""; // pesan untuk log dan respons
+    this.invoiceVisa
   }
 
   //Menginisialisasi transaksi database dan mengambil company_id dari token.
 
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req); //
+    this.type = await tipe(this.req);
     this.t = await sequelize.transaction(); //
     this.state = true; //
   }
@@ -85,6 +81,95 @@ class Model_cud {
       .padStart(6, "0"); // pastiin selalu 6 digit
 
     return randomLetters + randomNumbers;
+  }
+
+  async addVisa() {
+    await this.initialize();
+    const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
+
+    try {
+
+      var akun_kredit = '';
+      if(this.req.body.sumber_dana == 0) {
+        akun_kredit = '11010'; //
+      }else{
+        const q = await Mst_bank.findOne({
+          where: {
+            id: this.req.body.sumber_dana,
+            company_id: this.company_id
+          },
+        });
+        akun_kredit = q.nomor_akun;
+      }
+
+
+      this.invoiceVisa = await generateNomorInvoiceVisa(this.req.body.cabang);
+      // Insert ke Visa_transaction
+      const insert = await Visa_transaction.create(
+        {
+          division_id: this.req.body.cabang,
+          mst_visa_request_type_id: this.req.body.jenis_visa,
+          kostumer_id: this.req.body.kostumer == 0 ? null : this.req.body.kostumer, 
+          paket_id: this.req.body.paket == 0 ? null : this.req.body.paket, 
+          invoice: this.invoiceVisa, 
+          pax: this.req.body.pax,
+          harga_travel: this.req.body.harga_travel,
+          harga_costumer: this.req.body.harga_costumer,
+          petugas: this.type,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        { transaction: this.t }
+      );
+
+      // insert HPP Jurnal Visa
+      await Jurnal.create(
+        {
+          division_id: this.req.body.cabang, 
+          source: 'visaTransactionId:' + insert.id,
+          ref: 'HPP Penjualan Visa ',
+          ket: 'HPP Penjualan Visa ',
+          akun_debet: '52000',
+          akun_kredit: akun_kredit,
+          saldo: this.req.body.harga_travel,
+          removable: 'false',
+          periode_id: 0,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+      // insert Pendapatan Jurnal Visa
+      await Jurnal.create(
+        {
+          division_id: this.req.body.cabang, 
+          source: 'visaTransactionId:' + insert.id,
+          ref: 'Pendapatan Penjualan Visa ',
+          ket: 'Pendapatan Penjualan Visa ',
+          akun_debet: '11010',
+          akun_kredit: '45000',
+          saldo: this.req.body.harga_costumer,
+          removable: 'false',
+          periode_id: 0,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
+      this.message = ` Melakukan proses transaksi visa dengan invoice ${this.invoice}.`;
+    } catch (error) {
+
+      console.log("xxxxxxxDDDDDDDDDDD");
+      console.log(error);
+      console.log("xxxxxxxDDDDDDDDDDD");
+
+      this.state = false;
+    }
   }
 
   async add() {
@@ -366,40 +451,55 @@ class Model_cud {
     await this.initialize();
 
     try {
-      const namaPetugas = await this.petugas(); //
-      const existingTransaction = await Visa_transaction.findOne({
+      const q = await Visa_transaction.findOne({
         where: {
           id: transactionId,
-          company_id: this.company_id,
-        }, //
+        }, 
+        include: {
+          required: true, 
+          model: Division, 
+          where: {
+            company_id: this.company_id,
+          }
+        }
       });
-
-      if (!existingTransaction) {
-        throw new Error(
-          "Data transaksi visa tidak ditemukan atau Anda tidak memiliki akses"
-        ); //
-      }
-
-      // Hapus detail transaksi terlebih dahulu
-      await Visa_transaction_detail.destroy({
-        where: { visa_transaction_id: transactionId },
-        transaction: this.t,
-      }); //
 
       // Hapus transaksi utama
       await Visa_transaction.destroy({
         where: {
           id: transactionId,
-          company_id: this.company_id,
+        },
+         include: {
+          required: true, 
+          model: Division, 
+          where: {
+            company_id: this.company_id,
+          }
         },
         transaction: this.t,
       }); //
 
-      this.message = `Menghapus Transaksi Visa dengan ID: ${transactionId} untuk pelanggan: ${existingTransaction.payer} oleh petugas: ${namaPetugas}`; //
+      // delete jurnal
+      await Jurnal.destroy({
+        where: {
+          source: 'visaTransactionId:' + transactionId,
+        },
+        include: {
+          model: Division, 
+          required : true, 
+          where: { 
+              company_id: this.company_id
+          }
+        }, 
+        transaction: this.t,
+      });
+
+      this.message = `Menghapus Transaksi Visa dengan ID: ${transactionId} dengan invoice pelanggan: ${q.invoice}`; //
     } catch (error) {
-      console.error("Error di model CUD hapus:", error);
+      console.log("xxxxAAA");
+      console.log(error);
+      console.log("xxxxAAA");
       this.state = false; //
-      this.message = error.message; //
     }
   }
 

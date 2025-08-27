@@ -4,10 +4,18 @@
       <PrimaryButton @click="startTicketTransaction">
         <i class="pi pi-plus"></i> Mulai Transaksi Tiket
       </PrimaryButton>
-      <div class="flex items-center">
-        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input type="text" v-model="searchQuery" id="search" class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-          placeholder="Cari data..." />
+      <div class="inline-flex rounded-md shadow-xs" role="group">
+        <label for="search" class="block text-sm font-medium text-gray-700 mr-2 mt-3">Filter</label>
+        <input type="text" id="search"
+          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+          v-model="search" @change="fetchData()" placeholder="Cari data..." />
+        <select v-model="selectedOptionCabang" style="width: 300px" @change="fetchData()"
+          class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+            {{ optionC.name }}
+          </option>
+        </select>
       </div>
     </div>
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
@@ -142,6 +150,7 @@ import Notification from '@/components/Modal/Notification.vue'
 import Confirmation from "@/components/Modal/Confirmation.vue"
 import { computed, ref, onMounted} from 'vue'
 import { get_transactions, deleteUrl } from '@/service/trans_tiket'
+import { paramCabang } from '@/service/param_cabang'
 import FormTicketTransaction from './Particle/FormTicketTransaction.vue'
 import FormPembayaranTiket from './Particle/FormPembayaranTiket.vue'
 import FormEdit from './Particle/FormEdit.vue'
@@ -154,7 +163,7 @@ const currentPage = ref(1)
 const totalPages = ref(0)
 const totalColumns = ref(4)
 const totalRow = ref(0);
-const searchQuery = ref('')
+// const searchQuery = ref('')
 const itemsPerPage = 2
 const search = ref('')
 const filter = ref('')
@@ -235,6 +244,7 @@ const fetchData = async () => {
       filter: filter.value,
       perpage: itemsPerPage || 10,
       pageNumber: currentPage.value || 1,
+      cabang: selectedOptionCabang.value,
     })
     data.value = response.data
     totalRow.value = response.total
@@ -244,6 +254,26 @@ const fetchData = async () => {
   } catch (error) {
     console.error('Gagal fetch data ticket transactions:', error)
   }
+}
+
+
+interface Cabang {
+  id: number
+  name: string
+}
+
+interface filterCabang {
+  id: number
+  name: string
+}
+
+const selectedOptionCabang = ref(0)
+const optionFilterCabang = ref<filterCabang[]>([])
+const fetchFilterData = async () => {
+  const response = await paramCabang()
+  optionFilterCabang.value = response.data
+  selectedOptionCabang.value = response.data[0].id
+  await fetchData()
 }
 
 const nextPage = () => {
@@ -349,7 +379,7 @@ const formatRupiah = (angka :any, prefix = "Rp ") => {
 };
 
 onMounted(() => {
-  fetchData()
+  fetchFilterData()
 })
 
 </script>

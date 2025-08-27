@@ -181,7 +181,6 @@ watch(
   () => {
     fetchData();
   },
-  { immediate: true },
 );
 </script>
 <template>

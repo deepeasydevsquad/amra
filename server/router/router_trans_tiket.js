@@ -50,19 +50,14 @@ router.get(
   controllers.generateNomorInvoice
 );
 
-router.get(
+router.post(
   "/trans_tiket/ticket_transactions",
   authenticateToken,
   [
-    query("pageNumber")
-      .trim()
-      .notEmpty()
-      .withMessage("Page Number tidak boleh kosong."),
-    query("perpage")
-      .trim()
-      .notEmpty()
-      .withMessage("Jumlah Per Page tidak boleh kosong."),
-    query("search").trim(),
+    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").isNumeric().withMessage("ID Cabang harus berupa angka.").custom(validationCabang.check_cabang_id),
+    body("pageNumber").trim().notEmpty().withMessage("Page Number tidak boleh kosong."),
+    body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
+    body("search").trim(),
   ],
   controllers.getTicketTransactions
 );
