@@ -118,6 +118,7 @@ class Model_cud {
           { transaction: this.t }
         );
         
+        // -- JURNAL -- 
         // jika pembayaran tidak dilakukan secara full
         if( body.dibayar < total ) {
           // insert Kas Atau Pembayaran Utang Tabungan 
@@ -144,8 +145,8 @@ class Model_cud {
             {
               division_id: body.cabang, 
               source: 'ticketTransactionId:' + insert.id,
-              ref: 'Piutang untuk Penjualan Tiket ' + q.name,
-              ket: 'Piutang untuk Penjualan Tiket ' + q.name,
+              ref: 'Piutang untuk penjualan tiket ' + q.name,
+              ket: 'Piutang untuk penjualan tiket ' + q.name,
               akun_debet: '13000',
               akun_kredit: null,
               saldo: total - body.dibayar,
@@ -163,8 +164,8 @@ class Model_cud {
             {
               division_id: body.cabang, 
               source: 'ticketTransactionId:' + insert.id,
-              ref: 'Pendapatan untuk Penjualan Tiket ' + q.name,
-              ket: 'Pendapatan untuk Penjualan Tiket ' + q.name,
+              ref: 'Pendapatan untuk penjualan tiket ' + q.name,
+              ket: 'Pendapatan untuk penjualan tiket ' + q.name,
               akun_debet: null,
               akun_kredit: q.nomor_akun_pendapatan,
               saldo: total,
@@ -184,8 +185,8 @@ class Model_cud {
             {
               division_id: body.cabang, 
               source: 'ticketTransactionId:' + insert.id,
-              ref: 'PendapatanPenjualan Tiket ' + q.name,
-              ket: 'PendapatanPenjualan Tiket ' + q.name,
+              ref: 'Pendapatan Penjualan Tiket ' + q.name,
+              ket: 'Pendapatan Penjualan Tiket ' + q.name,
               akun_debet: body.paket ? '23000' : '11010',
               akun_kredit: q.nomor_akun_pendapatan,
               saldo: body.dibayar,

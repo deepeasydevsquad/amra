@@ -5,7 +5,7 @@ const {
   Paket_transaction,
   Jamaah,
   Member,
-  Ticket_transaction_detail,
+  Ticket_transaction,
   Request_deposit_member,
   Akun_bank_perusahaan,
   Mst_bank,
@@ -75,7 +75,7 @@ class Model_r {
           },
           attributes: ['id'],
         }),
-        Ticket_transaction_detail.count({
+        Ticket_transaction.count({
           where: {
             createdAt: { [Op.between]: [startOfMonth, endOfMonth] },
           },

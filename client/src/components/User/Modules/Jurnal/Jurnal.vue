@@ -204,10 +204,10 @@ const deleteData = async (id: number) => {
               <td class="px-6 py-4 text-center">{{ jurnal.createdAt }}</td>
               <td class="px-6 py-4 text-center">{{ jurnal.ref }}</td>
               <td class="px-6 py-4 text-center">{{ jurnal.ket }}</td>
-              <td class="px-6 py-4 text-center">{{ jurnal.akun_debet_name }}</td>
-              <td class="px-6 py-4 text-center">{{ jurnal.akun_debet }}</td>
-              <td class="px-6 py-4 text-center">{{ jurnal.akun_kredit_name }}</td>
-              <td class="px-6 py-4 text-center">{{ jurnal.akun_kredit }}</td>
+              <td class="px-6 py-4 text-center">{{ jurnal.akun_debet == null ? '-' : jurnal.akun_debet_name }}</td>
+              <td class="px-6 py-4 text-center">{{ jurnal.akun_debet == null ? '-' : jurnal.akun_debet }}</td>
+              <td class="px-6 py-4 text-center">{{ jurnal.akun_kredit == null ? '-' : jurnal.akun_kredit_name }}</td>
+              <td class="px-6 py-4 text-center">{{ jurnal.akun_kredit == null ? '-' : jurnal.akun_kredit  }}</td>
               <td class="px-6 py-4 text-center font-bold">{{ jurnal.saldo }}</td>
               <td class="px-6 py-4 text-center">
                 <div v-if="jurnal.removable == 'true' " class="flex justify-center gap-2">

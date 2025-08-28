@@ -122,6 +122,7 @@ class Model_cud {
         { transaction: this.t }
       );
 
+      // ===== JURNAL ====
       // insert HPP Jurnal Visa
       await Jurnal.create(
         {
@@ -167,9 +168,9 @@ class Model_cud {
           {
             division_id: this.req.body.cabang, 
             source: 'visaTransactionId:' + insert.id,
-            ref: 'Kas / Pembayaran utang untuk Penjualan Visa ',
-            ket: 'Kas / Pembayaran utang untuk Penjualan Visa ',
-            akun_debet: this.req.body.paket ? '23000' : '11010',
+            ref: 'Pembayaran Utang Tabungan Untuk Penjualan Visa ',
+            ket: 'Pembayaran Utang Tabungan Untuk Penjualan Visa ',
+            akun_debet: '23000',
             akun_kredit: null,
             saldo: this.req.body.pax * this.req.body.harga_costumer,
             removable: 'false',
@@ -182,7 +183,6 @@ class Model_cud {
           }
         );
       }
-      
 
       this.message = ` Melakukan proses transaksi visa dengan invoice ${this.invoice}.`;
     } catch (error) {
@@ -296,7 +296,7 @@ class Model_cud {
           }
         },
         transaction: this.t,
-      }); //
+      });
 
       // delete jurnal
       await Jurnal.destroy({

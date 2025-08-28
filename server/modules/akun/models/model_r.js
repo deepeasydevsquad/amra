@@ -165,49 +165,52 @@ class Model_r {
         await Promise.all(
           await value.map(async (e) => {
             // info akun
-            var infAkunDebet =  akun_primary[e.akun_debet.toString().charAt(0)];
-            var infAkunKredit =  akun_primary[e.akun_kredit.toString().charAt(0)];
-
-            if( infAkunDebet.sn == 'D') {
-              if(saldo_jurnal[e.division_id] === undefined ) {
-                saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_debet] : ( e.saldo + 0 ) } } };
-              }else{
-                if( saldo_jurnal[e.division_id][e.akun_debet] === undefined ) {
-                  saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_debet] : (e.saldo + 0)}}
+            if( e.akun_debet != null ) {
+              var infAkunDebet =  akun_primary[e.akun_debet.toString().charAt(0)];
+              if( infAkunDebet.sn == 'D') {
+                if(saldo_jurnal[e.division_id] === undefined ) {
+                  saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_debet] : ( e.saldo + 0 ) } } };
                 }else{
-                  saldo_jurnal[e.division_id][e.akun_debet] = saldo_jurnal[e.division_id][e.akun_debet] + e.saldo;
+                  if( saldo_jurnal[e.division_id][e.akun_debet] === undefined ) {
+                    saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_debet] : (e.saldo + 0)}}
+                  }else{
+                    saldo_jurnal[e.division_id][e.akun_debet] = saldo_jurnal[e.division_id][e.akun_debet] + e.saldo;
+                  }
                 }
-              }
-            }else if ( infAkunDebet.sn == 'K' ) {
-              if(saldo_jurnal[e.division_id] === undefined ) {
-                saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_debet] : ( 0 - e.saldo ) } } };
-              }else{
-                if( saldo_jurnal[e.division_id][e.akun_debet] === undefined ) {
-                  saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_debet] : ( 0 - e.saldo )}}
+              }else if ( infAkunDebet.sn == 'K' ) {
+                if(saldo_jurnal[e.division_id] === undefined ) {
+                  saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_debet] : ( 0 - e.saldo ) } } };
                 }else{
-                  saldo_jurnal[e.division_id][e.akun_debet] = saldo_jurnal[e.division_id][e.akun_debet] - e.saldo;
+                  if( saldo_jurnal[e.division_id][e.akun_debet] === undefined ) {
+                    saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_debet] : ( 0 - e.saldo )}}
+                  }else{
+                    saldo_jurnal[e.division_id][e.akun_debet] = saldo_jurnal[e.division_id][e.akun_debet] - e.saldo;
+                  }
                 }
               }
             }
 
-            if( infAkunKredit.sn == 'D') {
-              if(saldo_jurnal[e.division_id] === undefined ) {
-                saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_kredit] : ( 0 - e.saldo ) } } };
-              }else{
-                if( saldo_jurnal[e.division_id][e.akun_kredit] === undefined ) {
-                  saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_kredit] : (0 - e.saldo)}}
+            if(e.akun_kredit != null ) {
+              var infAkunKredit =  akun_primary[e.akun_kredit.toString().charAt(0)];
+              if( infAkunKredit.sn == 'D') {
+                if(saldo_jurnal[e.division_id] === undefined ) {
+                  saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_kredit] : ( 0 - e.saldo ) } } };
                 }else{
-                  saldo_jurnal[e.division_id][e.akun_kredit] = saldo_jurnal[e.division_id][e.akun_kredit] - e.saldo;
+                  if( saldo_jurnal[e.division_id][e.akun_kredit] === undefined ) {
+                    saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_kredit] : (0 - e.saldo)}}
+                  }else{
+                    saldo_jurnal[e.division_id][e.akun_kredit] = saldo_jurnal[e.division_id][e.akun_kredit] - e.saldo;
+                  }
                 }
-              }
-            }else if ( infAkunKredit.sn == 'K' ) {
-              if(saldo_jurnal[e.division_id] === undefined ) {
-                saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_kredit] : ( e.saldo + 0 ) } } };
-              }else{
-                if( saldo_jurnal[e.division_id][e.akun_kredit] === undefined ) {
-                  saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_kredit] : ( e.saldo + 0 )}}
+              }else if ( infAkunKredit.sn == 'K' ) {
+                if(saldo_jurnal[e.division_id] === undefined ) {
+                  saldo_jurnal = {...saldo_jurnal,...{[e.division_id] : { [e.akun_kredit] : ( e.saldo + 0 ) } } };
                 }else{
-                  saldo_jurnal[e.division_id][e.akun_kredit] = saldo_jurnal[e.division_id][e.akun_kredit] + e.saldo;
+                  if( saldo_jurnal[e.division_id][e.akun_kredit] === undefined ) {
+                    saldo_jurnal[e.division_id] = {...saldo_jurnal[e.division_id],...{[e.akun_kredit] : ( e.saldo + 0 )}}
+                  }else{
+                    saldo_jurnal[e.division_id][e.akun_kredit] = saldo_jurnal[e.division_id][e.akun_kredit] + e.saldo;
+                  }
                 }
               }
             }
@@ -415,7 +418,9 @@ class Model_r {
       return { data };
 
     } catch (error) {
-
+      console.log("XXXXX");
+      console.log(error);
+      console.log("XXXXX");
       return {};
     }
   }

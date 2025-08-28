@@ -204,6 +204,7 @@ const fetchData = async () => {
     })
     data.value = result.data
     totalRow.value = result.total
+    totalPages.value = Math.ceil(result.total / itemsPerPage)
     console.log('data transaksi', data)
     console.log('data value', data.value)
   } catch (error) {
