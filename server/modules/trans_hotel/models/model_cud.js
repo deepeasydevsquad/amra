@@ -1,115 +1,117 @@
-const {
-  Hotel_transaction,
-  Hotel_transaction_detail,
-  sequelize,
-  Company,
-  Users,
-  Member,
-} = require("../../../models");
+const { Hotel_transaction, Hotel_transaction_detail, sequelize, Company, Users, Member, Jurnal, Op } = require("../../../models");
 const moment = require("moment");
-const { Op } = require("sequelize");
-const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
+const { getCompanyIdByCode, tipe, getCabang } = require("../../../helper/companyHelper");
 const { writeLog } = require("../../../helper/writeLogHelper");
+const { generateNomorInvoiceHotel } = require("../../../helper/randomHelper");
 
 class Model_cud {
   constructor(req) {
     this.req = req;
     this.company_id;
+    this.division_id;
+    this.type;
+    this.invoice;
   }
 
   async initialize() {
+    this.t = await sequelize.transaction();
     this.company_id = await getCompanyIdByCode(this.req);
-    // initialize transaction
+    this.division_id = await getCabang(this.req);
+    this.type = await tipe(this.req);
     this.state = true;
   }
 
-  async transaction() {
-    this.t = await sequelize.transaction();
-  }
-
-  async penerima() {
-    await this.initialize();
-    const role = await tipe(this.req);
-
-    if (role === "administrator") {
-      const company = await Company.findOne({ where: { id: this.company_id } });
-      return company?.company_name ?? "Unknown Company";
-    }
-
-    if (role === "staff") {
-      const staff = await Users.findOne({
-        where: { division_id: this.division },
-        include: [{ model: Member, attributes: ["fullname"] }],
-      });
-      return staff?.Member?.fullname ?? "Unknown Staff";
-    }
-    return "Tipe user tidak diketahui";
-  }
-
-  async generate_invoice() {
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const randomLetters = () => {
-      return (
-        letters[Math.floor(Math.random() * 26)] +
-        letters[Math.floor(Math.random() * 26)]
-      );
-    };
-
-    const randomNumbers = () => {
-      return Math.floor(10 + Math.random() * 90);
-    };
-
-    return `${randomLetters()}${randomNumbers()}`;
-  }
-
   async tambah_transaksi_hotel() {
-    await this.initialize();
-    await this.transaction();
-    const petugas = await this.penerima();
-    const invoice = await this.generate_invoice();
 
+    await this.initialize();
+   
     const body = this.req.body;
     const my_date = moment().format("YYYY-MM-DD HH:mm:ss");
 
-    console.log("Data Body:", body);
+    // console.log("Data Body:", body);
 
     try {
-      // 1. Insert transaksi utama
-      const transaksi = await Hotel_transaction.create(
+
+      var akun_kredit = '';
+      if(this.req.body.sumber_dana == 0) {
+        akun_kredit = '11010'; //
+      }else{
+        const q = await Mst_bank.findOne({
+          where: {
+            id: this.req.body.sumber_dana,
+            company_id: this.company_id
+          },
+        });
+        akun_kredit = q.nomor_akun;
+      }
+
+      const invoice = await generateNomorInvoiceHotel(this.req.body.cabang);
+      const insert = await Hotel_transaction.create(
         {
-          company_id: this.company_id,
-          invoice: invoice,
-          petugas: petugas,
-          kostumer_id: body.kostumer_id || "-",
-          paket_id: body.paket_id || null,
+          division_id: this.req.body.cabang,
+          kostumer_id: this.req.body.kostumer == 0 ? null : this.req.body.kostumer, 
+          paket_id: this.req.body.paket == 0 ? null : this.req.body.paket, 
+          mst_hotel_id: this.req.body.mst_hotel_id, 
+          invoice: invoice, 
+          petugas: this.type, 
+          check_in: moment(this.req.body.check_in).format("YYYY-MM-DD"),
+          check_out: moment(this.req.body.check_out).format("YYYY-MM-DD"),
+          tipe_kamar: this.req.body.tipe_kamar, 
+          jumlah_hari: this.req.body.jumlah_hari,
+          jumlah_kamar: this.req.body.jumlah_kamar,
+          harga_travel_kamar_per_hari: this.req.body.harga_travel_kamar_per_hari,
+          harga_kostumer_kamar_per_hari: this.req.body.harga_kostumer_kamar_per_hari,
           createdAt: my_date,
           updatedAt: my_date,
         },
         { transaction: this.t }
       );
 
-      // 2. Insert semua tamu ke details
-      const detailData = body.details.map((d) => ({
-        hotel_transaction_id: transaksi.id,
-        name: d.name,
-        birth_date: d.birth_date,
-        birth_place: d.birth_place,
-        identity_number: d.identity_number,
-        mst_hotel_id: d.mst_hotel_id,
-        mst_kota_id: d.mst_kota_id,
-        price: d.price,
-        check_in: d.check_in,
-        check_out: d.check_out,
-        createdAt: my_date,
-        updatedAt: my_date,
-      }));
+      // jurnal
 
-      await Hotel_transaction_detail.bulkCreate(detailData, {
-        transaction: this.t,
-      });
+      // insert HPP Jurnal Visa
+      await Jurnal.create(
+        {
+          division_id: this.req.body.cabang, 
+          source: 'visaTransactionId:' + insert.id,
+          ref: 'HPP Penjualan Visa ',
+          ket: 'HPP Penjualan Visa ',
+          akun_debet: '53000',
+          akun_kredit: akun_kredit,
+          saldo: ( this.req.body.jumlah_hari * this.req.body.jumlah_kamar * this.req.body.harga_travel_kamar_per_hari ),
+          removable: 'false',
+          periode_id: 0,
+          createdAt: my_date,
+          updatedAt: my_date,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+      // insert Pendapatan Jurnal Visa
+      await Jurnal.create(
+        {
+          division_id: this.req.body.cabang, 
+          source: 'visaTransactionId:' + insert.id,
+          ref: 'Pendapatan Penjualan Visa ',
+          ket: 'Pendapatan Penjualan Visa ',
+          akun_debet: '11010',
+          akun_kredit: '44000',
+          saldo: ( this.req.body.jumlah_hari * this.req.body.jumlah_kamar * this.req.body.harga_kostumer_kamar_per_hari ),
+          removable: 'false',
+          periode_id: 0,
+          createdAt: my_date,
+          updatedAt: my_date,
+        },
+        {
+          transaction: this.t,
+        }
+      );
 
-      this.invoice = invoice;
-      this.message = "Transaksi hotel berhasil disimpan.";
+      // tambah pengurangan utang tabungan
+
+      // message
+      this.message = `Melakukan transaksi hotel dengan nomor invoice ${invoice}`;
     } catch (error) {
       this.message = "Gagal simpan transaksi hotel: " + error.message;
       this.state = false;

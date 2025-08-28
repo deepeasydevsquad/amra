@@ -45,9 +45,9 @@ router.post(
   authenticateToken,
   [ 
     body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").isNumeric().withMessage("ID Cabang harus berupa angka.").custom(validationCabang.check_cabang_id),
-    body("sumber_dana").trim().notEmpty().withMessage("Sumber dana tidak boleh kosong.").custom(validation.check_sumber_dana),
+    body("sumber_dana").trim().notEmpty().withMessage("Sumber dana tidak boleh kosong.").custom(validationCabang.check_sumber_dana),
     body("kostumer").trim().isNumeric().withMessage("ID Kostumer harus berupa angka.").custom(validation.check_kostumer),
-    body("paket").trim().isNumeric().withMessage("ID Kostumer harus berupa angka."),
+    body("paket").trim().isNumeric().withMessage("ID Paket harus berupa angka."),
     body("jenis_visa").trim().notEmpty().withMessage("Jenis Visa tidak boleh kosong.").isNumeric().withMessage("ID Jenis Visa harus berupa angka.").custom(validation.check_jenis_visa),
     body("pax").trim().notEmpty().withMessage("Pax tidak boleh kosong.").isNumeric().withMessage("Pax harus berupa angka."),
     body("harga_travel").trim().notEmpty().withMessage("Harga Travel tidak boleh kosong.").isNumeric().withMessage("Harga travel harus berupa angka.").custom(validation.check_saldo),

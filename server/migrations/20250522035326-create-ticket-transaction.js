@@ -65,7 +65,10 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       departure_date: {
-        type: Sequelize.DATE
+        type: Sequelize.DATEONLY
+      },
+      arrival_date: {
+        type: Sequelize.DATEONLY
       },
       createdAt: {
         allowNull: false,

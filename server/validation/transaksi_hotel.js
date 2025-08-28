@@ -1,68 +1,44 @@
 // server/validators/hotelTransactionValidator.js
 const { body } = require("express-validator");
-const { Hotel_transactions } = require("../models"); // <- sesuaikan path ke model lu
+const { Hotel_transactions, Mst_hotel, Mst_bank } = require("../models"); // <- sesuaikan path ke model lu
+const Akuntansi = require("../library/akuntansi");
+const { getCompanyIdByCode } = require("../helper/companyHelper");
 
-const hotelTransactionValidator = [
-  // Validasi invoice (opsional, kalo dikirim manual)
-  body("invoice")
-    .optional()
-    .custom(async (value) => {
-      const exist = await Hotel_transactions.findOne({
-        where: { invoice: value },
-      });
-      if (exist) {
-        throw new Error("Invoice sudah digunakan.");
-      }
-      return true;
-    }),
 
-  // Validasi array detail tamu
-  body("details")
-    .isArray({ min: 1 })
-    .withMessage("Minimal harus ada 1 tamu detail"),
+const validation = {};
 
-  body("details.*.name").notEmpty().withMessage("Nama tamu tidak boleh kosong"),
-
-  body("details.*.birth_date")
-    .notEmpty()
-    .withMessage("Tanggal lahir tamu wajib diisi"),
-
-  body("details.*.birth_place")
-    .notEmpty()
-    .withMessage("Tempat lahir tamu wajib diisi"),
-
-  body("details.*.identity_number")
-    .notEmpty()
-    .withMessage("Nomor identitas tamu wajib diisi"),
-
-  body("details.*.mst_hotel_id")
-    .isInt()
-    .withMessage("ID hotel harus berupa angka"),
-
-  body("details.*.mst_kota_id")
-    .isInt()
-    .withMessage("ID kota harus berupa angka"),
-
-  body("details.*.price").isNumeric().withMessage("Harga harus berupa angka"),
-
-  body("details.*.check_in")
-    .isISO8601()
-    .withMessage("Format check-in tidak valid"),
-
-  body("details.*.check_out")
-    .isISO8601()
-    .withMessage("Format check-out tidak valid"),
-
-  // Custom validasi: hanya boleh 1 payer
-  body("details").custom((details) => {
-    const payerCount = details.filter((d) => d.payer === true).length;
-    if (payerCount > 1) {
-      throw new Error("Hanya boleh 1 tamu yang ditandai sebagai payer.");
+validation.check_mst_hotel_id = async ( value,  { req } ) => {
+    const company_id = await getCompanyIdByCode(req);
+    if(value != '0') {
+        var check = await Mst_hotel.findOne({where: { id : value, company_id: company_id }});
+        if (!check) {
+            throw new Error("ID Hotel ini tidak ditemukan dipangkalan data");
+        }
+    }else{
+      throw new Error("Anda wajib memilih salah satu hotel");
     }
     return true;
-  }),
-];
+}
 
-module.exports = {
-  hotelTransactionValidator,
-};
+validation.check_saldo = async ( value, { req} ) => {
+    const company_id = await getCompanyIdByCode(req);
+    const akuntansi = new Akuntansi(); 
+    var nomor_akun = '';
+    if( req.body.sumber_dana == '0' ) {
+        nomor_akun = '11010';
+    }else{
+        const qB = await Mst_bank.findOne({ where: { id: req.body.sumber_dana, company_id: company_id } });
+        nomor_akun = qB.nomor_akun;
+    }
+    const saldo = await akuntansi.saldo_masing_masing_akun(nomor_akun, company_id, req.body.cabang, '0');
+    if(saldo < ( value * req.body.jumlah_kamar * req.body.jumlah_hari ) ) {
+        throw new Error("Jumlah total harga tidak boleh lebih besar dari saldo sumber dana.");
+    }else{
+        if( ( value * req.body.jumlah_kamar * req.body.jumlah_hari ) <= 1000 ) {
+            throw new Error("Jumlah total harga tidak boleh lebih kecil dari Rp 1000 .");
+        }
+    }
+    return true;
+}
+
+module.exports = validation;

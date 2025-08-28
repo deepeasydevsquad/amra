@@ -10,9 +10,9 @@ export const daftar_kota = async (param : any) => {
     }
 }
 
-export const daftar_hotel = async (param : any) => {
+export const get_jenis_hotel = async () => {
     try {
-        const response = await api.get("/trans_hotel/daftar_hotel", param);
+        const response = await api.get("/trans_hotel/daftar_hotel");
         return response.data;
     } catch (error) {
         console.error("Gagal menambahkan tiket:", error);
@@ -31,7 +31,7 @@ export const daftar_transaksi = async (param : any) => {
     }
 }
 
-export const add_transaksi = async (param : any) => {
+export const addHotelUrl = async (param : any) => {
     try {
         const response = await api.post("/trans_hotel/add_transaksi", param);
         return response.data;

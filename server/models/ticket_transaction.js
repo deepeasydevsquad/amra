@@ -54,7 +54,8 @@ module.exports = (sequelize, DataTypes) => {
     code_booking: DataTypes.STRING,
     travel_price: DataTypes.INTEGER,
     costumer_price: DataTypes.INTEGER,
-    departure_date: DataTypes.DATE,
+    departure_date: DataTypes.DATEONLY,
+    arrival_date: DataTypes.DATEONLY,
   }, {
     sequelize,
     modelName: 'Ticket_transaction',

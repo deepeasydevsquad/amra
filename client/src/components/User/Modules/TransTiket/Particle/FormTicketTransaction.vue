@@ -14,7 +14,9 @@
       <!-- Kode Booking -->
       <InputText v-model="form.kode_booking" label="Kode Booking" id="kode_booking" :error="errors.kode_booking" placeholder="Kode Booking" class="md:col-span-3"  />
       <!-- Tanggal Keberangkatan -->
-      <InputDate v-model="form.tanggal_keberangkatan" label="Tanggal Keberangkatan" :error="errors.tanggal_keberangkatan" id="tanggal_keberangkatan" placeholder="Tanggal Keberangkatan" class="md:col-span-4"  />
+      <InputDate v-model="form.tanggal_keberangkatan" label="Tanggal Keberangkatan" :error="errors.tanggal_keberangkatan" id="tanggal_keberangkatan" placeholder="Tanggal Keberangkatan" class="md:col-span-2"  />
+      <!-- Tanggal Kepulangan -->
+      <InputDate v-model="form.tanggal_kepulangan" label="Tanggal Kepulangan" :error="errors.tanggal_kepulangan" id="tanggal_kepulangan" placeholder="Tanggal Kepulangan" class="md:col-span-2"  />
       <!-- Harga Travel -->
       <InputText v-model="hargaTravel" label="Harga Travel" id="harga_travel" :error="errors.harga_travel" placeholder="Harga Travel" class="md:col-span-2"  />
       <!-- Harga Kostumer -->
@@ -95,7 +97,8 @@ interface FormData {
   paket: number,
   pax?: number,
   kode_booking?: string
-  tanggal_keberangkatan?: string
+  tanggal_keberangkatan: string
+  tanggal_kepulangan?: string
   harga_travel: number
   harga_kostumer: number
   dibayar?:number
@@ -112,6 +115,7 @@ const form = ref<FormData>({
   maskapai:0,
   kostumer: 0,
   paket: 0,
+  tanggal_keberangkatan: '',
   harga_travel: 0,
   harga_kostumer: 0
 })
@@ -123,6 +127,7 @@ const reset = () => {
     maskapai:0,
     kostumer: 0,
     paket: 0,
+    tanggal_keberangkatan: '',
     harga_travel: 0,
     harga_kostumer: 0,
   }
@@ -210,6 +215,7 @@ const handleSubmit = async (): Promise<void> => {
       pax: form.value.pax,
       kode_booking: form.value.kode_booking,
       tanggal_keberangkatan: form.value.tanggal_keberangkatan,
+      tanggal_kepulangan: form.value.tanggal_kepulangan,
       harga_travel: form.value.harga_travel,
       harga_kostumer: form.value.harga_kostumer,
       dibayar: form.value.dibayar

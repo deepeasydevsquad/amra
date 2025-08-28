@@ -1,21 +1,4 @@
-const {
-  Deposit,
-  Peminjaman,
-  Riwayat_pembayaran_peminjaman,
-  Fee_agen,
-  Op,
-  Kas_keluar_masuk,
-  Pembayaran_gaji,
-  Item_fasilitas,
-  Handover_fasilitas,
-  Handover_fasilitas_paket,
-  Transaction_fasilitas, 
-  Riwayat_deposit_airline, 
-  Ticket_payment_history, 
-  Ticket_transaction, 
-  Visa_transaction
-} = require("../models");
-
+const { Deposit, Peminjaman, Riwayat_pembayaran_peminjaman, Fee_agen, Op, Kas_keluar_masuk, Pembayaran_gaji, Item_fasilitas, Handover_fasilitas, Handover_fasilitas_paket, Transaction_fasilitas, Riwayat_deposit_airline, Ticket_payment_history, Ticket_transaction, Visa_transaction, Hotel_transaction } = require("../models");
 const helper = {};
 
 helper.randomString = async (length, chars) => {
@@ -25,6 +8,17 @@ helper.randomString = async (length, chars) => {
   return result;
 };
 
+
+helper.generateNomorInvoiceHotel = async ( division_id ) => {
+  var rand = 0;
+  let condition = true;
+  while (condition) {
+    rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    check = await Hotel_transaction.findOne({ where: { invoice: rand, division_id: division_id } });
+    if (!check) condition = false;
+  }
+  return rand;
+}
 
 helper.generateNomorInvoiceVisa = async ( division_id ) => {
   var rand = 0;

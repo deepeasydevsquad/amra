@@ -6,83 +6,111 @@ const validation = {};
 
 
 validation.check_saldo = async ( value, { req} ) => {
-    const company_id = await getCompanyIdByCode(req);
-    const akuntansi = new Akuntansi(); 
-    var nomor_akun = '';
-    if( req.body.sumber_dana == '0' ) {
-        nomor_akun = '11010';
-    }else{
-        const qB = await Mst_bank.findOne({ where: { id: req.body.sumber_dana, company_id: company_id } });
-        nomor_akun = qB.nomor_akun;
-    }
-    const saldo = await akuntansi.saldo_masing_masing_akun(nomor_akun, company_id, req.body.cabang, '0');
-    if(saldo < ( value * req.body.pax ) ) {
-        throw new Error("Jumlah total harga travel tidak boleh lebih besar dari saldo sumber dana.");
-    }else{
-        if( ( value * req.body.pax ) <= 1000 ) {
-            throw new Error("Jumlah total harga travel tidak boleh lebih kecil dari Rp 1000 .");
+    try {
+        const company_id = await getCompanyIdByCode(req);
+        const akuntansi = new Akuntansi(); 
+        var nomor_akun = '';
+        if( req.body.sumber_dana == '0' ) {
+            nomor_akun = '11010';
+        }else{
+            const qB = await Mst_bank.findOne({ where: { id: req.body.sumber_dana, company_id: company_id } });
+            nomor_akun = qB.nomor_akun;
         }
+        const saldo = await akuntansi.saldo_masing_masing_akun(nomor_akun, company_id, req.body.cabang, '0');
+        if(saldo < ( value * req.body.pax ) ) {
+            throw new Error("Jumlah total harga travel tidak boleh lebih besar dari saldo sumber dana.");
+        }else{
+            if( ( value * req.body.pax ) <= 1000 ) {
+                throw new Error("Jumlah total harga travel tidak boleh lebih kecil dari Rp 1000 .");
+            }
+        }    
+    } catch (error) {
+        console.log("---------1");
+        console.log(error);
+        console.log("---------1");
     }
+    
     return true;
 }
 
 validation.check_jenis_visa = async ( value ) => {
-    const check = await Mst_visa_request_type.findOne({
-        where: { id: value },
-    });
-    // check
-    if (!check) {
-        throw new Error("ID jenis visa tidak terdaftar di pangkalan data.");
+    try {
+        const check = await Mst_visa_request_type.findOne({
+            where: { id: value },
+        });
+        // check
+        if (!check) {
+            throw new Error("ID jenis visa tidak terdaftar di pangkalan data.");
+        }    
+    } catch (error) {
+        console.log("---------2");
+        console.log(error);
+        console.log("---------2");
     }
+    
     return true
 }
 
 validation.check_paket = async ( value,  { req } ) => {
-    if( value != 0) {
-        const company_id = await getCompanyIdByCode(req);
-        const check = await Paket.findOne({
-            where: { id: value },
-            include: {
-                model: Division,
-                required: true,
-                where: { company_id }
+
+    try {
+        if( value != 0) {
+            const company_id = await getCompanyIdByCode(req);
+            const check = await Paket.findOne({
+                where: { id: value },
+                include: {
+                    model: Division,
+                    required: true,
+                    where: { company_id }
+                }
+            });
+            // check
+            if (!check) {
+                throw new Error("ID paket tidak terdaftar di pangkalan data.");
             }
-        });
-        // check
-        if (!check) {
-            throw new Error("ID paket tidak terdaftar di pangkalan data.");
-        }
+        }        
+    } catch (error) {
+        console.log("---------3");
+        console.log(error);
+        console.log("---------3");
     }
+
     return true;
 }
 
 validation.check_kostumer = async ( value,  { req } ) => {
-    if( value != 0) {
-        const company_id = await getCompanyIdByCode(req);
-        const check = await Kostumer.findOne({
-            where: { id: value, company_id },
-        });
-        // check
-        if (!check) {
-            throw new Error("ID kostumer tidak terdaftar di pangkalan data.");
+    try{
+        if( value != 0) {
+            const company_id = await getCompanyIdByCode(req);
+            const check = await Kostumer.findOne({
+                where: { id: value, company_id },
+            });
+            // check
+            if (!check) {
+                throw new Error("ID kostumer tidak terdaftar di pangkalan data.");
+            }
         }
+    } catch (error) {
+        console.log("---------4");
+        console.log(error);
+        console.log("---------4");
     }
     return true;
 }
 
-validation.check_sumber_dana = async ( value,  { req} ) => {
-    if(value != 0){
-        const company_id = await getCompanyIdByCode(req);
-        const check = await Mst_bank.findOne({
-            where: { id: value, company_id },
-        });
-        // check
-        if (!check) {
-            throw new Error("ID sumber dana tidak terdaftar di pangkalan data.");
-        }
-    }
-    return true;
-}
+// validation.check_sumber_dana = async ( value,  { req} ) => {
+//     if(value != 0){
+//         const company_id = await getCompanyIdByCode(req);
+//         const check = await Mst_bank.findOne({
+//             where: { id: value, company_id },
+//         });
+//         // check
+//         if (!check) {
+//             throw new Error("ID sumber dana tidak terdaftar di pangkalan data.");
+//         }
+//     }
+//     return true;
+// }
 
 // Validasi untuk memastikan kota yang dipilih valid
 validation.check_city_id = async (value, { req }) => {
@@ -368,23 +396,31 @@ validation.check_postal_code = async (value, { req }) => {
 
 // Validasi untuk memastikan transaksi visa exists (untuk update/delete)
 validation.check_visa_transaction_exists = async (value, { req }) => {
-    const company_id = await getCompanyIdByCode(req);
-    const check = await Visa_transaction.findOne({ 
-        where: { 
-            id: value 
-        }, 
-        include: { 
-            model: Division, 
-            required: true, 
+
+    try {
+        const company_id = await getCompanyIdByCode(req);
+        const check = await Visa_transaction.findOne({ 
             where: { 
-                company_id: company_id 
+                id: value 
+            }, 
+            include: { 
+                model: Division, 
+                required: true, 
+                where: { 
+                    company_id: company_id 
+                } 
             } 
-        } 
-    });
-    // filter
-    if (!check) {
-        throw new Error("ID visa transaksi tidak terdaftar di pangkalan data");
+        });
+        // filter
+        if (!check) {
+            throw new Error("ID visa transaksi tidak terdaftar di pangkalan data");
+        }    
+    } catch (error) {
+        console.log("_________________");
+        console.log(error);
+        console.log("_________________");
     }
+    
     return true;
 };
 

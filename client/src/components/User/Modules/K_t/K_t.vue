@@ -226,7 +226,7 @@ onMounted(() => {
           <tr>
             <td class="px-6 py-2 font-medium text-gray-900 text-start">RINCIAN KEUNTUNGAN PROGRAM PAKET</td>
             <td class="px-0 py-2 font-medium text-gray-900 text-start">:</td>
-            <td class="px-0 py-2 font-medium text-gray-900 text-start">{{ formatRupiah(data.keuntungan ?? 0) }}</td>
+            <td class="px-0 py-2 font-medium text-gray-900 text-start"><span v-if="data.keuntungan < 0" class="text-red font-bold">(Rugi)</span> {{ formatRupiah(data.keuntungan ?? 0) }}</td>
           </tr>
         </tbody>
       </table>

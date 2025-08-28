@@ -44,6 +44,7 @@
                   <div>HARGA TRAVEL: Rp {{ transaction.travel_price.toLocaleString() }}</div>
                   <div>TANGGAL BERANGKAT: {{ transaction.departure_date }} </div>
                   <div>HARGA KOSTUMER: Rp {{ transaction.costumer_price.toLocaleString() }}</div>
+                  <div v-if="transaction.arrival_date != null">TANGGAL KEPULANGAN: {{ transaction.arrival_date }} </div>
                 </div>
               <div class="bg-red-100 mt-2 px-4 py-1 text-sm font-bold flex justify-between items-center w-full">
                 <span>SUBTOTAL</span>
@@ -217,6 +218,7 @@ interface TicketTransaction {
   code_booking: string
   airlines_name: string | null
   departure_date: string
+  arrival_date: string
   travel_price: number
   costumer_price: number
   paket_name: string

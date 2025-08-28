@@ -131,7 +131,7 @@ class Model_cud {
           ket: 'HPP Penjualan Visa ',
           akun_debet: '52000',
           akun_kredit: akun_kredit,
-          saldo: this.req.body.harga_travel,
+          saldo: this.req.body.pax * this.req.body.harga_travel,
           removable: 'false',
           periode_id: 0,
           createdAt: myDate,
@@ -150,7 +150,7 @@ class Model_cud {
           ket: 'Pendapatan Penjualan Visa ',
           akun_debet: '11010',
           akun_kredit: '45000',
-          saldo: this.req.body.harga_costumer,
+          saldo: this.req.body.pax * this.req.body.harga_costumer,
           removable: 'false',
           periode_id: 0,
           createdAt: myDate,
@@ -161,13 +161,35 @@ class Model_cud {
         }
       );
 
+      // tambah pengurangan utang tabungan
+      if( this.req.body.paket != 0 ) {
+        await Jurnal.create(
+          {
+            division_id: this.req.body.cabang, 
+            source: 'visaTransactionId:' + insert.id,
+            ref: 'Kas / Pembayaran utang untuk Penjualan Visa ',
+            ket: 'Kas / Pembayaran utang untuk Penjualan Visa ',
+            akun_debet: this.req.body.paket ? '23000' : '11010',
+            akun_kredit: null,
+            saldo: this.req.body.pax * this.req.body.harga_costumer,
+            removable: 'false',
+            periode_id: 0,
+            createdAt: myDate,
+            updatedAt: myDate,
+          },
+          {
+            transaction: this.t,
+          }
+        );
+      }
+      
+
       this.message = ` Melakukan proses transaksi visa dengan invoice ${this.invoice}.`;
     } catch (error) {
 
-      console.log("xxxxxxxDDDDDDDDDDD");
+      console.log("XXXXXX");
       console.log(error);
-      console.log("xxxxxxxDDDDDDDDDDD");
-
+      console.log("XXXXXX");
       this.state = false;
     }
   }
@@ -241,209 +263,6 @@ class Model_cud {
       console.error("VisaTransactionAddError:", error);
     }
   }
-
-  //Mencari atau membuat data jenis visa di tabel mst_visa_request_type
-
-  // async findOrCreateVisaType(visaType) {
-  //   try {
-  //     let visaRequestType = await Mst_visa_request_type.findOne({
-  //       where: {
-  //         name: visaType,
-  //       },
-  //     });
-  //     if (!visaRequestType) {
-  //       visaRequestType = await Mst_visa_request_type.create(
-  //         {
-  //           name: visaType,
-  //           createdAt: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
-  //           updatedAt: moment(new Date()).format("YYYY-MM-DD HH:mm:ss"),
-  //         },
-  //         { transaction: this.t }
-  //       );
-  //     }
-
-  //     return visaRequestType.id;
-  //   } catch (error) {
-  //     console.error("Error di findOrCreateVisaType:", error);
-  //     throw error;
-  //   }
-  // }
-
-  //Menambahkan data transaksi visa baru ke database.
-  // async add() {
-  //   await this.initialize();
-  //   const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
-  //   const body = this.req.body;
-
-  //   try {
-  //     const namaPetugas = await this.petugas();
-  //     if (namaPetugas.startsWith("Error:") || namaPetugas.includes("Unknown")) {
-  //       throw new Error(
-  //         `Gagal menentukan petugas yang valid. Diterima: ${namaPetugas}`
-  //       );
-  //     }
-
-  //     const newTransaction = await Visa_transaction.create(
-  //       {
-  //         invoice: body.invoice,
-  //         company_id: this.company_id,
-  //         petugas: namaPetugas,
-  //         payer: body.payer,
-  //         payer_identity: body.payer_identity,
-  //         createdAt: body.valid_until,
-  //         updatedAt: myDate,
-  //       },
-  //       { transaction: this.t }
-  //     );
-
-  //     const newTransactionId = newTransaction.id;
-
-  //     const visaTypeId = await this.findOrCreateVisaType(body.jenis_visa);
-  //     await Visa_transaction_detail.create(
-  //       {
-  //         visa_transaction_id: newTransactionId,
-  //         mst_visa_request_type_id: visaTypeId,
-  //         name: body.name,
-  //         identity_number: body.identity_number,
-  //         gender: body.gender
-  //           ? body.gender.toLowerCase().replace("-", "_")
-  //           : null,
-  //         birth_place: body.birth_place,
-  //         birth_date: body.birth_date,
-  //         citizenship: body.nationality,
-  //         passport_number: body.passport_number,
-  //         date_issued: body.passport_issued_date,
-  //         place_of_release: body.passport_issued_place,
-  //         valid_until: body.passport_expire_date,
-  //         profession_idn: body.indonesia_job,
-  //         profession_foreign: body.abroad_job,
-  //         profession_address: body.work_address,
-  //         pofession_pos_code: body.postal_code,
-  //         profession_city: body.city,
-  //         profession_country: body.origin_country,
-  //         profession_telephone: body.phone,
-  //         price: body.price,
-  //         createdAt: body.valid_until,
-  //         updatedAt: myDate,
-  //       },
-  //       { transaction: this.t }
-  //     );
-
-  //     this.message = `Menambahkan Transaksi Visa Baru untuk : ${body.payer} dengan ID Transaksi : ${newTransactionId} oleh petugas: ${namaPetugas}`;
-  //   } catch (error) {
-  //     console.error("Error di model CUD add:", error);
-  //     this.state = false;
-  //     this.message = `Gagal menambahkan transaksi: ${error.message}`;
-  //   }
-  // }
-
-  // async update() {
-  //   await this.initialize();
-  //   const body = this.req.body;
-  //   const transactionId = body.id;
-  //   const now = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
-
-  //   try {
-  //     const namaPetugas = await this.petugas();
-
-  //     if (!transactionId) {
-  //       throw new Error("ID transaksi tidak boleh kosong.");
-  //     }
-
-  //     // Cari transaksi utama
-  //     const existingTransaction = await Visa_transaction.findOne({
-  //       where: {
-  //         id: transactionId,
-  //         company_id: this.company_id,
-  //       },
-  //     });
-
-  //     if (!existingTransaction) {
-  //       throw new Error(
-  //         "Transaksi tidak ditemukan atau bukan milik perusahaan ini."
-  //       );
-  //     }
-
-  //     // Update transaksi utama
-  //     await Visa_transaction.update(
-  //       {
-  //         invoice: body.invoice ?? existingTransaction.invoice,
-  //         payer: body.payer ?? existingTransaction.payer,
-  //         payer_identity:
-  //           body.payer_identity ?? existingTransaction.payer_identity,
-  //         updatedAt: now,
-  //       },
-  //       {
-  //         where: {
-  //           id: transactionId,
-  //           company_id: this.company_id,
-  //         },
-  //         transaction: this.t,
-  //       }
-  //     );
-
-  //     // Cari detail transaksi
-  //     const existingDetail = await Visa_transaction_detail.findOne({
-  //       where: { visa_transaction_id: transactionId },
-  //     });
-
-  //     if (!existingDetail) {
-  //       throw new Error("Detail transaksi tidak ditemukan.");
-  //     }
-
-  //     // Dapatkan ID jenis visa jika diubah
-  //     let visaTypeId = existingDetail.mst_visa_request_type_id;
-  //     if (body.jenis_visa) {
-  //       visaTypeId = await this.findOrCreateVisaType(body.jenis_visa);
-  //     }
-
-  //     // Update detail
-  //     await Visa_transaction_detail.update(
-  //       {
-  //         mst_visa_request_type_id: visaTypeId,
-  //         name: body.name ?? existingDetail.name,
-  //         identity_number:
-  //           body.identity_number ?? existingDetail.identity_number,
-  //         gender: body.gender
-  //           ? body.gender.toLowerCase().replace("-", "_")
-  //           : existingDetail.gender,
-  //         birth_place: body.birth_place ?? existingDetail.birth_place,
-  //         birth_date: body.birth_date ?? existingDetail.birth_date,
-  //         citizenship: body.nationality ?? existingDetail.citizenship,
-  //         passport_number:
-  //           body.passport_number ?? existingDetail.passport_number,
-  //         date_issued: body.passport_issued_date ?? existingDetail.date_issued,
-  //         place_of_release:
-  //           body.passport_issued_place ?? existingDetail.place_of_release,
-  //         valid_until: body.valid_until ?? existingDetail.valid_until,
-  //         profession_idn: body.indonesia_job ?? existingDetail.profession_idn,
-  //         profession_foreign:
-  //           body.abroad_job ?? existingDetail.profession_foreign,
-  //         profession_address:
-  //           body.work_address ?? existingDetail.profession_address,
-  //         pofession_pos_code:
-  //           body.postal_code ?? existingDetail.pofession_pos_code,
-  //         profession_city: body.city ?? existingDetail.profession_city,
-  //         profession_country:
-  //           body.origin_country ?? existingDetail.profession_country,
-  //         profession_telephone:
-  //           body.phone ?? existingDetail.profession_telephone,
-  //         price: body.price ?? existingDetail.price,
-  //         updatedAt: now,
-  //       },
-  //       {
-  //         where: { visa_transaction_id: transactionId },
-  //         transaction: this.t,
-  //       }
-  //     );
-
-  //     this.message = `Berhasil mengupdate transaksi visa dengan ID ${transactionId} oleh petugas ${namaPetugas}`;
-  //   } catch (error) {
-  //     console.error("Error di model CUD update:", error);
-  //     this.state = false;
-  //     this.message = error.message;
-  //   }
-  // }
 
   //Menghapus data transaksi visa dari database.
   async hapus(transactionId) {

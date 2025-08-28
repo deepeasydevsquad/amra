@@ -22,6 +22,7 @@ router.post(
     body("pax").notEmpty().withMessage("Pax tidak boleh kosong.").isNumeric().withMessage("Pax harus berupa angka."),
     body("kode_booking").notEmpty().withMessage("Kode Booking tidak boleh kosong."),
     body("tanggal_keberangkatan").notEmpty().withMessage("Tanggal Keberangkatan tidak boleh kosong."),
+    body("tanggal_kepulangan").trim(),
     body("harga_travel").notEmpty().withMessage("Harga Travel tidak boleh kosong.").isNumeric().withMessage("Harga travel harus berupa angka."),
     body("harga_kostumer").notEmpty().withMessage("Harga Kostumer tidak boleh kosong."),
     body("dibayar"),

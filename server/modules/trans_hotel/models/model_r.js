@@ -48,7 +48,7 @@ class Model_r {
       const page =
         body.pageNumber && body.pageNumber !== "0" ? body.pageNumber : 1;
 
-      let where = { company_id: this.company_id };
+      let where = { division_id: this.req.body.cabang };
 
       if (body.search) {
         where = {
@@ -65,6 +65,17 @@ class Model_r {
         include: [
           {
             model: Kostumer,
+            required: false,
+            attributes: ["name"],
+          },
+          {
+            model: Paket,
+            required: false,
+            attributes: ["name"],
+          },
+          {
+            model: Mst_hotel,
+            required: false,
             attributes: ["name"],
           },
         ],
@@ -75,79 +86,29 @@ class Model_r {
       let data = [];
 
       if (total > 0) {
-        const listId = [];
-        const paketIds = new Set();
-
-        q.rows.forEach((trx) => {
-          listId.push(trx.id);
-          if (trx.paket_id) paketIds.add(trx.paket_id);
-
+        q.rows.forEach((e) => {
           data.push({
-            id: trx.id,
-            invoice: trx.invoice,
-            petugas: trx.petugas,
-            paket_id: trx.paket_id || null,
-            kostumer_name: trx.Kostumer?.name || "-",
-            tanggal_transaksi: moment(trx.createdAt).format(
-              "YYYY-MM-DD HH:mm:ss"
-            ),
-            total_harga: 0,
-            details: [],
+            id: e.id,
+            invoice: e.invoice, 
+            petugas: e.petugas,
+            kostumer: e.Kostumer?.name || "-", 
+            paket: e.Paket?.name || "-", 
+            hotel: e.Mst_hotel.name,
+            jumlah_hari: e.jumlah_hari,
+            jumlah_kamar: e.jumlah_kamar,
+            harga_travel_kamar_per_hari: e.harga_travel_kamar_per_hari,
+            harga_kostumer_kamar_per_hari: e.harga_kostumer_kamar_per_hari,
+            tipe_kamar: e.tipe_kamar,
+            tanggal_transaksi: moment(e.createdAt).format("D MMMM YYYY")
           });
         });
-
-        const paketMap = await this.ambil_nama_paket_bulk([...paketIds]);
-
-        data = data.map((trx) => ({
-          ...trx,
-          paket_name: trx.paket_id ? paketMap[trx.paket_id] || "-" : "-",
-        }));
-
-        const hotelDetails = await Hotel_transaction_detail.findAll({
-          where: {
-            hotel_transaction_id: { [Op.in]: listId },
-          },
-          include: [
-            {
-              model: Mst_hotel,
-              required: true,
-              attributes: ["name"],
-            },
-          ],
-        });
-
-        const dataHotel = {};
-        const totalHotel = {};
-
-        hotelDetails.forEach((e) => {
-          const trxId = e.hotel_transaction_id;
-          if (!dataHotel[trxId]) dataHotel[trxId] = [];
-          if (!totalHotel[trxId]) totalHotel[trxId] = 0;
-
-          dataHotel[trxId].push({
-            name: e.name,
-            birth_place: e.birth_place,
-            birth_date: e.birth_date,
-            identity_number: e.identity_number,
-            price: e.price,
-            check_in: e.check_in,
-            check_out: e.check_out,
-            hotel_name: e.Mst_hotel?.name ?? "-",
-          });
-
-          totalHotel[trxId] += e.price;
-        });
-
-        data = data.map((trx) => ({
-          ...trx,
-          details: dataHotel[trx.id] || [],
-          total_harga: totalHotel[trx.id] || 0,
-        }));
       }
 
       return { data, total };
     } catch (error) {
-      console.error("Error in daftar_transaksi_hotel:", error);
+      console.log("xxxxx");
+      console.log(error);
+      console.log("xxxxx");
       return {};
     }
   }

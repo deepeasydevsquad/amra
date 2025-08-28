@@ -9,10 +9,36 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      company_id: {
+      division_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Companies",
+          model: "Divisions",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
+      },
+      kostumer_id: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Kostumers",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
+      },
+      paket_id: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Pakets",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
+      },
+      mst_hotel_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Mst_hotels",
           key: "id",
         },
         onDelete: 'CASCADE',
@@ -23,16 +49,26 @@ module.exports = {
       petugas: {
         type: Sequelize.STRING
       },
-      kostumer_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "Kostumers",
-          key: "id",
-        },
-        onDelete: 'CASCADE',
+      check_in: {
+        type: Sequelize.DATEONLY
       },
-      paket_id: {
-        type: Sequelize.INTEGER,
+      check_out: {
+        type: Sequelize.DATEONLY
+      },
+      tipe_kamar: {
+        type: Sequelize.STRING
+      },
+      jumlah_hari: {
+        type: Sequelize.INTEGER
+      },
+      jumlah_kamar: {
+        type: Sequelize.INTEGER
+      },
+      harga_travel_kamar_per_hari: {
+        type: Sequelize.INTEGER
+      },
+      harga_kostumer_kamar_per_hari: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,

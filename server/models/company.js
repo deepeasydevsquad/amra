@@ -89,11 +89,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "company_id",
         onDelete: "CASCADE",
       });
-      
-      Company.hasMany(models.Hotel_transaction, {
-        foreignKey: "company_id",
-        onDelete: "CASCADE",
-      });
       Company.hasMany(models.Passport_transaction, {
         foreignKey: "company_id",
         onDelete: "CASCADE",

@@ -120,34 +120,36 @@ class Model_r {
       // mengambil informasi total transaksi visa
       var unit_visa = 0;
       var total_rupiah_visa = 0;
-      const q4 = await Visa_transaction_detail.findAndCountAll({ 
+      const q4 = await Visa_transaction.findAndCountAll({ 
+        where: { paket_id: body.paket_id }, 
         include: {
           required : true, 
-          model: Visa_transaction, 
-          where: { paket_id: body.paket_id, company_id: this.company_id },
+          model: Division,
+          where: { company_id : this.company_id }
         }
-      });
+     });
       await Promise.all(
         await q4.rows.map(async (e) => {
-          unit_visa = unit_visa + 1;
-          total_rupiah_visa = total_rupiah_visa + e.price;
+          unit_visa = unit_visa + e.pax;
+          total_rupiah_visa = total_rupiah_visa + (e.pax * e.harga_costumer);
         })
       );
 
       // mengambil informasi total transaksi hotel
       var unit_hotel = 0;
       var total_rupiah_hotel = 0;
-      const q5 = await Hotel_transaction_detail.findAndCountAll({ 
+      const q5 = await Hotel_transaction.findAndCountAll({ 
+        where: { paket_id: body.paket_id }, 
         include: {
           required : true, 
-          model: Hotel_transaction, 
-          where: { paket_id: body.paket_id, company_id: this.company_id },
+          model: Division,
+          where: { company_id : this.company_id }
         }
       });
       await Promise.all(
         await q5.rows.map(async (e) => {
           unit_hotel = unit_hotel + 1;
-          total_rupiah_hotel = total_rupiah_hotel + e.price;
+          total_rupiah_hotel = total_rupiah_hotel + (e.jumlah_hari * e.jumlah_kamar * e.harga_kamar_per_hari);
         })
       );
 

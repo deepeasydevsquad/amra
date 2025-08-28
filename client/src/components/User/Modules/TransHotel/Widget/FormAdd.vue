@@ -13,8 +13,8 @@ import DangerButton from '@/components/Button/DangerButton.vue'
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
 import { paramCabang } from '@/service/param_cabang'
 import { daftar_kostumer, get_jenis_visa, getSumberDanaPaket, addVisaUrl } from '@/service/transaksi_visa'
+import { get_jenis_hotel, addHotelUrl } from '@/service/transaksi_hotel'
 
-// Props & Emit
 const props = defineProps<{ formStatus: boolean }>()
 const emit = defineEmits(['cancel', 'submitted'])
 
@@ -27,16 +27,23 @@ const errors = ref<Record<string, string>>({})
 
 function reset() {
   errors.value = {}
+  list_cabang.value = [{ id: 0, name: ' -- Pilih Cabang -- ' }];
+  list_hotel.value = [{ id: 0, name: ' -- Pilih Daftar Hotel -- ' }];
   list_sumber_dana.value = [{ id: 0, name: ' -- Pilih Sumber Dana -- ' }];
+  list_paket.value = [{ id: 0, name: ' -- Pilih Paket -- ' }];
   form.value = {
     cabang: 0,
     sumber_dana: 0,
-    jenis_visa_id: 0,
+    mst_hotel_id: 0,
     paket_id: 0,
     kostumer_id: 0,
-    pax: 0,
-    harga_travel:0,
-    harga_costumer:0
+    check_in: '',
+    check_out: '',
+    tipe_kamar: '',
+    jumlah_hari: 0,
+    jumlah_kamar: 0,
+    harga_travel_kamar_per_hari: 0,
+    harga_kostumer_kamar_per_hari: 0
   }
 }
 
@@ -65,23 +72,43 @@ const validateForm = (): boolean => {
     isValid = false
   }
 
-  if (form.value.jenis_visa_id == 0) {
-    errors.value.jenis_visa_id = 'Jenis visa wajib dipilih'
+  if (form.value.mst_hotel_id == 0) {
+    errors.value.mst_hotel_id = 'Daftar hotel wajib dipilih'
     isValid = false
   }
 
-   if (form.value.pax === 0) {
-    errors.value.pax = 'Pax tidak boleh lebih kecil dari 1'
+  if( form.value.check_in == '') {
+    errors.value.check_in = 'Check in wajib diisi';
     isValid = false
   }
 
-  if ( form.value.harga_travel === 0 ) {
-    errors.value.harga_travel = 'Harga travel harus lebih besar dari 0'
+  if( form.value.check_out == '') {
+    errors.value.check_out = 'Check out wajib diisi';
     isValid = false
   }
 
-  if ( form.value.harga_costumer === 0 ) {
-    errors.value.harga_costumer = 'Harga kostumer harus lebih besar dari 0'
+  if( form.value.tipe_kamar == '') {
+    errors.value.tipe_kamar = 'Tipe kamar wajib diisi';
+    isValid = false
+  }
+
+  if( form.value.jumlah_hari == 0) {
+    errors.value.jumlah_hari = 'Jumlah hari wajib diisi';
+    isValid = false
+  }
+
+  if( form.value.jumlah_kamar == 0) {
+    errors.value.jumlah_kamar = 'Jumlah kamar wajib diisi';
+    isValid = false
+  }
+
+  if( form.value.harga_travel_kamar_per_hari == 0) {
+    errors.value.harga_travel_kamar_per_hari = 'Harga travel kamar per hari wajib diisi';
+    isValid = false
+  }
+
+  if( form.value.harga_kostumer_kamar_per_hari == 0) {
+    errors.value.harga_kostumer_kamar_per_hari = 'Harga kostumer kamar per hari wajib diisi';
     isValid = false
   }
 
@@ -100,15 +127,20 @@ async function handleSubmit() {
       sumber_dana: form.value.sumber_dana,
       kostumer: form.value.kostumer_id,
       paket: form.value.paket_id,
-      jenis_visa: form.value.jenis_visa_id,
-      pax: form.value.pax,
-      harga_travel: form.value.harga_travel,
-      harga_costumer: form.value.harga_costumer
+      mst_hotel_id: form.value.mst_hotel_id,
+      check_in: form.value.check_in,
+      check_out: form.value.check_out,
+      tipe_kamar: form.value.tipe_kamar,
+      jumlah_hari: form.value.jumlah_hari,
+      jumlah_kamar: form.value.jumlah_kamar,
+      harga_travel_kamar_per_hari: form.value.harga_travel_kamar_per_hari,
+      harga_kostumer_kamar_per_hari: form.value.harga_kostumer_kamar_per_hari
     }
-    await addVisaUrl(payload);
+
+    await addHotelUrl(payload);
     emit('submitted');
     reset();
-    displayNotification('Update data tiket berhasil dilakukan.', 'success');
+    displayNotification('Transaksi hotel berhasil dilakukan', 'success');
   } catch (error : any) {
     displayNotification(error.response.data.message, 'error');
   }
@@ -117,24 +149,32 @@ async function handleSubmit() {
 interface FormData {
   cabang:number
   sumber_dana:number
-  jenis_visa_id: number
+  mst_hotel_id: number
   paket_id:number
   kostumer_id: number
-  pax: number
-  harga_travel: number
-  harga_costumer: number
+  check_in: string
+  check_out: string
+  tipe_kamar: string
+  jumlah_hari: number
+  jumlah_kamar: number
+  harga_travel_kamar_per_hari: number
+  harga_kostumer_kamar_per_hari: number
 }
 
 // Data form yang akan ditampilkan
 const form = ref<FormData>({
   cabang: 0,
   sumber_dana: 0,
-  jenis_visa_id: 0,
+  mst_hotel_id: 0,
   paket_id: 0,
   kostumer_id: 0,
-  pax: 0,
-  harga_travel:0,
-  harga_costumer:0
+  check_in: '',
+  check_out: '',
+  tipe_kamar: '',
+  jumlah_hari: 0,
+  jumlah_kamar: 0,
+  harga_travel_kamar_per_hari: 0,
+  harga_kostumer_kamar_per_hari: 0
 })
 
 // mengambil daftar kostumer
@@ -153,9 +193,15 @@ const list_paket = ref<option[]>([{ id: 0, name: ' -- Pilih Paket -- ' }]) // Ta
 const list_sumber_dana = ref<option[]>([{ id: 0, name: ' -- Pilih Sumber Dana -- ' }])
 const fetchSumberDanaPaket = async () => {
   try {
-    const response = await getSumberDanaPaket({ cabang: form.value.cabang })
-    list_paket.value = [{ id: 0, name: ' -- Pilih Paket -- ' }, ...response.data.daftar_paket] ;
-    list_sumber_dana.value = response.data.sumber_dana;
+    if( form.value.cabang != 0) {
+      const response = await getSumberDanaPaket({ cabang: form.value.cabang })
+      list_paket.value = [{ id: 0, name: ' -- Pilih Paket -- ' }, ...response.data.daftar_paket] ;
+      list_sumber_dana.value = response.data.sumber_dana;
+    }else{
+      list_paket.value = [{ id: 0, name: ' -- Pilih Paket -- ' }]
+      list_sumber_dana.value = [{ id: 0, name: ' -- Pilih Sumber Dana -- ' }];
+    }
+
   } catch (error) {
     console.error(error)
   }
@@ -172,43 +218,43 @@ const fetchCabang = async () => {
   }
 }
 
-// mengambil jenis visa
-const list_jenis_visa = ref<option[]>([{ id: 0, name: ' -- Pilih Jenis Visa -- ' }])
-const fetchJenisVisa = async () => {
+// mengambil jenis hotel
+const list_hotel = ref<option[]>([{ id: 0, name: ' -- Pilih Daftar Hotel -- ' }])
+const fetchDaftarHotel = async () => {
   try {
-    const response = await get_jenis_visa()
-    list_jenis_visa.value = [{ id: 0, name: ' -- Pilih Jenis Visa -- ' }, ...response.data]
+    const response = await get_jenis_hotel()
+    list_hotel.value = [{ id: 0, name: ' -- Pilih Daftar Hotel -- ' }, ...response];
   } catch (error) {
     console.error(error)
   }
 }
 
-const harga_travel = computed({
+const harga_travel_kamar_per_hari = computed({
   get() {
-    return form.value.harga_travel
-      ? 'Rp ' + form.value.harga_travel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+    return form.value.harga_travel_kamar_per_hari
+      ? 'Rp ' + form.value.harga_travel_kamar_per_hari.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
       : ''
   },
   set(value: string) {
     const clean = value.replace(/[^\d]/g, '')
-    form.value.harga_travel = Number(clean)
+    form.value.harga_travel_kamar_per_hari = Number(clean)
   },
 });
 
-const harga_costumer = computed({
+const harga_kostumer_kamar_per_hari = computed({
   get() {
-    return form.value.harga_costumer
-      ? 'Rp ' + form.value.harga_costumer.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+    return form.value.harga_kostumer_kamar_per_hari
+      ? 'Rp ' + form.value.harga_kostumer_kamar_per_hari.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
       : ''
   },
   set(value: string) {
     const clean = value.replace(/[^\d]/g, '')
-    form.value.harga_costumer = Number(clean)
+    form.value.harga_kostumer_kamar_per_hari = Number(clean)
   },
 });
 
 const total = computed(() => {
-  return ( form.value.pax ?? 0 ) * (form.value.harga_costumer ?? 0 )
+  return  form.value.jumlah_hari * form.value.jumlah_kamar  * form.value.harga_kostumer_kamar_per_hari;
 })
 
 const formatRupiah = (value: number): string => {
@@ -239,14 +285,15 @@ watch(
     if (val) {
       await fetchCustomer()
       await fetchCabang()
-      await fetchJenisVisa()
+      await fetchDaftarHotel()
     }
   },
 )
+
 </script>
 
 <template>
-  <Form :formStatus="props.formStatus" :label="'Tambah Transaksi Visa'" :width="'md:w-1/2 lg:w-1/4'" :submitLabel="'Tambah Transaksi Visa'" @submit="handleSubmit" @cancel="handleCancel">
+  <Form :formStatus="props.formStatus" :label="'Tambah Transaksi Hotel'" :width="'md:w-1/2 lg:w-1/4'" :submitLabel="'Tambah Transaksi Hotel'" @submit="handleSubmit" @cancel="handleCancel">
     <div class="grid md:grid-cols-4 gap-6 mb-6">
       <!-- Cabang -->
       <SelectField v-model.number="form.cabang" id="cabang" label="Cabang" class="md:col-span-4"  placeholder="Pilih Cabang" :options="list_cabang"  :error="errors.cabang"  @change="fetchSumberDanaPaket" />
@@ -256,14 +303,22 @@ watch(
       <SelectField v-model.number="form.kostumer_id" id="kostumer" label="Kostumer" class="md:col-span-4"  placeholder="Pilih Kostumer" :error="errors.kostumer_paket" :options="list_kostumer" />
       <!-- Paket -->
       <SelectField v-model.number="form.paket_id" id="paket" label="Paket" class="md:col-span-4"  placeholder="Pilih Paket" :error="errors.kostumer_paket" :options="list_paket" />
-      <!-- Jenis Visa -->
-      <SelectField v-model.number="form.jenis_visa_id" id="jenis_visa" label="Jenis Visa" class="md:col-span-3"  placeholder="Pilih Jenis Visa" :error="errors.jenis_visa_id" :options="list_jenis_visa" />
-      <!-- Paket -->
-      <InputText v-model.number="form.pax" label="Pax" id="pax"  type="number" :error="errors.pax" placeholder="Pax" class="md:col-span-1"  />
-      <!-- Harga Travel -->
-      <InputText v-model="harga_travel" label="Harga Travel" id="harga_travel" :error="errors.harga_travel" placeholder="Harga Travel" class="md:col-span-2"  />
-      <!-- Harga Costumer -->
-      <InputText v-model="harga_costumer" label="Harga Kostumer" id="harga_costumer" :error="errors.harga_costumer" placeholder="Harga Kostumer" class="md:col-span-2"  />
+      <!-- Daftar Hotel -->
+      <SelectField v-model.number="form.mst_hotel_id" id="hotel" label="Daftar Hotel" class="md:col-span-2"  placeholder="Pilih Daftar hotel" :error="errors.mst_hotel_id" :options="list_hotel" />
+      <!-- Tipe Kamar -->
+      <InputText v-model="form.tipe_kamar" label="Tipe Kamar" id="tipe_kamar" :error="errors.tipe_kamar" placeholder="Tipe Kamar" class="md:col-span-2"  />
+      <!-- Tanggal Check In -->
+      <InputDate v-model="form.check_in" label="Check In" id="check_in" :error="errors.check_in" placeholder="Check In" class="md:col-span-2"  />
+      <!-- Tanggal Check Out -->
+      <InputDate v-model="form.check_out" label="Check Out" id="check_out" :error="errors.check_out" placeholder="Check Out" class="md:col-span-2"  />
+      <!-- Jumlah Hari -->
+      <InputText v-model.number="form.jumlah_hari" label="Jmlh. Hari" id="jumlah_hari" :error="errors.jumlah_hari" type="number" placeholder="Jumlah Hari" class="md:col-span-2"  />
+      <!-- Jumlah Kamar -->
+      <InputText v-model.number="form.jumlah_kamar" label="Jmlh. Kamar" id="jumlah_kamar" :error="errors.jumlah_kamar" type="number" placeholder="Jumlah Kamar" class="md:col-span-2"  />
+      <!-- Harga Travel Kamar Per Hari -->
+      <InputText v-model="harga_travel_kamar_per_hari" label="Harga Travel Per Hari" id="harga_travel_kamar_per_hari" :error="errors.harga_travel_kamar_per_hari" placeholder="Harga Travel Kamar Per Hari" class="md:col-span-2" />
+      <!-- Harga Kostumer Kamar Per Hari -->
+      <InputText v-model="harga_kostumer_kamar_per_hari" label="Harga Kostumer Per Hari" id="harga_kostumer_kamar_per_hari" :error="errors.harga_kostumer_kamar_per_hari" placeholder="Harga Kostumer Kamar Per Hari" class="md:col-span-2" />
       <!-- Total -->
       <div class="md:col-span-1 mt-0 md:col-span-4">
         <label for="total" class="text-sm font-medium text-gray-700 mb-1">Total Harga</label>
