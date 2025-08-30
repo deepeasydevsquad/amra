@@ -32,6 +32,7 @@ const reset = () => {
     cityId: '',
     address: '',
     price: '',
+    priceCostumer: '',
   }]
   SelectedCabang.value = 0;
   SelectedSumberDana.value = 0;
@@ -66,6 +67,7 @@ const formList = ref([
     cityId: '',
     address: '',
     price: '',
+    priceCostumer: '',
   },
 ])
 
@@ -79,6 +81,7 @@ const addRow = () => {
     cityId: '',
     address: '',
     price: '',
+    priceCostumer: '',
   })
 }
 
@@ -105,7 +108,7 @@ const handleSubmit = async () => {
   if (!validateForm()) return
 
   const payload = {
-    cabang: parseInt(SelectedCabang.value),
+    cabang: SelectedCabang.value,
     sumber_dana: SelectedSumberDana.value,
     kostumer: SelectedCustomer.value,
     paket: SelectedPaket.value,
@@ -119,6 +122,7 @@ const handleSubmit = async () => {
       address: item.address,
       city: parseInt(item.cityId),
       price: item.price,
+      priceCostumer: item.priceCostumer,
     })),
   }
 
@@ -191,6 +195,10 @@ const validateForm = (): boolean => {
     }
     if (!form.price || parseInt(form.price.toString()) <= 0) {
       rowErrors.price = 'Harga wajib diisi dan lebih dari 0.'
+      isValid = false
+    }
+    if (!form.priceCostumer || parseInt(form.priceCostumer.toString()) <= 0) {
+      rowErrors.priceCostumer = 'Harga kostumer wajib diisi dan lebih dari 0.'
       isValid = false
     }
 
@@ -352,11 +360,18 @@ watch(
           </td>
           <td class="w-[30%] px-4 py-3 align-top">
             <InputText
-              note="Biaya"
-              placeholder="Masukkan Biaya"
+              note="Harga Travel"
+              placeholder="Masukkan Harga Travel"
               :model-value="formatRupiah(form.price)"
               @update:model-value="(val) => (form.price = parseRupiah(val))"
               :error="errors[index]?.price"
+            />
+            <InputText
+              note="Harga Kostumer"
+              placeholder="Masukkan Harga Kostumer"
+              :model-value="formatRupiah(form.priceCostumer)"
+              @update:model-value="(val) => (form.priceCostumer = parseRupiah(val))"
+              :error="errors[index]?.priceCostumer"
             />
           </td>
           <td class="w-[10%] px-4 py-5 align-top text-gray-800 items-center">

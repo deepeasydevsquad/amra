@@ -1,10 +1,4 @@
-const {
-  sequelize,
-  Passport_transaction,
-  Passport_transaction_detail,
-  Company,
-  Member,
-} = require("../../../models");
+const { sequelize, Passport_transaction, Passport_transaction_detail, Company, Member } = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
 const moment = require("moment");
@@ -108,6 +102,7 @@ class Model_cud {
               address: detail.address,
               mst_kota_id: detail.city,
               price: detail.price,
+              priceCostumer: detail.priceCostumer,
               createdAt: myDate,
               updatedAt: myDate,
             },
@@ -119,6 +114,22 @@ class Model_cud {
           "Data detail passport tidak ditemukan atau tidak valid."
         );
       }
+
+      // jurnal 
+      var akun_kredit = '';
+      if(this.req.body.sumber_dana == 0) {
+        akun_kredit = '11010'; //
+      }else{
+        const q = await Mst_bank.findOne({
+          where: {
+            id: this.req.body.sumber_dana,
+            company_id: this.company_id
+          },
+        });
+        akun_kredit = q.nomor_akun;
+      }
+
+
 
       await this.t.commit();
       this.message = `Menambahkan Transaksi Passport Baru untuk : ${body.payer} dengan ID Transaksi : ${newTransactionId} oleh petugas: ${namaPetugas}`;

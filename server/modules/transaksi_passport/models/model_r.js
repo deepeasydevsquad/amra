@@ -107,11 +107,15 @@ class model_r {
 
         const dataDetail = {};
         const totalDetail = {};
+        const totalHargaCostumer = {}
 
         detailPassport.forEach((e) => {
           const trxId = e.passport_transaction_id;
           if (!dataDetail[trxId]) dataDetail[trxId] = [];
           if (!totalDetail[trxId]) totalDetail[trxId] = 0;
+          if (!totalHargaCostumer[trxId]) totalHargaCostumer[trxId] = 0;
+
+          
 
           dataDetail[trxId].push({
             name: e.name,
@@ -120,9 +124,11 @@ class model_r {
             birth_place: e.birth_place,
             birth_date: e.birth_date,
             price: e.price,
+            priceCostumer: e.priceCostumer,
           });
 
           totalDetail[trxId] += e.price;
+          totalHargaCostumer[trxId] += e.priceCostumer;
         });
 
         // masukin detail & total harga ke masing-masing transaksi
@@ -130,6 +136,7 @@ class model_r {
           ...trx,
           details: dataDetail[trx.id] || [],
           total_harga: totalDetail[trx.id] || 0,
+          total_harga_kostumer : totalHargaCostumer[trx.id] || 0,
         }));
       }
 

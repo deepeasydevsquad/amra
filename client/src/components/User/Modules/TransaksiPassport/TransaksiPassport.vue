@@ -265,18 +265,6 @@ const formatPrice = (num: number): string => {
           </option>
         </select>
       </div>
-
-      <!-- <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
-        <label for="search" class="text-sm font-medium text-gray-700">Search</label>
-        <input
-          type="text"
-          id="search"
-          class="w-full sm:w-72 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          v-model="search"
-          @input="fetchData"
-          placeholder="Cari Invoice..."
-        />
-      </div> -->
     </div>
 
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
@@ -284,9 +272,9 @@ const formatPrice = (num: number): string => {
         <thead class="bg-gray-100">
           <tr>
             <th class="w-[10%] px-6 py-3 text-gray-900 font-medium text-center">Nomor Invoice</th>
-            <th class="w-[25%] px-6 py-3 text-gray-900 font-medium text-center">Info Pembayar</th>
+            <th class="w-[20%] px-6 py-3 text-gray-900 font-medium text-center">Info Pembayar</th>
             <th class="w-[30%] px-6 py-3 text-gray-900 font-medium text-center">Info Tansaksi Passport</th>
-            <th class="w-[15%] px-6 py-3 text-gray-900 font-medium text-center">Total</th>
+            <th class="w-[20%] px-6 py-3 text-gray-900 font-medium text-center">Total</th>
             <th class="w-[15%] px-6 py-3 text-gray-900 font-medium text-center">Tanggal</th>
             <th class="w-[5%] px-6 py-3 text-gray-900 font-medium text-center">Aksi</th>
           </tr>
@@ -329,7 +317,22 @@ const formatPrice = (num: number): string => {
                 </div>
               </div>
             </td>
-            <td class="px-6 py-4 text-center align-top">Rp.{{ formatPrice(item.details.reduce((total, detail) => total + (detail.price || 0), 0))}}</td>
+            <td class="px-0 py-4 text-center align-top">
+              <table class="w-full mb-5">
+                <tbody>
+                  <tr>
+                    <td class="w-[60%] border-b px-0 py-2 text-left">Total Harga Travel</td>
+                    <td class="text-center border-b py-2">:</td>
+                    <td class="text-right space-y-2 text-sm border-b px-0 py-2">Rp.{{ formatPrice(item.details.reduce((total, detail) => total + (detail.price || 0), 0))}}</td>
+                  </tr>
+                  <tr>
+                    <td class="border-b px-0 py-2 text-left">Total Harga Kostumer</td>
+                    <td class="text-center border-b py-2">:</td>
+                    <td class="text-right space-y-2 text-sm border-b px-0 py-2">Rp.{{ formatPrice(item.details.reduce((total, detail) => total + (detail.priceCostumer || 0), 0))}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
             <td class="px-6 py-4 text-sm text-center text-gray-900 whitespace-nowrap align-top">{{ formatTanggal(item.createdAt) }}</td>
             <td class="px-6 py-4 text-center align-top">
               <div class="flex flex-col items-center gap-2">

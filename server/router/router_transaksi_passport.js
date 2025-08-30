@@ -24,7 +24,6 @@ router.post(
   controllers.getDaftarTransaksiPassport
 );
 
-// body("kostumer_id").notEmpty().trim().withMessage("Kostumer tidak boleh kosong."),
 router.post(
   "/daftar-transaksi-passport/add-new",
   authenticateToken,
@@ -42,6 +41,7 @@ router.post(
     body("passport_details.*.address", "Alamat wajib diisi.").notEmpty().trim(),
     body("passport_details.*.city", "Kota wajib dipilih.").notEmpty().isInt({ min: 1 }).withMessage("ID Kota harus berupa angka").custom(validation.check_city_id),
     body("passport_details.*.price", "Harga harus berupa angka dan lebih dari 0.").isNumeric().custom(validation.check_price),
+    body("passport_details.*.priceCostumer", "Harga harus berupa angka dan lebih dari 0.").isNumeric().custom(validation.check_price),
   ],
   controllers.addNewTransaksiPassport
 );

@@ -28,7 +28,8 @@ module.exports = (sequelize, DataTypes) => {
     kk_number: DataTypes.STRING,
     mst_kota_id: DataTypes.INTEGER,
     address: DataTypes.TEXT,
-    price: DataTypes.INTEGER
+    price: DataTypes.INTEGER,
+    priceCostumer: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'Passport_transaction_detail',

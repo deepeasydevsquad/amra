@@ -34,7 +34,9 @@ controllers.getAllCities = async (req, res) => {
 
 // Fungsi Penambahan
 controllers.addNewTransaksiPassport = async (req, res) => {
+  
   if (!(await handleValidationErrors(req, res))) return;
+
   try {
     const model_cud = new Model_cud(req);
     await model_cud.add();

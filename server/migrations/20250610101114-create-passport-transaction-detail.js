@@ -46,6 +46,9 @@ module.exports = {
       price: {
         type: Sequelize.INTEGER
       },
+      priceCostumer: {
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

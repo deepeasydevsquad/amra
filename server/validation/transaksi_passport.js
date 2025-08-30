@@ -23,17 +23,24 @@ validation.check_jumlah_saldo = async (value, { req } ) => {
         return sum + (parseFloat(item.price) || 0);
       }, 0);
 
+
+      console.log("CCCCCCC");
+      console.log(totalPrice);
+      console.log("CCCCCCC");
+
       // check saldo
       if (saldo < totalPrice) {
         throw new Error(`Saldo sumber dana tidak mencukupi untuk melakukan transaksi ini.`);
       }
+      return true
   
   } catch (error) {
+    throw new Error(error);
       console.log("********************");
       console.log(error);
       console.log("********************");
   }
-  return true
+  // return true
 }
 
 // Validasi untuk memastikan kota yang dipilih valid
