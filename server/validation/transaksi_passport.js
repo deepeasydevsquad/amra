@@ -1,4 +1,4 @@
-const { Op, Passport_transaction, Passport_transaction_detail, Mst_kota, Mst_bank } = require("../models");
+const { Op, Passport_transaction, Passport_transaction_detail, Mst_kota, Mst_bank, Division } = require("../models");
 const { getCompanyIdByCode, getCabang } = require("../helper/companyHelper");
 const Akuntansi = require("../library/akuntansi");
 
@@ -178,9 +178,16 @@ validation.check_passport_transaction_exists = async (value, { req }) => {
     const transaksi = await Passport_transaction.findOne({
       where: {
         id: value,
-        company_id: company_id,
+        
       },
       include: [
+        {
+          model: Division, 
+          required: true, 
+          where: { 
+            company_id: company_id
+          }
+        },
         {
           model: Passport_transaction_detail,
           required: true,

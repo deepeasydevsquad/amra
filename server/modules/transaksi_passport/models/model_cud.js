@@ -1,4 +1,4 @@
-const { sequelize, Passport_transaction, Passport_transaction_detail, Company, Member } = require("../../../models");
+const { sequelize, Passport_transaction, Passport_transaction_detail, Company, Member, Mst_bank, Jurnal, Division } = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
 const moment = require("moment");
@@ -89,8 +89,15 @@ class Model_cud {
 
       const newTransactionId = newTransaction.id;
 
+      var total_harga_travel = 0;
+      var total_harga_kostumer = 0;
+
       if (body.passport_details && Array.isArray(body.passport_details)) {
         for (const detail of body.passport_details) {
+          
+          total_harga_travel = total_harga_travel + detail.price;
+          total_harga_kostumer = total_harga_kostumer + detail.priceCostumer;
+
           await Passport_transaction_detail.create(
             {
               passport_transaction_id: newTransactionId,
@@ -130,6 +137,67 @@ class Model_cud {
       }
 
 
+      // ===== JURNAL ====
+      // insert HPP Jurnal Visa
+      await Jurnal.create(
+        {
+          division_id: this.req.body.cabang, 
+          source: 'passportTransactionId:' + newTransactionId,
+          ref: 'HPP Penjualan Passport ',
+          ket: 'HPP Penjualan Passport ',
+          akun_debet: '54000',
+          akun_kredit: akun_kredit,
+          saldo: total_harga_travel,
+          removable: 'false',
+          periode_id: 0,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+      // insert Pendapatan Jurnal Visa
+      await Jurnal.create(
+        {
+          division_id: this.req.body.cabang, 
+          source: 'passportTransactionId:' + newTransactionId,
+          ref: 'Pendapatan Penjualan Passport ',
+          ket: 'Pendapatan Penjualan Passport ',
+          akun_debet: '11010',
+          akun_kredit: '46000',
+          saldo: total_harga_kostumer,
+          removable: 'false',
+          periode_id: 0,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
+      // tambah pengurangan utang tabungan
+      if( this.req.body.paket != 0 ) {
+        await Jurnal.create(
+          {
+            division_id: this.req.body.cabang, 
+            source: 'passportTransactionId:' + newTransactionId,
+            ref: 'Pembayaran Utang Tabungan Untuk Penjualan Passport ',
+            ket: 'Pembayaran Utang Tabungan Untuk Penjualan Passport ',
+            akun_debet: '23000',
+            akun_kredit: null,
+            saldo: total_harga_kostumer,
+            removable: 'false',
+            periode_id: 0,
+            createdAt: myDate,
+            updatedAt: myDate,
+          },
+          {
+            transaction: this.t,
+          }
+        );
+      }
 
       await this.t.commit();
       this.message = `Menambahkan Transaksi Passport Baru untuk : ${body.payer} dengan ID Transaksi : ${newTransactionId} oleh petugas: ${namaPetugas}`;
@@ -149,8 +217,14 @@ class Model_cud {
       const existingTransaction = await Passport_transaction.findOne({
         where: {
           id: transactionId,
-          company_id: this.company_id,
         }, //
+        include: {
+          model: Division,
+          required: true, 
+          where: {
+            company_id: this.company_id
+          }
+        }, 
       });
 
       if (!existingTransaction) {
@@ -169,8 +243,22 @@ class Model_cud {
       await Passport_transaction.destroy({
         where: {
           id: transactionId,
-          company_id: this.company_id,
         },
+        transaction: this.t,
+      }); //
+
+      // delete jurnal
+      await Jurnal.destroy({
+        where: {
+          source: 'passportTransactionId:' + transactionId
+        },
+        include: {
+          model: Division,
+          required: true, 
+          where: {
+            company_id: this.company_id
+          }
+        }, 
         transaction: this.t,
       }); //
 

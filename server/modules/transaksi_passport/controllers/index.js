@@ -78,6 +78,9 @@ controllers.deleteTransaksiPassport = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log("-------");
+    console.log(error);
+    console.log("-------");
     handleServerError(res, error.message);
   }
 };
