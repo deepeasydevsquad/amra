@@ -48,7 +48,7 @@ class model_r {
       const page =
         body.pageNumber && body.pageNumber !== "0" ? body.pageNumber : 1;
 
-      let where = { company_id: this.company_id };
+      let where = { division_id: this.req.body.cabang };
 
       if (body.search) {
         where = {

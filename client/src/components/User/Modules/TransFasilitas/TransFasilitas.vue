@@ -456,61 +456,23 @@ onMounted(async () => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <Pagination
-            :total-row="totalItems"
-            :currentPage="currentPage"
-            :totalPages="totalPages"
-            :pages="pages"
-            :totalColumns="totalColumns"
-            @prev-page="handlePrev"
-            @next-page="handleNext"
-            @page-now="handlePageNow"
-          />
+          <Pagination :total-row="totalItems" :currentPage="currentPage" :totalPages="totalPages" :pages="pages" :totalColumns="totalColumns" @prev-page="handlePrev" @next-page="handleNext" @page-now="handlePageNow"/>
         </tfoot>
       </table>
     </div>
   </div>
-
-  <Form
-    :formStatus="showModal"
-    @cancel="
-      () => {
-        showModal = false
-        resetForm()
-      }
-    "
-    @submit="submitForm"
-    :submitLabel="'Simpan'"
-    :width="'w-1/3'"
-    :label="'Tambah Transaksi Fasilitas'"
-  >
+  <Form :formStatus="showModal" @cancel="() => { showModal = false; resetForm(); }" @submit="submitForm" :submitLabel="'Simpan'" :width="'w-1/3'" :label="'Tambah Transaksi Fasilitas'" >
     <div class="flex flex-wrap gap-4">
       <div class="flex-1 min-w-[200px]">
-        <SelectField
-          label="Kostumer"
-          v-model="formData.kostumer_id"
-          :options="customerOption"
-          :error="errors.kostumer_id"
-        />
+        <SelectField label="Kostumer" v-model="formData.kostumer_id" :options="customerOption" :error="errors.kostumer_id" />
       </div>
       <div class="flex-1 min-w-[200px]">
-        <SelectField
-          label="Cabang"
-          v-model="SelectedCabang"
-          :options="cabangOption"
-          :error="errors.division_id"
-        />
+        <SelectField label="Cabang" v-model="SelectedCabang" :options="cabangOption" :error="errors.division_id" />
       </div>
       <div class="flex-1 min-w-[200px]">
-        <SelectField
-          label="Paket"
-          v-model="formData.paket_id"
-          :options="paketOption"
-          :error="errors.paket_id"
-        />
+        <SelectField label="Paket" v-model="formData.paket_id" :options="paketOption" :error="errors.paket_id" />
       </div>
     </div>
-
     <div class="mt-6">
       <h3 class="font-semibold text-sm mb-2">Detail Fasilitas</h3>
       <table class="table-auto w-full">
@@ -521,20 +483,10 @@ onMounted(async () => {
           </tr>
         </thead>
         <tbody class="align-top border-t border-gray-200">
-          <tr
-            v-for="(fasilitas, index) in formFasilitasList"
-            :key="index"
-            class="hover:bg-gray-100 border-b border-dashed border-gray-700 pt-4"
-          >
+          <tr v-for="(fasilitas, index) in formFasilitasList" :key="index" class="hover:bg-gray-100 border-b border-dashed border-gray-700 pt-4" >
             <td class="px-4 py-2">
-              <SelectField
-                v-model="fasilitas.id"
-                placeholder="Pilih Fasilitas"
-                :options="FasilitasOption"
-                :error="errors.details?.[index]?.id"
-              />
+              <SelectField v-model="fasilitas.id" placeholder="Pilih Fasilitas" :options="FasilitasOption" :error="errors.details?.[index]?.id"/>
             </td>
-
             <td class="px-4 py-2 text-center">
               <DangerButton class="mt-2.5" @click="removeFasilitas(index)">
                 <DeleteIcon class="w-5 h-5" />
@@ -551,30 +503,17 @@ onMounted(async () => {
       </div>
     </div>
   </Form>
-
-  <Confirmation
-    :showConfirmDialog="showConfirmDialog"
-    :confirmTitle="confirmTitle"
-    :confirmMessage="confirmMessage"
-  >
-    <button
-      @click="confirmAction && confirmAction()"
+  <Confirmation :showConfirmDialog="showConfirmDialog" :confirmTitle="confirmTitle" :confirmMessage="confirmMessage">
+    <button @click="confirmAction && confirmAction()"
       class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
     >
       Ya
     </button>
-    <button
-      @click="showConfirmDialog = false"
+    <button @click="showConfirmDialog = false"
       class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
     >
       Tidak
     </button>
   </Confirmation>
-
-  <Notification
-    :showNotification="showNotification"
-    :notificationType="notificationType"
-    :notificationMessage="notificationMessage"
-    @close="showNotification = false"
-  />
+  <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false" />
 </template>

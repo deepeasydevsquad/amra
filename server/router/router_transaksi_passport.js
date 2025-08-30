@@ -29,10 +29,10 @@ router.post(
   "/daftar-transaksi-passport/add-new",
   authenticateToken,
   [
-    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").isNumeric().withMessage("ID Cabang harus berupa angka.").custom(validationCabang.check_cabang_id),
+    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").custom(validationCabang.check_cabang_id),
     body("sumber_dana").trim().notEmpty().withMessage("Sumber dana tidak boleh kosong.").custom(validationCabang.check_sumber_dana),
-    body("kostumer").trim().isNumeric().withMessage("ID Kostumer harus berupa angka.").custom(validationCabang.check_kostumer),
-    body("paket").trim().isNumeric().withMessage("ID Paket harus berupa angka.").custom(validationCabang.check_paket),
+    body("kostumer").trim().custom(validationCabang.check_kostumer),
+    body("paket").trim().custom(validationCabang.check_paket).custom(validation.check_jumlah_saldo),
     body("passport_details","Detail passport harus berupa array dan tidak boleh kosong.").isArray({ min: 1 }).withMessage("Setidaknya satu detail passport harus disediakan."),
     body("passport_details.*.name", "Nama pelanggan wajib diisi.").notEmpty().trim(),
     body("passport_details.*.identity_number", "Nomor Identitas wajib diisi.").notEmpty().trim(),

@@ -1,13 +1,40 @@
-const {
-  Op,
-  Passport_transaction,
-  Passport_transaction_detail,
-  Mst_kota,
-} = require("../models");
-
+const { Op, Passport_transaction, Passport_transaction_detail, Mst_kota, Mst_bank } = require("../models");
 const { getCompanyIdByCode, getCabang } = require("../helper/companyHelper");
+const Akuntansi = require("../library/akuntansi");
 
 const validation = {};
+
+validation.check_jumlah_saldo = async (value, { req } ) => {
+  try {
+      const company_id = await getCompanyIdByCode(req);
+      const akuntansi = new Akuntansi();
+      var nomor_akun = '';
+      if( req.body.sumber_dana == '0' ) {
+          nomor_akun = '11010';
+      }else{
+          const qB = await Mst_bank.findOne({ where: { id: req.body.sumber_dana, company_id: company_id } });
+          nomor_akun = qB.nomor_akun;
+      }
+      const saldo = await akuntansi.saldo_masing_masing_akun(nomor_akun, company_id, req.body.cabang, '0') ;
+
+      const passportDetails = req.body.passport_details || [];
+
+      const totalPrice = passportDetails.reduce((sum, item) => {
+        return sum + (parseFloat(item.price) || 0);
+      }, 0);
+
+      // check saldo
+      if (saldo < totalPrice) {
+        throw new Error(`Saldo sumber dana tidak mencukupi untuk melakukan transaksi ini.`);
+      }
+  
+  } catch (error) {
+      console.log("********************");
+      console.log(error);
+      console.log("********************");
+  }
+  return true
+}
 
 // Validasi untuk memastikan kota yang dipilih valid
 validation.check_city_id = async (value, { req }) => {

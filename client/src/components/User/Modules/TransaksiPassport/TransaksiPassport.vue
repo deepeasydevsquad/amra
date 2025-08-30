@@ -16,6 +16,7 @@ import Confirmation from '@/components/User/Modules/TransaksiPassport/Particle/C
 import FormAdd from '@/components/User/Modules/TransaksiPassport/Widget/FormAdd.vue'
 
 import { getDaftarTransaksiPassport, deleteTransaksiPassport } from '@/service/transaksi_passport'
+import { paramCabang } from '@/service/param_cabang'
 import { ref, onMounted, computed } from 'vue'
 
 // --- State ---
@@ -93,6 +94,7 @@ const fetchData = async () => {
     isLoading.value = true
 
     const response = await getDaftarTransaksiPassport({
+      cabang: selectedOptionCabang.value,
       search: search.value,
       filter: filter.value,
       perpage: itemsPerPage,
@@ -147,6 +149,20 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
   confirmMessage.value = message
   confirmAction.value = action
   showConfirmDialog.value = true
+}
+
+interface filterCabang {
+  id: number
+  name: string
+}
+
+const selectedOptionCabang = ref(0)
+const optionFilterCabang = ref<filterCabang[]>([])
+const fetchFilterData = async () => {
+  const response = await paramCabang()
+  optionFilterCabang.value = response.data
+  selectedOptionCabang.value = response.data[0].id
+  await fetchData()
 }
 
 // Placeholder untuk handle delete dan cetak kwitansi
@@ -208,7 +224,8 @@ const handleCancelConfirm = () => {
 
 // --- Lifecycle Hook ---
 onMounted(async () => {
-  await fetchData()
+  // await fetchData()
+  await fetchFilterData()
   // totalColumns.value = document.querySelectorAll('thead th').length
 })
 
@@ -237,8 +254,19 @@ const formatPrice = (num: number): string => {
         <IconPlus></IconPlus>
         Tambah Transaksi Passport
       </PrimaryButton>
+      <div class="inline-flex rounded-md shadow-xs" role="group">
+        <label for="search" class="block text-sm font-medium text-gray-700 mr-2 mt-3">Filter</label>
+        <input type="text" id="search" class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+          v-model="search" @change="fetchData()" placeholder="Cari data..." />
+        <select v-model="selectedOptionCabang" style="width: 300px" @change="fetchData()"
+          class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" >
+          <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+            {{ optionC.name }}
+          </option>
+        </select>
+      </div>
 
-      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+      <!-- <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
         <label for="search" class="text-sm font-medium text-gray-700">Search</label>
         <input
           type="text"
@@ -248,7 +276,7 @@ const formatPrice = (num: number): string => {
           @input="fetchData"
           placeholder="Cari Invoice..."
         />
-      </div>
+      </div> -->
     </div>
 
     <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
@@ -364,20 +392,7 @@ const formatPrice = (num: number): string => {
     </Confirmation>
 
     <!-- Form Add Component -->
-    <transition
-      enter-active-class="transition duration-200 ease-out"
-      enter-from-class="transform scale-95 opacity-0"
-      enter-to-class="transform scale-100 opacity-100"
-      leave-active-class="transition duration-200 ease-in"
-      leave-from-class="transform scale-100 opacity-100"
-      leave-to-class="transform scale-95 opacity-0"
-    >
-      <FormAdd
-        :isFormOpen="isFormOpen"
-        @cancel="closeModal"
-        @save-success="handleSaveSuccess"
-        @error="handleSaveFailed"
-      />
-    </transition>
+    <FormAdd :isFormOpen="isFormOpen" @cancel="closeModal" @save-success="handleSaveSuccess" @error="handleSaveFailed" />
+
   </div>
 </template>
