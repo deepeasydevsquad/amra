@@ -2,14 +2,10 @@
 import { defineProps, defineEmits, computed, watch } from 'vue'
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import { paramCabang } from '@/service/param_cabang'
-import {
-  addTransaksiPassport,
-  getCityList,
-  daftar_kostumer,
-  daftar_paket,
-} from '@/service/transaksi_passport'
+import { addTransaksiPassport, getCityList, daftar_kostumer, daftar_paket } from '@/service/transaksi_passport'
+import { getSumberDanaPaket } from '@/service/transaksi_visa'
 import { onMounted, ref } from 'vue'
-import Form from '@/components/Modal/FormEditProfile.vue'
+import Form from '@/components/Modal/Form.vue'
 import InputText from '@/components/Form/InputText.vue'
 import InputDate from '@/components/Form/InputDate.vue'
 import SelectField from '@/components/Form/SelectField.vue'
@@ -63,7 +59,7 @@ const addRow = () => {
   })
 }
 
-const fetch_kota = async () => {
+const fetchKota = async () => {
   try {
     const res = await getCityList()
     cityList.value = res
@@ -72,11 +68,7 @@ const fetch_kota = async () => {
   }
 }
 
-onMounted(async () => {
-  await fetch_kota()
-  await fetchCabang()
-  await fetchCustomer()
-})
+
 
 const cityOptions = computed(() => [
   { id: '', name: 'Pilih Kota' }, // ini buat default/null
@@ -92,8 +84,10 @@ const handleSubmit = async () => {
   if (!validateForm()) return
 
   const payload = {
-    kostumer_id: SelectedCustomer.value,
-    paket_id: SelectedPaket.value,
+    cabang: SelectedCabang.value,
+    sumber_dana: SelectedSumberDana.value,
+    kostumer: SelectedCustomer.value,
+    paket: SelectedPaket.value,
     passport_details: formList.value.map((item) => ({
       name: item.name,
       identity_number: item.identity,
@@ -131,10 +125,16 @@ const parseRupiah = (formatted: string): number => {
   return parseInt(clean || '0')
 }
 
-const errors = ref<Record<number, Record<string, string>>>({})
+// const errors = ref<Record<number | string, Record<string, string>>>({})
+const errors = ref<Record<number | string, Record<string, string>>>({})
 const validateForm = (): boolean => {
   let isValid = true
   errors.value = {}
+
+  if( SelectedCabang.value == 0) {
+      errors.value.cabang = { cabang: 'Cabang wajib dipilih.' };
+      isValid = false
+  }
 
   formList.value.forEach((form, index) => {
     const rowErrors: Record<string, string> = {}
@@ -211,60 +211,51 @@ const fetchCabang = async () => {
   }
 }
 
-interface paket {
+
+interface option {
   id: number
   name: string
 }
-const paketOption = ref<paket[]>([{ id: 0, name: 'Pilih Paket' }]) // Tambahkan opsi default
-const SelectedPaket = ref(0)
-const fetchPaket = async () => {
+
+const SelectedPaket = ref(0);
+const SelectedSumberDana = ref(0);
+const list_paket = ref<option[]>([{ id: 0, name: ' -- Pilih Paket -- ' }]) // Tambahkan opsi default
+const list_sumber_dana = ref<option[]>([{ id: 0, name: ' -- Pilih Sumber Dana -- ' }])
+const fetchSumberDanaPaket = async () => {
   try {
-    const response = await daftar_paket({
-      division_id: SelectedCabang.value,
-    })
-    paketOption.value = [{ id: 0, name: 'Pilih Paket' }, ...response.data]
+    const response = await getSumberDanaPaket({ cabang: SelectedCabang.value })
+    list_paket.value = [{ id: 0, name: ' -- Pilih Paket -- ' }, ...response.data.daftar_paket] ;
+    list_sumber_dana.value = response.data.sumber_dana;
   } catch (error) {
     console.error(error)
   }
 }
 
-watch(SelectedCabang, async (newCabang) => {
-  if (newCabang) {
-    await fetchPaket()
-  }
-})
+watch(
+  () => props.isFormOpen,
+  async (val) => {
+    if( val ) {
+      console.log("***********");
+      console.log("***********");
+      console.log("***********");
+
+      await fetchCustomer()
+      await fetchCabang()
+      await fetchKota()
+    }
+  },
+)
+
 </script>
 
 <template>
-  <Form
-    title="'Tambah Transaksi Passport'"
-    :form-status="props.isFormOpen"
-    :submitLabel="'TAMBAH TRANSAKSI'"
-    :width="'w-2/3'"
-    @cancel="handleCancel"
-    @submit="handleSubmit"
-  >
+  <Form label="Tambah Transaksi Passport" :form-status="props.isFormOpen" :submitLabel="'TAMBAH TRANSAKSI'" :width="'w-2/3'" @cancel="handleCancel" @submit="handleSubmit">
     <div class="flex flex-wrap gap-4 pb-3 mb-5">
-      <SelectField
-        label="Kostumer"
-        v-model="SelectedCustomer"
-        :options="customerOption"
-        class="flex-1 min-w-[200px]"
-      />
-      <SelectField
-        label="Cabang"
-        v-model="SelectedCabang"
-        :options="cabangOption"
-        class="flex-1 min-w-[200px]"
-      />
-      <SelectField
-        label="Paket"
-        v-model="SelectedPaket"
-        :options="paketOption"
-        class="flex-1 min-w-[200px]"
-      />
+      <SelectField label="Cabang" v-model="SelectedCabang" :options="cabangOption" class="flex-1 min-w-[200px]"  @change="fetchSumberDanaPaket"  :error="errors.cabang.cabang"/>
+      <SelectField label="Sumber Dana" v-model="SelectedSumberDana" :options="list_sumber_dana" class="flex-1 min-w-[200px]" />
+      <SelectField label="Kostumer" v-model="SelectedCustomer" :options="customerOption" class="flex-1 min-w-[200px]" />
+      <SelectField label="Paket" v-model="SelectedPaket" :options="list_paket" class="flex-1 min-w-[200px]" />
     </div>
-
     <table class="table-auto w-full">
       <thead class="bg-gray-100 text-sm text-gray-700">
         <tr class="text-center">

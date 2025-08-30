@@ -4,6 +4,7 @@ const controllers = require("../modules/transaksi_passport/controllers/index");
 const { authenticateToken } = require("../middleware/authenticateToken");
 
 const validation = require("../validation/transaksi_passport.js");
+const validationCabang  = require("../validation/param");
 
 const router = express.Router();
 
@@ -23,51 +24,24 @@ router.post(
   controllers.getDaftarTransaksiPassport
 );
 
+// body("kostumer_id").notEmpty().trim().withMessage("Kostumer tidak boleh kosong."),
 router.post(
   "/daftar-transaksi-passport/add-new",
   authenticateToken,
   [
-    body("kostumer_id")
-      .notEmpty()
-      .trim()
-      .withMessage("Kostumer tidak boleh kosong."),
-    body(
-      "passport_details",
-      "Detail passport harus berupa array dan tidak boleh kosong."
-    )
-      .isArray({ min: 1 })
-      .withMessage("Setidaknya satu detail passport harus disediakan."),
-
-    body("passport_details.*.name", "Nama pelanggan wajib diisi.")
-      .notEmpty()
-      .trim(),
-    body("passport_details.*.identity_number", "Nomor Identitas wajib diisi.")
-      .notEmpty()
-      .trim(),
-      body("passport_details.*.kk_number", "Nomor KK wajib diisi.")
-      .notEmpty()
-      .trim(),
-    body("passport_details.*.birth_place", "Tempat Lahir wajib diisi.")
-      .notEmpty()
-      .trim(),
-    body("passport_details.*.birth_date", "Tanggal Lahir tidak valid.")
-      .isISO8601()
-      .toDate()
-      .custom(validation.check_birth_date),
-    body("passport_details.*.address", "Alamat wajib diisi.")
-      .notEmpty()
-      .trim(),
-    body("passport_details.*.city", "Kota wajib dipilih.")
-      .notEmpty()
-      .isInt({ min: 1 })
-      .withMessage("ID Kota harus berupa angka")
-      .custom(validation.check_city_id),
-    body(
-      "passport_details.*.price",
-      "Harga harus berupa angka dan lebih dari 0."
-    )
-      .isNumeric()
-      .custom(validation.check_price),
+    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").isNumeric().withMessage("ID Cabang harus berupa angka.").custom(validationCabang.check_cabang_id),
+    body("sumber_dana").trim().notEmpty().withMessage("Sumber dana tidak boleh kosong.").custom(validationCabang.check_sumber_dana),
+    body("kostumer").trim().isNumeric().withMessage("ID Kostumer harus berupa angka.").custom(validationCabang.check_kostumer),
+    body("paket").trim().isNumeric().withMessage("ID Paket harus berupa angka.").custom(validationCabang.check_paket),
+    body("passport_details","Detail passport harus berupa array dan tidak boleh kosong.").isArray({ min: 1 }).withMessage("Setidaknya satu detail passport harus disediakan."),
+    body("passport_details.*.name", "Nama pelanggan wajib diisi.").notEmpty().trim(),
+    body("passport_details.*.identity_number", "Nomor Identitas wajib diisi.").notEmpty().trim(),
+    body("passport_details.*.kk_number", "Nomor KK wajib diisi.").notEmpty().trim(),
+    body("passport_details.*.birth_place", "Tempat Lahir wajib diisi.").notEmpty().trim(),
+    body("passport_details.*.birth_date", "Tanggal Lahir tidak valid.").isISO8601().toDate().custom(validation.check_birth_date),
+    body("passport_details.*.address", "Alamat wajib diisi.").notEmpty().trim(),
+    body("passport_details.*.city", "Kota wajib dipilih.").notEmpty().isInt({ min: 1 }).withMessage("ID Kota harus berupa angka").custom(validation.check_city_id),
+    body("passport_details.*.price", "Harga harus berupa angka dan lebih dari 0.").isNumeric().custom(validation.check_price),
   ],
   controllers.addNewTransaksiPassport
 );

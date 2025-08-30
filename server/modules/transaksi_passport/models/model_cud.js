@@ -83,10 +83,10 @@ class Model_cud {
       const newTransaction = await Passport_transaction.create(
         {
           invoice: invoice,
-          company_id: this.company_id,
+          division_id: body.cabang,
           petugas: namaPetugas,
-          kostumer_id: body.kostumer_id,
-          paket_id: body.paket_id,
+          kostumer_id: body.kostumer,
+          paket_id: body.paket,
           createdAt: myDate,
           updatedAt: myDate,
         },

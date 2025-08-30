@@ -16,8 +16,8 @@ router.post(
   authenticateToken,
   [
     body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").isNumeric().withMessage("ID Cabang harus berupa angka.").custom(validationCabang.check_cabang_id),
-    body("kostumer").custom(validation.check_kostumer_paket_id),
-    body("paket").trim(),
+    body("kostumer").trim().isNumeric().withMessage("ID Kostumer harus berupa angka.").custom(validationCabang.check_kostumer),
+    body("paket").trim().isNumeric().withMessage("ID Paket harus berupa angka.").custom(validationCabang.check_paket),
     body("maskapai").notEmpty().withMessage("Maskapai tidak boleh kosong.").isNumeric().withMessage("ID Maskapai harus berupa angka.").custom(validation.check_maskapai_id).custom(validation.check_ticketing),
     body("pax").notEmpty().withMessage("Pax tidak boleh kosong.").isNumeric().withMessage("Pax harus berupa angka."),
     body("kode_booking").notEmpty().withMessage("Kode Booking tidak boleh kosong."),

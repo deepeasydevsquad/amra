@@ -11,8 +11,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Passport_transaction.belongsTo(models.Company, {
-        foreignKey: "company_id",
+      Passport_transaction.belongsTo(models.Division, {
+        foreignKey: "division_id",
       });
       Passport_transaction.hasMany(models.Passport_transaction_detail, {
         foreignKey: "passport_transaction_id",
@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Passport_transaction.init({
-    company_id: DataTypes.INTEGER,
+    division_id: DataTypes.INTEGER,
     invoice: DataTypes.STRING,
     petugas: DataTypes.STRING,
     kostumer_id: DataTypes.INTEGER,

@@ -5,7 +5,7 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.bulkInsert('Passport_transactions', [
       { 
-        company_id: 1,
+        division_id: 1,
         invoice: 'ER21DH',
         petugas: 'Sony Kurniawan',
         kostumer_id: 1,

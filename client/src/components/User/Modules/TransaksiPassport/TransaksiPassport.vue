@@ -373,7 +373,6 @@ const formatPrice = (num: number): string => {
       leave-to-class="transform scale-95 opacity-0"
     >
       <FormAdd
-        v-if="isFormOpen"
         :isFormOpen="isFormOpen"
         @cancel="closeModal"
         @save-success="handleSaveSuccess"
