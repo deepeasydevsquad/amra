@@ -2,10 +2,10 @@
 import Confirmation from '@/components/Modal/Confirmation.vue'
 import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 import InputDate from '@/components/Form/InputDate.vue'
-import Form from '@/components/Modal/Form.vue'
-import InputText from '@/components/Form/InputText.vue'
-import SelectField from '@/components/Form/SelectField.vue'
-import TextArea from '@/components/Form/TextArea.vue'
+// import Form from '@/components/Modal/Form.vue'
+// import InputText from '@/components/Form/InputText.vue'
+// import SelectField from '@/components/Form/SelectField.vue'
+// import TextArea from '@/components/Form/TextArea.vue'
 import Notification from '@/components/Modal/Notification.vue'
 import InputReadonly from '@/components/Form/InputReadonly.vue'
 import LightButton from '@/components/Button/LightButton.vue'
@@ -13,21 +13,15 @@ import DangerButton from '@/components/Button/DangerButton.vue'
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
 import CetakIcon from '@/components/Icons/CetakIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
+import FormAdd from './Widget/FormAdd.vue'
 import { ref, watch, computed, onMounted } from 'vue'
-
-import {
-  daftar_transaksi,
-  add_transaksi,
-  delete_transaksi,
-  daftar_mobil,
-  daftar_kostumer,
-  daftar_paket,
-} from '@/service/trans_transport'
+import { daftar_transaksi, add_transaksi, delete_transaksi, daftar_mobil, daftar_kostumer, daftar_paket } from '@/service/trans_transport'
 import { paramCabang } from '@/service/param_cabang'
 
-const showModalDetail = ref(false)
+// const showModalDetail = ref(false)
 const totalItems = ref(0)
 const showModal = ref(false)
+const search = ref('')
 const itemsPerPage = 10
 const currentPage = ref(1)
 const totalPages = ref(1)
@@ -39,7 +33,7 @@ const confirmMessage = ref('')
 const confirmTitle = ref('')
 const confirmAction = ref<(() => void) | null>(null)
 const timeoutId = ref<number | null>(null)
-const MobilOptions = ref<{ id: number | string; name: string; kota: string }[]>([])
+
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
   notificationMessage.value = message
@@ -98,6 +92,7 @@ const fetchData = async () => {
   try {
     // const response = await get_paket_agen({ paket_id: props.paketId })
     const response = await daftar_transaksi({
+      cabang: selectedOptionCabang.value,
       search: searchQuery.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
@@ -124,269 +119,51 @@ const deleteData = async (id: number) => {
   })
 }
 
-const fetchMobil = async () => {
-  try {
-    const data = await daftar_mobil()
-    MobilOptions.value = [
-      { id: 0, name: 'Pilih Mobil' },
-      ...data.map((item: any) => ({
-        id: item.id,
-        name: `${item.name}`,
-      })),
-    ]
-    console.log('data kota', data)
-  } catch (error) {
-    displayNotification('Gagal ambil data kota', 'error')
-  }
-}
-
-onMounted(() => {
-  fetchData()
-  fetchMobil()
-  fetchCustomer()
-  fetchCabang()
-  searchQuery.value = ''
-})
-
-const formData = ref({
-  kostumer_id: 0,
-  paket_id: 0,
-  address: '',
-})
-
-const formMobilList = ref([
-  {
-    mst_mobil_id: '0',
-    car_number: '',
-    price: null,
-  },
-])
-
-const addMobil = () => {
-  formMobilList.value.push({
-    mst_mobil_id: '0',
-    car_number: '',
-    price: null,
-  })
-}
-
-const removeMobil = (index: number) => {
-  if (formMobilList.value.length > 1) {
-    formMobilList.value.splice(index, 1)
-  }
-}
-
 const cetak_invoice = (invoice: string) => {
   const printUrl = `/kwitansi-trans-transport/${invoice}`
   window.open(printUrl, '_blank')
 }
 
-const errors = ref<{
-  kostumer_id?: string
-  paket_id?: string
-  address?: string
-  details?: { mst_mobil_id?: string; car_number?: string; price?: string; general?: string }[]
-}>({})
-
-const validateForm = (): boolean => {
-  let isValid = true
-  errors.value = {}
-
-  if (!formData.value.kostumer_id) {
-    errors.value.kostumer_id = 'Kostumer harus dipilih.'
-    isValid = false
-  }
-
-  if (!formData.value.address?.trim()) {
-    errors.value.address = 'Alamat wajib diisi.'
-    isValid = false
-  }
-
-  // Validasi list mobil
-  if (formMobilList.value.length === 0) {
-    errors.value.details = [{ general: 'Minimal satu mobil harus ditambahkan.' }]
-    isValid = false
-  } else {
-    errors.value.details = []
-
-    formMobilList.value.forEach((mobil, index) => {
-      const mobilErrors: Record<string, string> = {}
-
-      if (!mobil.mst_mobil_id) {
-        mobilErrors.mst_mobil_id = 'Mobil harus dipilih.'
-        isValid = false
-      }
-
-      if (!mobil.car_number?.trim()) {
-        mobilErrors.car_number = 'Nomor mobil wajib diisi.'
-        isValid = false
-      }
-
-      if (!mobil.price || isNaN(Number(mobil.price))) {
-        mobilErrors.price = 'Harga wajib diisi dan berupa angka.'
-        isValid = false
-      }
-
-      errors.value.details?.[index]?.car_number
-    })
-  }
-
-  return isValid
-}
-
-const submitForm = async () => {
-  if (!validateForm()) {
-    return
-  }
-  try {
-    const payload = {
-      kostumer_id: formData.value.kostumer_id,
-      paket_id: formData.value.paket_id,
-      address: formData.value.address,
-      details: formMobilList.value.map((mobil) => ({
-        mst_mobil_id: Number(mobil.mst_mobil_id),
-        car_number: mobil.car_number,
-        price: Number(mobil.price),
-      })),
-    }
-
-    const response = await add_transaksi(payload)
-
-    const invoice = response?.invoice
-
-    if (!invoice) throw new Error('Invoice tidak ditemukan di response')
-
-    showModal.value = false
-    resetForm()
-
-    displayNotification(`Transaksi berhasil! Invoice: ${invoice}`, 'success')
-
-    // 🧾 Open tab baru buat print kwitansi
-    const printUrl = `/kwitansi-trans-transport/${invoice}`
-    window.open(printUrl, '_blank')
-
-    // refresh data
-    fetchData()
-  } catch (error: any) {
-    console.error('❌ Gagal submit:', error)
-    displayNotification(error?.response?.data?.error_msg || 'Gagal menambahkan transaksi', 'error')
-  }
-}
-
-const resetForm = () => {
-  formData.value = {
-    kostumer_id: 0,
-    paket_id: 0,
-    address: '',
-  }
-
-  formMobilList.value = [
-    {
-      mst_mobil_id: '',
-      car_number: '',
-      price: null,
-    },
-  ]
-}
-
-// Format ke IDR
-const formatToIDR = (value: number | string): string => {
-  const num = typeof value === 'string' ? Number(value.replace(/[^\d]/g, '')) : value
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(num || 0)
-}
-
-// Ambil angka asli dari string IDR
-const parseIDR = (value: string): number => {
-  return Number(value.replace(/[^\d]/g, ''))
-}
-
-interface costumer {
+interface filterCabang {
   id: number
   name: string
 }
-
-const customerOption = ref<costumer[]>([])
-const SelectedCustomer = ref(0)
-const fetchCustomer = async () => {
-  try {
-    const response = await daftar_kostumer()
-    customerOption.value = [{ id: 0, name: 'Pilih Kostumer' }, ...response]
-  } catch (error) {
-    console.error(error)
-  }
+const selectedOptionCabang = ref(0)
+const optionFilterCabang = ref<filterCabang[]>([])
+const fetchFilterData = async () => {
+  const response = await paramCabang()
+  optionFilterCabang.value = response.data
+  selectedOptionCabang.value = response.data[0].id
+  await fetchData()
 }
 
-interface cabang {
-  id: number
-  name: string
-}
-const cabangOption = ref<cabang[]>([])
-const SelectedCabang = ref(0)
-const fetchCabang = async () => {
-  try {
-    const response = await paramCabang()
-    cabangOption.value = [{ id: 0, name: 'Pilih Cabang' }, ...response.data]
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-interface paket {
-  id: number
-  name: string
-}
-const paketOption = ref<paket[]>([{ id: 0, name: 'Pilih Paket' }]) // Tambahkan opsi default
-const SelectedPaket = ref(0)
-const fetchPaket = async () => {
-  try {
-    const response = await daftar_paket({
-      division_id: SelectedCabang.value,
-    })
-    paketOption.value = [{ id: 0, name: 'Pilih Paket' }, ...response]
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-watch(SelectedCabang, async (newCabang) => {
-  if (newCabang) {
-    await fetchPaket()
-  }
+onMounted(() => {
+  fetchFilterData();
 })
+
 </script>
 
 <template>
   <div class="container mx-auto px-4 mt-10">
     <div class="flex justify-between items-center mb-6">
-      <!-- Tombol Tambah di kiri -->
       <PrimaryButton @click="showModal = true">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-5 h-5"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M2 4a2 2 0 012-2h16a2 2 0 012 2v4H2V4zm0 6h20v10a2 2 0 01-2 2H4a2 2 0 01-2-2V10zm4 4a1 1 0 000 2h4a1 1 0 000-2H6z"
-          />
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M2 4a2 2 0 012-2h16a2 2 0 012 2v4H2V4zm0 6h20v10a2 2 0 01-2 2H4a2 2 0 01-2-2V10zm4 4a1 1 0 000 2h4a1 1 0 000-2H6z" />
         </svg>
-
         Tambah Transaksi
       </PrimaryButton>
 
-      <div class="flex items-center">
-        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input
-          v-model="searchQuery"
-          type="text"
-          id="search"
-          class="w-full sm:w-72 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Cari Invoice..."
-        />
+      <div class="inline-flex rounded-md shadow-xs" role="group">
+        <label for="search" class="block text-sm font-medium text-gray-700 mr-2 mt-3">Filter</label>
+        <input type="text" id="search"
+          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+          v-model="search" @change="fetchData()" placeholder="Cari data..." />
+        <select v-model="selectedOptionCabang" style="width: 300px" @change="fetchData()" class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+            {{ optionC.name }}
+          </option>
+        </select>
       </div>
     </div>
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
@@ -418,8 +195,7 @@ watch(SelectedCabang, async (newCabang) => {
               <div v-for="(mobil, idx) in item.detail_mobil" :key="idx" class="mb-2">
                 <div class="grid grid-cols-[120px_1fr] gap-y-1 items-start">
                   <div>Nama Mobil</div>
-                  <div>
-                    : <strong>{{ mobil.nama_mobil }}</strong>
+                  <div> : <strong>{{ mobil.nama_mobil }}</strong>
                   </div>
                   <div>Plat Mobil</div>
                   <div>: {{ mobil.car_number }}</div>
@@ -446,68 +222,29 @@ watch(SelectedCabang, async (newCabang) => {
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <Pagination
-            :total-row="totalItems"
-            :currentPage="currentPage"
-            :totalPages="totalPages"
-            :pages="pages"
-            :totalColumns="totalColumns"
-            @prev-page="handlePrev"
-            @next-page="handleNext"
-            @page-now="handlePageNow"
-          />
+          <Pagination :total-row="totalItems" :currentPage="currentPage" :totalPages="totalPages" :pages="pages" :totalColumns="totalColumns" @prev-page="handlePrev" @next-page="handleNext" @page-now="handlePageNow" />
         </tfoot>
       </table>
     </div>
   </div>
-
-  <Form
-    :formStatus="showModal"
-    @cancel="
-      () => {
-        showModal = false
-        resetForm()
-      }
-    "
-    @submit="submitForm"
-    :submitLabel="'Simpan'"
-    :width="'w-1/3'"
-    :label="'Tambah Transaksi Transport'"
-  >
+  <!-- <Form :formStatus="showModal" @cancel="() => { showModal = false; resetForm(); }" @submit="submitForm" :submitLabel="'Simpan'" :width="'w-1/3'" :label="'Tambah Transaksi Transport'">
     <div class="flex flex-wrap gap-4">
-      <div class="flex-1 min-w-[200px]">
-        <SelectField
-          label="Kostumer"
-          v-model="formData.kostumer_id"
-          :options="customerOption"
-          :error="errors.kostumer_id"
-        />
-      </div>
       <div class="flex-1 min-w-[200px]">
         <SelectField label="Cabang" v-model="SelectedCabang" :options="cabangOption" />
       </div>
       <div class="flex-1 min-w-[200px]">
-        <SelectField
-          label="Paket"
-          v-model="formData.paket_id"
-          :options="paketOption"
-          :error="errors.paket_id"
-        />
+        <SelectField label="Sumber Dana" v-model="SelectedCabang" :options="cabangOption" />
+      </div>
+      <div class="flex-1 min-w-[200px]">
+        <SelectField label="Kostumer" v-model="formData.kostumer_id" :options="customerOption" :error="errors.kostumer_id"/>
+      </div>
+      <div class="flex-1 min-w-[200px]">
+        <SelectField label="Paket" v-model="formData.paket_id" :options="paketOption" :error="errors.paket_id"/>
       </div>
     </div>
-
     <div class="mt-4">
-      <TextArea
-        v-model="formData.address"
-        id="address"
-        label="Alamat"
-        placeholder="Tuliskan Alamat Anda..."
-        note="Contoh: Jl. Raya Jakarta No. 123, Jakarta Selatan, DKI Jakarta"
-        :error="errors.address"
-        class="resize-none"
-      />
+      <TextArea v-model="formData.address" id="address" label="Alamat" placeholder="Tuliskan Alamat Anda..." note="Contoh: Jl. Raya Jakarta No. 123, Jakarta Selatan, DKI Jakarta" :error="errors.address" class="resize-none" />
     </div>
-
     <div class="mt-6">
       <h3 class="font-semibold text-sm mb-2">Detail Mobil</h3>
       <table class="table-auto w-full">
@@ -518,41 +255,25 @@ watch(SelectedCabang, async (newCabang) => {
           </tr>
         </thead>
         <tbody class="align-top border-t border-gray-200">
-          <tr
-            v-for="(mobil, index) in formMobilList"
-            :key="index"
-            class="hover:bg-gray-100 border-b border-dashed border-gray-700 pt-4"
-          >
+          <tr v-for="(mobil, index) in formMobilList" :key="index" class="hover:bg-gray-100 border-b border-dashed border-gray-700 pt-4" >
             <td class="px-4 py-2">
-              <SelectField
-                note="Mobil"
-                v-model="mobil.mst_mobil_id"
-                placeholder="Pilih Mobil"
-                :options="MobilOptions"
-                :error="errors[`mobil_${index}_mst_mobil_id`]"
-              />
-
               <div class="flex gap-4 mt-2">
                 <div class="w-1/2">
-                  <InputText
-                    v-model="mobil.car_number"
-                    note="Plat Mobil"
-                    placeholder="Masukkan Plat Mobil"
-                    :error="errors[`mobil_${index}_car_number`]"
-                  />
+                  <SelectField note="Mobil" v-model="mobil.mst_mobil_id" placeholder="Pilih Mobil" :options="MobilOptions" :error="errors[`mobil_${index}_mst_mobil_id`]" />
                 </div>
                 <div class="w-1/2">
-                  <InputText
-                    :modelValue="formatToIDR(mobil.price)"
-                    @update:modelValue="mobil.price = parseIDR($event)"
-                    note="Harga Per Paket"
-                    placeholder="Masukkan harga per paket"
-                    :error="errors[`mobil_${index}_price`]"
-                  />
+                  <InputText v-model="mobil.car_number" note="Plat Mobil" placeholder="Masukkan Plat Mobil" :error="errors[`mobil_${index}_car_number`]" />
+                </div>
+              </div>
+              <div class="flex gap-4 mt-2">
+                <div class="w-1/2">
+                  <InputText :modelValue="formatToIDR(mobil.price)" @update:modelValue="mobil.price = parseIDR($event)" note="Harga Travel Per Paket" placeholder="Masukkan harga travel per paket" :error="errors[`mobil_${index}_price`]" />
+                </div>
+                <div class="w-1/2">
+                  <InputText :modelValue="formatToIDR(mobil.price)" @update:modelValue="mobil.price = parseIDR($event)" note="Harga Kostumer Per Paket" placeholder="Masukkan harga kostumer per paket" :error="errors[`mobil_${index}_price`]"/>
                 </div>
               </div>
             </td>
-
             <td class="px-4 py-2 text-center">
               <DangerButton class="mt-2.5" @click="removeMobil(index)">
                 <DeleteIcon class="w-5 h-5" />
@@ -565,31 +286,19 @@ watch(SelectedCabang, async (newCabang) => {
         <PrimaryButton @click="addMobil">+ Tambah Mobil</PrimaryButton>
       </div>
     </div>
-  </Form>
-
-  <Confirmation
-    :showConfirmDialog="showConfirmDialog"
-    :confirmTitle="confirmTitle"
-    :confirmMessage="confirmMessage"
-  >
-    <button
-      @click="confirmAction && confirmAction()"
+  </Form> -->
+  <FormAdd  :showModal="showModal"  @cancel="showModal = false"  />
+  <Confirmation :showConfirmDialog="showConfirmDialog" :confirmTitle="confirmTitle" :confirmMessage="confirmMessage">
+    <button @click="confirmAction && confirmAction()"
       class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
     >
       Ya
     </button>
-    <button
-      @click="showConfirmDialog = false"
+    <button @click="showConfirmDialog = false"
       class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
     >
       Tidak
     </button>
   </Confirmation>
-
-  <Notification
-    :showNotification="showNotification"
-    :notificationType="notificationType"
-    :notificationMessage="notificationMessage"
-    @close="showNotification = false"
-  />
+  <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false"/>
 </template>
