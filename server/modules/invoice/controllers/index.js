@@ -16,7 +16,7 @@ exports.header = async (req, res) => {
   } catch (error) {
     handleServerError(res, error.message);
   }
-}
+};
 
 exports.invoice_kas_keluar_masuk = async (req, res) => {
   try {
@@ -28,13 +28,12 @@ exports.invoice_kas_keluar_masuk = async (req, res) => {
       res.status(400).json({ error: true, err_msg: "Data tidak ditemukan" });
     }
   } catch (error) {
-
     console.log("+++++++++++++++++");
     console.log(error);
     console.log("+++++++++++++++++");
     handleServerError(res, error.message);
   }
-}
+};
 
 exports.invoice_deposit = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
@@ -264,12 +263,10 @@ exports.kwitansi_passport = async (req, res) => {
     if (Object.keys(data).length > 0) {
       res.status(200).json({ error: false, err_msg: "Data ditemukan", data });
     } else {
-      res
-        .status(400)
-        .json({
-          error: true,
-          err_msg: "Data kwitansi passport tidak ditemukan",
-        });
+      res.status(400).json({
+        error: true,
+        err_msg: "Data kwitansi passport tidak ditemukan",
+      });
     }
   } catch (error) {
     handleServerError(res, error.message);
@@ -346,6 +343,26 @@ exports.kwitansi_trans_fasilitas = async (req, res) => {
   try {
     const model = new Model_r(req);
     const data = await model.invoice_trans_fasilitas();
+    if (Object.keys(data).length > 0) {
+      res.status(200).json({ error: false, err_msg: "Data ditemukan", data });
+    } else {
+      res.status(400).json({ error: true, err_msg: "Data tidak ditemukan" });
+    }
+  } catch (error) {
+    console.log("--------------ddddddddddddddddd");
+    console.log(error);
+    console.log("--------------ddddddddddddddddd");
+
+    handleServerError(res, error.message);
+  }
+};
+
+exports.kwitansi_trans_ticket = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model = new Model_r(req);
+    const data = await model.invoice_trans_tiket();
     if (Object.keys(data).length > 0) {
       res.status(200).json({ error: false, err_msg: "Data ditemukan", data });
     } else {

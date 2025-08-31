@@ -49,6 +49,9 @@ const {
   Transaction_fasilitas,
   Transaction_fasilitas_detail,
   Item_fasilitas,
+  Ticket_transaction,
+  Ticket_paymen_history,
+  Mst_airline,
 } = require("../../../models");
 const { Op } = require("sequelize");
 const {
@@ -544,8 +547,8 @@ class Model_r {
         attributes: [],
         where: { handover_fasilitas_id: hasil.id },
         include: {
-          required: true, 
-          model: Item_fasilitas
+          required: true,
+          model: Item_fasilitas,
         },
         // raw: true,
       });
@@ -554,7 +557,9 @@ class Model_r {
       if (!details || details.length === 0) {
         data.detail = [];
       } else {
-        const fasilitasIds = details.map((d) => d.Item_fasilita.mst_fasilitas_id);
+        const fasilitasIds = details.map(
+          (d) => d.Item_fasilita.mst_fasilitas_id
+        );
         console.log("11111111");
         const fasilitasList = await Mst_fasilitas.findAll({
           where: { id: { [Op.in]: fasilitasIds } },
@@ -568,7 +573,9 @@ class Model_r {
         }, {});
 
         data.detail = details.map((detail) => ({
-          name: fasilitasMap[detail.Item_fasilita.mst_fasilitas_id] || "Tidak diketahui",
+          name:
+            fasilitasMap[detail.Item_fasilita.mst_fasilitas_id] ||
+            "Tidak diketahui",
         }));
       }
 
@@ -1419,11 +1426,11 @@ class Model_r {
   async invoice_trans_fasilitas() {
     await this.initialize();
 
-    console.log('***************');
-    console.log('***************');
-    console.log('***************');
+    console.log("***************");
+    console.log("***************");
+    console.log("***************");
     try {
-      console.log('11111111111111111111');
+      console.log("11111111111111111111");
       const invoice = this.req.params.invoice;
 
       const header_kwitansi = await this.header_kwitansi_invoice();
@@ -1443,56 +1450,55 @@ class Model_r {
             model: Tabungan,
             required: false,
             include: {
-              model: Jamaah, 
+              model: Jamaah,
               required: false,
               include: {
-                model: Member, 
-                required: true
-              }
-            }
+                model: Member,
+                required: true,
+              },
+            },
           },
           {
-            model: Paket, 
-            required: false, 
-            attributes: ['name']
-          }
+            model: Paket,
+            required: false,
+            attributes: ["name"],
+          },
         ],
       });
 
-
-      var namajamaah = '';
-      if( transaksi.kostumer_id == null && transaksi.tabungan_id == null ) {
+      var namajamaah = "";
+      if (transaksi.kostumer_id == null && transaksi.tabungan_id == null) {
         const q = await Handover_fasilitas_paket.findOne({
           where: { invoice: invoice },
-          include: [  
+          include: [
             {
               model: Paket_transaction,
               required: true,
               include: [
                 {
-                  model: Division, 
+                  model: Division,
                   required: true,
-                  where: { company_id: this.company_id }
+                  where: { company_id: this.company_id },
                 },
                 {
                   model: Jamaah,
                   required: true,
                   include: {
-                    model: Member, 
-                    required: true, 
-                    attributes: ['fullname']
-                  }
+                    model: Member,
+                    required: true,
+                    attributes: ["fullname"],
+                  },
                 },
               ],
             },
           ],
         });
 
-        namajamaah = q.Paket_transaction.Jamaah.Member.fullname
+        namajamaah = q.Paket_transaction.Jamaah.Member.fullname;
       }
-      console.log('2222222222222222222');
+      console.log("2222222222222222222");
       console.log(transaksi);
-      console.log('2222222222222222222');
+      console.log("2222222222222222222");
 
       if (!transaksi) {
         return {};
@@ -1533,12 +1539,17 @@ class Model_r {
       let data = {
         header_kwitansi,
         invoice: transaksi.invoice,
-        nama_kostumer: transaksi.kostumer_id != null ? transaksi.Kostumer.name : (transaksi.tabungan_id != null ? transaksi.Tabungan?.Jamaah?.Member?.fullname: namajamaah ),
+        nama_kostumer:
+          transaksi.kostumer_id != null
+            ? transaksi.Kostumer.name
+            : transaksi.tabungan_id != null
+            ? transaksi.Tabungan?.Jamaah?.Member?.fullname
+            : namajamaah,
         petugas: transaksi.petugas,
-        nama_paket: transaksi.Paket?.name ?? '-',
+        nama_paket: transaksi.Paket?.name ?? "-",
         total_price,
         detail_fasilitas,
-      }
+      };
 
       return data;
     } catch (error) {
@@ -1549,6 +1560,77 @@ class Model_r {
       return {
         status: false,
         message: "Gagal ambil data invoice fasilitas.",
+        data: null,
+      };
+    }
+  }
+
+  async invoice_trans_tiket() {
+    await this.initialize();
+
+    try {
+      const regnum = this.req.params.regnum; // ambil dari route param
+
+      const header_kwitansi = await this.header_kwitansi_invoice();
+
+      const transaksi = await Ticket_transaction.findOne({
+        where: {
+          division_id: this.division_id,
+          nomor_registrasi: regnum, // pake nomor_registrasi sebagai invoice id
+        },
+        include: [
+          {
+            model: Kostumer,
+            attributes: ["name"],
+          },
+          {
+            model: Paket,
+            attributes: ["name"],
+          },
+          {
+            model: Mst_airline,
+            attributes: ["name"],
+          },
+        ],
+      });
+
+      if (!transaksi) {
+        return {
+          status: false,
+          message: "Data transaksi tiket tidak ditemukan.",
+          data: null,
+        };
+      }
+
+      // format data invoice
+      const data_invoice = {
+        header: header_kwitansi,
+        nomor_registrasi: transaksi.nomor_registrasi,
+        airlines_name: transaksi.Mst_airline?.name || "-",
+        customer: transaksi.Kostumer?.name || "-",
+        paket: transaksi.Paket?.name || "-",
+        status: transaksi.status,
+        pax: transaksi.pax,
+        code_booking: transaksi.code_booking,
+        costumer_price: transaksi.costumer_price,
+        departure_date: transaksi.departure_date,
+        arrival_date: transaksi.arrival_date,
+        createdAt: transaksi.createdAt,
+        updatedAt: transaksi.updatedAt,
+      };
+
+      console.log("Data invoice tiket:", data_invoice);
+
+      return {
+        status: true,
+        message: "Berhasil ambil data invoice tiket.",
+        data: data_invoice,
+      };
+    } catch (error) {
+      console.error("Gagal ambil data invoice ticket:", error);
+      return {
+        status: false,
+        message: "Gagal ambil data invoice ticket.",
         data: null,
       };
     }

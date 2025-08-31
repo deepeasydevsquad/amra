@@ -1,7 +1,21 @@
-const { sequelize, Ticket_transaction, Ticket_payment_history, Jurnal, Mst_airline, Division } = require("../../../models");
-const { getCabang, getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
+const {
+  sequelize,
+  Ticket_transaction,
+  Ticket_payment_history,
+  Jurnal,
+  Mst_airline,
+  Division,
+} = require("../../../models");
+const {
+  getCabang,
+  getCompanyIdByCode,
+  tipe,
+} = require("../../../helper/companyHelper");
 const { writeLog } = require("../../../helper/writeLogHelper");
-const { generateNomorRegisterTicket, generateNomorInvoicePembayaranTicket } = require("../../../helper/randomHelper");
+const {
+  generateNomorRegisterTicket,
+  generateNomorInvoicePembayaranTicket,
+} = require("../../../helper/randomHelper");
 const moment = require("moment");
 
 class Model_cud {
@@ -9,6 +23,7 @@ class Model_cud {
     this.req = req;
     this.division_id;
     this.company_id;
+    this.result = null;
   }
   async initialize() {
     this.t = await sequelize.transaction();
@@ -58,28 +73,32 @@ class Model_cud {
     await this.initialize();
     const body = this.req.body;
     const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
-   
+
     try {
-      // generate nomor_register 
+      // generate nomor_register
       const nomor_register = await generateNomorRegisterTicket(body.cabang);
       // get info maskapai
-      const q = await Mst_airline.findOne({ where: {company_id: this.company_id, id: body.maskapai } });
-      // total 
+      const q = await Mst_airline.findOne({
+        where: { company_id: this.company_id, id: body.maskapai },
+      });
+      // total
       const total = body.pax * body.harga_kostumer;
       // insert ke table Ticket_transactions
       const insert = await Ticket_transaction.create(
         {
           division_id: this.division_id,
           nomor_registrasi: nomor_register,
-          airlines_id: body.maskapai, 
-          kostumer_id: body.kostumer == 0 ? null : body.kostumer, 
-          paket_id: body.paket == 0 ? null : body.paket, 
-          status: 'active', 
-          pax: body.pax, 
-          code_booking: body.kode_booking, 
-          travel_price: body.harga_travel, 
-          costumer_price: body.harga_kostumer, 
-          departure_date: moment(body.tanggal_keberangkatan).format("YYYY-MM-DD"),
+          airlines_id: body.maskapai,
+          kostumer_id: body.kostumer == 0 ? null : body.kostumer,
+          paket_id: body.paket == 0 ? null : body.paket,
+          status: "active",
+          pax: body.pax,
+          code_booking: body.kode_booking,
+          travel_price: body.harga_travel,
+          costumer_price: body.harga_kostumer,
+          departure_date: moment(body.tanggal_keberangkatan).format(
+            "YYYY-MM-DD"
+          ),
           arrival_date: moment(body.tanggal_kepulangan).format("YYYY-MM-DD"),
           createdAt: myDate,
           updatedAt: myDate,
@@ -88,24 +107,25 @@ class Model_cud {
       );
       // insert HPP Jurnal
       await Jurnal.create(
-      {
-        division_id: body.cabang, 
-        source: 'ticketTransactionId:' + insert.id,
-        ref: 'HPP Penjualan Tiket ' + q.name,
-        ket: 'HPP Penjualan Tiket ' + q.name,
-        akun_debet: q.nomor_akun_hpp,
-        akun_kredit: q.nomor_akun_deposit,
-        saldo: body.pax * body.harga_travel,
-        removable: 'false',
-        periode_id: 0,
-        createdAt: myDate,
-        updatedAt: myDate,
-      },
-      {
-        transaction: this.t,
-      });
+        {
+          division_id: body.cabang,
+          source: "ticketTransactionId:" + insert.id,
+          ref: "HPP Penjualan Tiket " + q.name,
+          ket: "HPP Penjualan Tiket " + q.name,
+          akun_debet: q.nomor_akun_hpp,
+          akun_kredit: q.nomor_akun_deposit,
+          saldo: body.pax * body.harga_travel,
+          removable: "false",
+          periode_id: 0,
+          createdAt: myDate,
+          updatedAt: myDate,
+        },
+        {
+          transaction: this.t,
+        }
+      );
 
-      if( body.dibayar > 0 ) {
+      if (body.dibayar > 0) {
         const invoice = await generateNomorInvoicePembayaranTicket(body.cabang);
         await Ticket_payment_history.create(
           {
@@ -117,21 +137,21 @@ class Model_cud {
           },
           { transaction: this.t }
         );
-        
-        // -- JURNAL -- 
+
+        // -- JURNAL --
         // jika pembayaran tidak dilakukan secara full
-        if( body.dibayar < total ) {
-          // insert Kas Atau Pembayaran Utang Tabungan 
+        if (body.dibayar < total) {
+          // insert Kas Atau Pembayaran Utang Tabungan
           await Jurnal.create(
             {
-              division_id: body.cabang, 
-              source: 'ticketTransactionId:' + insert.id,
-              ref: 'Kas / Pembayaran utang untuk Penjualan Tiket ' + q.name,
-              ket: 'Kas / Pembayaran utang untuk Penjualan Tiket ' + q.name,
-              akun_debet: body.paket ? '23000' : '11010',
+              division_id: body.cabang,
+              source: "ticketTransactionId:" + insert.id,
+              ref: "Kas / Pembayaran utang untuk Penjualan Tiket " + q.name,
+              ket: "Kas / Pembayaran utang untuk Penjualan Tiket " + q.name,
+              akun_debet: body.paket ? "23000" : "11010",
               akun_kredit: null,
               saldo: body.dibayar,
-              removable: 'false',
+              removable: "false",
               periode_id: 0,
               createdAt: myDate,
               updatedAt: myDate,
@@ -140,17 +160,17 @@ class Model_cud {
               transaction: this.t,
             }
           );
-          // Insert Piutang 
+          // Insert Piutang
           await Jurnal.create(
             {
-              division_id: body.cabang, 
-              source: 'ticketTransactionId:' + insert.id,
-              ref: 'Piutang untuk penjualan tiket ' + q.name,
-              ket: 'Piutang untuk penjualan tiket ' + q.name,
-              akun_debet: '13000',
+              division_id: body.cabang,
+              source: "ticketTransactionId:" + insert.id,
+              ref: "Piutang untuk penjualan tiket " + q.name,
+              ket: "Piutang untuk penjualan tiket " + q.name,
+              akun_debet: "13000",
               akun_kredit: null,
               saldo: total - body.dibayar,
-              removable: 'false',
+              removable: "false",
               periode_id: 0,
               createdAt: myDate,
               updatedAt: myDate,
@@ -159,17 +179,17 @@ class Model_cud {
               transaction: this.t,
             }
           );
-          // Insert Pendatapatan Maskapai 
+          // Insert Pendatapatan Maskapai
           await Jurnal.create(
             {
-              division_id: body.cabang, 
-              source: 'ticketTransactionId:' + insert.id,
-              ref: 'Pendapatan untuk penjualan tiket ' + q.name,
-              ket: 'Pendapatan untuk penjualan tiket ' + q.name,
+              division_id: body.cabang,
+              source: "ticketTransactionId:" + insert.id,
+              ref: "Pendapatan untuk penjualan tiket " + q.name,
+              ket: "Pendapatan untuk penjualan tiket " + q.name,
               akun_debet: null,
               akun_kredit: q.nomor_akun_pendapatan,
               saldo: total,
-              removable: 'false',
+              removable: "false",
               periode_id: 0,
               createdAt: myDate,
               updatedAt: myDate,
@@ -178,19 +198,19 @@ class Model_cud {
               transaction: this.t,
             }
           );
-
-        } else { // Jika pembayaran dilakukan secara full 
+        } else {
+          // Jika pembayaran dilakukan secara full
           // Insert Pendapatan Jurnal
           await Jurnal.create(
             {
-              division_id: body.cabang, 
-              source: 'ticketTransactionId:' + insert.id,
-              ref: 'Pendapatan Penjualan Tiket ' + q.name,
-              ket: 'Pendapatan Penjualan Tiket ' + q.name,
-              akun_debet: body.paket ? '23000' : '11010',
+              division_id: body.cabang,
+              source: "ticketTransactionId:" + insert.id,
+              ref: "Pendapatan Penjualan Tiket " + q.name,
+              ket: "Pendapatan Penjualan Tiket " + q.name,
+              akun_debet: body.paket ? "23000" : "11010",
               akun_kredit: q.nomor_akun_pendapatan,
               saldo: body.dibayar,
-              removable: 'false',
+              removable: "false",
               periode_id: 0,
               createdAt: myDate,
               updatedAt: myDate,
@@ -201,6 +221,8 @@ class Model_cud {
           );
         }
       }
+
+      this.register_number = nomor_register;
     } catch (error) {
       this.state = false;
     }
@@ -225,29 +247,28 @@ class Model_cud {
     const myDate = moment().format("YYYY-MM-DD HH:mm:ss");
 
     try {
-
-      const q = await Ticket_transaction.findOne({ 
-          where: { 
-              id: this.req.body.id 
-          }, 
-          include: [
-              { 
-              model: Division, 
-              required: true, 
-              where: { 
-                  company_id: this.company_id 
-              } 
-              },
-              { 
-              model: Mst_airline, 
-              required: true, 
-              },
-          ]
+      const q = await Ticket_transaction.findOne({
+        where: {
+          id: this.req.body.id,
+        },
+        include: [
+          {
+            model: Division,
+            required: true,
+            where: {
+              company_id: this.company_id,
+            },
+          },
+          {
+            model: Mst_airline,
+            required: true,
+          },
+        ],
       });
 
-      // generated invoice 
+      // generated invoice
       const invoice = await generateNomorInvoicePembayaranTicket(q.division_id);
-      // 
+      //
       await Ticket_payment_history.create(
         {
           ticket_transaction_id: this.req.body.id,
@@ -259,17 +280,17 @@ class Model_cud {
         { transaction: this.t }
       );
 
-      // Insert Pendatapatan Maskapai 
+      // Insert Pendatapatan Maskapai
       await Jurnal.create(
         {
-          division_id: q.division_id, 
-          source: 'ticketTransactionId:' + this.req.body.id,
-          ref: 'Pembayaran utang untuk Penjualan Tiket ' + q.Mst_airline.name,
-          ket: 'Pembayaran utang untuk Penjualan Tiket ' + q.Mst_airline.name,
+          division_id: q.division_id,
+          source: "ticketTransactionId:" + this.req.body.id,
+          ref: "Pembayaran utang untuk Penjualan Tiket " + q.Mst_airline.name,
+          ket: "Pembayaran utang untuk Penjualan Tiket " + q.Mst_airline.name,
           akun_debet: null,
-          akun_kredit: '13000',
+          akun_kredit: "13000",
           saldo: this.req.body.dibayar,
-          removable: 'false',
+          removable: "false",
           periode_id: 0,
           createdAt: myDate,
           updatedAt: myDate,
@@ -283,7 +304,7 @@ class Model_cud {
       return invoice;
     } catch (error) {
       this.state = false;
-      return '';
+      return "";
     }
   }
 
@@ -299,9 +320,11 @@ class Model_cud {
           code_booking: this.req.body.kode_booking,
           travel_price: this.req.body.harga_travel,
           costumer_price: this.req.body.harga_kostumer,
-          departure_date: moment(this.req.body.tanggal_keberangkatan).format("YYYY-MM-DD HH:mm:ss"), 
-          updatedAt: myDate
-        }, 
+          departure_date: moment(this.req.body.tanggal_keberangkatan).format(
+            "YYYY-MM-DD HH:mm:ss"
+          ),
+          updatedAt: myDate,
+        },
         {
           where: { id: this.req.body.id },
         },
@@ -314,29 +337,29 @@ class Model_cud {
         {
           where: { source: "ticketTransactionId:" + this.req.body.id },
           include: {
-            required : true, 
-            model : Division, 
-            where: { company_id: this.company_id }
-          }
-        }, 
+            required: true,
+            model: Division,
+            where: { company_id: this.company_id },
+          },
+        },
         {
           transaction: this.t,
         }
       );
       // get informasi transaksi tiket
       const q = await Ticket_transaction.findOne({
-        where: { id: this.req.body.id }, 
+        where: { id: this.req.body.id },
         include: [
-          { 
-            model: Division, 
-            required: true, 
-            where: { company_id: this.company_id } 
+          {
+            model: Division,
+            required: true,
+            where: { company_id: this.company_id },
           },
-          { 
+          {
             model: Mst_airline,
             required: true,
           },
-        ]
+        ],
       });
       // get informasi sudah bayar
       var sudah_bayar = 0;
@@ -344,14 +367,14 @@ class Model_cud {
         attributes: ["id", "nominal", "status"],
         where: { ticket_transaction_id: this.req.body.id },
         include: {
-            model: Ticket_transaction, 
-            required: true,
-            where: { division_id: q.division_id }
-        }
+          model: Ticket_transaction,
+          required: true,
+          where: { division_id: q.division_id },
+        },
       }).then(async (value) => {
         await Promise.all(
           await value.map(async (e) => {
-            if( e.status == 'cash') {
+            if (e.status == "cash") {
               sudah_bayar = sudah_bayar + parseInt(e.nominal);
             }
           })
@@ -362,14 +385,14 @@ class Model_cud {
       // insert HPP Jurnal
       await Jurnal.create(
         {
-          division_id: q.division_id, 
-          source: 'ticketTransactionId:' + q.id,
-          ref: 'HPP Penjualan Tiket ' + q.Mst_airline.name,
-          ket: 'HPP Penjualan Tiket ' + q.Mst_airline.name,
+          division_id: q.division_id,
+          source: "ticketTransactionId:" + q.id,
+          ref: "HPP Penjualan Tiket " + q.Mst_airline.name,
+          ket: "HPP Penjualan Tiket " + q.Mst_airline.name,
           akun_debet: q.Mst_airline.nomor_akun_hpp,
           akun_kredit: q.Mst_airline.nomor_akun_deposit,
           saldo: q.pax * q.travel_price,
-          removable: 'false',
+          removable: "false",
           periode_id: 0,
           createdAt: myDate,
           updatedAt: myDate,
@@ -380,18 +403,22 @@ class Model_cud {
       );
 
       // filter
-      if( sudah_bayar < total ) {
-        // insert Kas Atau Pembayaran Utang Tabungan 
+      if (sudah_bayar < total) {
+        // insert Kas Atau Pembayaran Utang Tabungan
         await Jurnal.create(
           {
-            division_id: q.division_id, 
-            source: 'ticketTransactionId:' + q.id,
-            ref: 'Kas / Pembayaran utang untuk Penjualan Tiket ' + q.Mst_airline.name,
-            ket: 'Kas / Pembayaran utang untuk Penjualan Tiket ' + q.Mst_airline.name,
-            akun_debet: q.paket_id ? '23000' : '11010',
+            division_id: q.division_id,
+            source: "ticketTransactionId:" + q.id,
+            ref:
+              "Kas / Pembayaran utang untuk Penjualan Tiket " +
+              q.Mst_airline.name,
+            ket:
+              "Kas / Pembayaran utang untuk Penjualan Tiket " +
+              q.Mst_airline.name,
+            akun_debet: q.paket_id ? "23000" : "11010",
             akun_kredit: null,
             saldo: sudah_bayar,
-            removable: 'false',
+            removable: "false",
             periode_id: 0,
             createdAt: myDate,
             updatedAt: myDate,
@@ -400,17 +427,17 @@ class Model_cud {
             transaction: this.t,
           }
         );
-        // Insert Piutang 
+        // Insert Piutang
         await Jurnal.create(
           {
-            division_id: q.division_id, 
-            source: 'ticketTransactionId:' + q.id,
-            ref: 'Piutang untuk Penjualan Tiket ' + q.Mst_airline.name,
-            ket: 'Piutang untuk Penjualan Tiket ' + q.Mst_airline.name,
-            akun_debet: '13000',
+            division_id: q.division_id,
+            source: "ticketTransactionId:" + q.id,
+            ref: "Piutang untuk Penjualan Tiket " + q.Mst_airline.name,
+            ket: "Piutang untuk Penjualan Tiket " + q.Mst_airline.name,
+            akun_debet: "13000",
             akun_kredit: null,
             saldo: total - sudah_bayar,
-            removable: 'false',
+            removable: "false",
             periode_id: 0,
             createdAt: myDate,
             updatedAt: myDate,
@@ -419,17 +446,17 @@ class Model_cud {
             transaction: this.t,
           }
         );
-        // Insert Pendapatan Maskapai 
+        // Insert Pendapatan Maskapai
         await Jurnal.create(
           {
-            division_id: q.division_id, 
-            source: 'ticketTransactionId:' + q.id,
-            ref: 'Pendapatan untuk Penjualan Tiket ' + q.Mst_airline.name,
-            ket: 'Pendapatan untuk Penjualan Tiket ' + q.Mst_airline.name,
+            division_id: q.division_id,
+            source: "ticketTransactionId:" + q.id,
+            ref: "Pendapatan untuk Penjualan Tiket " + q.Mst_airline.name,
+            ket: "Pendapatan untuk Penjualan Tiket " + q.Mst_airline.name,
             akun_debet: null,
             akun_kredit: q.Mst_airline.nomor_akun_pendapatan,
             saldo: total,
-            removable: 'false',
+            removable: "false",
             periode_id: 0,
             createdAt: myDate,
             updatedAt: myDate,
@@ -438,18 +465,18 @@ class Model_cud {
             transaction: this.t,
           }
         );
-      }else{
+      } else {
         // Insert Pendapatan Jurnal
         await Jurnal.create(
           {
-            division_id: q.division_id, 
-            source: 'ticketTransactionId:' + q.id,
-            ref: 'Pendapatan Penjualan Tiket ' + q.Mst_airline.name,
-            ket: 'Pendapatan Penjualan Tiket ' + q.Mst_airline.name,
-            akun_debet: q.paket_id ? '23000' : '11010',
+            division_id: q.division_id,
+            source: "ticketTransactionId:" + q.id,
+            ref: "Pendapatan Penjualan Tiket " + q.Mst_airline.name,
+            ket: "Pendapatan Penjualan Tiket " + q.Mst_airline.name,
+            akun_debet: q.paket_id ? "23000" : "11010",
             akun_kredit: q.Mst_airline.nomor_akun_pendapatan,
             saldo: sudah_bayar,
-            removable: 'false',
+            removable: "false",
             periode_id: 0,
             createdAt: myDate,
             updatedAt: myDate,
@@ -476,42 +503,43 @@ class Model_cud {
         {
           where: { ticket_transaction_id: this.req.body.id },
           include: {
-            required : true, 
+            required: true,
             model: Ticket_transaction,
             include: {
-              required : true, 
-              model : Division, 
-              where: { company_id: this.company_id }
-            }
-          }
-        }, { transaction: this.t, }
+              required: true,
+              model: Division,
+              where: { company_id: this.company_id },
+            },
+          },
+        },
+        { transaction: this.t }
       );
-      
+
       // destroy Ticket Transaction
       await Ticket_transaction.destroy(
         {
           where: { id: this.req.body.id },
           include: {
-            required : true, 
-            model : Division, 
-            where: { company_id: this.company_id }
-          }
-        }, 
+            required: true,
+            model: Division,
+            where: { company_id: this.company_id },
+          },
+        },
         {
           transaction: this.t,
         }
       );
-      
+
       // destroy Jurnal
       await Jurnal.destroy(
         {
           where: { source: "ticketTransactionId:" + this.req.body.id },
           include: {
-            required : true, 
-            model : Division, 
-            where: { company_id: this.company_id }
-          }
-        }, 
+            required: true,
+            model: Division,
+            where: { company_id: this.company_id },
+          },
+        },
         {
           transaction: this.t,
         }
