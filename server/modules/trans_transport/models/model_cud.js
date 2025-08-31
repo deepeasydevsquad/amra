@@ -5,6 +5,8 @@ const {
   Company,
   Users,
   Member,
+  Jurnal, 
+  Mst_bank
 } = require("../../../models");
 const moment = require("moment");
 const { Op } = require("sequelize");
@@ -75,11 +77,11 @@ class Model_cud {
       // 1. Insert transaksi utama
       const transaksi = await Transport_transaction.create(
         {
-          company_id: this.company_id,
+          division_id: body.cabang,
           invoice: invoice,
           petugas: petugas,
-          kostumer_id: body.kostumer_id || "-",
-          paket_id: body.paket_id || null,
+          kostumer_id: this.req.body.kostumer == 0 ? null : this.req.body.kostumer,
+          paket_id: this.req.body.paket == 0 ? null : this.req.body.paket,
           address: body.address || "-",
           createdAt: my_date,
           updatedAt: my_date,
@@ -92,7 +94,8 @@ class Model_cud {
         transport_transaction_id: transaksi.id,
         mst_mobil_id: d.mst_mobil_id,
         car_number: d.car_number,
-        price: d.price,
+        travel_price: d.travelPrice,
+        costumer_price: d.costumerPrice,
         createdAt: my_date,
         updatedAt: my_date,
       }));
@@ -100,6 +103,86 @@ class Model_cud {
       await Transport_transaction_detail.bulkCreate(detailData, {
         transaction: this.t,
       });
+
+      // Hitung total harga travel dan total harga customer
+      const totalTravelPrice = detailData.reduce((acc, item) => acc + (item.travel_price || 0), 0);
+      const totalCostumerPrice = detailData.reduce((acc, item) => acc + (item.costumer_price || 0), 0);
+
+      // jurnal
+      var akun_kredit = '';
+      if(this.req.body.sumber_dana == 0) {
+        akun_kredit = '11010'; //
+      }else{
+        const q = await Mst_bank.findOne({
+          where: {
+            id: this.req.body.sumber_dana,
+            company_id: this.company_id
+          },
+        });
+        akun_kredit = q.nomor_akun;
+      }
+
+      // ===== JURNAL ====
+      // insert HPP Jurnal Transport
+      await Jurnal.create(
+        {
+          division_id: this.req.body.cabang, 
+          source: 'transportTransactionId:' + transaksi.id,
+          ref: 'HPP Penjualan Transport ',
+          ket: 'HPP Penjualan Transport ',
+          akun_debet: '54000',
+          akun_kredit: akun_kredit,
+          saldo: totalTravelPrice,
+          removable: 'false',
+          periode_id: 0,
+          createdAt: my_date,
+          updatedAt: my_date,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+      // insert Pendapatan Jurnal Visa
+      await Jurnal.create(
+        {
+          division_id: this.req.body.cabang, 
+          source: 'transportTransactionId:' + transaksi.id,
+          ref: 'Pendapatan Penjualan Transport ',
+          ket: 'Pendapatan Penjualan Transport ',
+          akun_debet: '11010',
+          akun_kredit: '46000',
+          saldo: totalCostumerPrice,
+          removable: 'false',
+          periode_id: 0,
+          createdAt: my_date,
+          updatedAt: my_date,
+        },
+        {
+          transaction: this.t,
+        }
+      );
+
+      // tambah pengurangan utang tabungan
+      if( this.req.body.paket != 0 ) {
+        await Jurnal.create(
+          {
+            division_id: this.req.body.cabang, 
+            source: 'transportTransactionId:' + transaksi.id,
+            ref: 'Pembayaran Utang Tabungan Untuk Penjualan Transport ',
+            ket: 'Pembayaran Utang Tabungan Untuk Penjualan Transport ',
+            akun_debet: '23000',
+            akun_kredit: null,
+            saldo: totalCostumerPrice,
+            removable: 'false',
+            periode_id: 0,
+            createdAt: my_date,
+            updatedAt: my_date,
+          },
+          {
+            transaction: this.t,
+          }
+        );
+      }
 
       this.invoice = invoice;
       this.message = "Transaksi Transport berhasil disimpan.";
@@ -126,7 +209,6 @@ class Model_cud {
       const transaksi = await Transport_transaction.findOne({
         where: {
           id: Number(id),
-          company_id: this.company_id,
         },
       });
 
@@ -145,6 +227,12 @@ class Model_cud {
       // Hapus data induknya
       await Transport_transaction.destroy({
         where: { id: transaksi.id },
+        transaction: this.t,
+      });
+
+      // Hapus data jurnal
+      await Jurnal.destroy({
+        where: { source: 'transportTransactionId:' + transaksi.id },
         transaction: this.t,
       });
 

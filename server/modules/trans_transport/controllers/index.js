@@ -41,14 +41,13 @@ exports.hapus_transaksi_transport = async (req, res) => {
 
     if (await model.response()) {
       res.status(200).json({
-        message: model.message || "Transaksi berhasil hapus",
-        invoice: model.invoice,
-        status: "success",
+        message: model.message,
+        error: false,
       });
     } else {
       res.status(400).json({
-        message: model.message || "Gagal hapus Transaksi",
-        status: "failed",
+        message: model.message,
+        error: true
       });
     }
   } catch (error) {

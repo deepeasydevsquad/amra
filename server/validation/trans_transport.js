@@ -1,5 +1,5 @@
 const { body } = require("express-validator");
-const { Mst_bank } = require("../models"); // <- sesuaikan path ke model lu
+const { Mst_bank, Transport_transaction, Division } = require("../models"); // <- sesuaikan path ke model lu
 const Akuntansi = require("../library/akuntansi");
 const { getCompanyIdByCode } = require("../helper/companyHelper");
 
@@ -27,6 +27,25 @@ validation.check_saldo = async ( value, { req} ) => {
         throw new Error("Jumlah total harga travel tidak boleh lebih besar dari saldo sumber dana.");
     }
 
+    return true;
+}
+
+validation.check_id = async  ( value, { req} ) => {
+    const company_id = await getCompanyIdByCode(req);
+    const q = await Transport_transaction.findOne({ 
+        where: { id: value }, 
+        include: {
+            model: Division,
+            required: true,
+            where: {
+                company_id: company_id,
+            }
+        }
+    });
+    if (!q) {
+        throw new Error("ID Transaksi transport tidak terdaftar dipangkalan data");
+    }
+    
     return true;
 }
 

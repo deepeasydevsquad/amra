@@ -27,7 +27,9 @@ router.post(
 router.post(
   "/trans_transport/delete_transaksi",
   authenticateToken,
-  [body("id").trim().notEmpty().withMessage("ID  tidak boleh kosong.")],
+  [
+    body("id").trim().notEmpty().withMessage("ID  tidak boleh kosong.").custom(validation.check_id)
+  ],
   controllers.hapus_transaksi_transport
 );
 

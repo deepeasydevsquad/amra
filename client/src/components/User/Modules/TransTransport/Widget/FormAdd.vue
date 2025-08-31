@@ -161,7 +161,7 @@ import { ref, watch, computed, onMounted } from 'vue'
       emit('submit');
     } catch (error: any) {
       console.error('❌ Gagal submit:', error)
-      displayNotification(error?.response?.data?.error_msg || 'Gagal menambahkan transaksi', 'error')
+      displayNotification(error?.response?.data?.message || 'Gagal menambahkan transaksi', 'error')
     }
   }
 
