@@ -28,7 +28,10 @@ module.exports = {
       car_number: {
         type: Sequelize.STRING
       },
-      price: {
+      travel_price: {
+        type: Sequelize.INTEGER
+      },
+      costumer_price: {
         type: Sequelize.INTEGER
       },
       createdAt: {

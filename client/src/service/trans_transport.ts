@@ -30,9 +30,9 @@ export const delete_transaksi = async (param : any) => {
     }
 }
 
-export const daftar_mobil = async (param : any) => {
+export const daftar_mobil = async () => {
     try {
-        const response = await api.get("/trans_transport/daftar_mobil", param);
+        const response = await api.get("/trans_transport/daftar_mobil");
         return response.data;
     } catch (error) {
         console.error("Gagal menambahkan tiket:", error);

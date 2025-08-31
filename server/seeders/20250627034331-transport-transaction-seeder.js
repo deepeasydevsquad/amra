@@ -4,7 +4,7 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.bulkInsert("Transport_transactions", [
       {
-        company_id: 1, // sesuaikan dengan ID company yang ada
+        division_id: 1, // sesuaikan dengan ID company yang ada
         invoice: "AB12",
         petugas: "Sony Kurniawan",
         kostumer_id: 1,

@@ -6,39 +6,20 @@ import { ref, watch, computed, onMounted } from 'vue'
   import TextArea from '@/components/Form/TextArea.vue'
   import Notification from '@/components/Modal/Notification.vue'
   import Confirmation from '@/components/Modal/Confirmation.vue'
+  import PrimaryButton from '@/components/Button/PrimaryButton.vue'
 
   import { add_transaksi, daftar_mobil, daftar_kostumer, daftar_paket } from '@/service/trans_transport'
   import { getSumberDanaPaket } from '@/service/transaksi_visa'
   import { paramCabang } from '@/service/param_cabang'
 
   const props = defineProps<{ showModal: boolean }>()
-  const emit = defineEmits<{ (e: 'cancel'): void; (e: 'save-success', message: string): void; (e: 'error', message: string): void; }>()
+  const emit = defineEmits<{ (e: 'cancel'): void; (e: 'submit'): void; (e: 'error', message: string): void; }>()
 
-  const handleCancel = () => {
-  // reset();
-  // resetForm();
-    emit('cancel')
-  }
+  const handleCancel = () => {resetForm();emit('cancel');}
 
   interface option {
     id: number
     name: string
-  }
-
-  const resetForm = () => {
-    formData.value = {
-      kostumer_id: 0,
-      paket_id: 0,
-      address: '',
-    }
-
-    formMobilList.value = [
-      {
-        mst_mobil_id: '',
-        car_number: '',
-        price: null,
-      },
-    ]
   }
 
   // Format ke IDR
@@ -57,10 +38,10 @@ import { ref, watch, computed, onMounted } from 'vue'
   }
 
   const errors = ref<{
-    kostumer_id?: string
-    paket_id?: string
+    cabang?: string
+    kostumer_paket?: string
     address?: string
-    details?: { mst_mobil_id?: string; car_number?: string; price?: string; general?: string }[]
+    details?: { mst_mobil_id?: number; car_number?: string; travelPrice?: string; costumerPrice?: string; general?: string }[]
   }>({})
 
   const formData = ref({
@@ -69,12 +50,43 @@ import { ref, watch, computed, onMounted } from 'vue'
     address: '',
   })
 
+  const formMobilList = ref([
+    {
+      mst_mobil_id: 0,
+      car_number: '',
+      travelPrice: 0,
+      costumerPrice: 0,
+    },
+  ])
+
+  const resetForm = () => {
+    formData.value = {
+      kostumer_id: 0,
+      paket_id: 0,
+      address: '',
+    }
+    formMobilList.value = [
+      {
+        mst_mobil_id: 0,
+        car_number: '',
+        travelPrice: 0,
+        costumerPrice: 0,
+      },
+    ]
+  }
+
   const validateForm = (): boolean => {
     let isValid = true
     errors.value = {}
 
-    if (!formData.value.kostumer_id) {
-      errors.value.kostumer_id = 'Kostumer harus dipilih.'
+  if (!SelectedCabang.value) {
+      errors.value.cabang = 'Cabang harus dipilih.'
+      isValid = false
+    }
+
+    // Validate customer fields
+    if ((!SelectedCustomer.value || SelectedCustomer.value === 0 ) && ( !SelectedPaket.value || SelectedPaket.value === 0 ) ) {
+      errors.value.kostumer_paket = 'Kostumer atau paket wajib dipilih'
       isValid = false
     }
 
@@ -103,12 +115,17 @@ import { ref, watch, computed, onMounted } from 'vue'
           isValid = false
         }
 
-        if (!mobil.price || isNaN(Number(mobil.price))) {
-          mobilErrors.price = 'Harga wajib diisi dan berupa angka.'
+        if (!mobil.travelPrice || isNaN(Number(mobil.travelPrice))) {
+          mobilErrors.travelPrice = 'Harga travel wajib diisi dan berupa angka.'
           isValid = false
         }
 
-        errors.value.details?.[index]?.car_number
+        if (!mobil.costumerPrice || isNaN(Number(mobil.costumerPrice))) {
+          mobilErrors.costumerPrice = 'Harga kostumer wajib diisi dan berupa angka.'
+          isValid = false
+        }
+
+        errors.value.details?.push(mobilErrors);
       })
     }
 
@@ -120,35 +137,28 @@ import { ref, watch, computed, onMounted } from 'vue'
     if (!validateForm()) {
       return
     }
+
     try {
       const payload = {
-        kostumer_id: formData.value.kostumer_id,
-        paket_id: formData.value.paket_id,
+        cabang: SelectedCabang.value,
+        sumber_dana: SelectedSumberDana.value,
+        kostumer: SelectedCustomer.value,
+        paket: SelectedPaket.value,
         address: formData.value.address,
         details: formMobilList.value.map((mobil) => ({
           mst_mobil_id: Number(mobil.mst_mobil_id),
           car_number: mobil.car_number,
-          price: Number(mobil.price),
+          travelPrice: Number(mobil.travelPrice),
+          costumerPrice: Number(mobil.costumerPrice),
         })),
       }
-
       const response = await add_transaksi(payload)
 
-      const invoice = response?.invoice
-
-      if (!invoice) throw new Error('Invoice tidak ditemukan di response')
-
-      // showModal.value = false
-      resetForm()
-
-      // displayNotification(`Transaksi berhasil! Invoice: ${invoice}`, 'success')
-
-      // 🧾 Open tab baru buat print kwitansi
-      const printUrl = `/kwitansi-trans-transport/${invoice}`
+      const printUrl = `/kwitansi-trans-transport/${response?.invoice}`
       window.open(printUrl, '_blank')
 
-      // refresh data
-      // fetchData()
+      resetForm()
+      emit('submit');
     } catch (error: any) {
       console.error('❌ Gagal submit:', error)
       displayNotification(error?.response?.data?.error_msg || 'Gagal menambahkan transaksi', 'error')
@@ -173,13 +183,6 @@ import { ref, watch, computed, onMounted } from 'vue'
     }, 3000)
   }
 
-  // const SelectedSumberDana = ref(0)
-  // const sumberDanaOption = ref<paket[]>([{ id: 0, name: ' -- Pilih Sumber Dana -- ' }]) // Tambahkan opsi default
-
-  // const fetchSumberDanaPaket = async () => {
-
-  // }
-
   const SelectedPaket = ref(0);
   const SelectedSumberDana = ref(0);
   const list_paket = ref<option[]>([{ id: 0, name: ' -- Pilih Paket -- ' }])
@@ -202,25 +205,7 @@ import { ref, watch, computed, onMounted } from 'vue'
     }
   }
 
-
-  // const paketOption = ref<option[]>([{ id: 0, name: ' -- Pilih Paket -- ' }]) // Tambahkan opsi default
-  // const SelectedPaket = ref(0)
-  // const fetchPaket = async () => {
-  //   try {
-  //     const response = await daftar_paket({
-  //       division_id: SelectedCabang.value,
-  //     })
-  //     paketOption.value = [{ id: 0, name: 'Pilih Paket' }, ...response]
-  //   } catch (error) {
-  //     console.error(error)
-  //   }
-  // }
-
-  interface cabang {
-    id: number
-    name: string
-  }
-  const cabangOption = ref<cabang[]>([])
+  const cabangOption = ref<option[]>([])
   const SelectedCabang = ref(0)
   const fetchCabang = async () => {
     try {
@@ -231,13 +216,7 @@ import { ref, watch, computed, onMounted } from 'vue'
     }
   }
 
-
-  interface costumer {
-    id: number
-    name: string
-  }
-
-  const customerOption = ref<costumer[]>([])
+  const customerOption = ref<option[]>([])
   const SelectedCustomer = ref(0)
   const fetchCustomer = async () => {
     try {
@@ -248,17 +227,13 @@ import { ref, watch, computed, onMounted } from 'vue'
     }
   }
 
-
   const MobilOptions = ref<{ id: number | string; name: string; kota: string }[]>([])
   const fetchMobil = async () => {
     try {
       const data = await daftar_mobil()
       MobilOptions.value = [
-        { id: 0, name: 'Pilih Mobil' },
-        ...data.map((item: any) => ({
-          id: item.id,
-          name: `${item.name}`,
-        })),
+        { id: 0, name: ' -- Pilih Mobil -- ' },
+        ...data.map((item: any) => ({id: item.id,name: `${item.name}`,})),
       ]
       console.log('data kota', data)
     } catch (error) {
@@ -266,19 +241,12 @@ import { ref, watch, computed, onMounted } from 'vue'
     }
   }
 
-  const formMobilList = ref([
-    {
-      mst_mobil_id: '0',
-      car_number: '',
-      price: null,
-    },
-  ])
-
   const addMobil = () => {
     formMobilList.value.push({
-      mst_mobil_id: '0',
+      mst_mobil_id: 0,
       car_number: '',
-      price: null,
+      travelPrice: 0,
+      costumerPrice: 0,
     })
   }
 
@@ -288,9 +256,6 @@ import { ref, watch, computed, onMounted } from 'vue'
     }
   }
 
-
- // watch
-
   watch(
     () => props.showModal,
     async (val) => {
@@ -298,29 +263,25 @@ import { ref, watch, computed, onMounted } from 'vue'
         fetchMobil()
         fetchCustomer()
         fetchCabang()
-        // await fetchCustomer()
-        // await fetchCabang()
       }
     },
   )
 
-//   SelectedPaket
-// SelectedPaket
 </script>
 <template>
-  <Form :formStatus="props.showModal" @cancel="handleCancel" @submit="handleSubmit" :submitLabel="'Simpan'" :width="'w-1/3'" :label="'Tambah Transaksi Transport'">
+  <Form :formStatus="props.showModal" @cancel="handleCancel" @submit="handleSubmit" :submitLabel="'Tambah Transaksi'" :width="'w-1/3'" :label="'Tambah Transaksi Transport'">
     <div class="flex flex-wrap gap-4">
       <div class="flex-1 min-w-[200px]">
-        <SelectField label="Cabang" v-model="SelectedCabang" :options="cabangOption" @change="fetchSumberDanaPaket" />
+        <SelectField label="Cabang" v-model="SelectedCabang" :options="cabangOption" @change="fetchSumberDanaPaket" :error="errors.cabang"/>
       </div>
       <div class="flex-1 min-w-[200px]">
         <SelectField label="Sumber Dana" v-model="SelectedSumberDana" :options="list_sumber_dana" />
       </div>
       <div class="flex-1 min-w-[200px]">
-        <SelectField label="Kostumer" v-model="SelectedCustomer" :options="customerOption" :error="errors.kostumer_id"/>
+        <SelectField label="Kostumer" v-model="SelectedCustomer" :options="customerOption" :error="errors.kostumer_paket"/>
       </div>
       <div class="flex-1 min-w-[200px]">
-        <SelectField label="Paket" v-model="SelectedPaket" :options="list_paket" :error="errors.paket_id"/>
+        <SelectField label="Paket" v-model="SelectedPaket" :options="list_paket" :error="errors.kostumer_paket"/>
       </div>
     </div>
     <div class="mt-4">
@@ -340,18 +301,18 @@ import { ref, watch, computed, onMounted } from 'vue'
             <td class="px-4 py-2">
               <div class="flex gap-4 mt-2">
                 <div class="w-1/2">
-                  <SelectField note="Mobil" v-model="mobil.mst_mobil_id" placeholder="Pilih Mobil" :options="MobilOptions" :error="errors[`mobil_${index}_mst_mobil_id`]" />
+                  <SelectField note="Mobil" v-model="mobil.mst_mobil_id" placeholder="Pilih Mobil" :options="MobilOptions" :error="errors.details?.[index]?.mst_mobil_id" />
                 </div>
                 <div class="w-1/2">
-                  <InputText v-model="mobil.car_number" note="Plat Mobil" placeholder="Masukkan Plat Mobil" :error="errors[`mobil_${index}_car_number`]" />
+                  <InputText v-model="mobil.car_number" note="Plat Mobil" placeholder="Masukkan Plat Mobil"   :error="errors.details?.[index]?.car_number" />
                 </div>
               </div>
               <div class="flex gap-4 mt-2">
                 <div class="w-1/2">
-                  <InputText :modelValue="formatToIDR(mobil.price)" @update:modelValue="mobil.price = parseIDR($event)" note="Harga Travel Per Paket" placeholder="Masukkan harga travel per paket" :error="errors[`mobil_${index}_price`]" />
+                  <InputText :modelValue="formatToIDR(mobil.travelPrice)" @update:modelValue="mobil.travelPrice = parseIDR($event)" note="Harga Travel Per Paket" placeholder="Masukkan harga travel per paket" :error="errors.details?.[index]?.travelPrice" />
                 </div>
                 <div class="w-1/2">
-                  <InputText :modelValue="formatToIDR(mobil.price)" @update:modelValue="mobil.price = parseIDR($event)" note="Harga Kostumer Per Paket" placeholder="Masukkan harga kostumer per paket" :error="errors[`mobil_${index}_price`]"/>
+                  <InputText :modelValue="formatToIDR(mobil.costumerPrice)" @update:modelValue="mobil.costumerPrice = parseIDR($event)" note="Harga Kostumer Per Paket" placeholder="Masukkan harga kostumer per paket" :error="errors.details?.[index]?.costumerPrice"/>
                 </div>
               </div>
             </td>
@@ -368,7 +329,7 @@ import { ref, watch, computed, onMounted } from 'vue'
       </div>
     </div>
   </Form>
-  <Confirmation :showConfirmDialog="showConfirmDialog" :confirmTitle="confirmTitle" :confirmMessage="confirmMessage">
+  <!-- <Confirmation :showConfirmDialog="showConfirmDialog" :confirmTitle="confirmTitle" :confirmMessage="confirmMessage">
     <button @click="confirmAction && confirmAction()"
       class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
     >
@@ -379,6 +340,6 @@ import { ref, watch, computed, onMounted } from 'vue'
     >
       Tidak
     </button>
-  </Confirmation>
+  </Confirmation> -->
   <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false"/>
 </template>

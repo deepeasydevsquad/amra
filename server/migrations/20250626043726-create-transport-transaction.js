@@ -9,10 +9,10 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      company_id: {
+      division_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Companies",
+          model: "Divisions",
           key: "id",
         },
         onDelete: 'CASCADE',
@@ -24,6 +24,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       kostumer_id: {
+        allowNull: true,
         type: Sequelize.INTEGER,
         references: {
           model: "Kostumers",
@@ -35,7 +36,13 @@ module.exports = {
         type: Sequelize.TEXT
       },
       paket_id: {
+        allowNull: true,
         type: Sequelize.INTEGER,
+        references: {
+          model: "Pakets",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
       },
       createdAt: {
         allowNull: false,

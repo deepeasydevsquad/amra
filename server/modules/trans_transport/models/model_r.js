@@ -34,6 +34,7 @@ class Model_r {
 
     return paketMap;
   }
+
   async daftar_transaksi_transport() {
     await this.initialize(); // set this.company_id
 
@@ -45,7 +46,7 @@ class Model_r {
           ? parseInt(body.pageNumber)
           : 1;
 
-      let where = { company_id: this.company_id };
+      let where = { division_id: this.req.body.cabang };
 
       if (body.search) {
         where = {
@@ -62,6 +63,10 @@ class Model_r {
         include: [
           {
             model: Kostumer,
+            attributes: ["name"],
+          },
+          {
+            model: Paket,
             attributes: ["name"],
           },
         ],
@@ -84,11 +89,11 @@ class Model_r {
             invoice: trx.invoice,
             petugas: trx.petugas,
             paket_id: trx.paket_id || null,
-            kostumer_name: trx.Kostumer?.name || "-",
-            tanggal_transaksi: moment(trx.createdAt).format(
-              "YYYY-MM-DD HH:mm:ss"
-            ),
-            total_price: 0,
+            kostumer: trx.Kostumer?.name || "-",
+            paket: trx.Paket?.name || "-",
+            tanggal_transaksi: moment(trx.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+            total_travel_price: 0,
+            total_costumer_price: 0,
             detail_mobil: [],
           });
         });
@@ -117,26 +122,31 @@ class Model_r {
         });
 
         const dataMobil = {};
-        const totalMobil = {};
+        const totalTravelMobil = {};
+        const totalCostumerMobil = {};
 
         mobilDetails.forEach((d) => {
           const trxId = d.transport_transaction_id;
           if (!dataMobil[trxId]) dataMobil[trxId] = [];
-          if (!totalMobil[trxId]) totalMobil[trxId] = 0;
+          if (!totalTravelMobil[trxId]) totalTravelMobil[trxId] = 0;
+          if (!totalCostumerMobil[trxId]) totalCostumerMobil[trxId] = 0;
 
           dataMobil[trxId].push({
             car_number: d.car_number || "-",
-            price: d.price || 0,
+            travel_price: d.travel_price || 0,
+            costumer_price: d.costumer_price || 0,
             nama_mobil: d.Mst_mobil?.name || "-",
           });
 
-          totalMobil[trxId] += d.price || 0;
+          totalTravelMobil[trxId] += d.travel_price || 0;
+          totalCostumerMobil[trxId] += d.costumer_price || 0;
         });
 
         data = data.map((trx) => ({
           ...trx,
           detail_mobil: dataMobil[trx.id] || [],
-          total_price: totalMobil[trx.id] || 0,
+          total_travel_price: totalTravelMobil[trx.id] || 0,
+          total_costumer_price: totalCostumerMobil[trx.id] || 0,
         }));
       }
 

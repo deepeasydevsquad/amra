@@ -23,7 +23,8 @@ module.exports = (sequelize, DataTypes) => {
     transport_transaction_id: DataTypes.INTEGER,
     mst_mobil_id: DataTypes.INTEGER,
     car_number: DataTypes.STRING,
-    price: DataTypes.INTEGER
+    travel_price: DataTypes.INTEGER,
+    costumer_price: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Transport_transaction_detail',

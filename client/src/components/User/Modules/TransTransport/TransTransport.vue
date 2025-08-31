@@ -59,7 +59,7 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 const pages = computed<number[]>(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1)
 })
-const totalColumns = 7 // karena table punya 5 kolom
+const totalColumns = 6 // karena table punya 5 kolom
 
 const searchQuery = ref('')
 
@@ -152,7 +152,6 @@ onMounted(() => {
         </svg>
         Tambah Transaksi
       </PrimaryButton>
-
       <div class="inline-flex rounded-md shadow-xs" role="group">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2 mt-3">Filter</label>
         <input type="text" id="search"
@@ -171,9 +170,8 @@ onMounted(() => {
         <thead class="bg-gray-100">
           <tr>
             <th class="text-center font-medium text-gray-900 px-6 py-3 w-[10%]">Invoice</th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[15%]">Nama Kostumer</th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[20%]">Paket</th>
-            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[20%]">Info Transport</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[20%]">Nama Kostumer / Paket</th>
+            <th class="text-center font-medium text-gray-900 px-6 py-3 w-[35%]">Info Transport</th>
             <th class="text-center font-medium text-gray-900 px-6 py-3 w-[15%]">Total</th>
             <th class="text-center font-medium text-gray-900 px-6 py-3 w-[15%]">Tanggal</th>
             <th class="text-center font-medium text-gray-900 px-6 py-3 w-[5%]">Aksi</th>
@@ -186,27 +184,43 @@ onMounted(() => {
           <tr v-for="item in filteredData" :key="item.invoice" class="hover:bg-gray-50">
             <td class="text-center px-6 py-4 align-top">{{ item.invoice }}</td>
             <td class="text-center px-6 py-4 align-top">
-              <div>{{ item.kostumer_name }}</div>
-            </td>
-            <td class="text-center px-6 py-4 align-top">
-              {{ item.paket_name }}
+              <span v-if="item.kostumer != '-'">
+                Nama Kostumer : <br> {{ item.kostumer}}
+              </span>
+              <span v-if="item.paket != '-'">
+                Nama Paket : <br> {{ item.paket}}
+              </span>
             </td>
             <td class="px-6 py-4 align-top">
-              <div v-for="(mobil, idx) in item.detail_mobil" :key="idx" class="mb-2">
-                <div class="grid grid-cols-[120px_1fr] gap-y-1 items-start">
-                  <div>Nama Mobil</div>
-                  <div> : <strong>{{ mobil.nama_mobil }}</strong>
-                  </div>
-                  <div>Plat Mobil</div>
-                  <div>: {{ mobil.car_number }}</div>
-                  <div>Harga Per Paket</div>
-                  <div>: Rp {{ mobil.price?.toLocaleString() }}</div>
-                </div>
-                <hr class="my-2 border-dashed" />
-              </div>
-            </td>
+
+              <table class="w-full mb-5 border-b border-dashed border-gray-300" v-for="(mobil, idx) in item.detail_mobil" :key="idx">
+                <tbody>
+                  <tr>
+                    <td class="w-[40%] px-0 py-2">Nama Mobil</td>
+                    <td class="text-center py-2">:</td>
+                    <td class="text-right space-y-2 text-sm px-0 py-2">{{ mobil.nama_mobil }}</td>
+                  </tr>
+                  <tr>
+                    <td class="px-0 py-2">Plat Mobil</td>
+                    <td class="text-center py-2">:</td>
+                    <td class="text-right space-y-2 text-sm px-0 py-2">{{ mobil.car_number }}</td>
+                  </tr>
+                  <tr>
+                    <td class="px-0 py-2">Harga Travel Per Paket</td>
+                    <td class="text-center py-2">:</td>
+                    <td class="text-right space-y-2 text-sm bordepx-6 px-0 py-2"><b>Rp {{ mobil.travel_price?.toLocaleString() }}</b></td>
+                  </tr>
+                  <tr>
+                    <td class="px-0 pt-2 pb-4">Harga Kostumer Per Paket</td>
+                    <td class="text-center pt-2 pb-4">:</td>
+                    <td class="text-right space-y-2 text-sm px-0 pt-2 pb-4"><b>Rp {{ mobil.costumer_price?.toLocaleString() }}</b></td>
+                  </tr>
+                </tbody>
+              </table>
+             </td>
             <td class="text-center px-6 py-4 align-top">
-              Rp {{ item.total_price?.toLocaleString() }}
+              <div class="mb-4"><span> <b>Harga Travel</b> <br> Rp {{ item.total_travel_price?.toLocaleString() }}</span></div>
+              <div class="mb-4"><span> <b>Harga Kostumer</b> <br> Rp {{ item.total_costumer_price?.toLocaleString() }}</span></div>
             </td>
             <td class="text-center px-6 py-4 align-top">{{ item.tanggal_transaksi }}</td>
             <td class="px-6 py-4 text-center align-top">
@@ -227,67 +241,7 @@ onMounted(() => {
       </table>
     </div>
   </div>
-  <!-- <Form :formStatus="showModal" @cancel="() => { showModal = false; resetForm(); }" @submit="submitForm" :submitLabel="'Simpan'" :width="'w-1/3'" :label="'Tambah Transaksi Transport'">
-    <div class="flex flex-wrap gap-4">
-      <div class="flex-1 min-w-[200px]">
-        <SelectField label="Cabang" v-model="SelectedCabang" :options="cabangOption" />
-      </div>
-      <div class="flex-1 min-w-[200px]">
-        <SelectField label="Sumber Dana" v-model="SelectedCabang" :options="cabangOption" />
-      </div>
-      <div class="flex-1 min-w-[200px]">
-        <SelectField label="Kostumer" v-model="formData.kostumer_id" :options="customerOption" :error="errors.kostumer_id"/>
-      </div>
-      <div class="flex-1 min-w-[200px]">
-        <SelectField label="Paket" v-model="formData.paket_id" :options="paketOption" :error="errors.paket_id"/>
-      </div>
-    </div>
-    <div class="mt-4">
-      <TextArea v-model="formData.address" id="address" label="Alamat" placeholder="Tuliskan Alamat Anda..." note="Contoh: Jl. Raya Jakarta No. 123, Jakarta Selatan, DKI Jakarta" :error="errors.address" class="resize-none" />
-    </div>
-    <div class="mt-6">
-      <h3 class="font-semibold text-sm mb-2">Detail Mobil</h3>
-      <table class="table-auto w-full">
-        <thead class="bg-gray-100 text-sm text-gray-700">
-          <tr class="text-center">
-            <th class="w-[90%] px-4 py-3">Info Mobil</th>
-            <th class="w-[10%] px-4 py-3">Aksi</th>
-          </tr>
-        </thead>
-        <tbody class="align-top border-t border-gray-200">
-          <tr v-for="(mobil, index) in formMobilList" :key="index" class="hover:bg-gray-100 border-b border-dashed border-gray-700 pt-4" >
-            <td class="px-4 py-2">
-              <div class="flex gap-4 mt-2">
-                <div class="w-1/2">
-                  <SelectField note="Mobil" v-model="mobil.mst_mobil_id" placeholder="Pilih Mobil" :options="MobilOptions" :error="errors[`mobil_${index}_mst_mobil_id`]" />
-                </div>
-                <div class="w-1/2">
-                  <InputText v-model="mobil.car_number" note="Plat Mobil" placeholder="Masukkan Plat Mobil" :error="errors[`mobil_${index}_car_number`]" />
-                </div>
-              </div>
-              <div class="flex gap-4 mt-2">
-                <div class="w-1/2">
-                  <InputText :modelValue="formatToIDR(mobil.price)" @update:modelValue="mobil.price = parseIDR($event)" note="Harga Travel Per Paket" placeholder="Masukkan harga travel per paket" :error="errors[`mobil_${index}_price`]" />
-                </div>
-                <div class="w-1/2">
-                  <InputText :modelValue="formatToIDR(mobil.price)" @update:modelValue="mobil.price = parseIDR($event)" note="Harga Kostumer Per Paket" placeholder="Masukkan harga kostumer per paket" :error="errors[`mobil_${index}_price`]"/>
-                </div>
-              </div>
-            </td>
-            <td class="px-4 py-2 text-center">
-              <DangerButton class="mt-2.5" @click="removeMobil(index)">
-                <DeleteIcon class="w-5 h-5" />
-              </DangerButton>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="mt-4 flex justify-end">
-        <PrimaryButton @click="addMobil">+ Tambah Mobil</PrimaryButton>
-      </div>
-    </div>
-  </Form> -->
-  <FormAdd  :showModal="showModal"  @cancel="showModal = false"  />
+  <FormAdd  :showModal="showModal"  @cancel="showModal = false" @submit="showModal = false; fetchData();" />
   <Confirmation :showConfirmDialog="showConfirmDialog" :confirmTitle="confirmTitle" :confirmMessage="confirmMessage">
     <button @click="confirmAction && confirmAction()"
       class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
