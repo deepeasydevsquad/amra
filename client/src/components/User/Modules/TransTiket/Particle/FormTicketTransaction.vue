@@ -1,29 +1,119 @@
 <template>
-  <Form :form-status="showForm" :label="'Form Transaksi Tiket'" width="w-full max-w-xl px-4 sm:px-6 lg:px-8" @close="handleCancel" @cancel="handleCancel" @submit="handleSubmit" :submitLabel="'BAYAR'">
+  <Form
+    :form-status="showForm"
+    :label="'Form Transaksi Tiket'"
+    width="w-full max-w-xl px-4 sm:px-6 lg:px-8"
+    @close="handleCancel"
+    @cancel="handleCancel"
+    @submit="handleSubmit"
+    :submitLabel="'BAYAR'"
+  >
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
       <!-- Cabang -->
-      <SelectField v-model="form.cabang" id="maskapai" label="Cabang" class="md:col-span-4"  placeholder="Pilih Cabang" :options="list_cabang"  :error="errors.cabang"  @change="fetchPaketMaskapai"  />
+      <SelectField
+        v-model="form.cabang"
+        id="maskapai"
+        label="Cabang"
+        class="md:col-span-4"
+        placeholder="Pilih Cabang"
+        :options="list_cabang"
+        :error="errors.cabang"
+        @change="fetchPaketMaskapai"
+      />
       <!-- Maskapai -->
-      <SelectField v-model="form.maskapai" id="maskapai" label="Maskapai" class="md:col-span-4"  placeholder="Pilih Maskapai" :options="list_maskapai"  :error="errors.maskapai"  />
+      <SelectField
+        v-model="form.maskapai"
+        id="maskapai"
+        label="Maskapai"
+        class="md:col-span-4"
+        placeholder="Pilih Maskapai"
+        :options="list_maskapai"
+        :error="errors.maskapai"
+      />
       <!-- Kostumer -->
-      <SelectField v-model="form.kostumer" id="kostumer" label="Kostumer" class="md:col-span-2"  placeholder="Pilih Kostumer" :options="list_kostumer"  :error="errors.kostumer" />
+      <SelectField
+        v-model="form.kostumer"
+        id="kostumer"
+        label="Kostumer"
+        class="md:col-span-2"
+        placeholder="Pilih Kostumer"
+        :options="list_kostumer"
+        :error="errors.kostumer"
+      />
       <!-- Paket -->
-      <SelectField v-model="form.paket" id="paket" label="Paket" class="md:col-span-2"  placeholder="Pilih Paket" :options="list_paket"  :error="errors.paket"  />
+      <SelectField
+        v-model="form.paket"
+        id="paket"
+        label="Paket"
+        class="md:col-span-2"
+        placeholder="Pilih Paket"
+        :options="list_paket"
+        :error="errors.paket"
+      />
       <!-- Pax -->
-      <InputText v-model.number="form.pax" label="Pax" id="pax"  type="number" :error="errors.pax" placeholder="Pax" class="md:col-span-1"  />
+      <InputText
+        v-model.number="form.pax"
+        label="Pax"
+        id="pax"
+        type="number"
+        :error="errors.pax"
+        placeholder="Pax"
+        class="md:col-span-1"
+      />
       <!-- Kode Booking -->
-      <InputText v-model="form.kode_booking" label="Kode Booking" id="kode_booking" :error="errors.kode_booking" placeholder="Kode Booking" class="md:col-span-3"  />
+      <InputText
+        v-model="form.kode_booking"
+        label="Kode Booking"
+        id="kode_booking"
+        :error="errors.kode_booking"
+        placeholder="Kode Booking"
+        class="md:col-span-3"
+      />
       <!-- Tanggal Keberangkatan -->
-      <InputDate v-model="form.tanggal_keberangkatan" label="Tanggal Keberangkatan" :error="errors.tanggal_keberangkatan" id="tanggal_keberangkatan" placeholder="Tanggal Keberangkatan" class="md:col-span-2"  />
+      <InputDate
+        v-model="form.tanggal_keberangkatan"
+        label="Tanggal Keberangkatan"
+        :error="errors.tanggal_keberangkatan"
+        id="tanggal_keberangkatan"
+        placeholder="Tanggal Keberangkatan"
+        class="md:col-span-2"
+      />
       <!-- Tanggal Kepulangan -->
-      <InputDate v-model="form.tanggal_kepulangan" label="Tanggal Kepulangan" :error="errors.tanggal_kepulangan" id="tanggal_kepulangan" placeholder="Tanggal Kepulangan" class="md:col-span-2"  />
+      <InputDate
+        v-model="form.tanggal_kepulangan"
+        label="Tanggal Kepulangan"
+        :error="errors.tanggal_kepulangan"
+        id="tanggal_kepulangan"
+        placeholder="Tanggal Kepulangan"
+        class="md:col-span-2"
+      />
       <!-- Harga Travel -->
-      <InputText v-model="hargaTravel" label="Harga Travel" id="harga_travel" :error="errors.harga_travel" placeholder="Harga Travel" class="md:col-span-2"  />
+      <InputText
+        v-model="hargaTravel"
+        label="Harga Travel"
+        id="harga_travel"
+        :error="errors.harga_travel"
+        placeholder="Harga Travel"
+        class="md:col-span-2"
+      />
       <!-- Harga Kostumer -->
-      <InputText v-model="hargaKostumer" label="Harga Kostumer" id="harga_kostumer" :error="errors.harga_kostumer" placeholder="Harga Kostumer" class="md:col-span-2"  />
+      <InputText
+        v-model="hargaKostumer"
+        label="Harga Kostumer"
+        id="harga_kostumer"
+        :error="errors.harga_kostumer"
+        placeholder="Harga Kostumer"
+        class="md:col-span-2"
+      />
       <!-- Dibayar -->
       <div class="md:col-span-2">
-        <InputText v-model="diBayar" :error="errors.dibayar" id="dibayar" label="Dibayar" placeholder="Dibayar"/>
+        <InputText
+          v-model="diBayar"
+          :error="errors.dibayar"
+          id="dibayar"
+          label="Dibayar"
+          placeholder="Dibayar"
+        />
       </div>
       <!-- Sisa -->
       <div class="md:col-span-2">
@@ -35,7 +125,12 @@
     </div>
   </Form>
   <!-- Notification Popup -->
-  <Notification :showNotification="showNotification" :notificationType="notificationType" :notificationMessage="notificationMessage" @closeNotification="showNotification = false" />
+  <Notification
+    :showNotification="showNotification"
+    :notificationType="notificationType"
+    :notificationMessage="notificationMessage"
+    @closeNotification="showNotification = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -49,7 +144,7 @@ import InputDate from '@/components/Form/InputDate.vue'
 import SelectField from '@/components/Form/SelectField.vue'
 import Notification from '@/components/Modal/Notification.vue'
 
-const props = defineProps<{showForm: boolean}>()
+const props = defineProps<{ showForm: boolean }>()
 
 const hargaTravel = computed({
   get() {
@@ -91,17 +186,17 @@ const errors = ref<Record<string, string>>({})
 
 // Definisikan tipe untuk form yang sesuai dengan semua field di template
 interface FormData {
-  cabang:number,
-  maskapai:number
-  kostumer:number,
-  paket: number,
-  pax?: number,
+  cabang: number
+  maskapai: number
+  kostumer: number
+  paket: number
+  pax?: number
   kode_booking?: string
   tanggal_keberangkatan: string
   tanggal_kepulangan?: string
   harga_travel: number
   harga_kostumer: number
-  dibayar?:number
+  dibayar?: number
 }
 
 const emit = defineEmits<{
@@ -112,19 +207,19 @@ const emit = defineEmits<{
 // Data form yang akan ditampilkan
 const form = ref<FormData>({
   cabang: 0,
-  maskapai:0,
+  maskapai: 0,
   kostumer: 0,
   paket: 0,
   tanggal_keberangkatan: '',
   harga_travel: 0,
-  harga_kostumer: 0
+  harga_kostumer: 0,
 })
 
 const reset = () => {
   errors.value = {}
   form.value = {
     cabang: 0,
-    maskapai:0,
+    maskapai: 0,
     kostumer: 0,
     paket: 0,
     tanggal_keberangkatan: '',
@@ -135,20 +230,20 @@ const reset = () => {
 
 function handleCancel() {
   emit('cancel')
-  reset();
+  reset()
 }
 
 const calculateSisa = computed(() => {
-  return ( ( form.value.pax ?? 0 ) * (form.value.harga_kostumer ?? 0 ) ) - ( form.value.dibayar ?? 0 )
+  return (form.value.pax ?? 0) * (form.value.harga_kostumer ?? 0) - (form.value.dibayar ?? 0)
 })
 
 const validateForm = (): boolean => {
   let isValid = true
 
   // Reset errors
-  errors.value = {};
+  errors.value = {}
 
-  if( form.value.cabang == 0 ) {
+  if (form.value.cabang == 0) {
     // validasi cabang
     if (form.value.cabang == 0) {
       errors.value.cabang = 'Cabang wajib dipilih'
@@ -157,7 +252,10 @@ const validateForm = (): boolean => {
   }
 
   // Validate customer fields
-  if ((!form.value.kostumer || form.value.kostumer === 0 ) && ( !form.value.paket || form.value.paket === 0 ) ) {
+  if (
+    (!form.value.kostumer || form.value.kostumer === 0) &&
+    (!form.value.paket || form.value.paket === 0)
+  ) {
     errors.value.kostumer_paket = 'Kostumer atau paket wajib dipilih'
     isValid = false
   }
@@ -182,17 +280,17 @@ const validateForm = (): boolean => {
     isValid = false
   }
 
-  if (( form.value.harga_travel === 0 )  || ( form.value.harga_travel < 0 )) {
+  if (form.value.harga_travel === 0 || form.value.harga_travel < 0) {
     errors.value.harga_travel = 'Harga travel harus lebih besar dari 0'
     isValid = false
   }
 
-  if ( ( form.value.harga_kostumer === 0 )  || ( form.value.harga_kostumer < 0 )) {
+  if (form.value.harga_kostumer === 0 || form.value.harga_kostumer < 0) {
     errors.value.harga_kostumer = 'Harga kostumer harus lebih besar dari 0'
     isValid = false
   }
 
-  if ( ( form.value.dibayar ?? 0 ) < 0 ) {
+  if ((form.value.dibayar ?? 0) < 0) {
     errors.value.dibayar = 'Dibayar tidak boleh lebih kecil dari 0'
     isValid = false
   }
@@ -206,7 +304,6 @@ const handleSubmit = async (): Promise<void> => {
   }
 
   try {
-
     const payload = {
       cabang: form.value.cabang,
       kostumer: form.value.kostumer,
@@ -218,16 +315,18 @@ const handleSubmit = async (): Promise<void> => {
       tanggal_kepulangan: form.value.tanggal_kepulangan,
       harga_travel: form.value.harga_travel,
       harga_kostumer: form.value.harga_kostumer,
-      dibayar: form.value.dibayar
+      dibayar: form.value.dibayar,
     }
 
     const response = await add_tiket(payload)
-    displayNotification(response.message, 'success');
+    displayNotification(response.message, 'success')
+    const printUrl = `/invoice-trans-tiket/${response.register_number}`
+    window.open(printUrl, '_blank')
+    console.log(response.register_number)
     emit('submitted')
-    reset();
-
+    reset()
   } catch (error) {
-    displayNotification(error.response.data.message, 'error');
+    displayNotification(error.response.data.message, 'error')
   }
 }
 
@@ -259,10 +358,10 @@ interface Maskapai {
   name: string
 }
 
-const list_maskapai = ref<Maskapai[]>([{id: 0, name: ' -- Pilih Maskapai -- '}]);
+const list_maskapai = ref<Maskapai[]>([{ id: 0, name: ' -- Pilih Maskapai -- ' }])
 const fetchMaskapai = async () => {
   try {
-    const response = await getAirlines({ cabang: form.value.cabang})
+    const response = await getAirlines({ cabang: form.value.cabang })
     list_maskapai.value = response.data
   } catch (error) {
     console.error('Gagal fetch data cabang:', error)
@@ -302,12 +401,12 @@ const fetchPaket = async () => {
 }
 
 const fetchPaketMaskapai = async () => {
-  if( form.value.cabang != 0) {
-    fetchPaket();
-    fetchMaskapai();
-  }else{
+  if (form.value.cabang != 0) {
+    fetchPaket()
+    fetchMaskapai()
+  } else {
     list_paket.value = [{ id: 0, name: ' -- Pilih Paket -- ' }]
-    list_maskapai.value = [{id: 0, name: ' -- Pilih Maskapai -- '}]
+    list_maskapai.value = [{ id: 0, name: ' -- Pilih Maskapai -- ' }]
   }
 }
 
@@ -334,5 +433,4 @@ watch(
     }
   },
 )
-
 </script>

@@ -6,11 +6,7 @@ const { authenticateToken } = require("../middleware/authenticateToken");
 
 const router = express.Router();
 
-router.get(
-  "/invoice/header",
-  authenticateToken,
-  controller.header
-);
+router.get("/invoice/header", authenticateToken, controller.header);
 
 router.post(
   "/invoice/cek-kwitansi-tabungan-umrah",
@@ -137,6 +133,12 @@ router.get(
   "/invoice/kwitansi-trans-fasilitas/:invoice",
   authenticateToken,
   controller.kwitansi_trans_fasilitas
+);
+
+router.get(
+  "/invoice/trans-tiket/:regnum",
+  authenticateToken,
+  controller.kwitansi_trans_ticket
 );
 
 module.exports = router;

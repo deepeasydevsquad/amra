@@ -33,6 +33,7 @@ import InvoiceTransFasilitas from '@/components/User/Modules/Invoice/InvoiceTran
 import CetakRekapitulasi from '@/components/User/Modules/RekapitulasiTicket/Widget/CetakRekapitulasi.vue'
 import Profile from '@/components/User/Modules/Profile/Profile.vue'
 import CabangPertama from '@/components/User/Modules/CabangPertama/CabangPertama.vue'
+import InvoiceTransTiket from '@/components/User/Modules/Invoice/InvoiceTransTiket.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -228,6 +229,11 @@ const router = createRouter({
       path: '/tambah-cabang',
       name: 'tambah-cabang',
       component: CabangPertama
+    },
+    {
+      path: '/invoice-trans-tiket/:regnum',
+      name: 'trans-tiket',
+      component: InvoiceTransTiket
     }
   ],
 })
