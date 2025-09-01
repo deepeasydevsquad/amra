@@ -100,15 +100,9 @@ export const getKwitansiPengembalianBarang = async (param: string) => {
   }
 }
 
-export const cetakKwitansiVisa = async (invoice: string) => {
+export const cetakKwitansiVisa = async (param: string) => {
   try {
-    if (!invoice || invoice === 'undefined' || invoice === 'null') {
-      throw new Error('Invoice tidak valid atau kosong.');
-    }
-    const encodedInvoice = encodeURIComponent(invoice);
-    const url = `/invoice/kwitansi-visa/${encodedInvoice}`;
-    const response = await api.get(url);
-
+    const response = await api.get(`/invoice/kwitansi-visa/${param}`);
     return response.data;
   } catch (error) {
     console.error('[SERVICE ERROR] Gagal saat mencetak kwitansi visa:', error);

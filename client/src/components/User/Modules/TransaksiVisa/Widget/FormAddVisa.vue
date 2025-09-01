@@ -105,10 +105,11 @@ async function handleSubmit() {
       harga_travel: form.value.harga_travel,
       harga_costumer: form.value.harga_costumer
     }
-    await addVisaUrl(payload);
+    const response = await addVisaUrl(payload);
+    openCetakKwitansi(response.invoice);
     emit('submitted');
     reset();
-    displayNotification('Update data tiket berhasil dilakukan.', 'success');
+    displayNotification('Visa berhasil ditambahkan.', 'success');
   } catch (error : any) {
     displayNotification(error.response.data.message, 'error');
   }
@@ -231,6 +232,12 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   timeoutId.value = window.setTimeout(() => {
     showNotification.value = false
   }, 3000)
+}
+
+const openCetakKwitansi = (invoice: string) => {
+  console.log('Invoice to print:', invoice) // Debug log
+  const url = `/cetak-kwitansi-visa/${invoice}`
+  window.open(url, '_blank')
 }
 
 watch(

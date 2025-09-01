@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { cetakKwitansiVisa } from '@/service/invoice.ts';
+import { cetakKwitansiVisa } from '@/service/invoice';
 import Header from '@/components/User/Modules/Invoice/Particle/Header.vue';
 
 const isLoading = ref(true);
@@ -14,52 +14,29 @@ onMounted(async () => {
   try {
     const invoice = route.params.invoice as string;
 
-    console.log('[VUE DEBUG] Invoice from params:', invoice);
-
     if (!invoice || invoice === 'undefined') {
-      console.error('[VUE ERROR] Invoice parameter is missing or invalid');
       errorMessage.value = 'Parameter invoice tidak valid atau hilang dari URL.';
       isLoading.value = false;
       return;
     }
 
-    console.log('[VUE DEBUG] Fetching kwitansi for invoice:', invoice);
+    const responseData = await cetakKwitansiVisa(invoice);
 
-    const response = await cetakKwitansiVisa(invoice);
-
-    console.log('[VUE DEBUG] Response received:', response);
-
-    if (response.error) {
-      console.error('[VUE ERROR] API Error:', response.error_msg);
-      errorMessage.value = `Gagal memuat data dari server: ${response.error_msg}`;
+    if (responseData.error) {
+      errorMessage.value = `Gagal memuat data dari server: ${responseData.error_msg}`;
       isLoading.value = false;
       return;
     }
 
-    data.value = response.data;
-    console.log('[VUE DEBUG] Kwitansi data loaded:', data.value);
-
-    // DEBUG: Cek apakah data header tersedia
-    console.log('[VUE DEBUG] Header data check:', {
-      logo: data.value?.logo,
-      company_name: data.value?.company_name,
-      address: data.value?.address,
-      city: data.value?.city,
-      pos_code: data.value?.pos_code,
-      email: data.value?.email,
-      whatsapp_company_number: data.value?.whatsapp_company_number
-    });
+    data.value = responseData.data;
 
   } catch (error: any) {
     console.error('[VUE ERROR] Error fetching visa transaction:', error);
     errorMessage.value = `Terjadi kesalahan fatal: ${error.message}`;
   } finally {
     isLoading.value = false;
-
-    // Tunggu data ter-load dan header ter-render sebelum print
     if (data.value) {
       setTimeout(() => {
-        console.log('[VUE DEBUG] About to print...');
         window.print();
       }, 1000);
     }
@@ -67,8 +44,41 @@ onMounted(async () => {
 });
 
 const formatCurrency = (amount: number) => {
-  if (typeof amount !== 'number') return '0';
+  if (typeof amount !== 'number' || isNaN(amount)) return '0';
   return new Intl.NumberFormat('id-ID').format(amount);
+};
+
+const terbilangUang = (amount: number, withSen: boolean = false): string => {
+  if (typeof amount !== "number" || isNaN(amount)) return "nol rupiah";
+
+  const satuan = [
+    "", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas",
+  ];
+
+  const toWords = (n: number): string => {
+    if (n < 12) return satuan[n];
+    if (n < 20) return `${toWords(n - 10)} belas`;
+    if (n < 100) return `${toWords(Math.floor(n / 10))} puluh${n % 10 ? " " + toWords(n % 10) : ""}`;
+    if (n < 200) return `seratus${n > 100 ? " " + toWords(n - 100) : ""}`;
+    if (n < 1000) return `${toWords(Math.floor(n / 100))} ratus${n % 100 ? " " + toWords(n % 100) : ""}`;
+    if (n < 2000) return `seribu${n > 1000 ? " " + toWords(n - 1000) : ""}`;
+    if (n < 1_000_000) return `${toWords(Math.floor(n / 1000))} ribu${n % 1000 ? " " + toWords(n % 1000) : ""}`;
+    if (n < 1_000_000_000) return `${toWords(Math.floor(n / 1_000_000))} juta${n % 1_000_000 ? " " + toWords(n % 1_000_000) : ""}`;
+    if (n < 1_000_000_000_000) return `${toWords(Math.floor(n / 1_000_000_000))} miliar${n % 1_000_000_000 ? " " + toWords(n % 1_000_000_000) : ""}`;
+    if (n < 1_000_000_000_000_000) return `${toWords(Math.floor(n / 1_000_000_000_000))} triliun${n % 1_000_000_000_000 ? " " + toWords(n % 1_000_000_000_000) : ""}`;
+    return "terlalu besar";
+  };
+
+  const angka = Math.floor(amount);
+  const pecahan = Math.round((amount - angka) * 100);
+
+  let result = toWords(angka).trim() + " rupiah";
+
+  if (withSen && pecahan > 0) {
+    result += ` ${toWords(pecahan)} sen`;
+  }
+
+  return result.replace(/\s+/g, " ").replace(/satu ribu/g, 'seribu').replace(/satu ratus/g, 'seratus');
 };
 
 const formatDate = (dateString: string) => {
@@ -82,12 +92,12 @@ const formatDate = (dateString: string) => {
 </script>
 
 <template>
-  <div v-if="isLoading" class="flex justify-center items-center h-screen">
+  <div v-if="isLoading" class="flex justify-center items-center h-screen no-print">
     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
     <span class="ml-2">Memuat data kwitansi...</span>
   </div>
 
-  <div v-else-if="errorMessage" class="flex flex-col justify-center items-center h-screen bg-red-50 p-4">
+  <div v-else-if="errorMessage" class="flex flex-col justify-center items-center h-screen bg-red-50 p-4 no-print">
       <div class="text-red-700 text-center">
           <h2 class="text-xl font-bold mb-2">Terjadi Kesalahan</h2>
           <p>{{ errorMessage }}</p>
@@ -97,102 +107,90 @@ const formatDate = (dateString: string) => {
       </div>
   </div>
 
-  <div v-else-if="data" class="bg-white max-w-[210mm] mx-auto p-[15mm] font-serif print:p-[10mm] print:m-0 print:shadow-none"
-    style="color: black; font-size: 10pt; text-align: justify; line-height: 1.3"
+  <div v-else-if="data" class="bg-white max-w-[210mm] min-h-[297mm] mx-auto p-[15mm] font-serif print:p-[10mm] print:m-0 print:shadow-none"
+    style="color: black; font-size: 10pt; line-height: 1.5;"
   >
+    <Header :data="data" />
 
-    <!-- Header Kwitansi -->
-    <div v-if="data" class="mb-4">
-      <Header :data="data"></Header>
-    </div>
+    <div class="border-b-2 border-black my-4"></div>
 
-    <!-- Fallback Header jika komponen Header tidak berfungsi -->
-    <div v-if="!data.company_name" class="flex justify-between items-start border-b pb-4 mb-4 bg-red-50 p-2">
-      <div class="text-red-600 text-sm">
-        <strong>WARNING:</strong> Data header tidak lengkap. Periksa response API.
-      </div>
-    </div>
+    <h2 class="text-center text-lg font-bold mb-4 uppercase">Kwitansi Pembayaran Visa</h2>
 
-    <div class="border-b-2 border-black mb-4"></div>
-
-    <!-- Info Header -->
-    <div class="flex justify-between mb-4">
+    <div class="flex justify-between mb-4 text-xs">
       <div>
-        <h2 class="text-lg font-bold">DETAIL TRANSAKSI VISA</h2>
-        <p><span class="font-semibold">DITERIMA OLEH:</span></p>
-        <p>{{'ADMINISTRATOR' }}</p>
+        <p class="font-semibold">NO. INVOICE</p>
+        <p>{{ data.invoice }}</p>
       </div>
       <div class="text-right">
-        <p><span class="font-semibold">INVOICE:</span> {{ data.invoice }}</p>
-        <br>
-        <p><span class="font-semibold">DITERIMA DARI</span></p>
-        <p>{{ data.payer }}</p>
-        <P> ( {{data.payer_identity}} )</P>
+        <p class="font-semibold">TANGGAL</p>
+        <p>{{ formatDate(data.createdAt) }}</p>
       </div>
     </div>
 
-    <!-- Detail Transaksi Table -->
-    <div class="mb-6">
-      <h3 class="font-semibold mb-2">DETAIL TRANSAKSI:</h3>
-      <table class="w-full border-collapse border border-gray-800 text-xs">
+    <div class="mb-4 text-xs">
+      <p class="font-semibold mb-1">DITERIMA DARI:</p>
+      <p class="font-bold">{{ data.kostumer_name }}</p>
+      <p>{{ data.kostumer_address }}</p>
+      <p>{{ data.kostumer_mobile }}</p>
+    </div>
+
+    <div class="mb-4">
+      <table class="w-full border-collapse border border-black text-xs">
         <thead>
           <tr class="bg-gray-100">
-            <th class="border border-gray-800 p-2 text-left">IDENTITAS</th>
-            <th class="border border-gray-800 p-2 text-left">INFO VISA</th>
-            <th class="border border-gray-800 p-2 text-center">HARGA PAKET</th>
+            <th class="border border-black p-2 text-left">DESKRIPSI</th>
+            <th class="border border-black p-2 text-right">HARGA</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td class="border border-gray-800 p-2 align-top">
-              <div class="space-y-1">
-                <p><strong>Nama:</strong> {{ data.name }}</p>
-                <p><strong>No. Identitas:</strong> {{ data.identity_number }}</p>
+            <td class="border border-black p-2 align-top">
+              <p class="font-semibold">Pengurusan Visa: {{ data.jenis_visa }}</p>
+              <div class="pl-4 text-gray-700">
+                <p>Nama: {{ data.kostumer_name }}</p>
+                <p>Jumlah Pax: {{ data.pax }} Orang</p>
+                <p>Harga Satuan: Rp {{ formatCurrency(data.harga_costumer) }}</p>
               </div>
             </td>
-            <td class="border border-gray-800 p-2 align-top">
-              <div class="space-y-1">
-                <p><strong>Jenis:</strong> {{ data.jenis_visa }}</p>
-                <p><strong>No. Passport:</strong> {{ data.passport_number }}</p>
-                <p><strong>TTL:</strong> {{ data.birth_place }}, {{ formatDate(data.birth_date) }}</p>
-                <p><strong>Berlaku s/d:</strong> {{ formatDate(data.valid_until) }}</p>
-              </div>
+            <td class="border border-black p-2 text-right align-top">
+              <p>Rp {{ formatCurrency(data.harga_costumer * data.pax) }}</p>
             </td>
-            <td class="border border-gray-800 p-2 text-center align-top">
-              <p>Rp {{ formatCurrency(data.price) }}</p>
+          </tr>
+          <tr v-if="data.harga_costumer > 0">
+            <td class="border border-black p-2 align-top">
+              <p class="font-semibold">Biaya Kostumer</p>
+            </td>
+            <td class="border border-black p-2 text-right align-top">
+              <p>Rp {{ formatCurrency(data.harga_costumer * data.pax) }}</p>
             </td>
           </tr>
         </tbody>
+        <tfoot>
+          <tr class="font-bold bg-gray-100">
+            <td class="border border-black p-2 text-right">TOTAL</td>
+            <td class="border border-black p-2 text-right">Rp {{ formatCurrency(data.harga_costumer * data.pax) }}</td>
+          </tr>
+        </tfoot>
       </table>
     </div>
 
-    <!-- Total -->
-    <div class="flex justify-end mb-6">
-      <div class="text-right border border-gray-800 p-2">
-        <p class="font-semibold">TOTAL: Rp {{ formatCurrency(data.price) }}</p>
+    <div class="mb-8 text-sm">
+      <p class="font-semibold italic">Terbilang: {{ terbilangUang(data.harga_costumer * data.pax) }}</p>
+    </div>
+
+    <div class="flex justify-between" style="margin-top: 50px;">
+      <div class="text-center w-1/2">
+        <p class="mb-16">Penerima,</p>
+        <p class="font-bold uppercase"> ( {{ data.petugas }} ) </p>
+        <p class="border-t border-black mt-1 pt-1">{{ data.company_name }}</p>
+      </div>
+      <div class="text-center w-1/2">
+        <p class="mb-16">Hormat Kami,</p>
+        <p class="font-bold uppercase"> ( {{ data.kostumer_name }} ) </p>
+        <p class="border-t border-black mt-1 pt-1">Customer</p>
       </div>
     </div>
 
-    <!-- Tanda Tangan -->
-    <div class="flex justify-between mt-12">
-      <div class="text-center">
-        <p class="mb-16">Penerima</p>
-        <div class="border-t border-gray-800 pt-1">
-          <p> (ADMINISTRATOR) <br> {{ data.company_name }}</p>
-        </div>
-      </div>
-      <div class="text-center">
-        <p class="mb-16">Penyetor</p>
-        <div class="border-t border-gray-800 pt-1">
-          <p>({{ data.payer }})</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer Info -->
-    <div class="mt-8 text-xs">
-      <p><strong>Tanggal Transaksi:</strong> {{ formatDate(data.createdAt) }}</p>
-    </div>
   </div>
 </template>
 
@@ -200,19 +198,24 @@ const formatDate = (dateString: string) => {
 @media print {
   @page {
     size: A4;
-    margin: 10mm;
+    margin: 0;
   }
   body, html {
     background: white;
-    margin: 0;
-    color: black !important;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
   }
-  .print\:text-\[12px\] {
-    font-size: 12px !important;
-  }
-  /* Sembunyikan elemen yang tidak perlu dicetak */
   .no-print {
     display: none !important;
+  }
+  .print\:p-\[10mm\] {
+    padding: 10mm !important;
+  }
+  .print\:m-0 {
+    margin: 0 !important;
+  }
+  .print\:shadow-none {
+    box-shadow: none !important;
   }
 }
 </style>
