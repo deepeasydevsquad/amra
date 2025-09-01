@@ -24,7 +24,7 @@ validation.check_id_paket = async (value, { req }) => {
 
 validation.check_id_transfasilitas = async (value, { req }) => {
     const company_id = await getCompanyIdByCode(req);    
-    var check = await Transaction_fasilitas.findOne({ where: { id : value, company_id : company_id }});
+    var check = await Transaction_fasilitas.findOne({ where: { id : value }, include: { model: Division, required: true, where: { company_id: company_id }}});
     if (!check) {
         throw new Error("ID Transaksi Fasilitas tidak terdaftar dipangkalan data");
     }

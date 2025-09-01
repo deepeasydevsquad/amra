@@ -10,6 +10,7 @@ const {
   Users,
   Member,
   Jurnal,
+  Division
 } = require("../../../models");
 const moment = require("moment");
 const { Op } = require("sequelize");
@@ -183,12 +184,30 @@ class Model_cud {
     try {
       // Hapus data induknya serta barangnya (cassecade delete)
       await Transaction_fasilitas.destroy({
-        where: { id: id, company_id: this.company_id },
+        where: { id: id },
+        transaction: this.t,
+      });
+
+       // delete jurnal
+      await Jurnal.destroy({
+        where: {
+          source: 'transaksiFasilitasId:' + id,
+        },
+        include: {
+          model: Division, 
+          required : true, 
+          where: { 
+              company_id: this.company_id
+          }
+        }, 
         transaction: this.t,
       });
 
       this.message = "Transaksi fasilitas berhasil dihapus.";
     } catch (error) {
+      console.log("xxx");
+      console.log(error);
+      console.log("xxx"); 
       this.state = false;
       this.message = "Gagal hapus transaksi hotel: " + error.message;
       console.error(error);
