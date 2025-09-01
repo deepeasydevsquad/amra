@@ -49,7 +49,9 @@ const pages = computed(() => {
 interface Fasilitas {
   id: number;
   name: string;
-  nomor_akun: string;
+  nomor_akun_aset: string;
+  nomor_akun_hpp: string;
+  nomor_akun_pendapatan: string;
 }
 
 const timeoutId = ref<number | null>(null);
@@ -160,8 +162,10 @@ const deleteData = async (id: number) => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[45%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Fasilitas</th>
-            <th class="w-[45%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Akun</th>
+            <th class="w-[30%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Fasilitas</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Akun Aset</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Akun HPP</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Akun Pendapatan</th>
             <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
@@ -169,7 +173,9 @@ const deleteData = async (id: number) => {
           <template v-if="dataFasilitas && dataFasilitas.length > 0">
             <tr v-for="fasilitas in dataFasilitas" :key="fasilitas.id" class="hover:bg-gray-50">
               <td class="px-6 py-4 text-center">{{ fasilitas.name }}</td>
-              <td class="px-6 py-4 text-center">{{ fasilitas.nomor_akun }}</td>
+              <td class="px-6 py-4 text-center">{{ fasilitas.nomor_akun_aset }}</td>
+              <td class="px-6 py-4 text-center">{{ fasilitas.nomor_akun_hpp }}</td>
+              <td class="px-6 py-4 text-center">{{ fasilitas.nomor_akun_pendapatan }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
                   <LightButton @click="openModal(fasilitas)">

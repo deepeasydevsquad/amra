@@ -15,14 +15,7 @@ import CetakIcon from '@/components/Icons/CetakIcon.vue'
 import Pagination from '@/components/Pagination/Pagination.vue'
 import { ref, watch, computed, onMounted } from 'vue'
 
-import {
-  daftarTransFasilitas,
-  daftar_kostumer,
-  daftar_paket,
-  daftar_fasilitas,
-  add_transaksi,
-  delete_transaksi
-} from '@/service/trans_fasilitas'
+import { daftarTransFasilitas, daftar_kostumer, daftar_paket, daftar_fasilitas, add_transaksi, delete_transaksi } from '@/service/trans_fasilitas'
 import { paramCabang } from '@/service/param_cabang'
 
 const totalItems = ref(0)
@@ -96,6 +89,7 @@ const data = ref<any[]>([]) // array kosong
 const fetchData = async () => {
   try {
     const response = await daftarTransFasilitas({
+      cabang: selectedOptionCabang.value,
       search: searchQuery.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
@@ -124,9 +118,9 @@ const deleteData = async (id: number) => {
 }
 
 const formData = ref({
-  division_id: 0,
+  // division_id: 0,
   kostumer_id: 0,
-  paket_id: 0,
+  // paket_id: 0,
 })
 
 const formFasilitasList = ref([
@@ -172,11 +166,6 @@ const validateForm = (): boolean => {
     isValid = false
   }
 
-  if (!formData.value.paket_id) {
-    errors.value.paket_id = 'Paket harus dipilih.'
-    isValid = false
-  }
-
   if (!SelectedCabang.value || SelectedCabang.value === 0) {
     errors.value.division_id = 'Cabang harus dipilih.'
     isValid = false
@@ -211,8 +200,7 @@ const submitForm = async () => {
   try {
     const payload = {
       kostumer_id: formData.value.kostumer_id,
-      paket_id: formData.value.paket_id,
-      division_id: SelectedCabang.value,
+      cabang: SelectedCabang.value,
       fasilitas: formFasilitasList.value.map((fasilitas) => ({
         item_id: fasilitas.id,
       })),
@@ -241,11 +229,19 @@ const submitForm = async () => {
   }
 }
 
+// <div class="flex-1 min-w-[200px]">
+//         <SelectField label="Kostumer" v-model="formData.kostumer_id" :options="customerOption" :error="errors.kostumer_id" />
+//       </div>
+//       <div class="flex-1 min-w-[200px]">
+//         <SelectField label="Cabang" v-model="SelectedCabang" :options="cabangOption" :error="errors.division_id" />
+//       </div>
+
 const resetForm = () => {
+  SelectedCabang.value = 0
   formData.value = {
-    division_id: 0,
+    // division_id: 0,
     kostumer_id: 0,
-    paket_id: 0,
+    // paket_id: 0,
   }
 
   formFasilitasList.value = [
@@ -285,11 +281,9 @@ const fetchCabang = async () => {
   }
 }
 
-const fetchFasilitas = async (paket_id: number) => {
+const fetchFasilitas = async () => {
   try {
-    console.log('Fetching Fasilitas for Paket ID:', paket_id)
     const response = await daftar_fasilitas({
-      paket_id: paket_id,
       division_id: SelectedCabang.value,
     })
     FasilitasOption.value = [
@@ -304,44 +298,59 @@ const fetchFasilitas = async (paket_id: number) => {
   }
 }
 
-interface paket {
-  id: number
-  name: string
-}
-const paketOption = ref<paket[]>([{ id: 0, name: 'Pilih Paket' }]) // Tambahkan opsi default
-const fetchPaket = async () => {
-  try {
-    const response = await daftar_paket({
-      division_id: SelectedCabang.value,
-    })
-    paketOption.value = [{ id: 0, name: 'Pilih Paket' }, ...response.data]
-  } catch (error) {
-    console.error(error)
-  }
-}
+// interface paket {
+//   id: number
+//   name: string
+// }
+// const paketOption = ref<paket[]>([{ id: 0, name: 'Pilih Paket' }]) // Tambahkan opsi default
+// const fetchPaket = async () => {
+//   try {
+//     const response = await daftar_paket({
+//       division_id: SelectedCabang.value,
+//     })
+//     paketOption.value = [{ id: 0, name: 'Pilih Paket' }, ...response.data]
+//   } catch (error) {
+//     console.error(error)
+//   }
+// }
 
 watch(SelectedCabang, async (newCabang) => {
   if (newCabang) {
-    formData.value.paket_id = 0; // Reset paket saat cabang berubah
-    await fetchPaket()
+    // formData.value.paket_id = 0; // Reset paket saat cabang berubah
+    // await fetchPaket()
+    await fetchFasilitas();
+    // fasilitas
   }
 })
 
-watch(() => formData.value.paket_id, async (newPaketId) => {
-  if (newPaketId) {
-    await fetchFasilitas(newPaketId)
-  } else {
-    FasilitasOption.value = [{ id: 0, name: 'Pilih Fasilitas' }]
-  }
-})
+// watch(() => formData.value.paket_id, async (newPaketId) => {
+//   if (newPaketId) {
+//     await fetchFasilitas(newPaketId)
+//   } else {
+//     FasilitasOption.value = [{ id: 0, name: 'Pilih Fasilitas' }]
+//   }
+// })
 
-onMounted(async () => {
+interface filterCabang {
+  id: number
+  name: string
+}
+const selectedOptionCabang = ref(0)
+const optionFilterCabang = ref<filterCabang[]>([])
+const fetchFilterData = async () => {
+  const response = await paramCabang()
+  optionFilterCabang.value = response.data
+  selectedOptionCabang.value = response.data[0].id
   FasilitasOption.value = [
     { id: 0, name: 'Pilih Fasilitas' },
   ]
   await fetchData()
   await fetchCustomer()
   await fetchCabang()
+}
+
+onMounted(async () => {
+  fetchFilterData()
 })
 </script>
 
@@ -350,29 +359,22 @@ onMounted(async () => {
     <div class="flex justify-between items-center mb-6">
       <!-- Tombol Tambah di kiri -->
       <PrimaryButton @click="showModal = true">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-5 h-5"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M2 4a2 2 0 012-2h16a2 2 0 012 2v4H2V4zm0 6h20v10a2 2 0 01-2 2H4a2 2 0 01-2-2V10zm4 4a1 1 0 000 2h4a1 1 0 000-2H6z"
-          />
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" >
+          <path d="M2 4a2 2 0 012-2h16a2 2 0 012 2v4H2V4zm0 6h20v10a2 2 0 01-2 2H4a2 2 0 01-2-2V10zm4 4a1 1 0 000 2h4a1 1 0 000-2H6z" />
         </svg>
-
         Tambah Transaksi
       </PrimaryButton>
-
-      <div class="flex items-center">
-        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
-        <input
-          v-model="searchQuery"
-          type="text"
-          id="search"
-          class="w-full sm:w-72 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Cari Invoice..."
-        />
+      <div class="inline-flex rounded-md shadow-xs" role="group">
+        <label for="search" class="block text-sm font-medium text-gray-700 mr-2 mt-3">Filter</label>
+        <input type="text" id="search"
+          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+          v-model="searchQuery" @change="fetchData()" placeholder="Cari data..." />
+        <select v-model="selectedOptionCabang" style="width: 300px" @change="fetchData()" class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        >
+          <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
+            {{ optionC.name }}
+          </option>
+        </select>
       </div>
     </div>
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md">
@@ -469,9 +471,11 @@ onMounted(async () => {
       <div class="flex-1 min-w-[200px]">
         <SelectField label="Cabang" v-model="SelectedCabang" :options="cabangOption" :error="errors.division_id" />
       </div>
+      <!--
       <div class="flex-1 min-w-[200px]">
         <SelectField label="Paket" v-model="formData.paket_id" :options="paketOption" :error="errors.paket_id" />
       </div>
+      -->
     </div>
     <div class="mt-6">
       <h3 class="font-semibold text-sm mb-2">Detail Fasilitas</h3>

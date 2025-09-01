@@ -20,7 +20,13 @@ module.exports = {
       name: {
         type: Sequelize.STRING
       },
-      nomor_akun: {
+      nomor_akun_aset: {
+        type: Sequelize.STRING
+      },
+      nomor_akun_hpp: {
+        type: Sequelize.STRING
+      },
+      nomor_akun_pendapatan: {
         type: Sequelize.STRING
       },
       createdAt: {

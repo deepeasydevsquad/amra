@@ -9,6 +9,7 @@ const {
   Company,
   Users,
   Member,
+  Jurnal,
 } = require("../../../models");
 const moment = require("moment");
 const { Op } = require("sequelize");
@@ -71,36 +72,48 @@ class Model_cud {
     await this.transaction();
     const petugas = await this.penerima();
     const invoice = await this.generate_invoice();
-
     const body = this.req.body;
     const my_date = moment().format("YYYY-MM-DD HH:mm:ss");
-
-    console.log("Data Body:", body);
 
     try {
       // 1. Insert transaksi utama
       const transaksi = await Transaction_fasilitas.create(
         {
-          company_id: this.company_id,
+          division_id: body.cabang,
           invoice: invoice,
           petugas: petugas,
-          kostumer_id: body.kostumer_id || "-",
-          paket_id: body.paket_id || null,
+          kostumer_id: body.kostumer_id,
+          paket_id: null,
           createdAt: my_date,
           updatedAt: my_date,
         },
         { transaction: this.t }
       );
-
       // 2. Hitung total harga dari semua fasilitas
       let totalPrice = 0;
       for (const detail of body.fasilitas) {
-        const fasilitas = await Item_fasilitas.findOne({
-          where: { id: detail.item_id },
-          attributes: ["id", "harga_jual"],
+        const fasilitas = await Item_fasilitas.findOne({ 
+          where: { id: detail.item_id }, 
+          attributes: ["id", "harga_beli", "harga_jual"],
+          include: {
+            model: Mst_fasilitas,
+            required: true, 
+            attributes: ["nomor_akun_aset", "nomor_akun_hpp", "nomor_akun_pendapatan"],
+          }
         });
         if (fasilitas) {
           totalPrice += fasilitas.harga_jual;
+          // update item fasilitas ke terjual
+          await Item_fasilitas.update(
+            { status: 'terjual', updatedAt: my_date, },
+            {
+              where: { id: detail.item_id },
+            },
+            {
+              transaction: this.t,
+            }
+          );
+          // update item fasilitas
           await Transaction_fasilitas_detail.create(
             {
               transaction_fasilitas_id: transaksi.id,
@@ -110,11 +123,48 @@ class Model_cud {
             },
             { transaction: this.t }
           );
+          // Jurnal HPP
+          await Jurnal.create(
+            {
+              division_id: body.cabang, 
+              source: 'transaksiFasilitasId:' + transaksi.id,
+              ref: 'HPP penjualan fasilitas',
+              ket: 'HPP penjualan fasilitas',
+              akun_debet: fasilitas.Mst_fasilita.nomor_akun_hpp,
+              akun_kredit: fasilitas.Mst_fasilita.nomor_akun_aset,
+              saldo: fasilitas.harga_beli,
+              removable: 'false',
+              periode_id: 0,
+              createdAt: my_date,
+              updatedAt: my_date,
+            },
+            {
+              transaction: this.t,
+            }
+          );
+          // Jurnal Pendapatan
+          await Jurnal.create(
+            {
+              division_id: body.cabang, 
+              source: 'transaksiFasilitasId:' + transaksi.id,
+              ref: 'Pendapatan penjualan fasilitas',
+              ket: 'Pendapatan penjualan fasilitas',
+              akun_debet: '11010',
+              akun_kredit: fasilitas.Mst_fasilita.nomor_akun_pendapatan,
+              saldo: fasilitas.harga_jual,
+              removable: 'false',
+              periode_id: 0,
+              createdAt: my_date,
+              updatedAt: my_date,
+            },
+            {
+              transaction: this.t,
+            }
+          );
         }
       }
       transaksi.total = totalPrice;
       await transaksi.save({ transaction: this.t });
-
       this.invoice = invoice;
       this.message = "Transaksi fasilitas berhasil disimpan.";
     } catch (error) {

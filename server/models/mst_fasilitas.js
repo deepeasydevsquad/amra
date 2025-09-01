@@ -31,7 +31,9 @@ module.exports = (sequelize, DataTypes) => {
   Mst_fasilitas.init({
     company_id: DataTypes.INTEGER,
     name: DataTypes.STRING, 
-    nomor_akun: DataTypes.STRING
+    nomor_akun_aset: DataTypes.STRING,
+    nomor_akun_hpp: DataTypes.STRING,
+    nomor_akun_pendapatan: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Mst_fasilitas',

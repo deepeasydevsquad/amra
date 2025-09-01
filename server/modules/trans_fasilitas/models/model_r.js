@@ -51,7 +51,7 @@ class Model_r {
       const limit = parseInt(body.perpage) || 10;
       const page = body.pageNumber && body.pageNumber !== "0" ? parseInt(body.pageNumber) : 1;
 
-      let where = { company_id: this.company_id };
+      let where = { division_id: this.req.body.cabang };
 
       if (body.search) {
         where.invoice = { [Op.like]: `%${body.search}%` };
@@ -246,50 +246,72 @@ class Model_r {
   async daftar_fasilitas() {
     try {
       await this.initialize();
-      const { paket_id, division_id } = this.req.body;
+      const { division_id } = this.req.body;
 
-      // Ambil fasilitas dari paket
-      const paket = await Paket.findOne({
-        where: { id: paket_id, division_id },
-        attributes: ["facilities"],
-      });
+     
 
-      const facilitiesIds = new Set(
-        JSON.parse(paket.facilities).map((f) => f.id)
-      );
+        // await Riwayat_deposit_airline.findAll(query.sql).then(async (value) => {
+        //   await Promise.all(
+        //     await value.map(async (e) => {
+        //       data.push({ 
+        //         id : e.id, 
+        //         invoice : e.invoice,
+        //         nama_maskapai : e.Mst_airline.name,
+        //         nominal_deposit : e.deposit,  
+        //         tanggal_deposit : moment(e.updatedAt).format("YYYY-MM-DD HH:mm:ss")
+        //       });
+        //     })
+        //   );
+        // });
 
-      if (facilitiesIds.size === 0) {
-        return [];
-      }
+      // // Ambil fasilitas dari paket
+      // const paket = await Paket.findOne({
+      //   where: { id: paket_id, division_id },
+      //   attributes: ["facilities"],
+      // });
+
+      // const facilitiesIds = new Set(
+      //   JSON.parse(paket.facilities).map((f) => f.id)
+      // );
+
+      // if (facilitiesIds.size === 0) {
+      //   return [];
+      // }
 
       // Ambil item fasilitas yang valid
-      const itemFacilities = await Item_fasilitas.findAll({
+      var listJumlahFasilitas = {};
+      await Item_fasilitas.findAll({
         where: {
-          mst_fasilitas_id: { [Op.in]: [...facilitiesIds] },
+          division_id: this.req.body.division_id,
+          status: 'belum_terjual'
         },
-        include: [
-          {
-            model: Mst_fasilitas,
-            required: true,
-            attributes: ["id", "name"],
-          },
-        ],
+      }).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+            if( listJumlahFasilitas[e.mst_fasilitas_id] == undefined ) {
+              listJumlahFasilitas = {...listJumlahFasilitas,...{[e.mst_fasilitas_id] : 1} };
+            }else{
+              listJumlahFasilitas[e.mst_fasilitas_id] = listJumlahFasilitas[e.mst_fasilitas_id] + 1;
+            }
+          })
+        )
       });
 
-      // Kumpulkan hasil unik berdasarkan mst_fasilitas_id
-      const seen = new Set();
-      const data = [];
-
-      for (const item of itemFacilities) {
-        const id = item.mst_fasilitas_id;
-        if (!seen.has(id)) {
-          seen.add(id);
-          data.push({
-            id,
-            name: item.Mst_fasilita?.name || "Tidak diketahui",
-          });
-        }
-      }
+      var data = [];
+      await Mst_fasilitas.findAll({
+        where: {
+          company_id: this.company_id,
+        },
+      }).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+            data.push({ 
+              id : e.id, 
+              name : e.name + ' (Stok : '+ ( listJumlahFasilitas[e.id] != undefined ? listJumlahFasilitas[e.id] : 0 ) + ')'
+            });
+          })
+        );
+      });
 
       return data;
     } catch (error) {

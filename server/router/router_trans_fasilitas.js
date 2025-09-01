@@ -3,6 +3,7 @@ const { body } = require("express-validator");
 const controllers = require("../modules/trans_fasilitas/controllers/index");
 const { authenticateToken } = require("../middleware/authenticateToken");
 const validation = require("../validation/trans_fasilitas");
+const validationCabang  = require("../validation/param");
 
 const router = express.Router();
 
@@ -11,8 +12,7 @@ router.post(
     authenticateToken,
     [
         body("kostumer_id").notEmpty().withMessage("Kostumer wajib diisi").custom(validation.check_id_kostumer),
-        body("paket_id").notEmpty().withMessage("Paket wajib diisi").custom(validation.check_id_paket),
-        body("division_id").notEmpty().withMessage("ID Cabang wajib diisi").custom(validation.check_id_cabang),
+        body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").isNumeric().withMessage("ID Cabang harus berupa angka.").custom(validationCabang.check_cabang_id),
         body("fasilitas").isArray({ min: 1 }).withMessage("Minimal 1 fasilitas harus diinput"),
         body("fasilitas.*.item_id").notEmpty().withMessage("Fasilitas wajib diisi").custom(validation.check_id_fasilitas),
     ],
@@ -32,6 +32,7 @@ router.post(
     "/trans_fasilitas/daftar_transaksi",
     authenticateToken,
     [
+        body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").isNumeric().withMessage("ID Cabang harus berupa angka.").custom(validationCabang.check_cabang_id),
         body("perpage").optional().isInt().withMessage("Jumlah per halaman harus berupa angka."),
         body("pageNumber").optional().isInt().withMessage("Nomor halaman harus berupa angka."),
         body("search").optional().trim(),
@@ -58,7 +59,7 @@ router.post(
     "/trans_fasilitas/daftar_fasilitas",
     authenticateToken,
     [
-        body("paket_id").trim().notEmpty().withMessage("ID Paket tidak boleh kosong.").custom(validation.check_id_paket),
+        // body("paket_id").trim().notEmpty().withMessage("ID Paket tidak boleh kosong.").custom(validation.check_id_paket),
         body("division_id").trim().notEmpty().withMessage("ID Cabang tidak boleh kosong.").custom(validation.check_id_cabang)
     ],
     controllers.daftar_fasilitas

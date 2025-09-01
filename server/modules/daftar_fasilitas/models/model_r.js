@@ -35,7 +35,9 @@ class Model_r {
     sql["attributes"] = [
       "id",
       "name",
-      "nomor_akun",
+      "nomor_akun_aset",
+      "nomor_akun_hpp",
+      "nomor_akun_pendapatan",
       "updatedAt",
     ];
     sql["where"] = where;
@@ -52,7 +54,9 @@ class Model_r {
               data.push({ 
                 id : e.id,
                 name : e.name,
-                nomor_akun: e.nomor_akun
+                nomor_akun_aset: e.nomor_akun_aset,
+                nomor_akun_hpp: e.nomor_akun_hpp,
+                nomor_akun_pendapatan: e.nomor_akun_pendapatan
               });
             })
           );
@@ -78,6 +82,9 @@ class Model_r {
           if (e) {
               data["id"] = e.id;
               data["name"] = e.name;
+              data['nomor_akun_aset'] = e.nomor_akun_aset;
+              data['nomor_akun_hpp'] = e.nomor_akun_hpp;
+              data['nomor_akun_pendapatan'] = e.nomor_akun_pendapatan;
           }
       });
       return data

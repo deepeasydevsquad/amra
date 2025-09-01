@@ -5,7 +5,7 @@ module.exports = {
     await queryInterface.bulkInsert('Transaction_fasilitas', [
       {
         id: 1, 
-        company_id: 1,
+        division_id: 1,
         invoice: 'INV001',
         kostumer_id: 1,
         tabungan_id: null,
@@ -17,7 +17,7 @@ module.exports = {
       },
       {
         id: 2, 
-        company_id: 1,
+        division_id: 1,
         invoice: 'INV002',
         kostumer_id: 1,
         tabungan_id: null,

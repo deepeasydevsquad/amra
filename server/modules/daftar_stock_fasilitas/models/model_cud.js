@@ -48,21 +48,15 @@ class Model_cud {
       // ⛳ bulk insert pakai transaction
       await Item_fasilitas.bulkCreate(items, { transaction: this.t });
 
-      //get info mst 
+      // get info mst 
       const q = await Mst_fasilitas.findOne({ where: { id: body.mst_fasilitas_id, company_id: this.company_id } });
-      const debet_akun = q.nomor_akun;
+      const debet_akun = q.nomor_akun_aset;
+      // akun kredit
       var kredit_akun = '';
       if(sumber_dana == '0') {
         kredit_akun = '11010';
       }else{
         const qB = await Mst_bank.findOne({ where: { id: body.sumber_dana, company_id: this.company_id } });
-
-        console.log("xxxxx-----xxxx");
-        console.log(body.sumber_dana);
-        console.log(this.company_id);
-        console.log(qB);
-        console.log(qB.nomor_akun);
-        console.log("xxxxx-----xxxx");
         kredit_akun = qB.nomor_akun;
       }
 

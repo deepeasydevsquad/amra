@@ -24,15 +24,13 @@ module.exports = (sequelize, DataTypes) => {
       Transaction_fasilitas.belongsTo(models.Paket, {
         foreignKey: "paket_id",
       });
-      Transaction_fasilitas.belongsTo(models.Company, {
-        foreignKey: "company_id",
+      Transaction_fasilitas.belongsTo(models.Division, {
+        foreignKey: "division_id",
       });
-
-      
     }
   }
   Transaction_fasilitas.init({
-    company_id: DataTypes.INTEGER,
+    division_id: DataTypes.INTEGER,
     invoice: DataTypes.STRING,
     kostumer_id: DataTypes.INTEGER,
     tabungan_id: DataTypes.INTEGER,
