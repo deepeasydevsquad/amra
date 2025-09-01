@@ -222,3 +222,13 @@ export const kwitatsi_trans_tiket = async (param: string) => {
   }
 }
 
+export const kwitansi_pembayaran_tiket = async (param: string) => {
+  try {
+    const response = await api.get(`/invoice/pembayaran-tiket/${param}`); 
+    return response.data; // Kembalikan data hasil request
+  } catch (error) {
+    console.log("Gagal mengambil kwitansi trans tiket:", error);
+    throw error;
+  }
+}
+

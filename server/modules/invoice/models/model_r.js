@@ -50,7 +50,7 @@ const {
   Transaction_fasilitas_detail,
   Item_fasilitas,
   Ticket_transaction,
-  Ticket_paymen_history,
+  Ticket_payment_history,
   Mst_airline,
 } = require("../../../models");
 const { Op } = require("sequelize");
@@ -1633,6 +1633,67 @@ class Model_r {
         message: "Gagal ambil data invoice ticket.",
         data: null,
       };
+    }
+  }
+
+  async invoice_pembayaran_tiket() {
+    await this.initialize();
+    try {
+      const invoice = this.req.params.invoice; // ambil invoice dari URL
+
+      const header_kwitansi = await this.header_kwitansi_invoice();
+
+      // Cari payment berdasarkan invoice
+      const pembayaran = await Ticket_payment_history.findOne({
+        where: { invoice },
+        include: [
+          {
+            model: Ticket_transaction,
+            attributes: [
+              "id",
+              "costumer_price",
+              "status",
+              "pax",
+              "departure_date",
+              "arrival_date",
+            ],
+            include: [
+              { model: Kostumer, attributes: ["name"] },
+              { model: Paket, attributes: ["name"] },
+              { model: Mst_airline, attributes: ["name"] },
+            ],
+          },
+        ],
+      });
+
+      if (!pembayaran) throw new Error("Data pembayaran tidak ditemukan");
+
+      const transaksi = pembayaran.Ticket_transaction;
+
+      // Hitung total pembayaran untuk transaksi ini
+      const totalPembayaran = await Ticket_payment_history.sum("nominal", {
+        where: { ticket_transaction_id: transaksi.id },
+      });
+
+      const totalTagihan = transaksi.costumer_price;
+      const sisaPembayaran = totalTagihan - totalPembayaran;
+      const statusPembayaran = sisaPembayaran <= 0 ? "Lunas" : "Belum Lunas";
+
+      return {
+        header_kwitansi,
+        invoice: pembayaran.invoice,
+        tanggal_pembayaran: pembayaran.createdAt,
+        customer: transaksi.Kostumer?.name,
+        paket: transaksi.Paket?.name,
+        airline: transaksi.Mst_airline?.name,
+        totalTagihan,
+        totalPembayaran,
+        sisaPembayaran: sisaPembayaran > 0 ? sisaPembayaran : 0,
+        statusPembayaran,
+      };
+    } catch (err) {
+      console.error(err);
+      throw err;
     }
   }
 }
