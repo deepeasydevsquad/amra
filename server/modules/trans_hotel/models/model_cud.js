@@ -1,4 +1,4 @@
-const { Hotel_transaction, Hotel_transaction_detail, sequelize, Company, Users, Member, Jurnal, Op, Division } = require("../../../models");
+const { Hotel_transaction, Mst_bank, sequelize, Company, Users, Member, Jurnal, Op, Division } = require("../../../models");
 const moment = require("moment");
 const { getCompanyIdByCode, tipe, getCabang } = require("../../../helper/companyHelper");
 const { writeLog } = require("../../../helper/writeLogHelper");
