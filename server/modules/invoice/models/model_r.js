@@ -28,7 +28,6 @@ const {
   Handover_barang_paket,
   Mst_fasilitas,
   Visa_transaction,
-  Visa_transaction_detail,
   Mst_visa_request_type,
   Fee_agen,
   Pembayaran_fee_agen,
@@ -53,7 +52,7 @@ const {
   Ticket_paymen_history,
   Mst_airline,
 } = require("../../../models");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const {
   getCompanyIdByCode,
   tipe,
@@ -795,64 +794,65 @@ class Model_r {
 
     try {
       let data = { ...(await this.header_kwitansi_invoice()) };
+      console.log("Data Header:", data);
+      console.log("Invoice Param:", this.req.params.invoice);
 
       const transaksi = await Visa_transaction.findOne({
         where: {
           invoice: this.req.params.invoice,
-          company_id: this.company_id,
         },
+        attributes: [
+          "invoice",
+          "petugas",
+          "pax",
+          "harga_travel",
+          "harga_costumer",
+          "createdAt",
+        ],
         include: [
           {
-            // Include Level 1
-            model: Visa_transaction_detail,
+            model: Division,
+            attributes: ["name"],
             required: true,
-            include: [
-              {
-                model: Mst_visa_request_type,
-                attributes: ["name"],
-                required: false,
-              },
-            ],
+            include: {
+              model: Company,
+              where: { id: this.company_id },
+            },
           },
+          {
+            model: Mst_visa_request_type,
+            attributes: ["name"],
+          },
+          {
+            model: Kostumer,
+            attributes: ["name", "mobile_number", "address"],
+          }
         ],
       });
+
+      console.log("Transaksi Visa:", transaksi);
 
       if (!transaksi) {
         return {};
       }
-
-      const detailsArray = transaksi.Visa_transaction_details;
-      if (!detailsArray || detailsArray.length === 0) {
-        console.error(
-          `[ERROR] Transaksi ${transaksi.invoice} ditemukan tetapi tidak memiliki detail.`
-        );
-        return {};
-      }
-
-      const detail = detailsArray[0];
-      const jenisVisaName = detail.Mst_visa_request_type
-        ? detail.Mst_visa_request_type.name
+      
+      const jenisVisaName = transaksi.Mst_visa_request_type
+        ? transaksi.Mst_visa_request_type.name
         : "Jenis Tidak Diketahui";
 
       data = {
         ...data,
         invoice: transaksi.invoice,
         petugas: transaksi.petugas,
-        payer: transaksi.payer,
-        payer_identity: transaksi.payer_identity,
+        pax: transaksi.pax,
+        harga_travel: transaksi.harga_travel,
+        harga_costumer: transaksi.harga_costumer,
         createdAt: transaksi.createdAt,
 
-        name: detail.name,
-        identity_number: detail.identity_number,
-        birth_place: detail.birth_place,
-        birth_date: detail.birth_date,
-        passport_number: detail.passport_number,
-        valid_until: detail.valid_until,
-        price: detail.price,
-
+        kostumer_name: transaksi.Kostumer ? transaksi.Kostumer.name : "-",
+        kostumer_mobile: transaksi.Kostumer ? transaksi.Kostumer.mobile_number : "-",
+        kostumer_address: transaksi.Kostumer ? transaksi.Kostumer.address : "-",
         jenis_visa: jenisVisaName,
-
-        profession_telephone: detail.profession_telephone,
       };
       return data;
     } catch (error) {
