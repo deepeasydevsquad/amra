@@ -50,7 +50,7 @@ const {
   Transaction_fasilitas_detail,
   Item_fasilitas,
   Ticket_transaction,
-  Ticket_paymen_history,
+  Ticket_payment_history,
   Mst_airline,
 } = require("../../../models");
 const { Op } = require("sequelize");
@@ -1631,6 +1631,74 @@ class Model_r {
       return {
         status: false,
         message: "Gagal ambil data invoice ticket.",
+        data: null,
+      };
+    }
+  }
+
+  async kwitansi_refund_tiket() {
+    await this.initialize();
+
+    try {
+      const invoice = this.req.params.invoice; // ambil dari route param
+      console.log("invoice", invoice);
+
+      const header_kwitansi = await this.header_kwitansi_invoice();
+
+      const transaksi = await Ticket_payment_history.findOne({
+        where: {
+          invoice: invoice,
+        },
+        include: [
+          {
+            model: Ticket_transaction,
+            include: [
+              {
+                model: Kostumer,
+                attributes: ["name"],
+              },
+              {
+                model: Paket,
+                attributes: ["name"],
+              },
+              {
+                model: Mst_airline,
+                attributes: ["name"],
+              },
+            ],
+          },
+        ],
+      });
+
+      if (!transaksi) {
+        return {
+          status: false,
+          message: "Data refund ticket tidak ditemukan.",
+          data: null,
+        };
+      }
+
+      return {
+        header: header_kwitansi, // data header (perusahaan / logo / alamat)
+        transaksi: {
+          invoice: transaksi.invoice,
+          tanggal: transaksi.createdAt,
+          nominal_refund: transaksi.nominal,
+          petugas: transaksi.petugas,
+          nomor_registrasi: transaksi.Ticket_transaction.nomor_registrasi,
+          customer: transaksi.Ticket_transaction.Kostumer?.name,
+          paket: transaksi.Ticket_transaction.Paket?.name,
+          airline: transaksi.Ticket_transaction.Mst_airline?.name,
+          pax: transaksi.Ticket_transaction.pax,
+          departure_date: transaksi.Ticket_transaction.departure_date,
+          arrival_date: transaksi.Ticket_transaction.arrival_date,
+        },
+      };
+    } catch (error) {
+      console.error("Gagal ambil data refund ticket:", error);
+      return {
+        status: false,
+        message: "Gagal ambil data refund ticket.",
         data: null,
       };
     }
