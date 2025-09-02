@@ -1603,6 +1603,7 @@ class Model_r {
       }
 
       // format data invoice
+      // format data invoice
       const data_invoice = {
         header: header_kwitansi,
         nomor_registrasi: transaksi.nomor_registrasi,
@@ -1612,7 +1613,10 @@ class Model_r {
         status: transaksi.status,
         pax: transaksi.pax,
         code_booking: transaksi.code_booking,
+        // harga per pax
         costumer_price: transaksi.costumer_price,
+        // total harga (per pax x jumlah pax)
+        total_harga: transaksi.costumer_price * transaksi.pax,
         departure_date: transaksi.departure_date,
         arrival_date: transaksi.arrival_date,
         createdAt: transaksi.createdAt,

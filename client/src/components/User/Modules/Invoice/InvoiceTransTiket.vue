@@ -105,8 +105,8 @@ onMounted(async () => {
             <th class="border px-2 py-1 text-center">Jenis Barang</th>
             <th class="border px-2 py-1 text-center">Deskripsi</th>
             <th class="border px-2 py-1 text-center w-12">Jumlah</th>
-            <th class="border px-2 py-1 text-center">Harga</th>
-            <th class="border px-2 py-1 text-center">Total Rp</th>
+            <th class="border px-2 py-1 text-center">Harga Per Tiket</th>
+            <th class="border px-2 py-1 text-center">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -122,7 +122,7 @@ onMounted(async () => {
               Rp {{ data?.costumer_price ? data.costumer_price.toLocaleString() : '0' }}
             </td>
             <td class="border px-2 py-1 text-right">
-              Rp {{ data?.costumer_price ? data.costumer_price.toLocaleString() : '0' }}
+              Rp {{ data?.total_harga ? data.total_harga.toLocaleString() : '0' }}
             </td>
           </tr>
         </tbody>
@@ -130,7 +130,7 @@ onMounted(async () => {
           <tr class="font-semibold bg-gray-50">
             <td colspan="5" class="border px-2 py-1 text-right">TOTAL</td>
             <td class="border px-2 py-1 text-right">
-              Rp {{ data?.costumer_price ? data.costumer_price.toLocaleString() : '0' }}
+              Rp {{ data?.total_harga ? data.total_harga.toLocaleString() : '0' }}
             </td>
           </tr>
         </tfoot>
