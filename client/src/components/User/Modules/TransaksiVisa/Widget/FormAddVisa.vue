@@ -109,7 +109,7 @@ async function handleSubmit() {
     openCetakKwitansi(response.invoice);
     emit('submitted');
     reset();
-    displayNotification('Visa berhasil ditambahkan.', 'success');
+    displayNotification('Transaksi Visa berhasil dilakukan.', 'success');
   } catch (error : any) {
     displayNotification(error.response.data.message, 'error');
   }

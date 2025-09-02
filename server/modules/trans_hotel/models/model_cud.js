@@ -39,14 +39,14 @@ class Model_cud {
         akun_kredit = q.nomor_akun;
       }
 
-      const invoice = await generateNomorInvoiceHotel(this.req.body.cabang);
+      this.invoice = await generateNomorInvoiceHotel(this.req.body.cabang);
       const insert = await Hotel_transaction.create(
         {
           division_id: this.req.body.cabang,
           kostumer_id: this.req.body.kostumer == 0 ? null : this.req.body.kostumer, 
           paket_id: this.req.body.paket == 0 ? null : this.req.body.paket, 
           mst_hotel_id: this.req.body.mst_hotel_id, 
-          invoice: invoice, 
+          invoice: this.invoice, 
           petugas: this.type, 
           check_in: moment(this.req.body.check_in).format("YYYY-MM-DD"),
           check_out: moment(this.req.body.check_out).format("YYYY-MM-DD"),
@@ -124,7 +124,7 @@ class Model_cud {
       }
 
       // message
-      this.message = `Melakukan transaksi hotel dengan nomor invoice ${invoice}`;
+      this.message = `Melakukan transaksi hotel dengan nomor invoice ${this.invoice}`;
     } catch (error) {
       this.message = "Gagal simpan transaksi hotel: " + error.message;
       this.state = false;

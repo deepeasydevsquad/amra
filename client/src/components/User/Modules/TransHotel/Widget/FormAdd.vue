@@ -137,7 +137,8 @@ async function handleSubmit() {
       harga_kostumer_kamar_per_hari: form.value.harga_kostumer_kamar_per_hari
     }
 
-    await addHotelUrl(payload);
+    const response = await addHotelUrl(payload);
+    openCetakKwitansi(response.invoice);
     emit('submitted');
     reset();
     displayNotification('Transaksi hotel berhasil dilakukan', 'success');
@@ -276,6 +277,12 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   timeoutId.value = window.setTimeout(() => {
     showNotification.value = false
   }, 3000)
+}
+
+const openCetakKwitansi = (invoice: string) => {
+  console.log('Invoice to print:', invoice) // Debug log
+  const url = `/kwitansi-trans-hotel/${invoice}`
+  window.open(url, '_blank')
 }
 
 watch(
