@@ -1,14 +1,4 @@
-const {
-    Op,
-    Paket,
-    Mst_fasilitas,
-    Transaction_fasilitas,
-    Transaction_fasilitas_detail,
-    Paket_transaction,
-    Kostumer,
-    Division
-} = require("../models");
-
+const { Op, Paket, Mst_fasilitas, Transaction_fasilitas, Transaction_fasilitas_detail, Paket_transaction, Kostumer, Division } = require("../models");
 const { getDivisionId, getCompanyIdByCode } = require("../helper/companyHelper");
 
 const validation = {};

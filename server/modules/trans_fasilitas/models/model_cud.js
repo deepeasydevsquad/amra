@@ -1,17 +1,4 @@
-const {
-  Transaction_fasilitas,
-  Transaction_fasilitas_detail,
-  Mst_fasilitas,
-  Item_fasilitas,
-  Kostumer,
-  Paket,
-  sequelize,
-  Company,
-  Users,
-  Member,
-  Jurnal,
-  Division
-} = require("../../../models");
+const { Transaction_fasilitas, Transaction_fasilitas_detail, Mst_fasilitas, Item_fasilitas, Kostumer, Paket, sequelize, Company, Users, Member, Jurnal, Division } = require("../../../models");
 const moment = require("moment");
 const { Op } = require("sequelize");
 const { getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
@@ -205,9 +192,6 @@ class Model_cud {
 
       this.message = "Transaksi fasilitas berhasil dihapus.";
     } catch (error) {
-      console.log("xxx");
-      console.log(error);
-      console.log("xxx"); 
       this.state = false;
       this.message = "Gagal hapus transaksi hotel: " + error.message;
       console.error(error);

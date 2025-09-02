@@ -201,7 +201,6 @@ const fetchSumberDanaPaket = async () => {
       list_paket.value = [{ id: 0, name: ' -- Pilih Paket -- ' }]
       list_sumber_dana.value = [{ id: 0, name: ' -- Pilih Sumber Dana -- ' }];
     }
-
   } catch (error) {
     console.error(error)
   }

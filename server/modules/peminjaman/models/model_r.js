@@ -1,14 +1,7 @@
-const {
-  Peminjaman,
-  Skema_peminjaman,
-  Riwayat_pembayaran_peminjaman,
-  Jamaah,
-  Member,
-} = require("../../../models");
-const {
-  getCompanyIdByCode,
-  getCabang,
-} = require("../../../helper/companyHelper");
+const { Peminjaman, Skema_peminjaman, Riwayat_pembayaran_peminjaman, Jamaah, Member, Mst_bank } = require("../../../models");
+const { getCompanyIdByCode, getCabang } = require("../../../helper/companyHelper");
+const Akuntansi = require("../../../library/akuntansi");
+const{ convertToRP } = require("../../../helper/currencyHelper");
 const { Op } = require("sequelize");
 const ExcelJS = require("exceljs");
 
@@ -22,6 +15,30 @@ class Model_r {
   async initialize() {
     this.company_id = await getCompanyIdByCode(this.req);
     this.division_id = await getCabang(this.req);
+  }
+
+  async get_sumber_dana() {
+    await this.initialize();
+    const akuntansi = new Akuntansi(); 
+    try {
+      var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun('11010', this.company_id, this.req.body.cabang, '0') );
+      var sumber_dana = [{ id: 0, name: 'Kas (Saldo : ' + saldo + ')'}];
+      await Mst_bank.findAll({ where: { company_id: this.company_id }, }).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+            var saldo = await convertToRP( await akuntansi.saldo_masing_masing_akun(e.nomor_akun, this.company_id, this.req.body.cabang, '0') );
+            sumber_dana.push({ 
+              id : e.id, 
+              name : e.kode + ' (Saldo : ' + saldo + ')', 
+            });
+          })
+        );
+      });
+      return { data: sumber_dana };
+    } catch (error) {
+      console.error("Gagal ambil daftar jenis visa :", error);
+      return {};
+    }
   }
 
   // Method untuk mendapatkan daftar peminjaman

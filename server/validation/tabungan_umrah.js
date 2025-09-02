@@ -1,21 +1,4 @@
-const {
-    Op,
-    Jamaah,
-    Division,
-    Paket,
-    Paket_price,
-    Mst_paket_type,
-    Mst_fasilitas,
-    Member,
-    Tabungan,
-    Handover_fasilitas,
-    Handover_fasilitas_detail,
-    Handover_barang,
-    Agen,
-    Level_keagenan,
-    Item_fasilitas
-} = require("../models");
-
+const { Op, Jamaah, Division, Paket, Paket_price, Mst_paket_type, Mst_fasilitas, Member, Tabungan, Handover_fasilitas, Handover_fasilitas_detail, Handover_barang, Agen, Level_keagenan, Item_fasilitas } = require("../models");
 const { getCompanyIdByCode, tipe } = require("../helper/companyHelper");
     
 const validation = {};

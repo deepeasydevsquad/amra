@@ -5,6 +5,18 @@ const {
   handleValidationErrors,
 } = require("../../../helper/handleError");
 
+
+exports.get_sumber_dana = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+  try {
+    const model = new Model_r(req);
+    const data = await model.get_sumber_dana();
+    res.status(200).json(data);
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+}
+
 exports.addPinjaman = async (req, res) => {
   // filter error
   if (!(await handleValidationErrors(req, res))) return;

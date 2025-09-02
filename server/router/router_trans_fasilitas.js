@@ -59,7 +59,6 @@ router.post(
     "/trans_fasilitas/daftar_fasilitas",
     authenticateToken,
     [
-        // body("paket_id").trim().notEmpty().withMessage("ID Paket tidak boleh kosong.").custom(validation.check_id_paket),
         body("division_id").trim().notEmpty().withMessage("ID Cabang tidak boleh kosong.").custom(validation.check_id_cabang)
     ],
     controllers.daftar_fasilitas
