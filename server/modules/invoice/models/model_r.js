@@ -813,10 +813,7 @@ class Model_r {
             model: Division,
             attributes: ["name"],
             required: true,
-            include: {
-              model: Company,
-              where: { id: this.company_id },
-            },
+            where: { company_id: this.company_id },
           },
           {
             model: Mst_visa_request_type,
@@ -1008,10 +1005,7 @@ class Model_r {
             model: Division,
             attributes: ["name"],
             required: true,
-            include: {
-              model: Company,
-              where: { id: this.company_id },
-            },
+            where: { company_id: this.company_id },
           },
           {
             model: Mst_hotel,
@@ -1427,10 +1421,14 @@ class Model_r {
 
       const transaksi = await Transaction_fasilitas.findOne({
         where: {
-          company_id: this.company_id,
           invoice,
         },
         include: [
+          {
+            model: Division,
+            required: true,
+            where: { company_id: this.company_id },
+          },
           {
             model: Kostumer,
             required: false,
