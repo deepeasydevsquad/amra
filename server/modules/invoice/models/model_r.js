@@ -35,7 +35,6 @@ const {
   Paket_transaction,
   Paket_transaction_payment_history,
   Hotel_transaction,
-  Hotel_transaction_detail,
   Mst_hotel,
   Passport_transaction,
   Passport_transaction_detail,
@@ -989,75 +988,66 @@ class Model_r {
       const invoice = this.req.params.invoice; // ⬅️ ambil dari params
       const header = await this.header_kwitansi_invoice();
 
-      const transaksiList = await Hotel_transaction.findAll({
+      const transaksi = await Hotel_transaction.findOne({
         where: {
-          company_id: this.company_id,
           invoice: invoice,
         },
-        include: [
-          {
-            model: Hotel_transaction_detail,
+        attributes: [
+          "invoice",
+          "petugas",
+          "check_in",
+          "check_out",
+          "tipe_kamar",
+          "jumlah_hari",
+          "jumlah_kamar",
+          "harga_travel_kamar_per_hari",
+          "harga_kostumer_kamar_per_hari",
+          "createdAt",
+        ],
+        include: [{
+            model: Division,
+            attributes: ["name"],
             required: true,
-            attributes: [
-              "name",
-              "birth_date",
-              "birth_place",
-              "identity_number",
-              "price",
-              "check_in",
-              "check_out",
-            ],
-            include: [
-              {
-                model: Mst_hotel,
-                required: true,
-                attributes: ["name"],
-              },
-            ],
+            include: {
+              model: Company,
+              where: { id: this.company_id },
+            },
+          },
+          {
+            model: Mst_hotel,
+            attributes: ["name"],
           },
           {
             model: Kostumer,
-            required: true,
-            attributes: ["name"],
-          },
-        ],
+            attributes: ["name", "mobile_number", "address"],
+          }
+        ]
       });
 
       // Kalau invoice nggak ditemukan
-      if (transaksiList.length === 0) {
+      if (!transaksi) {
         throw new Error(`Transaksi dengan invoice ${invoice} tidak ditemukan.`);
       }
 
-      const data = transaksiList.map((trx) => {
-        const detailList = trx.Hotel_transaction_details || [];
-
-        const total_harga = detailList.reduce((sum, detail) => {
-          return sum + Number(detail.price || 0);
-        }, 0);
-
-        return {
-          id: trx.id,
-          invoice: trx.invoice,
-          payer: trx.payer,
-          nama_kostumer: trx.Kostumer.name,
-          petugas: trx.petugas,
-          total_harga: total_harga,
-          details: detailList.map((d) => ({
-            name: d.name,
-            birth_place: d.birth_place,
-            birth_date: d.birth_date,
-            identity_number: d.identity_number,
-            price: d.price,
-            check_in: d.check_in,
-            check_out: d.check_out,
-            hotel_name: d.Mst_hotel?.name ?? "-",
-          })),
-        };
-      });
-
       return {
         header,
-        data,
+        data: {
+          invoice: transaksi.invoice,
+          hotel_name: transaksi.Mst_hotel?.name ?? "-",
+          division_name: transaksi.Division?.name ?? "-",
+          nama_kostumer: transaksi.Kostumer?.name ?? "-",
+          mobile_number: transaksi.Kostumer?.mobile_number ?? "-",
+          address: transaksi.Kostumer?.address ?? "-",
+          petugas: transaksi.petugas,
+          check_in: transaksi.check_in,
+          check_out: transaksi.check_out,
+          tipe_kamar: transaksi.tipe_kamar,
+          jumlah_hari: transaksi.jumlah_hari,
+          jumlah_kamar: transaksi.jumlah_kamar,
+          harga_kostumer_kamar_per_hari: transaksi.harga_kostumer_kamar_per_hari,
+          total_harga: transaksi.harga_kostumer_kamar_per_hari * transaksi.jumlah_kamar * transaksi.jumlah_hari,
+          createdAt: transaksi.createdAt,
+        },
       };
     } catch (error) {
       console.error("❌ Gagal generate invoice hotel:", error.message);

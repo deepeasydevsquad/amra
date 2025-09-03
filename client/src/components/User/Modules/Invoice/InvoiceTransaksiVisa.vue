@@ -72,13 +72,14 @@ const terbilangUang = (amount: number, withSen: boolean = false): string => {
   const angka = Math.floor(amount);
   const pecahan = Math.round((amount - angka) * 100);
 
-  let result = toWords(angka).trim() + " rupiah";
+  let result = "";
 
   if (withSen && pecahan > 0) {
     result += ` ${toWords(pecahan)} sen`;
   }
 
-  return result.replace(/\s+/g, " ").replace(/satu ribu/g, 'seribu').replace(/satu ratus/g, 'seratus');
+  const hasil = toWords(angka).trim().replace(/\s+/g, ' ')
+  return (hasil.charAt(0).toUpperCase() + hasil.slice(1) + ' Rupiah').replace(/\s+/g, ' ')
 };
 
 const formatDate = (dateString: string) => {
@@ -107,7 +108,7 @@ const formatDate = (dateString: string) => {
       </div>
   </div>
 
-  <div v-else-if="data" class="bg-white max-w-[210mm] min-h-[297mm] mx-auto p-[15mm] font-serif print:p-[10mm] print:m-0 print:shadow-none"
+  <div v-else-if="data" class="bg-white max-w-[210mm] min-h-[297mm] mx-auto p-[15mm] font-serif print:p-[15mm] print:m-0 print:shadow-none"
     style="color: black; font-size: 10pt; line-height: 1.5;"
   >
     <Header :data="data" />
