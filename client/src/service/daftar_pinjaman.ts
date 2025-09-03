@@ -1,6 +1,16 @@
 import api from "./api"; // Import service API
 
 
+export const getSumberDana = async ( param : any ) => {
+  try {
+    const response = await api.post("/peminjaman/sumber_dana", param); // Kirim data ke backend
+    return response.data; // Kembalikan data hasil request
+  } catch (error) {
+    console.error("Gagal mengubah skema:", error);
+    throw error; // Bisa ditangani di bagian pemanggilan
+  }
+}
+
 export const daftar_jamaah = async (param : any) => {
   try {
     const response = await api.post("/peminjaman/daftar_jamaah", param); // Kirim data ke backend

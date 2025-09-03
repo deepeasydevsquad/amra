@@ -146,4 +146,10 @@ router.get(
   controller.kwitansi_refund
 );
 
+router.get(
+  "/invoice/pembayaran-tiket/:invoice",
+  authenticateToken,
+  controller.kwitansi_pembayaran_tiket
+);
+
 module.exports = router;

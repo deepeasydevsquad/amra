@@ -3,6 +3,7 @@ const controllers = require("../modules/peminjaman/controllers/index");
 const { body } = require("express-validator");
 const { authenticateToken } = require("../middleware/authenticateToken");
 const validation = require("../validation/peminjaman");
+const validationCabang  = require("../validation/param");
 const router = express.Router();
 
 /**
@@ -123,5 +124,17 @@ router.post(
   authenticateToken,
   controllers.get_jamaah
 );
+
+// 
+router.post(
+  "/peminjaman/sumber_dana",
+  [
+    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").isNumeric().withMessage("ID Cabang harus berupa angka.").custom(validationCabang.check_cabang_id),
+  ],
+  authenticateToken,
+  controllers.get_sumber_dana
+);
+
+
 
 module.exports = router;

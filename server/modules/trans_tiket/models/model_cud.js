@@ -1,21 +1,7 @@
-const {
-  sequelize,
-  Ticket_transaction,
-  Ticket_payment_history,
-  Jurnal,
-  Mst_airline,
-  Division,
-} = require("../../../models");
-const {
-  getCabang,
-  getCompanyIdByCode,
-  tipe,
-} = require("../../../helper/companyHelper");
+const { sequelize, Ticket_transaction, Ticket_payment_history, Jurnal, Mst_airline, Division } = require("../../../models");
+const { getCabang, getCompanyIdByCode, tipe } = require("../../../helper/companyHelper");
 const { writeLog } = require("../../../helper/writeLogHelper");
-const {
-  generateNomorRegisterTicket,
-  generateNomorInvoicePembayaranTicket,
-} = require("../../../helper/randomHelper");
+const { generateNomorRegisterTicket, generateNomorInvoicePembayaranTicket } = require("../../../helper/randomHelper");
 const moment = require("moment");
 
 class Model_cud {
@@ -566,4 +552,5 @@ class Model_cud {
     }
   }
 }
+
 module.exports = Model_cud;

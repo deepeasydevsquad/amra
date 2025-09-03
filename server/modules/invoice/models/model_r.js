@@ -28,7 +28,6 @@ const {
   Handover_barang_paket,
   Mst_fasilitas,
   Visa_transaction,
-  Visa_transaction_detail,
   Mst_visa_request_type,
   Fee_agen,
   Pembayaran_fee_agen,
@@ -36,7 +35,6 @@ const {
   Paket_transaction,
   Paket_transaction_payment_history,
   Hotel_transaction,
-  Hotel_transaction_detail,
   Mst_hotel,
   Passport_transaction,
   Passport_transaction_detail,
@@ -53,7 +51,7 @@ const {
   Ticket_payment_history,
   Mst_airline,
 } = require("../../../models");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const {
   getCompanyIdByCode,
   tipe,
@@ -795,64 +793,65 @@ class Model_r {
 
     try {
       let data = { ...(await this.header_kwitansi_invoice()) };
+      console.log("Data Header:", data);
+      console.log("Invoice Param:", this.req.params.invoice);
 
       const transaksi = await Visa_transaction.findOne({
         where: {
           invoice: this.req.params.invoice,
-          company_id: this.company_id,
         },
+        attributes: [
+          "invoice",
+          "petugas",
+          "pax",
+          "harga_travel",
+          "harga_costumer",
+          "createdAt",
+        ],
         include: [
           {
-            // Include Level 1
-            model: Visa_transaction_detail,
+            model: Division,
+            attributes: ["name"],
             required: true,
-            include: [
-              {
-                model: Mst_visa_request_type,
-                attributes: ["name"],
-                required: false,
-              },
-            ],
+            include: {
+              model: Company,
+              where: { id: this.company_id },
+            },
           },
+          {
+            model: Mst_visa_request_type,
+            attributes: ["name"],
+          },
+          {
+            model: Kostumer,
+            attributes: ["name", "mobile_number", "address"],
+          }
         ],
       });
+
+      console.log("Transaksi Visa:", transaksi);
 
       if (!transaksi) {
         return {};
       }
-
-      const detailsArray = transaksi.Visa_transaction_details;
-      if (!detailsArray || detailsArray.length === 0) {
-        console.error(
-          `[ERROR] Transaksi ${transaksi.invoice} ditemukan tetapi tidak memiliki detail.`
-        );
-        return {};
-      }
-
-      const detail = detailsArray[0];
-      const jenisVisaName = detail.Mst_visa_request_type
-        ? detail.Mst_visa_request_type.name
+      
+      const jenisVisaName = transaksi.Mst_visa_request_type
+        ? transaksi.Mst_visa_request_type.name
         : "Jenis Tidak Diketahui";
 
       data = {
         ...data,
         invoice: transaksi.invoice,
         petugas: transaksi.petugas,
-        payer: transaksi.payer,
-        payer_identity: transaksi.payer_identity,
+        pax: transaksi.pax,
+        harga_travel: transaksi.harga_travel,
+        harga_costumer: transaksi.harga_costumer,
         createdAt: transaksi.createdAt,
 
-        name: detail.name,
-        identity_number: detail.identity_number,
-        birth_place: detail.birth_place,
-        birth_date: detail.birth_date,
-        passport_number: detail.passport_number,
-        valid_until: detail.valid_until,
-        price: detail.price,
-
+        kostumer_name: transaksi.Kostumer ? transaksi.Kostumer.name : "-",
+        kostumer_mobile: transaksi.Kostumer ? transaksi.Kostumer.mobile_number : "-",
+        kostumer_address: transaksi.Kostumer ? transaksi.Kostumer.address : "-",
         jenis_visa: jenisVisaName,
-
-        profession_telephone: detail.profession_telephone,
       };
       return data;
     } catch (error) {
@@ -989,75 +988,66 @@ class Model_r {
       const invoice = this.req.params.invoice; // ⬅️ ambil dari params
       const header = await this.header_kwitansi_invoice();
 
-      const transaksiList = await Hotel_transaction.findAll({
+      const transaksi = await Hotel_transaction.findOne({
         where: {
-          company_id: this.company_id,
           invoice: invoice,
         },
-        include: [
-          {
-            model: Hotel_transaction_detail,
+        attributes: [
+          "invoice",
+          "petugas",
+          "check_in",
+          "check_out",
+          "tipe_kamar",
+          "jumlah_hari",
+          "jumlah_kamar",
+          "harga_travel_kamar_per_hari",
+          "harga_kostumer_kamar_per_hari",
+          "createdAt",
+        ],
+        include: [{
+            model: Division,
+            attributes: ["name"],
             required: true,
-            attributes: [
-              "name",
-              "birth_date",
-              "birth_place",
-              "identity_number",
-              "price",
-              "check_in",
-              "check_out",
-            ],
-            include: [
-              {
-                model: Mst_hotel,
-                required: true,
-                attributes: ["name"],
-              },
-            ],
+            include: {
+              model: Company,
+              where: { id: this.company_id },
+            },
+          },
+          {
+            model: Mst_hotel,
+            attributes: ["name"],
           },
           {
             model: Kostumer,
-            required: true,
-            attributes: ["name"],
-          },
-        ],
+            attributes: ["name", "mobile_number", "address"],
+          }
+        ]
       });
 
       // Kalau invoice nggak ditemukan
-      if (transaksiList.length === 0) {
+      if (!transaksi) {
         throw new Error(`Transaksi dengan invoice ${invoice} tidak ditemukan.`);
       }
 
-      const data = transaksiList.map((trx) => {
-        const detailList = trx.Hotel_transaction_details || [];
-
-        const total_harga = detailList.reduce((sum, detail) => {
-          return sum + Number(detail.price || 0);
-        }, 0);
-
-        return {
-          id: trx.id,
-          invoice: trx.invoice,
-          payer: trx.payer,
-          nama_kostumer: trx.Kostumer.name,
-          petugas: trx.petugas,
-          total_harga: total_harga,
-          details: detailList.map((d) => ({
-            name: d.name,
-            birth_place: d.birth_place,
-            birth_date: d.birth_date,
-            identity_number: d.identity_number,
-            price: d.price,
-            check_in: d.check_in,
-            check_out: d.check_out,
-            hotel_name: d.Mst_hotel?.name ?? "-",
-          })),
-        };
-      });
-
       return {
         header,
-        data,
+        data: {
+          invoice: transaksi.invoice,
+          hotel_name: transaksi.Mst_hotel?.name ?? "-",
+          division_name: transaksi.Division?.name ?? "-",
+          nama_kostumer: transaksi.Kostumer?.name ?? "-",
+          mobile_number: transaksi.Kostumer?.mobile_number ?? "-",
+          address: transaksi.Kostumer?.address ?? "-",
+          petugas: transaksi.petugas,
+          check_in: transaksi.check_in,
+          check_out: transaksi.check_out,
+          tipe_kamar: transaksi.tipe_kamar,
+          jumlah_hari: transaksi.jumlah_hari,
+          jumlah_kamar: transaksi.jumlah_kamar,
+          harga_kostumer_kamar_per_hari: transaksi.harga_kostumer_kamar_per_hari,
+          total_harga: transaksi.harga_kostumer_kamar_per_hari * transaksi.jumlah_kamar * transaksi.jumlah_hari,
+          createdAt: transaksi.createdAt,
+        },
       };
     } catch (error) {
       console.error("❌ Gagal generate invoice hotel:", error.message);
@@ -1603,6 +1593,7 @@ class Model_r {
       }
 
       // format data invoice
+      // format data invoice
       const data_invoice = {
         header: header_kwitansi,
         nomor_registrasi: transaksi.nomor_registrasi,
@@ -1612,7 +1603,10 @@ class Model_r {
         status: transaksi.status,
         pax: transaksi.pax,
         code_booking: transaksi.code_booking,
+        // harga per pax
         costumer_price: transaksi.costumer_price,
+        // total harga (per pax x jumlah pax)
+        total_harga: transaksi.costumer_price * transaksi.pax,
         departure_date: transaksi.departure_date,
         arrival_date: transaksi.arrival_date,
         createdAt: transaksi.createdAt,
@@ -1701,6 +1695,69 @@ class Model_r {
         message: "Gagal ambil data refund ticket.",
         data: null,
       };
+      
+    }
+  }
+
+
+  async invoice_pembayaran_tiket() {
+    await this.initialize();
+    try {
+      const invoice = this.req.params.invoice; // ambil invoice dari URL
+
+      const header_kwitansi = await this.header_kwitansi_invoice();
+
+      // Cari payment berdasarkan invoice
+      const pembayaran = await Ticket_payment_history.findOne({
+        where: { invoice },
+        include: [
+          {
+            model: Ticket_transaction,
+            attributes: [
+              "id",
+              "costumer_price",
+              "status",
+              "pax",
+              "departure_date",
+              "arrival_date",
+            ],
+            include: [
+              { model: Kostumer, attributes: ["name"] },
+              { model: Paket, attributes: ["name"] },
+              { model: Mst_airline, attributes: ["name"] },
+            ],
+          },
+        ],
+      });
+
+      if (!pembayaran) throw new Error("Data pembayaran tidak ditemukan");
+
+      const transaksi = pembayaran.Ticket_transaction;
+
+      // Hitung total pembayaran untuk transaksi ini
+      const totalPembayaran = await Ticket_payment_history.sum("nominal", {
+        where: { ticket_transaction_id: transaksi.id },
+      });
+
+      const totalTagihan = transaksi.costumer_price;
+      const sisaPembayaran = totalTagihan - totalPembayaran;
+      const statusPembayaran = sisaPembayaran <= 0 ? "Lunas" : "Belum Lunas";
+
+      return {
+        header_kwitansi,
+        invoice: pembayaran.invoice,
+        tanggal_pembayaran: pembayaran.createdAt,
+        customer: transaksi.Kostumer?.name,
+        paket: transaksi.Paket?.name,
+        airline: transaksi.Mst_airline?.name,
+        totalTagihan,
+        totalPembayaran,
+        sisaPembayaran: sisaPembayaran > 0 ? sisaPembayaran : 0,
+        statusPembayaran,
+      };
+    } catch (err) {
+      console.error(err);
+      throw err;
     }
   }
 }

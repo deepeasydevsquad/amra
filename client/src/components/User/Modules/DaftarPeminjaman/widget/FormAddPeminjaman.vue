@@ -5,7 +5,7 @@ import InputText from '@/components/Form/InputText.vue'
 import InputDate from '@/components/Form/InputDate.vue'
 import SelectField from '@/components/Form/SelectField.vue'
 
-import { addPinjaman, daftar_jamaah } from '@/service/daftar_pinjaman'
+import { addPinjaman, daftar_jamaah, getSumberDana } from '@/service/daftar_pinjaman'
 import { userTypes, paramCabang } from '@/service/param_cabang'
 import { idText } from 'typescript'
 
@@ -164,8 +164,29 @@ onMounted(async () => {
   }
 })
 
+
+interface option {
+  id: number
+  name: string
+}
+
+const list_sumber_dana = ref<option[]>([{ id: 0, name: ' -- Pilih Sumber Dana -- ' }])
+const fetchSumberDana = async () => {
+  try {
+    if( selectedCabang.value != 0) {
+      const response = await getSumberDana({ cabang: selectedCabang.value })
+      list_sumber_dana.value = response.data.sumber_dana;
+    }else{
+      list_sumber_dana.value = [{ id: 0, name: ' -- Pilih Sumber Dana -- ' }];
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 watch(selectedCabang, (val) => {
   fetchJamaahs(val)
+  fetchSumberDana();
 })
 
 const cabangOptions = computed(() => [{ id: null, name: 'Pilih Cabang' }, ...cabangs.value])
@@ -179,73 +200,22 @@ const jamaahOptions = computed(() => [
 ])
 </script>
 <template>
-  <Form
-    :formStatus="modalTambahPinjaman"
-    :label="'Tambah Peminjaman'"
-    :width="'w-1/3'"
-    :submitLabel="'TAMBAH PEMINJAMAN'"
-    @submit="submitForm"
-    @cancel="
-      () => {
-        resetForm()
-
-        emit('tutup')
-      }
-    "
-  >
-    <SelectField
-      v-model="selectedCabang"
-      label="Cabang"
-      placeholder="Pilih Cabang"
-      :options="cabangOptions"
-    />
-
+  <Form :formStatus="modalTambahPinjaman" :label="'Tambah Peminjaman'" :width="'w-1/3'" :submitLabel="'TAMBAH PEMINJAMAN'" @submit="submitForm" @cancel="() => {resetForm();emit('tutup');}">
+    <SelectField v-model="selectedCabang" label="Cabang" placeholder="Pilih Cabang" :options="cabangOptions" class="mb-3" />
     <!-- Satu baris -->
-    <SelectField
-      v-model="selectedJamaah"
-      label="Jamaah"
-      placeholder="Pilih Jamaah"
-      :options="jamaahOptions"
-      class="mb-3"
-      :error="errors.jamaah"
-    />
-
-    <InputText
-      v-model="nominalFormatted"
-      label="Nominal Peminjaman"
-      placeholder="Masukkan nominal"
-      @update:modelValue="updateNominal"
-      class="mb-3"
-      :error="errors.nominal"
-    />
+    <SelectField v-model="selectedJamaah" label="Jamaah" placeholder="Pilih Jamaah" :options="jamaahOptions" class="mb-3" :error="errors.jamaah" />
+    <InputText v-model="nominalFormatted" label="Nominal Peminjaman" placeholder="Masukkan nominal" @update:modelValue="updateNominal" class="mb-3" :error="errors.nominal" />
     <!-- Grid 2 kolom: DP & Tenor -->
     <div class="grid grid-cols-2 gap-4 mb-3">
-      <InputText
-        v-model="dpFormatted"
-        label="DP"
-        placeholder="Masukkan DP"
-        @update:modelValue="updateDP"
-        :error="errors.dp"
-      />
-      <InputText
-        v-model="tenor"
-        label="Tenor"
-        type="number"
-        placeholder="Tenor"
-        :error="errors.tenor"
-      />
+      <InputText v-model="dpFormatted" label="DP" placeholder="Masukkan DP" @update:modelValue="updateDP" :error="errors.dp" />
+      <InputText v-model="tenor" label="Tenor" type="number" placeholder="Tenor" :error="errors.tenor"/>
     </div>
     <!-- Grid 2 kolom: Sudah Berangkat & Mulai Bayar -->
     <div class="grid grid-cols-2 gap-4">
       <div class="pt-6">
         <!-- <== padding atas untuk sejajarin -->
         <div class="flex items-center gap-2">
-          <input
-            v-model="berangkat"
-            type="checkbox"
-            id="sudah_berangkat"
-            class="h-5 w-5 text-blue-600 border-gray-300 rounded"
-          />
+          <input v-model="berangkat" type="checkbox" id="sudah_berangkat" class="h-5 w-5 text-blue-600 border-gray-300 rounded"/>
           <label for="sudah_berangkat" class="text-sm text-gray-700">Sudah Berangkat</label>
         </div>
       </div>

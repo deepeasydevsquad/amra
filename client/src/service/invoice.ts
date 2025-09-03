@@ -100,15 +100,9 @@ export const getKwitansiPengembalianBarang = async (param: string) => {
   }
 }
 
-export const cetakKwitansiVisa = async (invoice: string) => {
+export const cetakKwitansiVisa = async (param: string) => {
   try {
-    if (!invoice || invoice === 'undefined' || invoice === 'null') {
-      throw new Error('Invoice tidak valid atau kosong.');
-    }
-    const encodedInvoice = encodeURIComponent(invoice);
-    const url = `/invoice/kwitansi-visa/${encodedInvoice}`;
-    const response = await api.get(url);
-
+    const response = await api.get(`/invoice/kwitansi-visa/${param}`);
     return response.data;
   } catch (error) {
     console.error('[SERVICE ERROR] Gagal saat mencetak kwitansi visa:', error);
@@ -225,6 +219,16 @@ export const kwitatsi_trans_tiket = async (param: string) => {
 export const kwitansi_refund_tiket = async (param: string) => {
   try {
     const response = await api.get(`/invoice/refund-tiket/${param}`); 
+    return response.data; // Kembalikan data hasil request
+  } catch (error) {
+    console.log("Gagal mengambil kwitansi trans tiket:", error);
+    throw error;
+  }
+}
+
+export const kwitansi_pembayaran_tiket = async (param: string) => {
+  try {
+    const response = await api.get(`/invoice/pembayaran-tiket/${param}`); 
     return response.data; // Kembalikan data hasil request
   } catch (error) {
     console.log("Gagal mengambil kwitansi trans tiket:", error);
