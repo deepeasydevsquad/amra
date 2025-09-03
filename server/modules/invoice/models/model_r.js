@@ -826,7 +826,7 @@ class Model_r {
           {
             model: Kostumer,
             attributes: ["name", "mobile_number", "address"],
-          }
+          },
         ],
       });
 
@@ -835,7 +835,7 @@ class Model_r {
       if (!transaksi) {
         return {};
       }
-      
+
       const jenisVisaName = transaksi.Mst_visa_request_type
         ? transaksi.Mst_visa_request_type.name
         : "Jenis Tidak Diketahui";
@@ -850,7 +850,9 @@ class Model_r {
         createdAt: transaksi.createdAt,
 
         kostumer_name: transaksi.Kostumer ? transaksi.Kostumer.name : "-",
-        kostumer_mobile: transaksi.Kostumer ? transaksi.Kostumer.mobile_number : "-",
+        kostumer_mobile: transaksi.Kostumer
+          ? transaksi.Kostumer.mobile_number
+          : "-",
         kostumer_address: transaksi.Kostumer ? transaksi.Kostumer.address : "-",
         jenis_visa: jenisVisaName,
       };
@@ -1074,7 +1076,7 @@ class Model_r {
       const transaksi = await Passport_transaction.findOne({
         where: {
           invoice: this.req.params.invoice,
-          company_id: this.company_id,
+          division_id: this.division_id,
         },
         include: [
           {
