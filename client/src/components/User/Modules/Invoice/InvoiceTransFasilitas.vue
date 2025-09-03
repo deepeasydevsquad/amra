@@ -43,7 +43,7 @@ onMounted(async () => {
 
 <template>
   <div
-    class="bg-white max-w-[210mm] min-h-[297mm] mx-auto p-[15mm] font-serif print:p-[10mm] print:m-0 print:shadow-none"
+    class="bg-white max-w-[210mm] min-h-[297mm] mx-auto p-[15mm] font-serif print:p-[15mm] print:m-0 print:shadow-none"
     style="color: black; font-size: 10pt; text-align: justify; line-height: 1.3"
   >
     <Header v-if="data" :data="data.header_kwitansi" />
