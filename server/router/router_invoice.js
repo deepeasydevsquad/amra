@@ -140,6 +140,11 @@ router.get(
   authenticateToken,
   controller.kwitansi_trans_ticket
 );
+router.get(
+  "/invoice/refund-tiket/:invoice",
+  authenticateToken,
+  controller.kwitansi_refund
+);
 
 router.get(
   "/invoice/pembayaran-tiket/:invoice",
