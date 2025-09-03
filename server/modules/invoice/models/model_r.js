@@ -825,7 +825,7 @@ class Model_r {
           {
             model: Kostumer,
             attributes: ["name", "mobile_number", "address"],
-          }
+          },
         ],
       });
 
@@ -834,7 +834,7 @@ class Model_r {
       if (!transaksi) {
         return {};
       }
-      
+
       const jenisVisaName = transaksi.Mst_visa_request_type
         ? transaksi.Mst_visa_request_type.name
         : "Jenis Tidak Diketahui";
@@ -849,7 +849,9 @@ class Model_r {
         createdAt: transaksi.createdAt,
 
         kostumer_name: transaksi.Kostumer ? transaksi.Kostumer.name : "-",
-        kostumer_mobile: transaksi.Kostumer ? transaksi.Kostumer.mobile_number : "-",
+        kostumer_mobile: transaksi.Kostumer
+          ? transaksi.Kostumer.mobile_number
+          : "-",
         kostumer_address: transaksi.Kostumer ? transaksi.Kostumer.address : "-",
         jenis_visa: jenisVisaName,
       };
@@ -1004,7 +1006,8 @@ class Model_r {
           "harga_kostumer_kamar_per_hari",
           "createdAt",
         ],
-        include: [{
+        include: [
+          {
             model: Division,
             attributes: ["name"],
             required: true,
@@ -1020,8 +1023,8 @@ class Model_r {
           {
             model: Kostumer,
             attributes: ["name", "mobile_number", "address"],
-          }
-        ]
+          },
+        ],
       });
 
       // Kalau invoice nggak ditemukan
@@ -1044,8 +1047,12 @@ class Model_r {
           tipe_kamar: transaksi.tipe_kamar,
           jumlah_hari: transaksi.jumlah_hari,
           jumlah_kamar: transaksi.jumlah_kamar,
-          harga_kostumer_kamar_per_hari: transaksi.harga_kostumer_kamar_per_hari,
-          total_harga: transaksi.harga_kostumer_kamar_per_hari * transaksi.jumlah_kamar * transaksi.jumlah_hari,
+          harga_kostumer_kamar_per_hari:
+            transaksi.harga_kostumer_kamar_per_hari,
+          total_harga:
+            transaksi.harga_kostumer_kamar_per_hari *
+            transaksi.jumlah_kamar *
+            transaksi.jumlah_hari,
           createdAt: transaksi.createdAt,
         },
       };
@@ -1345,13 +1352,13 @@ class Model_r {
 
       const transaksi = await Transport_transaction.findOne({
         where: {
-          company_id: this.company_id,
+          division_id: this.division_id,
           invoice: invoice,
         },
         include: [
           {
             model: Transport_transaction_detail,
-            attributes: ["car_number", "price"],
+            attributes: ["car_number", "costumer_price"],
             include: [
               {
                 model: Mst_mobil,
@@ -1380,7 +1387,7 @@ class Model_r {
 
       const detail_mobil = transaksi.Transport_transaction_details.map((d) => ({
         car_number: d.car_number,
-        price: d.price,
+        price: d.costumer_price,
         nama_mobil: d.Mst_mobil?.name || "-",
       }));
 
