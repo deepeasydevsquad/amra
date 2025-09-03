@@ -111,10 +111,10 @@ const validateForm = (): boolean => {
   }
 
   // Tambah error dp jika 0
-  if (dp.value == null) {
-    errors.value.dp = 'DP tidak boleh nol.'
-    isValid = false
-  }
+  // if (dp.value == null) {
+  //   errors.value.dp = 'DP tidak boleh nol.'
+  //   isValid = false
+  // }
 
   // Tambah error tenor jika 0
   if (tenor.value == null) {
@@ -138,7 +138,8 @@ const submitForm = async () => {
 
   const formData = {
     jamaah_id: selectedJamaah.value,
-    id_cabang: selectedCabang.value,
+    cabang: selectedCabang.value,
+    sumber_dana: selectedSumberDana.value,
     nominal: nominal.value,
     dp: dp.value,
     tenor: tenor.value,
@@ -170,12 +171,13 @@ interface option {
   name: string
 }
 
+const selectedSumberDana = ref<number>(0);
 const list_sumber_dana = ref<option[]>([{ id: 0, name: ' -- Pilih Sumber Dana -- ' }])
 const fetchSumberDana = async () => {
   try {
     if( selectedCabang.value != 0) {
       const response = await getSumberDana({ cabang: selectedCabang.value })
-      list_sumber_dana.value = response.data.sumber_dana;
+      list_sumber_dana.value = response.data;
     }else{
       list_sumber_dana.value = [{ id: 0, name: ' -- Pilih Sumber Dana -- ' }];
     }
@@ -184,15 +186,24 @@ const fetchSumberDana = async () => {
   }
 }
 
-watch(selectedCabang, (val) => {
-  fetchJamaahs(val)
-  fetchSumberDana();
-})
+// watch(selectedCabang, (val) => {
+//   console.log("------1------");
+//   console.log("------2------");
+//   console.log("------3------");
+//   fetchJamaahs(val)
+//   fetchSumberDana();
+// })
 
-const cabangOptions = computed(() => [{ id: null, name: 'Pilih Cabang' }, ...cabangs.value])
+
+// const fetchFilter = async () => {
+//   fetchJamaahs(selectedCabang.value)
+//   fetchSumberDana();
+// }
+
+const cabangOptions = computed(() => [{ id: null, name: ' -- Pilih Cabang -- ' }, ...cabangs.value])
 
 const jamaahOptions = computed(() => [
-  { id: 0, name: 'Pilih Jamaah' },
+  { id: 0, name: ' -- Pilih Jamaah -- ' },
   ...jamaahs.value.map((j) => ({
     id: j.id,
     name: j.nama_jamaah,
@@ -201,13 +212,18 @@ const jamaahOptions = computed(() => [
 </script>
 <template>
   <Form :formStatus="modalTambahPinjaman" :label="'Tambah Peminjaman'" :width="'w-1/3'" :submitLabel="'TAMBAH PEMINJAMAN'" @submit="submitForm" @cancel="() => {resetForm();emit('tutup');}">
-    <SelectField v-model="selectedCabang" label="Cabang" placeholder="Pilih Cabang" :options="cabangOptions" class="mb-3" />
-    <!-- Satu baris -->
+    <!-- Cabang -->
+    <SelectField v-model="selectedCabang" label="Cabang" placeholder="Pilih Cabang" :options="cabangOptions" class="mb-3" @change="() => {  fetchJamaahs(selectedCabang); fetchSumberDana(); }"/>
+    <!-- Sumber Dana -->
+    <SelectField v-model="selectedSumberDana" label="Sumber Dana" placeholder="Pilih Sumber Dana" :options="list_sumber_dana" class="mb-3" :error="errors.sumber_dana" />
+    <!-- Jamaah -->
     <SelectField v-model="selectedJamaah" label="Jamaah" placeholder="Pilih Jamaah" :options="jamaahOptions" class="mb-3" :error="errors.jamaah" />
+    <!-- Nominal Peminjaman -->
     <InputText v-model="nominalFormatted" label="Nominal Peminjaman" placeholder="Masukkan nominal" @update:modelValue="updateNominal" class="mb-3" :error="errors.nominal" />
-    <!-- Grid 2 kolom: DP & Tenor -->
     <div class="grid grid-cols-2 gap-4 mb-3">
+      <!-- DP -->
       <InputText v-model="dpFormatted" label="DP" placeholder="Masukkan DP" @update:modelValue="updateDP" :error="errors.dp" />
+      <!-- Tenor -->
       <InputText v-model="tenor" label="Tenor" type="number" placeholder="Tenor" :error="errors.tenor"/>
     </div>
     <!-- Grid 2 kolom: Sudah Berangkat & Mulai Bayar -->
@@ -215,10 +231,12 @@ const jamaahOptions = computed(() => [
       <div class="pt-6">
         <!-- <== padding atas untuk sejajarin -->
         <div class="flex items-center gap-2">
+          <!-- Tanggal Berangkat -->
           <input v-model="berangkat" type="checkbox" id="sudah_berangkat" class="h-5 w-5 text-blue-600 border-gray-300 rounded"/>
           <label for="sudah_berangkat" class="text-sm text-gray-700">Sudah Berangkat</label>
         </div>
       </div>
+      <!-- Tanggal Mulai Bayar -->
       <InputDate v-model="mulaiBayar" label="Mulai Bayar" :error="errors.mulaiBayar" />
     </div>
   </Form>

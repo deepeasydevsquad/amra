@@ -10,17 +10,14 @@ interface Riwayat {
   jumlah: number
   tanggal: string
 }
+
 interface PeminjamanData {
   id: number
   riwayat_pembayaran: Riwayat[]
 }
 
-const props = defineProps<{
-  peminjaman: PeminjamanData
-  isOpen: boolean
-}>()
+const props = defineProps<{peminjaman: PeminjamanData,isOpen: boolean}>()
 const emit = defineEmits(['close', 'success'])
-
 const nominal = ref<number>(0)
 const loading = ref(false)
 const errorMessage = ref('')
@@ -30,24 +27,9 @@ const term = computed(() => {
   return props.peminjaman.riwayat_pembayaran?.filter((p) => p.status === 'cicilan').length + 1
 })
 
-watch(
-  () => props.isOpen,
-  (val) => {
-    if (val) {
-      nominal.value = 0
-      errorMessage.value = ''
-      successMessage.value = ''
-    }
-  },
-)
-
 // Format ke IDR
 const formatToRupiah = (value: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(value)
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value)
 }
 
 const formattedNominal = computed({
@@ -86,28 +68,25 @@ const handleSubmit = async () => {
     loading.value = false
   }
 }
+
+watch(
+  () => props.isOpen,
+  (val) => {
+    if (val) {
+      nominal.value = 0
+      errorMessage.value = ''
+      successMessage.value = ''
+    }
+  },
+)
 </script>
 
 <template>
-  <Form
-    :formStatus="isOpen"
-    :label="'Pembayaran Bulanan'"
-    :submitLabel="'Bayar'"
-    :width="'w-full max-w-md'"
-    @submit="handleSubmit"
-    @cancel="emitClose"
-  >
+  <Form :formStatus="isOpen" :label="'Pembayaran Bulanan'" :submitLabel="'Bayar'" :width="'w-full max-w-md'" @submit="handleSubmit" @cancel="emitClose" >
     <!-- Term sebagai readonly -->
     <InputText :modelValue="`Pembayaran ke-${term}`" label="Pembayaran ke" readonly />
-
     <!-- Nominal (Formatted) -->
-    <InputText
-      v-model="formattedNominal"
-      label="Nominal"
-      :disabled="loading"
-      @update:modelValue="onFormattedInput"
-    />
-
+    <InputText v-model="formattedNominal" label="Nominal" :disabled="loading" @update:modelValue="onFormattedInput" />
     <!-- Error & Success Message -->
     <p v-if="errorMessage" class="text-sm text-red-500 mt-2">{{ errorMessage }}</p>
     <p v-if="successMessage" class="text-sm text-green-600 mt-2">{{ successMessage }}</p>

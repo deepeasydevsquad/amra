@@ -1,10 +1,31 @@
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
-const {
-  handleServerError,
-  handleValidationErrors,
-} = require("../../../helper/handleError");
+const { handleServerError, handleValidationErrors } = require("../../../helper/handleError");
 
+exports.hapus = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+  try {
+    const model = new Model_cud(req);
+    await model.hapus();
+
+    if (await model.response()) {
+      res.status(200).json({
+        message: "Proses hapus data peminjaman berhasil dilakukan.",
+        error: false,
+      });
+    } else {
+      res.status(400).json({
+        message: "Proses hapus data peminjaman gagal dilakukan.",
+        error: true
+      });
+    }
+  } catch (error) {
+    console.log("CCCCC");
+    console.log(error);
+    console.log("CCCCC");
+    handleServerError(res, error);
+  }
+}
 
 exports.get_sumber_dana = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;

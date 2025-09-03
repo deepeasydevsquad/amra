@@ -1,27 +1,7 @@
-const {
-  Peminjaman,
-  Skema_peminjaman,
-  Riwayat_pembayaran_peminjaman,
-  Deposit,
-  Fee_agen,
-  Member,
-  Company,
-  Level_keagenan,
-  Jamaah,
-  Agen,
-  Users,
-} = require("../../../models");
+const { Peminjaman, Skema_peminjaman, Riwayat_pembayaran_peminjaman, Deposit, Fee_agen, Member, Company, Level_keagenan, Jamaah, Agen, Division, Jurnal } = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
-const {
-  getCompanyIdByCode,
-  tipe,
-  getCabang,
-} = require("../../../helper/companyHelper");
-const {
-  menghasilkan_invoice_riwayat_pembayaran_peminjaman,
-  menghasilkan_nomor_registrasi_peminjaman,
-  menghasilkan_invoice_fee_agen,
-} = require("../../../helper/randomHelper");
+const { getCompanyIdByCode, tipe, getCabang } = require("../../../helper/companyHelper");
+const { menghasilkan_invoice_riwayat_pembayaran_peminjaman, menghasilkan_nomor_registrasi_peminjaman, menghasilkan_invoice_fee_agen } = require("../../../helper/randomHelper");
 const moment = require("moment");
 const { sequelize } = require("../../../models");
 
@@ -43,6 +23,79 @@ class Model_cud {
 
   async transaction() {
     this.t = await sequelize.transaction();
+  }
+
+  async hapus() {
+
+    await this.initialize();
+
+    await this.transaction();
+
+    try {
+      var data = await Peminjaman.findOne({ 
+        where: { 
+          id: this.req.body.id 
+        }, 
+        include: { 
+          model: Division, 
+          required: true,
+          where: { 
+            company_id: this.company_id 
+          }
+        }
+      });
+
+      // delete riwayat peminjaman 
+      await Riwayat_pembayaran_peminjaman.destroy(
+        {
+          where: {
+            peminjaman_id: data.id,
+            division_id: data.division_id
+          },
+          transaction: this.t,
+        },
+      );
+
+      // delete skema peminjaman
+      await Skema_peminjaman.destroy(
+        {
+          where: {
+            peminjaman_id: data.id,
+            division_id: data.division_id
+          },
+          transaction: this.t,
+        },
+      );
+
+      // delete peminjaman 
+      await Peminjaman.destroy(
+        {
+          where: {
+            id: this.req.body.id,
+            division_id: data.division_id
+          },
+          transaction: this.t,
+        },
+      );
+
+      // delete jurnal
+      await Jurnal.destroy(
+        {
+          where: {
+            source: 'peminjamanId:' + this.req.body.id,
+            division_id: data.division_id
+          },
+          transaction: this.t,
+        },
+      );
+
+      this.message = `Menghapus data peminjaman dengan nomor registrasi peminjaman ${data.register_number}`;
+    } catch (error) {
+      console.log("^^^^^^^^^^^^^^^^^^^^");
+      console.log(error);
+      console.log("^^^^^^^^^^^^^^^^^^^^");
+      this.state = false;
+    }
   }
 
   async mengambil_info_jamaah() {
@@ -134,13 +187,7 @@ class Model_cud {
     await this.initialize();
 
     const now = moment().format("YYYY-MM-DD HH:mm:ss");
-    const {
-      jamaah_id,
-      nominal,
-      tenor,
-      dp,
-      sudah_berangkat = false,
-    } = this.req.body;
+    const { cabang, sumber_dana, jamaah_id, nominal, tenor, dp, sudah_berangkat = false, } = this.req.body;
     const petugas = await this.petugas();
     const register_number = await menghasilkan_nomor_registrasi_peminjaman();
     const invoice = await menghasilkan_invoice_riwayat_pembayaran_peminjaman();
@@ -155,18 +202,38 @@ class Model_cud {
       // Insert data Peminjaman baru
       const IP = await Peminjaman.create(
         {
-          division_id: body.id_cabang,
+          division_id: cabang,
           jamaah_id,
           register_number,
           nominal,
           tenor,
-          dp,
+          dp : dp == '' ? 0 : dp,
           petugas,
           status_peminjaman: "belum_lunas",
           createdAt: now,
           updatedAt: now,
         },
         { transaction: this.t }
+      );
+
+       // Jurnal
+      await Jurnal.create(
+        {
+          division_id: this.req.body.cabang, 
+          source: 'peminjamanId:' + IP.id,
+          ref: 'Transaksi Peminjaman dengan nomor registrasi ' + register_number,
+          ket: 'Transaksi Peminjaman dengan nomor registrasi ' + register_number,
+          akun_debet: '13000',
+          akun_kredit: '11010',
+          saldo: (nominal - dp),
+          removable: 'false',
+          periode_id: 0,
+          createdAt: now,
+          updatedAt: now,
+        },
+        {
+          transaction: this.t,
+        }
       );
 
       if (tenor && nominal) {
@@ -178,7 +245,7 @@ class Model_cud {
         // menginput riwayat pembayara jika ada DP
         await Riwayat_pembayaran_peminjaman.create(
           {
-            division_id: body.id_cabang,
+            division_id: body.cabang,
             peminjaman_id: IP.id,
             invoice,
             nominal: dp,
@@ -194,7 +261,7 @@ class Model_cud {
       if (!sudah_berangkat) {
         await Deposit.create(
           {
-            division_id: body.id_cabang,
+            division_id: body.cabang,
             member_id,
             invoice,
             nominal,
@@ -217,7 +284,7 @@ class Model_cud {
 
         return await Fee_agen.create(
           {
-            division_id: body.id_cabang,
+            division_id: body.cabang,
             agen_id: info_jamaah.agen_id,
             invoice: invoice_fee_agen,
             nominal: default_fee,
@@ -232,6 +299,9 @@ class Model_cud {
 
       this.message = "Peminjaman berhasil dibuat";
     } catch (err) {
+      console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+      console.log(err);
+      console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
       this.state = false;
       this.message = "Gagal membuat peminjaman: " + err.message;
       console.error(err);
@@ -309,9 +379,24 @@ class Model_cud {
     console.log("data dari front end:", this.req.body);
 
     try {
+
+      var data = await Peminjaman.findOne({ 
+        where: { 
+          id: peminjaman_id 
+        }, 
+        include: { 
+          model: Jamaah, 
+          required: true, 
+          include: {
+            model: Member, 
+            required: true
+          }
+        }
+      });
+
       await Riwayat_pembayaran_peminjaman.create(
         {
-          division_id: this.division_id,
+          division_id: data.division_id,
           peminjaman_id,
           invoice: this.invoice, // Gunakan invoice yang sudah disimpan
           nominal,
@@ -321,6 +406,26 @@ class Model_cud {
           updatedAt: now,
         },
         { transaction: this.t }
+      );
+
+      // jurnal
+      await Jurnal.create(
+        {
+          division_id: data.division_id, 
+          source: 'peminjamanId:' + peminjaman_id,
+          ref: `Pembayaran Utang Peminjaman Jamaah ${data.Jamaah.Member.fullname} dengan nomor registrasi ${data.register_number} dan nomor invoice ${this.invoice}`,
+          ket: `Pembayaran Utang Peminjaman Jamaah ${data.Jamaah.Member.fullname} dengan nomor registrasi ${data.register_number} dan nomor invoice ${this.invoice}`,
+          akun_debet: '11010',
+          akun_kredit: '13000',
+          saldo: nominal,
+          removable: 'false',
+          periode_id: 0,
+          createdAt: now,
+          updatedAt: now,
+        },
+        {
+          transaction: this.t,
+        }
       );
 
       this.message = "Pembayaran perbulan berhasil dibuat"; // Set message

@@ -58,7 +58,7 @@
           <!-- State Kosong -->
           <tr v-else-if="pinjamans.length === 0">
             <td colspan="5" class="px-6 py-4 text-center text-base text-gray-600">
-              {{ searchQuery ? 'Hasil pencarian tidak ditemukan' : 'Belum ada data pengguna' }}
+              {{ searchQuery ? 'Hasil pencarian tidak ditemukan' : 'Data peminjaman tidak ditemukan' }}
             </td>
           </tr>
           <!-- Baris Data -->
@@ -194,14 +194,13 @@
                 >
                   <EditIcon class="w-4 h-4" />
                 </LightButton>
-                <DangerButton @click="" title="Hapus Peminjaman" class="p-1 w-6 h-6">
+                <DangerButton @click="handleHapusPeminjaman(pinjaman.id)" title="Hapus Peminjaman" class="p-1 w-6 h-6">
                   <DeleteIcon class="w-4 h-4" />
                 </DangerButton>
               </div>
             </td>
           </tr>
         </tbody>
-
         <!-- Footer Pagination -->
         <tfoot class="bg-gray-100 font-bold">
           <Pagination
@@ -220,19 +219,13 @@
   </div>
 
   <!-- Modal Konfirmasi Hapus -->
-  <Confirmation
-    :showConfirmDialog="showDeleteConfirmDialog"
-    confirmTitle="Konfirmasi Hapus"
-    confirmMessage="Apakah Anda yakin ingin menghapus pengguna ini?"
-  >
-    <button
-      @click=""
+  <Confirmation :showConfirmDialog="showConfirmDialog" :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
+    <button @click="confirmAction && confirmAction()"
       class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
     >
       Ya
     </button>
-    <button
-      @click="showDeleteConfirmDialog = false"
+    <button @click="showConfirmDialog = false"
       class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
     >
       Tidak
@@ -277,7 +270,7 @@ const handleSuccessBayarPinjaman = () => { -->
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { daftarPinjaman, downloadPeminjaman } from '@/service/daftar_pinjaman'
+import { daftarPinjaman, downloadPeminjaman, hapus_transaksi_peminjaman } from '@/service/daftar_pinjaman'
 import { paramCabang } from '@/service/param_cabang'
 import DeleteIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/DeleteIcon.vue'
 import EditIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/EditIcon.vue'
@@ -287,8 +280,8 @@ import BayarIcon from '@/components/User/Modules/DaftarPeminjaman/Icon/BayarIcon
 import BayarButton from '@/components/User/Modules/DaftarPeminjaman/Particle/BayarButton.vue'
 // Import komponen lainnya
 
-import Notification from '@/components/User/Modules/DaftarPeminjaman/Particle/Notification.vue'
-import Confirmation from '@/components/User/Modules/DaftarPeminjaman/Particle/Confirmation.vue'
+import Notification from '@/components/Modal/Notification.vue'
+import Confirmation from '@/components/Modal/Confirmation.vue'
 import FormAddPeminjaman from '@/components/User/Modules/DaftarPeminjaman/widget/FormAddPeminjaman.vue'
 import FormUpdateSkema from '@/components/User/Modules/DaftarPeminjaman/widget/FormUpdateSkema.vue'
 import FormPembayaran from '@/components/User/Modules/DaftarPeminjaman/widget/FormPembayaran.vue'
@@ -370,7 +363,7 @@ const showFormPembayaranModal = ref(false)
 const showNotification = ref(false)
 const notificationMessage = ref('')
 const notificationType = ref<'success' | 'error'>('success')
-const timeoutId = ref<number | null>(null)
+// const timeoutId = ref<number | null>(null)
 const searchTimeout = ref<number | null>(null)
 
 const handleModalUpdate = (id: number) => {
@@ -561,6 +554,39 @@ const handleAddPinjaman = () => {
   modalTambahPinjaman.value = false
   displayNotification('Peminjaman berhasil ditambahkan', 'success')
   fetchPinjaman()
+}
+
+const confirmMessage = ref('')
+const confirmTitle = ref('')
+const confirmAction = ref<(() => void) | null>(null)
+const timeoutId = ref<number | null>(null)
+const showConfirmDialog = ref(false)
+
+const showConfirmation = (title: string, message: string, action: () => void) => {
+
+  console.log("------1");
+  console.log("------2");
+  confirmTitle.value = title
+  confirmMessage.value = message
+  confirmAction.value = action
+  showConfirmDialog.value = true
+}
+
+const handleHapusPeminjaman = (id: number) => {
+
+  console.log("xxxx");
+  console.log("xxxx");
+  console.log("xxxx");
+  showConfirmation('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus data peminjaman ini?', async () => {
+    try {
+      await hapus_transaksi_peminjaman({ id: id })
+      showConfirmDialog.value = false
+      displayNotification('Operasi berhasil!', 'success')
+      fetchPinjaman()
+    } catch (error) {
+      console.error('Error deleting data:', error)
+    }
+  })
 }
 
 // Lifecycle Hooks

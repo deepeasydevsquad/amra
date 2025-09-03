@@ -67,49 +67,6 @@ const handlePageNow = (page: number) => {
   currentPage.value = page
 }
 
-// const rows = ref([
-//   {
-//     id: '',
-//     name: '',
-//     identity_number: '',
-//     // kostumer_id: '0',
-//     // paket_id: '0',
-//     kota_id: '0',
-//     birth_place: '',
-//     birth_date: '',
-//     hotel_id: '0',
-//     check_in: '',
-//     check_out: '',
-//     price: '',
-//     payer: false,
-//   },
-// ])
-
-// const addRow = () => {
-//   rows.value.push({
-//     id: '',
-//     // kostumer_id: '0',
-//     // paket_id: '0',
-//     name: '',
-//     identity_number: '',
-//     kota_id: '0',
-//     birth_place: '',
-//     birth_date: '',
-//     hotel_id: '0',
-//     check_in: '',
-//     check_out: '',
-//     price: '',
-//     payer: false,
-//   })
-// }
-
-// const removeRow = (index: number) => {
-//   if (rows.value.length > 1) {
-//     rows.value.splice(index, 1)
-//   }
-// }
-
-
 interface option {
   id: number
   name: string
