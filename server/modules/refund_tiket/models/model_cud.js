@@ -256,6 +256,7 @@ class Model_cud {
       }
 
       this.message = "Berhasil melakukan refund tiket";
+      this.invoice = invoice;
     } catch (error) {
       this.state = false;
       console.error("refund_tiket error:", error);
