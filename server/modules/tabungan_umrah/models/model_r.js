@@ -553,6 +553,12 @@ class Model_r {
       )
       );
 
+      console.log("xxxxx");
+      console.log(data);
+      console.log(data.length);
+      console.log("xxxxx");
+
+
       return {
         data,
         total: data.length,
@@ -568,25 +574,27 @@ class Model_r {
     }
   }
 
-
   async getMstFasilitas() {
     try {
       await this.initialize();
       const { id: tabunganId } = this.req.body;
-
-      const tabungan = await Tabungan.findByPk(tabunganId);
-
-      const paket = await Paket.findByPk(tabungan.target_paket_id, {
-        attributes: ["facilities"],
-        raw: true,
+      // get info tabungan
+      const tabungan = await Tabungan.findOne({ where: { id: this.req.body.id } });
+      // mengambil semua fasilitas yang ada di mst_data
+      var data  = {};
+      await Mst_fasilitas.findAll({
+        where: { company_id : this.company_id }
+      }).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+            data = {...data,...{[e.id] : { id: e.id, name: e.name, stok: 0, } } };
+          })
+        );
       });
-
-      const fasilitasIds = JSON.parse(paket?.facilities || "[]").map(f => +f.id);
-      if (!fasilitasIds.length) {
-        return { data: [], total: 0 };
-      }
-
-      var usedIds = [];
+      console.log('_________________');
+      console.log(data);
+      console.log('_________________');
+      // mengambil list fasilitas yang sudah diambil
       await Handover_fasilitas_detail.findAll({
         attributes: [],
         include: [
@@ -603,56 +611,39 @@ class Model_r {
       }).then(async (value) => {
         await Promise.all(
           await value.map(async (e) => {
-            usedIds.push(e.Item_fasilita.mst_fasilitas_id);
+            // menghapus semua data yang sudah ada
+            delete data[e.Item_fasilita.mst_fasilitas_id];
           })
         );
       });
 
-      const fasilitas = await Mst_fasilitas.findAll({
-        where: {
-          id: {
-            [Op.in]: fasilitasIds,
-            ...(usedIds.length && { [Op.notIn]: usedIds }), // hanya jika ada usedIds
-          },
-          company_id: this.company_id,
-        },
-        order: [["name", "ASC"]],
-        raw: true,
+      console.log('_________________');
+      console.log(data);
+      console.log('_________________');
+      // get stock list item fasilitas
+      await Item_fasilitas.findAll({
+        where: { status: 'belum_terjual', division_id: tabungan.division_id }
+      }).then(async (value) => {
+        await Promise.all(
+          await value.map(async (e) => {
+            if (data[e.mst_fasilitas_id]) {
+              data[e.mst_fasilitas_id].stok++;
+            }
+          })
+        );
       });
-
-      var listFasilitasID = [];
-      await Promise.all(
-        await fasilitas.map(async (e) => {
-            listFasilitasID.push(e.id)
-        })
-      );
-
-      const itemFasilitas = await Item_fasilitas.findAll({
-        where: {
-          mst_fasilitas_id : { [Op.in] : listFasilitasID },
-          status: 'belum_terjual'
-        },
-      });
-
-      var stokFasilitas = {};
-      await Promise.all(
-        await itemFasilitas.map(async (e) => {
-          if(stokFasilitas[e.mst_fasilitas_id] == undefined ) {
-            stokFasilitas = {...stokFasilitas,...{[e.mst_fasilitas_id] : 1 } }
-          }else{
-            stokFasilitas[e.mst_fasilitas_id] = stokFasilitas[e.mst_fasilitas_id] + 1;
-          }
-        })
-      );
-
-      const data = fasilitas.map(f => ({ id: f.id, name: f.name, stok: stokFasilitas[f.id] !== undefined ? stokFasilitas[f.id] : 0 }));
+     
+      var newData = Object.values(data);
 
       return {
-        data,
-        total: data.length,
+        data: newData,
+        total: newData.length,
       };
 
     } catch (error) {
+      console.log("^^^^^^^^^^^^^^^^^^^^^^^");
+      console.log(error);
+      console.log("^^^^^^^^^^^^^^^^^^^^^^^");
       console.error("Error in getMstFasilitas:", error);
       return {};
     }

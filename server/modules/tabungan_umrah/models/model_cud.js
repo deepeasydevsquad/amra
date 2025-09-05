@@ -498,8 +498,45 @@ class Model_cud {
           total_tabungan: (member.total_tabungan || 0) + Number(body.biaya_deposit),
           updatedAt: dateNow
         }, { transaction: this.t });
-
+        // Jurnal
+        await Jurnal.create(
+          {
+            division_id: division_id, 
+            source: 'deposittabungan:' + tabungan.id,
+            ref: 'Menabung',
+            ket: 'Menabung',
+            akun_debet: '24000',
+            akun_kredit: '23000',
+            saldo: body.biaya_deposit,
+            removable: 'false',
+            periode_id: 0,
+            createdAt: dateNow,
+            updatedAt: dateNow,
+          },
+          {
+            transaction: this.t,
+          }
+        );
       } else if (sumberDana === "cash") {
+        // Jurnal
+        await Jurnal.create(
+          {
+            division_id: division_id, 
+            source: 'tabungan:' + tabungan.id,
+            ref: 'Menabung',
+            ket: 'Menabung',
+            akun_debet: '11010',
+            akun_kredit: '23000',
+            saldo: body.biaya_deposit,
+            removable: 'false',
+            periode_id: 0,
+            createdAt: dateNow,
+            updatedAt: dateNow,
+          },
+          {
+            transaction: this.t,
+          }
+        );
         // === Langsung tambahkan ke tabungan tanpa sentuh deposit ===
         await member.update({
           total_tabungan: Number(member.total_tabungan || 0) + Number(body.biaya_deposit),
@@ -530,11 +567,6 @@ class Model_cud {
         invoiceTabungan = await this.generateInvoice();
         invoiceRefund = await this.generateInvoice();
       } while (invoiceTabungan === invoiceRefund);
-
-      console.log("Data Body:", body);
-      console.log("Company ID:", this.company_id);
-      console.log("Division ID:", division_id);
-      console.log("Invoice Refund:", invoiceRefund);
 
       const tabungan = await Tabungan.findOne({ where: { id: body.id, division_id: division_id } });
 
@@ -583,9 +615,6 @@ class Model_cud {
       
       this.message = `Refund tabungan umrah nama jamaah: ${infoTabungan.jamaah.fullname} dengan invoice: ${invoiceRefund}`;
     } catch (error) {
-      console.log("================ Refund ================");
-      console.log(error)
-      console.log("================ Refund ================");
       this.message = error.message || "Terjadi kesalahan saat refund tabungan.";
       this.state = false;
     }
@@ -622,16 +651,22 @@ class Model_cud {
     try {
       const invoiceHandover = await generateInvoiceHandoverFasilitas( this.company_id );
       const penerima = await this.penerima();
-
-      const handoverFasilitas = await Handover_fasilitas.create({
-        tabungan_id: body.id,
-        invoice: invoiceHandover,
-        petugas: penerima,
-        penerima: body.penerima,
-        nomor_identitas_penerima: body.nomor_identitas_penerima || null,  
-        createdAt: dateNow,
-        updatedAt: dateNow,
-      }, { transaction: this.t });
+      // get info tabungan
+      const tabungan = await Tabungan.findOne({ where: { id: body.id } });
+      // create handover
+      const handoverFasilitas = await Handover_fasilitas.create(
+        {
+          tabungan_id: body.id,
+          invoice: invoiceHandover,
+          petugas: penerima,
+          penerima: body.penerima,
+          nomor_identitas_penerima: body.nomor_identitas_penerima || null,  
+          createdAt: dateNow,
+          updatedAt: dateNow,
+        }, 
+        { 
+          transaction: this.t 
+        });
 
       // mengambil mst_fasilitas_id
       var listFasilitasID = [];
@@ -652,16 +687,26 @@ class Model_cud {
         order: [
           ['createdAt', 'ASC'] // paling lama dulu
         ],
-        raw: true
       });
 
       // mngambil item fasilitas id
       var total = 0;
       var itemFasilitasID = {};
       var itemFasilitasID2 = [];
+      var itemFasilitasID3 = {};
       await Promise.all(
         await qItemFasilitas.map(async (e) => {
           itemFasilitasID = {...itemFasilitasID,...{[e.mst_fasilitas_id] : e.id }};
+          itemFasilitasID3 = {...itemFasilitasID3,...{
+            [e.mst_fasilitas_id] : 
+            { 
+              id: e.id, 
+              harga_beli: e.harga_beli, 
+              harga_jual: e.harga_jual, 
+              nomor_akun_aset: e.Mst_fasilita.nomor_akun_aset, 
+              nomor_akun_hpp: e.Mst_fasilita.nomor_akun_hpp,
+              nomor_akun_pendapatan: e.Mst_fasilita.nomor_akun_pendapatan
+            } }};
           itemFasilitasID2.push(e.id);
           total = total + e.harga_jual;
         })
@@ -669,7 +714,7 @@ class Model_cud {
 
        // menginput data transaksi
       const transactionFasilitas = await Transaction_fasilitas.create({
-        company_id: this.company_id, 
+        division_id: tabungan.division_id, 
         invoice: invoiceHandover, 
         kostumer_id: null, 
         tabungan_id: body.id,
@@ -683,7 +728,7 @@ class Model_cud {
       // Insert detail handover fasilitas
       for (const fasilitas_id of body.detail_fasilitas) {
         // input handover detail fasilitas
-        await Handover_fasilitas_detail.create({  
+        await Handover_fasilitas_detail.create({
           handover_fasilitas_id: handoverFasilitas.id,
           item_fasilitas_id: itemFasilitasID[fasilitas_id],
           createdAt: dateNow,
@@ -696,6 +741,44 @@ class Model_cud {
           createdAt: dateNow,
           updatedAt: dateNow,
         }, { transaction: this.t });
+        // Jurnal HPP
+        await Jurnal.create(
+          {
+            division_id: tabungan.division_id, 
+            source: 'transaksiFasilitasId:' + transactionFasilitas.id,
+            ref: 'HPP penjualan fasilitas',
+            ket: 'HPP penjualan fasilitas',
+            akun_debet: itemFasilitasID3[fasilitas_id].nomor_akun_hpp,
+            akun_kredit: itemFasilitasID3[fasilitas_id].nomor_akun_aset,
+            saldo: itemFasilitasID3[fasilitas_id].harga_beli,
+            removable: 'false',
+            periode_id: 0,
+            createdAt: dateNow,
+            updatedAt: dateNow,
+          },
+          {
+            transaction: this.t,
+          }
+        );
+        // Jurnal Pendapatan
+        await Jurnal.create(
+          {
+            division_id: tabungan.division_id, 
+            source: 'transaksiFasilitasId:' + transactionFasilitas.id,
+            ref: 'Pendapatan penjualan fasilitas',
+            ket: 'Pendapatan penjualan fasilitas',
+            akun_debet: '11010',
+            akun_kredit: itemFasilitasID3[fasilitas_id].nomor_akun_pendapatan,
+            saldo: itemFasilitasID3[fasilitas_id].harga_jual,
+            removable: 'false',
+            periode_id: 0,
+            createdAt: dateNow,
+            updatedAt: dateNow,
+          },
+          {
+            transaction: this.t,
+          }
+        );
       }
 
       // update item fasilitas
@@ -713,10 +796,6 @@ class Model_cud {
       this.message = `Handover fasilitas berhasil ditambahkan untuk tabungan ID ${body.id} dengan invoice: ${invoiceHandover}`;
       return invoiceHandover;
     } catch (error) {
-
-      console.log("XXXXX-----XXXXXX");
-      console.log(error);
-      console.log("XXXXX-----XXXXXX");
       this.state = false;
       this.message = error.message || "Terjadi kesalahan saat menambahkan handover fasilitas.";
     }
@@ -756,9 +835,6 @@ class Model_cud {
     } catch (error) {
       this.state = false;
       this.message = error.message || "Terjadi kesalahan saat menambahkan handover barang.";
-      console.log("================ Add Handover Barang ================");
-      console.log(error)
-      console.log("================ Add Handover Barang ================");
     }
   }
 
@@ -806,9 +882,6 @@ class Model_cud {
     } catch (error) {
       this.state = false;
       this.message = error.message || "Terjadi kesalahan saat menambahkan PengembalianHandoverBarang.";
-      console.log("================ PengembalianHandoverBarang ================");
-      console.log(error)
-      console.log("================ PengembalianHandoverBarang ================");
     }
   }
   
@@ -852,19 +925,6 @@ class Model_cud {
         break;
       } while (true);
 
-      console.groupCollapsed("========== GEN1 Pembelian Paket Tabungan Umrah ==========");
-      console.log("Body:", body);
-      console.log("Company ID:", this.company_id);
-      console.log("Division ID:", division_id);
-      console.log("Invoice Deposit:", invoiceDeposit);
-      console.log("Invoice Riwayat Tabungan:", invoiceRiwayatTabungan);
-      console.log("Invoice Paket Transaction Payment History:", invoicePaketTransactionPaymentHistory);
-      console.log("Info Tabungan:", infoTabungan);
-      console.log("Penerima:", penerima);
-      console.log("Total Tabungan:", totalTabungan);
-      console.log("========== END Pembelian Paket Tabungan Umrah ==========");
-      console.groupEnd();
-
       const hargaPaket = await Paket_price.findOne({
         where: {
           Mst_paket_type_id: body.tipe_paket_id,
@@ -874,12 +934,6 @@ class Model_cud {
 
       const harga = parseInt(hargaPaket.price);
       const sisaPembelian = totalTabungan - harga;
-
-      console.groupCollapsed("========== 1 Pembelian Paket Tabungan Umrah ==========");
-      console.log("Harga Paket:", harga);
-      console.log("Sisa Pembelian:", sisaPembelian);
-      console.log("========== END Pembelian Paket Tabungan Umrah ==========");
-      console.groupEnd();
 
       // === 1. Update Member ===
       await Member.update({
@@ -918,12 +972,6 @@ class Model_cud {
           updated_at: dateNow,
         }, { transaction: this.t });
       }
-
-      console.groupCollapsed("========== 2 Pembelian Paket Tabungan Umrah ==========");
-      console.log("Deposit Tabungan:", depositTabungan);
-      console.log("Deposit:", deposit);
-      console.log("========== END Pembelian Paket Tabungan Umrah ==========");
-      console.groupEnd();
 
       // === 3. Insert Paket Transaction ===
       const paketTransaction = await Paket_transaction.create({
@@ -1024,9 +1072,7 @@ class Model_cud {
           createdAt: dateNow,
           updatedAt: dateNow,
         }));
-        console.log("========== Handover Barang ==========");
-        console.log('dataBarangList', dataBarangList);
-        console.log("========== Handover Barang ==========");
+
         await Handover_barang_paket.bulkCreate(dataBarangList, { transaction: this.t });
       }
 

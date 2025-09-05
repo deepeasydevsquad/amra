@@ -229,11 +229,7 @@ onMounted(() => { fetchData() })
                 <tbody>
                   <template v-if="handoverFasilitas && handoverFasilitas.length">
                     <template v-for="(handover, hIndex) in handoverFasilitas" :key="hIndex">
-                      <tr
-                        v-for="(item, iIndex) in handover.detail"
-                        :key="`${hIndex}-${iIndex}`"
-                        class="text-center"
-                      >
+                      <tr v-for="(item, iIndex) in handover.detail" :key="`${hIndex}-${iIndex}`" class="text-center" >
                         <td class="p-2 border">{{ handover.invoice }}</td>
                         <td class="p-2 border">{{ item.name }}</td>
                         <td class="p-2 border">

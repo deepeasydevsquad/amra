@@ -84,7 +84,6 @@
                 </tbody>
               </table>
             </td>
-
             <!-- Info Pinjaman -->
             <td class="px-6 py-4 text-left align-top space-y-2 text-sm text-gray-600">
               <table class="w-full">

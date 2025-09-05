@@ -424,7 +424,7 @@ const cetakKwitansi = async (invoice: string) => {
                   <LightButton col-span-1 title="Menabung" @click="openFormMenabung(tabungan)">
                     <NabungIcon class="h-4 w-4 text-gray-600" />
                   </LightButton>
-                  <LightButton col-span-1 title="Handover Fasilitas" @click="openFormAddHandover(tabungan)">
+                  <LightButton v-if="tabungan.target_paket_name != '-'" col-span-1 title="Handover Fasilitas" @click="openFormAddHandover(tabungan)">
                     <HandoverIcon class="h-4 w-4 text-gray-600" />
                   </LightButton>
                   <LightButton col-span-1 title="Handover Barang" @click="openFormOpsiHandoverBarang(tabungan)">

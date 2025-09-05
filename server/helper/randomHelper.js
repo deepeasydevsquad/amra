@@ -1,4 +1,4 @@
-const { Deposit, Peminjaman, Riwayat_pembayaran_peminjaman, Fee_agen, Op, Kas_keluar_masuk, Pembayaran_gaji, Item_fasilitas, Handover_fasilitas, Handover_fasilitas_paket, Transaction_fasilitas, Riwayat_deposit_airline, Ticket_payment_history, Ticket_transaction, Visa_transaction, Hotel_transaction } = require("../models");
+const { Deposit, Peminjaman, Riwayat_pembayaran_peminjaman, Fee_agen, Op, Kas_keluar_masuk, Pembayaran_gaji, Item_fasilitas, Handover_fasilitas, Handover_fasilitas_paket, Transaction_fasilitas, Riwayat_deposit_airline, Ticket_payment_history, Ticket_transaction, Visa_transaction, Hotel_transaction, Tabungan, Division, Paket_transaction } = require("../models");
 const helper = {};
 
 helper.randomString = async (length, chars) => {
@@ -36,9 +36,47 @@ helper.generateInvoiceHandoverFasilitas = async (company_id) => {
     let condition = true;
     while (condition) {
       rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-      check1 = await Handover_fasilitas.findOne({ where: { invoice: rand }, include: { model: Tabungan, required: true, include : { model: Division, required: true, where: { company_id: company_id}}} });
-      check2 = await Handover_fasilitas_paket.findOne({ where: { invoice: rand }, include: { model: Paket_transaction, required: true, include: { model: Division, required: true,  where: { company_id: this.company_id } }} });
-      check3 = await Transaction_fasilitas.findOne({ where: { invoice: rand, company_id: this.company_id } });
+      check1 = await Handover_fasilitas.findOne({ 
+        where: { 
+          invoice: rand 
+        }, 
+        include: { 
+          model: Tabungan, 
+          required: true, 
+          include : { 
+            model: Division, 
+            required: true, 
+            where: { 
+              company_id: company_id
+            }
+          }
+        }
+      });
+      check2 = await Handover_fasilitas_paket.findOne({ 
+        where: { invoice: rand }, 
+        include: { 
+          model: Paket_transaction, 
+          required: true, 
+          include: { 
+            model: Division, 
+            required: true, 
+            where: { 
+              company_id: company_id 
+            }
+          }
+        }
+      });
+      check3 = await Transaction_fasilitas.findOne({ 
+        where: { 
+          invoice: rand 
+        }, 
+        include: { 
+          model: Division, 
+          required: true, 
+          where : {
+            company_id: company_id 
+          }
+        }});
       if (!check1 & !check2 && !check3) condition = false;
     }
 
