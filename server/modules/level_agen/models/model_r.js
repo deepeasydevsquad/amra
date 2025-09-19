@@ -1,4 +1,4 @@
-const { Level_keagenan, Agen, Division } = require("../../../models");
+const { Level_keagenan, Agen, Division, Member } = require("../../../models");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
 const { Op } = require("sequelize");
@@ -14,25 +14,20 @@ class Model_r {
   }
 
   async list() {
+    
+    await this.initialize();
+
     const body = this.req.body;
     const limit = body.perpage || 10;
     const page = body.pageNumber && body.pageNumber !== "0" ? body.pageNumber : 1;
 
-    let where = {};
-    let where_member = {};
+    let where = { company_id : this.company_id };
 
-    // Filter berdasarkan division_id jika ada
-    if (body.cabang) {
-      where_member.division_id = body.cabang;
-    }
-
-    // Filter berdasarkan pencarian (search)
     if (body.search) {
       where = {
         ...where,
         [Op.or]: [
-          { fullname: { [Op.like]: `%${body.search}%` } },
-          { identity_number: { [Op.like]: `%${body.search}%` } },
+          { name: { [Op.like]: `%${body.search}%` } },
         ],
       };
     }
@@ -43,42 +38,26 @@ class Model_r {
       order: [["id", "ASC"]],
       attributes: [
         "id",
+        "name",
+        "level",
+        "default_fee",
         "createdAt",
         "updatedAt",
       ],
       where: where,
-      include: [
-        {
-          required : true, 
-          model : Member, 
-          attributes: ['fullname'],
-          where : where_member, 
-          include: {
-            required: true, 
-            model : Division,
-            attributes: ['name'],
-          }
-        },
-        {
-          required : true, 
-          model : Level_keagenan, 
-          attributes: ['name'],
-        },
-      ]
     };
 
     try {
-      const q = await Agen.findAndCountAll(sql);
+      const q = await Level_keagenan.findAndCountAll(sql);
       const total = q.count;
       let data = [];
 
       if (total > 0) {
         data = q.rows.map((e) => ({
           id: e.id,
-          fullname : e.Member.fullname,
-          level: e.Level_keagenan.name,
-          cabang: e.Member.Division.name,
-          fee_agen: 0,
+          name: e.name,
+          level: e.level,
+          default_fee: e.default_fee,
           createdAt: e.createdAt,
           updatedAt: e.updatedAt,
         }));
@@ -86,6 +65,9 @@ class Model_r {
 
       return { data: data, total: total };
     } catch (error) {
+      console.log("******************");
+      console.log(error);
+      console.log("******************");
       return { data: [], total: 0 };
     }
   }

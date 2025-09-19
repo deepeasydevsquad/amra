@@ -1,5 +1,5 @@
 const { sequelize, Level_keagenan } = require("../../../models");
-const Model_r = require("../models/model_r");
+const Model_r = require("./model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
 const moment = require("moment");

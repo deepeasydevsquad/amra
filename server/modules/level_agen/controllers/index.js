@@ -5,12 +5,15 @@ const {
   handleServerError,
 } = require("../../../helper/handleError");
 
-exports.daftarAgen = async (req, res) => {
+exports.daftarLevelAgen = async (req, res) => {
   try {
     const model = new Model_r(req);
     const data = await model.list();
     res.status(200).json(data);
   } catch (error) {
+    console.log("******----------------");
+    console.log(error);
+    console.log("******************");
     handleServerError(res, error.message);
   }
 };

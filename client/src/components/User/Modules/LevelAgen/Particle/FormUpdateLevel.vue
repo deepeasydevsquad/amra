@@ -1,59 +1,47 @@
 <template>
-  <!-- Modal -->
-  <div
-    v-if="isModalOpen"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
-  >
+  <Form :form-status="isModalOpen" :label="'Update Level Keagenan'" @close="closeModal" @cancel="closeModal" @submit="handleSubmit" width="sm:w-full sm:max-w-xl" :submitLabel="'UPDATE LEVEL KEAGENAN'">
+    <div class="mb-4">
+      <label for="namaLevel" class="block text-sm font-medium text-gray-700 mb-2">
+        Nama Level Keagenan
+      </label>
+      <input id="namaLevel" v-model="namaLevel" type="text"
+        class="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+        placeholder="Nama Level Keagenan"
+      />
+    </div>
+    <div class="flex gap-4">
+      <div class="flex-1">
+        <label for="level" class="block text-sm font-medium text-gray-700 mb-2">Level</label>
+        <input
+          id="level"
+          v-model="level"
+          type="number"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-gray-100"
+          readonly
+        />
+      </div>
+      <div class="flex-1">
+        <label for="defaultFee" class="block text-sm font-medium text-gray-700 mb-2"
+          >Default Fee Keagenan</label
+        >
+        <input
+          id="defaultFee"
+          v-model="computedNominal"
+          type="text"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+          placeholder="Default Fee Keagenan"
+        />
+      </div>
+    </div>
+  </Form>
+  <!-- <div v-if="isModalOpen"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
-      <!-- Header Modal -->
       <div class="p-6 border-b border-gray-200">
         <h2 class="text-xl font-semibold text-gray-700">Update Level Keagenan</h2>
       </div>
-
-      <!-- Body Modal -->
       <div class="p-6">
-        <!-- Nama Level Keagenan -->
-        <div class="mb-4">
-          <label for="namaLevel" class="block text-sm font-medium text-gray-700 mb-2"
-            >Nama Level Keagenan</label
-          >
-          <input
-            id="namaLevel"
-            v-model="namaLevel"
-            type="text"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-            placeholder="Nama Level Keagenan"
-          />
-        </div>
-
-        <!-- Level & Default Fee Keagenan -->
-        <div class="flex gap-4">
-          <div class="flex-1">
-            <label for="level" class="block text-sm font-medium text-gray-700 mb-2">Level</label>
-            <input
-              id="level"
-              v-model="level"
-              type="number"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-gray-100"
-              readonly
-            />
-          </div>
-          <div class="flex-1">
-            <label for="defaultFee" class="block text-sm font-medium text-gray-700 mb-2"
-              >Default Fee Keagenan</label
-            >
-            <input
-              id="defaultFee"
-              v-model="defaultFee"
-              type="text"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-              placeholder="Default Fee Keagenan"
-            />
-          </div>
-        </div>
       </div>
-
-      <!-- Footer Modal -->
       <div class="p-6 border-t border-gray-200 flex justify-end gap-4">
         <button
           @click="closeModal"
@@ -69,12 +57,13 @@
         </button>
       </div>
     </div>
-  </div>
+  </div> -->
 </template>
 
-<script setup>
-import { defineProps, defineEmits, watch, ref } from 'vue'
-import { editAgen } from '../../../../../service/level_agen'
+<script setup lang="ts">
+import { defineProps, defineEmits, watch, ref, computed } from 'vue'
+import { editAgen } from '@/service/level_agen'
+import Form from "@/components/Modal/Form.vue"
 
 const props = defineProps({
   isModalOpen: Boolean,
@@ -123,6 +112,18 @@ const handleSubmit = async () => {
     alert('Gagal menyimpan: ' + (error.response?.data?.message || error.message))
   }
 }
+
+const computedNominal = computed({
+  get() {
+    return defaultFee.value
+      ? 'Rp ' + defaultFee.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+      : ''
+  },
+  set(value) {
+    const clean = value.replace(/[^\d]/g, '')
+    defaultFee.value = Number(clean)
+  },
+})
 
 watch(
   () => props.levelToUpdate,

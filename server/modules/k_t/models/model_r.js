@@ -160,7 +160,12 @@ class Model_r {
         include: {
           required : true, 
           model: Transport_transaction, 
-          where: { paket_id: body.paket_id, company_id: this.company_id },
+          where: { paket_id: body.paket_id },
+          include: {
+            required : true, 
+            model: Division, 
+            where: { company_id: this.company_id  }
+          }
         }
       });
       await Promise.all(
@@ -177,7 +182,12 @@ class Model_r {
         include: {
           required : true, 
           model: Passport_transaction, 
-          where: { paket_id: body.paket_id, company_id: this.company_id },
+          where: { paket_id: body.paket_id},
+          include: {
+            required : true, 
+            model: Division, 
+            where: { company_id: this.company_id  }
+          }
         }
       });
       await Promise.all(
