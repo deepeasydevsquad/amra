@@ -28,7 +28,7 @@ module.exports = {
       { menu_id : menus[1].id, name: 'Stok', path: 'stok', tab:`[{"id":"${tabs[57].id}"},{"id":"${tabs[58].id}"},{"id":"${tabs[67].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[2].id, name: 'Daftar Paket', path: 'daftar_paket', tab:`[{"id":"${tabs[4].id}"},{"id":"${tabs[5].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[2].id, name: 'Daftar Paket LA', path: 'daftar_paket_la', tab:`[{"id":"${tabs[9].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
-      { menu_id : menus[3].id, name: 'Daftar Member', path: 'daftar_member', tab:`[{"id":"${tabs[23].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
+      { menu_id : menus[3].id, name: 'Daftar Member', path: 'daftar_member', tab:`[{"id":"${tabs[23].id}"},{"id":"${tabs[68].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[3].id, name: 'Deposit & Tabungan', path: 'deposit_tabungan', tab:`[{"id":"${tabs[3].id}"},{"id":"${tabs[43].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[3].id, name: 'Daftar Jamaah', path: 'daftar_jamaah', tab:`[{"id":"${tabs[24].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },
       { menu_id : menus[3].id, name: 'Daftar Agen', path: 'daftar_agen', tab:`[{"id":"${tabs[26].id}"},{"id":"${tabs[56].id}"},{"id":"${tabs[42].id}"}]`,  createdAt: new Date(), updatedAt: new Date() },

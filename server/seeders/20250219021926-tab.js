@@ -72,6 +72,7 @@ module.exports = {
       { name: 'Trans. Fasilitas', icon : 'fas fa-building', path: 'trans_fasilitas', desc:'Fitur ini berfungsi untuk menyimpan transasksi fasilitas.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Daftar Akun Bank Perusahaan', icon : 'fas fa-money-check-alt', path: 'daftar_akun_bank_perusahaan', desc:'Fitur ini berfungsi untuk menampilkan daftar akun bank perusahaan yang akan digunakan untuk proses deposit oleh member atau jamaah.',  createdAt: new Date(), updatedAt: new Date() },
       { name: 'Riwayat Deposit Maskapai', icon : 'fas fa-plane-cicle-check', path: 'riwayat_deposit_maskapai', desc:'Fitur ini menampilkan seluruh riwayat deposit dari masing-masing maskapai.',  createdAt: new Date(), updatedAt: new Date() },
+      { name: 'Request Member', icon : 'fas fa-user-plus', path: 'request_member', desc:'Fitur ini menampilkan daftar permintaan pendaftaran member baru yang masuk ke sistem. Admin dapat melakukan verifikasi atau penolakan permintaan member.',  createdAt: new Date(), updatedAt: new Date() },
     ], {});
   },
 

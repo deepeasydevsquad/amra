@@ -29,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "agen_id",
         onDelete: 'CASCADE',
       });
+      Agen.hasMany(models.Request_member, {
+        foreignKey: "agen_id",
+        onDelete: 'CASCADE',
+      });
     }
   }
   Agen.init({

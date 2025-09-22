@@ -127,6 +127,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "division_id",
         onDelete: "CASCADE",
       });
+      Division.hasMany(models.Request_member, {
+        foreignKey: "division_id",
+        onDelete: 'CASCADE',
+      });
     }
   }
   Division.init(

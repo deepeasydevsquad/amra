@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "kelurahan_id",
         onDelete: 'CASCADE',
       });
+      Kelurahan.hasMany(models.Request_member, {
+        foreignKey: "kelurahan_id",
+        onDelete: 'CASCADE',
+      });
     }
   }
   Kelurahan.init({
