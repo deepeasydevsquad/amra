@@ -36,6 +36,7 @@ jobs:
 
     - name: Deploy to Ubuntu server via SSH
       uses: appleboy/ssh-action@v1
+      timeout-minutes: 20
       with:
         host: ${{ env.SERVER_IP }}
         username: ${{ env.SSH_USER }}
