@@ -9,9 +9,9 @@ import Notification from '@/components/Modal/Notification.vue';
 import Confirmation from '@/components/Modal/Confirmation.vue';
 import PrimaryButton from '@/components/Button/PrimaryButton.vue';
 import Pagination from '@/components/Pagination/Pagination.vue';
-import FormAdd from '@/components/User/Modules/RiwayatTambahSaldoPerusahaan/widget/FormAdd.vue';
+import FormAddUpdate from '@/components/User/Modules/RiwayatTambahSaldoPerusahaan/widget/FormAddUpdate.vue';
 import { ref, onMounted, computed } from 'vue';
-import { list } from '@/service/riwayat_tambah_saldo_perusahaan'; // Import function GET
+import { list, delete_deposit, sudah_dikirim } from '@/service/riwayat_tambah_saldo_perusahaan'; // Import function GET
 
 interface MainInterface {
   id: number;
@@ -31,6 +31,7 @@ interface MainInterface {
 
 const data = ref<MainInterface[]>([]);
 const search = ref('');
+const edit_id = ref(0);
 const currentPage = ref(1);
 const total = ref<number>(0);
 const totalPages = ref(0);
@@ -46,12 +47,6 @@ const fetchData = async () => {
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
     });
-
-    console.log('xxxx');
-    console.log(response.data);
-    console.log(response.data.length);
-    console.log('xxxx');
-
     totalPages.value = Math.ceil(response.total / itemsPerPage);
     data.value = response.data;
     totalRow.value = response.total;
@@ -96,6 +91,8 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   }, 3000);
 };
 
+// confirmTitle="Konfirmasi Hapus"
+//     confirmMessage="Apakah Anda yakin ingin menghapus pengguna ini?"
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const showConfirmDialog = ref<boolean>(false);
@@ -125,6 +122,38 @@ const formatRupiah = (angka: any, prefix = 'Rp ') => {
 const isModalOpen = ref<boolean>(false);
 const openModal = () => {
   isModalOpen.value = true;
+};
+
+const deleteData = async (id: number) => {
+  showConfirmation('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus data ini?', async () => {
+    try {
+      const response = await delete_deposit({ id: id });
+      showConfirmDialog.value = false;
+      displayNotification(response.error_msg);
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting data:', error);
+      displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
+    }
+  });
+};
+
+const sudahDikirim = async (id: number) => {
+  showConfirmation(
+    'Konfirmasi Pengiriman Dana Deposit',
+    'Apakah Anda yakin sudah mengirimkan Dana deposit anda?',
+    async () => {
+      try {
+        const response = await sudah_dikirim({ id: id });
+        showConfirmDialog.value = false;
+        displayNotification(response.error_msg);
+        fetchData();
+      } catch (error) {
+        console.error('Error deleting data:', error);
+        displayNotification('Terjadi kesalahan saat mengupdate data.', 'error');
+      }
+    },
+  );
 };
 
 onMounted(async () => {
@@ -212,13 +241,29 @@ onMounted(async () => {
               <td class="px-6 py-4 text-center align-top">
                 <div class="flex justify-center gap-2">
                   <template v-if="d.status === 'diproses'">
-                    <LightButton class="p-2" title="Batal Request Tambah Saldo">
+                    <LightButton
+                      class="p-2"
+                      title="Batal Request Tambah Saldo"
+                      @click="deleteData(d.id)"
+                    >
                       <DeleteIcon></DeleteIcon>
                     </LightButton>
-                    <LightButton class="p-2" title="Edit Riwayat Tambah Saldo">
+                    <LightButton
+                      class="p-2"
+                      title="Edit Riwayat Tambah Saldo"
+                      @click="
+                        edit_id = d.id;
+                        isModalOpen = true;
+                      "
+                    >
                       <EditIcon></EditIcon>
                     </LightButton>
-                    <LightButton class="p-2" title="Konfirmasi Pengiriman Tambah Saldo">
+                    <LightButton
+                      v-if="d.sending_payment_status != 'sudah_dikirim'"
+                      class="p-2"
+                      title="Konfirmasi Pengiriman Tambah Saldo"
+                      @click="sudahDikirim(d.id)"
+                    >
                       <font-awesome-icon icon="fa-solid fa-check-double" />
                     </LightButton>
                   </template>
@@ -253,11 +298,10 @@ onMounted(async () => {
     </div>
   </div>
 
-  <!-- Modal Konfirmasi Hapus -->
   <Confirmation
     :showConfirmDialog="showConfirmDialog"
-    confirmTitle="Konfirmasi Hapus"
-    confirmMessage="Apakah Anda yakin ingin menghapus pengguna ini?"
+    :confirmTitle="confirmTitle"
+    :confirmMessage="confirmMessage"
   >
     <button
       @click="confirmAction?.()"
@@ -280,7 +324,8 @@ onMounted(async () => {
     @close="showNotification = false"
   ></Notification>
 
-  <FormAdd
+  <FormAddUpdate
+    :id="edit_id"
     :isModalOpen="isModalOpen"
     @close="
       isModalOpen = false;

@@ -1,59 +1,59 @@
 <script setup lang="ts">
-import Form from '@/components/Modal/Form.vue'
-import InputText from '@/components/Form/InputText.vue'
-import SelectField from '@/components/Form/SelectField.vue'
-import { computed, onMounted, ref, watch } from 'vue'
-import { mst_bank, add } from '@/service/akun_bank'
+import Form from '@/components/Modal/Form.vue';
+import InputText from '@/components/Form/InputText.vue';
+import SelectField from '@/components/Form/SelectField.vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import { mst_bank, add } from '@/service/akun_bank';
 
-const emit = defineEmits(['close', 'success'])
+const emit = defineEmits(['close', 'success']);
 const props = defineProps<{
-  ModalAdd: boolean
-}>()
+  ModalAdd: boolean;
+}>();
 
 interface bank {
-  id: number
+  id: number;
 
-  nama: string
+  nama: string;
 }
 
-const bank = ref<bank[]>([])
+const bank = ref<bank[]>([]);
 
 const daftar_bank = async () => {
-  const response = await mst_bank()
+  const response = await mst_bank();
   bank.value = [
     { id: -1, name: '-- Pilih bank --' }, // ini placeholder-nya
     ...response.data,
-  ]
-  console.log('bank value', bank.value)
-}
+  ];
+  console.log('bank value', bank.value);
+};
 
 const form = ref({
   mst_bank_id: -1,
   nomor_akun: '',
   nama_akun: '',
-})
+});
 
 const reset_form = () => {
   form.value = {
     mst_bank_id: -1,
     nomor_akun: '',
     nama_akun: '',
-  }
-}
+  };
+};
 
 onMounted(() => {
-  daftar_bank()
-})
+  daftar_bank();
+});
 
 const handleSubmit = async () => {
-  console.log('submit')
+  console.log('submit');
   try {
-    const response = await add(form.value)
-    emit('success')
+    const response = await add(form.value);
+    emit('success');
   } catch (error) {
-    console.error('Gagal menyimpan data member:', error)
+    console.error('Gagal menyimpan data member:', error);
   }
-}
+};
 </script>
 
 <template>

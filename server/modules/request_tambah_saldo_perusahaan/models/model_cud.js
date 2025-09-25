@@ -1,6 +1,14 @@
-const { sequelize, Request_member, Member, Jamaah } = require("../../../models");
+const {
+  sequelize,
+  Akun_bank_administrator,
+  Request_deposit_company,
+} = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
+const {
+  generatedNominalCodeTambahDepositPerusahaan,
+  generatedRequestCodeTambahDepositPerusahaan,
+} = require("../../../helper/randomHelper");
 const moment = require("moment");
 
 class Model_cud {
@@ -16,94 +24,142 @@ class Model_cud {
   }
 
   // Menyetujui request member
-  async setujuiRequestMember() {
-    await this.initialize();
-    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
-    const body = this.req.body;
-
-    try {
-      // get data 
-      var q = await Request_member.findOne({ where: { id: body.id } });
-      // menambahkan ke tabel Member
-      var insert = await Member.create(
-        {
-          division_id: q.division_id,
-          fullname: q.fullname,
-          identity_number: q.identity_number,
-          identity_type: q.identity_type,
-          gender: q.gender,
-          photo: q.photo,
-          birth_date: q.birth_date,
-          birth_place: q.birth_place,
-          whatsapp_number: q.whatsapp_number,
-          password: q.password,
-          createdAt: myDate,
-          updatedAt: myDate,
-        },
-        {
-          transaction: this.t,
-        }
-      );
-      // menambahkan ke tabel Jamaah
-      await Jamaah.create(
-        {
-          division_id: q.division_id,
-          agen_id: q.agen_id,
-          member_id: insert.id,
-          kelurahan_id: q.kelurahan_id,
-          address: q.address,
-          createdAt: myDate,
-          updatedAt: myDate,
-        },
-        {
-          transaction: this.t,
-        }
-      );
-      // update ke tabel request member
-      await Request_member.update(
-        {
-          status: 'approved',
-          updatedAt: myDate,
-        },
-        {
-          where: { id: body.id, division_id : q.division_id },
-        },
-        {
-          transaction: this.t,
-        }
-      );
-      // set message
-      this.message = `Menyetujui Request Member Baru dengan Nama Calon Member: ${q.fullname} dan ID Request: ${q.id}`;
-    } catch (error) {
-      this.state = false;
-    }
-  }
-
-  // Menolak request member
-  async rejectRequestMember() {
+  async add() {
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
     try {
       // get data
-      var q = await Request_member.findOne({ where: { id: body.id } });    
-      // update ke tabel request member
-      await Request_member.update(
+      var q = await Akun_bank_administrator.findOne({
+        where: { id: body.bank_id },
+      });
+
+      const nominal_code = await generatedNominalCodeTambahDepositPerusahaan(
+        this.company_id
+      );
+      const request_code = await generatedRequestCodeTambahDepositPerusahaan(
+        this.company_id
+      );
+
+      // menambahkan ke tabel Member
+      var insert = await Request_deposit_company.create(
         {
-          status: 'rejected',
+          company_id: this.company_id,
+          request_code: request_code,
+          bank: q.bank_name,
+          number_account_bank: q.account_bank_number,
+          name_account_bank: q.account_bank_name,
+          nominal: body.nominal,
+          nominal_code: nominal_code,
+          sending_payment_status: "belum_dikirim",
+          sending_payment_time: null,
+          status: "diproses",
+          petugas_id: null,
+          createdAt: myDate,
           updatedAt: myDate,
-        },
-        {
-          where: { id: body.id, division_id : q.division_id },
         },
         {
           transaction: this.t,
         }
       );
+
       // set message
-      this.message = `Menolak Request Member Baru dengan Nama Calon Member: ${q.fullname} dan ID Request: ${q.id}`;
+      this.message = `Menambah request deposit perusahaan ke bank ${q.bank_name} (${q.account_bank_name} - ${q.account_bank_number}) dengan nominal ${body.nominal} dan kode request ${request_code}`;
     } catch (error) {
+      this.state = false;
+    }
+  }
+
+  async update() {
+    await this.initialize();
+    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+    const body = this.req.body;
+    let where = { company_id: this.company_id, id: body.id };
+
+    try {
+      var q = await Akun_bank_administrator.findOne({
+        where: { id: body.bank_id },
+      });
+
+      const nominal_code = await generatedNominalCodeTambahDepositPerusahaan(
+        this.company_id
+      );
+      const request_code = await generatedRequestCodeTambahDepositPerusahaan(
+        this.company_id
+      );
+
+      // update process
+      await Request_deposit_company.update(
+        {
+          request_code: request_code,
+          bank: q.bank_name,
+          number_account_bank: q.account_bank_number,
+          name_account_bank: q.account_bank_name,
+          nominal: body.nominal,
+          nominal_code: nominal_code,
+          updatedAt: myDate,
+        },
+        {
+          where: where,
+          transaction: this.t,
+        }
+      );
+      // set message
+      this.message = `Mengupdate request deposit perusahaan ID: ${body.id} ke bank ${q.bank_name} (${q.account_bank_name} - ${q.account_bank_number}) dengan nominal ${body.nominal} dan kode request ${request_code}`;
+    } catch (error) {
+      console.log("------");
+      console.log(error);
+      console.log("------");
+      this.state = false;
+    }
+  }
+
+  async delete() {
+    await this.initialize();
+    const body = this.req.body;
+    let where = { company_id: this.company_id, id: body.id };
+    try {
+      // delete process
+      await Request_deposit_company.destroy({
+        where: where,
+        transaction: this.t,
+      });
+      // set message
+      this.message = `Menghapus request deposit perusahaan ID: ${body.id}`;
+    } catch (error) {
+      console.log("---|||||||||||||||||");
+      console.log(error);
+      console.log("---|||||||||||||||||");
+      this.state = false;
+    }
+  }
+
+  async sudah_dikirim() {
+    await this.initialize();
+    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+    const body = this.req.body;
+    let where = { company_id: this.company_id, id: body.id };
+
+    try {
+      // update process
+      await Request_deposit_company.update(
+        {
+          sending_payment_status: "sudah_dikirim",
+          sending_payment_time: myDate,
+          updatedAt: myDate,
+        },
+        {
+          where: where,
+          transaction: this.t,
+        }
+      );
+      // set message
+      this.message = `Mengubah status request deposit perusahaan ID: ${body.id} menjadi sudah dikirim`;
+    } catch (error) {
+      console.log("------");
+      console.log(error);
+      console.log("------");
       this.state = false;
     }
   }

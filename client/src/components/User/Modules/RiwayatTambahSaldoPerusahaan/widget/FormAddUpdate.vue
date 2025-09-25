@@ -1,15 +1,27 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import PrimaryButton from '@/components/Button/PrimaryButton.vue';
+import { ref, computed, watch } from 'vue';
 import Confirmation from '@/components/User/Modules/DaftarHotel/Particle/Confirmation.vue';
 import InputText from '@/components/Form/InputText.vue';
 import Form from '@/components/Modal/Form.vue';
+import SelectField from '@/components/Form/SelectField.vue';
+import {
+  list_bank_transfer,
+  add_deposit,
+  get_info_edit,
+  update_deposit,
+} from '@/service/riwayat_tambah_saldo_perusahaan';
+//
 
 const emit = defineEmits<{
   (e: 'close'): void;
 }>();
 
 const props = defineProps({
+  id: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
   isModalOpen: {
     type: Boolean,
     required: true,
@@ -18,12 +30,22 @@ const props = defineProps({
 
 interface FormData {
   nominal: number;
+  bank: number;
 }
 
 const errors = ref<Record<string, string>>({});
 const form = ref<FormData>({
   nominal: 0,
+  bank: 0,
 });
+
+const reset = (): void => {
+  form.value = {
+    nominal: 0,
+    bank: 0,
+  };
+  errors.value = {};
+};
 
 const showConfirmDialog = ref<boolean>(false);
 const confirmMessage = ref<string>('');
@@ -65,27 +87,17 @@ const handleSubmit = async () => {
   if (!validateForm()) return;
 
   try {
-    // const payload = {
-    //   cabang: form.value.cabang,
-    //   kostumer: form.value.kostumer,
-    //   paket: form.value.paket,
-    //   maskapai: form.value.maskapai,
-    //   pax: form.value.pax,
-    //   kode_booking: form.value.kode_booking,
-    //   tanggal_keberangkatan: form.value.tanggal_keberangkatan,
-    //   tanggal_kepulangan: form.value.tanggal_kepulangan,
-    //   harga_travel: form.value.harga_travel,
-    //   harga_kostumer: form.value.harga_kostumer,
-    //   dibayar: form.value.dibayar,
-    // };
-
-    const response = await add_tiket(payload);
+    const response =
+      props.id != 0
+        ? await update_deposit({
+            id: props.id,
+            bank_id: form.value.bank,
+            nominal: form.value.nominal,
+          })
+        : await add_deposit({ bank_id: form.value.bank, nominal: form.value.nominal });
     displayNotification(response.message, 'success');
-    const printUrl = `/invoice-trans-tiket/${response.register_number}`;
-    window.open(printUrl, '_blank');
-    console.log(response.register_number);
-    // emit('submitted');
-    // reset();
+    emit('close');
+    reset();
   } catch (error) {
     displayNotification(error.response.data.message, 'error');
   }
@@ -109,6 +121,45 @@ const handleCancel = (): void => {
   emit('close');
   errors.value = {};
 };
+
+interface Bank {
+  id: number;
+  name: string;
+}
+
+const bankList = ref<Bank[]>([]);
+
+async function fetchData() {
+  try {
+    const response = await list_bank_transfer();
+    bankList.value = [{ id: 0, name: ' -- Pilih Bank Transfer -- ' }, ...response.data];
+    form.value.bank = bankList.value.length > 0 ? bankList.value[0].id : 0;
+  } catch (error) {
+    console.error('Gagal memuat data bank transfer:', error);
+  }
+}
+
+async function fetchEditData() {
+  try {
+    const response = await get_info_edit({ id: props.id });
+    form.value.nominal = response.data.nominal;
+    form.value.bank = response.data.bank_id;
+  } catch (error) {
+    console.error('Gagal memuat data bank transfer:', error);
+  }
+}
+
+watch(
+  () => props.isModalOpen,
+  (val) => {
+    if (val) {
+      fetchData();
+      if (props.id != 0) {
+        fetchEditData();
+      }
+    }
+  },
+);
 </script>
 
 <template>
@@ -119,13 +170,22 @@ const handleCancel = (): void => {
     @cancel="handleCancel"
     @submit="handleSubmit()"
     width="sm:w-full sm:max-w-md"
-    :submitLabel="'TAMBAH DEPOSIT SALDO'"
+    :submitLabel="props.id == 0 ? 'TAMBAH DEPOSIT SALDO' : 'UPDATE DEPOSIT SALDO'"
   >
+    <SelectField
+      v-model="form.bank"
+      label="Bank Transfer"
+      placeholder="Pilih bank"
+      class="mt-4"
+      :options="bankList"
+      optionLabel="Bank Transfer"
+      optionValue="id"
+    />
     <InputText
       v-model="nominalSaldo"
       label="Nominal Deposit"
       placeholder="Nominal Deposit"
-      class="md:col-span-2"
+      class="md:col-span-2 mt-4"
       :error="errors.nominal"
     />
   </Form>

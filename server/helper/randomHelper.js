@@ -1,4 +1,25 @@
-const { Deposit, Peminjaman, Riwayat_pembayaran_peminjaman, Fee_agen, Op, Kas_keluar_masuk, Pembayaran_gaji, Item_fasilitas, Handover_fasilitas, Handover_fasilitas_paket, Transaction_fasilitas, Riwayat_deposit_airline, Ticket_payment_history, Ticket_transaction, Visa_transaction, Hotel_transaction, Tabungan, Division, Paket_transaction } = require("../models");
+const {
+  Deposit,
+  Peminjaman,
+  Riwayat_pembayaran_peminjaman,
+  Fee_agen,
+  Op,
+  Kas_keluar_masuk,
+  Pembayaran_gaji,
+  Item_fasilitas,
+  Handover_fasilitas,
+  Handover_fasilitas_paket,
+  Transaction_fasilitas,
+  Riwayat_deposit_airline,
+  Ticket_payment_history,
+  Ticket_transaction,
+  Visa_transaction,
+  Hotel_transaction,
+  Tabungan,
+  Division,
+  Paket_transaction,
+  Request_deposit_company,
+} = require("../models");
 const helper = {};
 
 helper.randomString = async (length, chars) => {
@@ -8,113 +29,148 @@ helper.randomString = async (length, chars) => {
   return result;
 };
 
-
-helper.generateNomorInvoiceHotel = async ( division_id ) => {
-  var rand = 0;
+helper.generatedNominalCodeTambahDepositPerusahaan = async (company_id) => {
+  var nominal_code = 0;
   let condition = true;
   while (condition) {
-    rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    check = await Hotel_transaction.findOne({ where: { invoice: rand, division_id: division_id } });
+    nominal_code = Math.floor(100 + Math.random() * 900); // random 3 digit
+    check = await Request_deposit_company.findOne({
+      where: { nominal_code: nominal_code, company_id: company_id },
+    });
     if (!check) condition = false;
   }
-  return rand;
-}
+  return nominal_code;
+};
 
-helper.generateNomorInvoiceVisa = async ( division_id ) => {
-  var rand = 0;
+helper.generatedRequestCodeTambahDepositPerusahaan = async (company_id) => {
+  var request_code = "";
   let condition = true;
   while (condition) {
-    rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    check = await Visa_transaction.findOne({ where: { invoice: rand, division_id: division_id } });
+    request_code = await helper.randomString(
+      6,
+      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    );
+    check = await Request_deposit_company.findOne({
+      where: { request_code: request_code, company_id: company_id },
+    });
     if (!check) condition = false;
   }
-  return rand;
-}
+  return request_code;
+};
 
-helper.generateInvoiceHandoverFasilitas = async (company_id) => {
-    var rand = 0;
-    let condition = true;
-    while (condition) {
-      rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-      check1 = await Handover_fasilitas.findOne({ 
-        where: { 
-          invoice: rand 
-        }, 
-        include: { 
-          model: Tabungan, 
-          required: true, 
-          include : { 
-            model: Division, 
-            required: true, 
-            where: { 
-              company_id: company_id
-            }
-          }
-        }
-      });
-      check2 = await Handover_fasilitas_paket.findOne({ 
-        where: { invoice: rand }, 
-        include: { 
-          model: Paket_transaction, 
-          required: true, 
-          include: { 
-            model: Division, 
-            required: true, 
-            where: { 
-              company_id: company_id 
-            }
-          }
-        }
-      });
-      check3 = await Transaction_fasilitas.findOne({ 
-        where: { 
-          invoice: rand 
-        }, 
-        include: { 
-          model: Division, 
-          required: true, 
-          where : {
-            company_id: company_id 
-          }
-        }});
-      if (!check1 & !check2 && !check3) condition = false;
-    }
-
-    return rand;
-}
-
-helper.generateNomorRegisterTicket = async ( division_id ) => {
+helper.generateNomorInvoiceHotel = async (division_id) => {
   var rand = 0;
   let condition = true;
   while (condition) {
     rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    check = await Ticket_transaction.findOne({ where: { nomor_registrasi: rand, division_id: division_id } });
-    if (!check) condition = false;
-  }
-  return rand;
-}
-
-helper.generateNomorInvoicePembayaranTicket = async ( division_id ) => {
-  var rand = 0;
-  let condition = true;
-  while (condition) {
-    rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    check = await Ticket_payment_history.findOne({ 
-      where: { 
-        invoice: rand 
-      }, 
-      include: { 
-        model: Ticket_transaction, 
-        required: true, 
-        where: { 
-          division_id: division_id 
-        } 
-      } 
+    check = await Hotel_transaction.findOne({
+      where: { invoice: rand, division_id: division_id },
     });
     if (!check) condition = false;
   }
   return rand;
-}
+};
+
+helper.generateNomorInvoiceVisa = async (division_id) => {
+  var rand = 0;
+  let condition = true;
+  while (condition) {
+    rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    check = await Visa_transaction.findOne({
+      where: { invoice: rand, division_id: division_id },
+    });
+    if (!check) condition = false;
+  }
+  return rand;
+};
+
+helper.generateInvoiceHandoverFasilitas = async (company_id) => {
+  var rand = 0;
+  let condition = true;
+  while (condition) {
+    rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    check1 = await Handover_fasilitas.findOne({
+      where: {
+        invoice: rand,
+      },
+      include: {
+        model: Tabungan,
+        required: true,
+        include: {
+          model: Division,
+          required: true,
+          where: {
+            company_id: company_id,
+          },
+        },
+      },
+    });
+    check2 = await Handover_fasilitas_paket.findOne({
+      where: { invoice: rand },
+      include: {
+        model: Paket_transaction,
+        required: true,
+        include: {
+          model: Division,
+          required: true,
+          where: {
+            company_id: company_id,
+          },
+        },
+      },
+    });
+    check3 = await Transaction_fasilitas.findOne({
+      where: {
+        invoice: rand,
+      },
+      include: {
+        model: Division,
+        required: true,
+        where: {
+          company_id: company_id,
+        },
+      },
+    });
+    if (!check1 & !check2 && !check3) condition = false;
+  }
+
+  return rand;
+};
+
+helper.generateNomorRegisterTicket = async (division_id) => {
+  var rand = 0;
+  let condition = true;
+  while (condition) {
+    rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    check = await Ticket_transaction.findOne({
+      where: { nomor_registrasi: rand, division_id: division_id },
+    });
+    if (!check) condition = false;
+  }
+  return rand;
+};
+
+helper.generateNomorInvoicePembayaranTicket = async (division_id) => {
+  var rand = 0;
+  let condition = true;
+  while (condition) {
+    rand = await helper.randomString(6, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    check = await Ticket_payment_history.findOne({
+      where: {
+        invoice: rand,
+      },
+      include: {
+        model: Ticket_transaction,
+        required: true,
+        where: {
+          division_id: division_id,
+        },
+      },
+    });
+    if (!check) condition = false;
+  }
+  return rand;
+};
 
 helper.menghasilkan_invoice_deposit = async () => {
   var rand = 0;
@@ -126,7 +182,6 @@ helper.menghasilkan_invoice_deposit = async () => {
   }
   return rand;
 };
-
 
 helper.menghasilkan_nomor_registrasi_peminjaman = async () => {
   var rand = 0;

@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { ref, onMounted} from 'vue'
-import { daftarBank, addSupplier, editSupplier } from '@/service/supplier'
-import Confirmation from '@/components/User/Modules/Supplier/Particle/Confirmation.vue'
-import PrimaryButton from '@/components/Button/PrimaryButton.vue'
+import { ref, onMounted } from 'vue';
+import { daftarBank, addSupplier, editSupplier } from '@/service/supplier';
+import Confirmation from '@/components/User/Modules/Supplier/Particle/Confirmation.vue';
+import PrimaryButton from '@/components/Button/PrimaryButton.vue';
 
 const emit = defineEmits<{
-  (e: 'close'): void
-  (e: 'status', payload: { error: boolean, err_msg?: string }): void
-}>()
+  (e: 'close'): void;
+  (e: 'status', payload: { error: boolean; err_msg?: string }): void;
+}>();
 
 const props = defineProps({
   isModalOpen: {
     type: Boolean,
-    required: true
+    required: true,
   },
   selectedSupplier: {
     type: Object,
   },
-})
+});
 
 interface Errors {
   name: string;
@@ -35,7 +35,7 @@ const errors = ref<Errors>({
   name: '',
   address: '',
   bank: '',
-  nomor_rekening: ''
+  nomor_rekening: '',
 });
 
 interface Supplier {
@@ -51,10 +51,10 @@ const Supplier = ref<Partial<Supplier>>({
   name: '',
   address: '',
   bank_id: 0,
-  nomor_rekening: ''
+  nomor_rekening: '',
 });
 
-const bankList = ref<Bank[]>([])
+const bankList = ref<Bank[]>([]);
 const showConfirmDialog = ref<boolean>(false);
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
@@ -62,13 +62,19 @@ const confirmAction = ref<(() => void) | null>(null);
 
 const fetchDataBank = async () => {
   try {
-    const response = await daftarBank()
-    bankList.value = response.data
+    const response = await daftarBank();
+    bankList.value = response.data;
   } catch (error) {
-    emit('close')
-    emit('status', { error: true, err_msg: (error.response.data?.err_msg || error.response.data?.message) || 'Terjadi kesalahan saat mengambil data bank.' });
+    emit('close');
+    emit('status', {
+      error: true,
+      err_msg:
+        error.response.data?.err_msg ||
+        error.response.data?.message ||
+        'Terjadi kesalahan saat mengambil data bank.',
+    });
   }
-}
+};
 
 const showConfirmation = (title: string, message: string, action: () => void) => {
   confirmTitle.value = title;
@@ -109,37 +115,68 @@ const saveData = async () => {
       if (isEdit) {
         const response = await editSupplier(Supplier.value.id, Supplier.value);
         showConfirmDialog.value = false;
-        emit('status', { error: false, err_msg: (response?.error_msg || response?.data?.message) || 'Supplier berhasil di update' });
+        emit('status', {
+          error: false,
+          err_msg: response?.error_msg || response?.data?.message || 'Supplier berhasil di update',
+        });
       } else {
         const response = await addSupplier(Supplier.value);
         showConfirmDialog.value = false;
-        emit('status', { error: false, err_msg: (response?.error_msg || response?.data?.message) || 'Supplier berhasil di tambahkan' });
+        emit('status', {
+          error: false,
+          err_msg:
+            response?.error_msg || response?.data?.message || 'Supplier berhasil di tambahkan',
+        });
       }
       emit('close');
     } catch (error) {
       showConfirmDialog.value = false;
-      emit('status', { error: true, err_msg: (error.response?.data?.err_msg || error.response?.data?.message) || 'Terjadi kesalahan saat menyimpan data.' });
+      emit('status', {
+        error: true,
+        err_msg:
+          error.response?.data?.err_msg ||
+          error.response?.data?.message ||
+          'Terjadi kesalahan saat menyimpan data.',
+      });
     }
   };
 
-  isEdit ? showConfirmation('Konfirmasi Perubahan', 'Apakah Anda yakin ingin mengubah data ini?', action) : action();
+  isEdit
+    ? showConfirmation('Konfirmasi Perubahan', 'Apakah Anda yakin ingin mengubah data ini?', action)
+    : action();
 };
 
 onMounted(() => {
   Supplier.value = { ...Supplier.value, ...(props.selectedSupplier ?? {}) };
-  fetchDataBank()
-})
+  fetchDataBank();
+});
 </script>
 
 <template>
-  <div v-if="isModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="emit('close')"></div>
-      <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
-      <div class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+  <div
+    v-if="isModalOpen"
+    class="fixed inset-0 z-50 overflow-y-auto"
+    aria-labelledby="modal-title"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div
+      class="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0"
+    >
+      <div
+        class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+        aria-hidden="true"
+        @click="emit('close')"
+      ></div>
+      <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true"
+        >&#8203;</span
+      >
+      <div
+        class="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle"
+      >
         <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
           <h3 class="text-2xl flex justify-center font-bold leading-6 text-gray-900 mb-4">
-            {{ Supplier.id ? "Edit Data Supplier" : "Tambah Supplier Baru" }}
+            {{ Supplier.id ? 'Edit Data Supplier' : 'Tambah Supplier Baru' }}
           </h3>
           <div class="space-y-4">
             <div>
@@ -169,7 +206,9 @@ onMounted(() => {
                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
               >
                 <option value="0">Pilih Bank</option>
-                <option v-for="bank in bankList" :key="bank.id" :value="bank.id">{{ bank.name }}</option>
+                <option v-for="bank in bankList" :key="bank.id" :value="bank.id">
+                  {{ bank.name }}
+                </option>
               </select>
               <p v-if="errors.bank" class="mt-1 text-sm text-red-600">{{ errors.bank }}</p>
             </div>
@@ -181,15 +220,15 @@ onMounted(() => {
                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600 font-normal"
                 placeholder="Nomor Rekening Supplier"
               />
-              <p v-if="errors.nomor_rekening" class="mt-1 text-sm text-red-600">{{ errors.nomor_rekening }}</p>
+              <p v-if="errors.nomor_rekening" class="mt-1 text-sm text-red-600">
+                {{ errors.nomor_rekening }}
+              </p>
             </div>
           </div>
         </div>
         <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-2">
-          <PrimaryButton
-            @click="saveData"
-          >
-            {{ Supplier.id ? "Simpan Perubahan" : "Tambah" }}
+          <PrimaryButton @click="saveData">
+            {{ Supplier.id ? 'Simpan Perubahan' : 'Tambah' }}
           </PrimaryButton>
           <button
             @click="emit('close')"
@@ -202,8 +241,13 @@ onMounted(() => {
     </div>
   </div>
   <!-- Confirmation Dialog -->
-  <Confirmation :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
-    <button @click="confirmAction && confirmAction()"
+  <Confirmation
+    :showConfirmDialog="showConfirmDialog"
+    :confirmTitle="confirmTitle"
+    :confirmMessage="confirmMessage"
+  >
+    <button
+      @click="confirmAction && confirmAction()"
       class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
     >
       Ya
