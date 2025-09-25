@@ -25,6 +25,7 @@
     address: string;
     cabangName: string;
     nama_agen: string;
+    status: string;
     updatedAt: string
   }
 
@@ -32,6 +33,7 @@
   const loading = ref(true)
   const error = ref<string | null>(null)
   const selectedOptionCabang = ref(0);
+  const selectedOptionStatus = ref('process');
   const optionFilterCabang = ref<filterCabang[]>([]);
   const search = ref('');
   const currentPage = ref(1)
@@ -76,7 +78,8 @@
         search: search.value,
         perpage: itemsPerPage,
         pageNumber: currentPage.value,
-        cabang: selectedOptionCabang.value
+        cabang: selectedOptionCabang.value,
+        status: selectedOptionStatus.value
       });
       data.value = response.data
       totalRow.value = response.total;
@@ -144,11 +147,6 @@
         try {
           const response = await rejectRequestMemberUrl(id);
           showConfirmDialog.value = false;
-
-          // console.log("-----response");
-          // console.log(response);
-          // console.log("-----response");
-
           displayNotification(response.error_msg);
           fetchData();
         } catch (error) {
@@ -170,6 +168,12 @@
     <div class="flex justify-end mb-4">
       <div class="inline-flex rounded-md shadow-xs" role="group">
         <input type="text" id="search" class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" v-model="search" @input="fetchData" placeholder="Cari data..."/>
+        <select v-model="selectedOptionStatus" style="width: 300px" @change="fetchData()"
+          class="border-t border-b  bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+          <option value="process">Proses</option>
+          <option value="approved">Disetujui</option>
+          <option value="rejected">Ditolak</option>
+        </select>
         <select v-model="selectedOptionCabang" style="width: 300px" @change="fetchData()"
           class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
           <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
@@ -245,15 +249,23 @@
                 </table>
               </td>
               <td class="py-3 px-6  border-gray-300 align-top text-center">{{ x?.cabangName }}</td>
-              <td class="py-3 px-6  border-gray-300 align-top text-center">{{ x?.updatedAt }}</td>
+              <td class="py-3 px-6  border-gray-300 align-top text-center">{{ x?.updatedAt }} <br>
+                <b>
+                  <span v-if="x?.status == 'approved'" style="color:green">DISETUJUI</span>
+                  <span v-if="x?.status == 'process'" style="color:orange">PROSES</span>
+                  <span v-if="x?.status == 'rejected'" style="color:red">DITOLAK</span>
+                </b>
+              </td>
               <td class="px-6 py-4 text-center align-top">
               <div class="flex flex-col items-center gap-2">
-                <LightButton @click="approveRequestMember(x?.id)">
-                  <font-awesome-icon icon="fa-solid fa-check" />
-                </LightButton>
-                <DangerButton @click="rejectRequestMember(x?.id)">
-                  <font-awesome-icon icon="fa-solid fa-xmark" />
-                </DangerButton>
+                <template v-if="x?.status == 'process'">
+                  <LightButton @click="approveRequestMember(x?.id)">
+                    <font-awesome-icon icon="fa-solid fa-check" />
+                  </LightButton>
+                  <DangerButton @click="rejectRequestMember(x?.id)">
+                    <font-awesome-icon icon="fa-solid fa-xmark" />
+                  </DangerButton>
+                </template>
               </div>
               </td>
             </tr>

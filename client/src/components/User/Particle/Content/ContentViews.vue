@@ -1,68 +1,71 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useSelectedTab, useGlobalTab, useGlobalActiveTab, useTabTerpilih } from '@/stores/sidebar'
-import 'flowbite'
+import { ref, onMounted } from 'vue';
+import { useSelectedTab, useGlobalTab, useGlobalActiveTab, useTabTerpilih } from '@/stores/sidebar';
+import 'flowbite';
 
-import BerandaUtama from '@/components/User/Modules/BerandaUtama/BerandaUtama.vue'
-import TransPaket from '@/components/User/Modules/TransPaket/TransPaket.vue'
-import DaftarKota from '@/components/User/Modules/DaftarKota/DaftarKota.vue'
-import DaftarFasilitas from '@/components/User/Modules/DaftarFasilitas/DaftarFasilitas.vue'
-import DaftarHotel from '@/components/User/Modules/DaftarHotel/DaftarHotel.vue'
-import JenisMobil from '@/components/User/Modules/JenisMobil/JenisMobil.vue'
-import Cabang from '@/components/User/Modules/Cabang/Cabang.vue'
-import Airlines from '@/components/User/Modules/Airlines/Airlines.vue'
-import Pengaturan from '@/components/User/Modules/Pengaturan/Pengaturan.vue'
-import SistemLog from '@/components/User/Modules/SistemLog/SistemLog.vue'
-import DaftarBandara from '@/components/User/Modules/DaftarBandara/DaftarBandara.vue'
-import DaftarAsuransi from '@/components/User/Modules/DaftarAsuransi/DaftarAsuransi.vue'
-import DaftarProviderVisa from '@/components/User/Modules/DaftarProviderVisa/DaftarProviderVisa.vue'
-import DaftarBank from '@/components/User/Modules/DaftarBank/DaftarBank.vue'
-import DaftarTipePaket from '@/components/User/Modules/DaftarTipePaket/DaftarTipePaket.vue'
-import Grup from '@/components/User/Modules/Grup/Grup.vue'
-import Supplier from '@/components/User/Modules/Supplier/Supplier.vue'
-import Akun from '@/components/User/Modules/Akun/Akun.vue'
-import DaftarMember from '@/components/User/Modules/Member/DaftarMember.vue'
-import Pengguna from '@/components/User/Modules/Pengguna/Pengguna.vue'
-import Kostumer from '@/components/User/Modules/Kostumer/Kostumer.vue'
-import DaftarPaketLa from '@/components/User/Modules/DaftarPaketLa/DaftarPaketLa.vue'
-import LevelAgen from '@/components/User/Modules/LevelAgen/LevelAgen.vue'
-import DaftarAgen from '@/components/User/Modules/DaftarAgen/DaftarAgen.vue'
-import DepositSaldo from '@/components/User/Modules/DepositSaldo/DepositSaldo.vue'
-import DaftarJamaah from '@/components/User/Modules/DaftarJamaah/DaftarJamaah.vue'
-import DaftarPeminjaman from '@/components/User/Modules/DaftarPeminjaman/DaftarPeminjaman.vue'
-import Jurnal from '@/components/User/Modules/Jurnal/Jurnal.vue'
-import Investor from '@/components/User/Modules/Investor/Investor.vue'
-import DaftarPaket from '@/components/User/Modules/DaftarPaket/DaftarPaket.vue'
-import TabunganUmrah from '@/components/User/Modules/TabunganUmrah/TabunganUmrah.vue'
-import RiwayatPeminjaman from '@/components/User/Modules/RiwayatPeminjaman/RiwayatPeminjaman.vue'
-import TransTiket from '@/components/User/Modules/TransTiket/TransTiket.vue'
-import DaftarSuratMenyurat from '@/components/User/Modules/DaftarSuratMenyurat/DaftarSuratMenyurat.vue'
-import BukuBesar from '@/components/User/Modules/BukuBesar/BukuBesar.vue'
-import NeracaLajur from '@/components/User/Modules/NeracaLajur/NeracaLajur.vue'
-import LabaRugi from '@/components/User/Modules/LabaRugi/LabaRugi.vue'
-import Neraca from '@/components/User/Modules/Neraca/Neraca.vue'
-import PengaturanPerangkanWhatsap from '@/components/User/Modules/PengaturanPerangkatWhatsapp/PengaturanPerangkanWhatsap.vue'
-import TemplatePesanWhatsapp from '@/components/User/Modules/TemplatePesanWhatsapp/TemplatePesanWhatsapp.vue'
-import TransaksiVisa from '@/components/User/Modules/TransaksiVisa/TransaksiVisa.vue'
-import PesanWhatsapp from '@/components/User/Modules/PesanWhatsapp/PesanWhatsapp.vue'
-import PembayaranFeeAgen from '@/components/User/Modules/PembayaranFeeAgen/PembayaranFeeAgen.vue'
-import TransaksiPassport from '@/components/User/Modules/TransaksiPassport/TransaksiPassport.vue'
-import TransHotel from '@/components/User/Modules/TransHotel/TransHotel.vue'
-import Modal from '@/components/User/Modules/Modal/Modal.vue'
-import TransTransport from '@/components/User/Modules/TransTransport/TransTransport.vue'
-import RekapitulasiTicket from '@/components/User/Modules/RekapitulasiTicket/RekapitulasiTicket.vue'
-import KasKeluarMasuk from '@/components/User/Modules/KasKeluarMasuk/KasKeluarMasuk.vue'
-import DaftarPembayaran from '@/components/User/Modules/PembayaranGaji/DaftarPembayaran.vue'
-import DaftarStokFasilitas from '@/components/User/Modules/DaftarStokFasilitas/DaftarStokFasilitas.vue'
-import Headline from '@/components/User/Modules/Headline/Headline.vue'
-import ItemFasilitas from '@/components/User/Modules/ItemFasilitas/ItemFasilitas.vue'
-import AkunBank from '@/components/User/Modules/AkunBank/AkunBank.vue'
-import DaftarProdukPpob from '@/components/User/Modules/DaftarProdukPpob/DaftarProdukPpob.vue'
-import TransFasilitas from '@/components/User/Modules/TransFasilitas/TransFasilitas.vue'
-import RiwayatTransaksiPpob from '@/components/User/Modules/RiwayatTransaksiPpob/RiwayatTransaksiPpob.vue'
-import PermintaanDepositMember from '@/components/User/Modules/PermintaanDepositMember/PermintaanDepositMember.vue'
-import RiwayatDepositMaskapai from '@/components/User/Modules/RiwayatDepositMaskapai/RiwayatDepositMaskapai.vue'
-import RequestMember from '@/components/User/Modules/RequestMember/RequestMember.vue'
+import BerandaUtama from '@/components/User/Modules/BerandaUtama/BerandaUtama.vue';
+import TransPaket from '@/components/User/Modules/TransPaket/TransPaket.vue';
+import DaftarKota from '@/components/User/Modules/DaftarKota/DaftarKota.vue';
+import DaftarFasilitas from '@/components/User/Modules/DaftarFasilitas/DaftarFasilitas.vue';
+import DaftarHotel from '@/components/User/Modules/DaftarHotel/DaftarHotel.vue';
+import JenisMobil from '@/components/User/Modules/JenisMobil/JenisMobil.vue';
+import Cabang from '@/components/User/Modules/Cabang/Cabang.vue';
+import Airlines from '@/components/User/Modules/Airlines/Airlines.vue';
+import Pengaturan from '@/components/User/Modules/Pengaturan/Pengaturan.vue';
+import SistemLog from '@/components/User/Modules/SistemLog/SistemLog.vue';
+import DaftarBandara from '@/components/User/Modules/DaftarBandara/DaftarBandara.vue';
+import DaftarAsuransi from '@/components/User/Modules/DaftarAsuransi/DaftarAsuransi.vue';
+import DaftarProviderVisa from '@/components/User/Modules/DaftarProviderVisa/DaftarProviderVisa.vue';
+import DaftarBank from '@/components/User/Modules/DaftarBank/DaftarBank.vue';
+import DaftarTipePaket from '@/components/User/Modules/DaftarTipePaket/DaftarTipePaket.vue';
+import Grup from '@/components/User/Modules/Grup/Grup.vue';
+import Supplier from '@/components/User/Modules/Supplier/Supplier.vue';
+import Akun from '@/components/User/Modules/Akun/Akun.vue';
+import DaftarMember from '@/components/User/Modules/Member/DaftarMember.vue';
+import Pengguna from '@/components/User/Modules/Pengguna/Pengguna.vue';
+import Kostumer from '@/components/User/Modules/Kostumer/Kostumer.vue';
+import DaftarPaketLa from '@/components/User/Modules/DaftarPaketLa/DaftarPaketLa.vue';
+import LevelAgen from '@/components/User/Modules/LevelAgen/LevelAgen.vue';
+import DaftarAgen from '@/components/User/Modules/DaftarAgen/DaftarAgen.vue';
+import DepositSaldo from '@/components/User/Modules/DepositSaldo/DepositSaldo.vue';
+import DaftarJamaah from '@/components/User/Modules/DaftarJamaah/DaftarJamaah.vue';
+import DaftarPeminjaman from '@/components/User/Modules/DaftarPeminjaman/DaftarPeminjaman.vue';
+import Jurnal from '@/components/User/Modules/Jurnal/Jurnal.vue';
+import Investor from '@/components/User/Modules/Investor/Investor.vue';
+import DaftarPaket from '@/components/User/Modules/DaftarPaket/DaftarPaket.vue';
+import TabunganUmrah from '@/components/User/Modules/TabunganUmrah/TabunganUmrah.vue';
+import RiwayatPeminjaman from '@/components/User/Modules/RiwayatPeminjaman/RiwayatPeminjaman.vue';
+import TransTiket from '@/components/User/Modules/TransTiket/TransTiket.vue';
+import DaftarSuratMenyurat from '@/components/User/Modules/DaftarSuratMenyurat/DaftarSuratMenyurat.vue';
+import BukuBesar from '@/components/User/Modules/BukuBesar/BukuBesar.vue';
+import NeracaLajur from '@/components/User/Modules/NeracaLajur/NeracaLajur.vue';
+import LabaRugi from '@/components/User/Modules/LabaRugi/LabaRugi.vue';
+import Neraca from '@/components/User/Modules/Neraca/Neraca.vue';
+import PengaturanPerangkanWhatsap from '@/components/User/Modules/PengaturanPerangkatWhatsapp/PengaturanPerangkanWhatsap.vue';
+import TemplatePesanWhatsapp from '@/components/User/Modules/TemplatePesanWhatsapp/TemplatePesanWhatsapp.vue';
+import TransaksiVisa from '@/components/User/Modules/TransaksiVisa/TransaksiVisa.vue';
+import PesanWhatsapp from '@/components/User/Modules/PesanWhatsapp/PesanWhatsapp.vue';
+import PembayaranFeeAgen from '@/components/User/Modules/PembayaranFeeAgen/PembayaranFeeAgen.vue';
+import TransaksiPassport from '@/components/User/Modules/TransaksiPassport/TransaksiPassport.vue';
+import TransHotel from '@/components/User/Modules/TransHotel/TransHotel.vue';
+import Modal from '@/components/User/Modules/Modal/Modal.vue';
+import TransTransport from '@/components/User/Modules/TransTransport/TransTransport.vue';
+import RekapitulasiTicket from '@/components/User/Modules/RekapitulasiTicket/RekapitulasiTicket.vue';
+import KasKeluarMasuk from '@/components/User/Modules/KasKeluarMasuk/KasKeluarMasuk.vue';
+import DaftarPembayaran from '@/components/User/Modules/PembayaranGaji/DaftarPembayaran.vue';
+import DaftarStokFasilitas from '@/components/User/Modules/DaftarStokFasilitas/DaftarStokFasilitas.vue';
+import Headline from '@/components/User/Modules/Headline/Headline.vue';
+import ItemFasilitas from '@/components/User/Modules/ItemFasilitas/ItemFasilitas.vue';
+import AkunBank from '@/components/User/Modules/AkunBank/AkunBank.vue';
+import DaftarProdukPpob from '@/components/User/Modules/DaftarProdukPpob/DaftarProdukPpob.vue';
+import TransFasilitas from '@/components/User/Modules/TransFasilitas/TransFasilitas.vue';
+import RiwayatTransaksiPpob from '@/components/User/Modules/RiwayatTransaksiPpob/RiwayatTransaksiPpob.vue';
+import PermintaanDepositMember from '@/components/User/Modules/PermintaanDepositMember/PermintaanDepositMember.vue';
+import RiwayatDepositMaskapai from '@/components/User/Modules/RiwayatDepositMaskapai/RiwayatDepositMaskapai.vue';
+import RequestMember from '@/components/User/Modules/RequestMember/RequestMember.vue';
+import RiwayatTambahSaldoPerusahaan from '@/components/User/Modules/RiwayatTambahSaldoPerusahaan/RiwayatTambahSaldoPerusahaan.vue';
+
+// riwayat_tambah_saldo_perusahaan
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -125,22 +128,23 @@ const tabComponents = {
   trans_fasilitas: TransFasilitas,
   riwayat_deposit_maskapai: RiwayatDepositMaskapai,
   request_member: RequestMember,
-}
+  riwayat_tambah_saldo_perusahaan: RiwayatTambahSaldoPerusahaan,
+};
 
-const selectedTab = useSelectedTab() // untuk menampung daftar tab yang menu / submenunya di click
-const tab = useGlobalTab()
-const activeTab = useGlobalActiveTab()
-const tabTerpilih = useTabTerpilih()
+const selectedTab = useSelectedTab(); // untuk menampung daftar tab yang menu / submenunya di click
+const tab = useGlobalTab();
+const activeTab = useGlobalActiveTab();
+const tabTerpilih = useTabTerpilih();
 
 //const props = defineProps<{ default: string; tabAwal: any }>()
-const mulaiPilihTab = ref(false)
+const mulaiPilihTab = ref(false);
 
 const selectTab = (tabPath: string, key: number) => {
   // tabTerpilih.value = key
-  tabTerpilih.setNumber(key)
-  activeTab.setString(tabPath) // Menandai tab yang dipilih
-  mulaiPilihTab.value = true
-}
+  tabTerpilih.setNumber(key);
+  activeTab.setString(tabPath); // Menandai tab yang dipilih
+  mulaiPilihTab.value = true;
+};
 </script>
 
 <template>

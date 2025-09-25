@@ -1,13 +1,13 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Request_deposit_members', {
+    await queryInterface.createTable("Request_deposit_members", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       company_id: {
         type: Sequelize.INTEGER,
@@ -15,7 +15,7 @@ module.exports = {
           model: "Companies",
           key: "id",
         },
-        onDelete: 'CASCADE',
+        onDelete: "CASCADE",
       },
       member_id: {
         type: Sequelize.INTEGER,
@@ -23,24 +23,24 @@ module.exports = {
           model: "Members",
           key: "id",
         },
-        onDelete: 'CASCADE',
+        onDelete: "CASCADE",
       },
       nominal: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       code: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       status: {
         type: Sequelize.ENUM,
-        values: ['disetujui', 'ditolak',"diproses"],
-        defaultValue : "diproses"
+        values: ["disetujui", "ditolak", "diproses"],
+        defaultValue: "diproses",
       },
       status_note: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
       },
       petugas: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       akun_bank_perusahaan_id: {
         type: Sequelize.INTEGER,
@@ -48,24 +48,24 @@ module.exports = {
           model: "Akun_bank_perusahaans",
           key: "id",
         },
-        onDelete: 'CASCADE',
+        onDelete: "CASCADE",
       },
       sending_payment_status: {
         type: Sequelize.ENUM,
-        values: ['belum_dikirim', 'sudah_dikirim'],
-        defaultValue : "belum_dikirim"
+        values: ["belum_dikirim", "sudah_dikirim"],
+        defaultValue: "belum_dikirim",
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Request_deposit_members');
-  }
+    await queryInterface.dropTable("Request_deposit_members");
+  },
 };

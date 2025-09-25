@@ -24,7 +24,7 @@ class Model_r {
 
     if (body.pageNumber != undefined && body.pageNumber !== '0' ) page = body.pageNumber;
 
-    let where = { division_id: this.req.body.cabang, status: 'process' };
+    let where = { division_id: this.req.body.cabang, status: body.status };
         
     if (body.search != undefined && body.search != "") {
       where = {...where,...{ 
@@ -46,6 +46,7 @@ class Model_r {
       "birth_place",
       "whatsapp_number",
       "address",
+      "status",
       "updatedAt",
     ];
     sql["where"] = where;
@@ -84,6 +85,7 @@ class Model_r {
                 address: e.address,
                 agen: e.Agen ? (e.Agen.Member ? e.Agen.Member.fullname : '') : '',
                 cabangName: e.Division ? e.Division.name : '',
+                status: e.status,
                 updatedAt: moment( e.updatedAt ).format("YYYY-MM-DD HH:mm:ss"),
               });
             })

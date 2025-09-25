@@ -1,46 +1,45 @@
 const express = require("express");
 const { body } = require("express-validator");
-const controllers = require("../modules/request_member/controllers/index");
+const controllers = require("../modules/request_tambah_saldo_perusahaan/controllers/index");
 const { authenticateToken } = require("../middleware/authenticateToken");
-const validation = require("../validation/request_member");
-const validationCabang  = require("../validation/param");
+// const validation = require("../validation/request_tambah_saldo_perusahaan");
 
 const router = express.Router();
 
 router.post(
-  "/request_member/list",
+  "/riwayat_tambah_saldo_perusahaan/list",
   authenticateToken,
   [
-    body("cabang").trim().notEmpty().withMessage("Cabang tidak boleh kosong.").isNumeric().withMessage("ID Cabang harus berupa angka.").custom(validationCabang.check_cabang_id),
-    body("status").trim().notEmpty().withMessage("Status tidak boleh kosong.").isIn(['process', 'approved', 'rejected']).withMessage("Status tidak valid."),
-    body("pageNumber").trim().notEmpty().withMessage("Page Number tidak boleh kosong."),
-    body("perpage").trim().notEmpty().withMessage("Jumlah Per Page tidak boleh kosong."),
+    body("pageNumber")
+      .trim()
+      .notEmpty()
+      .withMessage("Page Number tidak boleh kosong."),
+    body("perpage")
+      .trim()
+      .notEmpty()
+      .withMessage("Jumlah Per Page tidak boleh kosong."),
     body("search").trim(),
-    
   ],
   controllers.list
 );
 
-router.post(
-  "/request_member/setujuiRequestMember",
-  authenticateToken,
-  [
-    body("id").trim().notEmpty().withMessage("Id tidak boleh kosong.").isNumeric().withMessage("ID Request harus berupa angka.").custom(validation.check_id_request_member),
-  ],
-  controllers.setujuiRequestMember
-);
+// router.post(
+//   "/request_member/setujuiRequestMember",
+//   authenticateToken,
+//   [
+//     body("id").trim().notEmpty().withMessage("Id tidak boleh kosong.").isNumeric().withMessage("ID Request harus berupa angka.").custom(validation.check_id_request_member),
+//   ],
+//   controllers.setujuiRequestMember
+// );
 
-
-router.post(
-  "/request_member/rejectRequestMember",
-  authenticateToken,
-  [
-    body("id").trim().notEmpty().withMessage("Id tidak boleh kosong.").isNumeric().withMessage("ID Request harus berupa angka.").custom(validation.check_id_request_member),
-  ],
-  controllers.rejectRequestMember
-);
-
-
+// router.post(
+//   "/request_member/rejectRequestMember",
+//   authenticateToken,
+//   [
+//     body("id").trim().notEmpty().withMessage("Id tidak boleh kosong.").isNumeric().withMessage("ID Request harus berupa angka.").custom(validation.check_id_request_member),
+//   ],
+//   controllers.rejectRequestMember
+// );
 
 // export const setujuiRequestMember = async (id : number) => {
 //   try {

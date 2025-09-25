@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Transaction_deposit_company extends Model {
     /**
@@ -16,15 +14,19 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
-  Transaction_deposit_company.init({
-    company_id: DataTypes.INTEGER,
-    nominal: DataTypes.INTEGER,
-    type_transaction: DataTypes.ENUM(['deposit', 'ppob']),
-    ket: DataTypes.TEXT,
-    status: DataTypes.ENUM(['process', 'approved', 'rejected']),
-  }, {
-    sequelize,
-    modelName: 'Transaction_deposit_company',
-  });
+  Transaction_deposit_company.init(
+    {
+      company_id: DataTypes.INTEGER,
+      transaction_code: DataTypes.STRING,
+      nominal: DataTypes.INTEGER,
+      type_transaction: DataTypes.ENUM(["deposit", "ppob"]),
+      ket: DataTypes.TEXT,
+      status: DataTypes.ENUM(["process", "approved", "rejected"]),
+    },
+    {
+      sequelize,
+      modelName: "Transaction_deposit_company",
+    }
+  );
   return Transaction_deposit_company;
 };

@@ -1,54 +1,54 @@
 <script setup lang="ts">
 // Import Icon
-import DeleteIcon from '@/components/User/Modules/DaftarHotel/Icon/DeleteIcon.vue'
-import EditIcon from '@/components/User/Modules/DaftarHotel/Icon/EditIcon.vue'
+import DeleteIcon from '@/components/User/Modules/DaftarHotel/Icon/DeleteIcon.vue';
+import EditIcon from '@/components/User/Modules/DaftarHotel/Icon/EditIcon.vue';
 
 // import element
-import Form from '@/components/User/Modules/DaftarHotel/Widget/Form.vue'
-import DangerButton from '@/components/User/Modules/DaftarHotel/Particle/DangerButton.vue'
-import Notification from '@/components/User/Modules/DaftarHotel/Particle/Notification.vue'
-import Confirmation from '@/components/User/Modules/DaftarHotel/Particle/Confirmation.vue'
+import Form from '@/components/User/Modules/DaftarHotel/Widget/Form.vue';
+import DangerButton from '@/components/User/Modules/DaftarHotel/Particle/DangerButton.vue';
+import Notification from '@/components/User/Modules/DaftarHotel/Particle/Notification.vue';
+import Confirmation from '@/components/User/Modules/DaftarHotel/Particle/Confirmation.vue';
 
-import PrimaryButton from '@/components/Button/PrimaryButton.vue'
-import LightButton from "@/components/Button/LightButton.vue"
-import Pagination from '@/components/Pagination/Pagination.vue'
+import PrimaryButton from '@/components/Button/PrimaryButton.vue';
+import LightButton from '@/components/Button/LightButton.vue';
+import Pagination from '@/components/Pagination/Pagination.vue';
 
 // Import service API
-import { daftarHotel, deleteHotel } from '@/service/daftar_hotel' // Import function POST
+import { daftarHotel, deleteHotel } from '@/service/daftar_hotel'; // Import function POST
 import { ref, onMounted, computed } from 'vue';
 
 const itemsPerPage = 100; // Jumlah hotel per halaman
 const currentPage = ref(1);
-const search = ref("");
+const search = ref('');
 const totalPages = ref(0);
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
-    fetchData()
+    fetchData();
   }
 };
 
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
-    fetchData()
+    fetchData();
   }
 };
 
-const pageNow = (page : number) => {
-  currentPage.value = page
-  fetchData()
-}
+const pageNow = (page: number) => {
+  currentPage.value = page;
+  fetchData();
+};
 
 // Generate array angka halaman
 const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
 });
 
-const getStars = (star : number) => {
-  return "⭐".repeat(star);
-}
+const getStars = (star: number) => {
+  return '⭐'.repeat(star);
+};
 
 interface Hotel {
   id: number;
@@ -75,15 +75,15 @@ const selectedHotel = ref<Partial<Hotel>>({
   kota: '',
   name: '',
   desc: '',
-  star: 0
+  star: 0,
 });
 
 const fetchData = async () => {
   try {
     const response = await daftarHotel({
-        search: search.value,
-        perpage: itemsPerPage,
-        pageNumber: currentPage.value,
+      search: search.value,
+      perpage: itemsPerPage,
+      pageNumber: currentPage.value,
     });
 
     totalPages.value = Math.ceil(response.total / itemsPerPage);
@@ -101,7 +101,7 @@ const openModal = (hotel?: Hotel) => {
 
 onMounted(async () => {
   await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-  totalColumns.value = document.querySelectorAll("thead th").length;
+  totalColumns.value = document.querySelectorAll('thead th').length;
 });
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
@@ -124,31 +124,24 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 };
 
 const deleteData = async (id: number) => {
-  showConfirmation(
-    'Konfirmasi Hapus',
-    'Apakah Anda yakin ingin menghapus data ini?',
-    async () => {
-      try {
-        const response = await deleteHotel(id);
-        showConfirmDialog.value = false;
-        displayNotification(response.error_msg);
-        fetchData();
-      } catch (error) {
-        displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
-      }
+  showConfirmation('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus data ini?', async () => {
+    try {
+      const response = await deleteHotel(id);
+      showConfirmDialog.value = false;
+      displayNotification(response.error_msg);
+      fetchData();
+    } catch (error) {
+      displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
     }
-  );
+  });
 };
-
 </script>
 
 <template>
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
-      <PrimaryButton
-        @click="openModal()"
-      >
+      <PrimaryButton @click="openModal()">
         <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
         Tambah Hotel
       </PrimaryButton>
@@ -170,17 +163,22 @@ const deleteData = async (id: number) => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-
-            <th class="w-[45%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Hotel</th>
+            <th class="w-[45%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+              Nama Hotel
+            </th>
             <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Kota</th>
-            <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Desc Hotel</th>
+            <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+              Desc Hotel
+            </th>
             <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
           <template v-if="dataHotel && dataHotel.length > 0">
             <tr v-for="hotel in dataHotel" :key="hotel.id" class="hover:bg-gray-50">
-              <td class="px-6 py-4 text-center">{{ hotel.name }}<br><span v-html="getStars(hotel.star)"></span>({{ hotel.star }})</td>
+              <td class="px-6 py-4 text-center">
+                {{ hotel.name }}<br /><span v-html="getStars(hotel.star)"></span>({{ hotel.star }})
+              </td>
               <td class="px-6 py-4 text-center">{{ hotel.kota }}</td>
               <td class="px-6 py-4 text-center">{{ hotel.desc }}</td>
               <td class="px-6 py-4 text-center">
@@ -196,20 +194,22 @@ const deleteData = async (id: number) => {
             </tr>
           </template>
           <tr v-else>
-            <td colspan="4" class="px-6 py-4 text-center text-base text-gray-600">Daftar hotel tidak ditemukan.</td>
+            <td colspan="4" class="px-6 py-4 text-center text-base text-gray-600">
+              Daftar hotel tidak ditemukan.
+            </td>
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
           <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="total"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            :pages="pages"
+            :total-columns="totalColumns"
+            :total-row="total"
+            @prev-page="prevPage"
+            @next-page="nextPage"
+            @page-now="pageNow"
+          />
         </tfoot>
       </table>
     </div>
@@ -226,14 +226,28 @@ const deleteData = async (id: number) => {
         v-if="isModalOpen"
         :is-modal-open="isModalOpen"
         :selected-hotel="selectedHotel"
-        @close="isModalOpen = false; fetchData()"
-        @status="(payload) => displayNotification(payload.err_msg || 'Tambah atau Update Hotel gagal', payload.error ? 'error' : 'success')"
+        @close="
+          isModalOpen = false;
+          fetchData();
+        "
+        @status="
+          (payload) =>
+            displayNotification(
+              payload.err_msg || 'Tambah atau Update Hotel gagal',
+              payload.error ? 'error' : 'success',
+            )
+        "
       />
     </Transition>
 
     <!-- Confirmation Dialog -->
-    <Confirmation :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
-      <button @click="confirmAction && confirmAction()"
+    <Confirmation
+      :showConfirmDialog="showConfirmDialog"
+      :confirmTitle="confirmTitle"
+      :confirmMessage="confirmMessage"
+    >
+      <button
+        @click="confirmAction && confirmAction()"
         class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
       >
         Ya
@@ -247,6 +261,11 @@ const deleteData = async (id: number) => {
     </Confirmation>
 
     <!-- Notification Popup -->
-    <Notification  :showNotification="showNotification"  :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false"  ></Notification>
+    <Notification
+      :showNotification="showNotification"
+      :notificationType="notificationType"
+      :notificationMessage="notificationMessage"
+      @close="showNotification = false"
+    ></Notification>
   </div>
 </template>

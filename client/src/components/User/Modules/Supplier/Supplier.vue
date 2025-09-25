@@ -1,19 +1,19 @@
 <script setup lang="ts">
 // Import Icon
-import DeleteIcon from '@/components/Icons/DeleteIcon.vue'
+import DeleteIcon from '@/components/Icons/DeleteIcon.vue';
 // import EditIcon from '@/components/User/Modules/Supplier/Icon/EditIcon.vue'
-import EditIcon from '@/components/Icons/EditIcon.vue'
-import PrimaryButton from '@/components/Button/PrimaryButton.vue'
+import EditIcon from '@/components/Icons/EditIcon.vue';
+import PrimaryButton from '@/components/Button/PrimaryButton.vue';
 
 // import element
-import DangerButton from '@/components/User/Modules/Supplier/Particle/DangerButton.vue'
-import LightButton from "@/components/Button/LightButton.vue"
-import Notification from '@/components/User/Modules/Supplier/Particle/Notification.vue'
-import Confirmation from '@/components/User/Modules/Supplier/Particle/Confirmation.vue'
+import DangerButton from '@/components/User/Modules/Supplier/Particle/DangerButton.vue';
+import LightButton from '@/components/Button/LightButton.vue';
+import Notification from '@/components/User/Modules/Supplier/Particle/Notification.vue';
+import Confirmation from '@/components/User/Modules/Supplier/Particle/Confirmation.vue';
 
 // import widget componen
-import Pagination from '@/components/Pagination/Pagination.vue'
-import Form from '@/components/User/Modules/Supplier/Widget/Form.vue'
+import Pagination from '@/components/Pagination/Pagination.vue';
+import Form from '@/components/User/Modules/Supplier/Widget/Form.vue';
 
 // Import service API
 import { daftarSupplier, deleteSupplier } from '@/service/supplier'; // Import function POST
@@ -21,27 +21,27 @@ import { ref, onMounted, computed } from 'vue';
 
 const itemsPerPage = 100; // Jumlah supplier per halaman
 const currentPage = ref(1);
-const search = ref("");
+const search = ref('');
 const totalPages = ref(0);
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
-    fetchData()
+    fetchData();
   }
 };
 
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
-    fetchData()
+    fetchData();
   }
 };
 
-const pageNow = (page : number) => {
-  currentPage.value = page
-  fetchData()
-}
+const pageNow = (page: number) => {
+  currentPage.value = page;
+  fetchData();
+};
 
 // Generate array angka halaman
 const pages = computed(() => {
@@ -82,33 +82,45 @@ const selectedSupplier = ref<Partial<EditSupplier>>({
   name: '',
   address: '',
   bank_id: 0,
-  nomor_rekening: ''
+  nomor_rekening: '',
 });
 
 const fetchData = async () => {
   try {
     const supplierResponse = await daftarSupplier({
-        search: search.value,
-        perpage: itemsPerPage,
-        pageNumber: currentPage.value,
+      search: search.value,
+      perpage: itemsPerPage,
+      pageNumber: currentPage.value,
     });
 
     dataSupplier.value = supplierResponse?.data || [];
     total.value = supplierResponse?.total;
-    totalPages.value = supplierResponse?.total ? Math.ceil(supplierResponse.total / itemsPerPage) : 0;
+    totalPages.value = supplierResponse?.total
+      ? Math.ceil(supplierResponse.total / itemsPerPage)
+      : 0;
   } catch (error) {
     displayNotification('Terjadi kesalahan saat mengambil data.', 'error');
   }
 };
 
 const openModal = (supplier?: Supplier) => {
-  selectedSupplier.value = supplier ? { ...{ id: supplier.id, name: supplier.name, address: supplier.address, bank_id: supplier.bank_id, nomor_rekening: supplier.nomor_rekening } } : { name: '', address: '', bank_id: 0,  nomor_rekening: '' };
+  selectedSupplier.value = supplier
+    ? {
+        ...{
+          id: supplier.id,
+          name: supplier.name,
+          address: supplier.address,
+          bank_id: supplier.bank_id,
+          nomor_rekening: supplier.nomor_rekening,
+        },
+      }
+    : { name: '', address: '', bank_id: 0, nomor_rekening: '' };
   isModalOpen.value = true;
 };
 
 onMounted(async () => {
   await fetchData(); // Pastikan data sudah diambil sebelum menghitung jumlah kolom
-  totalColumns.value = document.querySelectorAll("thead th").length;
+  totalColumns.value = document.querySelectorAll('thead th').length;
 });
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
@@ -131,30 +143,24 @@ const showConfirmation = (title: string, message: string, action: () => void) =>
 };
 
 const deleteData = async (id: number) => {
-  showConfirmation(
-    'Konfirmasi Hapus',
-    'Apakah Anda yakin ingin menghapus data ini?',
-    async () => {
-      try {
-        const response = await deleteSupplier(id);
-        showConfirmDialog.value = false;
-        displayNotification(response.error_msg);
-        fetchData();
-      } catch (error) {
-        displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
-      }
+  showConfirmation('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus data ini?', async () => {
+    try {
+      const response = await deleteSupplier(id);
+      showConfirmDialog.value = false;
+      displayNotification(response.error_msg);
+      fetchData();
+    } catch (error) {
+      displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
     }
-  );
+  });
 };
-
 </script>
 
 <template>
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
-      <PrimaryButton
-        @click="openModal()">
+      <PrimaryButton @click="openModal()">
         <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
         Tambah Supplier
       </PrimaryButton>
@@ -176,10 +182,16 @@ const deleteData = async (id: number) => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nama Supplier</th>
-            <th class="w-[30%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Alamat</th>
+            <th class="w-[25%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+              Nama Supplier
+            </th>
+            <th class="w-[30%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+              Alamat
+            </th>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Bank</th>
-            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Nomor Rekening</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+              Nomor Rekening
+            </th>
             <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
@@ -203,20 +215,22 @@ const deleteData = async (id: number) => {
             </tr>
           </template>
           <tr v-else>
-            <td colspan="5" class="px-6 py-4 text-center text-base text-gray-600">Daftar supplier tidak ditemukan.</td>
+            <td colspan="5" class="px-6 py-4 text-center text-base text-gray-600">
+              Daftar supplier tidak ditemukan.
+            </td>
           </tr>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
           <Pagination
-              :current-page="currentPage"
-              :total-pages="totalPages"
-              :pages="pages"
-              :total-columns="totalColumns"
-              :total-row="total"
-              @prev-page="prevPage"
-              @next-page="nextPage"
-              @page-now="pageNow"
-            />
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            :pages="pages"
+            :total-columns="totalColumns"
+            :total-row="total"
+            @prev-page="prevPage"
+            @next-page="nextPage"
+            @page-now="pageNow"
+          />
         </tfoot>
       </table>
     </div>
@@ -233,15 +247,28 @@ const deleteData = async (id: number) => {
         v-if="isModalOpen"
         :isModalOpen="isModalOpen"
         :selectedSupplier="selectedSupplier"
-        @close="isModalOpen = false; fetchData()"
-        @status="(payload) => displayNotification(payload.err_msg || 'Tambah atau Update Supplier gagal', payload.error ? 'error' : 'success')"
+        @close="
+          isModalOpen = false;
+          fetchData();
+        "
+        @status="
+          (payload) =>
+            displayNotification(
+              payload.err_msg || 'Tambah atau Update Supplier gagal',
+              payload.error ? 'error' : 'success',
+            )
+        "
       />
     </Transition>
-
   </div>
   <!-- Confirmation Dialog -->
-  <Confirmation :showConfirmDialog="showConfirmDialog"  :confirmTitle="confirmTitle" :confirmMessage="confirmMessage" >
-    <button @click="confirmAction && confirmAction()"
+  <Confirmation
+    :showConfirmDialog="showConfirmDialog"
+    :confirmTitle="confirmTitle"
+    :confirmMessage="confirmMessage"
+  >
+    <button
+      @click="confirmAction && confirmAction()"
       class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
     >
       Ya
@@ -255,5 +282,10 @@ const deleteData = async (id: number) => {
   </Confirmation>
 
   <!-- Notification Popup -->
-  <Notification  :showNotification="showNotification"  :notificationType="notificationType" :notificationMessage="notificationMessage" @close="showNotification = false"  ></Notification>
+  <Notification
+    :showNotification="showNotification"
+    :notificationType="notificationType"
+    :notificationMessage="notificationMessage"
+    @close="showNotification = false"
+  ></Notification>
 </template>

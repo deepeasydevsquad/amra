@@ -1,184 +1,184 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { getDaftarJamaahTransPaket } from '@/service/trans_paket'
-import { paramCabang } from '@/service/param_cabang'
-import Pagination from '@/components/Pagination/Pagination.vue'
-import LightButton from '@/components/Button/LightButton.vue'
+import { ref, computed, onMounted } from 'vue';
+import { getDaftarJamaahTransPaket } from '@/service/trans_paket';
+import { paramCabang } from '@/service/param_cabang';
+import Pagination from '@/components/Pagination/Pagination.vue';
+import LightButton from '@/components/Button/LightButton.vue';
 
 // Import Icon
-import CetakIcon from '@/components/Icons/CetakIcon.vue'
-import HandoverBarangIcon from '@/components/User/Modules/TransPaket/Icon/HandoverBarangIcon.vue'
-import HandoverIcon from '@/components/User/Modules/TransPaket/Icon/HandoverIcon.vue'
+import CetakIcon from '@/components/Icons/CetakIcon.vue';
+import HandoverBarangIcon from '@/components/User/Modules/TransPaket/Icon/HandoverBarangIcon.vue';
+import HandoverIcon from '@/components/User/Modules/TransPaket/Icon/HandoverIcon.vue';
 
 // import particle + widget
-import Notification from '@/components/User/Modules/DaftarJamaahPaket/Particle/Notification.vue'
-import FormCetakDataJamaah from '@/components/User/Modules/DaftarJamaahPaket/Widgets/FormCetakDataJamaah.vue'
-import FormHandoverFasilitas from '@/components/User/Modules/DaftarJamaahPaket/Widgets/FormHandoverFasilitas.vue'
-import FormOpsiHandoverBarang from '@/components/User/Modules/DaftarJamaahPaket/Widgets/FormOpsiHandoverBarang.vue'
-import FormTerimaBarang from '@/components/User/Modules/DaftarJamaahPaket/Widgets/FormTerimaBarang.vue'
-import FormPengembalianBarang from '@/components/User/Modules/DaftarJamaahPaket/Widgets/FormPengembalianBarang.vue'
-import { c } from 'node_modules/vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P'
+import Notification from '@/components/User/Modules/DaftarJamaahPaket/Particle/Notification.vue';
+import FormCetakDataJamaah from '@/components/User/Modules/DaftarJamaahPaket/Widgets/FormCetakDataJamaah.vue';
+import FormHandoverFasilitas from '@/components/User/Modules/DaftarJamaahPaket/Widgets/FormHandoverFasilitas.vue';
+import FormOpsiHandoverBarang from '@/components/User/Modules/DaftarJamaahPaket/Widgets/FormOpsiHandoverBarang.vue';
+import FormTerimaBarang from '@/components/User/Modules/DaftarJamaahPaket/Widgets/FormTerimaBarang.vue';
+import FormPengembalianBarang from '@/components/User/Modules/DaftarJamaahPaket/Widgets/FormPengembalianBarang.vue';
+import { c } from 'node_modules/vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P';
 
-const itemsPerPage = 100 // Jumlah paket_la per halaman
-const search = ref('')
-const currentPage = ref(1)
-const totalPages = ref(0)
-const totalColumns = ref(6)
+const itemsPerPage = 100; // Jumlah paket_la per halaman
+const search = ref('');
+const currentPage = ref(1);
+const totalPages = ref(0);
+const totalColumns = ref(6);
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
-    currentPage.value++
-    fetchData()
+    currentPage.value++;
+    fetchData();
   }
-}
+};
 
 const prevPage = () => {
   if (currentPage.value > 1) {
-    currentPage.value--
-    fetchData()
+    currentPage.value--;
+    fetchData();
   }
-}
+};
 
 const pageNow = (page: number) => {
-  currentPage.value = page
-  fetchData()
-}
+  currentPage.value = page;
+  fetchData();
+};
 
 const pages = computed(() => {
-  return Array.from({ length: totalPages.value }, (_, i) => i + 1)
-})
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+});
 
 interface PaketJamaah {
-  id: number
-  kode: string
-  name: string
-  type: string
-  price: number
-  departure_date: string
-  jamaah_id: number
-  nomor_passport: string
-  fullname: string
-  identity_number: string
-  birth_date: string
-  birth_place: string
+  id: number;
+  kode: string;
+  name: string;
+  type: string;
+  price: number;
+  departure_date: string;
+  jamaah_id: number;
+  nomor_passport: string;
+  fullname: string;
+  identity_number: string;
+  birth_date: string;
+  birth_place: string;
   handover_barang: {
-    id: number
-    name: string
-  }[]
+    id: number;
+    name: string;
+  }[];
   handover_fasilitas: {
-    id: number
-    name: string
-  }[]
+    id: number;
+    name: string;
+  }[];
 }
 
 interface filterCabang {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
-const selectedOptionCabang = ref(0)
-const optionFilterCabang = ref<filterCabang[]>([])
-const total = ref<number>(0)
+const selectedOptionCabang = ref(0);
+const optionFilterCabang = ref<filterCabang[]>([]);
+const total = ref<number>(0);
 
-const dataPaketJamaah = ref<PaketJamaah[]>([])
-const transpaketId = ref<number>(0)
-const isLoading = ref<boolean>(false)
-const isFormCetakDataJamaahOpen = ref<boolean>(false)
-const isFormOpsiHandoverBarangOpen = ref<boolean>(false)
-const isFormHandoverFasilitasOpen = ref<boolean>(false)
-const isFormTerimaBarangOpen = ref<boolean>(false)
-const isFormPengembalianBarangOpen = ref<boolean>(false)
-const notificationMessage = ref<string>('')
-const notificationType = ref<'success' | 'error'>('success')
-const showNotification = ref<boolean>(false)
-const timeoutId = ref<number | null>(null)
+const dataPaketJamaah = ref<PaketJamaah[]>([]);
+const transpaketId = ref<number>(0);
+const isLoading = ref<boolean>(false);
+const isFormCetakDataJamaahOpen = ref<boolean>(false);
+const isFormOpsiHandoverBarangOpen = ref<boolean>(false);
+const isFormHandoverFasilitasOpen = ref<boolean>(false);
+const isFormTerimaBarangOpen = ref<boolean>(false);
+const isFormPengembalianBarangOpen = ref<boolean>(false);
+const notificationMessage = ref<string>('');
+const notificationType = ref<'success' | 'error'>('success');
+const showNotification = ref<boolean>(false);
+const timeoutId = ref<number | null>(null);
 
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
-  notificationMessage.value = message
-  notificationType.value = type
-  showNotification.value = true
+  notificationMessage.value = message;
+  notificationType.value = type;
+  showNotification.value = true;
 
-  if (timeoutId.value) clearTimeout(timeoutId.value)
+  if (timeoutId.value) clearTimeout(timeoutId.value);
 
   timeoutId.value = window.setTimeout(() => {
-    showNotification.value = false
-  }, 3000)
-}
+    showNotification.value = false;
+  }, 3000);
+};
 
 const openFormCetakDataJamaah = (paketJamaah: PaketJamaah) => {
-  transpaketId.value = paketJamaah.id
-  isFormCetakDataJamaahOpen.value = true
-}
+  transpaketId.value = paketJamaah.id;
+  isFormCetakDataJamaahOpen.value = true;
+};
 
 const openFormOpsiHandoverBarang = (paketJamaah: PaketJamaah) => {
-  transpaketId.value = paketJamaah.id
-  isFormOpsiHandoverBarangOpen.value = true
-}
+  transpaketId.value = paketJamaah.id;
+  isFormOpsiHandoverBarangOpen.value = true;
+};
 
 const openFormHandoverFasilitas = (paketJamaah: PaketJamaah) => {
-  transpaketId.value = paketJamaah.id
-  isFormHandoverFasilitasOpen.value = true
-}
+  transpaketId.value = paketJamaah.id;
+  isFormHandoverFasilitasOpen.value = true;
+};
 
 const openTerimaBarangHandover = (id: number) => {
-  transpaketId.value = id
-  isFormTerimaBarangOpen.value = true
-}
+  transpaketId.value = id;
+  isFormTerimaBarangOpen.value = true;
+};
 
 const openPengembalianBarangHandover = (id: number) => {
-  transpaketId.value = id
-  isFormPengembalianBarangOpen.value = true
-}
+  transpaketId.value = id;
+  isFormPengembalianBarangOpen.value = true;
+};
 
 const fetchFilterData = async () => {
-  const response = await paramCabang()
-  optionFilterCabang.value = response.data
-  selectedOptionCabang.value = response.data[0].id
-}
+  const response = await paramCabang();
+  optionFilterCabang.value = response.data;
+  selectedOptionCabang.value = response.data[0].id;
+};
 
 const fetchData = async () => {
   try {
-    isLoading.value = true
+    isLoading.value = true;
     const response = await getDaftarJamaahTransPaket({
       division_id: selectedOptionCabang.value,
       search: search.value,
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
-    })
-    dataPaketJamaah.value = response.data
-    total.value = response.total
-    totalPages.value = Math.ceil(response.total / itemsPerPage)
+    });
+    dataPaketJamaah.value = response.data;
+    total.value = response.total;
+    totalPages.value = Math.ceil(response.total / itemsPerPage);
   } catch (error) {
-    console.error('Error fetching data:', error)
+    console.error('Error fetching data:', error);
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 
-onMounted(async() => {
-  await fetchFilterData()
-  fetchData()
-})
+onMounted(async () => {
+  await fetchFilterData();
+  fetchData();
+});
 
 const handleCloseFormCetak = () => {
-  isFormCetakDataJamaahOpen.value = false
-  fetchData()
-}
+  isFormCetakDataJamaahOpen.value = false;
+  fetchData();
+};
 
 const handleCloseFormHandoverFasilitas = () => {
-  isFormHandoverFasilitasOpen.value = false
-  fetchData()
-}
+  isFormHandoverFasilitasOpen.value = false;
+  fetchData();
+};
 
 const handleCloseFormOpsiHandoverBarang = () => {
-  isFormOpsiHandoverBarangOpen.value = false
-  fetchData()
-}
+  isFormOpsiHandoverBarangOpen.value = false;
+  fetchData();
+};
 </script>
 
 <template>
   <div class="container mx-auto px-0 py-0">
-    <div class="flex justify-end items-center mb-4 text-right">
+    <div class="flex justify-end items-center mb-6 text-right">
       <div class="flex items-center">
         <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Search</label>
         <input
@@ -351,14 +351,14 @@ const handleCloseFormOpsiHandoverBarang = () => {
       @close="handleCloseFormOpsiHandoverBarang"
       @terima-barang="
         () => {
-          isFormOpsiHandoverBarangOpen = false
-          openTerimaBarangHandover(transpaketId)
+          isFormOpsiHandoverBarangOpen = false;
+          openTerimaBarangHandover(transpaketId);
         }
       "
       @pengembalian-barang="
         () => {
-          isFormOpsiHandoverBarangOpen = false
-          openPengembalianBarangHandover(transpaketId)
+          isFormOpsiHandoverBarangOpen = false;
+          openPengembalianBarangHandover(transpaketId);
         }
       "
     />
@@ -379,8 +379,8 @@ const handleCloseFormOpsiHandoverBarang = () => {
       :transpaketId="transpaketId"
       @close="
         () => {
-          isFormTerimaBarangOpen = false
-          fetchData()
+          isFormTerimaBarangOpen = false;
+          fetchData();
         }
       "
       @status="
@@ -408,8 +408,8 @@ const handleCloseFormOpsiHandoverBarang = () => {
       :transpaketId="transpaketId"
       @close="
         () => {
-          isFormPengembalianBarangOpen = false
-          fetchData()
+          isFormPengembalianBarangOpen = false;
+          fetchData();
         }
       "
       @status="

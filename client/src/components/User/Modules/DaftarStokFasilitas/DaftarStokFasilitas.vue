@@ -1,9 +1,14 @@
 <template>
   <div class="container mx-auto p-4">
-    <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
       <div class="flex items-center gap-2"></div>
       <div class="flex items-center gap-0">
-        <input type="text" id="search" v-model="searchQuery" @input="handleSearch" placeholder="Cari berdasarkan nama fasilitas..."
+        <input
+          type="text"
+          id="search"
+          v-model="searchQuery"
+          @input="handleSearch"
+          placeholder="Cari berdasarkan nama fasilitas..."
           class="w-64 px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
         />
       </div>
@@ -15,21 +20,33 @@
           <tr>
             <th class="w-[25%] px-6 py-4 font-medium text-gray-900 text-center">Fasilitas</th>
             <th class="w-[35%] px-6 py-4 font-medium text-gray-900 text-center">Jumlah Stok</th>
-            <th class="w-[35%] px-6 py-4 font-medium text-gray-900 text-center">Jumlah Stok Terjual</th>
+            <th class="w-[35%] px-6 py-4 font-medium text-gray-900 text-center">
+              Jumlah Stok Terjual
+            </th>
             <th class="w-[5%] px-6 py-4 font-medium text-gray-900 text-center w-28">Aksi</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 border-t border-gray-100">
           <template v-if="data.length > 0">
-            <tr  v-for="d in data" :key="d.id" class="hover:bg-gray-50 transition-colors">
-              <td class="px-6 py-4 text-center align-top text-sm font-medium text-gray-700">{{ d.name }}</td>
+            <tr v-for="d in data" :key="d.id" class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 text-center align-top text-sm font-medium text-gray-700">
+                {{ d.name }}
+              </td>
               <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">
                 <table class="w-full mb-0">
                   <tbody>
-                    <tr v-for="(value, index) in d.jumlah_stok" :key="index" class="border-gray-200 hover:bg-gray-200">
-                      <td class=" w-[70%] border-l border-t border-b  px-6 py-2 text-left">{{ value.nama_cabang }}</td>
+                    <tr
+                      v-for="(value, index) in d.jumlah_stok"
+                      :key="index"
+                      class="border-gray-200 hover:bg-gray-200"
+                    >
+                      <td class="w-[70%] border-l border-t border-b px-6 py-2 text-left">
+                        {{ value.nama_cabang }}
+                      </td>
                       <td class="w-[5%] text-center border-t border-b py-2">:</td>
-                      <td class="border-r border-t border-b text-right space-y-2 text-sm px-2 py-2">{{ value.count }} Unit</td>
+                      <td class="border-r border-t border-b text-right space-y-2 text-sm px-2 py-2">
+                        {{ value.count }} Unit
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -37,17 +54,29 @@
               <td class="px-6 py-4 text-center align-top space-y-2 text-sm text-gray-600">
                 <table class="w-full mb-0">
                   <tbody>
-                    <tr v-for="(value2, index2) in d.jumlah_stok_terjual" :key="index2" class="border-gray-200 hover:bg-gray-200">
-                      <td class="w-[70%] border-l border-t border-b px-6 py-2 text-left">{{ value2.nama_cabang }}</td>
+                    <tr
+                      v-for="(value2, index2) in d.jumlah_stok_terjual"
+                      :key="index2"
+                      class="border-gray-200 hover:bg-gray-200"
+                    >
+                      <td class="w-[70%] border-l border-t border-b px-6 py-2 text-left">
+                        {{ value2.nama_cabang }}
+                      </td>
                       <td class="w-[5%] text-center border-t border-b py-2">:</td>
-                      <td class="border-r border-t border-b text-right space-y-2 text-sm px-6 py-2">{{ value2.count }} Unit</td>
+                      <td class="border-r border-t border-b text-right space-y-2 text-sm px-6 py-2">
+                        {{ value2.count }} Unit
+                      </td>
                     </tr>
                   </tbody>
                 </table>
               </td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
-                  <LightButton @click="openModalStock(d.id)" title="Tambah Stok Fasilitas" class="p-1 w-6 h-6" >
+                  <LightButton
+                    @click="openModalStock(d.id)"
+                    title="Tambah Stok Fasilitas"
+                    class="p-1 w-6 h-6"
+                  >
                     <IconPlus class="w-3 h-3" />
                   </LightButton>
                 </div>
@@ -55,13 +84,24 @@
             </tr>
           </template>
           <template v-else>
-            <tr >
-              <td colspan="4" class="px-2 py-2 text-center align-top">Daftar Fasilitas Tidak Ditemukan</td>
+            <tr>
+              <td colspan="4" class="px-2 py-2 text-center align-top">
+                Daftar Fasilitas Tidak Ditemukan
+              </td>
             </tr>
           </template>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
-          <Pagination :currentPage="currentPage" :totalPages="totalPages" :pages="pages" :totalColumns="totalColumns" @prev-page="handlePrev" @next-page="handleNext" @page-now="handlePageNow" :totalRow="totalRow" />
+          <Pagination
+            :currentPage="currentPage"
+            :totalPages="totalPages"
+            :pages="pages"
+            :totalColumns="totalColumns"
+            @prev-page="handlePrev"
+            @next-page="handleNext"
+            @page-now="handlePageNow"
+            :totalRow="totalRow"
+          />
         </tfoot>
       </table>
     </div>
@@ -100,7 +140,6 @@
     @close="ModalStock = false"
     @success="handleSuccess"
   />
-
 </template>
 
 <script setup lang="ts">
@@ -145,18 +184,15 @@ const pageNow = (page: number) => {
   fetchData()
 }
 
-
 interface Stok {
-  nama_cabang: string;
-  count: number;
+  nama_cabang: string
+  count: number
 }
 
 // key = division_id (string/number), value = StokCabang
 interface StokFasilitas {
-  [divisionId: string]: Stok;
+  [divisionId: string]: Stok
 }
-
-
 
 // interface Pinjaman {
 //   id: number
@@ -290,7 +326,6 @@ const bukaModalPeminjaman = () => {
 onMounted(() => {
   fetchData()
 })
-
 
 const ModalStock = ref(false)
 const selectedFasilitasId = ref<number | null>(null)

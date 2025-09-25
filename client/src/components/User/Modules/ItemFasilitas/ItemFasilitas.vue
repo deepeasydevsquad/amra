@@ -127,20 +127,20 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   }, 3000)
 }
 
-const formatRupiah = (angka :any, prefix = "Rp ") => {
-    let numberString = angka.toString().replace(/\D/g, ""),
-      split = numberString.split(","),
-      sisa = split[0].length % 3,
-      rupiah = split[0].substr(0, sisa),
-      ribuan = split[0].substr(sisa).match(/\d{3}/g);
+const formatRupiah = (angka: any, prefix = 'Rp ') => {
+  let numberString = angka.toString().replace(/\D/g, ''),
+    split = numberString.split(','),
+    sisa = split[0].length % 3,
+    rupiah = split[0].substr(0, sisa),
+    ribuan = split[0].substr(sisa).match(/\d{3}/g)
 
-    if (ribuan) {
-      let separator = sisa ? "." : "";
-      rupiah += separator + ribuan.join(".");
-    }
+  if (ribuan) {
+    let separator = sisa ? '.' : ''
+    rupiah += separator + ribuan.join('.')
+  }
 
-    return prefix + (rupiah || "0");
-  };
+  return prefix + (rupiah || '0')
+}
 
 const deleteData = async (id: number) => {
   showConfirmation('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus data ini?', async () => {
@@ -158,18 +158,31 @@ const deleteData = async (id: number) => {
 
 <template>
   <div class="container mx-auto p-4">
-    <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
       <div class="flex items-center gap-2"></div>
       <div class="inline-flex rounded-md shadow-xs" role="group">
-        <input type="text" id="search" class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" v-model="searchQuery" @input="handleSearch" placeholder="Cari data..."/>
-        <select v-model="selectedOptionCabang" style="width: 300px" @change="fetchData()"
+        <input
+          type="text"
+          id="search"
+          class="block w-64 px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-s-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+          v-model="searchQuery"
+          @input="handleSearch"
+          placeholder="Cari data..."
+        />
+        <select
+          v-model="selectedOptionCabang"
+          style="width: 300px"
+          @change="fetchData()"
           class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         >
           <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
             {{ optionC.name }}
           </option>
         </select>
-        <select id="status" v-model="selectedStatus" @change="fetchData"
+        <select
+          id="status"
+          v-model="selectedStatus"
+          @change="fetchData"
           class="px-3 py-2 ml-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
         >
           <option value="">Semua</option>

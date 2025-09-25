@@ -134,75 +134,75 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref, watch, computed } from 'vue'
-import { add_tiket, daftar_costumer, daftar_paket } from '@/service/trans_tiket'
-import { paramCabang } from '@/service/param_cabang'
-import { getAirlines } from '@/service/trans_tiket'
-import Form from '@/components/Modal/Form.vue'
-import InputText from '@/components/Form/InputText.vue'
-import InputDate from '@/components/Form/InputDate.vue'
-import SelectField from '@/components/Form/SelectField.vue'
-import Notification from '@/components/Modal/Notification.vue'
+import { defineProps, ref, watch, computed } from 'vue';
+import { add_tiket, daftar_costumer, daftar_paket } from '@/service/trans_tiket';
+import { paramCabang } from '@/service/param_cabang';
+import { getAirlines } from '@/service/trans_tiket';
+import Form from '@/components/Modal/Form.vue';
+import InputText from '@/components/Form/InputText.vue';
+import InputDate from '@/components/Form/InputDate.vue';
+import SelectField from '@/components/Form/SelectField.vue';
+import Notification from '@/components/Modal/Notification.vue';
 
-const props = defineProps<{ showForm: boolean }>()
+const props = defineProps<{ showForm: boolean }>();
 
 const hargaTravel = computed({
   get() {
     return form.value.harga_travel
       ? 'Rp ' + form.value.harga_travel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-      : ''
+      : '';
   },
   set(value: string) {
-    const clean = value.replace(/[^\d]/g, '')
-    form.value.harga_travel = Number(clean)
+    const clean = value.replace(/[^\d]/g, '');
+    form.value.harga_travel = Number(clean);
   },
-})
+});
 
 const hargaKostumer = computed({
   get() {
     return form.value.harga_kostumer
       ? 'Rp ' + form.value.harga_kostumer.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-      : ''
+      : '';
   },
   set(value: string) {
-    const clean = value.replace(/[^\d]/g, '')
-    form.value.harga_kostumer = Number(clean)
+    const clean = value.replace(/[^\d]/g, '');
+    form.value.harga_kostumer = Number(clean);
   },
-})
+});
 
 const diBayar = computed({
   get() {
     return form.value.dibayar
       ? 'Rp ' + form.value.dibayar.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-      : ''
+      : '';
   },
   set(value: string) {
-    const clean = value.replace(/[^\d]/g, '')
-    form.value.dibayar = Number(clean)
+    const clean = value.replace(/[^\d]/g, '');
+    form.value.dibayar = Number(clean);
   },
-})
+});
 
-const errors = ref<Record<string, string>>({})
+const errors = ref<Record<string, string>>({});
 
 // Definisikan tipe untuk form yang sesuai dengan semua field di template
 interface FormData {
-  cabang: number
-  maskapai: number
-  kostumer: number
-  paket: number
-  pax?: number
-  kode_booking?: string
-  tanggal_keberangkatan: string
-  tanggal_kepulangan?: string
-  harga_travel: number
-  harga_kostumer: number
-  dibayar?: number
+  cabang: number;
+  maskapai: number;
+  kostumer: number;
+  paket: number;
+  pax?: number;
+  kode_booking?: string;
+  tanggal_keberangkatan: string;
+  tanggal_kepulangan?: string;
+  harga_travel: number;
+  harga_kostumer: number;
+  dibayar?: number;
 }
 
 const emit = defineEmits<{
-  (e: 'cancel'): void
-  (e: 'submitted'): void
-}>()
+  (e: 'cancel'): void;
+  (e: 'submitted'): void;
+}>();
 
 // Data form yang akan ditampilkan
 const form = ref<FormData>({
@@ -213,10 +213,10 @@ const form = ref<FormData>({
   tanggal_keberangkatan: '',
   harga_travel: 0,
   harga_kostumer: 0,
-})
+});
 
 const reset = () => {
-  errors.value = {}
+  errors.value = {};
   form.value = {
     cabang: 0,
     maskapai: 0,
@@ -225,29 +225,29 @@ const reset = () => {
     tanggal_keberangkatan: '',
     harga_travel: 0,
     harga_kostumer: 0,
-  }
-}
+  };
+};
 
 function handleCancel() {
-  emit('cancel')
-  reset()
+  emit('cancel');
+  reset();
 }
 
 const calculateSisa = computed(() => {
-  return (form.value.pax ?? 0) * (form.value.harga_kostumer ?? 0) - (form.value.dibayar ?? 0)
-})
+  return (form.value.pax ?? 0) * (form.value.harga_kostumer ?? 0) - (form.value.dibayar ?? 0);
+});
 
 const validateForm = (): boolean => {
-  let isValid = true
+  let isValid = true;
 
   // Reset errors
-  errors.value = {}
+  errors.value = {};
 
   if (form.value.cabang == 0) {
     // validasi cabang
     if (form.value.cabang == 0) {
-      errors.value.cabang = 'Cabang wajib dipilih'
-      isValid = false
+      errors.value.cabang = 'Cabang wajib dipilih';
+      isValid = false;
     }
   }
 
@@ -256,51 +256,51 @@ const validateForm = (): boolean => {
     (!form.value.kostumer || form.value.kostumer === 0) &&
     (!form.value.paket || form.value.paket === 0)
   ) {
-    errors.value.kostumer_paket = 'Kostumer atau paket wajib dipilih'
-    isValid = false
+    errors.value.kostumer_paket = 'Kostumer atau paket wajib dipilih';
+    isValid = false;
   }
 
   if (form.value.maskapai === 0) {
-    errors.value.cabang = 'Maskapai wajib dipilih'
-    isValid = false
+    errors.value.cabang = 'Maskapai wajib dipilih';
+    isValid = false;
   }
 
   if (form.value.pax === 0) {
-    errors.value.pax = 'Pax tidak boleh lebih kecil dari 1'
-    isValid = false
+    errors.value.pax = 'Pax tidak boleh lebih kecil dari 1';
+    isValid = false;
   }
 
   if (form.value.kode_booking === '') {
-    errors.value.kode_booking = 'Kode booking wajib diisi'
-    isValid = false
+    errors.value.kode_booking = 'Kode booking wajib diisi';
+    isValid = false;
   }
 
   if (form.value.tanggal_keberangkatan === '') {
-    errors.value.tanggal_keberangkatan = 'Tanggal keberangkatan wajib diisi'
-    isValid = false
+    errors.value.tanggal_keberangkatan = 'Tanggal keberangkatan wajib diisi';
+    isValid = false;
   }
 
   if (form.value.harga_travel === 0 || form.value.harga_travel < 0) {
-    errors.value.harga_travel = 'Harga travel harus lebih besar dari 0'
-    isValid = false
+    errors.value.harga_travel = 'Harga travel harus lebih besar dari 0';
+    isValid = false;
   }
 
   if (form.value.harga_kostumer === 0 || form.value.harga_kostumer < 0) {
-    errors.value.harga_kostumer = 'Harga kostumer harus lebih besar dari 0'
-    isValid = false
+    errors.value.harga_kostumer = 'Harga kostumer harus lebih besar dari 0';
+    isValid = false;
   }
 
   if ((form.value.dibayar ?? 0) < 0) {
-    errors.value.dibayar = 'Dibayar tidak boleh lebih kecil dari 0'
-    isValid = false
+    errors.value.dibayar = 'Dibayar tidak boleh lebih kecil dari 0';
+    isValid = false;
   }
 
-  return isValid
-}
+  return isValid;
+};
 
 const handleSubmit = async (): Promise<void> => {
   if (!validateForm()) {
-    return
+    return;
   }
 
   try {
@@ -316,121 +316,121 @@ const handleSubmit = async (): Promise<void> => {
       harga_travel: form.value.harga_travel,
       harga_kostumer: form.value.harga_kostumer,
       dibayar: form.value.dibayar,
-    }
+    };
 
-    const response = await add_tiket(payload)
-    displayNotification(response.message, 'success')
-    const printUrl = `/invoice-trans-tiket/${response.register_number}`
-    window.open(printUrl, '_blank')
-    console.log(response.register_number)
-    emit('submitted')
-    reset()
+    const response = await add_tiket(payload);
+    displayNotification(response.message, 'success');
+    const printUrl = `/invoice-trans-tiket/${response.register_number}`;
+    window.open(printUrl, '_blank');
+    console.log(response.register_number);
+    emit('submitted');
+    reset();
   } catch (error) {
-    displayNotification(error.response.data.message, 'error')
+    displayNotification(error.response.data.message, 'error');
   }
-}
+};
 
 const formatRupiah = (value: number): string => {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 2,
-  }).format(value)
-}
+  }).format(value);
+};
 
 interface costumer {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
-const list_kostumer = ref<costumer[]>([{ id: 0, name: ' -- Pilih Kostumer -- ' }])
+const list_kostumer = ref<costumer[]>([{ id: 0, name: ' -- Pilih Kostumer -- ' }]);
 const fetchCustomer = async () => {
   try {
-    const response = await daftar_costumer()
-    list_kostumer.value = [{ id: 0, name: ' -- Pilih Kostumer -- ' }, ...response]
+    const response = await daftar_costumer();
+    list_kostumer.value = [{ id: 0, name: ' -- Pilih Kostumer -- ' }, ...response];
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
-}
+};
 
 interface Maskapai {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
-const list_maskapai = ref<Maskapai[]>([{ id: 0, name: ' -- Pilih Maskapai -- ' }])
+const list_maskapai = ref<Maskapai[]>([{ id: 0, name: ' -- Pilih Maskapai -- ' }]);
 const fetchMaskapai = async () => {
   try {
-    const response = await getAirlines({ cabang: form.value.cabang })
-    list_maskapai.value = response.data
+    const response = await getAirlines({ cabang: form.value.cabang });
+    list_maskapai.value = response.data;
   } catch (error) {
-    console.error('Gagal fetch data cabang:', error)
+    console.error('Gagal fetch data cabang:', error);
   }
-}
+};
 
 interface cabang {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
-const list_cabang = ref<cabang[]>([{ id: 0, name: ' -- Pilih Cabang -- ' }])
+const list_cabang = ref<cabang[]>([{ id: 0, name: ' -- Pilih Cabang -- ' }]);
 const fetchCabang = async () => {
   try {
-    const response = await paramCabang()
-    list_cabang.value = [{ id: 0, name: ' -- Pilih Cabang -- ' }, ...response.data]
+    const response = await paramCabang();
+    list_cabang.value = [{ id: 0, name: ' -- Pilih Cabang -- ' }, ...response.data];
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
-}
+};
 
 interface paket {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
-const list_paket = ref<paket[]>([{ id: 0, name: ' -- Pilih Paket -- ' }]) // Tambahkan opsi default
+const list_paket = ref<paket[]>([{ id: 0, name: ' -- Pilih Paket -- ' }]); // Tambahkan opsi default
 const fetchPaket = async () => {
   try {
     const response = await daftar_paket({
       division_id: form.value.cabang,
-    })
-    list_paket.value = [{ id: 0, name: ' -- Pilih Paket -- ' }, ...response]
+    });
+    list_paket.value = [{ id: 0, name: ' -- Pilih Paket -- ' }, ...response];
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
-}
+};
 
 const fetchPaketMaskapai = async () => {
   if (form.value.cabang != 0) {
-    fetchPaket()
-    fetchMaskapai()
+    fetchPaket();
+    fetchMaskapai();
   } else {
-    list_paket.value = [{ id: 0, name: ' -- Pilih Paket -- ' }]
-    list_maskapai.value = [{ id: 0, name: ' -- Pilih Maskapai -- ' }]
+    list_paket.value = [{ id: 0, name: ' -- Pilih Paket -- ' }];
+    list_maskapai.value = [{ id: 0, name: ' -- Pilih Maskapai -- ' }];
   }
-}
+};
 
-const showNotification = ref(false)
-const notificationMessage = ref('')
-const notificationType = ref<'success' | 'error'>('success')
-const timeoutId = ref<number | null>(null)
+const showNotification = ref(false);
+const notificationMessage = ref('');
+const notificationType = ref<'success' | 'error'>('success');
+const timeoutId = ref<number | null>(null);
 const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
-  notificationMessage.value = message
-  notificationType.value = type
-  showNotification.value = true
-  if (timeoutId.value) clearTimeout(timeoutId.value)
+  notificationMessage.value = message;
+  notificationType.value = type;
+  showNotification.value = true;
+  if (timeoutId.value) clearTimeout(timeoutId.value);
   timeoutId.value = window.setTimeout(() => {
-    showNotification.value = false
-  }, 3000)
-}
+    showNotification.value = false;
+  }, 3000);
+};
 
 watch(
   () => props.showForm,
   async (val) => {
     if (val) {
-      await fetchCustomer()
-      await fetchCabang()
+      await fetchCustomer();
+      await fetchCabang();
     }
   },
-)
+);
 </script>
