@@ -128,6 +128,7 @@ const arr_router = [
   "riwayat_deposit_airline",
   "request_member",
   "riwayat_tambah_saldo_perusahaan",
+  "riwayat_mutasi_saldo_perusahaan",
 ];
 
 const arr = {};

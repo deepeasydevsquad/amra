@@ -64,8 +64,7 @@ import PermintaanDepositMember from '@/components/User/Modules/PermintaanDeposit
 import RiwayatDepositMaskapai from '@/components/User/Modules/RiwayatDepositMaskapai/RiwayatDepositMaskapai.vue';
 import RequestMember from '@/components/User/Modules/RequestMember/RequestMember.vue';
 import RiwayatTambahSaldoPerusahaan from '@/components/User/Modules/RiwayatTambahSaldoPerusahaan/RiwayatTambahSaldoPerusahaan.vue';
-
-// riwayat_tambah_saldo_perusahaan
+import RiwayatMutasiSaldoPerusahaan from '@/components/User/Modules/RiwayatMutasiSaldoPerusahaan/RiwayatMutasiSaldoPerusahaan.vue';
 
 const tabComponents = {
   beranda_utama: BerandaUtama,
@@ -129,6 +128,7 @@ const tabComponents = {
   riwayat_deposit_maskapai: RiwayatDepositMaskapai,
   request_member: RequestMember,
   riwayat_tambah_saldo_perusahaan: RiwayatTambahSaldoPerusahaan,
+  riwayat_mutasi_saldo_perusahaan: RiwayatMutasiSaldoPerusahaan,
 };
 
 const selectedTab = useSelectedTab(); // untuk menampung daftar tab yang menu / submenunya di click
