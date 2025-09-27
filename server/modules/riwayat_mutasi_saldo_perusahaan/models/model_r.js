@@ -1,9 +1,5 @@
 const { Op, Transaction_deposit_company } = require("../../../models");
-const {
-  getCompanyIdByCode,
-  getCabang,
-  tipe,
-} = require("../../../helper/companyHelper");
+const { getCompanyIdByCode } = require("../../../helper/companyHelper");
 const { dbList } = require("../../../helper/dbHelper");
 const moment = require("moment");
 
@@ -88,64 +84,6 @@ class Model_r {
       return {};
     }
   }
-
-  // async listBankTransfer() {
-  //   try {
-  //     const value = await Akun_bank_administrator.findAll({
-  //       attributes: [
-  //         "id",
-  //         "bank_name",
-  //         "account_bank_name",
-  //         "account_bank_number",
-  //       ],
-  //       order: [["id", "ASC"]],
-  //     });
-  //     const data = value.map((e) => ({
-  //       id: e.id,
-  //       name: `${e.bank_name} -> ${e.account_bank_name} | No Rek : ${e.account_bank_number}`,
-  //     }));
-  //     return { data, total: data.length };
-  //   } catch (error) {
-  //     console.log("------XXXXX`2222222222222-----");
-  //     console.log(error);
-  //     console.log("------XXXXX`2222222222222-----");
-  //     return {};
-  //   }
-  // }
-
-  // async get_info_edit() {
-  //   await this.initialize();
-  //   const body = this.req.body;
-  //   let where = { company_id: this.company_id, id: body.id };
-
-  //   try {
-  //     const q = await Request_deposit_company.findOne({
-  //       where: where,
-  //       attributes: ["id", "bank", "nominal"],
-  //     });
-  //     if (!q) {
-  //       return { data: {} };
-  //     }
-
-  //     const q2 = await Akun_bank_administrator.findOne({
-  //       where: { bank_name: q.bank },
-  //     });
-  //     if (!q2) {
-  //       return { data: {} };
-  //     }
-
-  //     const data = {
-  //       bank_id: q2.id,
-  //       nominal: q.nominal,
-  //     };
-  //     return { data };
-  //   } catch (error) {
-  //     console.log("------XXXXX`3333333333333-----");
-  //     console.log(error);
-  //     console.log("------XXXXX`3333333333333-----");
-  //     return {};
-  //   }
-  // }
 }
 
 module.exports = Model_r;
