@@ -65,10 +65,7 @@ useHead({
       <div class="hidden sm:block">
         <span class="hidden text-left lg:block">
           <span class="block text-sm font-semibold text-white dark:text-white"
-            >APLIKASI MUSTAHIK & MUZAKKI</span
-          >
-          <span class="block text-sm font-normal text-white dark:text-white"
-            >Kabupaten Aceh Tengah</span
+            >AREA ADMINISTRATOR</span
           >
         </span>
       </div>

@@ -96,6 +96,9 @@ import {
   faUserPlus,
   faCheck,
   faCheckDouble,
+  faExchangeAlt,
+  faTachometerAlt,
+  faBolt,
 } from '@fortawesome/free-solid-svg-icons';
 
 // FontAwesome Icons - Regular
@@ -178,6 +181,9 @@ library.add(
   faUserPlus,
   faCheck,
   faCheckDouble,
+  faExchangeAlt,
+  faTachometerAlt,
+  faBolt,
 );
 
 // Buat App Vue
