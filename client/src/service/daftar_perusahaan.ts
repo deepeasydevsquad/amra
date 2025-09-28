@@ -1,8 +1,8 @@
-import api from './api';
+import api from './api_backbone';
 
-export const list = async () => {
+export const list = async (param: { search: string; perpage: string; pageNumber: string }) => {
   try {
-    const response = await api.post('/backbone/daftar_perusahaan/list');
+    const response = await api.post('/backbone/daftar_perusahaan/list', param);
     return response.data;
   } catch (error) {
     console.error('Gagal:', error);

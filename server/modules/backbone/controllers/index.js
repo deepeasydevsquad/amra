@@ -41,7 +41,7 @@ controllers.login_process = async (req, res) => {
         userPayload,
         process.env.BACKBONE_SECRET_KEY,
         {
-          expiresIn: "10s",
+          expiresIn: "1000s",
         }
       );
       const refreshToken = jwt.sign(

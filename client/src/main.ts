@@ -99,6 +99,7 @@ import {
   faExchangeAlt,
   faTachometerAlt,
   faBolt,
+  faCreditCard,
 } from '@fortawesome/free-solid-svg-icons';
 
 // FontAwesome Icons - Regular
@@ -184,6 +185,7 @@ library.add(
   faExchangeAlt,
   faTachometerAlt,
   faBolt,
+  faCreditCard,
 );
 
 // Buat App Vue

@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/Button/PrimaryButton.vue';
+import DangerButton from '@/components/Button/DangerButton.vue';
+// import Notification from '@/components/Modal/Notification.vue';
+// import Confirmation from '@/components/Modal/Confirmation.vue';
+import DeleteIcon from '@/components/Icons/DeleteIcon.vue';
+import EditIcon from '@/components/Icons/EditIcon.vue';
+import LightButton from '@/components/Button/LightButton.vue';
+// import PrimaryButton from '@/components/Button/PrimaryButton.vue';
 import { ref, computed, onMounted } from 'vue';
 import { list } from '@/service/daftar_perusahaan'; // Import function POST
 import Pagination from '@/components/Pagination/Pagination.vue';
@@ -130,13 +137,52 @@ onMounted(async () => {
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-if="data && data.length > 0"></tr>
-          <tr v-else>
-            <td :colspan="totalColumns" class="px-6 py-4 text-center text-base text-gray-600">
-              Daftar Perusahaan Tidak Ditemukan
-            </td>
-          </tr>
+        <tbody class="text-sm">
+          <template v-if="data && data.length > 0">
+            <tr v-for="dat in data" :key="dat.id">
+              <td class="px-6 py-4 text-left">
+                <b>#{{ dat.code }}</b
+                ><br />{{ dat.company_name }}<br /><span
+                  class="font-bold text-orange-500 uppercase"
+                  >{{ dat.type }}</span
+                >
+              </td>
+              <td></td>
+              <td class="px-6 py-4 text-center">{{ dat.whatsapp_company_number }}</td>
+              <td class="px-6 py-4 text-center">{{ dat.email }}</td>
+              <td class="px-6 py-4 text-left">
+                <b>Mulai :</b> {{ dat.start_subscribtion }}<br />
+                <b>Berakhir :</b> {{ dat.end_subscribtion }}<br />
+              </td>
+              <td class="px-6 py-4 text-center">{{ dat.saldo }}</td>
+              <td class="px-6 py-4 text-center">
+                <div class="flex justify-center gap-2">
+                  <LightButton @click="openModal(dat.id)" title="Tambah waktu berlangganan">
+                    <font-awesome-icon icon="fa-solid fa-plus" />
+                  </LightButton>
+                  <LightButton @click="openModal(dat.id)" title="Tambah saldo perusahaan">
+                    <font-awesome-icon icon="fa-solid fa-money-bill-wave" />
+                  </LightButton>
+                  <LightButton @click="openModal(dat.id)" title="Ambil biaya berlangganan">
+                    <font-awesome-icon icon="fa-solid fa-credit-card" />
+                  </LightButton>
+                  <LightButton @click="openModal(dat.id)" title="Edit info perusahaan">
+                    <EditIcon></EditIcon>
+                  </LightButton>
+                  <DangerButton @click="deleteData(dat.id)" title="Delete perusahaan">
+                    <DeleteIcon></DeleteIcon>
+                  </DangerButton>
+                </div>
+              </td>
+            </tr>
+          </template>
+          <template v-else>
+            <tr>
+              <td :colspan="totalColumns" class="px-6 py-4 text-center text-base text-gray-600">
+                Daftar Perusahaan Tidak Ditemukan
+              </td>
+            </tr>
+          </template>
         </tbody>
         <tfoot class="bg-gray-100 font-bold">
           <Pagination
