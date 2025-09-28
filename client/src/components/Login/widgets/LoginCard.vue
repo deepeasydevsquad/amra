@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { ref, getCurrentInstance } from 'vue'
-import axios from 'axios'
-import LoginButton from '@/components/Login/particles/LoginButton.vue'
-import ForgotPasswordButton from '@/components/Login/particles/ForgotPasswordButton.vue'
-import GuideButton from '@/components/Login/particles/GuideButton.vue'
-import RegisterButton from '@/components/Login/particles/RegisterButton.vue'
-import { paramCabang } from '@/service/param_cabang'
-import alertify from 'alertifyjs'
+import { ref, getCurrentInstance } from 'vue';
+import axios from 'axios';
+import LoginButton from '@/components/Login/particles/LoginButton.vue';
+import ForgotPasswordButton from '@/components/Login/particles/ForgotPasswordButton.vue';
+import GuideButton from '@/components/Login/particles/GuideButton.vue';
+import RegisterButton from '@/components/Login/particles/RegisterButton.vue';
+import { paramCabang } from '@/service/param_cabang';
+import alertify from 'alertifyjs';
 
-import api from '@/service/api' // Import service API
+import api from '@/service/api'; // Import service API
 
 interface Login {
-  type: string
-  company_code?: string
-  username?: string
-  nomorWhatsapp?: string
-  password: string
+  type: string;
+  company_code?: string;
+  username?: string;
+  nomorWhatsapp?: string;
+  password: string;
 }
 
 const inputLogin = ref<Partial<Login>>({
@@ -24,113 +24,123 @@ const inputLogin = ref<Partial<Login>>({
   username: '',
   nomorWhatsapp: '',
   password: '',
-})
+});
 
-const isLoading = ref(true)
+const isLoading = ref(true);
 
-const errors = ref<Record<string, string>>({})
+const errors = ref<Record<string, string>>({});
 
 const validateForm = (): boolean => {
-  const type = ['administrator', 'staff']
-  let isValid = false
-  errors.value = {}
+  const type = ['administrator', 'staff'];
+  let isValid = false;
+  errors.value = {};
 
   if (!inputLogin.value.type || !type.includes(inputLogin.value.type)) {
-    errors.value.type = 'Tipe akun tidak valid'
-    isValid = false
+    errors.value.type = 'Tipe akun tidak valid';
+    isValid = false;
   }
 
   if (inputLogin.value.type == 'staff' && !inputLogin.value.company_code) {
-    errors.value.company_code = 'Kode Perusahaan wajib diisi'
-    isValid = false
+    errors.value.company_code = 'Kode Perusahaan wajib diisi';
+    isValid = false;
   } else {
-    isValid = true
+    isValid = true;
   }
 
-  if (inputLogin.value.type == 'administrator' && ( !inputLogin.value.username || inputLogin.value.username.trim() === '' )) {
-    errors.value.username = 'Username tidak boleh kosong jika anda masuk sebagai Administrator'
-    isValid = false
+  if (
+    inputLogin.value.type == 'administrator' &&
+    (!inputLogin.value.username || inputLogin.value.username.trim() === '')
+  ) {
+    errors.value.username = 'Username tidak boleh kosong jika anda masuk sebagai Administrator';
+    isValid = false;
   }
 
-  if (inputLogin.value.type == 'staff' && ( !inputLogin.value.nomorWhatsapp || inputLogin.value.nomorWhatsapp.trim() === '' )) {
-    errors.value.username = 'Nomor Whatsapp tidak boleh kosong jika anda masuk sebagai Staff'
-    isValid = false
+  if (
+    inputLogin.value.type == 'staff' &&
+    (!inputLogin.value.nomorWhatsapp || inputLogin.value.nomorWhatsapp.trim() === '')
+  ) {
+    errors.value.username = 'Nomor Whatsapp tidak boleh kosong jika anda masuk sebagai Staff';
+    isValid = false;
   }
 
   if (!inputLogin.value.password || inputLogin.value.password.trim() === '') {
-    errors.value.password = 'Password tidak boleh kosong'
-    isValid = false
+    errors.value.password = 'Password tidak boleh kosong';
+    isValid = false;
   }
 
-  return isValid
-}
+  return isValid;
+};
 
 const handleLogin = async () => {
   if (!validateForm()) {
     for (const key in errors.value) {
       if (errors.value[key]) {
-        alertify.error(errors.value[key])
+        alertify.error(errors.value[key]);
       }
     }
-    return
+    return;
   }
 
   try {
-    const baseUrl = window.location.protocol + '//' + window.location.hostname + ':3001'
-    var data = {
+    const baseUrl = window.location.protocol + '//' + window.location.hostname + ':3001';
+    let data = {
       type: inputLogin.value.type,
       password: inputLogin.value.password,
-    }
+    };
     if (inputLogin.value.type === 'staff') {
-      data = { ...data, ...{
-          ['company_code']: inputLogin.value.company_code ,
-          ['nomor_whatsapp']: inputLogin.value.nomorWhatsapp
-        }
-      }
-    }else if( inputLogin.value.type === 'administrator' ) {
-      data = { ...data, ...{
-          ['username']: inputLogin.value.username
-        }
-      }
+      data = {
+        ...data,
+        ...{
+          ['company_code']: inputLogin.value.company_code,
+          ['nomor_whatsapp']: inputLogin.value.nomorWhatsapp,
+        },
+      };
+    } else if (inputLogin.value.type === 'administrator') {
+      data = {
+        ...data,
+        ...{
+          ['username']: inputLogin.value.username,
+        },
+      };
     }
 
     // Kirim data login ke server Express.js menggunakan axios
-    const response = await axios.post(baseUrl + '/auth/login', data)
+    const response = await axios.post(baseUrl + '/auth/login', data);
 
     // filter
     if (response.status === 200) {
-      console.log('Login successful', response.data)
+      console.log('Login successful', response.data);
 
-      localStorage.setItem('access_token', response.data.access_token)
-      localStorage.setItem('refresh_token', response.data.refresh_token)
+      localStorage.setItem('access_token', response.data.access_token);
+      localStorage.setItem('refresh_token', response.data.refresh_token);
 
       // ambil semua cabang setelah login berhasil
-      const cabangResponse = await paramCabang()
-      const cabang = cabangResponse.data
+      const cabangResponse = await paramCabang();
+      const cabang = cabangResponse.data;
 
-      console.log('ini data cabang login', cabang)
+      console.log('ini data cabang login', cabang);
 
       if (!cabang || cabang.length === 0) {
-        window.location.href = '/tambah-cabang'
+        window.location.href = '/tambah-cabang';
       } else {
-        window.location.href = '/User'
+        window.location.href = '/User';
       }
     } else {
-      alertify.error(response.data)
-      console.log('Login failed', response.data)
+      alertify.error(response.data);
+      console.log('Login failed', response.data);
       // Tindakan setelah login gagal
     }
   } catch (error) {
-    alertify.error(error.response.data.message || 'An error occurred during login')
-    console.error('An error occurred during login:', error)
+    alertify.error(error.response.data.message || 'An error occurred during login');
+    console.error('An error occurred during login:', error);
   }
-}
+};
 
 setTimeout(() => {
   if (isLoading.value) {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}, 1000)
+}, 1000);
 </script>
 
 <template>
@@ -167,13 +177,15 @@ setTimeout(() => {
                 Kode Perusahaan wajib diisi jika anda masuk sebagai Staff.
               </p>
             </template>
-            <input v-if="inputLogin.type === 'administrator'"
+            <input
+              v-if="inputLogin.type === 'administrator'"
               v-model="inputLogin.username"
               type="text"
               placeholder="Username"
               class="w-full p-2 border border-gray-300 rounded-lg input-field"
             />
-            <input v-if="inputLogin.type === 'staff'"
+            <input
+              v-if="inputLogin.type === 'staff'"
               v-model="inputLogin.nomorWhatsapp"
               type="text"
               placeholder="Nomor Whatsapp"

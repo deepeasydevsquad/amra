@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Ppob_prabayar_operator extends Model {
     /**
@@ -20,14 +18,17 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
-  Ppob_prabayar_operator.init({
-    ppob_prabayar_kategori_id: DataTypes.INTEGER,
-    kode: DataTypes.STRING,
-    name: DataTypes.STRING,
-    status: DataTypes.ENUM(['tersedia', 'tidak tersedia']),
-  }, {
-    sequelize,
-    modelName: 'Ppob_prabayar_operator',
-  });
+  Ppob_prabayar_operator.init(
+    {
+      ppob_prabayar_kategori_id: DataTypes.INTEGER,
+      kode: DataTypes.STRING,
+      name: DataTypes.STRING,
+      status: DataTypes.ENUM(["tersedia", "tidak tersedia"]),
+    },
+    {
+      sequelize,
+      modelName: "Ppob_prabayar_operator",
+    }
+  );
   return Ppob_prabayar_operator;
 };

@@ -129,6 +129,7 @@ const arr_router = [
   "request_member",
   "riwayat_tambah_saldo_perusahaan",
   "riwayat_mutasi_saldo_perusahaan",
+  "backbone",
 ];
 
 const arr = {};
