@@ -9,11 +9,13 @@ services:
     environment:
       SECRET_KEY: "9813kbk31023khvviuytyuwqkiwvj9mnb757uytr34nm123o"
       REFRESH_SECRET_KEY: "y87238giehgaiuwgd82o123455gskiassmnxzxclaoihdsobk"
+      BACKBONE_SECRET_KEY: "9813kbk31023khvviuytyuwqkiwvj9mnb757uytr34nm123o"
+      BACKBONE_REFRESH_SECRET_KEY: "y87238giehgaiuwgd82o123455gskiassmnxzxclaoihdsobk"
       NODE_ENV: "development"
       PORT: 3001
       MIDTRANS_SERVER_KEY: SB-Mid-server-zw-LJ6-UHTMlabcfbM06qqvz
       MIDTRANS_SANDBOX_URL: "https://app.sandbox.midtrans.com/snap/v1/transactions"
-      MIDTRANS_PRODUCTION_URL: ''
+      MIDTRANS_PRODUCTION_URL: ""
       DB_DIALECT: "mysql"
       DB_HOST: "mysql"
       DB_PORT: 3306
@@ -49,10 +51,10 @@ services:
       MYSQL_ROOT_PASSWORD: root_password
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./mysql_config/my.cnf:/etc/mysql/my.cnf  # Mount file my.cnf ke dalam container
+      - ./mysql_config/my.cnf:/etc/mysql/my.cnf # Mount file my.cnf ke dalam container
     networks:
       - app-network
-  
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin_container
