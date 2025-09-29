@@ -6,7 +6,7 @@ import DangerButton from '@/components/Button/DangerButton.vue';
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue';
 import EditIcon from '@/components/Icons/EditIcon.vue';
 import LightButton from '@/components/Button/LightButton.vue';
-// import PrimaryButton from '@/components/Button/PrimaryButton.vue';
+import FormAdd from './Widget/formAdd.vue';
 import { ref, computed, onMounted } from 'vue';
 import { list } from '@/service/daftar_perusahaan'; // Import function POST
 import Pagination from '@/components/Pagination/Pagination.vue';
@@ -43,6 +43,7 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
   }, 3000);
 };
 
+const id = ref(0);
 const itemsPerPage = 100; // Jumlah airlines per halaman
 const currentPage = ref(1);
 const search = ref('');
@@ -89,6 +90,12 @@ const fetchData = async () => {
   }
 };
 
+// modalAdd.value = true;
+const modalAddPerusahaan = ref<boolean>(false);
+const addPerusahaan = async () => {
+  modalAddPerusahaan.value = true;
+};
+
 onMounted(async () => {
   await fetchData();
 });
@@ -96,9 +103,8 @@ onMounted(async () => {
 
 <template>
   <div class="container mx-auto p-4">
-    <!-- Tambah data dan Search -->
     <div class="flex justify-between mb-4">
-      <PrimaryButton @click="openModal()">
+      <PrimaryButton @click="addPerusahaan()">
         <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
         Tambah Perusahaan
       </PrimaryButton>
@@ -114,8 +120,6 @@ onMounted(async () => {
         />
       </div>
     </div>
-
-    <!-- Table data -->
     <div class="overflow-hidden rounded-lg border border-gray-200 shadow-md mb-5">
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
@@ -199,4 +203,13 @@ onMounted(async () => {
       </table>
     </div>
   </div>
+  <FormAdd
+    :isModalOpen="modalAddPerusahaan"
+    :id="id"
+    @close="
+      modalAddPerusahaan = false;
+      fetchData();
+      id = 0;
+    "
+  ></FormAdd>
 </template>

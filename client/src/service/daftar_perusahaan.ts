@@ -1,6 +1,6 @@
 import api from './api_backbone';
 
-export const list = async (param: { search: string; perpage: string; pageNumber: string }) => {
+export const list = async (param: { search: string; perpage: number; pageNumber: number }) => {
   try {
     const response = await api.post('/backbone/daftar_perusahaan/list', param);
     return response.data;
@@ -10,15 +10,25 @@ export const list = async (param: { search: string; perpage: string; pageNumber:
   }
 };
 
-// export const getDaftarJamaah = async (param: any) => {
-//   try {
-//     const response = await api.post('/beranda-utama/daftar-jamaah', param);
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error fetching Daftar Jamaah:', error);
-//     throw error;
-//   }
-// }
+export const add_perusahaan = async (param: any) => {
+  try {
+    const response = await api.post('/backbone/daftar_perusahaan/add', param);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching Daftar Jamaah:', error);
+    throw error;
+  }
+};
+
+export const update_perusahaan = async (param: any) => {
+  try {
+    const response = await api.post('/backbone/daftar_perusahaan/update', param);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching Daftar Jamaah:', error);
+    throw error;
+  }
+};
 
 // export const getDaftarPermintaanDepositMember = async (param: any) => {
 //   try {

@@ -21,20 +21,24 @@
     />
 
     <p v-if="error" class="text-red-500 text-sm mt-1">{{ error }}</p>
-    <p  v-if="note" class="text-xs text-gray-500 mt-2">{{ note }}</p>
+    <p v-if="note" class="text-xs text-gray-500 mt-2">{{ note }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-  const model = defineModel()
-  defineProps({
-    label: String,
-    id: String,
-    placeholder: String,
-    type: { type: String, default: 'text' },
-    error: String,
-    note: String,
-    label_status: { type: Boolean, default: true },
-    readonly: { type: Boolean, default: false },
-  })
+const model = defineModel();
+defineProps({
+  label: String,
+  id: String,
+  placeholder: String,
+  type: { type: String, default: 'text' },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+  error: String,
+  note: String,
+  label_status: { type: Boolean, default: true },
+  readonly: { type: Boolean, default: false },
+});
 </script>
