@@ -5,7 +5,7 @@ export const list = async (param: { search: string; perpage: number; pageNumber:
     const response = await api.post('/backbone/daftar_perusahaan/list', param);
     return response.data;
   } catch (error) {
-    console.error('Gagal:', error);
+    console.error('Error:', error);
     throw error;
   }
 };
@@ -15,7 +15,7 @@ export const add_perusahaan = async (param: any) => {
     const response = await api.post('/backbone/daftar_perusahaan/add', param);
     return response.data;
   } catch (error) {
-    console.error('Error fetching Daftar Jamaah:', error);
+    console.error('Error:', error);
     throw error;
   }
 };
@@ -25,7 +25,17 @@ export const update_perusahaan = async (param: any) => {
     const response = await api.post('/backbone/daftar_perusahaan/update', param);
     return response.data;
   } catch (error) {
-    console.error('Error fetching Daftar Jamaah:', error);
+    console.error('Error:', error);
+    throw error;
+  }
+};
+
+export const deletes = async (param: any) => {
+  try {
+    const response = await api.post('/backbone/daftar_perusahaan/delete', param);
+    return response.data;
+  } catch (error) {
+    console.error('Error:', error);
     throw error;
   }
 };

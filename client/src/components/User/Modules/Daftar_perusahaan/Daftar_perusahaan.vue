@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/Button/PrimaryButton.vue';
 import DangerButton from '@/components/Button/DangerButton.vue';
-// import Notification from '@/components/Modal/Notification.vue';
-// import Confirmation from '@/components/Modal/Confirmation.vue';
 import DeleteIcon from '@/components/Icons/DeleteIcon.vue';
 import EditIcon from '@/components/Icons/EditIcon.vue';
 import LightButton from '@/components/Button/LightButton.vue';
+import Notification from '@/components/Modal/Notification.vue';
+import Confirmation from '@/components/Modal/Confirmation.vue';
 import FormAdd from './Widget/formAdd.vue';
 import { ref, computed, onMounted } from 'vue';
-import { list } from '@/service/daftar_perusahaan'; // Import function POST
+import { list, deletes } from '@/service/daftar_perusahaan'; // Import function POST
 import Pagination from '@/components/Pagination/Pagination.vue';
 
 interface Company {
@@ -74,6 +74,22 @@ const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
 });
 
+// const notificationMessage = ref<string>('');
+// const notificationType = ref<'success' | 'error'>('success');
+// const showNotification = ref<boolean>(false);
+
+// const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
+//   notificationMessage.value = message;
+//   notificationType.value = type;
+//   showNotification.value = true;
+
+//   if (timeoutId.value) clearTimeout(timeoutId.value);
+
+//   timeoutId.value = window.setTimeout(() => {
+//     showNotification.value = false;
+//   }, 3000);
+// };
+
 const fetchData = async () => {
   try {
     const response = await list({
@@ -94,6 +110,30 @@ const fetchData = async () => {
 const modalAddPerusahaan = ref<boolean>(false);
 const addPerusahaan = async () => {
   modalAddPerusahaan.value = true;
+};
+
+const confirmMessage = ref<string>('');
+const confirmTitle = ref<string>('');
+const confirmAction = ref<(() => void) | null>(null);
+const showConfirmDialog = ref<boolean>(false);
+const showConfirmation = (title: string, message: string, action: () => void) => {
+  confirmTitle.value = title;
+  confirmMessage.value = message;
+  confirmAction.value = action;
+  showConfirmDialog.value = true;
+};
+
+const deleteData = async (id: number) => {
+  showConfirmation('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus data ini?', async () => {
+    try {
+      const response = await deletes({ id });
+      showConfirmDialog.value = false;
+      displayNotification(response.error_msg);
+      fetchData();
+    } catch (error) {
+      displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
+    }
+  });
 };
 
 onMounted(async () => {
@@ -212,4 +252,28 @@ onMounted(async () => {
       id = 0;
     "
   ></FormAdd>
+  <Confirmation
+    :showConfirmDialog="showConfirmDialog"
+    :confirmTitle="confirmTitle"
+    :confirmMessage="confirmMessage"
+  >
+    <button
+      @click="confirmAction && confirmAction()"
+      class="inline-flex w-full justify-center rounded-md border border-transparent bg-yellow-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+    >
+      Ya
+    </button>
+    <button
+      @click="showConfirmDialog = false"
+      class="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+    >
+      Tidak
+    </button>
+  </Confirmation>
+  <Notification
+    :showNotification="showNotification"
+    :notificationType="notificationType"
+    :notificationMessage="notificationMessage"
+    @close="showNotification = false"
+  ></Notification>
 </template>
