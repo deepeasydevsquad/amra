@@ -74,22 +74,6 @@ const pages = computed(() => {
   return Array.from({ length: totalPages.value }, (_, i) => i + 1);
 });
 
-// const notificationMessage = ref<string>('');
-// const notificationType = ref<'success' | 'error'>('success');
-// const showNotification = ref<boolean>(false);
-
-// const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
-//   notificationMessage.value = message;
-//   notificationType.value = type;
-//   showNotification.value = true;
-
-//   if (timeoutId.value) clearTimeout(timeoutId.value);
-
-//   timeoutId.value = window.setTimeout(() => {
-//     showNotification.value = false;
-//   }, 3000);
-// };
-
 const fetchData = async () => {
   try {
     const response = await list({
@@ -106,7 +90,6 @@ const fetchData = async () => {
   }
 };
 
-// modalAdd.value = true;
 const modalAddPerusahaan = ref<boolean>(false);
 const addPerusahaan = async () => {
   modalAddPerusahaan.value = true;
