@@ -1,8 +1,7 @@
 const express = require("express");
 const { body, param } = require("express-validator");
 const controllers = require("../modules/daftar_perusahaan/controllers/index");
-// const { authenticateToken } = require("../middleware/authenticateToken");
-// const validation = require("../validation/daftar_kota");
+const validation = require("../validation/daftar_perusahaan");
 const {
   authenticateTokenBackbone,
 } = require("../middleware/authenticateToken");
@@ -23,32 +22,76 @@ router.post(
   controllers.list
 );
 
-// router.post(
-//   "/daftar-kota/add",
-//   authenticateToken,
-//   [
-//     body("kode").trim().notEmpty().withMessage("Kode Kota tidak boleh kosong.").toUpperCase().custom(validation.check_add_kode_kota),
-//     body("name").trim().notEmpty().withMessage("Nama Kota tidak boleh kosong."),
-//   ],
-//   controllers.add
-// );
+router.post(
+  "/backbone/daftar_perusahaan/add",
+  authenticateTokenBackbone,
+  [
+    body("company_name").trim(),
+    body("type")
+      .trim()
+      .notEmpty()
+      .withMessage("Tipe tidak boleh kosong.")
+      .isIn(["limited", "unlimited"])
+      .withMessage("Format tipe perusahaan tidak ditemukan."),
+    body("whatsapp_company_number")
+      .trim()
+      .notEmpty()
+      .withMessage("Nomor whatsapp tidak boleh kosong.")
+      .custom(validation.check_nomor_whatsapp),
+    body("start_subscribtion").trim(),
+    body("end_subscribtion").trim(),
+    body("durasi").trim(),
+    body("email").trim().custom(validation.check_email),
+    body("saldo").trim(),
+    body("username").trim().custom(validation.check_username),
+    body("password").trim(),
+  ],
+  controllers.add
+);
 
-// router.post(
-//   "/daftar-kota/update",
-//   authenticateToken,
-//   [
-//     body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").custom(validation.check_id_kota),
-//     body("kode").trim().notEmpty().withMessage("Kode Kota tidak boleh kosong.").toUpperCase().custom(validation.check_edit_kode_kota),
-//     body("name").trim().notEmpty().withMessage("Nama Kota tidak boleh kosong."),
-//   ],
-//   controllers.update
-// );
+router.post(
+  "/backbone/daftar_perusahaan/update",
+  authenticateTokenBackbone,
+  [
+    body("id")
+      .trim()
+      .notEmpty()
+      .withMessage("Id tidak boleh kosong.")
+      .custom(validation.check_id),
+    body("company_name").trim(),
+    body("type")
+      .trim()
+      .notEmpty()
+      .withMessage("Tipe tidak boleh kosong.")
+      .isIn(["limited", "unlimited"])
+      .withMessage("Format tipe perusahaan tidak ditemukan."),
+    body("whatsapp_company_number")
+      .trim()
+      .notEmpty()
+      .withMessage("Nomor whatsapp tidak boleh kosong.")
+      .custom(validation.check_nomor_whatsapp),
+    body("start_subscribtion").trim(),
+    body("end_subscribtion").trim(),
+    body("durasi").trim(),
+    body("email").trim().custom(validation.check_email_update),
+    body("saldo").trim(),
+    body("username").trim().custom(validation.check_username_update),
+    body("password").trim(),
+  ],
+  controllers.update
+);
 
-// router.post(
-//   "/daftar-kota/delete",
-//   authenticateToken,
-//   [body("id").trim().notEmpty().withMessage("ID Kota tidak boleh kosong.").isInt().withMessage("ID Kota harus berupa angka.").custom(validation.check_id_kota)],
-//   controllers.delete
-// );
+router.post(
+  "/backbone/daftar_perusahaan/delete",
+  authenticateTokenBackbone,
+  [
+    body("id")
+      .trim()
+      .notEmpty()
+      .withMessage("Id tidak boleh kosong.")
+      .custom(validation.check_id),
+  ],
+  controllers.delete
+);
 
 module.exports = router;

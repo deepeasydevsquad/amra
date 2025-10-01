@@ -19,6 +19,7 @@ const {
   Division,
   Paket_transaction,
   Request_deposit_company,
+  Company,
 } = require("../models");
 const helper = {};
 
@@ -27,6 +28,37 @@ helper.randomString = async (length, chars) => {
   for (var i = length; i > 0; --i)
     result += chars[Math.floor(Math.random() * chars.length)];
   return result;
+};
+
+// generated code
+helper.generated_code = async () => {
+  var code = "";
+  let condition = true;
+  while (condition) {
+    code = await helper.randomString(7, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    check = await Company.findOne({
+      where: { code: code },
+    });
+    if (!check) condition = false;
+  }
+  return code;
+};
+
+// generated kode refresh token
+helper.generated_refresh_token = async () => {
+  var token = "";
+  let condition = true;
+  while (condition) {
+    token = await helper.randomString(
+      48,
+      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    );
+    check = await Company.findOne({
+      where: { refresh_token: token },
+    });
+    if (!check) condition = false;
+  }
+  return token;
 };
 
 helper.generatedNominalCodeTambahDepositPerusahaan = async (company_id) => {

@@ -7,7 +7,7 @@ const {
 
 const controllers = {};
 
-// *Mendapatkan daftar kota*
+// *Mendapatkan daftar perusahaan*
 controllers.list = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -18,14 +18,11 @@ controllers.list = async (req, res) => {
       .status(200)
       .json({ error: false, data: feedBack.data, total: feedBack.total });
   } catch (error) {
-    console.log("XXXXXXSSSSSSSSSSS");
-    console.log(error);
-    console.log("XXXXXXSSSSSSSSSSS");
     handleServerError(res, error.message);
   }
 };
 
-// *Menambahkan kota*
+// *Menambahkan perusahaan*
 controllers.add = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -36,12 +33,12 @@ controllers.add = async (req, res) => {
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: "Kota berhasil ditambahkan.",
+        error_msg: "Perusahaan berhasil ditambahkan.",
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: "Kota gagal ditambahkan.",
+        error_msg: "Perusahaan gagal ditambahkan.",
       });
     }
   } catch (error) {
@@ -49,7 +46,7 @@ controllers.add = async (req, res) => {
   }
 };
 
-// *Update kota*
+// *Update perusahaan*
 controllers.update = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -60,12 +57,12 @@ controllers.update = async (req, res) => {
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: "Kota berhasil diupdate.",
+        error_msg: "Data perusahaan berhasil diupdate.",
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: "Kota gagal diupdate.",
+        error_msg: "Data perusahaan gagal diupdate.",
       });
     }
   } catch (error) {
@@ -73,7 +70,7 @@ controllers.update = async (req, res) => {
   }
 };
 
-// *Hapus kota*
+// *Hapus perusahaan*
 controllers.delete = async (req, res) => {
   if (!(await handleValidationErrors(req, res))) return;
 
@@ -84,12 +81,12 @@ controllers.delete = async (req, res) => {
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: "Kota berhasil dihapus.",
+        error_msg: "Data perusahaan berhasil dihapus.",
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: "Kota gagal dihapus.",
+        error_msg: "Data perusahaan gagal dihapus.",
       });
     }
   } catch (error) {

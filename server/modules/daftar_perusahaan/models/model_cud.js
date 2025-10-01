@@ -1,7 +1,11 @@
-const { sequelize, Mst_kota } = require("../../../models");
-const Model_r = require("../models/model_r");
+const { sequelize, Company } = require("../../../models");
+const bcrypt = require("bcryptjs");
+// const Model_r = require("../models/model_r");
 const { writeLog } = require("../../../helper/writeLogHelper");
-const { getCompanyIdByCode } = require("../../../helper/companyHelper");
+const {
+  generated_code,
+  generated_refresh_token,
+} = require("../../../helper/randomHelper");
 const moment = require("moment");
 
 class Model_cud {
@@ -11,23 +15,47 @@ class Model_cud {
   }
 
   async initialize() {
-    this.company_id = await getCompanyIdByCode(this.req);
     this.t = await sequelize.transaction();
     this.state = true;
   }
 
-  // Tambah Kota
+  // Tambah Perusahaan
   async add() {
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
+    const code = await generated_code();
+    const refresh_token = await generated_refresh_token();
 
     try {
-      const insert = await Mst_kota.create(
+      const hashedPassword = await bcrypt.hash(body.password, 10);
+      // insert process
+      await Company.create(
         {
-          company_id: this.company_id, 
-          kode: body.kode,
-          name: body.name,
+          code,
+          kurs: "rp",
+          logo: null,
+          icon: null,
+          company_name: body.company_name,
+          email: body.email,
+          type: body.type,
+          verify_status: "verified",
+          verify_time: myDate,
+          whatsapp_company_number: body.whatsapp_company_number,
+          otp: null,
+          otp_expired_time: myDate,
+          invoice_logo: null,
+          invoice_title: null,
+          start_subscribtion: body.start_subscribtion,
+          end_subscription:
+            body.type == "limited" ? body.end_subscription : null,
+          whatsapp_device_number: null,
+          whatsapp_device_key: null,
+          refresh_token,
+          saldo: 0,
+          markup_ppob: 0,
+          username: body.username,
+          password: hashedPassword,
           createdAt: myDate,
           updatedAt: myDate,
         },
@@ -35,64 +63,67 @@ class Model_cud {
           transaction: this.t,
         }
       );
-
-      this.message = `Menambahkan Kota Baru dengan Kode Kota: ${body.kode} dan Nama Kota: ${body.name} dan ID Kota: ${insert.id}`;
     } catch (error) {
       this.state = false;
     }
   }
 
-  // Edit kota
+  // update data perusahaan
   async update() {
     await this.initialize();
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
     try {
-      const model_r = new Model_r(this.req);
-      const infoKota = await model_r.infoKota(body.id, this.company_id);
+      var data = {
+        company_name: body.company_name,
+        email: body.email,
+        type: body.type,
+        whatsapp_company_number: body.whatsapp_company_number,
+        start_subscribtion: body.start_subscribtion,
+        end_subscription: body.type == "limited" ? body.end_subscription : null,
+        saldo: 0,
+        username: body.username,
+        updatedAt: myDate,
+      };
 
-      await Mst_kota.update(
+      if (body.password != "") {
+        const hashedPassword = await bcrypt.hash(body.password, 10);
+        data = { ...data, ...{ ["password"]: hashedPassword } };
+      }
+
+      // update process
+      await Company.update(
+        data,
         {
-          kode: body.kode,
-          name: body.name,
-          updatedAt: myDate,
-        },
-        {
-          where: { id: body.id, company_id: this.company_id,  },
+          where: { id: body.id },
         },
         {
           transaction: this.t,
         }
       );
-
-      this.message = `Memperbaharui Data Kota dengan Kode Kota: ${infoKota.kode}, Nama Kota: ${infoKota.name} dan ID Kota: ${body.id} menjadi Kode Kota: ${body.kode} dan Nama Kota ${body.name}`;
     } catch (error) {
       this.state = false;
     }
   }
 
-  // Hapus Kota
+  // delete data perusahaan
   async delete() {
     await this.initialize();
     const body = this.req.body;
+
     try {
-      const model_r = new Model_r(this.req);
-      const infoKota = await model_r.infoKota(body.id, this.company_id);
-      
-      await Mst_kota.destroy(
+      // delete company
+      await Company.destroy(
         {
           where: {
             id: body.id,
-            company_id: this.company_id
           },
         },
         {
           transaction: this.t,
         }
       );
-
-      this.message = `Menghapus Kota dengan Kode Kota: ${infoKota.kode} dan Nama Kota: ${infoKota.name} dan ID Kota: ${infoKota.id}`;
     } catch (error) {
       this.state = false;
     }
@@ -101,9 +132,6 @@ class Model_cud {
   // response
   async response() {
     if (this.state) {
-      await writeLog(this.req, this.t, {
-        msg: this.message,
-      });
       // commit
       await this.t.commit();
       return true;

@@ -22,7 +22,6 @@ controllers.login_process = async (req, res) => {
     var error_msg = "";
 
     if (Object.keys(data).length > 0) {
-      const hashedPassword = await bcrypt.hash(body.password, 10);
       const valid_password = await bcrypt.compare(body.password, data.password);
       if (!valid_password) {
         return res.status(400).json({
