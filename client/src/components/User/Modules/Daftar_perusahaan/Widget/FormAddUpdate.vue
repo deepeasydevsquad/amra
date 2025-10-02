@@ -7,7 +7,6 @@ import {
 } from '@/service/daftar_perusahaan';
 import Form from '@/components/Modal/Form.vue';
 import InputText from '@/components/Form/InputText.vue';
-// import InputNumber from '@/components/Form/InputNumber.vue';
 import InputDate from '@/components/Form/InputDate.vue';
 import SelectField from '@/components/Form/SelectField.vue';
 import InputPassword from '@/components/Form/InputPassword.vue';
@@ -33,7 +32,6 @@ interface FormData {
   whatsapp_company_number: string;
   start_subscribtion: string;
   end_subscribtion: string;
-  // durasi: number;
   email: string;
   saldo: number;
   username: string;

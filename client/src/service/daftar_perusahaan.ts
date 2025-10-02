@@ -49,3 +49,13 @@ export const get_data_edit_perusahaan = async (param: any) => {
     throw error;
   }
 };
+
+export const tambah_waktu_berlangganan = async (param: any) => {
+  try {
+    const response = await api.post('/backbone/daftar_perusahaan/add_waktu_berlangganan', param);
+    return response.data;
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+};

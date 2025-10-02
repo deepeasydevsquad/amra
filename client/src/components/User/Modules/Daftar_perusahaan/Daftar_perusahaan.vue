@@ -6,7 +6,7 @@ import EditIcon from '@/components/Icons/EditIcon.vue';
 import LightButton from '@/components/Button/LightButton.vue';
 import Notification from '@/components/Modal/Notification.vue';
 import Confirmation from '@/components/Modal/Confirmation.vue';
-import FormAdd from './Widget/formAdd.vue';
+import FormAddUpdate from './Widget/FormAddUpdate.vue';
 import { ref, computed, onMounted } from 'vue';
 import { list, deletes } from '@/service/daftar_perusahaan'; // Import function POST
 import Pagination from '@/components/Pagination/Pagination.vue';
@@ -247,7 +247,7 @@ onMounted(async () => {
       </table>
     </div>
   </div>
-  <FormAdd
+  <FormAddUpdate
     :isModalOpen="modalAddPerusahaan"
     :id="id"
     @close="
@@ -255,7 +255,7 @@ onMounted(async () => {
       fetchData();
       id = 0;
     "
-  ></FormAdd>
+  ></FormAddUpdate>
   <Confirmation
     :showConfirmDialog="showConfirmDialog"
     :confirmTitle="confirmTitle"
