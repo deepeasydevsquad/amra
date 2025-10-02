@@ -39,3 +39,13 @@ export const deletes = async (param: any) => {
     throw error;
   }
 };
+
+export const get_data_edit_perusahaan = async (param: any) => {
+  try {
+    const response = await api.post('/backbone/daftar_perusahaan/get_data_edit_perusahaan', param);
+    return response.data;
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+};

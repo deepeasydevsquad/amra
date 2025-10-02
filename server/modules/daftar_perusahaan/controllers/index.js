@@ -94,4 +94,19 @@ controllers.delete = async (req, res) => {
   }
 };
 
+controllers.get_data_edit_perusahaan = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_r = new Model_r(req);
+    const feedBack = await model_r.get_data_edit_perusahaan();
+    res.status(200).json({ error: false, data: feedBack });
+  } catch (error) {
+    console.log("xxxxSSSS");
+    console.log(error);
+    console.log("xxxxSSSS");
+    handleServerError(res, error.message);
+  }
+};
+
 module.exports = controllers;

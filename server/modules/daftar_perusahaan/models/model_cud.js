@@ -82,7 +82,7 @@ class Model_cud {
         whatsapp_company_number: body.whatsapp_company_number,
         start_subscribtion: body.start_subscribtion,
         end_subscription: body.type == "limited" ? body.end_subscription : null,
-        saldo: 0,
+        saldo: body.saldo,
         username: body.username,
         updatedAt: myDate,
       };

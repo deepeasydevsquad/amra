@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import { add_perusahaan, update_perusahaan } from '@/service/daftar_perusahaan';
+import {
+  add_perusahaan,
+  update_perusahaan,
+  get_data_edit_perusahaan,
+} from '@/service/daftar_perusahaan';
 import Form from '@/components/Modal/Form.vue';
 import InputText from '@/components/Form/InputText.vue';
 // import InputNumber from '@/components/Form/InputNumber.vue';
@@ -29,7 +33,7 @@ interface FormData {
   whatsapp_company_number: string;
   start_subscribtion: string;
   end_subscribtion: string;
-  durasi: number;
+  // durasi: number;
   email: string;
   saldo: number;
   username: string;
@@ -43,7 +47,7 @@ const form = ref<FormData>({
   whatsapp_company_number: '',
   start_subscribtion: '',
   end_subscribtion: '',
-  durasi: 0,
+  // durasi: 0,
   email: '',
   saldo: 0,
   username: '',
@@ -60,7 +64,7 @@ const reset = (): void => {
     whatsapp_company_number: '',
     start_subscribtion: '',
     end_subscribtion: '',
-    durasi: 0,
+    // durasi: 0,
     email: '',
     saldo: 0,
     username: '',
@@ -113,10 +117,10 @@ const validateForm = (): boolean => {
     isValid = false;
   }
 
-  if (form.value.type == 'limited' && form.value.durasi == 0) {
-    errors.value.durasi = 'Durasi tidak boleh kosong.';
-    isValid = false;
-  }
+  // if (form.value.type == 'limited' && form.value.durasi == 0) {
+  //   errors.value.durasi = 'Durasi tidak boleh kosong.';
+  //   isValid = false;
+  // }
 
   if (form.value.email == '') {
     errors.value.email = 'Email tidak boleh kosong.';
@@ -128,14 +132,16 @@ const validateForm = (): boolean => {
     isValid = false;
   }
 
-  if (form.value.password == '') {
-    errors.value.password = 'Password tidak boleh kosong.';
-    isValid = false;
-  }
+  if (props.id == 0) {
+    if (form.value.password == '') {
+      errors.value.password = 'Password tidak boleh kosong.';
+      isValid = false;
+    }
 
-  if (form.value.konfirmasi_password != form.value.password) {
-    errors.value.konfirmasi_password = 'Konfirmasi password harus sama dengan password.';
-    isValid = false;
+    if (form.value.konfirmasi_password != form.value.password) {
+      errors.value.konfirmasi_password = 'Konfirmasi password harus sama dengan password.';
+      isValid = false;
+    }
   }
 
   return isValid;
@@ -165,12 +171,13 @@ const handleSubmit = async () => {
       whatsapp_company_number: form.value.whatsapp_company_number,
       start_subscribtion: form.value.start_subscribtion,
       end_subscribtion: form.value.end_subscribtion,
-      durasi: form.value.durasi,
       email: form.value.email,
       saldo: form.value.saldo,
       username: form.value.username,
       password: form.value.password,
     };
+
+    // console.log;
 
     const response =
       props.id != 0
@@ -196,7 +203,28 @@ const saldoRp = computed({
   },
 });
 
-const fetchEditData = async () => {};
+const fetchEditData = async () => {
+  try {
+    const response = await get_data_edit_perusahaan({
+      id: props.id,
+    });
+
+    form.value = {
+      company_name: response.data.company_name,
+      type: response.data.type,
+      whatsapp_company_number: response.data.whatsapp_company_number,
+      start_subscribtion: response.data.start_subscribtion,
+      end_subscribtion: response.data.end_subscribtion,
+      email: response.data.email,
+      saldo: response.data.saldo,
+      username: response.data.username,
+      password: '',
+      konfirmasi_password: '',
+    };
+  } catch (error) {
+    displayNotification(error.response.data.message, 'error');
+  }
+};
 
 watch(
   () => props.isModalOpen,
@@ -265,18 +293,7 @@ watch(
           :disabled="form.type != 'limited' ? true : false"
         />
       </div>
-      <div class="col-span-1">
-        <InputText
-          type="number"
-          id="durasi"
-          v-model="form.durasi"
-          label="Durasi"
-          placeholder="Durasi"
-          required
-          :error="errors.durasi"
-        />
-      </div>
-      <div class="col-span-2">
+      <div class="col-span-3">
         <InputText
           id="saldo"
           v-model="saldoRp"

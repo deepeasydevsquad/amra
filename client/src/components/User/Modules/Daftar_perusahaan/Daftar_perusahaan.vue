@@ -27,7 +27,6 @@ interface Company {
 }
 
 const data = ref<Company[]>([]);
-
 const notificationMessage = ref<string>('');
 const notificationType = ref<'success' | 'error'>('success');
 const showNotification = ref<boolean>(false);
@@ -95,6 +94,11 @@ const addPerusahaan = async () => {
   modalAddPerusahaan.value = true;
 };
 
+const editData = async (ids: number) => {
+  id.value = ids;
+  modalAddPerusahaan.value = true;
+};
+
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
@@ -117,6 +121,21 @@ const deleteData = async (id: number) => {
       displayNotification('Terjadi kesalahan saat menghapus data.', 'error');
     }
   });
+};
+
+const formatRupiah = (angka: any, prefix = 'Rp ') => {
+  let numberString = angka.toString().replace(/\D/g, ''),
+    split = numberString.split(','),
+    sisa = split[0].length % 3,
+    rupiah = split[0].substr(0, sisa),
+    ribuan = split[0].substr(sisa).match(/\d{3}/g);
+
+  if (ribuan) {
+    let separator = sisa ? '.' : '';
+    rupiah += separator + ribuan.join('.');
+  }
+
+  return prefix + (rupiah || '0');
 };
 
 onMounted(async () => {
@@ -147,11 +166,8 @@ onMounted(async () => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[13%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[30%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
               Info Perusahaan
-            </th>
-            <th class="w-[17%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
-              Alamat
             </th>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
               Whatsapp
@@ -168,20 +184,25 @@ onMounted(async () => {
           <template v-if="data && data.length > 0">
             <tr v-for="dat in data" :key="dat.id">
               <td class="px-6 py-4 text-left">
-                <b>#{{ dat.code }}</b
-                ><br />{{ dat.company_name }}<br /><span
-                  class="font-bold text-orange-500 uppercase"
-                  >{{ dat.type }}</span
-                >
+                <b>#{{ dat.code }}</b>
+                <br />
+                {{ dat.company_name }}
+                <br />
+                <span v-if="dat.type == 'limited'" class="font-bold text-orange-500 uppercase">{{
+                  dat.type
+                }}</span>
+                <span v-if="dat.type == 'unlimited'" class="font-bold text-blue-500 uppercase">{{
+                  dat.type
+                }}</span>
               </td>
-              <td></td>
               <td class="px-6 py-4 text-center">{{ dat.whatsapp_company_number }}</td>
               <td class="px-6 py-4 text-center">{{ dat.email }}</td>
               <td class="px-6 py-4 text-left">
                 <b>Mulai :</b> {{ dat.start_subscribtion }}<br />
-                <b>Berakhir :</b> {{ dat.end_subscribtion }}<br />
+                <b>Berakhir :</b> {{ dat.end_subscribtion == '' ? '-' : dat.end_subscribtion
+                }}<br />
               </td>
-              <td class="px-6 py-4 text-center">{{ dat.saldo }}</td>
+              <td class="px-6 py-4 text-center">{{ formatRupiah(dat.saldo) }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
                   <LightButton @click="openModal(dat.id)" title="Tambah waktu berlangganan">
@@ -193,7 +214,7 @@ onMounted(async () => {
                   <LightButton @click="openModal(dat.id)" title="Ambil biaya berlangganan">
                     <font-awesome-icon icon="fa-solid fa-credit-card" />
                   </LightButton>
-                  <LightButton @click="openModal(dat.id)" title="Edit info perusahaan">
+                  <LightButton @click="editData(dat.id)" title="Edit info perusahaan">
                     <EditIcon></EditIcon>
                   </LightButton>
                   <DangerButton @click="deleteData(dat.id)" title="Delete perusahaan">

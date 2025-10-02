@@ -40,7 +40,6 @@ router.post(
       .custom(validation.check_nomor_whatsapp),
     body("start_subscribtion").trim(),
     body("end_subscribtion").trim(),
-    body("durasi").trim(),
     body("email").trim().custom(validation.check_email),
     body("saldo").trim(),
     body("username").trim().custom(validation.check_username),
@@ -69,10 +68,9 @@ router.post(
       .trim()
       .notEmpty()
       .withMessage("Nomor whatsapp tidak boleh kosong.")
-      .custom(validation.check_nomor_whatsapp),
+      .custom(validation.check_nomor_whatsapp_update),
     body("start_subscribtion").trim(),
     body("end_subscribtion").trim(),
-    body("durasi").trim(),
     body("email").trim().custom(validation.check_email_update),
     body("saldo").trim(),
     body("username").trim().custom(validation.check_username_update),
@@ -92,6 +90,19 @@ router.post(
       .custom(validation.check_id),
   ],
   controllers.delete
+);
+
+router.post(
+  "/backbone/daftar_perusahaan/get_data_edit_perusahaan",
+  authenticateTokenBackbone,
+  [
+    body("id")
+      .trim()
+      .notEmpty()
+      .withMessage("Id tidak boleh kosong.")
+      .custom(validation.check_id),
+  ],
+  controllers.get_data_edit_perusahaan
 );
 
 module.exports = router;
