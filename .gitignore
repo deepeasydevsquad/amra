@@ -155,4 +155,7 @@ resetdb.ps1
 #vscode
 .vscode/
 
+# GitHub Actions workflows
+.github/workflows/
+
 
