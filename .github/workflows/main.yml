@@ -1,32 +1,63 @@
-name: Auto Merge Master into Other Branches
+name: CI/CD Deploy Amra App
 
 on:
   push:
-    branches:
-      - master  # jalan setiap ada push/merge ke master
+    branches: [ staging ]
 
 jobs:
-  merge-branches:
+  deploy:
     runs-on: ubuntu-latest
 
+    env:
+      FRONT_IMAGE: muammar88/amra_saas_client:v1.0
+      BACK_IMAGE: muammar88/amra_saas_server:v1.0
+      SERVER_IP: ${{ secrets.SERVER_IP }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
+      DOCKER_HUB_PASS: ${{ secrets.DOCKER_HUB_PASS }}
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0   # wajib untuk bisa fetch semua branch
+    - name: Checkout repo
+      uses: actions/checkout@v3
 
-      - name: Set up Git identity
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+    - name: Login to DockerHub
+      run: echo "$DOCKER_HUB_PASS" | docker login -u "$DOCKER_HUB_USER" --password-stdin
 
-      - name: Merge master into other branches
-        run: |
-          for branch in master_satuapp master_amra master_atra
-          do
-            echo "⚡ Updating $branch ..."
-            git checkout $branch
-            git pull origin $branch
-            git merge origin/master --no-edit || true
-            git push origin $branch
-          done
+    - name: Build and push client image
+      run: |
+        docker build -t muammar88/amra_saas_client:v1.0 ./client
+        docker push muammar88/amra_saas_client:v1.0
+
+    - name: Build and push backend image
+      run: |
+        docker build -t muammar88/amra_saas_server:v1.0 ./server
+        docker push muammar88/amra_saas_server:v1.0
+
+    - name: Deploy to Ubuntu server via SSH
+      uses: appleboy/ssh-action@v1
+      timeout-minutes: 20
+      with:
+        host: ${{ env.SERVER_IP }}
+        username: ${{ env.SSH_USER }}
+        key: ${{ env.SSH_PRIVATE_KEY }}
+        script: |
+        
+          cd /home/dbmachine/amra
+          
+          # Pull latest images
+          docker pull muammar88/amra_saas_client:v1.0
+          docker pull muammar88/amra_saas_server:v1.0
+
+          # Stop and remove containers if exist
+          docker-compose down || true
+
+          # Start services using docker-compose
+          docker-compose up -d
+
+          # Run Sequelize migration and seed scripts
+          docker exec -i Container_server npx sequelize-cli db:migrate:undo:all
+          docker exec -i Container_server npx sequelize-cli db:migrate
+          docker exec -i Container_server npx sequelize-cli db:seed:all
+
+          
