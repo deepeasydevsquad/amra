@@ -3,256 +3,136 @@ const moment = require("moment");
 const jwt = require("jsonwebtoken");
 const Model_r = require("../models/model_r");
 const { handleValidationErrors, handleServerError } = require("../../../helper/handleError");
+
 const controllers = {};
 
+let refreshTokens = [];
+
 controllers.login_process = async (req, res) => {
-  // validation handling
   if (!(await handleValidationErrors(req, res))) return;
-  // process
+
   try {
     const body = req.body;
     const model_r = new Model_r(req);
     const data = await model_r.get_user_information();
-    // filter if data not in database
-    if( Object.keys(data).length > 0 ) {
-      // validasi password
-      const valid_password = await bcrypt.compare( body.password, data.password );
-      // validation
+    var error = false;
+    var error_msg = '';
+
+    console.log("======data");
+    console.log(data);
+    console.log("======data");
+
+    if (Object.keys(data).length > 0) {
+
+      console.log("======Password");
+      console.log(body.password);
+      console.log(data.password);
+      console.log("======Password");
+
+      const valid_password = await bcrypt.compare(body.password, data.password);
       if (!valid_password) {
-        // bad response
-        res.status(400).json({
+        return res.status(400).json({
           error: true,
-          error_msg: 'Username atau Password anda tidak valid..',
+          error_msg: "Username atau Password anda tidak valid.",
         });
-      } else {
-        const date = moment(data.end_subscribtion);
-        const now = moment();
-        if ( date.isBefore(now, 'day') ) {
-          // bad response
-          res.status(400).json({
-            error: true,
-            error_msg: 'Masa Berlangganan Anda Sudah Berakhir. Silahkan Hubungi Administrator Untuk Memperpanjang Masa Berlangganan.',
-          });
-        }else{
-
-
-            const user = { username : body.username, company_code : data.company_code, type : body.type };
-
-            console.log("User--------");
-            console.log(user);
-            console.log("User--------");
-
-            const accessToken = jwt.sign(user, process.env.SECRET_KEY, { expiresIn: '15m' });
-            const refreshToken = jwt.sign(user, data.refresh_token, { expiresIn: '7d' });
-            // success response
-            res.status(200).json({ 
-              access_token: accessToken, 
-              refresh_token: refreshToken,
-              error: false,
-              error_msg: 'Username atau Password anda tidak ditemukan dipangkalan data.'
-            });
-        } 
       }
-    }else{
-      // bad response
+
+      const userPayload = {
+        company_code: data.company_code,
+        type: body.type,
+        ...(body.type === "staff" && { division_id: data.division_id }),
+        ...(body.type === 'staff' ? { nomor_whatsapp: body.nomor_whatsapp} : { username : body.username })
+      };
+
+      if( data.type_subscribtion == 'limited') {
+        const endDate = moment(data.end_subscribtion);
+        const now = moment();
+        if (endDate.isBefore(now, 'day')) {
+          error = true;
+          error_msg = "Masa Berlangganan Anda Sudah Berakhir. Silahkan Hubungi Administrator.";
+        }
+      }
+      
+      if( error == false ) {
+        const accessToken = jwt.sign(userPayload, process.env.SECRET_KEY, { expiresIn: "10s" });
+        const refreshToken = jwt.sign(userPayload, process.env.REFRESH_SECRET_KEY, { expiresIn: "7d" });
+
+        refreshTokens.push(refreshToken);
+
+        res.status(200).json({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          error: false,
+          error_msg: "Sukses.",
+        });
+      }
+    } else {
+      error = true;
+      error_msg = "Username atau Password anda tidak ditemukan di pangkalan data.";
+    }
+
+    if( error ) {
       res.status(400).json({
         error: true,
-        error_msg: 'Username atau Password anda tidak ditemukan dipangkalan data.',
+        error_msg: error_msg,
       });
     }
-  } catch (error) {  
+    // else{
+    //   res.status(200).json({
+    //     error: false,
+    //     error_msg: "Login berhasil dilakukan.",
+    //   });
+    // }
+
+  } catch (error) {
     handleServerError(res, error);
   }
-}
+};
 
 controllers.user = async (req, res) => {
-
-  // process
   try {
     const model_r = new Model_r(req);
-
-    console.log("--------XXXXXXXXXXXXXXXXX");
-    console.log("--------XXXXXXXXXXXXXXXXX");
-    console.log("--------XXXXXXXXXXXXXXXXX");
     const data = await model_r.get_menu_submenu_tab();
 
-    console.log('------------DDD');
-    console.log(data);
-    console.log('------------DDD');
-  
-    res.status(200).json({ 
+    res.status(200).json({
       error: false,
-      error_msg: 'Data Berhasil Ditemukan.', 
-      menu_info : data.menu_info, 
-      user_info : data.user_info
+      error_msg: "Data Berhasil Ditemukan.",
+    
+      menu_info: data.menu_info,
+      user_info: data.user_info,
     });
-
-  } catch (error) {  
+  } catch (error) {
     handleServerError(res, error);
   }
-}
+};
 
+controllers.refreshToken = async (req, res) => {
+  const { refresh_token } = req.body;
 
-//   const { username } = req.body;
+  if (!refresh_token) {
+    return res.status(401).json({ error: true, error_msg: "Token diperlukan" });
+  }
 
-//   console.log("Username");
-//   console.log(username);
-//   console.log("Username");
+  // Optional: validasi kalau token memang tersimpan
+  if (!refreshTokens.includes(refresh_token)) {
+    return res.status(403).json({ error: true, error_msg: "Token tidak dikenali" });
+  }
 
-//   if (!username) return res.status(400).json({ message: 'Username diperlukan' });
+  jwt.verify(refresh_token, process.env.REFRESH_SECRET_KEY, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: true, error_msg: "Token kadaluarsa atau tidak valid" });
+    }
 
-//   const user = { username };
-//   const accessToken = jwt.sign(user, process.env.SECRET_KEY, { expiresIn: '15m' });
-//   const refreshToken = jwt.sign(user, process.env.REFRESH_SECRET_KEY, { expiresIn: '7d' });
-//   refreshTokens.push(refreshToken);
+    const { exp, iat, ...cleanUser } = user;
 
-//   res.json({ access_token: accessToken, refresh_token: refreshToken });
-// /**
-//  * Login Area Views
-//  **/
-// controllers.Login_area = async (req, res) => {
-//   res.render("login/index");
-// };
+    const accessToken = jwt.sign(cleanUser, process.env.SECRET_KEY, { expiresIn: "15m" });
 
-// /**
-//  * Melakukan authentikasi proses login user
-//  **/
-// controllers.Login_process = async (req, res) => {
-//   const vals = validationResult(req);
-//   const errors = vals.errors;
-//   if (errors.length > 0 ) {
-//     const err_msg = await error_msg(errors);
-//     res.status(400).json({ error: true, error_msg: err_msg });
-//   } else {
-//     const model_r = new Model_r(req);
-//     try {
-//       const data = await model_r.get_one_user();
-//       if (data) {
-//         const body = req.body;
-//         const valid_password = await bcrypt.compare(
-//           body.password,
-//           data.password
-//         );
-//         if (!valid_password) {
-//           res.status(400).json({ error: true,  error_msg: "Password Tidak Valid" });
-//         } else {
-//           if (typeof req.session.administrator_session !== "undefined") {
-//             if (!req.session.administrator_session.hasOwnProperty(data.kode)) {
-//               var list = [];
-//               if( Object.keys(req.session.administrator_session).length > 0 ) {
-//                 req.session.administrator_session.forEach((element, key) => {
-//                   list[key] = element;
-//                 });
-//                 list[data.kode] = { name: data.name };
-//                 req.session.administrator_session = list;
-//               }else{
-//                 req.session.administrator_session = {
-//                   [data.kode]: { name: data.name },
-//                 };
-//               }
-//             }
-//           } else {
-//             req.session.administrator_session = {
-//               [data.kode]: { name: data.name },
-//             };
-//           }
-//           const access_token = jwt.sign(
-//             { kode: data.kode, name: data.name },
-//             process.env.ACCESS_TOKEN_SECRET,
-//             { expiresIn: "360d" }
-//           );
-//           res.status(200).json({
-//             msg: "Login Berhasih Dilakukan",
-//             kode: data.kode,
-//             access_token: access_token,
-//           });
-//         }
-//       } else {
-//         res.status(400).json({ error_msg : true, error_msg: "Username tidak ditemukan" });
-//       }
-//     } catch (error) {
-//       res.status(400).json({ msg: error });
-//     }
-//   }
-// };
-
-// controllers.Logout = async (req, res, next) => {
-//   const authHeader = req.headers["authorization"];
-//   const token = authHeader && authHeader.split(" ")[1];
-//   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-//     if (!err) {
-//       delete req.session.administrator_session[decoded.kode];  
-//       res.send({error : false , error_msg :  `Logout berhasil dilakukan.`});
-//     } 
-//   });
-// }
-
-// controllers.Info_profil = async (req, res ) => {
-//     const token = req.query.token;
-//     try {
-//       jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
-//         if (err) {
-//           return res.status(400).json({
-//             error_msg: "Kode tidak ditemukan",
-//           });
-//         } else {
-//           var data = {};
-//           await User.findOne({
-//             where: { kode: decoded.kode },
-//           }).then(async (val) => {
-//             if (val) {
-//               data["id"] = val.id;
-//               data["name"] = val.name;
-//             }
-//           });
-//           res.status(200).json({
-//             error: false,
-//             error_msg: 'Data profil ditemukan',
-//             data : data, 
-//           });
-//         }
-//       });
-      
-//     } catch (error) {
-//       res.status(400).json({
-//         error: true,
-//         error_msg: 'Data profil tidak ditemukan',
-//       });
-//     }
-// }
-
-// controllers.UpdateProfile = async (req, res) => {
-//   // validation handling
-//   if (!(await handleValidationErrors(req, res))) return;
-//   // process
-//   try {
-//     const token = req.query.token;
-//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
-//       if (err) {
-//         return res.status(400).json({
-//           error_msg: "Kode tidak ditemukan",
-//         });
-//       } else {
-//         const model_cud = new Model_cud(req);
-//         // delete process
-//         await model_cud.UpdateProfile(decoded.kode);
-//         // get response
-//         if (await model_cud.response()) {
-//           res.status(200).json({
-//             error: false,
-//             error_msg: 'Update Profil Berhasil Ditambahkan.',
-//           });
-//         } else {
-//           res.status(400).json({
-//             error: true,
-//             error_msg: 'Update Profil Gagal Ditambahkan.',
-//           });
-//         }
-//       }
-//     });
-//   } catch (error) {
-//     handleServerError(res);
-//   }
-// }
+    res.status(200).json({
+      access_token: accessToken,
+      error: false,
+      error_msg: "Token baru berhasil dibuat",
+    });
+  });
+};
 
 module.exports = controllers;

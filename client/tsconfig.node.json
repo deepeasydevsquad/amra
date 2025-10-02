@@ -16,6 +16,19 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "types": ["node", "vue", "vite/client"]
+    "types": ["node", "vue", "vite/client"], 
+    "skipLibCheck": true,
+    "noEmitOnError": false, 
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   }
 }
+  // "compilerOptions": {
+    // "module": "ESNext",
+    // "moduleResolution": "Bundler",
+    // "types": ["node", "vue", "vite/client"],
+    // "skipLibCheck": true,
+    // "noEmit": true
+  

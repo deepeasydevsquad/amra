@@ -15,9 +15,18 @@ module.exports = {
           model: "Companies",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
-      city: {
+      name: {
         type: Sequelize.STRING
+      },
+      kota_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Mst_kota",
+          key: "id",
+        },
+        onDelete: 'CASCADE',
       },
       pos_code: {
         type: Sequelize.STRING

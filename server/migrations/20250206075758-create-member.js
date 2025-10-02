@@ -15,6 +15,7 @@ module.exports = {
           model: "Divisions",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       fullname: {
         type: Sequelize.STRING
@@ -43,6 +44,12 @@ module.exports = {
       },
       whatsapp_number: {
         type: Sequelize.STRING
+      },
+      total_deposit: {
+        type: Sequelize.INTEGER
+      },
+      total_tabungan: {
+        type: Sequelize.INTEGER
       },
       password: {
         type: Sequelize.STRING

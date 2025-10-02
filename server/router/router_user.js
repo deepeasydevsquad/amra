@@ -15,38 +15,62 @@ const router = express.Router();
 router.post('/auth/login', 
   body("type").notEmpty().withMessage("Tipe Akun Tidak Boleh Kosong").trim().isIn(["administrator","staff"]),
   body("company_code").custom(validation.company_code_login_process),
-  body("username").notEmpty().withMessage("Username Tidak Boleh Kosong").trim().custom(validation.username_login_process),
+  body("username").trim().custom(validation.username_login_process),
+  body("nomor_whatsapp").trim().custom(validation.nomor_whatsapp_login_process),
   body("password").notEmpty().withMessage("Password Tidak Boleh Kosong").trim(),
   controllers.login_process
 );
 
+router.post('/auth/refresh', 
+   controllers.refreshToken
+);
+
+// Endpoint logout untuk menghapus refresh token
+router.post('/auth/logout', (req, res) => {
+  try {
+    const { refresh_token } = req.body;
+    
+    if (!refresh_token) {
+      return res.status(400).json({
+        error: true,
+        error_msg: "Refresh token diperlukan"
+      });
+    }
+
+    // Hapus refresh token dari array (dalam implementasi nyata, hapus dari database)
+    refreshTokens = refreshTokens.filter(token => token !== refresh_token);
+    
+    // Optional: Jika ingin memvalidasi token sebelum menghapus
+    /*
+    jwt.verify(refresh_token, process.env.REFRESH_SECRET_KEY, (err, user) => {
+      if (err) {
+        return res.status(200).json({
+          error: false,
+          error_msg: "Logout berhasil (token sudah tidak valid)"
+        });
+      }
+      
+      // Token valid, hapus dari storage
+      refreshTokens = refreshTokens.filter(token => token !== refresh_token);
+    });
+    */
+
+    return res.status(200).json({
+      error: false,
+      error_msg: "Logout berhasil"
+    });
+  } catch (error) {
+    console.error('Error during logout:', error);
+    
+    // Meskipun ada error, tetap anggap logout berhasil
+    return res.status(200).json({
+      error: false,
+      error_msg: "Logout berhasil"
+    });
+  }
+});
+
 router.get('/user', authenticateToken, controllers.user);
-
-//   (req, res) => {
-
-// }
-
-
-// // Endpoint untuk refresh token
-// router.post('/auth/refresh', (req, res) => {
-//   const { refresh_token } = req.body;
-//   if (!refresh_token || !refreshTokens.includes(refresh_token)) {
-//     return res.sendStatus(403);
-//   }
-
-//   jwt.verify(refresh_token, REFRESH_SECRET_KEY, (err, user) => {
-//     if (err) return res.sendStatus(403);
-//     const accessToken = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '15m' });
-//     res.json({ access_token: accessToken });
-//   });
-// });
-
-// // Logout (hapus refresh token)
-// router.post('/auth/logout', (req, res) => {
-//   const { refresh_token } = req.body;
-//   refreshTokens = refreshTokens.filter(token => token !== refresh_token);
-//   res.sendStatus(204);
-// });
 
 router.get("/Menu", authenticateToken, (req, res) => {
     res.status(200).json([{
@@ -135,6 +159,5 @@ router.get("/Menu", authenticateToken, (req, res) => {
     }]);
     }
   );
-
 
 module.exports = router;

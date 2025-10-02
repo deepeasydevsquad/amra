@@ -1,47 +1,51 @@
 <template>
   <div class="max-w-md mx-auto p-4 bg-white rounded-lg">
     <p class="text-sky-700 font-bold mb-2">Pilih Paket Anda</p>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div class="grid grid-cols-1 gap-3">
       <RadioButton
         v-model="selectedPackage"
         name="paket"
-        value="a"
-        label="Paket 1 Bulan"
-        price="Rp 200.000"
-      />
-      <RadioButton
-        v-model="selectedPackage"
-        name="paket"
-        value="b"
-        label="Paket 3 Bulan"
-        price="Rp 400.000"
-      />
-      <RadioButton
-        v-model="selectedPackage"
-        name="paket"
-        value="c"
-        label="Paket 12 Bulan"
-        price="Rp 1.000.000"
-      />
-      <RadioButton
-        v-model="selectedPackage"
-        name="paket"
-        value="d"
-        label="Paket 6 Bulan"
-        price="Rp 500.000"
+        :value="subscriptionPrice"
+        :label="`Paket Premium (12 Bulan) - Rp ${formattedPrice}`"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, computed, defineEmits } from 'vue'
+import axios from 'axios'
 import RadioButton from '../particles/RadioButton.vue'
 
-// Menyimpan nilai paket yang dipilih
-const selectedPackage = ref('')
-</script>
+const emit = defineEmits(['update:modelValue'])
 
-<style scoped>
-/* Tidak ada CSS tambahan */
-</style>
+const subscriptionPrice = ref<number | null>(null)
+const selectedPackage = ref<number | null>(null) // Default kosong
+
+// ✅ Fungsi mengambil harga dari backend
+const fetchSubscriptionPrice = async () => {
+  try {
+    const response = await axios.get('http://localhost:3001/ambil_harga')
+    console.log('✅ Harga langganan dari API:', response.data.harga_langganan)
+
+    subscriptionPrice.value = response.data.harga_langganan
+    selectedPackage.value = response.data.harga_langganan
+    emit('update:modelValue', response.data.harga_langganan) // ✅ Kirim ke parent
+  } catch (error) {
+    console.error('❌ Gagal mengambil harga langganan:', error)
+    subscriptionPrice.value = null
+  }
+}
+
+// ✅ Format harga ke IDR (Rp 1.000.000)
+const formattedPrice = computed(() => {
+  if (subscriptionPrice.value === null) return 'N/A'
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' })
+    .format(subscriptionPrice.value)
+    .replace(',00', '') // Hapus ,00 agar lebih clean
+})
+
+onMounted(() => {
+  fetchSubscriptionPrice()
+})
+</script>

@@ -7,12 +7,14 @@ import { ref, onMounted } from 'vue'
 
 // useGlobalTab
 import { useGlobalTab, useSelectedTab, globalSelectMenu } from '../../stores/sidebar'
+import { SettingStore } from '../../stores/settings'
 
 // State error dan loading
 const isError = ref(false)
 const isLoading = ref(true)
 
 const globalTab = useGlobalTab() // menampung seluruh tab secara global
+const SettingGlob = SettingStore()
 const selectedTab = useSelectedTab()
 const selectMenu = globalSelectMenu()
 
@@ -67,6 +69,15 @@ const fetchUsers = async () => {
       for (const x in response.data.menu_info.tab) {
         globalTab.addItem(x, response.data.menu_info.tab[x])
       }
+
+      SettingGlob.clearObject()
+      for (const x in response.data.user_info) {
+        SettingGlob.addItem(x, response.data.user_info[x])
+      }
+
+      console.log("-----------//////");
+      console.log(SettingGlob.sharedObject);
+      console.log("-----------//////");
 
       const menu = response.data.menu_info.menu
       const menuPertama = Object.values(menu)[0]

@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // Gunakan variabel lingkungan dari .env
-const API_BASE_URL = import.meta.env.VITE_APP_API_BASE_URL || 'https://amra-app.com'
+const API_BASE_URL = window.location.protocol + '//' + window.location.hostname + ':3001'
 
 // Base URL API
 const api = axios.create({
@@ -27,28 +27,28 @@ api.interceptors.request.use(
   (error) => Promise.reject(error),
 )
 
-// **Interceptor untuk menangani refresh token jika token kadaluarsa**
+// Interceptor untuk response: refresh token jika expired
 let isRefreshing = false
 let failedRequestsQueue = []
 
 api.interceptors.response.use(
-  (response) => response, // Jika response sukses, langsung kembalikan
+  (response) => response,
   async (error) => {
     const originalRequest = error.config
 
-    console.log('Status:', error.response?.status)
-
-    if (error.response?.status === 404) {
-      window.location.href = '/user/login' // Redirect ke halaman login jika refresh gagal
-    } else if (
+    if (
       (error.response?.status === 401 || error.response?.status === 403) &&
       !originalRequest._retry
     ) {
       if (isRefreshing) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
           failedRequestsQueue.push((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`
-            resolve(api(originalRequest))
+            if (token) {
+              originalRequest.headers.Authorization = `Bearer ${token}`
+              resolve(api(originalRequest))
+            } else {
+              reject(error)
+            }
           })
         })
       }
@@ -58,9 +58,7 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = getRefreshToken()
-        if (!refreshToken) {
-          throw new Error('No refresh token available')
-        }
+        if (!refreshToken) throw new Error('No refresh token available')
 
         const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
           refresh_token: refreshToken,
@@ -69,8 +67,8 @@ api.interceptors.response.use(
         const newAccessToken = response.data.access_token
         localStorage.setItem('access_token', newAccessToken)
 
-        // Ulangi semua request yang tertunda dengan token baru
-        failedRequestsQueue.forEach((callback) => callback(newAccessToken))
+        // Jalankan semua request yang tertunda
+        failedRequestsQueue.forEach((cb) => cb(newAccessToken))
         failedRequestsQueue = []
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
@@ -79,7 +77,7 @@ api.interceptors.response.use(
         console.error('Refresh token gagal, harap login ulang')
         localStorage.removeItem('access_token')
         localStorage.removeItem('refresh_token')
-        window.location.href = '/user/login' // Redirect ke halaman login jika refresh gagal
+        window.location.href = '/Login'
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false

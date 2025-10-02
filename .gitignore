@@ -90,7 +90,7 @@ out
 # Nuxt.js build / generate output
 .nuxt
 dist
-
+.ps1
 # Gatsby files
 .cache/
 # Comment in the public line in if your project uses Gatsby and not Next.js
@@ -148,6 +148,11 @@ dist
 .yarn/install-state.gz
 .pnp.*
 .DS_Store
-# package-lock.json
-# package.json
+package-lock.json
+package.json
+resetdb.ps1
+
+#vscode
+.vscode/
+
 

@@ -15,9 +15,10 @@ module.exports = {
           model: "Companies",
           key: "id",
         },
+        onDelete: 'CASCADE',
       },
       order_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.TEXT
       },
       status: {
         type: Sequelize.ENUM,
