@@ -102,9 +102,29 @@ controllers.get_data_edit_perusahaan = async (req, res) => {
     const feedBack = await model_r.get_data_edit_perusahaan();
     res.status(200).json({ error: false, data: feedBack });
   } catch (error) {
-    console.log("xxxxSSSS");
-    console.log(error);
-    console.log("xxxxSSSS");
+    handleServerError(res, error.message);
+  }
+};
+
+controllers.add_waktu_berlangganan = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    await model_cud.add_waktu_berlangganan();
+
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: "Waktu berlangganan perusahaan berhasil ditambah.",
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: "Waktu berlangganan perusahaan gagal ditambah.",
+      });
+    }
+  } catch (error) {
     handleServerError(res, error.message);
   }
 };

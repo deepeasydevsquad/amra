@@ -1,7 +1,5 @@
 const { sequelize, Company } = require("../../../models");
 const bcrypt = require("bcryptjs");
-// const Model_r = require("../models/model_r");
-const { writeLog } = require("../../../helper/writeLogHelper");
 const {
   generated_code,
   generated_refresh_token,
@@ -121,6 +119,48 @@ class Model_cud {
           },
         },
         {
+          transaction: this.t,
+        }
+      );
+    } catch (error) {
+      this.state = false;
+    }
+  }
+
+  async add_waktu_berlangganan() {
+    await this.initialize();
+    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+    const body = this.req.body;
+
+    try {
+      const company = await Company.findOne({ where: { id: body.id } });
+      let end_subscribtion = company ? company.end_subscribtion : null;
+
+      let baseDate;
+
+      if (end_subscribtion && end_subscribtion !== null) {
+        baseDate = new Date(end_subscribtion);
+      } else {
+        baseDate = new Date();
+      }
+
+      // Tambah bulan sesuai durasi
+      baseDate.setMonth(baseDate.getMonth() + parseInt(body.durasi, 10));
+
+      // Format ke YYYY-MM-DD biar rapi
+      const year = baseDate.getFullYear();
+      const month = String(baseDate.getMonth() + 1).padStart(2, "0");
+      const day = String(baseDate.getDate()).padStart(2, "0");
+      const new_end_subscribtion = `${year}-${month}-${day}`;
+
+      // update process
+      await Company.update(
+        {
+          end_subscribtion: new_end_subscribtion,
+          updatedAt: myDate,
+        },
+        {
+          where: { id: body.id },
           transaction: this.t,
         }
       );

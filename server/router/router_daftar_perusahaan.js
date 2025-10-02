@@ -105,4 +105,23 @@ router.post(
   controllers.get_data_edit_perusahaan
 );
 
+router.post(
+  "/backbone/daftar_perusahaan/add_waktu_berlangganan",
+  authenticateTokenBackbone,
+  [
+    body("id")
+      .trim()
+      .notEmpty()
+      .withMessage("Id tidak boleh kosong.")
+      .custom(validation.check_id),
+    body("durasi")
+      .trim()
+      .notEmpty()
+      .withMessage("Id tidak boleh kosong.")
+      .isInt({ gt: 0 })
+      .withMessage("Durasi harus lebih besar dari 0."),
+  ],
+  controllers.add_waktu_berlangganan
+);
+
 module.exports = router;

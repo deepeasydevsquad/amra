@@ -110,9 +110,10 @@ class Model_r {
           data["start_subscribtion"] = moment(e.start_subscribtion).format(
             "YYYY-MM-DD"
           );
-          data["end_subscribtion"] = moment(e.end_subscribtion).format(
-            "YYYY-MM-DD"
-          );
+          data["end_subscribtion"] =
+            e.end_subscribtion != null
+              ? moment(e.end_subscribtion).format("YYYY-MM-DD")
+              : "-";
           data["durasi"] = e.durasi;
           data["email"] = e.email;
           data["saldo"] = e.saldo;

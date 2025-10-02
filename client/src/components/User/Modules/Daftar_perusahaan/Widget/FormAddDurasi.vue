@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
-import { tambah_waktu_berlangganan } from '@/service/daftar_perusahaan';
+import { tambah_waktu_berlangganan, get_data_edit_perusahaan } from '@/service/daftar_perusahaan';
+import Form from '@/components/Modal/Form.vue';
+import InputText from '@/components/Form/InputText.vue';
 
 const emit = defineEmits<{
   (e: 'close'): void;
@@ -21,14 +23,18 @@ interface FormData {
   company_name: string;
   start_subscribtion: string;
   end_subscribtion: string;
+  new_end_subscribtion: string;
   durasi: number;
+  whatsapp_company_number: number;
 }
 
 const form = ref<FormData>({
   company_name: '',
   start_subscribtion: '',
   end_subscribtion: '',
+  new_end_subscribtion: '',
   durasi: 0,
+  whatsapp_company_number: 0,
 });
 
 const showNotification = ref(false);
@@ -55,7 +61,9 @@ const fetchEditData = async () => {
       company_name: response.data.company_name,
       start_subscribtion: response.data.start_subscribtion,
       end_subscribtion: response.data.end_subscribtion,
+      new_end_subscribtion: response.data.end_subscribtion,
       durasi: 0,
+      whatsapp_company_number: response.data.whatsapp_company_number,
     };
   } catch (error) {
     displayNotification(error.response.data.message, 'error');
@@ -69,7 +77,9 @@ const reset = (): void => {
     company_name: '',
     start_subscribtion: '',
     end_subscribtion: '',
+    new_end_subscribtion: '',
     durasi: 0,
+    whatsapp_company_number: 0,
   };
   errors.value = {};
 };
@@ -97,13 +107,7 @@ const handleSubmit = async () => {
   if (!validateForm()) return;
 
   try {
-    const data = {
-      company_name: form.value.company_name,
-      start_subscribtion: form.value.start_subscribtion,
-      end_subscribtion: form.value.end_subscribtion,
-    };
-
-    const response = await tambah_waktu_berlangganan(data);
+    const response = await tambah_waktu_berlangganan({ id: props.id, durasi: form.value.durasi });
     displayNotification(response.message, 'success');
     emit('close');
     reset();
@@ -120,20 +124,47 @@ watch(
     }
   },
 );
+
+watch(
+  () => form.value.durasi,
+  (newDurasi) => {
+    if (!newDurasi || newDurasi <= 0) return;
+
+    let baseDate: Date;
+
+    if (form.value.end_subscribtion && form.value.end_subscribtion !== '-') {
+      // Kalau sudah ada end_subscribtion sebelumnya → pakai sebagai base date
+      baseDate = new Date(form.value.end_subscribtion);
+    } else {
+      // Kalau belum ada → pakai tanggal hari ini
+      baseDate = new Date();
+    }
+
+    // Tambah bulan sesuai durasi
+    baseDate.setMonth(baseDate.getMonth() + newDurasi);
+
+    // Format ke YYYY-MM-DD biar rapi
+    const year = baseDate.getFullYear();
+    const month = String(baseDate.getMonth() + 1).padStart(2, '0');
+    const day = String(baseDate.getDate()).padStart(2, '0');
+
+    form.value.new_end_subscribtion = `${year}-${month}-${day}`;
+  },
+);
 </script>
 
 <template>
   <Form
     :form-status="isModalOpen"
-    :label="props.id === 0 ? 'Tambah Perusahaan' : 'Update Perusahaan'"
+    :label="'Tambah Durasi Berlangganan'"
     @close="handleCancel"
     @cancel="handleCancel"
     @submit="handleSubmit"
-    width="sm:w-full sm:max-w-xl"
-    :submitLabel="props.id === 0 ? 'TAMBAH PERUSAHAAN' : 'UPDATE PERUSAHAAN'"
+    width="sm:w-full sm:max-w-lg"
+    :submitLabel="'TAMBAH DURASI PERUSAHAAN'"
   >
-    <!-- <div class="grid grid-cols-6 gap-6">
-      <div class="col-span-4">
+    <div class="grid grid-cols-6 gap-6">
+      <div class="col-span-6">
         <InputText
           id="nama_perusahaan"
           v-model="form.company_name"
@@ -141,104 +172,51 @@ watch(
           placeholder="Masukkan nama perusahaan"
           required
           :error="errors.company_name"
+          class="mb-0"
+          :disabled="true"
+        />
+      </div>
+      <div class="col-span-3">
+        <InputText
+          id="mulai_berlangganan"
+          v-model="form.start_subscribtion"
+          label="Mulai Berlangganan"
+          placeholder="Mulai Berlangganan"
+          required
+          :disabled="true"
+        />
+      </div>
+      <div class="col-span-3">
+        <InputText
+          id="akhir_berlangganan"
+          v-model="form.new_end_subscribtion"
+          label="Akhir Berlangganan"
+          placeholder="Akhir Berlangganan"
+          required
+          :disabled="true"
         />
       </div>
       <div class="col-span-2">
-        <SelectField
-          id="type"
-          v-model="form.type"
-          label="Tipe Langganan"
-          :options="[
-            { id: '0', name: '-- Pilih Tipe --' },
-            { id: 'limited', name: 'Limited' },
-            { id: 'unlimited', name: 'Unlimited' },
-          ]"
-          required
-          :error="errors.type"
-        />
-      </div>
-      <div class="col-span-3">
-        <InputDate
-          id="start_subscribtion"
-          v-model="form.start_subscribtion"
-          label="Mulai berlangganan"
-          placeholder="Masukkan mulai berlangganan"
-          required
-          :error="errors.start_subscribtion"
-        />
-      </div>
-      <div class="col-span-3">
-        <InputDate
-          id="end_subscribtion"
-          v-model="form.end_subscribtion"
-          label="Akhir berlangganan"
-          placeholder="Masukkan akhir berlangganan"
-          required
-          :error="errors.end_subscribtion"
-          :disabled="form.type != 'limited' ? true : false"
-        />
-      </div>
-      <div class="col-span-3">
         <InputText
-          id="saldo"
-          v-model="saldoRp"
-          label="Saldo"
-          placeholder="Saldo"
+          id="durasi"
+          type="number"
+          v-model="form.durasi"
+          label="Durasi"
+          placeholder="Durasi"
+          :error="errors.durasi"
           required
-          :error="errors.saldo"
         />
       </div>
-      <div class="col-span-3">
+      <div class="col-span-4">
         <InputText
           id="whatsapp_company_number"
           v-model="form.whatsapp_company_number"
-          label="Nomor Whatsapp"
-          placeholder="Nomor whatsapp"
+          label="Nomor Whatsapp Perusahaan"
+          placeholder="Nomor Whatsapp Perusahaan"
           required
-          :error="errors.whatsapp_company_number"
+          :disabled="true"
         />
       </div>
-      <div class="col-span-3">
-        <InputText
-          type="email"
-          id="email"
-          v-model="form.email"
-          label="Email"
-          placeholder="Email"
-          required
-          :error="errors.email"
-        />
-      </div>
-      <div class="col-span-3">
-        <InputText
-          id="username"
-          v-model="form.username"
-          label="Username"
-          placeholder="Username"
-          required
-          :error="errors.username"
-        />
-      </div>
-      <div class="col-span-3">
-        <InputPassword
-          id="password"
-          v-model="form.password"
-          label="Password"
-          placeholder="Password"
-          required
-          :error="errors.password"
-        />
-      </div>
-      <div class="col-span-3">
-        <InputPassword
-          id="konfirmmasi"
-          v-model="form.konfirmasi_password"
-          label="Konfirmasi Password"
-          placeholder="Konfirmasi Password"
-          required
-          :error="errors.konfirmasi_password"
-        />
-      </div>
-    </div> -->
+    </div>
   </Form>
 </template>
