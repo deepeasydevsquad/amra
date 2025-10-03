@@ -3,6 +3,7 @@ import { ref, watch, computed } from 'vue';
 import { tambah_waktu_berlangganan, get_data_edit_perusahaan } from '@/service/daftar_perusahaan';
 import Form from '@/components/Modal/Form.vue';
 import InputText from '@/components/Form/InputText.vue';
+import Notification from '@/components/Modal/Notification.vue';
 
 const emit = defineEmits<{
   (e: 'close'): void;
@@ -108,7 +109,7 @@ const handleSubmit = async () => {
 
   try {
     const response = await tambah_waktu_berlangganan({ id: props.id, durasi: form.value.durasi });
-    displayNotification(response.message, 'success');
+    displayNotification(response.error_msg, 'success');
     emit('close');
     reset();
   } catch (error) {
@@ -219,4 +220,10 @@ watch(
       </div>
     </div>
   </Form>
+  <Notification
+    :showNotification="showNotification"
+    :notificationType="notificationType"
+    :notificationMessage="notificationMessage"
+    @close="showNotification = false"
+  ></Notification>
 </template>

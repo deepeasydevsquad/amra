@@ -129,4 +129,27 @@ controllers.add_waktu_berlangganan = async (req, res) => {
   }
 };
 
+controllers.tambah_saldo = async (req, res) => {
+  if (!(await handleValidationErrors(req, res))) return;
+
+  try {
+    const model_cud = new Model_cud(req);
+    await model_cud.tambah_saldo();
+
+    if (await model_cud.response()) {
+      res.status(200).json({
+        error: false,
+        error_msg: "Saldo perusahaan berhasil ditambah.",
+      });
+    } else {
+      res.status(400).json({
+        error: true,
+        error_msg: "Saldo perusahaan gagal ditambah.",
+      });
+    }
+  } catch (error) {
+    handleServerError(res, error.message);
+  }
+};
+
 module.exports = controllers;

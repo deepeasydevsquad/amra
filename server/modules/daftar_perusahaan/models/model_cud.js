@@ -169,6 +169,28 @@ class Model_cud {
     }
   }
 
+  async tambah_saldo() {
+    await this.initialize();
+    const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+    const body = this.req.body;
+
+    try {
+      // update process
+      await Company.update(
+        {
+          saldo: body.saldo,
+          updatedAt: myDate,
+        },
+        {
+          where: { id: body.id },
+          transaction: this.t,
+        }
+      );
+    } catch (error) {
+      this.state = false;
+    }
+  }
+
   // response
   async response() {
     if (this.state) {

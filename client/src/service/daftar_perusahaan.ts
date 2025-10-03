@@ -59,3 +59,13 @@ export const tambah_waktu_berlangganan = async (param: any) => {
     throw error;
   }
 };
+
+export const tambah_saldo = async (param: any) => {
+  try {
+    const response = await api.post('/backbone/daftar_perusahaan/tambah_saldo', param);
+    return response.data;
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+};

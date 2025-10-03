@@ -58,7 +58,7 @@ module.exports = {
           whatsapp_device_key: "YSQDUT",
           whatsapp_api_key: "4BQEL001HE7FCFFCSTYHFNNAS9D2FENS",
           refresh_token: "y87238giehgaiuwgd82o123455gskiassmnxzxclaoihdsobk",
-          saldo: 0,
+          saldo: 100000,
           markup_ppob: 0,
           username: "admin123",
           password:

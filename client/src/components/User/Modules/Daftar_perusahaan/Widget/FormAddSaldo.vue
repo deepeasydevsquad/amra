@@ -3,6 +3,7 @@ import { ref, watch, computed } from 'vue';
 import { tambah_saldo, get_data_edit_perusahaan } from '@/service/daftar_perusahaan';
 import Form from '@/components/Modal/Form.vue';
 import InputText from '@/components/Form/InputText.vue';
+import Notification from '@/components/Modal/Notification.vue';
 
 const emit = defineEmits<{
   (e: 'close'): void;
@@ -87,8 +88,8 @@ const validateForm = (): boolean => {
 
   let isValid = true;
 
-  if (form.value.saldo == 0) {
-    errors.value.saldo = 'Saldo tidak boleh kosong.';
+  if (form.value.new_saldo == 0) {
+    errors.value.new_saldo = 'Saldo tidak boleh kosong.';
     isValid = false;
   }
 
@@ -105,27 +106,39 @@ const formatRupiah = (angka: number | null): string => {
   return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 };
 
-const formattedNominal = computed({
-  get() {
-    return form.value.add_saldo !== null ? formatRupiah(form.value.add_saldo) : '';
-  },
-  set(value: string) {
-    form.value.saldo = parseRupiah(value);
-  },
-});
-
 const handleSubmit = async () => {
   if (!validateForm()) return;
 
   try {
-    // const response = await tambah_waktu_berlangganan({ id: props.id, durasi: form.value.durasi });
-    // displayNotification(response.message, 'success');
-    // emit('close');
-    // reset();
+    const response = await tambah_saldo({ id: props.id, saldo: form.value.new_saldo });
+    displayNotification(response.error_msg, 'success');
+    emit('close');
+    reset();
   } catch (error) {
     displayNotification(error.response.data.message, 'error');
   }
 };
+
+const formattedNominal = computed({
+  get() {
+    return form.value.add_saldo ? formatRupiah(form.value.add_saldo) : '';
+  },
+  set(value: string) {
+    form.value.add_saldo = parseRupiah(value); // harus update add_saldo, bukan saldo
+  },
+});
+
+// newSaldo otomatis hitung dari saldo lama + saldo tambahan
+const newSaldo = computed(() => {
+  return formatRupiah((form.value.saldo || 0) + (form.value.add_saldo || 0));
+});
+
+watch(
+  () => form.value.add_saldo,
+  (val) => {
+    form.value.new_saldo = (form.value.saldo || 0) + (val || 0);
+  },
+);
 
 watch(
   () => props.isModalOpen,
@@ -165,7 +178,7 @@ watch(
           id="saldo"
           label="Saldo Perusahaan Sekarang"
           placeholder="Saldo Perusahaan Sekarang"
-          v-model="form.new_saldo"
+          v-model="newSaldo"
           required
           :disabled="true"
         />
@@ -181,4 +194,10 @@ watch(
       </div>
     </div>
   </Form>
+  <Notification
+    :showNotification="showNotification"
+    :notificationType="notificationType"
+    :notificationMessage="notificationMessage"
+    @close="showNotification = false"
+  ></Notification>
 </template>
