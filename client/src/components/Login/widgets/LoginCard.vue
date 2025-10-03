@@ -82,7 +82,8 @@ const handleLogin = async () => {
   }
 
   try {
-    const baseUrl = window.location.protocol + '//' + window.location.hostname + ':3001';
+    const baseUrl =
+      window.location.protocol + '//' + window.location.hostname + `:${import.meta.env.PORT}`;
     let data = {
       type: inputLogin.value.type,
       password: inputLogin.value.password,

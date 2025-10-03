@@ -13,39 +13,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, defineEmits } from 'vue'
-import axios from 'axios'
-import RadioButton from '../particles/RadioButton.vue'
+import { ref, onMounted, computed, defineEmits } from 'vue';
+import axios from 'axios';
+import RadioButton from '../particles/RadioButton.vue';
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue']);
 
-const subscriptionPrice = ref<number | null>(null)
-const selectedPackage = ref<number | null>(null) // Default kosong
+const subscriptionPrice = ref<number | null>(null);
+const selectedPackage = ref<number | null>(null); // Default kosong
 
 // ✅ Fungsi mengambil harga dari backend
 const fetchSubscriptionPrice = async () => {
   try {
-    const response = await axios.get('http://localhost:3001/ambil_harga')
-    console.log('✅ Harga langganan dari API:', response.data.harga_langganan)
+    const response = await axios.get(`http://localhost:${import.meta.env.PORT}/ambil_harga`);
+    console.log('✅ Harga langganan dari API:', response.data.harga_langganan);
 
-    subscriptionPrice.value = response.data.harga_langganan
-    selectedPackage.value = response.data.harga_langganan
-    emit('update:modelValue', response.data.harga_langganan) // ✅ Kirim ke parent
+    subscriptionPrice.value = response.data.harga_langganan;
+    selectedPackage.value = response.data.harga_langganan;
+    emit('update:modelValue', response.data.harga_langganan); // ✅ Kirim ke parent
   } catch (error) {
-    console.error('❌ Gagal mengambil harga langganan:', error)
-    subscriptionPrice.value = null
+    console.error('❌ Gagal mengambil harga langganan:', error);
+    subscriptionPrice.value = null;
   }
-}
+};
 
 // ✅ Format harga ke IDR (Rp 1.000.000)
 const formattedPrice = computed(() => {
-  if (subscriptionPrice.value === null) return 'N/A'
+  if (subscriptionPrice.value === null) return 'N/A';
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' })
     .format(subscriptionPrice.value)
-    .replace(',00', '') // Hapus ,00 agar lebih clean
-})
+    .replace(',00', ''); // Hapus ,00 agar lebih clean
+});
 
 onMounted(() => {
-  fetchSubscriptionPrice()
-})
+  fetchSubscriptionPrice();
+});
 </script>
