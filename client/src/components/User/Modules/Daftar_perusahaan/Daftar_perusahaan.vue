@@ -180,18 +180,18 @@ onMounted(async () => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[30%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
               Info Perusahaan
             </th>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
               Whatsapp
             </th>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Email</th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
               Berlangganan
             </th>
             <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Saldo</th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="text-sm">
@@ -224,9 +224,6 @@ onMounted(async () => {
                   </LightButton>
                   <LightButton @click="addSaldo(dat.id)" title="Tambah saldo perusahaan">
                     <font-awesome-icon icon="fa-solid fa-money-bill-wave" />
-                  </LightButton>
-                  <LightButton @click="openModal(dat.id)" title="Ambil biaya berlangganan">
-                    <font-awesome-icon icon="fa-solid fa-credit-card" />
                   </LightButton>
                   <LightButton @click="editData(dat.id)" title="Edit info perusahaan">
                     <EditIcon></EditIcon>
