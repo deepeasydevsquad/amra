@@ -1,0 +1,32 @@
+name: Auto Merge Master into Other Branches
+
+on:
+  push:
+    branches:
+      - master # jalan setiap ada push/merge ke master
+
+jobs:
+  merge-branches:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # wajib untuk bisa fetch semua branch
+
+      - name: Set up Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge master into other branches
+        run: |
+          for branch in master_satuapp master_amra master_atra
+          do
+            echo "⚡ Updating $branch ..."
+            git checkout $branch
+            git pull origin $branch
+            git merge origin/master --no-edit || true
+            git push origin $branch
+          done
