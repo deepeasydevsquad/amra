@@ -6,10 +6,12 @@ import EditIcon from '@/components/Icons/EditIcon.vue';
 import LightButton from '@/components/Button/LightButton.vue';
 import Notification from '@/components/Modal/Notification.vue';
 import Confirmation from '@/components/Modal/Confirmation.vue';
-import FormAdd from './Widget/formAdd.vue';
+import FormAddUpdate from './Widget/FormAddUpdate.vue';
+import FormAddDurasi from './Widget/FormAddDurasi.vue';
 import { ref, computed, onMounted } from 'vue';
 import { list, deletes } from '@/service/daftar_perusahaan'; // Import function POST
 import Pagination from '@/components/Pagination/Pagination.vue';
+import FormAddSaldo from './Widget/FormAddSaldo.vue';
 
 interface Company {
   id: number;
@@ -99,6 +101,18 @@ const editData = async (ids: number) => {
   modalAddPerusahaan.value = true;
 };
 
+const modalAddDurasi = ref<boolean>(false);
+const addDurasi = async (ids: number) => {
+  id.value = ids;
+  modalAddDurasi.value = true;
+};
+
+const modalAddSaldo = ref<boolean>(false);
+const addSaldo = async (ids: number) => {
+  id.value = ids;
+  modalAddSaldo.value = true;
+};
+
 const confirmMessage = ref<string>('');
 const confirmTitle = ref<string>('');
 const confirmAction = ref<(() => void) | null>(null);
@@ -166,18 +180,18 @@ onMounted(async () => {
       <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
         <thead class="bg-gray-50">
           <tr>
-            <th class="w-[30%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
               Info Perusahaan
             </th>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
               Whatsapp
             </th>
             <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Email</th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">
               Berlangganan
             </th>
             <th class="w-[10%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Saldo</th>
-            <th class="w-[15%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
+            <th class="w-[20%] px-6 py-4 font-medium font-bold text-gray-900 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody class="text-sm">
@@ -205,14 +219,11 @@ onMounted(async () => {
               <td class="px-6 py-4 text-center">{{ formatRupiah(dat.saldo) }}</td>
               <td class="px-6 py-4 text-center">
                 <div class="flex justify-center gap-2">
-                  <LightButton @click="openModal(dat.id)" title="Tambah waktu berlangganan">
+                  <LightButton @click="addDurasi(dat.id)" title="Tambah waktu berlangganan">
                     <font-awesome-icon icon="fa-solid fa-plus" />
                   </LightButton>
-                  <LightButton @click="openModal(dat.id)" title="Tambah saldo perusahaan">
+                  <LightButton @click="addSaldo(dat.id)" title="Tambah saldo perusahaan">
                     <font-awesome-icon icon="fa-solid fa-money-bill-wave" />
-                  </LightButton>
-                  <LightButton @click="openModal(dat.id)" title="Ambil biaya berlangganan">
-                    <font-awesome-icon icon="fa-solid fa-credit-card" />
                   </LightButton>
                   <LightButton @click="editData(dat.id)" title="Edit info perusahaan">
                     <EditIcon></EditIcon>
@@ -247,7 +258,7 @@ onMounted(async () => {
       </table>
     </div>
   </div>
-  <FormAdd
+  <FormAddUpdate
     :isModalOpen="modalAddPerusahaan"
     :id="id"
     @close="
@@ -255,7 +266,25 @@ onMounted(async () => {
       fetchData();
       id = 0;
     "
-  ></FormAdd>
+  ></FormAddUpdate>
+  <FormAddDurasi
+    :isModalOpen="modalAddDurasi"
+    :id="id"
+    @close="
+      modalAddDurasi = false;
+      fetchData();
+      id = 0;
+    "
+  ></FormAddDurasi>
+  <FormAddSaldo
+    :isModalOpen="modalAddSaldo"
+    :id="id"
+    @close="
+      modalAddSaldo = false;
+      fetchData();
+      id = 0;
+    "
+  ></FormAddSaldo>
   <Confirmation
     :showConfirmDialog="showConfirmDialog"
     :confirmTitle="confirmTitle"

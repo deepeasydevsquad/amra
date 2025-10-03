@@ -7,10 +7,10 @@ import {
 } from '@/service/daftar_perusahaan';
 import Form from '@/components/Modal/Form.vue';
 import InputText from '@/components/Form/InputText.vue';
-// import InputNumber from '@/components/Form/InputNumber.vue';
 import InputDate from '@/components/Form/InputDate.vue';
 import SelectField from '@/components/Form/SelectField.vue';
 import InputPassword from '@/components/Form/InputPassword.vue';
+import Notification from '@/components/Modal/Notification.vue';
 
 const emit = defineEmits<{
   (e: 'close'): void;
@@ -33,7 +33,6 @@ interface FormData {
   whatsapp_company_number: string;
   start_subscribtion: string;
   end_subscribtion: string;
-  // durasi: number;
   email: string;
   saldo: number;
   username: string;
@@ -183,7 +182,7 @@ const handleSubmit = async () => {
       props.id != 0
         ? await update_perusahaan({ ...data, ...{ ['id']: props.id } })
         : await add_perusahaan(data);
-    displayNotification(response.message, 'success');
+    displayNotification(response.error_msg, 'success');
     emit('close');
     reset();
   } catch (error) {
@@ -356,4 +355,10 @@ watch(
       </div>
     </div>
   </Form>
+  <Notification
+    :showNotification="showNotification"
+    :notificationType="notificationType"
+    :notificationMessage="notificationMessage"
+    @close="showNotification = false"
+  ></Notification>
 </template>

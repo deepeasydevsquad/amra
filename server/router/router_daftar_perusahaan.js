@@ -105,4 +105,44 @@ router.post(
   controllers.get_data_edit_perusahaan
 );
 
+router.post(
+  "/backbone/daftar_perusahaan/add_waktu_berlangganan",
+  authenticateTokenBackbone,
+  [
+    body("id")
+      .trim()
+      .notEmpty()
+      .withMessage("Id tidak boleh kosong.")
+      .custom(validation.check_id),
+    body("durasi")
+      .trim()
+      .notEmpty()
+      .withMessage("Saldo tidak boleh kosong.")
+      .isInt({ gt: 0 })
+      .withMessage("Durasi harus lebih besar dari 0."),
+  ],
+  controllers.add_waktu_berlangganan
+);
+
+router.post(
+  "/backbone/daftar_perusahaan/tambah_saldo",
+  authenticateTokenBackbone,
+  [
+    body("id")
+      .trim()
+      .notEmpty()
+      .withMessage("Id tidak boleh kosong.")
+      .custom(validation.check_id),
+    body("saldo")
+      .trim()
+      .notEmpty()
+      .withMessage("Saldo tidak boleh kosong.")
+      .isInt({ gt: 0 })
+      .withMessage("Saldo harus lebih besar dari 0."),
+  ],
+  controllers.tambah_saldo
+);
+
+//
+
 module.exports = router;
