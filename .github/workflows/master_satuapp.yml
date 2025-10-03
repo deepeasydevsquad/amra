@@ -1,4 +1,4 @@
-name: CI/CD Deploy Aplikasi Baitulmal Aceh Tengah
+name: CI/CD Deploy Aplikasi Satu apps
 
 on:
   push:

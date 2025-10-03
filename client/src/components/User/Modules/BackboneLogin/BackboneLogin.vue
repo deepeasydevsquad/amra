@@ -57,7 +57,8 @@ const handleLogin = async () => {
   }
 
   try {
-    const baseUrl = window.location.protocol + '//' + window.location.hostname + ':3001';
+    const baseUrl =
+      window.location.protocol + '//' + window.location.hostname + `:${import.meta.env.PORT}`;
     const response = await axios.post(baseUrl + '/auth-backbone/login', {
       username: inputLogin.value.username,
       password: inputLogin.value.password,

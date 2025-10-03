@@ -41,77 +41,78 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits } from 'vue'
-import axios from 'axios'
-import InputField from '../particles/InputField.vue'
+import { ref, defineProps, defineEmits } from 'vue';
+import axios from 'axios';
+import InputField from '../particles/InputField.vue';
 
 // Props & Emit untuk update parent (RegisterView.vue)
 const props = defineProps<{
-  modelValue: { company_name: string; whatsapp_company_number: string }
-}>()
-const emit = defineEmits(['update:modelValue', 'update:otp']) // ✅ Tambahkan emit untuk OTP
+  modelValue: { company_name: string; whatsapp_company_number: string };
+}>();
+const emit = defineEmits(['update:modelValue', 'update:otp']); // ✅ Tambahkan emit untuk OTP
 
 // Data perusahaan
-const companyData = ref(props.modelValue)
+const companyData = ref(props.modelValue);
 
 // OTP dan hitung mundur
-const otp = ref('')
-const countdown = ref(0)
-const isLoading = ref(false) // ✅ Tambahkan state loading
-const errorMessage = ref('') // ✅ Tambahkan state error
-let countdownTimer: NodeJS.Timeout | null = null
+const otp = ref('');
+const countdown = ref(0);
+const isLoading = ref(false); // ✅ Tambahkan state loading
+const errorMessage = ref(''); // ✅ Tambahkan state error
+let countdownTimer: NodeJS.Timeout | null = null;
 
 // Update data perusahaan di RegisterView.vue
 const updateModel = () => {
-  emit('update:modelValue', companyData.value)
-}
+  emit('update:modelValue', companyData.value);
+};
 
 // Update OTP di RegisterView.vue
 const updateOTP = () => {
-  emit('update:otp', otp.value)
-}
+  emit('update:otp', otp.value);
+};
 
 // Fungsi untuk mengirim permintaan OTP
 const getOTP = async () => {
   if (!companyData.value.whatsapp_company_number) {
-    errorMessage.value = '⚠️ Masukkan nomor WhatsApp!'
-    return
+    errorMessage.value = '⚠️ Masukkan nomor WhatsApp!';
+    return;
   }
 
-  isLoading.value = true // ⏳ Set loading ke true
-  errorMessage.value = '' // ❌ Reset error sebelumnya
+  isLoading.value = true; // ⏳ Set loading ke true
+  errorMessage.value = ''; // ❌ Reset error sebelumnya
 
   try {
-    await axios.post('http://localhost:3001/send-otp', {
+    // `:${import.meta.env.PORT}`
+    await axios.post(`http://localhost:${import.meta.env.PORT}/send-otp`, {
       whatsappNumber: companyData.value.whatsapp_company_number,
-    })
+    });
 
     // ✅ Jika sukses
-    alert('✅ OTP telah dikirim!')
-    countdown.value = 60
+    alert('✅ OTP telah dikirim!');
+    countdown.value = 60;
 
-    if (countdownTimer) clearInterval(countdownTimer)
+    if (countdownTimer) clearInterval(countdownTimer);
     countdownTimer = setInterval(() => {
-      countdown.value--
+      countdown.value--;
       if (countdown.value <= 0 && countdownTimer) {
-        clearInterval(countdownTimer)
-        countdownTimer = null
+        clearInterval(countdownTimer);
+        countdownTimer = null;
       }
-    }, 1000)
+    }, 1000);
   } catch (error) {
     if (error.response) {
-      const { error: errorMsg, code } = error.response.data
+      const { error: errorMsg, code } = error.response.data;
 
       if (code === 'OTP_LIMIT_REACHED') {
-        errorMessage.value = '❌ Anda telah mencapai batas OTP hari ini. Coba lagi besok.'
+        errorMessage.value = '❌ Anda telah mencapai batas OTP hari ini. Coba lagi besok.';
       } else {
-        errorMessage.value = errorMsg || '❌ Gagal mengirim OTP.'
+        errorMessage.value = errorMsg || '❌ Gagal mengirim OTP.';
       }
     } else {
-      errorMessage.value = '❌ Gagal terhubung ke server.'
+      errorMessage.value = '❌ Gagal terhubung ke server.';
     }
   } finally {
-    isLoading.value = false // ✅ Reset loading setelah request selesai
+    isLoading.value = false; // ✅ Reset loading setelah request selesai
   }
-}
+};
 </script>
