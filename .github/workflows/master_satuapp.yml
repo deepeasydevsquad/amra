@@ -23,8 +23,7 @@ jobs:
           VITE_PORT: 3002
         run: |
           docker build \
-            --build-arg VITE_APP_API_BASE_URL=${VITE_APP_API_BASE_URL} \
-            --build-arg VITE_PORT=${VITE_PORT} \
+            --build-arg VITE_PORT=3002 \
             -t muammar88/satuapp_saas_client:v1.0 ./client
           docker push muammar88/satuapp_saas_client:v1.0
 
