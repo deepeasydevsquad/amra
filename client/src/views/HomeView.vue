@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <main class="text-xs">
     <NavbarCard />
     <HeroCard1 />
@@ -23,4 +23,25 @@ import FooterCard from '@/components/Landing/widgets/FooterCard.vue'
 </script>
 
 <style scoped>
-</style>
+</style> -->
+
+<script setup lang="ts">
+import Navbar from '@/components/Landing/widgets/Navbar.vue';
+import HeroSection from '@/components/Landing/widgets/HeroSection.vue';
+import AboutSection from '@/components/Landing/widgets/AboutSection.vue';
+import TestimonialSection from '@/components/Landing/widgets/TestimonialSection.vue';
+import Footers from '@/components/Landing/widgets/LandingFooter.vue';
+import Contacts from '@/components/Landing/widgets/Contacts.vue';
+import FiturDanLayanan from '@/components/Landing/widgets/FiturDanLayanan.vue';
+</script>
+<template>
+  <div>
+    <Navbar />
+    <HeroSection />
+    <AboutSection />
+    <FiturDanLayanan />
+    <TestimonialSection />
+    <Footers />
+    <Contacts />
+  </div>
+</template>
