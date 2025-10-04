@@ -82,8 +82,7 @@ const getOTP = async () => {
   errorMessage.value = ''; // ❌ Reset error sebelumnya
 
   try {
-    // `:${import.meta.env.PORT}`
-    await axios.post(`http://localhost:${import.meta.env.PORT}/send-otp`, {
+    await axios.post(`http://localhost:${import.meta.env.VITE_PORT}/send-otp`, {
       whatsappNumber: companyData.value.whatsapp_company_number,
     });
 

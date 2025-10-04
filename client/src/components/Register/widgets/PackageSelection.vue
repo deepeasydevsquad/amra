@@ -25,7 +25,7 @@ const selectedPackage = ref<number | null>(null); // Default kosong
 // ✅ Fungsi mengambil harga dari backend
 const fetchSubscriptionPrice = async () => {
   try {
-    const response = await axios.get(`http://localhost:${import.meta.env.PORT}/ambil_harga`);
+    const response = await axios.get(`http://localhost:${import.meta.env.VITE_PORT}/ambil_harga`);
     console.log('✅ Harga langganan dari API:', response.data.harga_langganan);
 
     subscriptionPrice.value = response.data.harga_langganan;

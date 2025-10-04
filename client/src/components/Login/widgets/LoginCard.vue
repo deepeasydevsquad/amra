@@ -83,11 +83,19 @@ const handleLogin = async () => {
 
   try {
     const baseUrl =
-      window.location.protocol + '//' + window.location.hostname + `:${import.meta.env.PORT}`;
+      window.location.protocol + '//' + window.location.hostname + `:${import.meta.env.VITE_PORT}`;
+
+    console.log('URLLLLLL');
+    console.log(baseUrl);
+    console.log('URLLLLLL');
     let data = {
       type: inputLogin.value.type,
       password: inputLogin.value.password,
     };
+
+    console.log('DATA');
+    console.log(data);
+    console.log('DATA');
     if (inputLogin.value.type === 'staff') {
       data = {
         ...data,
@@ -104,6 +112,10 @@ const handleLogin = async () => {
         },
       };
     }
+
+    console.log('DATA TO');
+    console.log(data);
+    console.log('DATA TO');
 
     // Kirim data login ke server Express.js menggunakan axios
     const response = await axios.post(baseUrl + '/auth/login', data);
@@ -132,8 +144,8 @@ const handleLogin = async () => {
       // Tindakan setelah login gagal
     }
   } catch (error) {
-    alertify.error(error.response.data.message || 'An error occurred during login');
     console.error('An error occurred during login:', error);
+    // alertify.error(error.response.data.message || 'An error occurred during login');
   }
 };
 
