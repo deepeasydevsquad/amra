@@ -21,7 +21,7 @@ jobs:
       - name: Build and push client image
         run: |
           docker build -t muammar88/satuapp_saas_client:v1.0 ./client
-            docker push muammar88/satuapp_saas_client:v1.0
+          docker push muammar88/satuapp_saas_client:v1.0
 
       - name: Build and push backend image
         run: |
