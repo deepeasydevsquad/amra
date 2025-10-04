@@ -116,6 +116,10 @@ dist
 # !public/files/sk
 # config/**
 
+client/public/Landing/
+client/src/components/Landing/
+client/src/views/HomeView.vue
+
 # vuepress build output
 .vuepress/dist
 
