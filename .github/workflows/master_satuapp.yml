@@ -2,7 +2,7 @@ name: CI/CD Deploy Aplikasi Satu apps
 
 on:
   push:
-    branches: [master_satuapp]
+    branches: [ master_satuapp ]
 
 jobs:
   deploy:
