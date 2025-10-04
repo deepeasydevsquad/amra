@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // Gunakan variabel lingkungan dari .env
-const API_BASE_URL = window.location.protocol + '//' + window.location.hostname + ':3001';
+const API_BASE_URL =
+  window.location.protocol + '//' + window.location.hostname + `:${import.meta.env.VITE_PORT}`;
 
 // Base URL API
 const api = axios.create({
