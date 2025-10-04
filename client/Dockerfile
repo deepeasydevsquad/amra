@@ -15,11 +15,9 @@ COPY . .
 
 
 # --- Tambahkan variabel build di sini ---
-ARG VITE_APP_API_BASE_URL
 ARG VITE_PORT
 
 # Set environment variables untuk Vite
-ENV VITE_APP_API_BASE_URL=$VITE_APP_API_BASE_URL
 ENV VITE_PORT=$VITE_PORT
 
 RUN npm run build
