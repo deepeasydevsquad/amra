@@ -210,13 +210,13 @@ setTimeout(() => {
               @click="handleLogin()"
               icon="lock.svg"
               label="Masuk Akun Sekarang"
-              color="bg-sky-700 text-white"
+              color="bg-green-900 text-white"
             />
           </div>
         </div>
-        <p class="text-center mb-4 mt-6 text-[#175690] font-semibold">Atau</p>
+        <p class="text-center mb-4 mt-6 text-green-900 font-semibold">Atau</p>
         <RegisterButton />
-        <a href="#" class="text-xs text-center mt-5 mb-16 text-[#175690]">
+        <a href="#" class="text-xs text-center mt-5 mb-16 text-green-900">
           Dengan masuk, Anda menyetujui
           <span class="font-semibold">Syarat dan Ketentuan & Kebijakan Privasi kami</span>
         </a>

@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="`w-full py-2 rounded-lg hover:bg-blue-700 transition mb-4 flex justify-center font-semibold gap-3 ${color}`"
+    :class="`w-full py-2 rounded-lg hover:bg-green-700 hover:text-white transition mb-4 flex justify-center font-semibold gap-3 ${color}`"
   >
     <img :src="`/${icon}`" class="w-6 h-6" />
     {{ label }}
@@ -11,5 +11,5 @@ defineProps({
   icon: String,
   label: String,
   color: String,
-})
+});
 </script>
