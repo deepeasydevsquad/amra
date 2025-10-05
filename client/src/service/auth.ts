@@ -1,4 +1,8 @@
-import api from "./api"; // Pastikan path ini benar sesuai konfigurasi axios Anda
+import api from './api'; // Pastikan path ini benar sesuai konfigurasi axios Anda
+import { API_URL } from '@/config/config';
+
+// Gunakan variabel lingkungan dari .env
+// const API_BASE_URL = API_URL;
 
 /**
  * Menjalankan proses logout.
@@ -11,17 +15,17 @@ export const logout = async (): Promise<void> => {
 
     if (refreshToken) {
       // Kirim permintaan ke server untuk membatalkan refresh token
-      const baseUrl = window.location.protocol + '//' + window.location.hostname + ':3001';
+      const baseUrl = API_URL;
 
       await api.post(`${baseUrl}/auth/logout`, {
-        refresh_token: refreshToken
+        refresh_token: refreshToken,
       });
 
       console.log('Logout berhasil di server');
     }
   } catch (error) {
     // Meskipun gagal di server, tetap lanjutkan proses logout di client
-    console.error("Gagal saat logout di server, melanjutkan logout di client:", error);
+    console.error('Gagal saat logout di server, melanjutkan logout di client:', error);
   } finally {
     // Selalu hapus token dari local storage
     localStorage.removeItem('access_token');
