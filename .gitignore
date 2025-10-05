@@ -119,7 +119,7 @@ dist
 client/public/Landing/
 client/src/components/Landing/
 client/src/views/HomeView.vue
-# client/src/config/config.ts
+client/src/config/config.ts
 
 # vuepress build output
 .vuepress/dist
