@@ -37,14 +37,14 @@ import CompanyDataForm from '@/components/Register/widgets/CompanyDataForm.vue';
 import PackageSelection from '@/components/Register/widgets/PackageSelection.vue';
 import UserDataForm from '@/components/Register/widgets/UserDataForm.vue';
 import Button from '@/components/Register/particles/Button.vue';
-import { API_URL } from '@/config/config';
+import { API_URL, APP_NAME } from '@/config/config';
 
 import { useHead } from '@vueuse/head';
 
 useHead({
-  title: 'AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
+  title: APP_NAME + ' :: Aplikasi Manajemen Travel Haji dan Umrah',
   link: [{ rel: 'icon', type: 'image/png', href: 'public/favicon.png' }],
-  meta: [{ name: 'AMRA', content: 'Aplikasi manajemen travel Haji dan Umrah' }],
+  meta: [{ name: APP_NAME, content: 'Aplikasi manajemen travel Haji dan Umrah' }],
 });
 
 const router = useRouter();

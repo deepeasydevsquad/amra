@@ -1,31 +1,28 @@
 <script setup lang="ts">
-
 // import { useHead } from '@vueuse/head';
-import { useSidebarStore } from '@/stores/sidebar'
-import { SettingStore } from '@/stores/settings'
-import DropdownUser from './DropdownUser.vue'
-import { ref, watchEffect } from "vue";
+import { useSidebarStore } from '@/stores/sidebar';
+import { SettingStore } from '@/stores/settings';
+import DropdownUser from './DropdownUser.vue';
+import { APP_NAME } from '@/config/config';
+import { ref, watchEffect } from 'vue';
 
-const { toggleSidebar } = useSidebarStore()
-const sidebarStore = useSidebarStore()
-const SettingGlob = SettingStore()
+const { toggleSidebar } = useSidebarStore();
+const sidebarStore = useSidebarStore();
+const SettingGlob = SettingStore();
 
-import { useHead } from '@vueuse/head'
+import { useHead } from '@vueuse/head';
 
 useHead({
-  title: 'AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
-  link: [ { rel: 'icon', type: 'image/png', href: 'public/favicon.png' } ],
-  meta: [ { name: 'AMRA', content: 'Aplikasi manajemen travel Haji dan Umrah' } ]
+  title: APP_NAME + ' :: Aplikasi Manajemen Travel Haji dan Umrah',
+  link: [{ rel: 'icon', type: 'image/png', href: 'public/favicon.png' }],
+  meta: [{ name: APP_NAME, content: 'Aplikasi manajemen travel Haji dan Umrah' }],
 });
-
 </script>
 
 <template>
   <header
     class="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none"
   >
-    <!-- <title>AMRA :: Aplikasi Manajemen Travel Haji dan Umrah</title> -->
-    <!-- <font-awesome-icon :icon="['fas', 'user']" /> -->
     <div class="flex flex-grow items-center justify-between py-4 px-4 shadow-2 md:px-6 2xl:px-11">
       <div class="flex items-center gap-2 sm:gap-4 lg:hidden">
         <!-- Hamburger Toggle BTN -->
@@ -33,8 +30,8 @@ useHead({
           class="z-99999 block rounded-sm border border-stroke bg-white p-1.5 shadow-sm dark:border-strokedark dark:bg-boxdark lg:hidden"
           @click="
             () => {
-              console.log('Toggling Sidebar')
-              toggleSidebar()
+              console.log('Toggling Sidebar');
+              toggleSidebar();
             }
           "
         >
@@ -69,9 +66,12 @@ useHead({
       <div class="hidden sm:block">
         <span class="hidden text-left lg:block">
           <span class="block text-sm font-bold text-amra dark:text-white">BERLANGGANAN SAMPAI</span>
-          <span class="block text-sm font-medium text-amra dark:text-white">{{ SettingGlob.sharedObject.tipe_berlangganan == 'limited' ? SettingGlob.sharedObject.akhir_berlangganan : 'unlimited' }}</span>
+          <span class="block text-sm font-medium text-amra dark:text-white">{{
+            SettingGlob.sharedObject.tipe_berlangganan == 'limited'
+              ? SettingGlob.sharedObject.akhir_berlangganan
+              : 'unlimited'
+          }}</span>
         </span>
-
       </div>
 
       <div class="flex items-center gap-3 2xsm:gap-7">

@@ -70,7 +70,7 @@
       </div>
 
       <div class="text-center text-sm text-gray-500 mt-4 border-t pt-2">
-        <p>AMRA SAAS Payment System</p>
+        <p>{{ APP_NAME }} SAAS Payment System</p>
         <p>© {{ new Date().getFullYear() }} AMRA. All Rights Reserved.</p>
       </div>
     </div>
@@ -84,42 +84,43 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { getKwitansi, getNotifikasi } from '../service/notifikasi'
+import { defineComponent, ref, onMounted, onUnmounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { getKwitansi, getNotifikasi } from '../service/notifikasi';
+import { APP_NAME } from '@/config/config';
 
 interface Transaction {
-  order_id: string
-  bank?: string
-  va_number?: string
-  status: string
-  price: number
-  rekening: string
-  createdAt: string
+  order_id: string;
+  bank?: string;
+  va_number?: string;
+  status: string;
+  price: number;
+  rekening: string;
+  createdAt: string;
 }
 
 export default defineComponent({
   setup() {
-    const transaction = ref<Partial<Transaction>>({})
-    const loading = ref(true)
-    const error = ref<string | null>(null)
-    const notification = ref<string | null>(null)
-    const route = useRoute()
+    const transaction = ref<Partial<Transaction>>({});
+    const loading = ref(true);
+    const error = ref<string | null>(null);
+    const notification = ref<string | null>(null);
+    const route = useRoute();
 
-    let pollingTransaction: NodeJS.Timeout | null = null
-    let pollingStatus: NodeJS.Timeout | null = null
+    let pollingTransaction: NodeJS.Timeout | null = null;
+    let pollingStatus: NodeJS.Timeout | null = null;
 
     // Format Harga
     const formatCurrency = (amount?: number) => {
       return amount
         ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(amount)
-        : 'Rp 0'
-    }
+        : 'Rp 0';
+    };
 
     // Format Tanggal
     const formatDate = (dateString?: string) => {
-      if (!dateString) return 'Tidak tersedia'
-      const date = new Date(dateString)
+      if (!dateString) return 'Tidak tersedia';
+      const date = new Date(dateString);
       return isNaN(date.getTime())
         ? 'Format tanggal tidak valid'
         : date.toLocaleDateString('id-ID', {
@@ -128,120 +129,120 @@ export default defineComponent({
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-          })
-    }
+          });
+    };
 
     // Status Styling
     const statusClass = (status?: string) => {
       switch (status?.toLowerCase()) {
         case 'success':
-          return 'text-green-500 font-bold'
+          return 'text-green-500 font-bold';
         case 'pending':
-          return 'text-yellow-500 font-bold'
+          return 'text-yellow-500 font-bold';
         case 'failed':
-          return 'text-red-500 font-bold'
+          return 'text-red-500 font-bold';
         default:
-          return 'text-gray-700 font-bold'
+          return 'text-gray-700 font-bold';
       }
-    }
+    };
 
     // Status Icon
     const statusIcon = (status?: string) => {
       switch (status?.toLowerCase()) {
         case 'success':
-          return '✔️'
+          return '✔️';
         case 'pending':
-          return '⏳'
+          return '⏳';
         case 'failed':
-          return '❌'
+          return '❌';
         default:
-          return ''
+          return '';
       }
-    }
+    };
 
     // Fetch Status Notifikasi
     const fetchStatus = async () => {
       try {
-        const response = await getNotifikasi()
-        console.log('Notifikasi response:', response)
+        const response = await getNotifikasi();
+        console.log('Notifikasi response:', response);
 
         if (response?.status) {
-          transaction.value.status = response.status // Update status transaksi
+          transaction.value.status = response.status; // Update status transaksi
         }
       } catch (err) {
-        console.error('❌ Error fetch status:', err)
-        error.value = 'Gagal mengambil status transaksi'
+        console.error('❌ Error fetch status:', err);
+        error.value = 'Gagal mengambil status transaksi';
       } finally {
-        loading.value = false
+        loading.value = false;
       }
-    }
+    };
 
     // Fetch Data Kwitansi
     const fetchTransaction = async () => {
       try {
         // @ts-ignore
-        const response = await getKwitansi()
-        console.log('Kwitansi response:', response)
+        const response = await getKwitansi();
+        console.log('Kwitansi response:', response);
 
         if (!response || Object.keys(response).length === 0) {
-          error.value = 'Data transaksi tidak ditemukan'
-          return
+          error.value = 'Data transaksi tidak ditemukan';
+          return;
         }
 
-        transaction.value = { ...response, price: Number(response.price) }
+        transaction.value = { ...response, price: Number(response.price) };
       } catch (err) {
-        console.error('❌ Error fetch kwitansi:', err)
-        error.value = 'Gagal mengambil data transaksi'
+        console.error('❌ Error fetch kwitansi:', err);
+        error.value = 'Gagal mengambil data transaksi';
       } finally {
-        loading.value = false
+        loading.value = false;
       }
-    }
+    };
 
     // Watch perubahan status transaksi
     watch(
       () => transaction.value.status,
       (newStatus, oldStatus) => {
-        console.log('Status changed:', newStatus) // Debugging
+        console.log('Status changed:', newStatus); // Debugging
         if (newStatus === 'success') {
-          notification.value = '✅ Pembayaran berhasil!'
+          notification.value = '✅ Pembayaran berhasil!';
         } else if (newStatus === 'failed') {
-          notification.value = '❌ Pembayaran gagal!'
+          notification.value = '❌ Pembayaran gagal!';
         } else if (newStatus === 'accept') {
-          notification.value = '✅ Pembayaran diterima!' // Tambahkan kondisi untuk 'accept'
+          notification.value = '✅ Pembayaran diterima!'; // Tambahkan kondisi untuk 'accept'
         }
 
         // Hentikan polling jika sudah sukses/gagal/accept
         if (newStatus === 'success' || newStatus === 'failed' || newStatus === 'accept') {
           if (pollingTransaction) {
-            clearInterval(pollingTransaction)
-            pollingTransaction = null
+            clearInterval(pollingTransaction);
+            pollingTransaction = null;
           }
           if (pollingStatus) {
-            clearInterval(pollingStatus)
-            pollingStatus = null
+            clearInterval(pollingStatus);
+            pollingStatus = null;
           }
         }
 
         // Hilangkan notifikasi setelah 3 detik
         setTimeout(() => {
-          notification.value = null
-        }, 3000)
+          notification.value = null;
+        }, 3000);
       },
       { deep: true }, // Pastikan perubahan di dalam objek terdeteksi
-    )
+    );
 
     // On Mounted
     onMounted(() => {
-      fetchTransaction()
-      pollingTransaction = setInterval(fetchTransaction, 5000)
-      pollingStatus = setInterval(fetchStatus, 5000)
-    })
+      fetchTransaction();
+      pollingTransaction = setInterval(fetchTransaction, 5000);
+      pollingStatus = setInterval(fetchStatus, 5000);
+    });
 
     // On Unmounted
     onUnmounted(() => {
-      if (pollingTransaction) clearInterval(pollingTransaction)
-      if (pollingStatus) clearInterval(pollingStatus)
-    })
+      if (pollingTransaction) clearInterval(pollingTransaction);
+      if (pollingStatus) clearInterval(pollingStatus);
+    });
 
     return {
       transaction,
@@ -252,7 +253,7 @@ export default defineComponent({
       formatDate,
       statusClass,
       statusIcon,
-    }
+    };
   },
-})
+});
 </script>

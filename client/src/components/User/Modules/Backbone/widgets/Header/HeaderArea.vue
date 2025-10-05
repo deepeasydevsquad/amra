@@ -3,6 +3,7 @@
 import { useSidebarStore } from '@/stores/sidebar_backbone';
 import { SettingStore } from '@/stores/settings_backbone';
 import DropdownUser from './DropdownUser.vue';
+import { APP_NAME } from '@/config/config';
 import { ref, watchEffect } from 'vue';
 
 const { toggleSidebar } = useSidebarStore();
@@ -12,9 +13,9 @@ const SettingGlob = SettingStore();
 import { useHead } from '@vueuse/head';
 
 useHead({
-  title: 'AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
+  title: APP_NAME + ' :: Aplikasi Manajemen Travel Haji dan Umrah',
   link: [{ rel: 'icon', type: 'image/png', href: 'public/favicon.png' }],
-  meta: [{ name: 'AMRA', content: 'Aplikasi manajemen travel Haji dan Umrah' }],
+  meta: [{ name: APP_NAME, content: 'Aplikasi manajemen travel Haji dan Umrah' }],
 });
 </script>
 

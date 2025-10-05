@@ -38,6 +38,7 @@ import InvoiceRefundTiket from '@/components/User/Modules/Invoice/InvoiceRefundT
 import InvoicePembayaranTiket from '@/components/User/Modules/Invoice/InvoicePembayaranTiket.vue';
 import BackboneLogin from '@/components/User/Modules/BackboneLogin/BackboneLogin.vue';
 import Backbone from '@/components/User/Modules/Backbone/Backbone.vue';
+import { APP_NAME } from '@/config/config';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -47,7 +48,7 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
       meta: {
-        title: 'AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
+        title: APP_NAME + ' :: Aplikasi Manajemen Travel Haji dan Umrah',
         description: 'Ini adalah deskripsi halaman Home',
       },
     },
@@ -56,7 +57,7 @@ const router = createRouter({
       name: 'login',
       component: LoginView,
       meta: {
-        title: 'Login || AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
+        title: `Login || ${APP_NAME} :: Aplikasi Manajemen Travel Haji dan Umrah`,
         description: 'Ini adalah deskripsi halaman Home',
       },
     },
@@ -65,7 +66,7 @@ const router = createRouter({
       name: 'register',
       component: RegisterView,
       meta: {
-        title: 'Registrasi || AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
+        title: `Registrasi || ${APP_NAME} :: Aplikasi Manajemen Travel Haji dan Umrah`,
         description: 'Ini adalah deskripsi halaman Home',
       },
     },
@@ -83,7 +84,7 @@ const router = createRouter({
       path: '/User',
       name: 'user',
       meta: {
-        title: 'User Area || AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
+        title: `User Area || ${APP_NAME} :: Aplikasi Manajemen Travel Haji dan Umrah`,
         description: 'Ini adalah deskripsi halaman Home',
       },
       component: UserView,
