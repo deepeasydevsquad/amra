@@ -119,6 +119,7 @@ dist
 client/public/Landing/
 client/src/components/Landing/
 client/src/views/HomeView.vue
+# client/src/config/config.ts
 
 # vuepress build output
 .vuepress/dist
@@ -161,7 +162,7 @@ resetdb.ps1
 
 # GitHub Actions workflows
 .github/workflows/
-client/src/config/config.ts
+
 
 
 
