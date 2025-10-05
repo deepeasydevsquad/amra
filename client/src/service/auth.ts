@@ -1,5 +1,5 @@
 import api from './api'; // Pastikan path ini benar sesuai konfigurasi axios Anda
-
+import { API_URL } from '@/config/config';
 /**
  * Menjalankan proses logout.
  * 1. Mengirim permintaan ke backend untuk menghapus refresh token.
@@ -11,11 +11,7 @@ export const logout = async (): Promise<void> => {
 
     if (refreshToken) {
       // Kirim permintaan ke server untuk membatalkan refresh token
-      const baseUrl =
-        window.location.protocol +
-        '//' +
-        window.location.hostname +
-        `:${import.meta.env.VITE_PORT}`;
+      const baseUrl = API_URL;
 
       await api.post(`${baseUrl}/auth/logout`, {
         refresh_token: refreshToken,

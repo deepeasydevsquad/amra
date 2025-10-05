@@ -7,7 +7,7 @@ import GuideButton from '@/components/Login/particles/GuideButton.vue';
 import RegisterButton from '@/components/Login/particles/RegisterButton.vue';
 import { paramCabang } from '@/service/param_cabang';
 import alertify from 'alertifyjs';
-
+import { API_URL } from '@/config/config';
 import api from '@/service/api'; // Import service API
 
 interface Login {
@@ -82,12 +82,8 @@ const handleLogin = async () => {
   }
 
   try {
-    const baseUrl =
-      window.location.protocol + '//' + window.location.hostname + `:${import.meta.env.VITE_PORT}`;
+    const baseUrl = API_URL;
 
-    console.log('URLLLLLL');
-    console.log(baseUrl);
-    console.log('URLLLLLL');
     let data = {
       type: inputLogin.value.type,
       password: inputLogin.value.password,

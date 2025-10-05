@@ -37,6 +37,8 @@ import CompanyDataForm from '@/components/Register/widgets/CompanyDataForm.vue';
 import PackageSelection from '@/components/Register/widgets/PackageSelection.vue';
 import UserDataForm from '@/components/Register/widgets/UserDataForm.vue';
 import Button from '@/components/Register/particles/Button.vue';
+import { API_URL } from '@/config/config';
+
 
 import { useHead } from '@vueuse/head';
 
@@ -90,7 +92,11 @@ const registerCompany = async () => {
   }
 
   try {
+<<<<<<< HEAD
     const response = await axios.post(`http://localhost:${import.meta.env.VITE_PORT}/register/`, {
+=======
+    const response = await axios.post(API_URL + '/register/', {
+>>>>>>> origin/master
       company_name: companyData.value.company_name,
       whatsapp_company_number: companyData.value.whatsapp_company_number,
       username: userData.value.username,
