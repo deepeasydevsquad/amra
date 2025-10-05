@@ -30,34 +30,35 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import axios from 'axios'
-import CompanyDataForm from '@/components/Register/widgets/CompanyDataForm.vue'
-import PackageSelection from '@/components/Register/widgets/PackageSelection.vue'
-import UserDataForm from '@/components/Register/widgets/UserDataForm.vue'
-import Button from '@/components/Register/particles/Button.vue'
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
+import CompanyDataForm from '@/components/Register/widgets/CompanyDataForm.vue';
+import PackageSelection from '@/components/Register/widgets/PackageSelection.vue';
+import UserDataForm from '@/components/Register/widgets/UserDataForm.vue';
+import Button from '@/components/Register/particles/Button.vue';
+import { API_URL } from '@/config/config';
 
-import { useHead } from '@vueuse/head'
+import { useHead } from '@vueuse/head';
 
 useHead({
   title: 'AMRA :: Aplikasi Manajemen Travel Haji dan Umrah',
-  link: [ { rel: 'icon', type: 'image/png', href: 'public/favicon.png' } ],
-  meta: [ { name: 'AMRA', content: 'Aplikasi manajemen travel Haji dan Umrah' } ]
+  link: [{ rel: 'icon', type: 'image/png', href: 'public/favicon.png' }],
+  meta: [{ name: 'AMRA', content: 'Aplikasi manajemen travel Haji dan Umrah' }],
 });
 
-const router = useRouter()
-const notification = ref({ show: false, message: '', type: '' })
-const companyData = ref({ company_name: '', whatsapp_company_number: '' })
-const packageSelected = ref('1')
-const userData = ref({ username: '', password: '', token: '', email: '', confirmPassword: '' })
+const router = useRouter();
+const notification = ref({ show: false, message: '', type: '' });
+const companyData = ref({ company_name: '', whatsapp_company_number: '' });
+const packageSelected = ref('1');
+const userData = ref({ username: '', password: '', token: '', email: '', confirmPassword: '' });
 
 const showNotification = (message, type) => {
-  notification.value = { show: true, message, type }
-  setTimeout(() => (notification.value.show = false), 3000)
-}
+  notification.value = { show: true, message, type };
+  setTimeout(() => (notification.value.show = false), 3000);
+};
 
-const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const registerCompany = async () => {
   // Validasi input
@@ -70,27 +71,27 @@ const registerCompany = async () => {
     !packageSelected.value ||
     !userData.value.confirmPassword
   ) {
-    showNotification('⚠️ Semua field harus diisi!', 'warning')
-    return
+    showNotification('⚠️ Semua field harus diisi!', 'warning');
+    return;
   }
 
   if (userData.value.username.length < 8) {
-    showNotification('⚠️ Username minimal 8 karakter!', 'error')
-    return
+    showNotification('⚠️ Username minimal 8 karakter!', 'error');
+    return;
   }
 
   if (!isValidEmail(userData.value.email)) {
-    showNotification('⚠️ Format email tidak valid!', 'error')
-    return
+    showNotification('⚠️ Format email tidak valid!', 'error');
+    return;
   }
 
   if (userData.value.password !== userData.value.confirmPassword) {
-    showNotification('⚠️ Password dan konfirmasi tidak cocok!', 'error')
-    return
+    showNotification('⚠️ Password dan konfirmasi tidak cocok!', 'error');
+    return;
   }
 
   try {
-    const response = await axios.post('http://localhost:3001/register/', {
+    const response = await axios.post(API_URL + '/register/', {
       company_name: companyData.value.company_name,
       whatsapp_company_number: companyData.value.whatsapp_company_number,
       username: userData.value.username,
@@ -98,32 +99,31 @@ const registerCompany = async () => {
       password: userData.value.password,
       token: userData.value.token,
       package: packageSelected.value,
-    })
+    });
 
-    console.log('🔥 Response dari backend:', response.data)
-
+    console.log('🔥 Response dari backend:', response.data);
 
     if (response.data.message === 'Registrasi berhasil!') {
-      showNotification('✅ Registrasi berhasil! Silakan lanjutkan ke pembayaran.', 'success')
+      showNotification('✅ Registrasi berhasil! Silakan lanjutkan ke pembayaran.', 'success');
 
       // Redirect ke halaman kwitansi dengan order_id setelah 3 detik
       setTimeout(() => {
-        const orderId = response.data.order_id // Ambil order_id dari response backend
-        console.log('Redirecting to kwitansi page with order ID:', orderId) // Debugging
-        router.push(`/kwitansi?order_id=${orderId}`) // Gunakan path relatif
-      }, 3000)
+        const orderId = response.data.order_id; // Ambil order_id dari response backend
+        console.log('Redirecting to kwitansi page with order ID:', orderId); // Debugging
+        router.push(`/kwitansi?order_id=${orderId}`); // Gunakan path relatif
+      }, 3000);
     } else {
-      showNotification(response.data.message || '❌ Registrasi gagal!', 'error')
+      showNotification(response.data.message || '❌ Registrasi gagal!', 'error');
     }
   } catch (error) {
-    showNotification(error.response.data.error_msg || '❌ Registrasi gagal!', 'error')
+    showNotification(error.response.data.error_msg || '❌ Registrasi gagal!', 'error');
     // console.error('❌ Error saat registrasi:')
     // console.error(error.response.data.error_msg)
     // console.error('❌ Error saat registrasi:', error)
     // console.error('❌ Error saat registrasi:', error)
     // showNotification(error.response?.data?.error || 'Registrasi gagal!', 'error')
   }
-}
+};
 </script>
 
 <style scoped>
