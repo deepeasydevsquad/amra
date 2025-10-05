@@ -5,21 +5,25 @@
   >
     <!-- Header Section -->
     <div
-      class="py-8 md:py-16 px-4 md:px-[100px] flex flex-col md:flex-row md:justify-between gap-8"
+      class="pt-8 pb-5 md:pb-0 md:pt-16 px-4 md:px-[100px] flex flex-col md:flex-row md:justify-between gap-8"
     >
       <!-- Logo and Contact Info -->
       <div>
-        <img src="/Landing/logo.png" class="mb-3 w-[80px] md:w-[100px]" alt="Logo" />
+        <img src="/Landing/logo.png" class="mb-3 w-[100px] md:w-[120px]" alt="Logo" />
         <div class="mt-4 md:mt-8 space-y-2">
-          <p class="flex gap-2 text-sm md:text-base">Telp : 08123-45-67</p>
-          <p class="flex gap-2 text-sm md:text-base">Email : admin@satuapps.com</p>
+          <p class="flex gap-2 text-sm md:text-base font-medium text-gray-500">
+            Telp : 08123-45-67
+          </p>
+          <p class="flex gap-2 text-sm md:text-base font-medium text-gray-500">
+            Email : admin@satuapps.com
+          </p>
         </div>
       </div>
 
       <!-- CTA Section -->
       <div class="mt-3">
-        <h3 class="text-lg md:text-xl font-bold">Coba gratis untuk optimasi</h3>
-        <h3 class="text-lg md:text-xl font-bold">bisnis travelmu.</h3>
+        <h3 class="text-lg md:text-xl font-bold text-green-900">Coba gratis untuk optimasi</h3>
+        <h3 class="text-lg md:text-xl font-bold text-green-900">bisnis travelmu.</h3>
         <div class="mt-4 flex flex-wrap gap-3">
           <button
             class="bg-green-800 text-white rounded-full font-bold px-4 md:px-5 py-1 text-sm md:text-base"
@@ -37,15 +41,17 @@
 
     <!-- Footer Section -->
     <footer class="px-4 md:px-[100px]">
-      <div class="flex flex-col md:flex-row justify-between items-center p-2 mt-6 border-t-2 py-6">
+      <div
+        class="flex flex-col md:flex-row justify-between items-center p-2 mt-6 border-t-2 pb-6 pt-2"
+      >
         <!-- Navigation Links -->
         <ul
           class="flex flex-wrap justify-center md:justify-start gap-4 md:gap-6 mb-6 md:mb-0 text-sm md:text-base"
         >
-          <li class="hover:text-green-800 cursor-pointer">Tentang Kami</li>
-          <li class="hover:text-green-800 cursor-pointer">Paket</li>
-          <li class="hover:text-green-800 cursor-pointer">Fitur & Layanan</li>
-          <li class="hover:text-green-800 cursor-pointer">Hubungi Kami</li>
+          <li class="text-gray-400 hover:text-green-800 cursor-pointer">Tentang Kami</li>
+          <li class="text-gray-400 hover:text-green-800 cursor-pointer">Paket</li>
+          <li class="text-gray-400 hover:text-green-800 cursor-pointer">Fitur & Layanan</li>
+          <li class="text-gray-400 hover:text-green-800 cursor-pointer">Hubungi Kami</li>
         </ul>
 
         <!-- Social Media Icons -->
