@@ -6,6 +6,7 @@ import InputText from '@/components/Form/InputText.vue';
 import InputPassword from '@/components/Form/InputPassword.vue';
 import PrimaryButton from '@/components/Button/PrimaryButton.vue';
 import Header from './Header.vue';
+import { API_URL } from '@/config/config';
 
 interface Login {
   username?: string;
@@ -55,10 +56,15 @@ const handleLogin = async () => {
   if (!validateForm()) {
     return;
   }
+  //const baseUrl =
+  //   window.location.protocol + '//' + window.location.hostname + `:${import.meta.env.PORT}`;
+  const baseUrl = API_URL;
+
+  console.log('Base URL:');
+  console.log('Base URL:', baseUrl);
+  console.log('Base URL:');
 
   try {
-    const baseUrl =
-      window.location.protocol + '//' + window.location.hostname + `:${import.meta.env.PORT}`;
     const response = await axios.post(baseUrl + '/auth-backbone/login', {
       username: inputLogin.value.username,
       password: inputLogin.value.password,
@@ -75,6 +81,9 @@ const handleLogin = async () => {
       displayNotification('Login gagal dilakukan', 'error');
     }
   } catch (error) {
+    console.log(error);
+    console.log(error.response);
+    console.log(error.response.data);
     displayNotification(error.response.data.message || 'An error occurred during login', 'error');
   }
 };
