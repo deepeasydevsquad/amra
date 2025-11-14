@@ -142,9 +142,9 @@ class Model_cud {
 
       this.message = `Menambahkan Fasilitas Baru dengan Nama Fasilitas: ${body.name} dan ID Fasilitas: ${insert.id}`;
     } catch (error) {
-      console.log("---error---Add");
+      console.log("---------------2");
       console.log(error);
-      console.log("---error---Add");
+      console.log("---------------2");
       this.state = false;
     }
   }
@@ -232,6 +232,9 @@ class Model_cud {
 
       this.message = `Memperbaharui Data Fasilitas dengan Nama Fasilitas: ${infoFasilitas.name} dan ID Fasilitas: ${body.id} menjadi Nama Fasilitas: ${body.name}`;
     } catch (error) {
+      console.log("---------------3");
+      console.log(error);
+      console.log("---------------3");
       this.state = false;
     }
   }
