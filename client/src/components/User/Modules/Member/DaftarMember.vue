@@ -274,9 +274,7 @@ const displayNotification = (message: string, type: 'success' | 'error' = 'succe
 const downloadFile = async () => {
   try {
     // Misalnya file tersedia di folder public atau dari API
-    const response = await fetch(
-      API_BASE_URL + '/uploads/import_file/Format Excel Import Member Jamaah.xlsx',
-    );
+    const response = await fetch(API_BASE_URL + '/uploads/Format Excel Import Member Jamaah.xlsx');
 
     if (!response.ok) {
       throw new Error('Gagal mengunduh file');
