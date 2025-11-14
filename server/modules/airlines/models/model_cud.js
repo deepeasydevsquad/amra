@@ -1,5 +1,11 @@
 const Model_r = require("./model_r");
-const { sequelize, Mst_airline, Akun_secondary, Saldo_akun, Op } = require("../../../models");
+const {
+  sequelize,
+  Mst_airline,
+  Akun_secondary,
+  Saldo_akun,
+  Op,
+} = require("../../../models");
 const { writeLog } = require("../../../helper/writeLogHelper");
 const { getCompanyIdByCode } = require("../../../helper/companyHelper");
 const moment = require("moment");
@@ -16,7 +22,7 @@ class Model_cud {
     this.state = true;
   }
 
-  async get_nomor_akun( company_id ) {
+  async get_nomor_akun(company_id) {
     var num1 = 12001;
     var num2 = 42001;
     var num3 = 51001;
@@ -24,25 +30,31 @@ class Model_cud {
     let condition1 = true;
     while (condition1) {
       num1++;
-      var check1 = await Akun_secondary.findOne({ where: { nomor_akun: num1, company_id: company_id } });
+      var check1 = await Akun_secondary.findOne({
+        where: { nomor_akun: num1, company_id: company_id },
+      });
       if (!check1) condition1 = false;
     }
 
     let condition2 = true;
     while (condition2) {
       num2++;
-      var check2 = await Akun_secondary.findOne({ where: { nomor_akun: num2, company_id: company_id } });
+      var check2 = await Akun_secondary.findOne({
+        where: { nomor_akun: num2, company_id: company_id },
+      });
       if (!check2) condition2 = false;
     }
 
     let condition3 = true;
     while (condition3) {
       num3++;
-      var check3 = await Akun_secondary.findOne({ where: { nomor_akun: num3, company_id: company_id } });
+      var check3 = await Akun_secondary.findOne({
+        where: { nomor_akun: num3, company_id: company_id },
+      });
       if (!check3) condition3 = false;
     }
 
-    return { deposit: num1, pendapatan: num2, hpp: num3 }
+    return { deposit: num1, pendapatan: num2, hpp: num3 };
   }
 
   // Tambah Airline
@@ -51,13 +63,12 @@ class Model_cud {
     const myDate = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
     const body = this.req.body;
 
-    const nomor_akun = await this.get_nomor_akun( this.company_id );
+    const nomor_akun = await this.get_nomor_akun(this.company_id);
 
     try {
-
       const insert = await Mst_airline.create(
         {
-          company_id : this.company_id, 
+          company_id: this.company_id,
           name: body.name,
           nomor_akun_deposit: nomor_akun.deposit,
           nomor_akun_pendapatan: nomor_akun.pendapatan,
@@ -73,12 +84,12 @@ class Model_cud {
       // tambah di Akun Deposit
       await Akun_secondary.create(
         {
-          company_id: this.company_id, 
-          akun_primary_id: '1',
+          company_id: this.company_id,
+          akun_primary_id: "1",
           nomor_akun: nomor_akun.deposit,
-          nama_akun: 'DEPOSIT ' + body.name,
-          tipe_akun: 'bawaan', 
-          path: 'airlinesIdDeposit:' + insert.id,
+          nama_akun: "DEPOSIT " + body.name,
+          tipe_akun: "bawaan",
+          path: "airlinesIdDeposit:" + insert.id,
           createdAt: myDate,
           updatedAt: myDate,
         },
@@ -90,12 +101,12 @@ class Model_cud {
       // tambah di Akun Pendapata
       await Akun_secondary.create(
         {
-          company_id: this.company_id, 
-          akun_primary_id: '4',
+          company_id: this.company_id,
+          akun_primary_id: "4",
           nomor_akun: nomor_akun.pendapatan,
-          nama_akun: 'PENDAPATAN ' + body.name,
-          tipe_akun: 'bawaan', 
-          path: 'airlinesIdPendapatan:' + insert.id,
+          nama_akun: "PENDAPATAN " + body.name,
+          tipe_akun: "bawaan",
+          path: "airlinesIdPendapatan:" + insert.id,
           createdAt: myDate,
           updatedAt: myDate,
         },
@@ -107,12 +118,12 @@ class Model_cud {
       // tambah di Akun Hpp
       await Akun_secondary.create(
         {
-          company_id: this.company_id, 
-          akun_primary_id: '5',
+          company_id: this.company_id,
+          akun_primary_id: "5",
           nomor_akun: nomor_akun.pendapatan,
-          nama_akun: 'HPP ' + body.name,
-          tipe_akun: 'bawaan', 
-          path: 'airlinesIdHpp:' + insert.id,
+          nama_akun: "HPP " + body.name,
+          tipe_akun: "bawaan",
+          path: "airlinesIdHpp:" + insert.id,
           createdAt: myDate,
           updatedAt: myDate,
         },
@@ -142,7 +153,7 @@ class Model_cud {
           updatedAt: myDate,
         },
         {
-          where: { id: body.id, company_id : this.company_id,  },
+          where: { id: body.id, company_id: this.company_id },
         },
         {
           transaction: this.t,
@@ -152,11 +163,14 @@ class Model_cud {
       // update deposit
       await Akun_secondary.update(
         {
-          nama_akun: 'DEPOSIT ' + body.name,
+          nama_akun: "DEPOSIT " + body.name,
           updatedAt: myDate,
         },
         {
-          where: { path: 'airlinesIdDeposit:' + body.id, company_id : this.company_id,  },
+          where: {
+            path: "airlinesIdDeposit:" + body.id,
+            company_id: this.company_id,
+          },
         },
         {
           transaction: this.t,
@@ -166,11 +180,14 @@ class Model_cud {
       // update pendapatan
       await Akun_secondary.update(
         {
-          nama_akun: 'PENDAPATAN ' + body.name,
+          nama_akun: "PENDAPATAN " + body.name,
           updatedAt: myDate,
         },
         {
-          where: { path: 'airlinesIdPendapatan:' + body.id, company_id : this.company_id,  },
+          where: {
+            path: "airlinesIdPendapatan:" + body.id,
+            company_id: this.company_id,
+          },
         },
         {
           transaction: this.t,
@@ -180,11 +197,14 @@ class Model_cud {
       // update hpp
       await Akun_secondary.update(
         {
-          nama_akun: 'HPP ' + body.name,
+          nama_akun: "HPP " + body.name,
           updatedAt: myDate,
         },
         {
-          where: { path: 'airlinesIdHpp:' + body.id, company_id : this.company_id,  },
+          where: {
+            path: "airlinesIdHpp:" + body.id,
+            company_id: this.company_id,
+          },
         },
         {
           transaction: this.t,
@@ -208,14 +228,14 @@ class Model_cud {
       // get data akun secondary
       var idAkunSecondary = [];
       await Akun_secondary.findAll({
-        where: { 
-          [
-            Op.or] : [
-              { path : { [Op.like]: "%airlinesIdDeposit:" + body.id + "%" } },
-              { path : { [Op.like]: "%airlinesIdPendapatan:" + body.id + "%" } },
-              { path : { [Op.like]: "%airlinesIdHpp" + body.id + "%" } }
-            ] 
-          }}).then(async (value) => {
+        where: {
+          [Op.or]: [
+            { path: { [Op.like]: "%airlinesIdDeposit:" + body.id + "%" } },
+            { path: { [Op.like]: "%airlinesIdPendapatan:" + body.id + "%" } },
+            { path: { [Op.like]: "%airlinesIdHpp" + body.id + "%" } },
+          ],
+        },
+      }).then(async (value) => {
         await Promise.all(
           await value.map(async (e) => {
             idAkunSecondary.push(e.id);
@@ -227,7 +247,7 @@ class Model_cud {
         {
           where: {
             id: body.id,
-            company_id: this.company_id
+            company_id: this.company_id,
           },
         },
         {
@@ -238,8 +258,8 @@ class Model_cud {
       await Akun_secondary.destroy(
         {
           where: {
-            path: 'airlinesIdDeposit:' +  body.id,
-            company_id: this.company_id
+            path: "airlinesIdDeposit:" + body.id,
+            company_id: this.company_id,
           },
         },
         {
@@ -250,8 +270,8 @@ class Model_cud {
       await Akun_secondary.destroy(
         {
           where: {
-            path: 'airlinesIdPendapatan:' +  body.id,
-            company_id: this.company_id
+            path: "airlinesIdPendapatan:" + body.id,
+            company_id: this.company_id,
           },
         },
         {
@@ -262,8 +282,8 @@ class Model_cud {
       await Akun_secondary.destroy(
         {
           where: {
-            path: 'airlinesIdHpp:' +  body.id,
-            company_id: this.company_id
+            path: "airlinesIdHpp:" + body.id,
+            company_id: this.company_id,
           },
         },
         {
@@ -274,7 +294,7 @@ class Model_cud {
       await Saldo_akun.destroy(
         {
           where: {
-            akun_secondary_id: { [Op.in] : idAkunSecondary},
+            akun_secondary_id: { [Op.in]: idAkunSecondary },
           },
         },
         {
@@ -284,7 +304,6 @@ class Model_cud {
 
       this.message = `Menghapus Airline dengan Nama Airline: ${infoAirline.name} dan ID Airline: ${infoAirline.id}`;
     } catch (error) {
-
       console.log("XXXXXX");
       console.log(error);
       console.log("XXXXXX");

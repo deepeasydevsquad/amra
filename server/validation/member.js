@@ -1,7 +1,18 @@
 const moment = require("moment");
 const { Op } = require("sequelize");
-const { Member, Company, Division, Level_keagenan, Agen } = require("../models");
-const{ getCompanyIdByCode, tipe, getCabang, getSeluruhCabangId } = require("../helper/companyHelper");
+const {
+  Member,
+  Company,
+  Division,
+  Level_keagenan,
+  Agen,
+} = require("../models");
+const {
+  getCompanyIdByCode,
+  tipe,
+  getCabang,
+  getSeluruhCabangId,
+} = require("../helper/companyHelper");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -73,6 +84,83 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter });
 
+// const uploadExcel = () => {
+//   const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//       const uploadPath = path.join(__dirname, "../uploads/", "import_file");
+//       if (!fs.existsSync(uploadPath)) {
+//         fs.mkdirSync(uploadPath, { recursive: true });
+//       }
+//       cb(null, uploadPath);
+//     },
+//     filename: (req, file, cb) => {
+//       const ext = path.extname(file.originalname).toLowerCase();
+//       const timestamp = Date.now();
+//       const filename = `${timestamp}${ext}`;
+//       req.body.buktiPath = filename;
+//       cb(null, filename);
+//     },
+//   });
+
+//   const fileFilter = (req, file, cb) => {
+//     const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
+//     if (allowedTypes.includes(file.mimetype)) {
+//       cb(null, true);
+//     } else {
+//       cb(new Error("Format file harus PNG, JPG, atau JPEG"), false);
+//     }
+//   };
+
+//   return multer({
+//     storage,
+//     fileFilter,
+//     limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB
+//   });
+// };
+
+// import multer from "multer";
+// import path from "path";
+// import fs from "fs";
+
+const uploadExcel = () => {
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      const uploadPath = path.join(__dirname, "../uploads/", "import_file");
+      if (!fs.existsSync(uploadPath)) {
+        fs.mkdirSync(uploadPath, { recursive: true });
+      }
+      cb(null, uploadPath);
+    },
+    filename: (req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase();
+      const timestamp = Date.now();
+      const filename = `${timestamp}${ext}`;
+      // Simpan nama file ke request agar bisa digunakan di controller
+      req.body.excelFilePath = filename;
+      cb(null, filename);
+    },
+  });
+
+  // ✅ Ubah filter agar hanya menerima file Excel
+  const fileFilter = (req, file, cb) => {
+    const allowedTypes = [
+      "application/vnd.ms-excel", // .xls
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+    ];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Format file harus Excel (.xls atau .xlsx)"), false);
+    }
+  };
+
+  return multer({
+    storage,
+    fileFilter,
+    limits: { fileSize: 2 * 1024 * 1024 }, // Maksimum 2MB
+  });
+};
+
 const validateMember = async (req) => {
   const errors = [];
 
@@ -95,66 +183,72 @@ const validateMember = async (req) => {
   return errors;
 };
 
-const check_member_id = async ( id, { req } ) => {
+const check_member_id = async (id, { req }) => {
   const company_id = await getCompanyIdByCode(req);
-  var check = await Member.findOne({ 
-    where: { id : id },
-    include: { 
-      required : true, 
-      model : Division,
-      where : { company_id : company_id }
-    }
+  var check = await Member.findOne({
+    where: { id: id },
+    include: {
+      required: true,
+      model: Division,
+      where: { company_id: company_id },
+    },
   });
   if (!check) {
-      throw new Error("ID Member Tidak Ditemukan Dipangkalan Data");
+    throw new Error("ID Member Tidak Ditemukan Dipangkalan Data");
   }
-  
-  return true;
-}
 
-const check_level_agen = async( level,  { req } ) => {
+  return true;
+};
+
+const check_level_agen = async (level, { req }) => {
   const company_id = await getCompanyIdByCode(req);
-  if(level !== '0') {
-    var check = await Level_keagenan.findOne({ 
-      where: { id : level, company_id: company_id },
+  if (level !== "0") {
+    var check = await Level_keagenan.findOne({
+      where: { id: level, company_id: company_id },
     });
     if (!check) {
-        throw new Error("Level Ini Tidak Ditemukan Dipangkalan Data");
+      throw new Error("Level Ini Tidak Ditemukan Dipangkalan Data");
     }
-  }else{
+  } else {
     throw new Error("Anda wajib memilih salah satu level keagenan");
   }
-  return true
-}
+  return true;
+};
 
-const check_upline = async ( upline_id, { req } ) => {
+const check_upline = async (upline_id, { req }) => {
   const id = req.body.id;
   const company_id = await getCompanyIdByCode(req);
-  if( upline_id != '0'){
-    var check = await Agen.findOne({ 
-      where: { id : upline_id },
+  if (upline_id != "0") {
+    var check = await Agen.findOne({
+      where: { id: upline_id },
       include: {
-        required : true, 
-        model : Member, 
+        required: true,
+        model: Member,
         include: {
-          required : true,
-          model : Division, 
-          where : { 
-            company_id: company_id
-          }
+          required: true,
+          model: Division,
+          where: {
+            company_id: company_id,
+          },
         },
-        where : { 
-          id : { [Op.ne] : id }
-        }
-      }
+        where: {
+          id: { [Op.ne]: id },
+        },
+      },
     });
     if (!check) {
-        throw new Error("Upline Ini Tidak Ditemukan Dipangkalan Data");
+      throw new Error("Upline Ini Tidak Ditemukan Dipangkalan Data");
     }
   }
- 
+
   return true;
-}
+};
 
-
-module.exports = { validateMember, upload, check_member_id, check_level_agen, check_upline };
+module.exports = {
+  validateMember,
+  upload,
+  uploadExcel,
+  check_member_id,
+  check_level_agen,
+  check_upline,
+};

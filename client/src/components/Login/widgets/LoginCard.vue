@@ -81,8 +81,9 @@ const handleLogin = async () => {
     return;
   }
 
+  const baseUrl = API_URL;
+
   try {
-    const baseUrl = API_URL;
     let data = {
       type: inputLogin.value.type,
       password: inputLogin.value.password,
@@ -128,9 +129,11 @@ const handleLogin = async () => {
     } else {
       alertify.error(response.data);
       console.log('Login failed', response.data);
-      // Tindakan setelah login gagal
     }
   } catch (error) {
+    console.log('ini errornya');
+    console.log(error);
+    console.log('ini errornya');
     alertify.error(error.response.data.message || 'An error occurred during login');
     console.error('An error occurred during login:', error);
   }

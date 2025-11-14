@@ -1,6 +1,9 @@
 const Model_r = require("../models/model_r");
 const Model_cud = require("../models/model_cud");
-const { handleValidationErrors, handleServerError } = require("../../../helper/handleError");
+const {
+  handleValidationErrors,
+  handleServerError,
+} = require("../../../helper/handleError");
 
 const controllers = {};
 
@@ -11,7 +14,9 @@ controllers.getDaftarFasilitas = async (req, res) => {
   try {
     const model_r = new Model_r(req);
     const feedBack = await model_r.daftar_fasilitas();
-    res.status(200).json({ error: false, data : feedBack.data, total : feedBack.total });
+    res
+      .status(200)
+      .json({ error: false, data: feedBack.data, total: feedBack.total });
   } catch (error) {
     handleServerError(res, error.message);
   }
@@ -28,15 +33,18 @@ controllers.add = async (req, res) => {
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Fasilitas berhasil ditambahkan.',
+        error_msg: "Fasilitas berhasil ditambahkan.",
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Fasilitas gagal ditambahkan.',
+        error_msg: "Fasilitas gagal ditambahkan.",
       });
     }
   } catch (error) {
+    console.log("---------------1");
+    console.log(error);
+    console.log("---------------1");
     handleServerError(res, error.message);
   }
 };
@@ -52,15 +60,14 @@ controllers.update = async (req, res) => {
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Fasilitas berhasil diupdate.',
+        error_msg: "Fasilitas berhasil diupdate.",
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Fasilitas gagal diupdate.',
+        error_msg: "Fasilitas gagal diupdate.",
       });
     }
-
   } catch (error) {
     handleServerError(res, error.message);
   }
@@ -77,12 +84,12 @@ controllers.delete = async (req, res) => {
     if (await model_cud.response()) {
       res.status(200).json({
         error: false,
-        error_msg: 'Fasilitas berhasil dihapus.',
+        error_msg: "Fasilitas berhasil dihapus.",
       });
     } else {
       res.status(400).json({
         error: true,
-        error_msg: 'Fasilitas gagal dihapus.',
+        error_msg: "Fasilitas gagal dihapus.",
       });
     }
   } catch (error) {

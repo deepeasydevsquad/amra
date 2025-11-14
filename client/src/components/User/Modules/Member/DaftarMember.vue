@@ -1,54 +1,60 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue';
 import {
   daftarMember,
   daftarCabang,
   getInfoEditMember,
   deleteMember as deleteMemberApi,
-} from '@/service/member'
-import { paramCabang } from '@/service/param_cabang'
-import DeleteIcon from '@/components/User/Modules/Member/Icon/DeleteIcon.vue'
-import EditIcon from '@/components/User/Modules/Member/Icon/EditIcon.vue'
-import Pagination from '@/components/Pagination/Pagination.vue'
-import Notification from '@/components/Modal/Notification.vue'
-import Confirmation from '@/components/Modal/Confirmation.vue'
-import LightButton from '@/components/Button/LightButton.vue'
-import DangerButton from '@/components/Button/DangerButton.vue'
-import PrimaryButton from '@/components/Button/PrimaryButton.vue'
-import AddAgenIcon from '@/components/User/Modules/Member/Icon/AddAgenIcon.vue'
-import FormAddAgen from '@/components/User/Modules/Member/Particle/FormAddAgen.vue'
-import FormAddUpdate from '@/components/User/Modules/Member/Particle/FormAddUpdate.vue'
+} from '@/service/member';
+import { paramCabang } from '@/service/param_cabang';
+import DeleteIcon from '@/components/User/Modules/Member/Icon/DeleteIcon.vue';
+import EditIcon from '@/components/User/Modules/Member/Icon/EditIcon.vue';
+import IconDownload from '@/components/Icons/IconDownload.vue';
+import Pagination from '@/components/Pagination/Pagination.vue';
+import Notification from '@/components/Modal/Notification.vue';
+import Confirmation from '@/components/Modal/Confirmation.vue';
+import LightButton from '@/components/Button/LightButton.vue';
+import DangerButton from '@/components/Button/DangerButton.vue';
+import PrimaryButton from '@/components/Button/PrimaryButton.vue';
+import PrimaryButtonLight from '@/components/Button/PrimaryButtonLight.vue';
+import AddAgenIcon from '@/components/User/Modules/Member/Icon/AddAgenIcon.vue';
+import FormAddAgen from '@/components/User/Modules/Member/Particle/FormAddAgen.vue';
+import FormAddUpdate from '@/components/User/Modules/Member/Particle/FormAddUpdate.vue';
+import FormImportMemberJamaah from '@/components/User/Modules/Member/Particle/FormImportMemberJamaah.vue';
+import { API_URL } from '@/config/config';
+
+const API_BASE_URL = API_URL;
 
 interface Members {
-  id: number
-  cabang_id: number
-  fullname: string
-  identity_number: string
-  identity_type: string
-  gender: string
-  photo: string
-  birth_date: string
-  birth_place: string
-  whatsapp_number: string
-  level_id: number
-  status_agen: boolean
-  status_jamaah: boolean
-  status_staff: boolean
-  cabang: string
+  id: number;
+  cabang_id: number;
+  fullname: string;
+  identity_number: string;
+  identity_type: string;
+  gender: string;
+  photo: string;
+  birth_date: string;
+  birth_place: string;
+  whatsapp_number: string;
+  level_id: number;
+  status_agen: boolean;
+  status_jamaah: boolean;
+  status_staff: boolean;
+  cabang: string;
 }
 
 interface Cabang {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
 interface filterCabang {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
 // State
-const data = ref<Partial<Members[]>>([])
+const data = ref<Partial<Members[]>>([]);
 
 const formData = ref<Partial<Members>>({
   id: 0,
@@ -66,34 +72,35 @@ const formData = ref<Partial<Members>>({
   status_jamaah: false,
   status_staff: false,
   cabang: '',
-})
+});
 
-const searchQuery = ref('')
-const showForm = ref(false)
-const showAgenForm = ref(false)
+const searchQuery = ref('');
+const showForm = ref(false);
+const showAgenForm = ref(false);
 // Konfirmasi Variable
-const showConfirmDialog = ref(false)
-const confirmTitle = ref('')
-const confirmMessage = ref('')
-const confirmAction = ref(() => {})
+const showConfirmDialog = ref(false);
+const confirmTitle = ref('');
+const confirmMessage = ref('');
+const confirmAction = ref(() => {});
 // Notification Variable
-const showNotification = ref(false)
-const notificationType = ref('')
-const notificationMessage = ref('')
+const showNotification = ref(false);
+const timeoutId = ref<number | null>(null);
+const notificationType = ref('');
+const notificationMessage = ref('');
 // General Variable
-const cabangs = ref<Cabang[]>([])
+const cabangs = ref<Cabang[]>([]);
 // Pagination Variable
-const itemsPerPage = 100 // Jumlah paket_la per halaman
-const currentPage = ref(1)
-const totalPages = ref(0)
-const totalColumns = ref(7)
-const search = ref('')
-const filter = ref('')
-const memberId = ref(0)
-const memberName = ref('')
-const memberIdentitas = ref('')
-const selectedOptionCabang = ref(0)
-const optionFilterCabang = ref<filterCabang[]>([])
+const itemsPerPage = 100; // Jumlah paket_la per halaman
+const currentPage = ref(1);
+const totalPages = ref(0);
+const totalColumns = ref(7);
+const search = ref('');
+const filter = ref('');
+const memberId = ref(0);
+const memberName = ref('');
+const memberIdentitas = ref('');
+const selectedOptionCabang = ref(0);
+const optionFilterCabang = ref<filterCabang[]>([]);
 
 // Fetch data member
 const fetchData = async () => {
@@ -104,101 +111,112 @@ const fetchData = async () => {
       perpage: itemsPerPage,
       pageNumber: currentPage.value,
       cabang: selectedOptionCabang.value,
-    })
-    data.value = response.data
-    totalPages.value = Math.ceil(response.total / itemsPerPage)
+    });
+    data.value = response.data;
+    totalPages.value = Math.ceil(response.total / itemsPerPage);
   } catch (error) {
-    console.error('Gagal fetch data member:', error)
-    showNotification.value = true
-    notificationType.value = 'error'
-    notificationMessage.value = 'Gagal fetch data member'
+    console.error('Gagal fetch data member:', error);
+    showNotification.value = true;
+    notificationType.value = 'error';
+    notificationMessage.value = 'Gagal fetch data member';
   }
-}
+};
 
 const fetchFilterData = async () => {
-  const response = await paramCabang()
-  optionFilterCabang.value = response.data
-  selectedOptionCabang.value = response.data[0].id
-  await fetchData()
-}
+  const response = await paramCabang();
+  optionFilterCabang.value = response.data;
+  selectedOptionCabang.value = response.data[0].id;
+  await fetchData();
+};
 
 const fetchCabang = async () => {
   try {
-    const response = await daftarCabang()
-    cabangs.value = response.data
+    const response = await daftarCabang();
+    cabangs.value = response.data;
   } catch (error) {
-    console.error('Gagal fetch data cabang:', error)
+    console.error('Gagal fetch data cabang:', error);
   }
-}
+};
 
 const fetchInfoEditMember = async (id: number) => {
   try {
-    const response = await getInfoEditMember({ id })
-    formData.value = response.data
+    const response = await getInfoEditMember({ id });
+    formData.value = response.data;
   } catch (error) {
-    showNotification.value = true
-    notificationType.value = 'error'
-    notificationMessage.value = 'Gagal fetch data member'
+    showNotification.value = true;
+    notificationType.value = 'error';
+    notificationMessage.value = 'Gagal fetch data member';
   }
-}
+};
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
-    currentPage.value++
-    fetchData()
+    currentPage.value++;
+    fetchData();
   }
-}
+};
 
 const prevPage = () => {
   if (currentPage.value > 1) {
-    currentPage.value--
-    fetchData()
+    currentPage.value--;
+    fetchData();
   }
-}
+};
 
 const pageNow = (page: number) => {
-  currentPage.value = page
-  fetchData()
-}
+  currentPage.value = page;
+  fetchData();
+};
 
 const pages = computed(() => {
-  return Array.from({ length: totalPages.value }, (_, i) => i + 1)
-})
+  return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+});
 
 const tambahMember = () => {
-  fetchCabang()
-  showForm.value = true
-}
+  fetchCabang();
+  showForm.value = true;
+};
+
+const showFormImportMemberJamaah = ref(false);
+const importMemberJamaah = () => {
+  showFormImportMemberJamaah.value = true;
+  console.log('status import jamaah');
+  console.log(showFormImportMemberJamaah.value);
+  console.log('status import jamaah');
+  console.log('cabang');
+  console.log(cabangs.value);
+  console.log('cabang');
+};
 
 const editMember = (id: number) => {
-  fetchCabang()
-  fetchInfoEditMember(id)
-  showForm.value = true
-}
+  fetchCabang();
+  fetchInfoEditMember(id);
+  showForm.value = true;
+};
 
 const confirmDelete = (id: number) => {
-  confirmTitle.value = 'Hapus Member'
-  confirmMessage.value = 'Apakah Anda yakin ingin menghapus member ini?'
+  confirmTitle.value = 'Hapus Member';
+  confirmMessage.value = 'Apakah Anda yakin ingin menghapus member ini?';
   confirmAction.value = async () => {
     try {
-      await deleteMemberApi(id)
-      fetchData()
-      showConfirmDialog.value = false
-      showNotification.value = true
-      notificationType.value = 'success'
-      notificationMessage.value = 'Member berhasil dihapus'
+      await deleteMemberApi(id);
+      fetchData();
+      showConfirmDialog.value = false;
+      showNotification.value = true;
+      notificationType.value = 'success';
+      notificationMessage.value = 'Member berhasil dihapus';
     } catch (error) {
-      console.error('Gagal menghapus member:', error)
-      showNotification.value = true
-      notificationType.value = 'error'
-      notificationMessage.value = 'Gagal menghapus member'
+      console.error('Gagal menghapus member:', error);
+      showNotification.value = true;
+      notificationType.value = 'error';
+      notificationMessage.value = 'Gagal menghapus member';
     }
-  }
-  showConfirmDialog.value = true
-}
+  };
+  showConfirmDialog.value = true;
+};
 
 const closeAddForm = () => {
-  showForm.value = false
+  showForm.value = false;
   formData.value = {
     id: 0,
     cabang_id: 0,
@@ -214,33 +232,93 @@ const closeAddForm = () => {
     status_jamaah: false,
     status_staff: false,
     cabang: '',
-  }
+  };
 
-  fetchData()
-}
+  fetchData();
+};
 
 const closeAgenFrom = () => {
-  showAgenForm.value = false
-  fetchData()
-}
+  showAgenForm.value = false;
+  fetchData();
+};
 
 onMounted(() => {
-  fetchFilterData()
-})
+  fetchFilterData();
+});
 
 const addAgen = async (id: number, name: string, identity_number: string) => {
-  showAgenForm.value = true
-  memberId.value = id
-  memberName.value = name
-  memberIdentitas.value = identity_number
-}
+  showAgenForm.value = true;
+  memberId.value = id;
+  memberName.value = name;
+  memberIdentitas.value = identity_number;
+};
+
+const displayNotification = (message: string, type: 'success' | 'error' = 'success') => {
+  notificationMessage.value = message;
+  notificationType.value = type;
+  showNotification.value = true;
+
+  if (timeoutId.value) clearTimeout(timeoutId.value);
+
+  timeoutId.value = window.setTimeout(() => {
+    showNotification.value = false;
+  }, 3000);
+};
+// const downloadFile = () => {
+//   const fileUrl = API_BASE_URL + '/uploads/import_file/Format Excel Import Member Jamaah.xlsx'; // lokasi file di public/
+//   const link = document.createElement('a');
+//   link.href = fileUrl;
+//   link.download = 'Format Excel Import Member Jamaah.xlsx'; // nama file saat di-download
+//   link.click();
+// };
+const downloadFile = async () => {
+  try {
+    // Misalnya file tersedia di folder public atau dari API
+    const response = await fetch(
+      API_BASE_URL + '/uploads/import_file/Format Excel Import Member Jamaah.xlsx',
+    );
+
+    if (!response.ok) {
+      throw new Error('Gagal mengunduh file');
+    }
+
+    // Ambil blob dari response
+    const blob = await response.blob();
+
+    // Buat URL sementara
+    const url = window.URL.createObjectURL(blob);
+
+    // Buat elemen <a> untuk trigger download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'Format Excel Import Member Jamaah.xlsx'; // Nama file saat diunduh
+    link.click();
+
+    // Hapus URL sementara
+    window.URL.revokeObjectURL(url);
+
+    // ✅ Tampilkan alert sukses
+    displayNotification('File berhasil diunduh!.', 'success');
+
+    // await fetchData();
+  } catch (error) {
+    console.error(error);
+    displayNotification('Terjadi kesalahan saat mengunduh file.', 'error');
+  }
+};
+
+const handleCloseImport = async () => {
+  showFormImportMemberJamaah.value = false;
+  await fetchData();
+};
 </script>
 
 <template>
   <div class="container mx-auto p-4">
     <!-- Tambah data dan Search -->
-    <div class="flex justify-between items-center mb-4">
-      <PrimaryButton @click="tambahMember">
+    <div class="flex items-center mb-4 gap-2">
+      <!-- Tombol 1 -->
+      <PrimaryButton @click="tambahMember" class="flex items-center gap-2">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -251,8 +329,27 @@ const addAgen = async (id: number, name: string, identity_number: string) => {
         </svg>
         Tambah Member
       </PrimaryButton>
-      <div class="inline-flex rounded-md shadow-xs" role="group">
-        <label for="search" class="block text-sm font-medium text-gray-700 mr-2 mt-3">Filter</label>
+
+      <!-- Tombol 2 -->
+      <PrimaryButtonLight
+        @click="importMemberJamaah"
+        class="flex items-center gap-2"
+        style="height: 40px"
+      >
+        <IconDownload />
+        Import Member & Jamaah
+      </PrimaryButtonLight>
+      <PrimaryButtonLight
+        @click="downloadFile"
+        class="flex items-center gap-2 w-40 h-10"
+        style="height: 40px"
+      >
+        <font-awesome-icon icon="fa-solid fa-file-excel" />
+      </PrimaryButtonLight>
+
+      <!-- Filter -->
+      <div class="inline-flex items-center ml-auto rounded-md shadow-xs" role="group">
+        <label for="search" class="block text-sm font-medium text-gray-700 mr-2">Filter</label>
         <input
           type="text"
           id="search"
@@ -265,7 +362,7 @@ const addAgen = async (id: number, name: string, identity_number: string) => {
           v-model="selectedOptionCabang"
           style="width: 300px"
           @change="fetchData()"
-          class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          class="border-t border-b border-e bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-e-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
         >
           <option v-for="optionC in optionFilterCabang" :key="optionC.id" :value="optionC.id">
             {{ optionC.name }}
@@ -402,6 +499,15 @@ const addAgen = async (id: number, name: string, identity_number: string) => {
     :cabangs="cabangs"
     :formData="formData"
   />
+  <!-- Form Import Member Jamaah-->
+  <FormImportMemberJamaah
+    :showForm="showFormImportMemberJamaah"
+    :cabangs="optionFilterCabang"
+    @close="handleCloseImport"
+  />
+
+  <!-- finally { await fetchData(); } -->
+
   <!-- Form Add Agen -->
   <FormAddAgen
     :showForm="showAgenForm"
