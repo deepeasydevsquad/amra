@@ -288,6 +288,20 @@ class Model_cud {
       return num;
     };
 
+    function parseExcelDate(value) {
+      if (!value) return null;
+
+      // Jika angka (serial Excel)
+      if (typeof value === "number") {
+        return moment("1899-12-30").add(value, "days").format("YYYY-MM-DD");
+      }
+
+      // Jika string tanggal
+      const m = moment(value, "D/M/YYYY", true);
+
+      return m.isValid() ? m.format("YYYY-MM-DD") : null;
+    }
+
     try {
       // define list status nikah
       const list_status_nikah = ["menikah", "belum_menikah", "janda_duda"];
@@ -347,9 +361,15 @@ class Model_cud {
             "YYYY-MM-DD HH:mm:ss"
           );
           let tempat_di_keluarkan_passport = row[15];
-          let masa_berlaku_passport = moment(row[16]).format(
-            "YYYY-MM-DD HH:mm:ss"
-          );
+
+          console.log("-------DDD");
+          console.log(row[16]);
+          console.log("-------DDD");
+          let masa_berlaku_passport = parseExcelDate(row[16]);
+
+          // moment(row[16]).format(
+          //   "YYYY-MM-DD HH:mm:ss"
+          // );
 
           let kode_pos = row[17];
           let nomor_telephone = row[18];
