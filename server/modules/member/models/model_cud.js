@@ -347,7 +347,10 @@ class Model_cud {
             "YYYY-MM-DD HH:mm:ss"
           );
           let tempat_di_keluarkan_passport = row[15];
-          let masa_berlaku_passport = row[16];
+          let masa_berlaku_passport = moment(row[16]).format(
+            "YYYY-MM-DD HH:mm:ss"
+          );
+
           let kode_pos = row[17];
           let nomor_telephone = row[18];
           let email = row[19];
@@ -499,6 +502,9 @@ class Model_cud {
 
       // this.message = `Menjadikan Member ${member.fullname} (ID: ${member.id}) Menjadi Agen`;
     } catch (error) {
+      console.log("---------SSSS");
+      console.log(error);
+      console.log("---------SSSS");
       this.state = false;
     }
   }
