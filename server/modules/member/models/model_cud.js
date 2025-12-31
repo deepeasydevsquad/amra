@@ -335,8 +335,17 @@ class Model_cud {
       const dataRows = sheetData.slice(headerRowIndex + 2);
       const salt = await bcrypt.genSalt(10); // Generate salt
 
+      let counter = 0;
+
       await Promise.all(
         dataRows.map(async (row) => {
+          //
+          counter++;
+
+          console.log("Row++++++++");
+          console.log(row);
+          console.log("Row++++++++");
+
           // data member
           let name_member = row[1];
           let nomor_identitas = row[2];
@@ -362,9 +371,6 @@ class Model_cud {
           );
           let tempat_di_keluarkan_passport = row[15];
 
-          console.log("-------DDD");
-          console.log(row[16]);
-          console.log("-------DDD");
           let masa_berlaku_passport = parseExcelDate(row[16]);
 
           // moment(row[16]).format(
@@ -432,12 +438,16 @@ class Model_cud {
               ? "wni"
               : "wna";
 
-          console.log("--------Importing member:");
-          console.log(nomor_identitas);
-          console.log(nomor_whatsapp);
-          console.log(tanggal_menikah);
-          console.log(row[44]);
-          console.log("--------Importing member:");
+          // console.log("--------Importing member:");
+          // console.log(nomor_identitas);
+          // console.log(nomor_whatsapp);
+          // console.log(tanggal_menikah);
+          // console.log(row[44]);
+          // console.log("--------Importing member:");
+          // console.log("Counter:", counter);
+          // console.log("-------DDD");
+          // console.log(row[16]);
+          // console.log("-------DDD");
 
           // filter
           if (
@@ -447,6 +457,8 @@ class Model_cud {
             !infos.nomor_whatsapp.includes(nomor_whatsapp.toString())
           ) {
             // insert member
+            // console.log("Counter: ------- ", counter);
+
             const insertMember = await Member.create(
               {
                 division_id: this.req.body.cabang_id,
@@ -513,6 +525,11 @@ class Model_cud {
               },
               { transaction: this.t }
             );
+          } else {
+            console.log("Ngak Dimigrasi------");
+            console.log(row);
+            console.log(name_member);
+            console.log("Ngak Dimigrasi------");
           }
         })
         // await value.map(async (e) => {
